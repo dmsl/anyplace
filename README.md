@@ -1,9 +1,9 @@
 Anyplace Open Source Project
 
-Here you can download the application from playstore: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en
+You can download the application from playstore: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en
 
-Also you can view the source code for the Android Application in /android/
-Installation procedure can be found in the README file in /android/ReadMe/ReadMe.txt
+You can view the source code for the Android Application in /android/
+Compilation details can be found in the README file in /android/ReadMe/ReadMe.txt
 
 Anyplace Project is under the following license:
 
