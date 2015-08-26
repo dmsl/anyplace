@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+*
+* Anyplace is a first-of-a-kind indoor information service offering GPS-less
+* localization, navigation and search inside buildings using ordinary smartphones.
+*
+* Author(s): Timotheos Constambeys, Lambros Petrou
+*
+* Supervisor: Demetrios Zeinalipour-Yazti
+*
+* URL: http://anyplace.cs.ucy.ac.cy
+* Contact: anyplace@cs.ucy.ac.cy
+*
+* Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
+* All rights reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the “Software”), to deal in the
+* Software without restriction, including without limitation the rights to use, copy,
+* modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+* and to permit persons to whom the Software is furnished to do so, subject to the
+* following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+*
+*/
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_screen_key" >
+
+    <PreferenceCategory android:title="@string/logger_sampling_title" >
+
+        <!--
+        <ListPreference
+            android:defaultValue="5"
+            android:entries="@array/samplesArray"
+            android:entryValues="@array/samplesValues"
+            android:key="samples_num"
+            android:summary="@string/samples_summary"
+            android:title="@string/samples_title" />
+        -->
+
+        <ListPreference
+            android:defaultValue="1000"
+            android:entries="@array/intervalArray"
+            android:entryValues="@array/intervalValues"
+            android:key="samples_interval"
+            android:summary="@string/logger_samples_interval_summary"
+            android:title="@string/logger_samples_interval_title" />
+
+        <SeekBarPreference
+            android:defaultValue="26"
+            android:key="walk_bar"
+            android:max="@string/walk_bar_max"
+            android:title="Walking Sensitivity" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/logger_storing_title" >
+        <Preference
+            android:key="folder_browser"
+            android:summary="@string/logger_folder_browser_summary"
+            android:title="@string/logger_folder_browser_title" >
+        </Preference>
+
+        <EditTextPreference
+            android:defaultValue="rss-log"
+            android:key="filename_log"
+            android:summary="@string/logger_filename_summary"
+            android:title="@string/logger_filename_title" >
+        </EditTextPreference>
+
+        <!--
+              <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="write_mode"
+            android:summaryOff="Append mode"
+            android:summaryOn="Overwrite mode"
+            android:title="Write Mode" />
+        -->
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/logger_uploading_title" >
+
+        <!--
+        <EditTextPreference
+            android:key="serverIP"
+            android:maxLength="15"
+            android:summary="@string/server_IP_summary"
+            android:title="@string/server_IP_title" >
+        </EditTextPreference>
+        
+        <EditTextPreference
+            android:inputType="number"
+            android:key="serverPORT"
+            android:maxLength="5"
+            android:summary="@string/server_PORT_summary"
+            android:title="@string/server_PORT_title" >
+        </EditTextPreference>
+        -->
+
+        <EditTextPreference
+            android:defaultValue="anonymous"
+            android:key="username"
+            android:summary="@string/logger_server_Username_summary"
+            android:title="@string/logger_server_Username_title" >
+        </EditTextPreference>
+        <EditTextPreference
+            android:defaultValue="anonymous"
+            android:inputType="textPassword"
+            android:key="password"
+            android:summary="@string/logger_server_Password_summary"
+            android:title="@string/logger_server_Password_title" >
+        </EditTextPreference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/logger_others_title" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="skipHelpMessage"
+            android:summaryOff="Show"
+            android:summaryOn="Hide"
+            android:title="Help Messages" />
+
+        <Preference
+            android:key="add_building"
+            android:summary="@string/logger_add_building_summary"
+            android:title="@string/logger_add_building_title" >
+        </Preference>
+        <Preference
+            android:key="refresh_building"
+            android:summary="Reload the current building from server"
+            android:title="Refresh Building" >
+        </Preference>
+    </PreferenceCategory>
+
+</PreferenceScreen>
