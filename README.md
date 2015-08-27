@@ -60,12 +60,5 @@ Short description of the contents included in this release of the Airplace Indoo
 - Web: The source code of Anyplace HTML5/CSS3 Web Client (IP localization) - available soon
 - API: Available at the following URL: http://anyplace.cs.ucy.ac.cy/developers/  
 
-Anyplace Open Source Project
 
-You can download the application from playstore: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en
-
-You can view the source code for the Android Application in /android/
-Compilation details can be found in the README file in /android/ReadMe/ReadMe.txt
-
-Anyplace Project is under the following license:
 
