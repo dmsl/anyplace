@@ -1,0 +1,280 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.IO.Gif</name>
+    </assembly>
+    <members>
+        <member name="T:ImageTools.IO.Gif.GifDecoder">
+            <summary>
+            Decodes GIF files from stream.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Gif.GifDecoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns>
+            	<c>true</c>, if the decoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Gif.GifDecoder.IsSupportedFileFormat(System.Byte[])">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file header.
+            </summary>
+            <param name="header">The file header.</param>
+            <returns>
+            <c>true</c>, if the decoder supports the specified
+            file header; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="header"/>
+            is null (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.IO.Gif.GifDecoder.Decode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Decodes the image from the specified stream and sets
+            the data to image.
+            </summary>
+            <param name="image">The image, where the data should be set to.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The stream, where the image should be
+            decoded from. Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Gif.GifDecoder.HeaderSize">
+            <summary>
+            Gets the size of the header for this image type.
+            </summary>
+            <value>The size of the header.</value>
+        </member>
+        <member name="T:ImageTools.IO.Gif.DisposalMethod">
+            <summary>
+            Specifies, what to do with the last image 
+            in an animation sequence.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.DisposalMethod.Unspecified">
+            <summary>
+            No disposal specified. The decoder is not 
+            required to take any action. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.DisposalMethod.NotDispose">
+            <summary>
+            Do not dispose. The graphic is to be left in place. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.DisposalMethod.RestoreToBackground">
+            <summary>
+            Restore to background color. 
+            The area used by the graphic must be restored to
+            the background color. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.DisposalMethod.RestoreToPrevious">
+            <summary>
+            Restore to previous. The decoder is required to 
+            restore the area overwritten by the 
+            graphic with what was there prior to rendering the graphic. 
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Gif.GifLogicalScreenDescriptor">
+            <summary>
+            The Logical Screen Descriptor contains the parameters 
+            necessary to define the area of the display device 
+            within which the images will be rendered
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.Width">
+            <summary>
+            Width, in pixels, of the Logical Screen where the images will 
+            be rendered in the displaying device.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.Height">
+            <summary>
+            Height, in pixels, of the Logical Screen where the images will be 
+            rendered in the displaying device.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.Packed">
+            <summary>
+            Packed Fields, which contains important flags.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.Background">
+            <summary>
+            Index into the Global Color Table for the Background Color. 
+            The Background Color is the color used for those 
+            pixels on the screen that are not covered by an image.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.AspectRatio">
+            <summary>
+            Factor used to compute an approximation of the aspect 
+            ratio of the pixel in the original image.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.GlobalColorTableFlag">
+            <summary>
+            Flag indicating the presence of a Global Color Table; 
+            if the flag is set, the Global Color Table will immediately 
+            follow the Logical Screen Descriptor.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.SortFlag">
+            <summary>
+            Indicates whether the Global Color Table is sorted. 
+            If the flag is set, the Global Color Table is sorted, in 
+            order of decreasing importance. Typically, the order would be 
+            decreasing frequency, with most frequent color first.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.ColorResolution">
+            <summary>
+            Number of bits per primary color available to the original image, minus 1. 
+            This value represents the size of the entire palette from which the colors in
+            the graphic were selected, not the number of colors actually used in the graphic.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifLogicalScreenDescriptor.GlobalColorTableSize">
+            <summary>
+            If the Global Color Table Flag is set to 1, 
+            the value in this field is used to calculate the number of 
+            bytes contained in the Global Color Table.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Gif.GifImageDescriptor">
+            <summary>
+            Each image in the Data Stream is composed of an Image Descriptor, 
+            an optional Local Color Table, and the image data. 
+            Each image must fit within the boundaries of the 
+            Logical Screen, as defined in the Logical Screen Descriptor. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.Left">
+            <summary>
+            Column number, in pixels, of the left edge of the image, 
+            with respect to the left edge of the Logical Screen. 
+            Leftmost column of the Logical Screen is 0.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.Top">
+            <summary>
+            Row number, in pixels, of the top edge of the image with 
+            respect to the top edge of the Logical Screen. 
+            Top row of the Logical Screen is 0.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.Width">
+            <summary>
+            Width of the image in pixels.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.Height">
+            <summary>
+            Height of the image in pixels.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.Packed">
+            <summary>
+            Packed value which contains all flags.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.LocalColorTableFlag">
+            <summary>
+            Indicates the presence of a Local Color Table immediately 
+            following this Image Descriptor.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.SortFlag">
+            <summary>
+            Indicates whether the Local Color Table is sorted. 
+            If the flag is set, the Local Color Table is sorted, 
+            in order of decreasing importance.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.LocalColorTableSize">
+            <summary>
+            If the Local Color Table Flag is set to 1, the value in this field 
+            is used to calculate the number of bytes contained in the Local Color Table.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifImageDescriptor.InterlaceFlag">
+            <summary>
+            Indicates if the image is interlaced. An image is interlaced 
+            in a four-pass interlace pattern.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Gif.LZWDecoder">
+            <summary>
+            Uncrompress data using the LZW algorithmus.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Gif.LZWDecoder.#ctor(System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.IO.Gif.LZWDecoder"/> class
+            and sets the stream, where the compressed data should be read from.
+            </summary>
+            <param name="stream">The stream. where to read from.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="stream"/> is null
+            (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.IO.Gif.LZWDecoder.DecodePixels(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Decodes and uncompresses all pixel indices from the stream.
+            </summary>
+            <param name="width">The width of the pixel index array.</param>
+            <param name="height">The height of the pixel index array.</param>
+            <param name="dataSize">Size of the data.</param>
+            <returns>The decoded and uncompressed array.</returns>
+        </member>
+        <member name="T:ImageTools.IO.Gif.GifGraphicsControlExtension">
+            <summary>
+            The Graphic Control Extension contains parameters used when 
+            processing a graphic rendering block.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifGraphicsControlExtension.Packed">
+            <summary>
+            Packed value which contains all flags.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifGraphicsControlExtension.DisposalMethod">
+            <summary>
+            Indicates the way in which the graphic is to be treated after being displayed. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifGraphicsControlExtension.TransparencyFlag">
+            <summary>
+            Indicates whether a transparency index is given in the Transparent Index field. 
+            (This field is the least significant bit of the byte.) 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifGraphicsControlExtension.TransparencyIndex">
+            <summary>
+            The Transparency Index is such that when encountered, the corresponding pixel 
+            of the display device is not modified and processing goes on to the next pixel.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Gif.GifGraphicsControlExtension.DelayTime">
+            <summary>
+            If not 0, this field specifies the number of hundredths (1/100) of a second to 
+            wait before continuing with the processing of the Data Stream. 
+            The clock starts ticking immediately after the graphic is rendered. 
+            This field may be used in conjunction with the User Input Flag field. 
+            </summary>
+        </member>
+    </members>
+</doc>

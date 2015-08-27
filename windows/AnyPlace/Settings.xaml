@@ -1,0 +1,150 @@
+﻿<!--
+/*
+* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+*
+* Anyplace is a first-of-a-kind indoor information service offering GPS-less
+* localization, navigation and search inside buildings using ordinary smartphones.
+*
+* Author(s): Panagiotis Irakleous
+*
+* Supervisor: Demetrios Zeinalipour-Yazti
+*
+* URL: http://anyplace.cs.ucy.ac.cy
+* Contact: anyplace@cs.ucy.ac.cy
+*
+* Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
+* All rights reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the “Software”), to deal in the
+* Software without restriction, including without limitation the rights to use, copy,
+* modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+* and to permit persons to whom the Software is furnished to do so, subject to the
+* following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+*
+*/
+-->
+    <phone:PhoneApplicationPage
+    x:Class="AnyPlace.Settings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:local="clr-namespace:AnyPlace"
+    xmlns:Toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="True"
+    shell:SystemTray.BackgroundColor="#FF1912AE">
+
+    <phone:PhoneApplicationPage.Resources>
+        <local:AppSettings x:Key="appSettings"></local:AppSettings>
+
+    </phone:PhoneApplicationPage.Resources>
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35 "/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.RowSpan="2" Canvas.ZIndex="200" x:Name="downloading" Visibility="Collapsed" Background="white" Opacity="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Downloading Buildings..." Foreground="#FF1912AE" VerticalAlignment="Center" FontSize="28"/>
+            <TextBlock x:Name="txt_download" Grid.Row="3" Text="" Foreground="#FF1912AE" VerticalAlignment="Bottom" FontSize="24" Margin="0,0,0,5"/>
+            <ProgressBar Grid.Row="1" IsIndeterminate="True" Background="#FF1912AE" Foreground="#FF1912AE"/>
+        </Grid>
+        <Grid Background="#FF1912AE" Canvas.ZIndex="1" Margin="0,-5,0,0">
+            <TextBlock Text="SETTINGS" Foreground="White" VerticalAlignment="Bottom" FontSize="24" Margin="26,0,0,0" FontWeight="Bold"/>
+        </Grid>
+
+        <!--Pivot Control-->
+        <phone:Pivot Grid.Row="1" Margin="0,-15,0,0" Background="white">
+            <!--Pivot item one-->
+            <phone:PivotItem >
+                <phone:PivotItem.Header>
+                    <TextBlock Text="anyplace" Foreground="#FF1912AE"/>
+                </phone:PivotItem.Header>
+                <ScrollViewer>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="115"/>
+                            <RowDefinition Height="115"/>
+                            <RowDefinition Height="115"/>
+                            <RowDefinition Height="115"/>
+                            <RowDefinition Height="115"/>
+                        </Grid.RowDefinitions>
+                        <Toolkit:ToggleSwitch Grid.Row="0" IsChecked="{Binding Source={StaticResource appSettings}, Path=ToogleButtonTiles, Mode=TwoWay}"  x:Name="showTiles" VerticalAlignment="Top" Checked="showTiles_Checked" Unchecked="showTiles_Unchecked" Style="{StaticResource ToggleSwitchStyle1}">
+                            <Toolkit:ToggleSwitch.Header>
+                                <TextBlock Text="Show Tiles on map" Foreground="#FF1912AE" />
+                            </Toolkit:ToggleSwitch.Header>
+                        </Toolkit:ToggleSwitch>
+                        <Toolkit:ToggleSwitch Grid.Row="1" IsChecked="{Binding Source={StaticResource appSettings}, Path=ToggleButtonZoom, Mode=TwoWay}"  x:Name="showZoom" VerticalAlignment="Top" Checked="showZoom_Checked" Unchecked="showZoom_Unchecked" Style="{StaticResource ToggleSwitchStyle1}" >
+                            <Toolkit:ToggleSwitch.Header>
+                                <TextBlock Text="Zoom Control" Foreground="#FF1912AE" />
+                            </Toolkit:ToggleSwitch.Header>
+                        </Toolkit:ToggleSwitch>
+                        <Toolkit:ToggleSwitch Grid.Row="2" IsChecked="{Binding Source={StaticResource appSettings}, Path=ToogleButtonTrackme, Mode=TwoWay}"  x:Name="showTrackme" VerticalAlignment="Top" Checked="showTrackme_Checked" Unchecked="showTrackme_Unchecked" Style="{StaticResource ToggleSwitchStyle1}" >
+                            <Toolkit:ToggleSwitch.Header>
+                                <TextBlock Text="Trackme Control" Foreground="#FF1912AE" />
+                            </Toolkit:ToggleSwitch.Header>
+                        </Toolkit:ToggleSwitch>
+                    </Grid>
+                </ScrollViewer>
+            </phone:PivotItem>
+
+            <!--Pivot item three-->
+            <phone:PivotItem >
+                <phone:PivotItem.Header>
+                    <TextBlock Text="buildings" Foreground="#FF1912AE"/>
+                </phone:PivotItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Download all Building Tiles:" Margin="10,0,0,0" Foreground="#FF1912AE" FontSize="20" Style="{StaticResource TextBlockStyle1}"/>
+                    <Button Grid.Row="1" Content="Download" Click="Download_Click" Style="{StaticResource ButtonStyle1}" Margin="12,10,12,0"/>
+                    <TextBlock Grid.Row="2" Text="Download Building Tile of your choice:" Margin="10,60,0,0" Foreground="#FF1912AE" Style="{StaticResource TextBlockStyle1}" FontSize="20"/>
+
+                    <Toolkit:ListPicker x:Name="listpicker" SelectionChanged="listpicker_selection_change" ExpansionMode="FullScreenOnly" Grid.Row="3" SelectedIndex="0" FullModeHeader="Choose Building" Margin="12,10" Foreground="#FF1912AE" BorderBrush="#FF1912AE">
+                        <Toolkit:ListPicker.FullModeItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" FontSize="32" Margin="0,8,0,30" TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </Toolkit:ListPicker.FullModeItemTemplate>
+                    </Toolkit:ListPicker>
+                    
+                    <TextBlock Grid.Row="4" Text="Check for new buildings" Margin="10,60,0,0" Foreground="#FF1912AE" Style="{StaticResource TextBlockStyle1}" FontSize="20" />
+                    <Button Grid.Row="5" Content="Check Now" Click="check_click" Style="{StaticResource ButtonStyle1}" Margin="12,10,12,0"/>
+
+                </Grid>
+
+            </phone:PivotItem>
+        </phone:Pivot>
+    </Grid>
+
+</phone:PhoneApplicationPage>

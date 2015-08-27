@@ -1,0 +1,439 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.IO.Jpeg</name>
+    </assembly>
+    <members>
+        <member name="T:FluxJpeg.Core.IO.BinaryWriter">
+            <summary>
+            A Big-endian binary writer.
+            </summary>
+        </member>
+        <member name="T:FluxJpeg.Core.IO.BinaryReader">
+            <summary>
+            Big-endian binary reader
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Image.ChangeColorSpace(FluxJpeg.Core.ColorSpace)">
+            <summary>
+            Converts the colorspace of an image (in-place)
+            </summary>
+            <param name="cs">Colorspace to convert into</param>
+            <returns>Self</returns>
+        </member>
+        <member name="P:FluxJpeg.Core.Image.DensityX">
+            <summary> X density (dots per inch).</summary>
+        </member>
+        <member name="P:FluxJpeg.Core.Image.DensityY">
+            <summary> Y density (dots per inch).</summary>
+        </member>
+        <member name="T:FluxJpeg.Core.JpegHuffmanTable">
+            <summary>
+             The JPEGHuffmanTable class represents a Huffman table read from a
+             JPEG image file.  The standard JPEG AC and DC chrominance and
+             luminance values are provided as static fields.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.JpegHuffmanTable.#ctor(System.Int16[],System.Int16[])">
+            <summary>
+            Construct and initialize a Huffman table. Copies are created of
+            the array arguments. lengths[index] stores the number of Huffman
+            values with Huffman codes of length index + 1. The values array
+            stores the Huffman values in order of increasing code length.
+            
+            throws ArgumentException if either parameter is null, if
+            lengths.Length > 16 or values.Length > 256, if any value in
+            length or values is negative, or if the parameters do not
+            describe a valid Huffman table
+            </summary>
+            <param name="lengths"> an array of Huffman code lengths</param>
+            <param name="values">a sorted array of Huffman values</param>
+        </member>
+        <member name="M:FluxJpeg.Core.JpegHuffmanTable.#ctor(System.Int16[],System.Int16[],System.Boolean)">
+            <summary>
+            Private constructor that avoids unnecessary copying and argument checking.
+            </summary>
+            <param name="lengths">lengths an array of Huffman code lengths</param>
+            <param name="values">a sorted array of Huffman values</param>
+            <param name="copy">true if copies should be created of the given arrays</param>
+        </member>
+        <member name="P:FluxJpeg.Core.JpegHuffmanTable.Lengths">
+            <summary>
+             Retrieve the array of Huffman code lengths.  If the
+             returned array is called lengthcount, there are
+             lengthcount[index] codes of length index + 1.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Jpeg.JpegEncoder">
+            <summary>
+            Encoder for writing the data image to a stream in jpg format.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Jpeg.JpegEncoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image encoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns>
+            	<c>true</c>, if the encoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Jpeg.JpegEncoder.Encode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Encodes the data of the specified image and writes the result to
+            the specified stream.
+            </summary>
+            <param name="image">The image, where the data should be get from.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The stream, where the image data should be written to.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Jpeg.JpegEncoder.TransparentColor">
+            <summary>
+            Gets or sets the color that will be used, when the source pixel is transparent.
+            The default transparent color is white.
+            </summary>
+            <value>The color of the transparent that will be used, 
+            when the source pixel is transparent.</value>
+        </member>
+        <member name="P:ImageTools.IO.Jpeg.JpegEncoder.Quality">
+            <summary>
+            Gets or sets the quality, that will be used to encode the image. Quality 
+            index must be between 0 and 100 (compression from max to min). 
+            </summary>
+            <value>The quality of the jpg image from 0 to 100.</value>
+        </member>
+        <member name="P:ImageTools.IO.Jpeg.JpegEncoder.Extension">
+            <summary>
+            Gets the default file extension for this encoder.
+            </summary>
+            <value>The default file extension for this encoder.</value>
+        </member>
+        <member name="M:FluxJpeg.Core.Encoder.JpegEncoder.#ctor(FluxJpeg.Core.DecodedJpeg,System.Int32,System.IO.Stream)">
+            <summary>
+            Encodes a JPEG, preserving the colorspace and metadata of the input JPEG.
+            </summary>
+            <param name="decodedJpeg">Decoded Jpeg to start with.</param>
+            <param name="quality">Quality of the image from 0 to 100.  (Compression from max to min.)</param>
+            <param name="outStream">Stream where the result will be placed.</param>
+        </member>
+        <member name="M:FluxJpeg.Core.YCbCr.fromRGB(System.Single[])">
+            * RGB to YCbCr range 0-255 */
+        </member>
+        <member name="M:FluxJpeg.Core.IO.JPEGBinaryReader.GetNextMarker">
+            <summary>
+            Seeks through the stream until a marker is found.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.IO.JPEGBinaryReader.ReadBits(System.Int32)">
+            <summary>
+            Places n bits from the stream, where the most-significant bits
+            from the first byte read end up as the most-significant of the returned
+            n bits.
+            </summary>
+            <param name="n">Number of bits to return</param>
+            <returns>Integer containing the bits desired -- shifted all the way right.</returns>
+        </member>
+        <member name="F:FluxJpeg.Core.Decoder.BlockUpsamplingMode.BoxFilter">
+            <summary> The simplest upsampling mode. Produces sharper edges. </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.Decoder.BlockUpsamplingMode.Interpolate">
+            <summary> Smoother upsampling. May improve color spread for some images. </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.Decoder.JpegDecoder.MAJOR_VERSION">
+            <summary>
+            This decoder expects JFIF 1.02 encoding.
+            </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.Decoder.JpegDecoder.JFIF_FIXED_LENGTH">
+            <summary>
+            The length of the JFIF field not including thumbnail data.
+            </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.Decoder.JpegDecoder.JFXX_FIXED_LENGTH">
+            <summary>
+            The length of the JFIF extension field not including extension data.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegDecoder.TryParseJFIF(System.Byte[])">
+            <summary>
+            Tries to parse the JFIF APP0 header
+            See http://en.wikipedia.org/wiki/JFIF
+            </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JpegQuantizationTable.K1Luminance">
+            <summary>
+            The standard JPEG luminance quantization table.  Values are
+            stored in natural order.
+            </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JpegQuantizationTable.K1Div2Luminance">
+            <summary>
+            The standard JPEG luminance quantization table, scaled by
+            one-half.  Values are stored in natural order.
+            </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JpegQuantizationTable.K2Chrominance">
+            <summary>
+            The standard JPEG chrominance quantization table.  Values are
+            stored in natural order.
+            </summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JpegQuantizationTable.K2Div2Chrominance">
+            <summary>
+            The standard JPEG chrominance quantization table, scaled by
+            one-half.  Values are stored in natural order.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.JpegQuantizationTable.#ctor(System.Int32[])">
+            <summary>
+            Construct a new JPEG quantization table.  A copy is created of
+            the table argument.
+            </summary>
+            <param name="table">The 64-element value table, stored in natural order</param>
+        </member>
+        <member name="M:FluxJpeg.Core.JpegQuantizationTable.#ctor(System.Int32[],System.Boolean)">
+            <summary>
+            Private constructor that avoids unnecessary copying and argument
+            checking.
+            </summary>
+            <param name="table">the 64-element value table, stored in natural order</param>
+            <param name="copy">true if a copy should be created of the given table</param>
+        </member>
+        <member name="M:FluxJpeg.Core.JpegQuantizationTable.getScaledInstance(System.Single,System.Boolean)">
+            <summary>
+            Retrieve a copy of this JPEG quantization table with every value
+            scaled by the given scale factor, and clamped from 1 to 255
+            </summary>
+            <param name="scaleFactor">the factor by which to scale this table</param>
+            <param name="forceBaseline"> clamp scaled values to a maximum of 255 if baseline or from 1 to 32767 otherwise.</param>
+            <returns>new scaled JPEG quantization table</returns>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.DHT">
+            <summary>Huffman Table</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.DQT">
+            <summary>Quantization Table</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOS">
+            <summary>Start of Scan</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.DRI">
+            <summary>Define Restart Interval</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.COM">
+            <summary>Comment</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOI">
+            <summary>Start of Image</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.EOI">
+            <summary>End of Image</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.DNL">
+            <summary>Define Number of Lines</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF0">
+            <summary>Nondifferential Huffman-coding frame (baseline dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF1">
+            <summary>Nondifferential Huffman-coding frame (extended dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF2">
+            <summary>Nondifferential Huffman-coding frame (progressive dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF3">
+            <summary>Nondifferential Huffman-coding frame Lossless (Sequential)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF5">
+            <summary>Differential Huffman-coding frame Sequential DCT</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF6">
+            <summary>Differential Huffman-coding frame Progressive DCT</summary> 
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF7">
+            <summary>Differential Huffman-coding frame lossless</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF9">
+            <summary>Nondifferential Arithmetic-coding frame (extended dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF10">
+            <summary>Nondifferential Arithmetic-coding frame (progressive dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF11">
+            <summary>Nondifferential Arithmetic-coding frame (lossless)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF13">
+            <summary>Differential Arithmetic-coding frame (sequential dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF14">
+            <summary>Differential Arithmetic-coding frame (progressive dct)</summary>
+        </member>
+        <member name="F:FluxJpeg.Core.JPEGMarker.SOF15">
+            <summary>Differential Arithmetic-coding frame (lossless)</summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.padMCU(System.Int32,System.Int32)">
+            <summary>
+            If a restart marker is found with too little of an MCU count (i.e. our
+            Restart Interval is 63 and we have 61 we copy the last MCU until it's full)
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.resetInterval">
+            <summary>
+            Reset the interval by setting the previous DC value
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.quantizeData">
+            <summary>
+            Run the Quantization backward method on all of the block data.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.idctData">
+            <summary>
+            Run the Inverse DCT method on all of the block data
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.scaleByFactors(FluxJpeg.Core.Decoder.BlockUpsamplingMode)">
+            <summary>
+            Stretches components as needed to normalize the size of all components.
+            For example, in a 2x1 (4:2:2) sequence, the Cr and Cb channels will be 
+            scaled vertically by a factor of 2.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.decode_dc_coefficient(FluxJpeg.Core.IO.JPEGBinaryReader)">
+            <summary>
+            Generated from text on F-22, F.2.2.1 - Huffman decoding of DC
+            coefficients on ISO DIS 10918-1. Requirements and Guidelines.
+            </summary>
+            <param name="JPEGStream">Stream that contains huffman bits</param>
+            <returns>DC coefficient</returns>
+        </member>
+        <member name="M:FluxJpeg.Core.Decoder.JpegComponent.decode_ac_coefficients(FluxJpeg.Core.IO.JPEGBinaryReader,System.Single[])">
+            <summary>
+            Generated from text on F-23, F.13 - Huffman decoded of AC coefficients
+            on ISO DIS 10918-1. Requirements and Guidelines.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.DecodedJpeg.Initialize">
+            <summary>
+            This method creates and fills three arrays, Y, Cb, and Cr using the input image.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Jpeg.JpegDecoder">
+            <summary>
+            Image decoder for generating an image out of an jpg stream.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Jpeg.JpegDecoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns>
+            <c>true</c>, if the decoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Jpeg.JpegDecoder.IsSupportedFileFormat(System.Byte[])">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file header.
+            </summary>
+            <param name="header">The file header.</param>
+            <returns>
+            	<c>true</c>, if the decoder supports the specified
+            file header; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="header"/>
+            is null (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.IO.Jpeg.JpegDecoder.Decode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Decodes the image from the specified stream and sets
+            the data to image.
+            </summary>
+            <param name="image">The image, where the data should be set to.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The stream, where the image should be
+            decoded from. Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Jpeg.JpegDecoder.HeaderSize">
+            <summary>
+            Gets the size of the header for this image type.
+            </summary>
+            <value>The size of the header.</value>
+        </member>
+        <member name="T:FluxJpeg.Core.DCT">
+            <summary>
+            Implements the Discrete Cosine Transform with dynamic CIL
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.DCT.buildC">
+            <summary>
+            Precomputes cosine terms in A.3.3 of 
+            http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+            
+            Closely follows the term precomputation in the
+            Java Advanced Imaging library.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.DCT.FastIDCT(System.Single[])">
+            See figure A.3.3 IDCT (informative) on A-5.
+            http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.GenerateSizeTable">
+            <summary>See Figure C.1</summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.GenerateCodeTable">
+            <summary>See Figure C.2</summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.GenerateDecoderTables">
+            <summary>See figure F.15</summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.Extend(System.Int32,System.Int32)">
+            <summary>Figure F.12</summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.Decode(FluxJpeg.Core.IO.JPEGBinaryReader)">
+            <summary>Figure F.16 - Reads the huffman code bit-by-bit.</summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.HuffmanBlockEncoder(System.IO.Stream,System.Int32[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            HuffmanBlockEncoder run length encodes and Huffman encodes the quantized data.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.bufferIt(System.IO.Stream,System.Int32,System.Int32)">
+            <summary>
+            Uses an integer long (32 bits) buffer to store the Huffman encoded bits
+            and sends them to outStream by the byte.
+            </summary>
+        </member>
+        <member name="M:FluxJpeg.Core.HuffmanTable.initHuf">
+            <summary>
+            Initialisation of the Huffman codes for Luminance and Chrominance.
+            This code results in the same tables created in the IJG Jpeg-6a
+            library.
+            </summary>
+        </member>
+    </members>
+</doc>

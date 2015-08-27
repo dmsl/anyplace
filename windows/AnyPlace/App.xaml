@@ -1,0 +1,66 @@
+﻿<Application
+    x:Class="AnyPlace.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone" 
+    xmlns:Toolkit= "clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit">
+    <!--Application Resources-->
+    <Application.Resources>
+    	<ResourceDictionary>
+    		<ResourceDictionary.MergedDictionaries>
+    			<ResourceDictionary Source="Common/AnyplaceResourceDictionary.xaml"/>
+    		</ResourceDictionary.MergedDictionaries>
+    		<local:LocalizedStrings xmlns:local="clr-namespace:AnyPlace" x:Key="LocalizedStrings"/>
+    		<Style x:Key="MenuItemStyle" TargetType="Toolkit:MenuItem">
+    			<Setter Property="Template">
+    				<Setter.Value>
+    					<ControlTemplate TargetType="Toolkit:MenuItem">
+    						<StackPanel>
+    							<TextBlock Margin="5,0,0,0" Foreground="Black" Text="{Binding D_name}" 
+    								TextWrapping="Wrap" 
+    								FontSize="26"
+    								FontWeight="Bold"/>
+    							<TextBlock  Foreground="Black"  Text="{Binding Distance}" 
+    								TextTrimming="WordEllipsis" 
+    								Margin="5,0" 
+    								FontSize="22"/>
+
+    						</StackPanel>
+    					</ControlTemplate>
+    				</Setter.Value>
+    			</Setter>
+    		</Style>
+
+    		<Style x:Key="MenuStyle" TargetType="Toolkit:ContextMenu">
+    			<Setter Property="Template">
+    				<Setter.Value>
+    					<ControlTemplate>
+    						<Border CornerRadius="8" Margin="12,0,12,0" 
+    							BorderBrush="Blue" BorderThickness="2">
+    							<Border.Background>
+    								<LinearGradientBrush 
+    									StartPoint="0.5,0" EndPoint="0.5,1">
+    									<GradientStop Color="White" 
+    										Offset="0.0"/>
+    									<GradientStop Color="LightBlue" 
+    										Offset="0.5"/>
+    								</LinearGradientBrush>
+    							</Border.Background>
+    							<ItemsPresenter />
+    						</Border>
+    					</ControlTemplate>
+    				</Setter.Value>
+    			</Setter>
+    		</Style>
+    	</ResourceDictionary>
+    </Application.Resources>
+
+
+    <Application.ApplicationLifetimeObjects>
+        <!--Required object that handles lifetime events for the application-->
+        <shell:PhoneApplicationService
+            Launching="Application_Launching" Closing="Application_Closing"
+            Activated="Application_Activated" Deactivated="Application_Deactivated"/>
+    </Application.ApplicationLifetimeObjects>
+
+</Application>
