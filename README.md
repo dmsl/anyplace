@@ -6,8 +6,6 @@ A free and open Indoor Navigation Service with superb accuracy!
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones.
 	 
-Supervisor: Demetrios Zeinalipour-Yazti
-	 
 URL: http://anyplace.cs.ucy.ac.cy
 Contact: anyplace@cs.ucy.ac.cy
 
@@ -27,7 +25,9 @@ Enjoy Anyplace!
 
 The Anyplace Team 
 	 
-Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
+Copyright (c) 2015, Data Management Systems Lab (DMSL), Department of Computer Science
+University of Cyprus.
+
 All rights reserved.
 
 ## MIT Open Source Licence
