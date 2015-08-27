@@ -58,7 +58,7 @@ Short description of the contents included in this release of the Airplace Indoo
 - Windows: The Source code of the Anyplace Windows Phone Client (IP localization) - available soon
 - iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - available soon
 - Web: The source code of Anyplace HTML5/CSS3 Web Client (IP localization) - available soon
-- API: Available at the following URL: http://anyplace.cs.ucy.ac.cy/developers/  - available soon
+- API: Available at the following URL: http://anyplace.cs.ucy.ac.cy/developers/  
 
 Anyplace Open Source Project
 
