@@ -55,10 +55,10 @@ DEALINGS IN THE SOFTWARE.
 Short description of the contents included in this release of the Airplace Indoor Positioning Platform.
 
 - Android: The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization)
-- Windows: The Source code of the Anyplace Windows Phone Client (IP localization) - available soon
+- Windows: The Source code of the Anyplace Windows Phone Client (IP localization)
 - iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - available soon
-- Web: The source code of Anyplace HTML5/CSS3 Web Client (IP localization) - available soon
-- API: Available at the following URL: http://anyplace.cs.ucy.ac.cy/developers/  
+- Viewer: The source code of Anyplace HTML5/CSS3 Web Client (IP localization) - available soon
+- API: Available at the following URL: http://anyplace.cs.ucy.ac.cy/developers/ (obtain developer key using  http://anyplace.cs.ucy.ac.cy/architect/ 
 
 
 
