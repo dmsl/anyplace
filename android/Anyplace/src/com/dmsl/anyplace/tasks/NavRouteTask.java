@@ -49,7 +49,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.dmsl.anyplace.AnyplaceAPI;
-import com.dmsl.anyplace.nav.NavResultPoint;
+import com.dmsl.anyplace.nav.PoisNav;
 import com.dmsl.anyplace.utils.GeoPoint;
 import com.dmsl.anyplace.utils.NetworkUtils;
 
@@ -58,15 +58,14 @@ public class NavRouteTask extends AsyncTask<Void, Void, String> {
 	public interface NavRouteListener {
 		void onNavRouteErrorOrCancel(String result);
 
-		void onNavRouteSuccess(String result, List<NavResultPoint> points);
+		void onNavRouteSuccess(String result, List<PoisNav> points);
 	}
 
 	private NavRouteListener mListener;
 
 	private Context mCtx;
-	// private AnyUserData mUserData;
 	private String json_req;
-	private List<NavResultPoint> mPuids = new ArrayList<NavResultPoint>();
+	private List<PoisNav> mPuids = new ArrayList<PoisNav>();
 	private boolean success = false;
 
 	public NavRouteTask(NavRouteListener l, Context ctx, String poid, GeoPoint pos, String floor) {
@@ -115,7 +114,7 @@ public class NavRouteTask extends AsyncTask<Void, Void, String> {
 			JSONArray pois = new JSONArray(json.getString("pois"));
 			for (int i = 0; i < num_of_pois; i++) {
 				JSONObject cp = (JSONObject) pois.get(i);
-				NavResultPoint navp = new NavResultPoint();
+				PoisNav navp = new PoisNav();
 				navp.lat = cp.getString("lat");
 				navp.lon = cp.getString("lon");
 				navp.puid = cp.getString("puid");

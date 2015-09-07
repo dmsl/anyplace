@@ -34,25 +34,20 @@
 *
 */
 
+/*
 package com.dmsl.anyplace.provider;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 
 import com.dmsl.anyplace.cache.AnyplaceCache;
 import com.dmsl.anyplace.googleapi.GooglePlaces;
 import com.dmsl.anyplace.googleapi.Place;
 import com.dmsl.anyplace.googleapi.PlacesList;
-import com.dmsl.anyplace.nav.AbstractIAnyPlace;
-import com.dmsl.anyplace.nav.IAnyPlace;
 import com.dmsl.anyplace.nav.PoisModel;
-import com.dmsl.anyplace.nav.IAnyPlace.Type;
+import com.dmsl.anyplace.tasks.AnyplaceSuggestionsTask;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -63,13 +58,21 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+ --------------------add manifest record------------------------
+ 
+  <provider
+            android:name="com.dmsl.anyplace.provider.AnyplacePOIProvider"
+            android:authorities="com.dmsl.anyplace.provider.AnyplacePOIProvider"
+            android:exported="false" />
+            
+            
 /**
  * This Provider provides the Points of Interest currently loaded inside a
  * Cursor object. TODO - Use an SQLite db instead of the AnyplaceCache
  * 
  * @author Lambros Petrou
  * 
- */
+ *
 public class AnyplacePOIProvider extends ContentProvider {
 
 	// public constants for client development
@@ -161,7 +164,7 @@ public class AnyplacePOIProvider extends ContentProvider {
 				if (pois != null) {
 					for (PoisModel p : pois) {
 						// check if the query matches the POI
-						if (PoisModel.matchQueryPoi(query, p.name)) {
+						if (AnyplaceSuggestionsTask.matchQueryPoi(query, p.name)) {
 							// add the matched POI into the suggestions list
 							// mcursor.addRow( new
 							// String[]{Integer.toString(i++), p.name, p.puid}
@@ -224,7 +227,7 @@ public class AnyplacePOIProvider extends ContentProvider {
 	 * @param latlng
 	 * @return
 	 * @throws IOException
-	 */
+	 *
 	public Cursor queryStatic(String query, int type, LatLng latlng)
 			throws IOException {
 
@@ -249,7 +252,7 @@ public class AnyplacePOIProvider extends ContentProvider {
 				if (pois != null) {
 					for (PoisModel p : pois) {
 						// check if the query matches the POI
-						if (PoisModel.matchQueryPoi(query, p.name)) {
+						if (AnyplaceSuggestionsTask.matchQueryPoi(query, p.name)) {
 							// add the matched POI into the suggestions list
 							// mcursor.addRow( new
 							// String[]{Integer.toString(i++), p.name, p.puid}
@@ -292,58 +295,4 @@ public class AnyplacePOIProvider extends ContentProvider {
 		return mcursor;
 	}
 
-	// *****************************************************************
-	// 2-STEP SEARCHING BELOW
-	// *****************************************************************
-
-	public static Cursor prepareAnyPlacePOIsCursor(List<IAnyPlace> places) {
-		MatrixCursor mcursor = new MatrixCursor(req_columns);
-		int i = 0;
-		if (places != null) {
-			GsonBuilder gsonBuilder = new GsonBuilder();
-	    	gsonBuilder.registerTypeAdapter(PoisModel.class, new PoisModel.PoisModelSerializer());
-	    	Gson gson = gsonBuilder.create();
-			for (IAnyPlace p : places) {
-				mcursor.addRow(new String[] {
-						Integer.toString(i++),
-						p.name(),
-						p.description().trim().equalsIgnoreCase("-") 
-							? "no description"
-							: p.description(), 
-						gson.toJson(p) });
-			}
-		}
-		return mcursor;
-	}
-
-	public static Cursor prepareGooglePlacesCursor(PlacesList places) {
-		MatrixCursor mcursor = new MatrixCursor(req_columns);
-		int i = 0;
-		if (places.results != null) {
-			GsonBuilder gsonBuilder = new GsonBuilder();
-	    	gsonBuilder.registerTypeAdapter(Place.class, new Place.GooglePlaceSerializer());
-	    	Gson gson = gsonBuilder.create();
-			for (Place p : places.results) {
-				// add the matched Google Place into the suggestions list
-				mcursor.addRow(new String[] { 
-						Integer.toString(i++), 
-						p.name(),
-						p.description(), 
-						gson.toJson(p) });
-			}
-		}
-		return mcursor;
-	}
-
-	  // *****************************************************************************************
-    //  Handle ACTION_VIEW searches separately for speedup. You have the suggestion 
-    //  selected so just construct the necessary model and return it
-    // *****************************************************************************************
-    public static IAnyPlace searchBySelectedSuggestion( String data ){
-    	// HANDLE BOTH GooglePlace AND AnyplacePoi
-    	GsonBuilder gsonBuilder = new GsonBuilder();
-    	gsonBuilder.registerTypeAdapter(Type.class, new IAnyPlace.IAnyPlaceTypeDeserializer());
-    	Gson gson = gsonBuilder.create();
-    	return (IAnyPlace)gson.fromJson(data, AbstractIAnyPlace.class);
-    }
-}
+}*/

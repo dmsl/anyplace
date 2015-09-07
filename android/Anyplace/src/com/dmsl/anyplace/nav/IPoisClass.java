@@ -4,7 +4,9 @@
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
 *
-* Author(s): Lambros Petrou
+* Author(s): 
+* http://stackoverflow.com/questions/17049684/convert-from-json-to-multiple-unknown-java-object-types-using-gson
+* Timotheos Constambeys
 * 
 * Supervisor: Demetrios Zeinalipour-Yazti
 *
@@ -41,48 +43,44 @@ import java.io.Serializable;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
-public interface IAnyPlace extends Serializable {
+public interface IPoisClass extends Serializable {
 
 	enum Type {
-		AnyPlacePOI("AnyPlacePOI"), GooglePlace("GooglePlace");
-
-		private final String key;
-
-		Type(String t) {
-			key = t;
-		}
-
-		public String toString() {
-			return key;
-		}
-
-		public static Type fromKey(String t) {
-			for (Type v : Type.values()) {
-				if (v.toString().equals(t)) {
-					return v;
-				}
-			}
-			return null;
-		}
+		AnyPlacePOI, GooglePlace;
 	}
 
-	/**
-	 * Proper deserializer for the above enum type.
-	 * 
-	 * Usage: GsonBuilder gsonBuilder = new GsonBuilder();
-	 * gsonBuilder.registerTypeAdapter(Type.class, new
-	 * IAnyPlaceTypeDeserializer()); Gson gson = gsonBuilder.create();
-	 * 
-	 * @author Lambros Petrou
-	 *
-	 */
-	public class IAnyPlaceTypeDeserializer implements JsonDeserializer<Type> {
+	public final class MyInterfaceAdapter implements JsonDeserializer<IPoisClass>, JsonSerializer<IPoisClass> {
+		private static final String PROP_NAME = "myClass";
+
 		@Override
-		public Type deserialize(JsonElement element, java.lang.reflect.Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
-			String key = element.getAsString();
-			return Type.fromKey(key);
+		public JsonElement serialize(IPoisClass src, java.lang.reflect.Type arg1, JsonSerializationContext context) {
+			// note : won't work, you must delegate this
+			JsonObject jo = context.serialize(src).getAsJsonObject();
+
+			String classPath = src.getClass().getName();
+			jo.add(PROP_NAME, new JsonPrimitive(classPath));
+
+			return jo;
+		}
+
+		@Override
+		public IPoisClass deserialize(JsonElement json, java.lang.reflect.Type arg1, JsonDeserializationContext context) throws JsonParseException {
+			try {
+				String classPath = json.getAsJsonObject().getAsJsonPrimitive(PROP_NAME).getAsString();
+				Class<IPoisClass> cls = (Class<IPoisClass>) Class.forName(classPath);
+
+				return (IPoisClass) context.deserialize(json, cls);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			return null;
 		}
 
 	}
@@ -98,6 +96,4 @@ public interface IAnyPlace extends Serializable {
 	String description();
 
 	Type type();
-
-	String toJSON();
 }

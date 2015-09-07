@@ -37,18 +37,8 @@
 package com.dmsl.anyplace.nav;
 
 import java.io.Serializable;
-import java.util.Locale;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-
-public class PoisModel implements Serializable, IAnyPlace {
-	
+public class PoisModel implements Serializable, IPoisClass {
 	
 	public String puid;
 	public String buid;
@@ -65,20 +55,6 @@ public class PoisModel implements Serializable, IAnyPlace {
 		return name + "[" + buid + "]";
 	}
 	
-	public static boolean matchQueryPoi( String query, String poi ){
-		query = query.toLowerCase(Locale.ENGLISH);
-		poi = poi.toLowerCase(Locale.ENGLISH);
-		String[] segs = poi.split(" ");
-		
-		for( String s : segs ){
-			if( s.contains(query) ){
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
 	@Override
 	public double lat() {
 		return Double.parseDouble(lat);
@@ -107,43 +83,6 @@ public class PoisModel implements Serializable, IAnyPlace {
 	@Override
 	public String id() {
 		return puid;
-	}
-	
-	@Override
-	public String toJSON(){
-		try {
-			JSONObject json = new JSONObject();
-			json.put("lat", String.valueOf(lat()));
-			json.put("lng", String.valueOf(lng()));
-			json.put("name", name());
-			json.put("description", description());
-			json.put("id", id());
-			json.put("type", IAnyPlace.Type.AnyPlacePOI);
-			return json.toString();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			return "{}";
-		}
-	}
-	
-	/**
-	 * Gson custom serializer
-	 * @author Lambros Petrou
-	 *
-	 */
-	public static class PoisModelSerializer implements JsonSerializer<PoisModel> {
-		@Override
-		public JsonElement serialize(PoisModel src, java.lang.reflect.Type arg1,
-				JsonSerializationContext context) {
-			JsonObject json = new JsonObject();
-			json.addProperty("lat", String.valueOf(src.lat()));
-			json.addProperty("lng", String.valueOf(src.lng()));
-			json.addProperty("name", src.name());
-			json.addProperty("description", src.description());
-			json.addProperty("id", src.id());
-			json.add("type", context.serialize(IAnyPlace.Type.AnyPlacePOI));
-			return json;
-		}
 	}
 	
 }

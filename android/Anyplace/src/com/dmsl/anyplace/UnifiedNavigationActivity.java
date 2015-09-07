@@ -55,7 +55,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -89,9 +89,9 @@ import com.dmsl.anyplace.googlemap.MyBuildingsRenderer;
 import com.dmsl.anyplace.googlemap.VisiblePois;
 import com.dmsl.anyplace.logger.AnyplaceLoggerActivity;
 import com.dmsl.anyplace.nav.*;
+import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper.HTMLCursorAdapter;
 import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper.SearchTypes;
 import com.dmsl.anyplace.nav.BuildingModel.FetchBuildingTaskListener;
-import com.dmsl.anyplace.provider.AnyplacePOIProvider;
 import com.dmsl.anyplace.sensors.MovementDetector;
 import com.dmsl.anyplace.sensors.SensorsMain;
 import com.dmsl.anyplace.sensors.SensorsStepCounter;
@@ -346,7 +346,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 				if (userData.isNavBuildingSelected()) {
 					// Move to start/destination poi's floor
 					String floor_number;
-					List<NavResultPoint> puids = userData.getNavPois();
+					List<PoisNav> puids = userData.getNavPois();
 					// Check start and destination floor number
 					if (!puids.get(puids.size() - 1).floor_number.equals(puids.get(0).floor_number)) {
 						if (userData.getSelectedFloorNumber().equals(puids.get(puids.size() - 1).floor_number)) {
@@ -391,7 +391,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 				if (userData.isNavBuildingSelected()) {
 					// Move to start/destination poi's floor
 					String floor_number;
-					List<NavResultPoint> puids = userData.getNavPois();
+					List<PoisNav> puids = userData.getNavPois();
 					// Check start and destination floor number
 					if (!puids.get(puids.size() - 1).floor_number.equals(puids.get(0).floor_number)) {
 						if (userData.getSelectedFloorNumber().equals(puids.get(puids.size() - 1).floor_number)) {
@@ -553,7 +553,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		// set query change listener
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			@Override
-			public boolean onQueryTextChange(String newText) {
+			public boolean onQueryTextChange(final String newText) {
 				// return false; // false since we do not handle this call
 
 				if (newText == null || newText.trim().length() < 1) {
@@ -570,11 +570,11 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 				if (searchType == SearchTypes.INDOOR_MODE) {
 					if (!userData.isFloorSelected()) {
-						List<IAnyPlace> places = new ArrayList<IAnyPlace>(1);
+						List<IPoisClass> places = new ArrayList<IPoisClass>(1);
 						PoisModel pm = new PoisModel();
 						pm.name = "Load a building first ...";
 						places.add(pm);
-						Cursor cursor = AnyplacePOIProvider.prepareAnyPlacePOIsCursor(places);
+						Cursor cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places);
 						showSearchResult(cursor);
 						return true;
 					}
@@ -584,14 +584,20 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 				mSuggestionsTask = new AnyplaceSuggestionsTask(new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
 					@Override
-					public void onSuccess(String result, Cursor cursor) {
-						showSearchResult(cursor);
+					public void onSuccess(String result, List<? extends IPoisClass> pois) {
+						showSearchResult(AnyPlaceSeachingHelper.prepareSearchViewCursor(pois, newText));
 					}
 
 					@Override
 					public void onErrorOrCancel(String result) {
 						Log.d("AnyplaceSuggestions", result);
 					}
+
+					@Override
+					public void onUpdateStatus(String string, Cursor cursor) {
+						showSearchResult(cursor);
+					}
+
 				}, UnifiedNavigationActivity.this, searchType, (gp == null) ? new GeoPoint(csLat, csLon) : gp, newText);
 				mSuggestionsTask.execute(null, null);
 
@@ -718,9 +724,12 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		int[] to = { android.R.id.text1
 		// ,android.R.id.text2
 		};
-		// add the cursor of the results to the search
-		// view
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(UnifiedNavigationActivity.this, R.layout.queried_pois_item_1_multiline, cursor, from, to, 0);
+		// add the cursor of the results to the search view
+		// SimpleCursorAdapter adapter = new SimpleCursorAdapter(UnifiedNavigationActivity.this, R.layout.queried_pois_item_1_searchbox, cursor, from, to, 0);
+		// searchView.setSuggestionsAdapter(adapter);
+		// adapter.notifyDataSetChanged();
+
+		AnyPlaceSeachingHelper.HTMLCursorAdapter adapter = new HTMLCursorAdapter(UnifiedNavigationActivity.this, R.layout.queried_pois_item_1_searchbox, cursor, from, to);
 		searchView.setSuggestionsAdapter(adapter);
 		adapter.notifyDataSetChanged();
 	}
@@ -1054,7 +1063,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 				// data.getSerializableExtra("pmodel");
 				// startNavigationTask(poi_to);
 
-				IAnyPlace place = (IAnyPlace) data.getSerializableExtra("ianyplace");
+				IPoisClass place = (IPoisClass) data.getSerializableExtra("ianyplace");
 				handleSearchPlaceSelection(place);
 
 			} else if (resultCode == Activity.RESULT_CANCELED) {
@@ -1730,7 +1739,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		// start the navigation task
 		final AsyncTask<Void, Void, String> async2f = new NavRouteTask(new NavRouteTask.NavRouteListener() {
 			@Override
-			public void onNavRouteSuccess(String result, List<NavResultPoint> points) {
+			public void onNavRouteSuccess(String result, List<PoisNav> points) {
 				onNavDirectionsAboart();
 
 				// set the navigation building and new points
@@ -1808,10 +1817,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 	}
 
 	// draws the navigation route for the loaded floor
-	private void handlePathDrawing(List<NavResultPoint> puids) {
+	private void handlePathDrawing(List<PoisNav> puids) {
 		List<LatLng> p = new ArrayList<LatLng>();
 		String selectedFloor = userData.getSelectedFloorNumber();
-		for (NavResultPoint pt : puids) {
+		for (PoisNav pt : puids) {
 			// draw only the route for this floor
 			if (pt.floor_number.equalsIgnoreCase(selectedFloor)) {
 				// TODO - if this is the first POI for this floor we should add
@@ -1826,11 +1835,11 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		if (!puids.isEmpty()) {
 			// add markers for starting and ending position
 			// starting point
-			NavResultPoint nrpFrom = puids.get(0);
+			PoisNav nrpFrom = puids.get(0);
 			if (nrpFrom.floor_number.equalsIgnoreCase(selectedFloor))
 				visiblePois.setFromMarker(mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(nrpFrom.lat), Double.parseDouble(nrpFrom.lon))).title("Starting Position").icon(BitmapDescriptorFactory.fromResource(R.drawable.map_flag_green2_48))));
 			// destination point
-			NavResultPoint nrpTo = puids.get(puids.size() - 1);
+			PoisNav nrpTo = puids.get(puids.size() - 1);
 			if (nrpTo.floor_number.equalsIgnoreCase(selectedFloor))
 				visiblePois.setToMarker(mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(nrpTo.lat), Double.parseDouble(nrpTo.lon))).title("Final Destination").icon(BitmapDescriptorFactory.fromResource(R.drawable.map_flag_pink2_48))));
 
@@ -1895,9 +1904,17 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		visiblePois.clearAll();
 		String currentFloor = userData.getSelectedFloorNumber();
 
+		// Display part of Description Text Only
+		// Make an approximation of available space based on map size
+		final int fragmentWidth = (int) (findViewById(R.id.map).getWidth() * 2);
+		ViewGroup infoWindow = (ViewGroup) getLayoutInflater().inflate(R.layout.info_window, null);
+		TextView infoSnippet = (TextView) infoWindow.findViewById(R.id.snippet);
+		TextPaint paint = infoSnippet.getPaint();
+
 		for (PoisModel pm : collection) {
 			if (pm.floor_number.equalsIgnoreCase(currentFloor)) {
-				Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(pm.lat), Double.parseDouble(pm.lng))).title("POI Name").snippet(pm.name).icon(BitmapDescriptorFactory.fromResource(R.drawable.pin8)));
+				String snippet = AndroidUtils.fillTextBox(paint, fragmentWidth, pm.description);
+				Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(pm.lat), Double.parseDouble(pm.lng))).title(pm.name).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.pin8)));
 				visiblePois.addMarkerAndPoi(m, pm);
 			}
 		}
@@ -2103,19 +2120,19 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 			// check what type of search we need
 			SearchTypes searchType = AnyPlaceSeachingHelper.getSearchType(mMap.getCameraPosition().zoom);
-			if (searchType.equals(SearchTypes.OUTDOOR_MODE)) {
-				Toast.makeText(getBaseContext(), "Google Places can only be selected from the suggestions at the moment.", Toast.LENGTH_LONG).show();
-				return;
-			}
-
 			String query = intent.getStringExtra(SearchManager.QUERY);
+			GeoPoint gp = userData.getLatestUserPosition();
+
 			// manually launch the real search activity
-			final Intent searchIntent = new Intent(UnifiedNavigationActivity.this, SearchPOIActivity.class);
+			Intent searchIntent = new Intent(UnifiedNavigationActivity.this, SearchPOIActivity.class);
 			// add query to the Intent Extras
 			searchIntent.setAction(action);
-			searchIntent.putExtra(SearchManager.QUERY, query);
 			searchIntent.putExtra("searchType", searchType);
+			searchIntent.putExtra("query", query);
+			searchIntent.putExtra("lat", (gp == null) ? csLat : gp.dlat);
+			searchIntent.putExtra("lng", (gp == null) ? csLon : gp.dlon);
 			startActivityForResult(searchIntent, SEARCH_POI_ACTIVITY_RESULT);
+
 		} else if (Intent.ACTION_VIEW.equals(action)) {
 			String data = intent.getDataString();
 
@@ -2192,13 +2209,11 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 				}
 			} else {
 
-				// Search Button Results
+				// Search TextBox results only
 
-				// STATICALLY HANDLE THE suggestion selection call the
-				// handler for selected place
-				IAnyPlace place_selected = AnyplacePOIProvider.searchBySelectedSuggestion(data);
+				// PoisModel or Place Class
+				IPoisClass place_selected = AnyPlaceSeachingHelper.getClassfromJson(data);
 
-				// Searching through google poi
 				if (place_selected.id() != null) {
 					// hide the search view when a navigation route is drawn
 					if (searchView != null) {
@@ -2213,9 +2228,9 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		}
 	} // end of handle intent
 
-	// handle the SELECTED place from the search button or search activity
+	// handle the selected place from the TextBox or search activity
 	// either Anyplace POI or a Google Place
-	private void handleSearchPlaceSelection(final IAnyPlace place) {
+	private void handleSearchPlaceSelection(final IPoisClass place) {
 		if (place == null)
 			return;
 		switch (place.type()) {
@@ -2250,7 +2265,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		}
 	}
 
-	private void showGooglePoi(IAnyPlace place) {
+	private void showGooglePoi(IPoisClass place) {
 		cameraUpdate = true;
 		mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(place.lat(), place.lng()), mInitialZoomLevel), new CancelableCallback() {
 

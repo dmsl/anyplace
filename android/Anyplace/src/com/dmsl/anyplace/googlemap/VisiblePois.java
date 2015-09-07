@@ -36,7 +36,7 @@
 
 package com.dmsl.anyplace.googlemap;
 
-import com.dmsl.anyplace.nav.IAnyPlace;
+import com.dmsl.anyplace.nav.IPoisClass;
 import com.dmsl.anyplace.nav.PoisModel;
 import com.google.android.gms.maps.model.Marker;
 
@@ -46,7 +46,7 @@ public class VisiblePois extends VisibleObject<PoisModel> {
 	private Marker mToMarker = null;
 
 	private Marker mGooglePlaceMarker = null;
-	private IAnyPlace mGooglePlace = null;
+	private IPoisClass mGooglePlace = null;
 
 	public VisiblePois() {
 	}
@@ -132,7 +132,7 @@ public class VisiblePois extends VisibleObject<PoisModel> {
 	// </From/To Marker>
 
 	// <Google Poi>
-	public void setGooglePlaceMarker(Marker m, IAnyPlace place) {
+	public void setGooglePlaceMarker(Marker m, IPoisClass place) {
 		clearGooglePlaceMarker();
 		mGooglePlace = place;
 		mGooglePlaceMarker = m;
@@ -142,7 +142,7 @@ public class VisiblePois extends VisibleObject<PoisModel> {
 		return mGooglePlaceMarker;
 	}
 
-	public IAnyPlace getGooglePlace() {
+	public IPoisClass getGooglePlace() {
 		return mGooglePlace;
 	}
 

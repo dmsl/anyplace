@@ -38,31 +38,22 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:minWidth="100dp"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/name"
+        android:id="@android:id/text1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:minHeight="45dp"
+        android:layout_height="80dp"
+        android:background="@drawable/button_navigate"
+        android:gravity="center_vertical"
         android:paddingBottom="5dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="5dp"
+        android:singleLine="false"
         android:textColor="#383838"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Click to navigate here"
-        android:textColor="#686868"
-        android:textSize="16sp" />
+        android:textSize="15sp" />
 
 </LinearLayout>

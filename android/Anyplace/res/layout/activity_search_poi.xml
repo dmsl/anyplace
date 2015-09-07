@@ -41,26 +41,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-	        
-    <TextView 
+    android:orientation="vertical" >
+
+    <TextView
         android:id="@+id/txtResultsFound"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textStyle="bold|italic"
         android:padding="10dp"
         android:text=""
-        />
-    
-    	<ListView
-    	    android:id="@+id/lvResultPois"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:choiceMode="singleChoice"
-	        android:fastScrollEnabled="true"
-	        android:smoothScrollbar="true"
-	        android:fadeScrollbars="true"
-    	    />
-    
+        android:textSize="14sp"
+        android:textStyle="bold|italic" />
+
+    <ListView
+        android:id="@+id/lvResultPois"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:fadeScrollbars="true"
+        android:fastScrollEnabled="true"
+        android:smoothScrollbar="true" />
+
 </LinearLayout>
