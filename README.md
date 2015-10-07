@@ -57,7 +57,7 @@ Short description of the contents included in this release.
 - Android: The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization)
 - Windows: The Source code of the Anyplace Windows Phone Client (IP localization)
 - iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - available soon
-- Web: The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization) - available soon
+- Web: The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization)
 - API: Available online at: http://anyplace.cs.ucy.ac.cy/developers/ 
 - Architect: Available online using http://anyplace.cs.ucy.ac.cy/architect/ 
 
