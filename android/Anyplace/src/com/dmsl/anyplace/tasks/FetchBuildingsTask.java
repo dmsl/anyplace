@@ -151,7 +151,7 @@ public class FetchBuildingsTask extends AsyncTask<Void, Void, String> {
 			Collections.sort(buildings);
 
 			success = true;
-			return "Succesfully fetched buildings";
+			return "Successfully fetched buildings";
 
 		} catch (ConnectTimeoutException e) {
 			return "Cannot connect to Anyplace service!";

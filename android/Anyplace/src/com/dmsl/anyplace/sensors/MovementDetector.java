@@ -129,7 +129,7 @@ public class MovementDetector implements SensorsMain.IAccelerometerListener {
 		float direction = (v > mLastValues[k] ? 1 : (v < mLastValues[k] ? -1
 				: 0));
 		if (direction == -mLastDirections[k]) {
-			/* Direction changed minumum or maximum? */
+			/* Direction changed minimum or maximum? */
 			int extType = (direction > 0 ? 0 : 1);
 			mLastExtremes[extType][k] = mLastValues[k];
 			float diff = Math.abs(mLastExtremes[extType][k]

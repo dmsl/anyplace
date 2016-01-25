@@ -138,7 +138,7 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 			File okfile = new File(root, "ok.txt");
 			if (!mForceDonwload && okfile.exists()) {
 				success = true;
-				return "Succesfully read radio map from cache!";
+				return "Successfully read radio map from cache!";
 			}
 
 			// Allow only one download of the radiomap
@@ -196,7 +196,7 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 
 			waitPreExecute();
 			success = true;
-			return "Succesfully saved radio maps!";
+			return "Successfully saved radio maps!";
 
 		} catch (ConnectTimeoutException e) {
 			return "Connecting to Anyplace service is taking too long!";

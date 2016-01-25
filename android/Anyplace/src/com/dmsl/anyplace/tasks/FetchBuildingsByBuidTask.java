@@ -146,7 +146,7 @@ public class FetchBuildingsByBuidTask extends AsyncTask<Void, Void, String> {
 			building = b;
 
 			success = true;
-			return "Succesfully fetched buildings";
+			return "Successfully fetched buildings";
 
 		} catch (ConnectTimeoutException e) {
 			return "Cannot connect to Anyplace service!";
