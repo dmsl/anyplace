@@ -39,7 +39,7 @@ package com.dmsl.anyplace.floor;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.dmsl.airplace.alogrithms.LogRecord;
+import com.dmsl.airplace.algorithms.LogRecord;
 import com.dmsl.anyplace.utils.GeoPoint;
 
 import android.content.Context;

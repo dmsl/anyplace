@@ -45,7 +45,7 @@ import java.util.HashMap;
 import android.content.Context;
 import android.util.Log;
 
-import com.dmsl.airplace.alogrithms.LogRecord;
+import com.dmsl.airplace.algorithms.LogRecord;
 import com.dmsl.anyplace.utils.AnyplaceUtils;
 import com.dmsl.anyplace.utils.GeoPoint;
 
