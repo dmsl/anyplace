@@ -1428,7 +1428,7 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		}
 
 		if (GeoPoint.getDistanceBetweenPoints(mCurrentBuilding.longitude, mCurrentBuilding.latitude, gps.dlon, gps.dlat, "") > 200) {
-			Toast.makeText(getBaseContext(), "You are only allowed to use the logger for a building you are currenly at or physically nearby.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getBaseContext(), "You are only allowed to use the logger for a building you are currently at or physically nearby.", Toast.LENGTH_SHORT).show();
 			return;
 		}
 

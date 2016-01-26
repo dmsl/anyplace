@@ -147,7 +147,7 @@ public class GooglePlaces {
 	/**
 	 * Searching single place full details
 	 * 
-	 * @param refrence
+	 * @param reference
 	 *            - reference id of place - which you will get in search api
 	 *            request
 	 * */

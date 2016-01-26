@@ -131,7 +131,7 @@ public class AnyplaceCache implements Serializable {
 
 			}, ctx).execute();
 		} else {
-			fetchBuildingsTaskListener.onSuccess("Sucessfully read from cache", mWorldBuildings);
+			fetchBuildingsTaskListener.onSuccess("Successfully read from cache", mWorldBuildings);
 		}
 		return mWorldBuildings;
 	}

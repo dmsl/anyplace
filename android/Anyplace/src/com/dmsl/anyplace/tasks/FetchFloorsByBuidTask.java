@@ -163,7 +163,7 @@ public class FetchFloorsByBuidTask extends AsyncTask<Void, Void, String> {
 			Collections.sort(floors);
 
 			success = true;
-			return "Succesfully fetched floors";
+			return "Successfully fetched floors";
 
 		} catch (ConnectTimeoutException e) {
 			return "Cannot connect to Anyplace service!";

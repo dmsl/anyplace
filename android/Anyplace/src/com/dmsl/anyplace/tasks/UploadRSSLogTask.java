@@ -161,11 +161,11 @@ public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
 		} catch (JSONException e) {
 			exceptionOccured = true;
 			Log.d("upload rss log", e.getMessage());
-			return "Cannot upload RSS log. JSONException occured[ " + e.getMessage() + " ]";
+			return "Cannot upload RSS log. JSONException occurred[ " + e.getMessage() + " ]";
 		} catch (ParseException e) {
 			exceptionOccured = true;
 			Log.d("upload rss log", e.getMessage());
-			return "Cannot upload RSS log. ParseException occured[ " + e.getMessage() + " ]";
+			return "Cannot upload RSS log. ParseException occurred[ " + e.getMessage() + " ]";
 		} catch (IOException e) {
 			exceptionOccured = true;
 			Log.d("upload rss log", e.getMessage());
@@ -173,11 +173,11 @@ public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
 			if (httppost != null && httppost.isAborted()) {
 				return "Uploading cancelled!";
 			} else {
-				return "Cannot upload RSS log. IOException occured[ " + e.getMessage() + " ]";
+				return "Cannot upload RSS log. IOException occurred[ " + e.getMessage() + " ]";
 			}
 
 		}
-		return "Succesfully uploaded RSS log!";
+		return "Successfully uploaded RSS log!";
 	}
 
 	@Override

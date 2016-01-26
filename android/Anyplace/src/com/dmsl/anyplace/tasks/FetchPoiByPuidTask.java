@@ -136,7 +136,7 @@ public class FetchPoiByPuidTask extends AsyncTask<Void, Void, String> {
 			poi.is_building_entrance = json.getBoolean("is_building_entrance");
 
 			success = true;
-			return "Succesfully fetched Points of Interest";
+			return "Successfully fetched Points of Interest";
 
 		} catch (ConnectTimeoutException e) {
 			return "Connecting to Anyplace service is taking too long!";

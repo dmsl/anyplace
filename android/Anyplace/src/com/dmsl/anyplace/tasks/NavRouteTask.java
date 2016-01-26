@@ -124,7 +124,7 @@ public class NavRouteTask extends AsyncTask<Void, Void, String> {
 			}
 
 			success = true;
-			return "Succesfully plotted navigation route!";
+			return "Successfully plotted navigation route!";
 
 		} catch (ConnectTimeoutException e) {
 			return "Connecting to the server is taking too long!";

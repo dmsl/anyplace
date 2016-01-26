@@ -61,7 +61,7 @@ public class SoftwareStepCounter {
 		float direction = (v > mLastValues ? 1 : (v < mLastValues ? -1 : 0));
 		if (direction == -mLastDirections) {
 			// Direction changed
-			int extType = (direction > 0 ? 0 : 1); // minumum or maximum?
+			int extType = (direction > 0 ? 0 : 1); // minimum or maximum?
 			mLastExtremes[extType] = mLastValues;
 			float diff = Math.abs(mLastExtremes[extType] - mLastExtremes[1 - extType]);
 

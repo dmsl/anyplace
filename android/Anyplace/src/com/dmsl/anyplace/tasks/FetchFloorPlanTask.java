@@ -140,7 +140,7 @@ public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
 			if (dest_path.exists() && dest_path.canRead() && dest_path.isFile() && okfile.exists()) {
 				floor_plan_file = dest_path;
 				success = true;
-				return "Succesfully read floor plan from cache!";
+				return "Successfully read floor plan from cache!";
 			}
 
 			runPreExecuteOnUI();
@@ -182,7 +182,7 @@ public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
 			floor_plan_file = dest_path;
 			waitPreExecute();
 			success = true;
-			return "Succesfully fetched floor plan";
+			return "Successfully fetched floor plan";
 
 		} catch (ConnectTimeoutException e) {
 			return "Cannot connect to Anyplace service!";

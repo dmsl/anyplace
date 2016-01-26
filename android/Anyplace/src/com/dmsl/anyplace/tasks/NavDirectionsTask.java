@@ -97,7 +97,7 @@ public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
 			Document doc = md.getDocument(fromPosition.dlat, fromPosition.dlon, toPosition, GMapV2Direction.MODE_DRIVING);
 			directionPoints = md.getDirection(doc);
 			status = Status.SUCCESS;
-			return "Succesfully plotted navigation route!";
+			return "Successfully plotted navigation route!";
 		} catch (Exception e) {
 			return "Error plotting navigation route. Exception[ " + e.getMessage() + " ]";
 		}
