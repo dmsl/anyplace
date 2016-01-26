@@ -34,7 +34,7 @@
 *
 */
 
-package com.dmsl.airplace.alogrithms;
+package com.dmsl.airplace.algorithms;
 
 public class LogRecord {
 

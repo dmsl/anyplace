@@ -41,7 +41,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
-import com.dmsl.airplace.alogrithms.LogRecord;
+import com.dmsl.airplace.algorithms.LogRecord;
 import com.dmsl.anyplace.AnyplaceAPI;
 import com.dmsl.anyplace.utils.NetworkUtils;
 

@@ -39,7 +39,7 @@ package com.dmsl.anyplace.floor;
 import java.util.*;
 import java.util.concurrent.*;
 
-import com.dmsl.airplace.alogrithms.LogRecord;
+import com.dmsl.airplace.algorithms.LogRecord;
 import com.dmsl.anyplace.AnyplaceAPI;
 import com.dmsl.anyplace.nav.AnyUserData;
 import com.dmsl.anyplace.wifi.SimpleWifiManager;

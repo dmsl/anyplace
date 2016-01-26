@@ -56,8 +56,8 @@ import com.dmsl.anyplace.nav.AnyUserData.FakeResults;
 import com.dmsl.anyplace.sensors.SensorsMain;
 import com.dmsl.anyplace.wifi.SimpleWifiManager;
 import com.dmsl.anyplace.wifi.WifiReceiver;
-import com.dmsl.airplace.alogrithms.LogRecord;
-import com.dmsl.airplace.alogrithms.RadioMap;
+import com.dmsl.airplace.algorithms.LogRecord;
+import com.dmsl.airplace.algorithms.RadioMap;
 
 /**
  * The main tracker component of Anyplace Navigator. Detects changes in WiFi
@@ -340,7 +340,7 @@ public class AnyplaceTracker {
 			// return false;
 			// }
 			// } else {
-			String calculatedLocation = com.dmsl.airplace.alogrithms.Algorithms.ProcessingAlgorithms(latestScanList, rm, algoChoice);
+			String calculatedLocation = com.dmsl.airplace.algorithms.Algorithms.ProcessingAlgorithms(latestScanList, rm, algoChoice);
 
 			if (calculatedLocation == null) {
 				triggerErrorListeners("Can't find location. Check that radio map file refers to the same area.");

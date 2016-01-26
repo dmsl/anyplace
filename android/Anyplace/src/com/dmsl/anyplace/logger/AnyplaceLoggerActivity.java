@@ -65,7 +65,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.ClusterManager.OnClusterItemClickListener;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
-import com.dmsl.airplace.alogrithms.RadioMap;
+import com.dmsl.airplace.algorithms.RadioMap;
 import com.dmsl.anyplace.AnyplaceAPI;
 import com.dmsl.anyplace.R;
 import com.dmsl.anyplace.AnyplaceAboutActivity;

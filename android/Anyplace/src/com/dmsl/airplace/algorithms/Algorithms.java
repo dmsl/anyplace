@@ -34,7 +34,7 @@
 *
 */
 
-package com.dmsl.airplace.alogrithms;
+package com.dmsl.airplace.algorithms;
 
 import java.io.BufferedReader;
 import java.io.File;

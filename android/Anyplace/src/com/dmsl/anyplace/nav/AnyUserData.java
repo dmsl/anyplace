@@ -41,7 +41,7 @@ import java.util.List;
 
 import android.location.Location;
 
-import com.dmsl.airplace.alogrithms.LogRecord;
+import com.dmsl.airplace.algorithms.LogRecord;
 import com.dmsl.anyplace.AnyplaceAPI;
 import com.dmsl.anyplace.utils.GeoPoint;
 
