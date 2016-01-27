@@ -147,10 +147,10 @@ public final class AnimatorProxy extends Animation {
         after.union(mBefore);
 
         parent.invalidate(
-                (int) FloatMath.floor(after.left),
-                (int) FloatMath.floor(after.top),
-                (int) FloatMath.ceil(after.right),
-                (int) FloatMath.ceil(after.bottom));
+                (int) Math.floor(after.left),
+                (int) Math.floor(after.top),
+                (int) Math.ceil(after.right),
+                (int) Math.ceil(after.bottom));
     }
 
     private void computeRect(final RectF r, View view) {
