@@ -58,7 +58,7 @@ Short description of the contents included in this release.
 Project Leader: Demetris Zeinalipour
 
 - Android: The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization) - Lead: Timotheos Constambeys
-- Windows: The Source code of the Anyplace Windows Phone Client (IP localization) - Lead: Panayiotis Eracleous
+- Windows: The Source code of the Anyplace Windows Phone Client (IP localization) - Lead: Pangiotis Irakleous
 - iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - Lead: Nikitin Artem
 - Viewer: The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Try online: http://anyplace.cs.ucy.ac.cy/viewer/ - Lead: Kyriakos Georgiou, Dimitris Valeris
 - API: The source code of Anyplace JSON API. Try online: http://anyplace.cs.ucy.ac.cy/developers/ -  Lead: Kyriakos Georgiou, Dimitris Valeris
