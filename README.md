@@ -55,15 +55,31 @@ DEALINGS IN THE SOFTWARE.
 
 Short description of the contents included in this release.
 
+### Android:
+The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization) - Lead: Timotheos Constambeys 
+Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
+
+### Windows:
+The Source code of the Anyplace Windows Phone Client (IP localization) - Lead: Pangiotis Irakleous
+Try: http://www.windowsphone.com/en-us/store/app/anyplace/29b741fd-0ca9-41ce-b736-76197a7c9f0a
+
+### iOS: 
+The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - Lead: Nikitin Artem
+Try: coming soon
+
+### Viewer:
+The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Lead: Kyriakos Georgiou, Dimitris Valeris
+Try: http://anyplace.cs.ucy.ac.cy/viewer/
+
+### API:
+The source code of Anyplace JSON API.  Lead: Kyriakos Georgiou, Dimitris Valeris
+Try: http://anyplace.cs.ucy.ac.cy/developers/
+
+### Architect:
+The source code of Anyplace HTML5/CSS3 Architect Tool. Lead: Kyriakos Georgiou, Dimitris Valeris
+Try: http://anyplace.cs.ucy.ac.cy/architect/
+
 Project Leader: Demetris Zeinalipour
-
-- Android: The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization) - Lead: Timotheos Constambeys
-- Windows: The Source code of the Anyplace Windows Phone Client (IP localization) - Lead: Pangiotis Irakleous
-- iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - Lead: Nikitin Artem
-- Viewer: The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Try online: http://anyplace.cs.ucy.ac.cy/viewer/ - Lead: Kyriakos Georgiou, Dimitris Valeris
-- API: The source code of Anyplace JSON API. Try online: http://anyplace.cs.ucy.ac.cy/developers/ -  Lead: Kyriakos Georgiou, Dimitris Valeris
-- Architect: The source code of Anyplace HTML5/CSS3 Architect Tool. Try online: http://anyplace.cs.ucy.ac.cy/architect/ -  Lead: Kyriakos Georgiou, Dimitris Valeris
-
 
 
 
