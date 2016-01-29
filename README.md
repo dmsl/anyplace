@@ -55,12 +55,14 @@ DEALINGS IN THE SOFTWARE.
 
 Short description of the contents included in this release.
 
-- Android: The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization)
-- Windows: The Source code of the Anyplace Windows Phone Client (IP localization)
-- iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - available soon
-- Web: The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization)
-- API: Available online at: http://anyplace.cs.ucy.ac.cy/developers/ 
-- Architect: Available online using http://anyplace.cs.ucy.ac.cy/architect/ 
+Project Leader: Demetris Zeinalipour
+
+- Android: The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization) - Lead: Timotheos Constambeys
+- Windows: The Source code of the Anyplace Windows Phone Client (IP localization) - Lead: Panayiotis Eracleous
+- iOS: The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization) - Lead: Nikitin Artem
+- Viewer: The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Try online: http://anyplace.cs.ucy.ac.cy/viewer/ - Lead: Kyriakos Georgiou, Dimitris Valeris
+- API: The source code of Anyplace JSON API. Try online: http://anyplace.cs.ucy.ac.cy/developers/ -  Lead: Kyriakos Georgiou, Dimitris Valeris
+- Architect: The source code of Anyplace HTML5/CSS3 Architect Tool. Try online: http://anyplace.cs.ucy.ac.cy/architect/ -  Lead: Kyriakos Georgiou, Dimitris Valeris
 
 
 
