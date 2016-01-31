@@ -1,0 +1,12 @@
+{
+  "name": "platform.js",
+  "main": "platform.js",
+  "ignore": [
+    ".*",
+    "*.log",
+    "*.md",
+    "package.json",
+    "doc",
+    "test"
+  ]
+}
