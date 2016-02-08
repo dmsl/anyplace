@@ -27,10 +27,24 @@
 
 var app = angular.module('anyViewer', ['ionic', 'ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'angular-loading-bar']);
 
+app.controller('HelloWorldContr', function ($ionicPlatform) { 
+	/* Custom Plugin */
+    /*------------------------------------------------------------*/
+	$ionicPlatform.ready(function() {	
+		var success = function(message) {
+			alert("Hello World");
+		}
+		var failure = function() {
+			alert("Error calling Hello Plugin");
+		}
+
+		hello.greet("World", success, failure);	
+    });
+	/*------------------------------------------------------------*/
+});
 
 
-app.service('GMapService', function () {
-
+app.service('GMapService', function ($ionicPlatform) {
     this.gmap = {};
     this.directionsDisplay = undefined;
     this.directionsService = undefined;

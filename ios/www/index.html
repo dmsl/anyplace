@@ -98,7 +98,7 @@
     <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" type="text/css"/>
     <link href="bower_components/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
 
-    <script type="text/javascript" src="libs/markerclusterer.js"></script>
+    <script type="text/javascript" src="lib/markerclusterer.js"></script>
 
     <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
     <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
@@ -119,7 +119,7 @@
     <script type="text/javascript" src="bower_components/angular-loading-bar/src/loading-bar.js"></script>
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css">
 
-    <script type="text/javascript" src="build/js/anyplace.min.js"></script>
+    <script type="text/javascript" src="build/js/anyplace.js"></script>
     <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
 
     <script type="text/javascript" src="bower_components/add-to-homescreen/src/addtohomescreen.min.js"></script>
@@ -138,6 +138,8 @@
 
 </head>
 <body>
+
+<div ng-controller="HelloWorldContr"></div>
 
 <div id="control-bar" class="box-shadow-1 ng-cloak" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
 
@@ -319,7 +321,7 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
 
-    <script src="libs/flurry.js"></script>
+    <script src="lib/flurry.js"></script>
     <script>FlurryAgent.startSession("CTSR4NQFNXTQZHRR3C3V");</script>
 </footer>
 

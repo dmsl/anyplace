@@ -27,26 +27,24 @@
 
 var app = angular.module('anyViewer', ['ionic', 'ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'angular-loading-bar']);
 
-app.run(function($ionicPlatform) {
-  $ionicPlatform.ready(function() {
-    if(window.cordova && window.cordova.plugins.Keyboard) {
-		// Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-      // for form inputs)
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-	  
-      // Don't remove this line unless you know what you are doing. It stops the viewport
-      // from snapping when text inputs are focused. Ionic handles this internally for
-      // a much nicer keyboard experience.
-      cordova.plugins.Keyboard.disableScroll(true);
-    }
-    if(window.StatusBar) {
-      StatusBar.styleDefault();
-    }
-  });
+app.controller('HelloWorldContr', function ($ionicPlatform) { 
+	/* Custom Plugin */
+    /*------------------------------------------------------------*/
+	$ionicPlatform.ready(function() {	
+		var success = function(message) {
+			alert("Hello World");
+		}
+		var failure = function() {
+			alert("Error calling Hello Plugin");
+		}
+
+		hello.greet("World", success, failure);	
+    });
+	/*------------------------------------------------------------*/
 });
 
-app.service('GMapService', function () {
 
+app.service('GMapService', function ($ionicPlatform) {
     this.gmap = {};
     this.directionsDisplay = undefined;
     this.directionsService = undefined;
