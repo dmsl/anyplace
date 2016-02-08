@@ -18,10 +18,6 @@ In case you have any publications resulting from the Anyplace platform, please c
 - "Internet-based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou and Georgios Chatzimiloudis IEEE Internet Computing (IC '16), IEEE Press, Volume xx, Pages: xx-xx, 2016. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
 - “Anyplace: A Crowdsourced Indoor Information Service”, Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti, Proceedings of the 16th IEEE International Conference on Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf
 
-You might also consider checking out Anyplace predecessor project coined Airplace (standalone WiFi localization - currently deprecated).
-
-https://github.com/dmsl/airplace
-
 Enjoy Anyplace!
 
 The Anyplace Team 
