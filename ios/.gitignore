@@ -3,4 +3,6 @@
 
 node_modules/
 platforms/
-plugins/
+plugins/*
+!plugins/com.dmsl.anyplace.magloc/
+.DS_Store

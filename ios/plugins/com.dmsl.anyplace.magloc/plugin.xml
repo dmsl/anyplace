@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+        id="com.dmsl.anyplace.magloc"
+        version="0.0.1">
+
+  <name>AnyplaceMagLoc</name>
+
+  <engines>
+    <engine name="cordova" version=">=3.4.0"/>
+  </engines>
+
+  <asset src="www/magloc.js" target="js/magloc.js"/>
+
+  <js-module src="www/magloc.js" name="magloc">
+    <clobbers target="magloc" />
+  </js-module>
+
+  <platform name="ios">
+    <config-file target="config.xml" parent="/widget">
+      <feature name="AnyplaceMagLoc">
+        <param name="ios-package" value="APMagloc" />
+      </feature>
+    </config-file>
+
+    <source-file src="src/ios"  target-dir="src"/>
+    <header-file src="src/ios"  target-dir="src"/>
+  </platform>
+
+</plugin>
