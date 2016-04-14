@@ -1510,6 +1510,16 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 			public void onSuccess(String result) {
 				upInProgress = false;
 				File file = new File(file_path);
+			
+				//
+				// Rename log file. Fingerprinting research users needs a database to test their algorithms. Log file can be use to generate a database
+				//
+				DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HHmmss", java.util.Locale.getDefault());
+				String new_file_path = file_path + dateFormat.format(new Date());				
+				File new_file = new File(new_file_path);
+				file.renameTo(new_file);
+				
+				//Delete old file
 				file.delete();
 
 				AlertDialog.Builder builder = new AlertDialog.Builder(AnyplaceLoggerActivity.this);
