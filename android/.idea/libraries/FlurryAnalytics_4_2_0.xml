@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="FlurryAnalytics-4.2.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/anyplace/libs/FlurryAnalytics-4.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

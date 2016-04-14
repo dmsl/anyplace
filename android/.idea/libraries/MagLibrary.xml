@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="MagLibrary">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/anyplace/libs/MagLibrary.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
