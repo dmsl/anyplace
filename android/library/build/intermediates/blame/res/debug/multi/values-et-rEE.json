@@ -1,0 +1,596 @@
+[
+    {
+        "outputFile": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/debug/values-et-rEE/values-et-rEE.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 105,
+                    "endColumn": 156,
+                    "endOffset": 257
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/auth_strings.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 4,
+                        "startOffset": 331,
+                        "endColumn": 156,
+                        "endOffset": 483
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 3,
+                    "startColumn": 4,
+                    "startOffset": 262,
+                    "endColumn": 164,
+                    "endOffset": 422
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/auth_strings.xml",
+                    "position": {
+                        "startLine": 5,
+                        "startColumn": 4,
+                        "startOffset": 488,
+                        "endColumn": 164,
+                        "endOffset": 648
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 4,
+                    "startColumn": 4,
+                    "startOffset": 427,
+                    "endColumn": 152,
+                    "endOffset": 575
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/auth_strings.xml",
+                    "position": {
+                        "startLine": 6,
+                        "startColumn": 4,
+                        "startOffset": 653,
+                        "endColumn": 152,
+                        "endOffset": 801
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 5,
+                    "startColumn": 4,
+                    "startOffset": 580,
+                    "endColumn": 131,
+                    "endOffset": 707
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/auth_strings.xml",
+                    "position": {
+                        "startLine": 7,
+                        "startColumn": 4,
+                        "startOffset": 806,
+                        "endColumn": 131,
+                        "endOffset": 933
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 6,
+                    "startColumn": 4,
+                    "startOffset": 712,
+                    "endColumn": 136,
+                    "endOffset": 844
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/auth_strings.xml",
+                    "position": {
+                        "startLine": 8,
+                        "startColumn": 4,
+                        "startOffset": 938,
+                        "endColumn": 140,
+                        "endOffset": 1074
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 7,
+                    "startColumn": 4,
+                    "startOffset": 849,
+                    "endColumn": 160,
+                    "endOffset": 1005
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/auth_strings.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 4,
+                        "startOffset": 170,
+                        "endColumn": 160,
+                        "endOffset": 326
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 8,
+                    "startColumn": 4,
+                    "startOffset": 1010,
+                    "endColumn": 127,
+                    "endOffset": 1133
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 14,
+                        "startColumn": 4,
+                        "startOffset": 1955,
+                        "endColumn": 127,
+                        "endOffset": 2078
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 9,
+                    "startColumn": 4,
+                    "startOffset": 1138,
+                    "endColumn": 158,
+                    "endOffset": 1292
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 13,
+                        "startColumn": 4,
+                        "startOffset": 1796,
+                        "endColumn": 158,
+                        "endOffset": 1950
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 10,
+                    "startColumn": 4,
+                    "startOffset": 1297,
+                    "endColumn": 125,
+                    "endOffset": 1418
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 12,
+                        "startColumn": 4,
+                        "startOffset": 1670,
+                        "endColumn": 125,
+                        "endOffset": 1791
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 11,
+                    "startColumn": 4,
+                    "startOffset": 1423,
+                    "endColumn": 171,
+                    "endOffset": 1590
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 7,
+                        "startColumn": 4,
+                        "startOffset": 852,
+                        "endColumn": 175,
+                        "endOffset": 1023
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 12,
+                    "startColumn": 4,
+                    "startOffset": 1595,
+                    "endColumn": 129,
+                    "endOffset": 1720
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 11,
+                        "startColumn": 4,
+                        "startOffset": 1540,
+                        "endColumn": 129,
+                        "endOffset": 1665
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 13,
+                    "startColumn": 4,
+                    "startOffset": 1725,
+                    "endColumn": 189,
+                    "endOffset": 1910
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 9,
+                        "startColumn": 4,
+                        "startOffset": 1155,
+                        "endColumn": 189,
+                        "endOffset": 1340
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 14,
+                    "startColumn": 4,
+                    "startOffset": 1915,
+                    "endColumn": 194,
+                    "endOffset": 2105
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 10,
+                        "startColumn": 4,
+                        "startOffset": 1345,
+                        "endColumn": 194,
+                        "endOffset": 1535
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 15,
+                    "startColumn": 4,
+                    "startOffset": 2110,
+                    "endColumn": 126,
+                    "endOffset": 2232
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 8,
+                        "startColumn": 4,
+                        "startOffset": 1028,
+                        "endColumn": 126,
+                        "endOffset": 1150
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 16,
+                    "startColumn": 4,
+                    "startOffset": 2237,
+                    "endColumn": 168,
+                    "endOffset": 2401
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 20,
+                        "startColumn": 4,
+                        "startOffset": 2799,
+                        "endColumn": 168,
+                        "endOffset": 2963
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 17,
+                    "startColumn": 4,
+                    "startOffset": 2406,
+                    "endColumn": 118,
+                    "endOffset": 2520
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 19,
+                        "startColumn": 4,
+                        "startOffset": 2680,
+                        "endColumn": 118,
+                        "endOffset": 2794
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 18,
+                    "startColumn": 4,
+                    "startOffset": 2525,
+                    "endColumn": 172,
+                    "endOffset": 2693
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 6,
+                        "startColumn": 4,
+                        "startOffset": 679,
+                        "endColumn": 172,
+                        "endOffset": 847
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 19,
+                    "startColumn": 4,
+                    "startOffset": 2698,
+                    "endColumn": 175,
+                    "endOffset": 2869
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 18,
+                        "startColumn": 4,
+                        "startOffset": 2504,
+                        "endColumn": 175,
+                        "endOffset": 2675
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 20,
+                    "startColumn": 4,
+                    "startOffset": 2874,
+                    "endColumn": 116,
+                    "endOffset": 2986
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 17,
+                        "startColumn": 4,
+                        "startOffset": 2387,
+                        "endColumn": 116,
+                        "endOffset": 2499
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 21,
+                    "startColumn": 4,
+                    "startOffset": 2991,
+                    "endColumn": 193,
+                    "endOffset": 3180
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 4,
+                        "startOffset": 303,
+                        "endColumn": 193,
+                        "endOffset": 492
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 22,
+                    "startColumn": 4,
+                    "startOffset": 3185,
+                    "endColumn": 181,
+                    "endOffset": 3362
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 5,
+                        "startColumn": 4,
+                        "startOffset": 497,
+                        "endColumn": 181,
+                        "endOffset": 674
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 23,
+                    "startColumn": 4,
+                    "startOffset": 3367,
+                    "endColumn": 132,
+                    "endOffset": 3495
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 4,
+                        "startOffset": 170,
+                        "endColumn": 132,
+                        "endOffset": 298
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 24,
+                    "startColumn": 4,
+                    "startOffset": 3500,
+                    "endColumn": 139,
+                    "endOffset": 3635
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 21,
+                        "startColumn": 4,
+                        "startOffset": 2968,
+                        "endColumn": 139,
+                        "endOffset": 3103
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 25,
+                    "startColumn": 4,
+                    "startOffset": 3640,
+                    "endColumn": 172,
+                    "endOffset": 3808
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 24,
+                        "startColumn": 4,
+                        "startOffset": 3457,
+                        "endColumn": 172,
+                        "endOffset": 3625
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 26,
+                    "startColumn": 4,
+                    "startOffset": 3813,
+                    "endColumn": 223,
+                    "endOffset": 4032
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 23,
+                        "startColumn": 4,
+                        "startOffset": 3233,
+                        "endColumn": 223,
+                        "endOffset": 3452
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 27,
+                    "startColumn": 4,
+                    "startOffset": 4037,
+                    "endColumn": 124,
+                    "endOffset": 4157
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 22,
+                        "startColumn": 4,
+                        "startOffset": 3108,
+                        "endColumn": 124,
+                        "endOffset": 3228
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 28,
+                    "startColumn": 4,
+                    "startOffset": 4162,
+                    "endColumn": 109,
+                    "endOffset": 4267
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 25,
+                        "startColumn": 4,
+                        "startOffset": 3630,
+                        "endColumn": 109,
+                        "endOffset": 3735
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 29,
+                    "startColumn": 4,
+                    "startOffset": 4272,
+                    "endColumn": 170,
+                    "endOffset": 4438
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 16,
+                        "startColumn": 4,
+                        "startOffset": 2216,
+                        "endColumn": 170,
+                        "endOffset": 2382
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 30,
+                    "startColumn": 4,
+                    "startOffset": 4443,
+                    "endColumn": 132,
+                    "endOffset": 4571
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 15,
+                        "startColumn": 4,
+                        "startOffset": 2083,
+                        "endColumn": 132,
+                        "endOffset": 2211
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 31,
+                    "startColumn": 4,
+                    "startOffset": 4576,
+                    "endColumn": 94,
+                    "endOffset": 4666
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 26,
+                        "startColumn": 4,
+                        "startOffset": 3740,
+                        "endColumn": 94,
+                        "endOffset": 3830
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 32,
+                    "startColumn": 4,
+                    "startOffset": 4671,
+                    "endColumn": 111,
+                    "endOffset": 4778
+                },
+                "from": {
+                    "file": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/values-et-rEE/common_strings.xml",
+                    "position": {
+                        "startLine": 27,
+                        "startColumn": 4,
+                        "startOffset": 3835,
+                        "endColumn": 111,
+                        "endOffset": 3942
+                    }
+                }
+            }
+        ]
+    }
+]

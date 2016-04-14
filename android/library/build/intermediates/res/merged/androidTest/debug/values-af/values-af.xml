@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"\'n Program vereis dat Google Play-dienste geaktiveer word."</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"\'n Program vereis dat Google Play-dienste geïnstalleer word."</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"\'n Program vereis \'n opdatering vir Google Play-dienste."</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Google Play-dienstefout"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Versoek deur <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"\'n Program het probeer om \'n slegte weergawe van Google Play-dienste te gebruik."</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Aktiveer Google Play-dienste"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Hierdie program sal nie werk tensy jy Google Play-dienste aktiveer nie."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Aktiveer Google Play-dienste"</string>
+    <string msgid="2443362625939284971" name="common_google_play_services_error_notification_requested_by_msg">"Versoek deur <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Kry Google Play-dienste"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Hierdie program sal nie loop sonder Google Play-dienste nie, wat nie op jou foon is nie."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Hierdie program sal nie loop sonder Google Play-dienste nie, wat nie op jou tablet is nie."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Kry Google Play-dienste"</string>
+    <string msgid="4983316348021735578" name="common_google_play_services_invalid_account_text">"Die gespesifiseerde rekening bestaan nie op hierdie toestel nie. Kies asseblief \'n ander rekening."</string>
+    <string msgid="1066672360770936753" name="common_google_play_services_invalid_account_title">"Ongeldige rekening"</string>
+    <string msgid="2583358409598976717" name="common_google_play_services_needs_enabling_title">"\'n Program vereis dat Google Play Services geaktiveer word."</string>
+    <string msgid="9038847255613537209" name="common_google_play_services_network_error_text">"\'n Dataverbinding is nodig om aan Google Play-dienste te koppel."</string>
+    <string msgid="3827284619958211114" name="common_google_play_services_network_error_title">"Netwerkfout"</string>
+    <string msgid="8120534356798772974" name="common_google_play_services_notification_needs_installation_title">"\'n Program vereis dat Google Play Services geïnstalleer word."</string>
+    <string msgid="1388129345631079938" name="common_google_play_services_notification_needs_update_title">"\'n Program vereis dat Google Play Services opgedateer word."</string>
+    <string msgid="1852570676146674985" name="common_google_play_services_notification_ticker">"Google Play Services-fout"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Onbekende probleem met Google Play-dienste."</string>
+    <string msgid="4725396522367789365" name="common_google_play_services_unsupported_date_text">"Dit lyk of die datum op die toestel verkeerd is. Gaan asseblief die datum op die toestel na."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"Google Play-dienste, waarop sommige van jou programme staatmaak, werk nie met jou toestel nie. Kontak asseblief die vervaardiger vir bystand."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Google Play-dienste"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Dateer op"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Hierdie program sal nie loop nie, tensy jy Google Play-dienste opdateer."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Dateer Google Play-dienste op"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Meld aan"</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Meld aan met Google"</string>
+</resources>

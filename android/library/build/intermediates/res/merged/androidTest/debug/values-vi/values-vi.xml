@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"Ứng dụng yêu cầu Dịch vụ của Google Play phải được bật."</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"Ứng dụng yêu cầu cài đặt Dịch vụ của Google Play."</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"Ứng dụng yêu cầu cập nhật dành cho Dịch vụ Google Play."</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Lỗi dịch vụ của Google Play"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Được yêu cầu bởi <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"Ứng dụng đã cố sử dụng phiên bản không đúng của Dịch vụ của Google Play."</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Bật dịch vụ của Google Play"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Ứng dụng này sẽ không hoạt động trừ khi bạn bật dịch vụ của Google Play."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Bật dịch vụ của Google Play"</string>
+    <string msgid="2443362625939284971" name="common_google_play_services_error_notification_requested_by_msg">"Được yêu cầu bởi <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Cài đặt dịch vụ của Google Play"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Ứng dụng này sẽ không chạy nếu không có dịch vụ của Google Play. Điện thoại của bạn bị thiếu dịch vụ này."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Ứng dụng này sẽ không chạy nếu không có dịch vụ của Google Play. Máy tính bảng của bạn bị thiếu dịch vụ này."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Cài đặt dịch vụ của Google Play"</string>
+    <string msgid="4983316348021735578" name="common_google_play_services_invalid_account_text">"Tài khoản đã chỉ định không tồn tại trên thiết bị này. Vui lòng chọn một tài khoản khác."</string>
+    <string msgid="1066672360770936753" name="common_google_play_services_invalid_account_title">"Tài khoản không hợp lệ"</string>
+    <string msgid="2583358409598976717" name="common_google_play_services_needs_enabling_title">"Một ứng dụng yêu cầu bật các dịch vụ của Google Play."</string>
+    <string msgid="9038847255613537209" name="common_google_play_services_network_error_text">"Cần có kết nối dữ liệu để kết nối với các dịch vụ của Google Play."</string>
+    <string msgid="3827284619958211114" name="common_google_play_services_network_error_title">"Lỗi mạng"</string>
+    <string msgid="8120534356798772974" name="common_google_play_services_notification_needs_installation_title">"Một ứng dụng yêu cầu cài đặt các dịch vụ của Google Play."</string>
+    <string msgid="1388129345631079938" name="common_google_play_services_notification_needs_update_title">"Một ứng dụng yêu cầu cập nhật đối với các dịch vụ của Google Play."</string>
+    <string msgid="1852570676146674985" name="common_google_play_services_notification_ticker">"Lỗi dịch vụ của Google Play"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Sự cố không xác định với dịch vụ của Google Play."</string>
+    <string msgid="4725396522367789365" name="common_google_play_services_unsupported_date_text">"Ngày trên thiết bị có vẻ không chính xác. Vui lòng kiểm tra ngày trên thiết bị."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"Các dịch vụ của Google Play mà một số ứng dụng của bạn dựa vào không được thiết bị của bạn hỗ trợ. Vui lòng liên hệ với nhà sản xuất để được hỗ trợ."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Dịch vụ của Google Play"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Cập nhật"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Ứng dụng này sẽ không chạy trừ khi bạn cập nhật dịch vụ của Google Play."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Cập nhật dịch vụ của Google Play"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Đăng nhập"</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Đăng nhập bằng Google"</string>
+</resources>

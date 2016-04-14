@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"Ota käyttöön Google Play -palvelut, jotta sovellus toimii."</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"Asenna Google Play -palvelut, jotta sovellus toimii."</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"Päivitä Google Play -palvelut, jotta sovellus toimii."</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Virhe Google Play -palveluissa"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Pyynnön teki <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"Sovellus yritti käyttää virheellistä Google Play -palveluiden versiota"</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Ota Google Play -palv. käyttöön"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Tämä sovellus ei toimi, ellet ota Google Play -palveluita käyttöön."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Ota Google Play -palvelut käyttöön"</string>
+    <string msgid="2443362625939284971" name="common_google_play_services_error_notification_requested_by_msg">"Pyynnön teki <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Asenna Google Play -palvelut"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Tämä sovellus ei toimi ilman Google Play -palveluita, jotka puuttuvat puhelimesta."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Tämä sovellus ei toimi ilman Google Play -palveluita, jotka puuttuvat tablet-laitteesta."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Asenna Google Play -palvelut"</string>
+    <string msgid="4983316348021735578" name="common_google_play_services_invalid_account_text">"Kyseistä tiliä ei ole tällä laitteella. Valitse toinen tili."</string>
+    <string msgid="1066672360770936753" name="common_google_play_services_invalid_account_title">"Tili ei kelpaa"</string>
+    <string msgid="2583358409598976717" name="common_google_play_services_needs_enabling_title">"Ota käyttöön Google Play -palvelut, jotta sovellus toimii."</string>
+    <string msgid="9038847255613537209" name="common_google_play_services_network_error_text">"Google Play -palveluiden käyttöön tarvitaan tietoliikenneyhteys."</string>
+    <string msgid="3827284619958211114" name="common_google_play_services_network_error_title">"Verkkovirhe"</string>
+    <string msgid="8120534356798772974" name="common_google_play_services_notification_needs_installation_title">"Asenna Google Play -palvelut, jotta sovellus toimii."</string>
+    <string msgid="1388129345631079938" name="common_google_play_services_notification_needs_update_title">"Päivitä Google Play -palvelut, jotta sovellus toimii."</string>
+    <string msgid="1852570676146674985" name="common_google_play_services_notification_ticker">"Virhe Google Play -palveluissa"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Tuntematon ongelma käytettäessä Google Play -palveluita."</string>
+    <string msgid="4725396522367789365" name="common_google_play_services_unsupported_date_text">"Laitteen päivämäärä vaikuttaa virheelliseltä. Tarkista laitteen päivämäärä."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"Google Play -palveluita, joita osa sovelluksistasi käyttää, ei tueta laitteellasi. Pyydä ohjeita laitteen valmistajalta."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Google Play -palvelut"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Päivitä"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Tämä sovellus ei toimi, ellet päivitä Google Play -palveluita."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Päivitä Google Play -palvelut"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Kirjaudu"</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Kirjaudu Google-tiliin"</string>
+</resources>

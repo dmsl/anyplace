@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"App erfordert aktivierte Google Play-Dienste"</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"App erfordert die Installation von Google Play-Diensten"</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"App erfordert ein Update für Google Play-Dienste"</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Fehler bei Google Play-Diensten"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Angefordert von <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"App versuchte, defekte Google Play-Dienste-Version zu verwenden"</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Google Play-Dienste aktivieren"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Diese App funktioniert nur, wenn Sie die Google Play-Dienste aktivieren."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Google Play-Dienste aktivieren"</string>
+    <string msgid="2443362625939284971" name="common_google_play_services_error_notification_requested_by_msg">"Angefordert von <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Google Play-Dienste installieren"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Zur Nutzung dieser App sind Google Play-Dienste erforderlich, die auf Ihrem Telefon nicht installiert sind."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Zur Nutzung dieser App sind Google Play-Dienste erforderlich, die auf Ihrem Tablet nicht installiert sind."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Google Play-Dienste installieren"</string>
+    <string msgid="4983316348021735578" name="common_google_play_services_invalid_account_text">"Das angegebene Konto ist auf diesem Gerät nicht vorhanden. Bitte wählen Sie ein anderes Konto aus."</string>
+    <string msgid="1066672360770936753" name="common_google_play_services_invalid_account_title">"Ungültiges Konto"</string>
+    <string msgid="2583358409598976717" name="common_google_play_services_needs_enabling_title">"App erfordert die Aktivierung der Google Play-Dienste"</string>
+    <string msgid="9038847255613537209" name="common_google_play_services_network_error_text">"Um eine Verbindung zu den Google Play-Diensten herzustellen, ist eine Datenverbindung erforderlich."</string>
+    <string msgid="3827284619958211114" name="common_google_play_services_network_error_title">"Netzwerkfehler"</string>
+    <string msgid="8120534356798772974" name="common_google_play_services_notification_needs_installation_title">"App erfordert die Installation der Google Play-Dienste"</string>
+    <string msgid="1388129345631079938" name="common_google_play_services_notification_needs_update_title">"App erfordert ein Update der Google Play-Dienste"</string>
+    <string msgid="1852570676146674985" name="common_google_play_services_notification_ticker">"Fehler bei Zugriff auf Google Play-Dienste"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Unbekanntes Problem mit Google Play-Diensten"</string>
+    <string msgid="4725396522367789365" name="common_google_play_services_unsupported_date_text">"Das Datum auf dem Gerät scheint falsch zu sein. Bitte überprüfen Sie das Datum auf dem Gerät."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"Google Play-Dienste, auf denen einige Ihrer Apps basieren, werden von diesem Gerät nicht unterstützt. Wenden Sie sich für weitere Informationen an den Hersteller."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Google Play-Dienste"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Aktualisieren"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Diese App wird nur ausgeführt, wenn Sie die Google Play-Dienste aktualisieren."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Google Play-Dienste aktualisieren"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Anmelden"</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Über Google anmelden"</string>
+</resources>

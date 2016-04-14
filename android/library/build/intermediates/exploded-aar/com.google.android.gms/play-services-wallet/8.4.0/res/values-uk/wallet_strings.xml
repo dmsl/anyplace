@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright 2014 Google Inc. All Rights Reserved.  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wallet_buy_button_place_holder" msgid="4184147110658930238">"Купити за допомогою Google"</string>
+</resources>

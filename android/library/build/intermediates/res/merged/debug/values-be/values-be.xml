@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"Прыкладанне патрабуе ўключэння службаў Google Play."</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"Прыкладанне патрабуе ўсталявання службаў Google Play."</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"Прыкладанне патрабуе абнаўлення службаў Google Play."</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Памылка службаў Google Play"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Запытана прыкладаннем <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"Прыкладанне паспрабавала скарыстацца сапсаванай версіяй службаў Google Play."</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Уключыць службы Google Play"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Гэта прыкладанне не будзе працаваць, пакуль вы не ўключыце службы Google Play."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Уключыць службы Google Play"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Атрымаць службы Google Play"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Гэта прыкладанне не будзе працаваць без службаў Google Play, якіх няма ў вашым тэлефоне."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Гэта прыкладанне не будзе працаваць без службаў Google Play, якіх няма на вашым планшэце."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Атрымаць службы Google Play"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Невядомая праблема са службамі Google Play."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"Службы Google Play, да якiх прывязаны некаторыя прыкладаннi, не падтрымлiваюцца на вашай прыладзе. Па дапамогу звярнiцеся да вытворцы."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Службы Google Play"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Абнавіць"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Гэта прыкладанне не будзе працаваць падчас абнаўлення службаў Google Play."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Абнаўленне службаў Google Play"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Увайсцi"</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Увайсці ў Google"</string>
+</resources>
