@@ -8,13 +8,13 @@ void mcl_init() {
     localizer.clear();
 }
 
-void mcl_add_map(const void* input, unsigned int count, int floor) {
+void mcl_add_map(const void* input, unsigned int count, unsigned int width, unsigned int height, int floor) {
     printf("mcl_init_localization: count = %d\n", count);
     Milestone* milestones = (Milestone*) input;
 	std::vector < Milestone > vec = std::vector<Milestone>();
 	for (int i = 0; i < count; i++)
 		vec.push_back(milestones[i]);
-    localizer.set_map(vec, floor);
+    localizer.set_map(vec, Size{width, height}, floor);
 }
 
 void mcl_remove_map(int floor) {
@@ -55,23 +55,26 @@ unsigned long mcl_particles_count(int floor) {
     return localizer.particles_count(floor);
 }
 
-void mcl_particles(void *buf, int floor) {
+void mcl_particles(void *buf, size_t size, int floor) {
     printf("mcl_particles\n");
     struct OutStruct {
         Point pos;
         double weight;
         Point nn;
         //Why double? Because else is not working! Swift's sizeof cosiders 44 bytes if Int, but in memory aligns as 48 bytes => getting garbage on return in swift. Need to play with alignment properties of C++ compiler, so it will align struct to multiple of 8 always, or keep it such manually.
-        double clusterId;
-    };
+        // Added __attribute__ keyword to fx alignment, however, it can be an issue on another platorm, i.e. 32-bit
+        int clusterId;
+    } __attribute__ ((aligned(8)));
 //    printf("sizeof outstruct = %d\n", sizeof(OutStruct));
     OutStruct * particles = (OutStruct *) buf;
     const std::vector<const Particle *> vec = localizer.get_particles(floor);
 //    printf("vecsize = %lu\n",vec.size());
+    assert(size >= vec.size()*sizeof(struct OutStruct));
+
     for (int i = 0; i < vec.size(); i++) {
         const Particle * p = vec.at(i);
 //        printf("dist = %.2f\n", (p->nn->pos - p->pos).magnitude());
-        particles[i] = OutStruct{ p->pos, p->weight, p->nns[0]->pos, (double)p->clusterId};
+        particles[i] = OutStruct{ p->pos, p->weight, p->nns[0]->pos, p->clusterId};
     }
     
 }
@@ -109,7 +112,7 @@ void mcl_closest_milestone(void *input, void *output, int floor) {
 
 unsigned int mcl_clusters_count(int floor) { return localizer.clusters_count(floor); }
 
-void mcl_cluster_sizes(void *output, int output_size, int floor) {
+void mcl_cluster_sizes(void *output, unsigned int output_size, int floor) {
     struct ClusterInfo {
         int id;
         unsigned int count;
@@ -129,12 +132,12 @@ void mcl_cluster_sizes(void *output, int output_size, int floor) {
     }
 }
 
-void mcl_most_probable_position(void *output, int size, bool pull_to_nearest_milestone, int floor) {
+void mcl_most_probable_position(void *output, size_t size, bool pull_to_nearest_milestone, int floor) {
     printf("mcl_most_probable_position");
     if (size < sizeof(Point))
         std::invalid_argument("Buffer is too small");
     Point *p = (Point *) output;
-    *p = localizer.most_probable_position(floor, pull_to_nearest_milestone);
+    *p = localizer.most_probable_position_cluster_size_proximity_based(floor, pull_to_nearest_milestone);
 }
 
 void mcl_test(void *buf) {

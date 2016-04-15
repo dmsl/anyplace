@@ -36,7 +36,7 @@
 
 import Foundation
 
-let PRECISION = 1e-12
+let PRECISION = 1e-15
 
 @objc class Vector2D: NSObject, NSCoding {
     private(set) var x: Double

@@ -45,6 +45,7 @@ class LatLng {
     private(set) var lng: Double
     
     init(lat: Double, lng: Double) {
+        assert(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
         self.lat = lat
         self.lng = lng
     }
@@ -57,7 +58,8 @@ class LatLng {
         return Vector3D(x: x, y: y, z: z)
     }
     
-    static func radiusOfEarthAtLat(lat: Double) -> Double {
+    static func radiusOfEarthAtLat(latDegree: Double) -> Double {
+        let lat = toRad(latDegree)
         let a = EARTH_EQUATORIAL_RADIUS_M
         let b = EARTH_POLAR_RADIUS_M
         let nom = pow( pow(a, 2)*cos(lat), 2) + pow( pow(b, 2)*sin(lat), 2)
@@ -66,12 +68,13 @@ class LatLng {
         return R
     }
 
+    
     //Haversine formula
     static func dist(p1: LatLng, p2: LatLng) -> Double {
-        let sin2_lat = pow( (p2.lat - p1.lat)/2, 2 )
-        let cos1 = cos(p1.lat)
-        let cos2 = cos(p2.lat)
-        let sin2_lng = pow( (p2.lng - p1.lng)/2, 2 )
+        let sin2_lat = pow( sin(toRad( (p2.lat - p1.lat)/2 )), 2 )
+        let cos1 = cos(toRad(p1.lat))
+        let cos2 = cos(toRad(p2.lat))
+        let sin2_lng = pow( toRad((p2.lng - p1.lng)/2), 2 )
         let p_avg = (p1 + p2) / 2
         let R = radiusOfEarthAtLat(p_avg.lat)
         return 2*R*asin(sqrt( sin2_lat + cos1*cos2*sin2_lng) )
@@ -79,6 +82,9 @@ class LatLng {
     
 }
 
+func toRad(angle: Double) -> Double {
+    return angle / 180.0 * M_PI
+}
 
 func +(left: LatLng, right: LatLng) -> LatLng { return LatLng(lat: left.lat + right.lat, lng: left.lng + right.lng) }
 func *(p: LatLng, k: Double) -> LatLng { return LatLng(lat: p.lat * k, lng: p.lng * k) }
