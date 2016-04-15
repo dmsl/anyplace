@@ -94,11 +94,12 @@ private:
     void clear_distributions();
     
 public:
-    Localizer(const std::vector<Milestone> & milestones) {
+    Localizer(const std::vector<Milestone> & milestones, Size map_size) {
         std::vector<Feature *> features;
         for (Milestone milestone : milestones) {
             features.push_back((Feature *) new Milestone(milestone));
         }
+        _map.set_size(map_size);
         _map.add_features(features);
         printf("Localizer(): feautures = %lu, obstacles = %lu\n", _map.features_count(), _map.obstacles_count());
 	};
@@ -114,7 +115,17 @@ public:
 	void particles_sample_motion(const Vector2D motion, const double distance_variance, const double angle_variance);
     
 private:
-    void particles_sample_measurement(const Field field, const double distance_threshold, const bool resample, std::function<double (const Field, const Milestone *)> similarity);
+    void particles_sample_measurement(const Field & field, const double & distance_threshold, const bool resample, std::function<double (const Field &, const Milestone *)> similarity);
+    
+    
+    double localization_score(std::function<double (const ClusterProperties &)> cluster_score) const;
+    double localization_score_cluster_size_proximity) const;
+
+    Point most_probable_position(std::function<int ()> most_probable_cluster, bool pull_to_nearest_milestone = false) const;
+    
+protected:
+    double cluster_score_size_proximity(const ClusterProperties &) const;
+    
 public:
     void particles_sample_measurement_magnitude_based(const double field_magnitude, const double magnitude_variance, const double distance_threshold, const bool resample);
     void particles_sample_measurement_component_based(const Field field, const double component_variance, const Quaternion attitude, const double distance_threshold, const bool resample);
@@ -126,7 +137,7 @@ public:
     double particles_to_nearest_milestones_average_distance();
     void recalculate_nns();
     
-    Line find_nearest_line(Point p) const { return Map::find_NN_line(p, _map); }
+    Line find_nearest_line(Point p) const { return _map.get_line(Map::find_NN_line(p, _map)); }
     Point find_nearest_point(Point p) const { return _map.find_NN_features(p, 1).at(0)->pos; }
     const Milestone * find_nearest_milestone(Point p) const { return (Milestone *) _map.find_NN_features(p, 1).at(0); }
     
@@ -136,7 +147,12 @@ public:
     unsigned int clusters_count() const { return _clusters.size(); }
     std::map<int, std::vector<Particle *>> get_clusters() const { return _clusters; }
     std::map<int, ClusterProperties> get_clusters_properties() const;
-    double calculate_localization_density_score() const;
+    
+    enum LocalizerAccruacy{ LOW, MEDIUM, HIGH; }
+    int localization_accuracy() const;
+    
+    Point most_probable_position_cluster_size_based(bool pull_to_nearest_milestone = false) const;
+    Point most_probable_position_cluster_size_proximity_based(bool pull_to_nearest_milestone = false) const;
     
     ~Localizer();
 };
@@ -196,9 +212,19 @@ public:
         }
     }
     
-    Point most_probable_position(int id, bool pull_to_nearest_milestone = false) const {
-        return _localizers.at(id)->most_probable_position(pull_to_nearest_milestone);
+    Point most_probable_position_cluster_size_based(int id, bool pull_to_nearest_milestone = false) const {
+        return _localizers.at(id)->most_probable_position_cluster_size_based(pull_to_nearest_milestone);
     }
+    
+    Point most_probable_position_cluster_size_proximity_based(int id, bool pull_to_nearest_milestone = false) const {
+        return _localizers.at(id)->most_probable_position_cluster_size_proximity_based(pull_to_nearest_milestone);
+    }
+    
+    //
+    //Need to add multiple map most_probable_position support. It can be done using
+    //localization_score functions in Localizer class
+    //
+    
     
     const unsigned long particles_count(int id) const {
         return _localizers.at(id)->particles_count();
@@ -228,7 +254,7 @@ public:
         return _localizers.at(id)->get_clusters_properties();
     }
     
-    void set_map(const std::vector<Milestone> milestones, int id);
+    void set_map(const std::vector<Milestone> milestones, Size map_size, int id);
     void remove_map(int id);
     void clear();
     const int map_id_by_best_localization_density_score();
