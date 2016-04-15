@@ -7,7 +7,7 @@ extern "C" {
 #endif
     
 void mcl_init();
-void mcl_add_map(const void* input, unsigned int count, int floor);
+void mcl_add_map(const void* input, unsigned int count, unsigned int width, unsigned int height, int floor);
 void mcl_remove_map(int floor);
     
 void mcl_start(double fraction, double alpha_slow, double alpha_fast);
@@ -18,16 +18,16 @@ void mcl_measure_angle_based(double f_x, double f_y, double f_z, double w, doubl
 void mcl_pull_particles_to_nearest_milestones(double disance_threshold);
 
 unsigned long mcl_particles_count(int floor);
-void mcl_particles(void *buf, int floor);
+void mcl_particles(void *buf, size_t size, int floor);
     
 void mcl_closest_line(void *input, void *output, int floor);
 void mcl_closest_point(void *input, void *output, int floor);
 void mcl_closest_milestone(void *input, void *output, int floor);
         
 unsigned int mcl_clusters_count(int floor);
-void mcl_cluster_sizes(void *output, int output_size);
+void mcl_cluster_sizes(void *output, unsigned int output_size, int floor);
 
-void mcl_most_probable_position(void *output, int size, bool pull_to_nearest_milestone);
+void mcl_most_probable_position(void *output, size_t size, bool pull_to_nearest_milestone, int floor);
     
 void mcl_test(void *buf);
     

@@ -155,7 +155,7 @@ class NavigatorController: UIViewController, UIWebViewDelegate, CLLocationManage
     
     private func askConnectToInternet() {
         let title = "Network".localized
-        let message = "Internet connection reuired! Connect and click OK".localized
+        let message = "Internet connection required! Connect and click OK".localized
         let controller = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.Alert)
         let action_title = "OK".localized
         let action_ok = UIAlertAction(title: action_title, style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in

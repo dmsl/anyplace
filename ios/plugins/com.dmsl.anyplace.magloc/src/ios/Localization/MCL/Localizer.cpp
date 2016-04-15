@@ -109,23 +109,26 @@ void Localizer::particles_sample_motion(const Vector2D motion, const double dist
         
         const Milestone * nn = particle->nns[0];
         bool particle_moves_away;
-        if ( (nn->line.a + dr > nn->line && particle->pos >= nn->line) ||
-            ( nn->line.a + dr < nn->line && particle->pos <= nn->line ) )
+        
+        Line nn_line = _map.get_line(nn->lineId);
+        
+        if ( (nn_line.a + dr > nn_line && particle->pos >= nn_line) ||
+            ( nn_line.a + dr < nn_line && particle->pos <= nn_line ) )
             particle_moves_away = true;
         else particle_moves_away = false;
         
         
         
         if (particle_moves_away) {
-            double dr_dir_line_dir_dot_product = dr.direction()*nn->line.direction();
+            double dr_dir_line_dir_dot_product = dr.direction()*nn_line.direction();
             double a_max = M_PI / 3;
             double a_min = 0;
             double a = (a_min - a_max)*abs(dr_dir_line_dir_dot_product) + a_max;
             if ( dr_dir_line_dir_dot_product >= 0 ) {
-                if ( nn->line.a + dr > nn->line )
+                if ( nn_line.a + dr > nn_line )
                     a = -a;
             } else {
-                if ( nn->line.a + dr < nn->line )
+                if ( nn_line.a + dr < nn_line )
                     a = -a;
             }
             dr.rotate(a);
@@ -139,7 +142,7 @@ void Localizer::particles_sample_motion(const Vector2D motion, const double dist
 }
 
 
-void Localizer::particles_sample_measurement(const Field field, const double distance_threshold, const bool resample, std::function<double (const Field, const Milestone *)> similarity ) {
+void Localizer::particles_sample_measurement(const Field & field, const double & distance_threshold, const bool resample, std::function<double (const Field &, const Milestone *)> similarity ) {
     printf("Localizer::particles_sample_measurement\n");
     
     if (distance_threshold <= 0)
@@ -182,7 +185,7 @@ void Localizer::particles_sample_measurement(const Field field, const double dis
 }
 
 void Localizer::particles_sample_measurement_magnitude_based(const double magnitude, const double variance, const double distance_threshold, const bool resample) {
-    std::function<double (const Field, const Milestone *)> similarity = [&](const Field measured_field, const Milestone * milestone) {
+    std::function<double (const Field &, const Milestone *)> similarity = [&](const Field & measured_field, const Milestone * milestone) {
         double w_max = _measurement_distribution->pdf(milestone->field.norm(), milestone->field.norm(), variance);
         return _measurement_distribution->pdf(measured_field.norm(), milestone->field.norm(), variance) / w_max;
     };
@@ -194,7 +197,7 @@ void Localizer::particles_sample_measurement_component_based(const Field field, 
     if (variance < 0)
         throw std::invalid_argument("Incorrect component variance");
     
-    std::function<double (const Field, const Milestone *)> similarity = [&](const Field measured_field, const Milestone * milestone) {
+    std::function<double (const Field &, const Milestone *)> similarity = [&](const Field & measured_field, const Milestone * milestone) {
         
         Quaternion milestone_sensor_attitude = milestone->attitude;
         Field milestone_field = milestone->field;
@@ -229,7 +232,7 @@ void Localizer::particles_sample_measurement_angle_based(const Field field, cons
     if (magnitude_variance < 0)
         throw std::invalid_argument("Incorrect magnitude variance");
     
-    std::function<double (const Field, const Milestone *)> similarity = [&](const Field measured_field, const Milestone * milestone) {
+    std::function<double (const Field &, const Milestone *)> similarity = [&](const Field & measured_field, const Milestone * milestone) {
         
         
         Quaternion milestone_sensor_attitude = milestone->attitude;
@@ -281,9 +284,9 @@ void Localizer::particles_importance_resample() {
     _w_fast += _alpha_fast*(_w_avg - _w_fast);
     printf("w_avg = %f, w_slow = %f, w_fast = %f\n", _w_avg, _w_slow, _w_fast);
     
-    for (Particle * particle : _particles) {
+    for (Particle * particle : _particles)
         particle->weight /= w_sum;
-    }
+    
     
     std::uniform_real_distribution<double> random_add_distribution(0.0, 1.0);
     std::uniform_int_distribution<unsigned long> index_distribution(0, milestones_count() - 1);
@@ -324,24 +327,13 @@ void Localizer::particles_importance_resample() {
     _particles.insert(_particles.end(), resampled.begin(), resampled.end());
 }
 
-Point Localizer::most_probable_position(bool pull_to_nearest_milestone) const {
+Point Localizer::most_probable_position(std::function<int ()> most_probable_cluster, bool pull_to_nearest_milestone) const {
     assert(_particles.size() != 0);
-    
     Point position = Point(0.0, 0.0);
     
-    int maxClusterId;
-    unsigned long maxClusterSize = 0;
-    for (std::map<int, std::vector<Particle *>>::const_iterator it = _clusters.begin(); it != _clusters.end(); ++it) {
-        unsigned long size = it->second.size();
-        if ( size > maxClusterSize )
-        {
-            maxClusterSize = size;
-            maxClusterId = it->first;
-        }
-    }
-    assert(maxClusterSize != 0);
+    int cluster_id = most_probable_cluster();
     
-    std::vector<Particle *> cluster = _clusters.at(maxClusterId);
+    std::vector<Particle *> cluster = _clusters.at(cluster_id);
     for (Particle * particle: cluster)
         position += particle->pos;
     position /= cluster.size();
@@ -350,6 +342,43 @@ Point Localizer::most_probable_position(bool pull_to_nearest_milestone) const {
         position = find_nearest_milestone(position)->pos;
     
     return position;
+}
+
+Point Localizer::most_probable_position_cluster_size_based(bool pull_to_nearest_milestone) const {
+    std::function<int ())> most_probable_cluster = [&]() {
+        int max_cluster_id;
+        unsigned long max_cluster_size = 0;
+        for (std::map<int, std::vector<Particle *>>::const_iterator it = _clusters.begin(); it != _clusters.end(); ++it) {
+            unsigned long size = it->second.size();
+            if ( size > max_cluster_size )
+            {
+                max_cluster_size = size;
+                max_cluster_id = it->first;
+            }
+        }
+        assert(max_cluster_size != 0);
+        return max_cluster_id;
+    };
+    return most_probable_position(most_probable_cluster, pull_to_nearest_milestone);
+}
+
+Point Localizer::most_probable_position_cluster_size_proximity_based(bool pull_to_nearest_milestone) const {
+    std::function<int ())> most_probable_cluster = [&]() {
+        int max_cluster_id;
+        double max_cluster_score = -1;
+        std::map<int, ClusterProperties> properties = get_clusters_properties();
+        for (std::map<int, ClusterProperties>::const_iterator it = properties.begin(); it != properties.end(); ++it) {
+            double score = cluster_score_size_proximity(it->second);
+            if ( score > max_cluster_score )
+            {
+                max_cluster_score = score;
+                max_cluster_id = it->first;
+            }
+        }
+        assert(max_cluster_score >= 0);
+        return max_cluster_id;
+    };
+    return most_probable_position(most_probable_cluster, pull_to_nearest_milestone);
 }
 
 double Localizer::particles_to_nearest_milestones_average_distance() {
@@ -416,23 +445,24 @@ void Localizer::run_clustering_DBSCAN(bool lined) {
     };
     
     if (lined) {
-        std::map<Line, std::vector<Particle *>*> lines;
+        std::map<LineID, std::vector<Particle *>*> lines;
         
         for (Particle * particle : _particles) {
             
             std::vector<Particle *>* line = NULL;
-            Line l = particle->nns[0]->line;
-            if ( lines.count(l) == 0 ) {
+            LineID lineId = particle->nns[0]->lineId;
+            if ( lines.count(lineId) == 0 ) {
                 line = new std::vector<Particle *>();
-                lines[l] = line;
+                lines[lineId] = line;
             }
             else
-                line = lines[l];
+                line = lines.at(lineId);
             line->push_back(particle);
+
         }
         
         int clustersCount = 0;
-        for (std::map<Line, std::vector<Particle *>*>::iterator it = lines.begin(); it != lines.end(); ++it) {
+        for (std::map<LineID, std::vector<Particle *>*>::iterator it = lines.begin(); it != lines.end(); ++it) {
             clustersCount += cluster(*it->second, clustersCount);
             delete it->second;
         }
@@ -499,23 +529,23 @@ void Localizer::run_clustering_KNN_milestones() {
     };
     
     
-    std::map<Line, std::vector<Particle *>*> nn_lines;
+    std::map<LineID, std::vector<Particle *>*> nn_lines;
     
     for (Particle * particle : _particles) {
         
         std::vector<Particle *>* line = NULL;
-        Line l = particle->nns[0]->line;
-        if ( nn_lines.count(l) == 0 ) {
+        LineID lineId = particle->nns[0]->lineId;
+        if ( nn_lines.count(lineId) == 0 ) {
             line = new std::vector<Particle *>();
-            nn_lines[l] = line;
+            nn_lines[lineId] = line;
         }
         else
-            line = nn_lines[l];
+            line = nn_lines.at(lineId);
         line->push_back(particle);
     }
     
     int clusterId = 0;
-    for (std::map<Line, std::vector<Particle *>*>::iterator it = nn_lines.begin(); it != nn_lines.end(); ++it) {
+    for (std::map<LineID, std::vector<Particle *>*>::iterator it = nn_lines.begin(); it != nn_lines.end(); ++it) {
         clusterId = cluster(*it->second, clusterId);
         delete it->second;
     }
@@ -545,39 +575,81 @@ void Localizer::clear_distributions() {
     delete _motion_distribution;
 }
 
+
+
 std::map<int, ClusterProperties> Localizer::get_clusters_properties() const {
     std::map<int, ClusterProperties> properties;
     for (std::map<int, std::vector<Particle *>>::const_iterator it = _clusters.begin(); it != _clusters.end(); ++it) {
         int clusterId = it->first;
         std::vector<Particle *> particles = it->second;
-        Point center = Point {0.0, 0.0};
-        double avg_radius = 0;
+        double min_radius = 0;
         double max_radius = 0;
+        double avg_radius = 0;
+        double dev_radius = 0;
         unsigned long n = particles.size();
+        Point center = {0.0, 0.0};
         for ( Particle * particle : particles )
             center += particle->pos / n;
         for ( Particle * particle : particles ) {
             double radius = (particle->pos - center).norm();
             if ( radius > max_radius )
                 max_radius = radius;
+            if (radius < min_radius)
+                min_radius = radius;
             avg_radius += radius / n;
         }
-        properties[clusterId] = ClusterProperties{ particles.size(), avg_radius, max_radius };
+        for ( Particle * particle : particles ) {
+            double radius = (particle->pos - center).norm();
+            dev_radius += pow(radius - avg_radius, 2.0);
+        }
+        dev_radius = sqrt(dev_radius / n);
+        
+        properties[clusterId] = ClusterProperties{ particles.size(), , min_radius, max_radius, avg_radius, dev_radius};
     }
     return properties;
 }
 
-double Localizer::calculate_localization_density_score() const {
+void Localizer::particles_sample_measurement_magnitude_based(const double magnitude, const double variance, const double distance_threshold, const bool resample) {
+    std::function<double (const Field &, const Milestone *)> similarity = [&](const Field & measured_field, const Milestone * milestone) {
+        double w_max = _measurement_distribution->pdf(milestone->field.norm(), milestone->field.norm(), variance);
+        return _measurement_distribution->pdf(measured_field.norm(), milestone->field.norm(), variance) / w_max;
+    };
+    particles_sample_measurement(Field(magnitude, 0.0, 0.0), distance_threshold, resample, similarity);
+}
+
+//May be it is better to come up with another score function. This one is not tested.
+//Relative size of cluster (normalized to [0,1]) + deviation from the center (normalized to [0,1]) (if bulding is very narrow, then might have problems!)
+double Localizer::cluster_score_size_proximity(const ClusterProperties & p) const {
+    
+    double cluster_score_size = (double)p.size / _particles.size();
+    
+    //Need to normalize proximity score. Largest penalty for largest cluster, i.e. whole map.
+    //1.0 / [ 1.0 + Avg. cluster radius * (Diameter / Max Map Dimension) ]
+    //Larger cluster -> smaller score, more scattered cluster -> smaller score
+    Size map_size = _map.get_size();
+    double normalizer = 2.0 * p.max_radius / max(map_size.width, map_size.height) ;
+    double cluster_score_proximity = 1.0 / (1.0 + p.avg_radius * normalizer);
+    
+    return cluster_score_size * cluster_score_proximity;
+}
+
+//To compare scores between different maps.
+//1.0 / [ 1.0 + sum_i(1 - score_i) ]
+//More clusters -> worse
+double Localizer::localization_score(std::function<double (const ClusterProperties &)> cluster_score) const {
     double score = 0.0;
     std::map<int, ClusterProperties> properties = get_clusters_properties();
-    const unsigned long particles_count = _particles.size();
-    for (std::map<int, ClusterProperties>::const_iterator it = properties.begin(); it != properties.end(); ++it) {
-        ClusterProperties p = it->second;
-        double cluster_size_score = pow((double) p.size / particles_count, 2);
-        double cluster_radius_score = 1.0 + p.maximum_radius == 0.0 ? 0.0 : p.average_radius / p.maximum_radius;
-        score += cluster_size_score * cluster_radius_score;
-    }
+    for (std::map<int, ClusterProperties>::const_iterator it = properties.begin(); it != properties.end(); ++it)
+        score += (1.0 - cluster_score(it->second));
+    score = 1.0 / ( 1.0 + score );
     return score;
+}
+
+double Localizer::localization_score_size_proximity() const {
+    std::function<double (const ClusterProperties &)> cluster_score = [&](const ClusterProperties & p) {
+        return cluster_score_size_proximity(p);
+    };
+    return localization_score(cluster_score);
 }
 
 
@@ -592,12 +664,12 @@ Localizer::~Localizer()
 //Multiple Map Extension
 //
 
-void LocalizerMultipleMap::set_map(const std::vector<Milestone> milestones, int id) {
+void LocalizerMultipleMap::set_map(const std::vector<Milestone> milestones, Size map_size, int id) {
     if (_localizers.count(id) != 0) {
         delete _localizers[id];
         _localizers.erase(id);
     }
-    _localizers[id] = new Localizer(milestones);
+    _localizers[id] = new Localizer(milestones, map_size);
 }
 
 void LocalizerMultipleMap::remove_map(int id) {
