@@ -36,10 +36,62 @@
 
 /*global cordova, module*/
 
+var APMaglocDictKey = {
+    STATUS : "status",
+    LOC : "location",
+    LAT : "lat",
+    LNG : "lng",
+    ACC : "acc"
+};
+
+var APMaglocStatus = {
+    ACTIVE : 0,
+    INACTIVE : 1
+};
+
+var APMaglocError = {
+    UNEXPECTED : 0,
+    NOT_PREPARED : 1,
+    IS_ACTIVE : 2,
+    SENSOR_DESYNC : 3
+};
+
+var APMaglocAccuracy = {
+    LOW : 0,
+    MEDIUM : 1,
+    HIGH : 2
+};
+
+
 var APMagloc = {
-  
+    
+    test: function (val, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "AnyplaceMagLoc", "test", [val])
+    }
+    
+    /*greet: function (name, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Hello", "greet", [name]);
+    }
+    
+    prepare: function (name, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Hello", "greet", [name]);
+    }
+
+    start: function (name, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Hello", "greet", [name]);
+    }
+    
+    stop: function (name, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Hello", "greet", [name]);
+    }
+    
+    reset: function (name, successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, "Hello", "greet", [name]);
+    }*/
+
 }
 
-module.exports = APMagloc;
+module.exports = APMagloc
+
 
 

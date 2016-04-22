@@ -93,7 +93,7 @@ class SoftwarePedometer: SensorControllerDelegate {
                 let isPreviousLargeEnough: Bool = lastDiff > ( diff / 3 )
                 let isNotContra: Bool = ( lastMatch != 1 - extType )
                 if isAlmostAsLargeAsPrevious && isPreviousLargeEnough && isNotContra {
-                    steps++
+                    steps += 1
                     step = true
                     lastMatch = extType
                 } else {

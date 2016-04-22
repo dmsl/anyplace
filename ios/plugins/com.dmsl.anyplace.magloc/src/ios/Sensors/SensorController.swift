@@ -175,6 +175,7 @@ class PedometerData: SensorData {
     }
 }
 
+@available(iOS 8, *)
 @objc class SensorController: NSObject, StepCounterDelegate, CLLocationManagerDelegate {
     
     func locationManager(manager: CLLocationManager, didUpdateToLocation newLocation: CLLocation, fromLocation oldLocation: CLLocation) {

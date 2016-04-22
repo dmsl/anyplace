@@ -6,15 +6,15 @@
 extern "C" {
 #endif
     
-void mcl_init();
-void mcl_add_map(const void* input, unsigned int count, unsigned int width, unsigned int height, int floor);
+/*void mcl_init();
+void mcl_add_map(const void* input, size_t size, double width, double height, int floor);
 void mcl_remove_map(int floor);
     
-void mcl_start(double fraction, double alpha_slow, double alpha_fast);
+void mcl_start(double fraction = 0.5, double alpha_slow = 0.05, double alpha_fast = 0.4);
 void mcl_move(double dx, double dy, double distance_variance, double angle_variance_rads);
 void mcl_measure_magnitude_based(double f, double variance, double distance_threshold, bool resample);
-void mcl_measure_component_based(double f_x, double f_y, double f_z, double w, double x, double y, double z, double variance, double distance_threshold, bool resample);
-void mcl_measure_angle_based(double f_x, double f_y, double f_z, double w, double x, double y, double z, double magnitude_variance, double angle_variance_rads, double dist_threshold, bool resample);
+void mcl_measure_component_based(Field f, Quaternion q, double variance, double distance_threshold, bool resample);
+void mcl_measure_angle_based(Field f, Quaternion q, double magnitude_variance, double angle_variance_rads, double dist_threshold, bool resample);
 void mcl_pull_particles_to_nearest_milestones(double disance_threshold);
 
 unsigned long mcl_particles_count(int floor);
@@ -29,7 +29,8 @@ void mcl_cluster_sizes(void *output, unsigned int output_size, int floor);
 
 void mcl_most_probable_position(void *output, size_t size, bool pull_to_nearest_milestone, int floor);
     
-void mcl_test(void *buf);
+void mcl_test(void *buf);*/
+int mcl_test_ret(int i);
     
 #ifdef __cplusplus
 }

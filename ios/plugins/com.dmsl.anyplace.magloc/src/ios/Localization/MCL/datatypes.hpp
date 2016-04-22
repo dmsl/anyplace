@@ -264,13 +264,12 @@ typedef struct: Obstacle {
 typedef struct {
     Point pos;
     UINT lineId;
-//    Line line;
-} Feature;
+} Feature __attribute__ ((aligned(8)));
 
 typedef struct: Feature {
     Field field;
     Quaternion attitude;
-} Milestone;
+} Milestone __attribute__ ((aligned(8)));
 
 typedef struct {
     Point pos;

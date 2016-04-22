@@ -1,6 +1,6 @@
 
 #include "MagneticMCL.h"
-#include "Localizer.hpp"
+/*#include "Localizer.hpp"
 
 LocalizerMultipleMap localizer;
 
@@ -8,13 +8,15 @@ void mcl_init() {
     localizer.clear();
 }
 
-void mcl_add_map(const void* input, unsigned int count, unsigned int width, unsigned int height, int floor) {
+void mcl_add_map(const void* input, size_t size, double width, double height, int floor) {
     printf("mcl_init_localization: count = %d\n", count);
     Milestone* milestones = (Milestone*) input;
+    assert(size % sizeof(Milestone) = 0);
+    unsigned int count = size / sizeof(Milestone);
 	std::vector < Milestone > vec = std::vector<Milestone>();
 	for (int i = 0; i < count; i++)
 		vec.push_back(milestones[i]);
-    localizer.set_map(vec, Size{width, height}, floor);
+    localizer.set_map(vec, Size(width, height), floor);
 }
 
 void mcl_remove_map(int floor) {
@@ -22,6 +24,7 @@ void mcl_remove_map(int floor) {
 }
 
 void mcl_start(double fraction, double alpha_slow, double alpha_fast) {
+    assert(fraction <= 1.0 & fraction >= 0);
     printf("mcl_start_localizing\n");
 	localizer.init(fraction, alpha_slow, alpha_fast);
 }
@@ -36,14 +39,14 @@ void mcl_measure_magnitude_based(double f, double variance, double distance_thre
     localizer.particles_sample_measurement_magnitude_based(f, variance, distance_threshold, resample);
 }
 
-void mcl_measure_component_based(double f_x, double f_y, double f_z, double w, double x, double y, double z, double variance, double distance_threshold, bool resample = false) {
+void mcl_measure_component_based(Field f, Quaternion q, double variance, double distance_threshold, bool resample = false) {
     printf("mcl_measure_component_based\n");
-    localizer.particles_sample_measurement_component_based(Field(f_x,f_y,f_z), variance, Quaternion(w, x, y, z), distance_threshold, resample);
+    localizer.particles_sample_measurement_component_based(f, variance, q, distance_threshold, resample);
 }
 
-void mcl_measure_angle_based(double f_x, double f_y, double f_z, double w, double x, double y, double z, double magnitude_variance, double angle_variance_rads, double distance_threshold, bool resample = false) {
+void mcl_measure_angle_based(Field f, Quaternion q, double magnitude_variance, double angle_variance_rads, double distance_threshold, bool resample = false) {
     printf("mcl_measure_component_based\n");
-    localizer.particles_sample_measurement_angle_based(Field(f_x,f_y,f_z), magnitude_variance, angle_variance_rads, Quaternion(w, x, y, z), distance_threshold, resample);
+    localizer.particles_sample_measurement_angle_based(f, magnitude_variance, angle_variance_rads, q, distance_threshold, resample);
 }
 
 void mcl_pull_particles_to_nearest_milestones(double dist_threshold) {
@@ -134,8 +137,8 @@ void mcl_cluster_sizes(void *output, unsigned int output_size, int floor) {
 
 void mcl_most_probable_position(void *output, size_t size, bool pull_to_nearest_milestone, int floor) {
     printf("mcl_most_probable_position");
-    if (size < sizeof(Point))
-        std::invalid_argument("Buffer is too small");
+    if (size != sizeof(Point))
+        std::invalid_argument("Wrong buffer size");
     Point *p = (Point *) output;
     *p = localizer.most_probable_position_cluster_size_proximity_based(floor, pull_to_nearest_milestone);
 }
@@ -146,15 +149,19 @@ void mcl_test(void *buf) {
         Point p1;
         double d;
         Point p2;
-        
-        /*int i2;*/
+ 
+        //int i2;
     };
     printf("c++: sizeof = %lu\n", sizeof(Out));
     Out * outs = (Out *) buf;
     
     for (int i = 0; i < 3; i++) {
-        printf("sizeof = %lu\n", sizeof(Out{i, Point{(double)i, (double)i}, (double)i, Point{(double)i, (double)i}/*, i */}));
-        outs[i] = Out{i, Point{(double)i, (double)i}, (double)i, Point{(double)i, (double)i}/*, i*/ };
-        printf("c++: %d (%f %f) %f (%f %f)\n", outs[i].i1, outs[i].p1.x, outs[i].p1.y, outs[i].d, outs[i].p2.x, outs[i].p2.y  /*, outs[i].i2*/);
+        printf("sizeof = %lu\n", sizeof(Out{i, Point{(double)i, (double)i}, (double)i, Point{(double)i, (double)i}}));
+        outs[i] = Out{i, Point{(double)i, (double)i}, (double)i, Point{(double)i, (double)i} };
+        printf("c++: %d (%f %f) %f (%f %f)\n", outs[i].i1, outs[i].p1.x, outs[i].p1.y, outs[i].d, outs[i].p2.x, outs[i].p2.y);
     }
+}
+*/
+int mcl_test_ret(int i) {
+    return i + 1;
 }

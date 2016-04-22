@@ -1,29 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-        id="com.dmsl.anyplace.magloc"
-        version="0.0.1">
+    id="com.dmsl.anyplace.magloc"
+    version="0.0.1">
+    
+    <name>AnyplaceMagLoc</name>
+    
+    <engines>
+        <engine name="cordova" version=">=3.4.0"/>
+    </engines>
+    
+    <asset src="www/magloc.js" target="js/magloc.js"/>
+    
+    <js-module src="www/magloc.js" name="magloc">
+        <clobbers target="magloc" />
+    </js-module>
+    
+    <platform name="ios">
+        <config-file target="config.xml" parent="/widget">
+            <feature name="AnyplaceMagLoc">
+                <param name="ios-package" value="APMagloc" />
+            </feature>
+        </config-file>
+        
+        <source-file src="src/ios/API/ApiClient.swift" target-dir="APMaglocPlugin/API"/>
+        <source-file src="src/ios/APMagloc.swift" target-dir="APMaglocPlugin"/>
+<!--        <source-file src="src/ios/Architect/ArchitectController.swift" target-dir="APMaglocPlugin/Architect"/>-->
+        <source-file src="src/ios/Architect/FloorMap.swift" target-dir="APMaglocPlugin/Architect"/>
+        <source-file src="src/ios/Architect/FloorMapView.swift" target-dir="APMaglocPlugin/Architect"/>
+<!--        <source-file src="src/ios/Architect/LoggerController.swift" target-dir="APMaglocPlugin/Architect"/>-->
+        <source-file src="src/ios/DataTypes.swift" target-dir="APMaglocPlugin"/>
+        <source-file src="src/ios/FileSystem/fileSystem.swift" target-dir="APMaglocPlugin/FileSystem"/>
+        <source-file src="src/ios/Geometry/Cartesian.swift" target-dir="APMaglocPlugin/Geometry"/>
+        <source-file src="src/ios/Geometry/Spherical.swift" target-dir="APMaglocPlugin/Geometry"/>
+        <source-file src="src/ios/Localization/DBSCAN/dbscan.cpp" target-dir="APMaglocPlugin/Localization/DBSCAN"/>
+        <source-file src="src/ios/Localization/MCL/datatypes.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <source-file src="src/ios/Localization/MCL/Distributions.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <source-file src="src/ios/Localization/MCL/Localizer.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <source-file src="src/ios/Localization/MCL/Map.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <source-file src="src/ios/Localization/MCL Bridge/MagneticMCL.cpp" target-dir="APMaglocPlugin/Localization/MCL Bridge"/>
+<!--        <source-file src="src/ios/Navigator/NavigatorController.swift" target-dir="APMaglocPlugin/Navigator"/>-->
+        <source-file src="src/ios/Sensors/HardwarePedometer.swift" target-dir="APMaglocPlugin/Sensors"/>
+        <source-file src="src/ios/Sensors/SensorController.swift" target-dir="APMaglocPlugin/Sensors"/>
+        <source-file src="src/ios/Sensors/SoftwarePedometer.swift" target-dir="APMaglocPlugin/Sensors"/>
+        <source-file src="src/ios/Sensors/StepCounting.swift" target-dir="APMaglocPlugin/Sensors"/>
+        <source-file src="src/ios/Utils/jsonConverter.swift" target-dir="APMaglocPlugin/Utils"/>
+        <source-file src="src/ios/Utils/Reachability.swift" target-dir="APMaglocPlugin/Utils"/>
+        <header-file src="src/ios/APMagloc-Bridging-Header.h" target-dir="APMaglocPlugin"/>
+        <header-file src="src/ios/Localization/DBSCAN/dbscan.h" target-dir="APMaglocPlugin/Localization/DBSCAN"/>
+        <header-file src="src/ios/Localization/MCL/datatypes.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <header-file src="src/ios/Localization/MCL/Distributions.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <header-file src="src/ios/Localization/MCL/Localizer.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <header-file src="src/ios/Localization/MCL/Map.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
+        <header-file src="src/ios/Localization/MCL Bridge/MagneticMCL.h" target-dir="APMaglocPlugin/Localization/MCL Bridge"/>
+        <header-file src="src/ios/Localization/MCL Bridge/MCL-Bridging-Header.h" target-dir="APMaglocPlugin/Localization/MCL Bridge"/>
+        <header-file src="src/ios/Localization/stdafx.hpp" target-dir="APMaglocPlugin/Localization"/>
 
-  <name>AnyplaceMagLoc</name>
-
-  <engines>
-    <engine name="cordova" version=">=3.4.0"/>
-  </engines>
-
-  <asset src="www/magloc.js" target="js/magloc.js"/>
-
-  <js-module src="www/magloc.js" name="magloc">
-    <clobbers target="magloc" />
-  </js-module>
-
-  <platform name="ios">
-    <config-file target="config.xml" parent="/widget">
-      <feature name="AnyplaceMagLoc">
-        <param name="ios-package" value="APMagloc" />
-      </feature>
-    </config-file>
-
-    <source-file src="src/ios"  target-dir="src"/>
-    <header-file src="src/ios"  target-dir="src"/>
-  </platform>
-
+        
+        <framework src="CoreLocation.framework" />
+        <config-file target="*-Info.plist" parent="NSLocationWhenInUseUsageDescription" >
+            <string>App use Locations service mode In Use</string>
+        </config-file>
+        
+    </platform>
+    
 </plugin>

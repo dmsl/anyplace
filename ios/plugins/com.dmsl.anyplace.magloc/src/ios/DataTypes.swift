@@ -40,7 +40,7 @@ struct ApiClientDataTypes {
     
     struct Milestone {
         let pos: LatLng
-        let lineId: Uint
+        let lineId: UInt
         let orientation: Quaternion
         let field: Vector3D
         

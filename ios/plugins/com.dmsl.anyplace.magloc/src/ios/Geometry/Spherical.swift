@@ -50,6 +50,17 @@ class LatLng {
         self.lng = lng
     }
     
+    convenience init(ll: LatLng, d: Double, bearing: Double) {
+        let R = LatLng.radiusOfEarthAtLat(ll.lat)
+        let lat1 = toRad(ll.lat)
+        let lng1 = toRad(ll.lng)
+        let theta = toRad(bearing)
+        let dlt = d / R
+        let lat2 = asin(sin(lat1)*dlt + cos(lat1)*sin(dlt)*cos(theta))
+        let lng2 = lng1 + atan2( sin(theta)*sin(dlt)*cos(lat1), cos(dlt) - sin(lat1)*sin(lat2) )
+        self.init(lat: fromRad(lat2), lng: fromRad(lng2))
+    }
+    
     func toCartesian() -> Vector3D {
         let R = LatLng.radiusOfEarthAtLat(lat)
         let x = R*cos(lat)*cos(lng)
@@ -76,7 +87,7 @@ class LatLng {
         let cos2 = cos(toRad(p2.lat))
         let sin2_lng = pow( toRad((p2.lng - p1.lng)/2), 2 )
         let p_avg = (p1 + p2) / 2
-        let R = radiusOfEarthAtLat(p_avg.lat)
+        let R = LatLng.radiusOfEarthAtLat(p_avg.lat)
         return 2*R*asin(sqrt( sin2_lat + cos1*cos2*sin2_lng) )
     }
     
@@ -84,6 +95,10 @@ class LatLng {
 
 func toRad(angle: Double) -> Double {
     return angle / 180.0 * M_PI
+}
+
+func fromRad(angle: Double) -> Double {
+    return angle / M_PI * 180.0
 }
 
 func +(left: LatLng, right: LatLng) -> LatLng { return LatLng(lat: left.lat + right.lat, lng: left.lng + right.lng) }
