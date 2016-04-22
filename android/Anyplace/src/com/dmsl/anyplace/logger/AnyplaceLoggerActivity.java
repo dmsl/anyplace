@@ -123,7 +123,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -376,26 +375,6 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		logger = new LoggerWiFi(mSamplingAnyplaceLoggerReceiver);
 
 		setUpMapIfNeeded();
-
-		LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
-		if (statusOfGPS == false) {
-			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("GPS is not enabled. Please enable GPS");
-			builder.setCancelable(false);
-			builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			});
-			builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-				}
-			});
-			final AlertDialog alert = builder.create();
-			alert.show();
-		}
 	}
 
 	/*

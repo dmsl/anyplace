@@ -300,7 +300,7 @@ public abstract class FloorSelector {
 
 	public void RunNow() {
 		if (dlat != null && dlong != null) {
-			trackMe = true;
+			timerElapsed = true;
 		}
 	}
 

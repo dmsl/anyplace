@@ -57,15 +57,45 @@ import android.text.TextPaint;
 
 public class AndroidUtils {
 
-	public static void showNetworkSettings(final Activity activity) {
+	public static void showWifiSettings(final Activity activity) {
+		showWifiSettings(activity, null, null);
+	}
+
+	// Runnable default value null
+	public static void showWifiSettings(final Activity activity, final Runnable yes, final Runnable no) {
 		// check for internet connection
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
 		alertDialog.setTitle("No Internet Connection");
 		alertDialog.setMessage("Would you like to change settings ?");
 		// Setting Positive "Yes" Button
-		alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+		alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				activity.startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+				if (yes != null)
+					yes.run();
+			}
+		});
+		// Setting Negative "NO" Button
+		alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.cancel();
+				if (no != null)
+					no.run();
+			}
+		});
+		// Showing Alert Message
+		alertDialog.show();
+	}
+
+	public static void showGPSSettings(final Activity activity) {
+		// check for internet connection
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
+		alertDialog.setTitle("GPS adapter disabled");
+		alertDialog.setMessage("GPS is not enabled. Please enable GPS");
+		// Setting Positive "Yes" Button
+		alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 			}
 		});
 		// Setting Negative "NO" Button
@@ -225,7 +255,7 @@ public class AndroidUtils {
 			// Delete first word part
 			sb.delete(0, lastWhiteSpaceL - indexLeft);
 			sb.insert(0, "...");
-			indexLeft = lastWhiteSpaceL - 3; //Set new index left
+			indexLeft = lastWhiteSpaceL - 3; // Set new index left
 		}
 
 		if (indexRight < length) {

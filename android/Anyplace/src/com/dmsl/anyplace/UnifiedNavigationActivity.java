@@ -50,7 +50,9 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -129,9 +131,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UnifiedNavigationActivity extends SherlockFragmentActivity implements AnyplaceTracker.TrackedLocAnyplaceTrackerListener, AnyplaceTracker.WifiResultsAnyplaceTrackerListener,
-		AnyplaceTracker.ErrorAnyplaceTrackerListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, FloorAnyplaceFloorListener,
-		ErrorAnyplaceFloorListener, OnSharedPreferenceChangeListener {
+public class UnifiedNavigationActivity extends SherlockFragmentActivity implements AnyplaceTracker.TrackedLocAnyplaceTrackerListener, AnyplaceTracker.WifiResultsAnyplaceTrackerListener, AnyplaceTracker.ErrorAnyplaceTrackerListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, FloorAnyplaceFloorListener, ErrorAnyplaceFloorListener, OnSharedPreferenceChangeListener {
 
 	private static final double csLat = 35.144569;
 	private static final double csLon = 33.411107;
@@ -489,6 +489,25 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		if (AnyplaceAPI.FLURRY_ENABLE) {
 			FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
 		}
+
+		Runnable checkGPS = new Runnable() {
+			@Override
+			public void run() {
+				LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+				boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+				if (statusOfGPS == false) {
+					AndroidUtils.showGPSSettings(UnifiedNavigationActivity.this);
+				}
+			}
+		};
+
+		WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		if (!wifi.isWifiEnabled() || !NetworkUtils.isOnline(UnifiedNavigationActivity.this)) {
+			AndroidUtils.showWifiSettings(this, null, checkGPS);
+		} else {
+			checkGPS.run();
+		}
+
 	}
 
 	@Override
@@ -719,10 +738,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		// custom
 		// layout
 		String[] from = { SearchManager.SUGGEST_COLUMN_TEXT_1
-		// ,SearchManager.SUGGEST_COLUMN_TEXT_2
+				// ,SearchManager.SUGGEST_COLUMN_TEXT_2
 		};
 		int[] to = { android.R.id.text1
-		// ,android.R.id.text2
+				// ,android.R.id.text2
 		};
 		// add the cursor of the results to the search view
 		// SimpleCursorAdapter adapter = new SimpleCursorAdapter(UnifiedNavigationActivity.this, R.layout.queried_pois_item_1_searchbox, cursor, from, to, 0);
@@ -1580,11 +1599,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 	public void onConnected(Bundle dataBundle) {
 		// THIS IS THE FIRST THINGS LOADED WHEN GOOGLE PLAY SERVICES ARE
 		// AVAILABLE
-		Log.d("Google Play services", "Connected");
-
-		if (!NetworkUtils.isOnline(UnifiedNavigationActivity.this)) {
-			AndroidUtils.showNetworkSettings(this);
-		}
+		// Log.d("Google Play services", "Connected");
 		if (checkPlayServices()) {
 			initCamera();
 			// Get Wifi + GPS Fused Location
