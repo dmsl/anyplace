@@ -81,7 +81,7 @@ class LatLng {
 
     
     //Haversine formula
-    static func dist(p1: LatLng, p2: LatLng) -> Double {
+    static func dist(p1: LatLng, _ p2: LatLng) -> Double {
         let sin2_lat = pow( sin(toRad( (p2.lat - p1.lat)/2 )), 2 )
         let cos1 = cos(toRad(p1.lat))
         let cos2 = cos(toRad(p2.lat))

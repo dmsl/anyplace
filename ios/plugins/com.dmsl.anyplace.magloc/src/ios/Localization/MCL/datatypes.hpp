@@ -44,7 +44,7 @@
 #define UINT unsigned int
 #define Field Vector3D
 #define PRECISION 1e-12
-typedef UINT LineID
+typedef UINT LineID;
 
 typedef struct Vector2D {
     double x, y;
@@ -286,6 +286,8 @@ typedef struct {
     double dev_radius;
 } ClusterProperties;
 
+std::vector<const Milestone *> p_to_milestones(std::vector<const Feature *>);
+std::vector<const Feature *> p_to_features(std::vector<const Milestone *>);
 
 
 

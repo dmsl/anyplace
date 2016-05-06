@@ -21,7 +21,7 @@
                 <param name="ios-package" value="APMagloc" />
             </feature>
         </config-file>
-        
+
         <source-file src="src/ios/API/ApiClient.swift" target-dir="APMaglocPlugin/API"/>
         <source-file src="src/ios/APMagloc.swift" target-dir="APMaglocPlugin"/>
 <!--        <source-file src="src/ios/Architect/ArchitectController.swift" target-dir="APMaglocPlugin/Architect"/>-->
@@ -32,7 +32,7 @@
         <source-file src="src/ios/FileSystem/fileSystem.swift" target-dir="APMaglocPlugin/FileSystem"/>
         <source-file src="src/ios/Geometry/Cartesian.swift" target-dir="APMaglocPlugin/Geometry"/>
         <source-file src="src/ios/Geometry/Spherical.swift" target-dir="APMaglocPlugin/Geometry"/>
-        <source-file src="src/ios/Localization/DBSCAN/dbscan.cpp" target-dir="APMaglocPlugin/Localization/DBSCAN"/>
+<!--        <source-file src="src/ios/Localization/DBSCAN/dbscan.cpp" target-dir="APMaglocPlugin/Localization/DBSCAN"/>-->
         <source-file src="src/ios/Localization/MCL/datatypes.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
         <source-file src="src/ios/Localization/MCL/Distributions.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
         <source-file src="src/ios/Localization/MCL/Localizer.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
@@ -46,7 +46,7 @@
         <source-file src="src/ios/Utils/jsonConverter.swift" target-dir="APMaglocPlugin/Utils"/>
         <source-file src="src/ios/Utils/Reachability.swift" target-dir="APMaglocPlugin/Utils"/>
         <header-file src="src/ios/APMagloc-Bridging-Header.h" target-dir="APMaglocPlugin"/>
-        <header-file src="src/ios/Localization/DBSCAN/dbscan.h" target-dir="APMaglocPlugin/Localization/DBSCAN"/>
+<!--        <header-file src="src/ios/Localization/DBSCAN/dbscan.h" target-dir="APMaglocPlugin/Localization/DBSCAN"/>-->
         <header-file src="src/ios/Localization/MCL/datatypes.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
         <header-file src="src/ios/Localization/MCL/Distributions.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
         <header-file src="src/ios/Localization/MCL/Localizer.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>

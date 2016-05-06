@@ -39,7 +39,7 @@
 #include "stdafx.hpp"
 #include "Distributions.hpp"
 #include "Map.hpp"
-#include "dbscan.h"
+//#include "dbscan.h"
 
 using namespace std;
 
@@ -119,8 +119,7 @@ private:
     
     
     double localization_score(std::function<double (const ClusterProperties &)> cluster_score) const;
-    double localization_score_cluster_size_proximity) const;
-
+    
     Point most_probable_position(std::function<int ()> most_probable_cluster, bool pull_to_nearest_milestone = false) const;
     
 protected:
@@ -141,15 +140,17 @@ public:
     Point find_nearest_point(Point p) const { return _map.find_NN_features(p, 1).at(0)->pos; }
     const Milestone * find_nearest_milestone(Point p) const { return (Milestone *) _map.find_NN_features(p, 1).at(0); }
     
-    void run_clustering_DBSCAN(bool lined);
+//    void run_clustering_DBSCAN(bool lined);
     void run_clustering_KNN_milestones();
     
     unsigned int clusters_count() const { return _clusters.size(); }
     std::map<int, std::vector<Particle *>> get_clusters() const { return _clusters; }
     std::map<int, ClusterProperties> get_clusters_properties() const;
     
-    enum LocalizerAccruacy{ LOW, MEDIUM, HIGH; }
+    enum LocalizerAccruacy{ LOW, MEDIUM, HIGH };
     int localization_accuracy() const;
+    
+    double localization_score_cluster_size_proximity() const;
     
     Point most_probable_position_cluster_size_based(bool pull_to_nearest_milestone = false) const;
     Point most_probable_position_cluster_size_proximity_based(bool pull_to_nearest_milestone = false) const;

@@ -1,90 +1,118 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
-*
-* Anyplace is a first-of-a-kind indoor information service offering GPS-less
-* localization, navigation and search inside buildings using ordinary smartphones.
-*
-* Author(s): Artem Nikitin
-*
-* Supervisor: Demetrios Zeinalipour-Yazti
-*
-* URL: http://anyplace.cs.ucy.ac.cy
-* Contact: anyplace@cs.ucy.ac.cy
-*
-* Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
-* All rights reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of
-* this software and associated documentation files (the "Software"), to deal in the
-* Software without restriction, including without limitation the rights to use, copy,
-* modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-* and to permit persons to whom the Software is furnished to do so, subject to the
-* following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-* DEALINGS IN THE SOFTWARE.
-*
-*/
+ * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ *
+ * Anyplace is a first-of-a-kind indoor information service offering GPS-less
+ * localization, navigation and search inside buildings using ordinary smartphones.
+ *
+ * Author(s): Artem Nikitin
+ *
+ * Supervisor: Demetrios Zeinalipour-Yazti
+ *
+ * URL: http://anyplace.cs.ucy.ac.cy
+ * Contact: anyplace@cs.ucy.ac.cy
+ *
+ * Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
+ * All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in the
+ * Software without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so, subject to the
+ * following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
 
 import Foundation
 import CoreLocation
 
-@objc(APMagloc)
-class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*//*SensorControllerDelegate*/ {
-   
-    /*func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-        print("NavigatorController: didChangeAuthorizationStatus: \(status.rawValue)")
-    }*/
+typealias MagneticData = SensorController.MagneticData
+typealias AttitudeData = SensorController.AttitudeData
 
+@objc(APMagloc)
+class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*/,SensorControllerDelegate {
     
-    /*private let SENSOR_UPDATE_INTERVAL: Double = 0.5
-    private let SENSOR_IGNORE_INTERVAL: Double = 10*SENSOR_UPDATE_INTERVAL
+    /*func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+     print("NavigatorController: didChangeAuthorizationStatus: \(status.rawValue)")
+     }*/
+    
+    private static let MIN_SENSOR_UPDATE_INTERVAL: Double = 0.5
+    private static let DEFAULT_SENSOR_UPDATE_INTERVAL: Double = 0.5
+    private static let DEFAULT_SENSOR_IGNORE_UPDATE_INTERVAL_RATIO: Double = 5.0
+    
+    private(set) var updateInterval: Double! = nil
+    private(set) var ignoreUpdateIntervalRatio: Double! = nil
+    private var ignoreInterval: Double! = nil
+    
+    private func setUpdateInterval(T: Double) {
+        assert(T >= APMagloc.MIN_SENSOR_UPDATE_INTERVAL)
+        updateInterval = T < APMagloc.MIN_SENSOR_UPDATE_INTERVAL ? APMagloc.MIN_SENSOR_UPDATE_INTERVAL : T
+        ignoreInterval = updateInterval*ignoreUpdateIntervalRatio
+        sensorController.setUpdateInterval(updateInterval)
+    }
+    
+    private func setIgnoreUpdateIntervalRatio(r: Double) {
+        assert(r >= 1.0)
+        ignoreUpdateIntervalRatio = r < 1.0 ? 1.0 : r
+        ignoreInterval = updateInterval*ignoreUpdateIntervalRatio
+    }
     
     private var magneticData: MagneticData! = nil
     private var attitudeData: AttitudeData! = nil
     
-    private(set) var prepared: Bool = false
-    private(set) var active: Bool = false
-    
     let DUMMY_FLOOR = 0
     private var floor: Int! = nil
     
-    private var width: Double! = nil
-    private var height: Double! = nil
-    
-    private enum APMaglocDictKey: String {
+    private enum DictKey: String {
         case STATUS = "status",
         LOC = "location",
         LAT = "lat",
         LNG = "lng",
-        ACC = "acc"
+        ACC = "acc",
+        FLD = "field",
+        ATT = "orientation",
+        TMS = "timestamp",
+        W = "w",
+        X = "x",
+        Y = "y",
+        Z = "z"
     }
     
-    private enum APMaglocStatus: Int32 {
-        case ACTIVE = 0,
-        INACTIVE
+    private enum Status: String {
+        case NOT_PREPARED = "0",
+        INACTIVE = "1",
+        LOGGING = "2",
+        LOCALIZING = "3"
     }
-    private enum APMaglocError: Int32 {
+    private enum Error: Int32 {
         case UNEXPECTED = 0,
         NOT_PREPARED,
         IS_ACTIVE,
+        NOT_ACTIVE,
         SENSOR_DESYNC
     }
-    
-    private enum APMaglocAccuracy: Int32 {
-        case LOW = 0,
-        MEDIUM,
-        HIGH
+    private enum Accuracy: String {
+        case LOW = "0",
+        MEDIUM = "1",
+        HIGH = "2"
     }
-
+    
+    private(set) var prepared: Bool = false
+    private var status: Status = .INACTIVE
+    private var active: Bool { get { return status.rawValue >= Status.LOGGING.rawValue } }
+    
+    
     struct CPoint {
         var x, y: CDouble
     }
@@ -97,60 +125,69 @@ class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*//*SensorControllerDelega
     }
     typealias CField = CVector
     
-    private var lltoxy:  ((LatLng) -> Point)! = nil
-    private var xytoll: ((Point) -> LatLng)! = nil
+    //    private var lltoxy:  ((LatLng) -> Point)! = nil
+    private var xytoll: ((Point) -> (LatLng))! = nil
     
-    private var locationCallbackId: String! = nil
+    private var callbackId: String! = nil
     
-    private func sendErrorCode(callbackId: String, error: APMaglocError, keepCallback: Bool = false){
-        var pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsInt: error.rawValue)
+    private func sendErrorCode(error error: Error, callbackId: String, keepCallback: Bool = false){
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAsInt: error.rawValue)
         pluginResult.setKeepCallbackAsBool(keepCallback)
         commandDelegate!.sendPluginResult(pluginResult, callbackId: callbackId)
     }
     
-    private func sendResult(payload: Dictionary<String, Any>, keepCallback: Bool = false){
-        var pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDictionary: payload)
+    private func sendResult(payload payload: [String: AnyObject], callbackId: String, keepCallback: Bool = false){
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAsDictionary: payload)
         pluginResult.setKeepCallbackAsBool(keepCallback)
-        commandDelegate!.sendPluginResult(pluginResult, callbackId: self.locationCallbackId)
+        commandDelegate!.sendPluginResult(pluginResult, callbackId: callbackId)
     }
-
     
-    private let sensorController: SensorController!
+    //In order to release callbackId from start() and log() along with stop()
+    //need to send dummy result that does not trigger callbacks
+    //Solution from here: http://stackoverflow.com/questions/36580098/custom-cordova-plugin-release-a-kept-callback-without-calling-it
+    //However, also found threads on error connected with CDVCommandStatus_NO_RESULT (both callbacks were called) for cordova 4.1, 4.2
+    //Here: https://github.com/don/cordova-plugin-ble-central/issues/32
+    private func sendDummy(callbackId callbackId: String, keepCallback: Bool = false) {
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus_NO_RESULT)
+        pluginResult.setKeepCallbackAsBool(keepCallback)
+        commandDelegate!.sendPluginResult(pluginResult, callbackId: callbackId)
+    }
     
+    
+    private var sensorController: SensorController! = nil
     
     override func pluginInitialize() {
-        /*sensorController = try? SensorController(options: [.NavigationCalibratedReferenceTrueNorth])
-        if sensorController == nil {
-            return nil
-        }
+        updateInterval = APMagloc.DEFAULT_SENSOR_UPDATE_INTERVAL
+        ignoreUpdateIntervalRatio = APMagloc.DEFAULT_SENSOR_IGNORE_UPDATE_INTERVAL_RATIO
+        ignoreInterval = APMagloc.DEFAULT_SENSOR_UPDATE_INTERVAL*APMagloc.DEFAULT_SENSOR_IGNORE_UPDATE_INTERVAL_RATIO
+        
+        sensorController = try! SensorController(options: [.NavigationCalibratedReferenceTrueNorth, .MagneticFieldCalibrated])
         sensorController.attachDelegate(self)
-        sensorController.setUpdateInterval(SENSOR_UPDATE_INTERVAL)*/
-
+        sensorController.setUpdateInterval(self.updateInterval)
     }
     
     func prepare(command: CDVInvokedUrlCommand) {
         let argv = command.arguments
         assert(argv.count > 4)
         
-        let bl = LatLng(lat: argv[0], lng: argv[1])
-        let tr = LatLng(lat: argv[2], lng: argv[3])
+        let bl = LatLng(lat: argv[0] as! Double, lng: argv[1] as! Double)
+        let tr = LatLng(lat: argv[2] as! Double, lng: argv[3] as! Double)
         
         assert ( (bl.lng >= 179 && tr.lng <= -179) ||  (bl.lng <= tr.lng) )
         assert(  (bl.lat <= -79 && tr.lat <= -79) || (bl.lat >= 79 && tr.lat >= 79) || (bl.lat <= tr.lat) )
         let br = LatLng(lat: bl.lat, lng: tr.lng)
         let tl = LatLng(lat: tr.lat, lng: bl.lng)
         
-        let width = self.width = ( LatLng.dist(tl, tr) + LatLng.dist(bl, br) ) / 2
-        let height = self.height = ( LatLng.dist(bl, tl) + LatLng.dist(br, tr) ) / 2
-
+        let width = ( LatLng.dist(tl, tr) + LatLng.dist(bl, br) ) / 2
+        let height = ( LatLng.dist(bl, tl) + LatLng.dist(br, tr) ) / 2
         
-        self.lltoxy = { (ll: LatLng) -> Point in
+        let lltoxy = { (ll: LatLng) -> (Point) in
             let x = LatLng.dist( LatLng(lat: ll.lat, lng: bl.lng), ll )
             let y = LatLng.dist( LatLng(lat: bl.lat, lng: ll.lng), ll )
             return Point(x: x, y: y)
         }
         self.xytoll = {
-            (p: Point) -> LatLng in
+            (p: Point) -> (LatLng) in
             let dx = p.x
             let dy = p.y
             let d = sqrt(pow(dx, 2) + pow(dy, 2))
@@ -158,89 +195,115 @@ class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*//*SensorControllerDelega
             let bearing = (x > 0 ? x : (2*M_PI + x)) * 180 / M_PI
             return LatLng(ll: bl, d: d, bearing: bearing)
         }
-        
         struct CMilestone {
             var p: CPoint
-            var l: CUInt
+            var l: CUnsignedInt
             var o: COrientation
             var f: CField
-            init(m: Milestone) {
+            init(m: ApiClientDataTypes.Milestone, lltoxy: (LatLng) -> (Point)) {
                 let p = lltoxy(m.pos)
                 self.p = CPoint(x: CDouble(p.x), y: CDouble(p.y))
-                self.l = CUInt(m.lineId)
+                self.l = CUnsignedInt(m.lineId)
                 self.o = COrientation(w: m.orientation.w,
-                    v: CVector(
-                        x: CDouble(m.orientation.x),
-                        y: CDouble(m.orientation.y),
-                        z: CDouble(m.orientation.z)))
+                                      v: CVector(
+                                        x: CDouble(m.orientation.x),
+                                        y: CDouble(m.orientation.y),
+                                        z: CDouble(m.orientation.z)))
                 self.f = CField(x: CDouble(m.field.x), y: CDouble(m.field.y), z: CDouble(m.field.z))
             }
         }
         
-        var cms: [CMilestone]
+        var cms = [CMilestone]()
         for i in 4...argv.count {
-            m = Milestone(StringToJSON(string: argv[i] as! NSString))
-            cms.append(CMilestone(m: m))
+            let m = ApiClientDataTypes.Milestone(JSON: StringToJSON(argv[i] as! NSString) as! [String: AnyObject])
+            cms.append(CMilestone(m: m, lltoxy: lltoxy))
         }
         mcl_init()
         
         //Set dummy floor
-        floor = DUMMY_FLOOR
+        self.floor = self.DUMMY_FLOOR
         
         //Add map
         let addr = UnsafeBufferPointer(start: &cms, count: cms.count).baseAddress
-        mcl_add_map(addr, strideof(Milestone)*cms.count, CDouble(width), CDouble(height), CInt(floor))
-        
+        mcl_add_map(addr, strideof(ApiClientDataTypes.Milestone.self)*cms.count, CDouble(width), CDouble(height), CInt(self.floor))
         
         prepared = true
+        sendResult(payload: [DictKey.STATUS.rawValue : Status.INACTIVE.rawValue], callbackId: command.callbackId, keepCallback: false)
+    }
+    
+    func log(command: CDVInvokedUrlCommand) {
+        if active {
+            sendErrorCode( error: Error.IS_ACTIVE, callbackId: command.callbackId )
+        } else {
+            self.callbackId = command.callbackId
+            let argv = command.arguments
+            assert(argv.count != 0)
+            
+            setUpdateInterval(argv[0] as! Double)
+            status = .LOGGING
+            magneticData = nil
+            attitudeData = nil
+            try! sensorController.changeOptions([.OrientationCalibratedReferenceTrueNorth, .MagneticFieldCalibrated])
+            try! sensorController.start()
+        }
     }
     
     func start(command: CDVInvokedUrlCommand) {
         if !prepared {
-            sendErrorCode(callbackId: command.callbackId, error: APMaglocError.NOT_PREPARED)
+            sendErrorCode(error: Error.NOT_PREPARED, callbackId: command.callbackId)
         } else if active {
-            sendErrorCode(callbackId: command.callbackId, error: APMaglocError.IS_ACTIVE)
+            sendErrorCode(error: Error.IS_ACTIVE, callbackId: command.callbackId)
         } else {
-            self.locationCallbackId = command.callbackId
+            self.callbackId = command.callbackId
             let argv = command.arguments
-            assert(argv.count != 0)
-            let fraction = argv[0]
+            assert(argv.count == 1 || argv.count == 3)
+            let fraction = argv[0] as! Double
             assert(fraction <= 1.0 && fraction >= 0)
             
-            active = true
+            status = .LOCALIZING
             magneticData = nil
             attitudeData = nil
             
             if argv.count == 3 {
-                mcl_start(fraction, argv[1], argv[2])
+                mcl_start(fraction, argv[1] as! Double, argv[2] as! Double)
             } else {
-                mcl_start(fraction)
+                mcl_start(fraction, 0.05, 0.4)
             }
+            try! sensorController.changeOptions([.NavigationCalibratedReferenceTrueNorth, .MagneticFieldCalibrated])
             try! sensorController.start()
         }
     }
     
     func stop(command: CDVInvokedUrlCommand) {
+        sendDummy(callbackId: command.callbackId)
+        return
         if sensorController.active {
             sensorController.stop()
-            active = false
-            
-            sendResult(payload: [APMaglocDictKey.STATUS.rawValue : APMaglocStatus.INACTIVE.rawValue], keepCallback: false)
+            status = .INACTIVE
+            sendResult(payload: [DictKey.STATUS.rawValue : Status.INACTIVE.rawValue], callbackId: command.callbackId, keepCallback: false)
+            //Need to free both this callbackId and self.callbackId
+            sendDummy(callbackId: self.callbackId, keepCallback: false)
+            self.callbackId = nil
+        } else {
+            sendErrorCode(error: Error.NOT_ACTIVE, callbackId: command.callbackId)
         }
+        sendDummy(callbackId: command.callbackId)
     }
     
     func reset(command: CDVInvokedUrlCommand) {
         if active {
-            sendErrorCode(callbackId: command.callbackId, error: APMaglocError.IS_ACTIVE)
+            sendErrorCode(error: Error.IS_ACTIVE, callbackId: command.callbackId)
         } else {
             prepared = false
+            sendResult(payload: [DictKey.STATUS.rawValue : Status.NOT_PREPARED.rawValue], callbackId: command.callbackId)
         }
     }
     
     
     func handleUpdate(updateError error: NSError!, magneticData data: MagneticData!) {
         assert(error == nil && data != nil)
-        if data.accuracy != Accuracy.Uncalibrated {
+        if data.accuracy != .Uncalibrated {
+            //        if data.accuracy.rawValue >= .MEDIUM.rawValue {
             self.magneticData = data
             self.notifyDelegates()
         }
@@ -248,25 +311,27 @@ class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*//*SensorControllerDelega
     
     func handleUpdate(updateError error: NSError!, attitudeData data: AttitudeData!) {
         assert(error == nil && data != nil)
-        if data.accuracy != Accuracy.Uncalibrated {
+        if data.accuracy != .Uncalibrated {
+            //        if data.accuracy.rawValue >= .MEDIUM.rawValue {
             self.attitudeData = data
             self.notifyDelegates()
         }
     }
     
     
-    
-    private func location(dm: MagneticData, da: AttitudeData) -> (LatLng, APMaglocAccuracy) {
+    private func location(dm dm: MagneticData, da: AttitudeData) -> (LatLng, Accuracy) {
         
-        return (LatLng(lat: 0.0, lng: 0.0), APMaglocAccuracy.HIGH)
+        return (LatLng(lat: 0.0, lng: 0.0), Accuracy.HIGH)
         
-        var p = CPoint(x: 0.0, y: 0.0)
-        let addr = UnsafeMutablePointer(start: &p).baseAddress
-        mcl_most_probable_position(addr, strideof(CPoint), CBool(true), CInt(floor))
+        let addr = UnsafeMutablePointer<CPoint>.alloc(1)
+        addr.initialize(CPoint(x: 0.0, y: 0.0))
+        mcl_most_probable_position(addr, strideof(CPoint.self), CBool(true), CInt(floor))
+        let p = addr.memory
+        addr.destroy(); addr.dealloc(1)
         //Dummy accuracy
-        let acc = APMaglocAccuracy.MEDIUM
+        let acc = Accuracy.MEDIUM
         //Coordinates
-        let coords = self.xytoll(p)
+        let coords = self.xytoll(Point(x: p.x, y: p.y))
         return (coords, acc)
     }
     
@@ -274,27 +339,52 @@ class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*//*SensorControllerDelega
     
     private func notifyDelegates() {
         if let dm = self.magneticData, da = self.attitudeData {
-            if abs(dm.timestamp - da.timestamp) < SENSOR_IGNORE_INTERVAL {
-                let (latlng, acc) = location(dm: dm, da: da)
-                if acc >= APMaglocAccuracy.MEDIUM {
-                    let dict = [
-                        APMaglocDictKey.STATUS.rawValue : APMaglocStatus.ACTIVE.rawValue,
-                        APMaglocDictKey.LOC.rawValue : [
-                            APMaglocDictKey.LAT.rawValue : latlng.lat,
-                            APMaglocDictKey.LNG.rawValue : latlng.lng,
-                            APMaglocDictKey.ACC.rawValue : acc.rawValue
+            print("dm: \(dm.timestamp) da: \(da.timestamp) update: \(self.updateInterval) ignore: \(self.ignoreInterval)")
+            if abs(dm.timestamp - da.timestamp) < self.ignoreInterval {
+                let tms = (dm.timestamp + da.timestamp) / 2
+                if status == .LOCALIZING {
+                    let (latlng, acc) = location(dm: dm, da: da)
+                    if acc.rawValue >= Accuracy.MEDIUM.rawValue {
+                        let dict: [String: AnyObject] = [
+                            DictKey.STATUS.rawValue : Status.LOCALIZING.rawValue,
+                            DictKey.TMS.rawValue : tms,
+                            DictKey.LOC.rawValue : [
+                                DictKey.LAT.rawValue : latlng.lat,
+                                DictKey.LNG.rawValue : latlng.lng,
+                                DictKey.ACC.rawValue : acc.rawValue
+                            ]
+                        ]
+                        sendResult(payload: dict, callbackId: self.callbackId, keepCallback: true)
+                        self.magneticData = nil
+                        self.attitudeData = nil
+                    }
+                } else if status == .LOGGING {
+                    let dict: [String: AnyObject] = [
+                        DictKey.STATUS.rawValue : Status.LOGGING.rawValue,
+                        DictKey.TMS.rawValue : tms,
+                        DictKey.FLD.rawValue : [
+                            DictKey.X.rawValue : dm.field.x,
+                            DictKey.Y.rawValue : dm.field.y,
+                            DictKey.Z.rawValue : dm.field.z
+                        ],
+                        DictKey.ATT.rawValue : [
+                            DictKey.W.rawValue : da.attitude.quaternion.w,
+                            DictKey.X.rawValue : da.attitude.quaternion.x,
+                            DictKey.Y.rawValue : da.attitude.quaternion.y,
+                            DictKey.Z.rawValue : da.attitude.quaternion.z
                         ]
                     ]
-                    sendResult(payload: dict, keepCallback: true)
+                    sendResult(payload: dict, callbackId: self.callbackId, keepCallback: true)
+                    self.magneticData = nil
+                    self.attitudeData = nil
                 }
             } else {
                 print("APMagloc: magnetic and attitude data arrival times are desynchronized")
-                sendErrorCode(callbackId: self.locationCallbackId, error: APMaglocError.SENSOR_DESYNC, keepCallback: true)
+                sendErrorCode(error: Error.SENSOR_DESYNC, callbackId: self.callbackId, keepCallback: true)
             }
         }
     }
     
-     */
     func test(command: CDVInvokedUrlCommand) {
         //let v = CLLocationManager.locationServicesEnabled()
         //let v = true
@@ -305,51 +395,5 @@ class APMagloc: CDVPlugin/*, CLLocationManagerDelegate*//*SensorControllerDelega
         commandDelegate!.sendPluginResult(pluginResult, callbackId: command.callbackId)
     }
     
-    /*
-    */
-    
-    
-    
-    
-    
 }
-
-/**
- 
- <?ignore
- <source-file src="src/ios/API/ApiClient.swift" target-dir="APMaglocPlugin/API"/>
- <source-file src="src/ios/APMagloc.swift" target-dir="APMaglocPlugin"/>
- <source-file src="src/ios/Architect/ArchitectController.swift" target-dir="APMaglocPlugin/Architect"/>
- <source-file src="src/ios/Architect/FloorMap.swift" target-dir="APMaglocPlugin/Architect"/>
- <source-file src="src/ios/Architect/FloorMapView.swift" target-dir="APMaglocPlugin/Architect"/>
- <source-file src="src/ios/Architect/LoggerController.swift" target-dir="APMaglocPlugin/Architect"/>
- <source-file src="src/ios/DataTypes.swift" target-dir="APMaglocPlugin"/>
- <source-file src="src/ios/FileSystem/fileSystem.swift" target-dir="APMaglocPlugin/FileSystem"/>
- <source-file src="src/ios/Geometry/Cartesian.swift" target-dir="APMaglocPlugin/Geometry"/>
- <source-file src="src/ios/Geometry/Spherical.swift" target-dir="APMaglocPlugin/Geometry"/>
- <source-file src="src/ios/Localization/DBSCAN/dbscan.cpp" target-dir="APMaglocPlugin/Localization/DBSCAN"/>
- <source-file src="src/ios/Localization/MCL/datatypes.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <source-file src="src/ios/Localization/MCL/Distributions.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <source-file src="src/ios/Localization/MCL/Localizer.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <source-file src="src/ios/Localization/MCL/Map.cpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <source-file src="src/ios/Localization/MCL Bridge/MagneticMCL.cpp" target-dir="APMaglocPlugin/Localization/MCL Bridge"/>
- <source-file src="src/ios/Navigator/NavigatorController.swift" target-dir="APMaglocPlugin/Navigator"/>
- <source-file src="src/ios/Sensors/HardwarePedometer.swift" target-dir="APMaglocPlugin/Sensors"/>
- <source-file src="src/ios/Sensors/SensorController.swift" target-dir="APMaglocPlugin/Sensors"/>
- <source-file src="src/ios/Sensors/SoftwarePedometer.swift" target-dir="APMaglocPlugin/Sensors"/>
- <source-file src="src/ios/Sensors/StepCounting.swift" target-dir="APMaglocPlugin/Sensors"/>
- <source-file src="src/ios/Utils/jsonConverter.swift" target-dir="APMaglocPlugin/Utils"/>
- <source-file src="src/ios/Utils/Reachability.swift" target-dir="APMaglocPlugin/Utils"/>
- <header-file src="src/ios/Central-Bridging-Header.h" target-dir="APMaglocPlugin"/>
- <header-file src="src/ios/Localization/DBSCAN/dbscan.h" target-dir="APMaglocPlugin/Localization/DBSCAN"/>
- <header-file src="src/ios/Localization/MCL/datatypes.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <header-file src="src/ios/Localization/MCL/Distributions.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <header-file src="src/ios/Localization/MCL/Localizer.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <header-file src="src/ios/Localization/MCL/Map.hpp" target-dir="APMaglocPlugin/Localization/MCL"/>
- <header-file src="src/ios/Localization/MCL Bridge/MagneticMCL.h" target-dir="APMaglocPlugin/Localization/MCL Bridge"/>
- <header-file src="src/ios/Localization/MCL Bridge/MCL-Bridging-Header.h" target-dir="APMaglocPlugin/Localization/MCL Bridge"/>
- <header-file src="src/ios/Localization/stdafx.hpp" target-dir="APMaglocPlugin/Localization"/>
- ?>
-
- */
 

@@ -21,7 +21,14 @@ var
 	ENABLE_BITCODE = 'NO',
 	ENABLE_BITCODE_XCODE = '"' + ENABLE_BITCODE + '"',
 	BRIDGING_HEADER_END = '/Plugins/com.dmsl.anyplace.magloc/APMaglocPlugin/APMagloc-Bridging-Header.h',
-	COMMENT_KEY = /_comment$/;
+	COMMENT_KEY = /_comment$/,
+    //Required at least C++11
+    CLANG_CXX_LANGUAGE_STANDARD = 'c++0x',
+    CLANG_CXX_LANGUAGE_STANDARD_XCODE = '"' + CLANG_CXX_LANGUAGE_STANDARD + '"',
+    GCC_C_LANGUAGE_STANDARD = 'c11',
+    GCC_C_LANGUAGE_STANDARD_XCODE = '"' + GCC_C_LANGUAGE_STANDARD + '"';
+
+
 
 
 // Helpers
@@ -98,6 +105,8 @@ module.exports = function (context) {
 	debug('- "Runpath Search Paths" to: ' + RUNPATH_SEARCH_PATHS_XCODE);
 	debug('- "Objective-C Bridging Header" to: ' + swiftBridgingHeadXcode);
 	debug('- "ENABLE_BITCODE" set to: ' + ENABLE_BITCODE_XCODE);
+    debug('- "CLANG_CXX_LANGUAGE_STANDARD" set to: ' + CLANG_CXX_LANGUAGE_STANDARD);
+    debug('- "GCC_C_LANGUAGE_STANDARD" set to: ' + GCC_C_LANGUAGE_STANDARD);
 
 
 	// Massaging the files
@@ -107,6 +116,9 @@ module.exports = function (context) {
 	swiftOptions.push('SWIFT_OBJC_BRIDGING_HEADER = ' + swiftBridgingHead);
 	swiftOptions.push('IPHONEOS_DEPLOYMENT_TARGET = ' + BUILD_VERSION);
 	swiftOptions.push('ENABLE_BITCODE = ' + ENABLE_BITCODE);
+    swiftOptions.push('CLANG_CXX_LANGUAGE_STANDARD = ' + CLANG_CXX_LANGUAGE_STANDARD);
+    swiftOptions.push('GCC_C_LANGUAGE_STANDARD = ' + GCC_C_LANGUAGE_STANDARD);
+    
 	// NOTE: Not needed
 	// swiftOptions.push('EMBEDDED_CONTENT_CONTAINS_SWIFT = YES');
 	fs.appendFileSync(xcconfigPath, swiftOptions.join('\n'));
@@ -132,6 +144,8 @@ module.exports = function (context) {
 			buildSettings.SWIFT_OBJC_BRIDGING_HEADER = swiftBridgingHeadXcode;
 			buildSettings.IPHONEOS_DEPLOYMENT_TARGET = BUILD_VERSION_XCODE;
 			buildSettings.ENABLE_BITCODE = ENABLE_BITCODE_XCODE;
+            buildSettings.CLANG_CXX_LANGUAGE_STANDARD = CLANG_CXX_LANGUAGE_STANDARD_XCODE
+            buildSettings.GCC_C_LANGUAGE_STANDARD = GCC_C_LANGUAGE_STANDARD_XCODE
 		});
 
 		// Writing the file again

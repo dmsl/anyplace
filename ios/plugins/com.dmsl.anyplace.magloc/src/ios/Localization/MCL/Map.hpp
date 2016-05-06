@@ -50,9 +50,8 @@
 
 class Map {
 private:
-    static const Vector2D DEFAULT_NORTH = {0.0, 1.0};
-    static const Size DEFAULT_SIZE = {(double)UINT_MAX, (double)UINT_MAX};
-    
+    static const Vector2D DEFAULT_NORTH;
+    static const Size DEFAULT_SIZE;
     std::vector<const Feature *> _features;
     //std::map<Line, std::vector<const Feature *>*> _feature_lines;
     std::map<LineID,  std::vector<const Feature *>*> _line_id_to_features;
@@ -69,16 +68,16 @@ public:
      * Features are stored in a heap to avoid copying during localization. Deletion of the features is done by Map class. Features should not be modifed outside of the Map class.
      */
     
-    Map() : Map(DEFAULT_SIZE, DEFAULT_NORTH);
+    Map() : Map(Map::DEFAULT_SIZE, Map::DEFAULT_NORTH) {};
     
     Map(Size size, Vector2D north_direction) : _size(size), _north_direction(north_direction) {};
     
-    Map(std::vector<Feature> features, Size size = DEFAULT_SIZE, Vector2D north_direction = DEFAULT_NORTH) : _size(size), _north_direction(north_direction) {
+    Map(std::vector<Feature *> features, Size size = Map::DEFAULT_SIZE, Vector2D north_direction = Map::DEFAULT_NORTH) : Map(size, north_direction) {
         add_features(features);
     };
     
-    void map_set_size(Size size) { _size = size; }
-    Size map_get_size() { return _size; }
+    void set_size(Size size) { _size = size; }
+    Size get_size() const { return _size; }
     
     void add_lines(std::map<LineID, Line> lines);
     void add_features(std::vector<Feature *> features);
@@ -96,7 +95,7 @@ public:
     const Feature * const feature_at(unsigned long ind) const { return _features.at(ind); }
     const std::vector<const Feature *> features_at(std::vector<unsigned long> indices) const;
     
-    Line get_line(LineID lineId) { return _line_id_to_line.at(lineId); }
+    Line get_line(LineID lineId) const { return _line_id_to_line.at(lineId); }
     
 //    const std::vector<unsigned long> find_KNN_features_indices(const Point p, const unsigned long k) const;
     

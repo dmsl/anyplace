@@ -82,7 +82,7 @@ void Localizer::particles_init_uniform(ULONG count) {
         //        printf("init_uniform %d begin\n", i);
         ULONG ind = distribution(_random_generator);
         //        printf("index = %lu\n", ind);
-        std::vector<const Feature *> knn = _map.find_NN_features(_map.feature_at(ind)->pos, _k_for_knn_clustering, _r_for_nn_clustering);
+        std::vector<const Milestone *> knn = p_to_milestones(_map.find_NN_features(_map.feature_at(ind)->pos, _k_for_knn_clustering, _r_for_nn_clustering));
         //        printf("init_uniform %d after knn\n", i);
         Particle* particle = new Particle{ _map.feature_at(ind)->pos , weight, knn, clusterId };
         _clusters[clusterId].push_back(particle);
@@ -153,7 +153,7 @@ void Localizer::particles_sample_measurement(const Field & field, const double &
     unsigned long k_for_knn = max(_k_for_knn_clustering, _k_for_knn_measurement);
     for (Particle * particle : _particles)
     {
-        std::vector<const Milestone *> knn = _map.find_NN_features(particle->pos, k_for_knn, _r_for_nn_clustering);
+        std::vector<const Milestone *> knn = p_to_milestones(_map.find_NN_features(particle->pos, k_for_knn, _r_for_nn_clustering));
         particle->nns = knn;
         
         knn.resize(_k_for_knn_measurement);
@@ -306,8 +306,8 @@ void Localizer::particles_importance_resample() {
             //Augmented MCL ( p.206 of Probabilistic Robotoics - http://www.probabilistic-robotics.org/ )
             
             unsigned long ind = index_distribution(_random_generator);
-            const Milestone * milestone = _map.feature_at(ind);
-            std::vector<const Milestone *> knn = _map.find_NN_features(milestone->pos, _k_for_knn_clustering, _r_for_nn_clustering);
+            const Milestone * milestone = (const Milestone *)_map.feature_at(ind);
+            std::vector<const Milestone *> knn = p_to_milestones(_map.find_NN_features(milestone->pos, _k_for_knn_clustering, _r_for_nn_clustering));
             resampled.push_back(new Particle{ milestone->pos, 1.0 / M, knn, 0 });
             
         } else {
@@ -345,7 +345,7 @@ Point Localizer::most_probable_position(std::function<int ()> most_probable_clus
 }
 
 Point Localizer::most_probable_position_cluster_size_based(bool pull_to_nearest_milestone) const {
-    std::function<int ())> most_probable_cluster = [&]() {
+    std::function<int ()> most_probable_cluster = [&]() {
         int max_cluster_id;
         unsigned long max_cluster_size = 0;
         for (std::map<int, std::vector<Particle *>>::const_iterator it = _clusters.begin(); it != _clusters.end(); ++it) {
@@ -363,7 +363,7 @@ Point Localizer::most_probable_position_cluster_size_based(bool pull_to_nearest_
 }
 
 Point Localizer::most_probable_position_cluster_size_proximity_based(bool pull_to_nearest_milestone) const {
-    std::function<int ())> most_probable_cluster = [&]() {
+    std::function<int ()> most_probable_cluster = [&]() {
         int max_cluster_id;
         double max_cluster_score = -1;
         std::map<int, ClusterProperties> properties = get_clusters_properties();
@@ -401,13 +401,13 @@ void Localizer::particles_pull_to_nearest_milestones(double dist_threshold = 0) 
 void Localizer::recalculate_nns() {
     for ( Particle * particle : _particles )
     {
-        std::vector<const Milestone *> knn = _map.find_NN_features(particle->pos, _k_for_knn_clustering, _r_for_nn_clustering);
+        std::vector<const Milestone *> knn = p_to_milestones(_map.find_NN_features(particle->pos, _k_for_knn_clustering, _r_for_nn_clustering));
         assert( knn.size() != 0 );
         particle->nns = knn;
     }
 }
 
-void Localizer::run_clustering_DBSCAN(bool lined) {
+/*void Localizer::run_clustering_DBSCAN(bool lined) {
     clear_clusters();
     
     auto cluster = [&](std::vector<Particle *> particles, int firstClusterId = 0) {
@@ -469,7 +469,7 @@ void Localizer::run_clustering_DBSCAN(bool lined) {
     } else {
         cluster(_particles);
     }
-}
+}*/
 
 void Localizer::run_clustering_KNN_milestones() {
     clear_clusters();
@@ -604,17 +604,9 @@ std::map<int, ClusterProperties> Localizer::get_clusters_properties() const {
         }
         dev_radius = sqrt(dev_radius / n);
         
-        properties[clusterId] = ClusterProperties{ particles.size(), , min_radius, max_radius, avg_radius, dev_radius};
+        properties[clusterId] = ClusterProperties{ particles.size(), min_radius, max_radius, avg_radius, dev_radius};
     }
     return properties;
-}
-
-void Localizer::particles_sample_measurement_magnitude_based(const double magnitude, const double variance, const double distance_threshold, const bool resample) {
-    std::function<double (const Field &, const Milestone *)> similarity = [&](const Field & measured_field, const Milestone * milestone) {
-        double w_max = _measurement_distribution->pdf(milestone->field.norm(), milestone->field.norm(), variance);
-        return _measurement_distribution->pdf(measured_field.norm(), milestone->field.norm(), variance) / w_max;
-    };
-    particles_sample_measurement(Field(magnitude, 0.0, 0.0), distance_threshold, resample, similarity);
 }
 
 //May be it is better to come up with another score function. This one is not tested.
@@ -645,7 +637,7 @@ double Localizer::localization_score(std::function<double (const ClusterProperti
     return score;
 }
 
-double Localizer::localization_score_size_proximity() const {
+double Localizer::localization_score_cluster_size_proximity() const {
     std::function<double (const ClusterProperties &)> cluster_score = [&](const ClusterProperties & p) {
         return cluster_score_size_proximity(p);
     };
@@ -693,7 +685,7 @@ const int LocalizerMultipleMap::map_id_by_best_localization_density_score() {
     double max_score = 0;
     int max_ind = NAN;
     for (std::map<int, Localizer *>::const_iterator it = _localizers.begin(); it != _localizers.end(); ++it) {
-        double score = it->second->calculate_localization_density_score();
+        double score = it->second->localization_score_cluster_size_proximity();
         if (score > max_score) {
             max_score = score;
             max_ind = it->first;

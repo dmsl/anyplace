@@ -37,7 +37,10 @@
 
 #include "Map.hpp"
 
-void Map::add_lines(std::map<std:::string, Line> lines) {
+const Vector2D Map::DEFAULT_NORTH = {0.0, 1.0};
+const Size Map::DEFAULT_SIZE = {(double)UINT_MAX, (double)UINT_MAX};
+
+void Map::add_lines(std::map<LineID, Line> lines) {
     _line_id_to_line.insert(lines.begin(), lines.end());
 }
 
@@ -73,7 +76,7 @@ void Map::clear_features() {
     for (const Feature * f : _features)
         delete f;
     _features.clear();
-    for (auto it = _line_id_to_features.begin(); it != _line_id_to_featuresend(); ++it)
+    for (auto it = _line_id_to_features.begin(); it != _line_id_to_features.end(); ++it)
         delete it->second;
     _line_id_to_features.clear();
 }
@@ -245,7 +248,7 @@ const std::vector<const Feature *> Map::find_fast_lined_NN_features(const Point 
 }
 
 const unsigned long Map::find_nearest_feature_index_to_projection(const Point p, const LineID lid, const Map &map) {
-    Line l = _line_id_to_line(lid);
+    Line l = map._line_id_to_line.at(lid);
     std::vector<const Feature *>* features = map._line_id_to_features.at(lid);
     Point projection = l.projection(p);
     unsigned long index;
@@ -285,7 +288,7 @@ const std::vector<LineID> Map::find_KNN_lines(const Point p, const unsigned long
     
     for (std::map<LineID, std::vector<const  Feature *>*>::const_iterator it = map._line_id_to_features.begin(); it != map._line_id_to_features.end(); ++it) {
         const LineID lineId = it->first;
-        const Line line = _line_id_to_line(lineId);
+        const Line line = map._line_id_to_line.at(lineId);
         bool blocked = false;
         for (const Obstacle * obstacle: map._obstacles) {
             if (obstacle->intersects_line(Line(p, line.a)) && obstacle->intersects_line(Line(p, line.b)) ) {
@@ -298,7 +301,7 @@ const std::vector<LineID> Map::find_KNN_lines(const Point p, const unsigned long
     }
     
     std::sort(knn.begin(), knn.end(), [&](LineID lid1, LineID lid2){
-        return _line_id_to_line(lid1).dist(p) < _line_id_to_line(lid2).dist(p);
+        return map._line_id_to_line.at(lid1).dist(p) < map._line_id_to_line.at(lid2).dist(p);
     });
     
     knn.resize(k);
@@ -306,7 +309,7 @@ const std::vector<LineID> Map::find_KNN_lines(const Point p, const unsigned long
     return knn;
 }
 
-const std:;string Map::find_NN_line(const Point p, const Map & map) {
+const LineID Map::find_NN_line(const Point p, const Map & map) {
     return Map::find_KNN_lines(p, 1, map).at(0);
 }
 
