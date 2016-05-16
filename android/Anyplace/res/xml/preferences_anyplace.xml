@@ -34,7 +34,7 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 * DEALINGS IN THE SOFTWARE.
 *
-*/
+*/
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
@@ -53,6 +53,10 @@
             android:key="refresh_building"
             android:summary="Reload the current building from server"
             android:title="Refresh Building" />
+        <Preference
+            android:key="refresh_map"
+            android:summary="Reload the map pois from server"
+            android:title="Refresh Map" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Algorithms" >
         <ListPreference

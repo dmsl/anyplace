@@ -187,8 +187,6 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 				PlacesList places = GooglePlaces.queryStaticGoogle(query, position);
 				if (isCancelled())
 					return "Cancelled!";
-				// cache the results
-				mAnyplaceCache.setGooglePlaces(places);
 
 				// create the cursor for the results
 				// cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places.results);

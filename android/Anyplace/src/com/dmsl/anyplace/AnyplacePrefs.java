@@ -52,14 +52,13 @@ import android.widget.Toast;
 /**
  * Defines the behavior of the preferences menu.
  * 
- * @author KIOS Research Center and Data Management Systems Lab, University of
- *         Cyprus
+ * @author KIOS Research Center and Data Management Systems Lab, University of Cyprus
  *
  */
 public class AnyplacePrefs extends PreferenceActivity {
 
 	public enum Action {
-		REFRESH_BUILDING
+		REFRESH_BUILDING, REFRESH_MAP
 	}
 
 	/**
@@ -114,6 +113,16 @@ public class AnyplacePrefs extends PreferenceActivity {
 			public boolean onPreferenceClick(Preference preference) {
 				Intent returnIntent = new Intent();
 				returnIntent.putExtra("action", Action.REFRESH_BUILDING);
+				setResult(RESULT_OK, returnIntent);
+				finish();
+				return true;
+			}
+		});
+		getPreferenceManager().findPreference("refresh_map").setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Intent returnIntent = new Intent();
+				returnIntent.putExtra("action", Action.REFRESH_MAP);
 				setResult(RESULT_OK, returnIntent);
 				finish();
 				return true;

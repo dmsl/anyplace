@@ -753,23 +753,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		adapter.notifyDataSetChanged();
 	}
 
-	public static int getPixelsFromDp(Context context, float dp) {
-		final float scale = context.getResources().getDisplayMetrics().density;
-		return (int) (dp * scale + 0.5f);
-	}
-
 	// GOOGLE MAP FUNCTIONS
-	/**
-	 * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly installed) and the map has not already been instantiated.. This will ensure that we only ever call
-	 * {@link #setUpMap()} once when {@link #mMap} is not null.
-	 * <p>
-	 * If it isn't installed {@link SupportMapFragment} (and {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to install/update the Google Play services APK on
-	 * their device.
-	 * <p>
-	 * A user can return to this FragmentActivity after following the prompt and correctly installing/updating/enabling the Google Play services. Since the FragmentActivity may not have been
-	 * completely destroyed during this process (it is likely that it would only be stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this method in
-	 * {@link #onResume()} to guarantee that it will be called.
-	 */
+	// Called from onCreate or onResume
 	private void setUpMapIfNeeded() {
 		// Do a null check to confirm that we have not already instantiated the
 		// map.
@@ -875,16 +860,19 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 	}
 
-	/**
-	 * <p>
-	 * This should only be called once and when we are sure that {@link #mMap} is not null.
-	 */
+	public static int getPixelsFromDp(Context context, float dp) {
+		final float scale = context.getResources().getDisplayMetrics().density;
+		return (int) (dp * scale + 0.5f);
+	}
+
+	// Called from setUpMapIfNeeded
 	private void setUpMap() {
 		initMap();
 		// initCamera();
 		initListeners();
 	}
 
+	// Called from setUpMap
 	private void initMap() {
 		// Sets the map type to be NORMAL - ROAD mode
 		mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -895,6 +883,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		mMap.setBuildingsEnabled(false);
 	}
 
+	// Called from onConnecetd
 	private void initCamera() {
 		// Only for the first time
 		if (userMarker != null) {
@@ -909,13 +898,13 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 				@Override
 				public void onFinish() {
 					cameraUpdate = false;
-					handleBuildingsOnMap();
+					handleBuildingsOnMap(false);
 				}
 
 				@Override
 				public void onCancel() {
 					cameraUpdate = false;
-					handleBuildingsOnMap();
+					handleBuildingsOnMap(false);
 				}
 			});
 		} else {
@@ -945,17 +934,17 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 							@Override
 							public void onFinish() {
 								cameraUpdate = false;
-								handleBuildingsOnMap();
+								handleBuildingsOnMap(false);
 							}
 
 							@Override
 							public void onCancel() {
 								cameraUpdate = false;
-								handleBuildingsOnMap();
+								handleBuildingsOnMap(false);
 							}
 						});
 					} else {
-						handleBuildingsOnMap();
+						handleBuildingsOnMap(false);
 					}
 
 				}
@@ -971,6 +960,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		}
 	}
 
+	// Called from setUpMap
 	private void initListeners() {
 		mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 			@Override
@@ -1185,8 +1175,11 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 					} catch (Exception e) {
 						Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
 					}
+					break;
+				case REFRESH_MAP:
+					handleBuildingsOnMap(true);
+					break;
 				}
-				break;
 			}
 			break;
 		}
@@ -1421,7 +1414,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 			@Override
 			public void onFinish() {
 				cameraUpdate = false;
-				handleBuildingsOnMap();
+				handleBuildingsOnMap(false);
 				updateLocation();
 			}
 
@@ -1544,7 +1537,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		}
 	}
 
-	// LOCATION API FUNCTIONS
+	// Play Services Functions
 	private boolean checkPlayServices() {
 		// Check that Google Play services is available
 		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -1597,8 +1590,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 	@Override
 	public void onConnected(Bundle dataBundle) {
-		// THIS IS THE FIRST THINGS LOADED WHEN GOOGLE PLAY SERVICES ARE
-		// AVAILABLE
+		// Called after onResume by system
 		// Log.d("Google Play services", "Connected");
 		if (checkPlayServices()) {
 			initCamera();
@@ -1885,7 +1877,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 		}
 	}
 
-	private void handleBuildingsOnMap() {
+	private void handleBuildingsOnMap(boolean forceReload) {
 		AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(UnifiedNavigationActivity.this);
 		mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
 
@@ -1907,7 +1899,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 			}
 
-		}, this, false);
+		}, this, forceReload);
 	}
 
 	// </POIS

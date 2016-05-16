@@ -54,7 +54,6 @@ import android.widget.Toast;
 import com.dmsl.anyplace.AnyplaceAPI;
 import com.dmsl.anyplace.MyApplication;
 import com.dmsl.anyplace.cache.BackgroundFetchListener.Status;
-import com.dmsl.anyplace.googleapi.PlacesList;
 import com.dmsl.anyplace.nav.BuildingModel;
 import com.dmsl.anyplace.nav.PoisModel;
 import com.dmsl.anyplace.nav.BuildingModel.FetchBuildingTaskListener;
@@ -101,9 +100,6 @@ public class AnyplaceCache implements Serializable {
 	// last fetched pois
 	private Map<String, PoisModel> mLoadedPoisMap;
 	private String poisBUID;
-
-	// Google Places structures
-	private PlacesList mPlacesList;
 
 	private AnyplaceCache() {
 		// last fetched Buildings
@@ -224,14 +220,6 @@ public class AnyplaceCache implements Serializable {
 	}
 
 	// />POIS
-
-	public PlacesList getGooglePlaces() {
-		return this.mPlacesList;
-	}
-
-	public PlacesList setGooglePlaces(PlacesList pl) {
-		return this.mPlacesList = pl;
-	}
 
 	public void fetchAllFloorsRadiomapsRun(BackgroundFetchListener l, final BuildingModel build) {
 

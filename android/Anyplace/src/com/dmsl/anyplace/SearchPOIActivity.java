@@ -57,7 +57,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dmsl.anyplace.cache.AnyplaceCache;
 import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper;
 import com.dmsl.anyplace.nav.IPoisClass;
 import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper.SearchTypes;
@@ -94,8 +93,7 @@ public class SearchPOIActivity extends FragmentActivity {
 					if (mSearchType == SearchTypes.INDOOR_MODE) {
 						place = mQueriedPois.get(position);
 					} else if (mSearchType == SearchTypes.OUTDOOR_MODE) {
-						AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(SearchPOIActivity.this);
-						place = mAnyplaceCache.getGooglePlaces().results.get(position);
+						place = mQueriedPois.get(position);
 					}
 					finishSearch("Success!", place);
 				} catch (ArrayIndexOutOfBoundsException e) {
