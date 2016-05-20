@@ -1,0 +1,4 @@
+include ':Anyplace'
+include ':library'
+include ':google-play-services_lib'
+include ':actionbarsherlock'

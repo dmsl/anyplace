@@ -167,7 +167,7 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 						try {
 							List<IPoisClass> places = new ArrayList<IPoisClass>(1);
 							PoisModel pm = new PoisModel();
-							pm.name = "Searching through Google …";
+							pm.name = "Searching through Google ...";
 							places.add(pm);
 							Cursor cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places);
 							mListener.onUpdateStatus("Dummy Result", cursor);
