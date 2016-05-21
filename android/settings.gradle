@@ -1,4 +1,3 @@
-include ':Anyplace'
-include ':library'
+include ':Anyplace', ':library'
 include ':google-play-services_lib'
 include ':actionbarsherlock'

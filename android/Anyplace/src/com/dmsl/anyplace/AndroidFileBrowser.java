@@ -186,7 +186,7 @@ public class AndroidFileBrowser extends ListActivity implements OnClickListener 
 			break;
 		}
 
-		MyCustomAdapter directoryList = new MyCustomAdapter(this, R.xml.file_row, this.directoryEntries);
+		MyCustomAdapter directoryList = new MyCustomAdapter(this, R.layout.file_row, this.directoryEntries);
 
 		this.setListAdapter(directoryList);
 	}
@@ -299,7 +299,7 @@ public class AndroidFileBrowser extends ListActivity implements OnClickListener 
 			if (row == null) {
 				// Make New Layoutinflater
 				LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				row = vi.inflate(R.xml.file_row, parent, false);
+				row = vi.inflate(R.layout.file_row, parent, false);
 			}
 			TextView label = (TextView) row.findViewById(R.id.file);
 			String stringFile = myList.get(position).toString();
