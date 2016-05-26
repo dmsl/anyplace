@@ -114,6 +114,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
@@ -212,6 +213,7 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 	private boolean upInProgress = false;
 	private Object upInProgressLock = new Object();
 
+	private boolean userIsNearby = false;
 	private BuildingModel mCurrentBuilding = null;
 	private FloorModel mCurrentFloor = null;
 	private HeatmapTileProvider mProvider;
@@ -944,6 +946,7 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		mCurrentBuilding = b;
 		mCurrentFloor = f;
 		curLocation = null;
+		userIsNearby = false;
 		textFloor.setText(f.floor_name);
 
 		loadMapBasicLayer(b, f);
@@ -1386,29 +1389,35 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 			return;
 		}
 
-		LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+		boolean hasGPS = getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
+		if(hasGPS) {
+			if(!userIsNearby) {
+				LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+				boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-		if (statusOfGPS == false) {
-			Toast.makeText(this, "Please enable GPS", Toast.LENGTH_LONG).show();
-			return;
-		}
+				if (statusOfGPS == false) {
+					Toast.makeText(this, "Please enable GPS", Toast.LENGTH_LONG).show();
+					return;
+				}
 
-		final GeoPoint gps;
-		if (AnyplaceAPI.DEBUG_WIFI) {
-			gps = AnyUserData.fakeGPS();
-		} else {
-			Location location = mLocationClient.getLastLocation();
-			if (location == null) {
-				Toast.makeText(this, "Waiting for a valid GPS signal", Toast.LENGTH_LONG).show();
-				return;
+				final GeoPoint gps;
+				if (AnyplaceAPI.DEBUG_WIFI) {
+					gps = AnyUserData.fakeGPS();
+				} else {
+					Location location = mLocationClient.getLastLocation();
+					if (location == null) {
+						Toast.makeText(this, "Waiting for a valid GPS signal", Toast.LENGTH_LONG).show();
+						return;
+					}
+					gps = new GeoPoint(location.getLatitude(), location.getLongitude());
+				}
+
+				if (GeoPoint.getDistanceBetweenPoints(mCurrentBuilding.longitude, mCurrentBuilding.latitude, gps.dlon, gps.dlat, "") > 200) {
+					Toast.makeText(getBaseContext(), "You are only allowed to use the logger for a building you are currently at or physically nearby.", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				userIsNearby = true;
 			}
-			gps = new GeoPoint(location.getLatitude(), location.getLongitude());
-		}
-
-		if (GeoPoint.getDistanceBetweenPoints(mCurrentBuilding.longitude, mCurrentBuilding.latitude, gps.dlon, gps.dlat, "") > 200) {
-			Toast.makeText(getBaseContext(), "You are only allowed to use the logger for a building you are currently at or physically nearby.", Toast.LENGTH_SHORT).show();
-			return;
 		}
 
 		folder_path = (String) preferences.getString("folder_browser", "n/a");
