@@ -250,7 +250,7 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 						@Override
 						public void onSuccess(String result, List<BuildingModel> buildings) {
 							FetchNearBuildingsTask nearest = new FetchNearBuildingsTask();
-							nearest.run(buildings, gpsMarker.getPosition().latitude, gpsMarker.getPosition().longitude, 100);
+							nearest.run(buildings.iterator(), gpsMarker.getPosition().latitude, gpsMarker.getPosition().longitude, 100);
 
 							if (nearest.buildings.size() > 0) {
 								bypassSelectBuildingActivity(nearest.buildings.get(0));

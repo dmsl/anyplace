@@ -74,7 +74,6 @@ import com.dmsl.anyplace.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
 import com.dmsl.anyplace.tasks.FetchFloorPlanTask;
 import com.dmsl.anyplace.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener;
 import com.dmsl.anyplace.tasks.FetchNearBuildingsTask;
-import com.dmsl.anyplace.tasks.FetchNearBuildingsTask.BuildingModelDistance;
 
 public class SelectBuildingActivity extends FragmentActivity implements FloorAnyplaceFloorListener, ErrorAnyplaceFloorListener {
 
@@ -394,11 +393,11 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 				if (nearestOnly) {
 
 					FetchNearBuildingsTask nearBuildings = new FetchNearBuildingsTask();
-					nearBuildings.run(buildings, lat, lon, 10000);
+					nearBuildings.run(buildings.iterator(), lat, lon, 10000);
 
 					// if the user should not interact with the gui and
 					// automatically load the building
-					if (mode == Mode.INVISIBLE && (nearBuildings.buildings.isEmpty() || nearBuildings.distances.get(0).distance > 200)) {
+					if (mode == Mode.INVISIBLE && (nearBuildings.buildings.isEmpty() || nearBuildings.distances.get(0) > 200)) {
 						// exit the activity since no building exists in your area
 						Intent returnIntent = new Intent();
 						returnIntent.putExtra("message", "No buildings around you!");
@@ -468,7 +467,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 		setBuildingSpinner(buildings, null);
 	}
 
-	private void setBuildingSpinner(List<BuildingModel> buildings, List<BuildingModelDistance> distance) {
+	private void setBuildingSpinner(List<BuildingModel> buildings, List<Double> distance) {
 		if (!buildings.isEmpty()) {
 			mAnyplaceCache.setSpinnerBuildings(buildings);
 			List<String> list = new ArrayList<String>();
@@ -478,7 +477,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 				}
 			} else {
 				for (int i = 0; i < buildings.size(); i++) {
-					double value = distance.get(i).distance;
+					double value = distance.get(i);
 					if (value < 1000) {
 						list.add(String.format("[%.0f m] %s", value, buildings.get(i).name));
 					} else {

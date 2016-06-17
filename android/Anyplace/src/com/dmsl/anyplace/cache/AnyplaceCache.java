@@ -75,13 +75,14 @@ public class AnyplaceCache implements Serializable {
 
 	public static AnyplaceCache getInstance(Context ctx) {
 		if (mInstance == null) {
-
-			mInstance = getObject(ctx, ctx.getCacheDir());
-
-			if (mInstance == null) {
-				mInstance = new AnyplaceCache();
+			synchronized (MyApplication.getAppContext()) {
+				if (mInstance == null) {
+					mInstance = getObject(ctx, ctx.getCacheDir());
+				}
+				if (mInstance == null) {
+					mInstance = new AnyplaceCache();
+				}
 			}
-
 		}
 		return mInstance;
 	}

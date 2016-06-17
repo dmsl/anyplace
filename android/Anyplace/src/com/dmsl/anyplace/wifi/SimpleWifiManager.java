@@ -50,7 +50,6 @@ import android.net.wifi.WifiManager;
 public class SimpleWifiManager {
 
 	private final static Long DEFAULT_INTERVAL = 2000L;
-	private final static Object sync =  new Object();
 	private static SimpleWifiManager mInstance = null;
 
 	/**
@@ -60,7 +59,7 @@ public class SimpleWifiManager {
 	public static SimpleWifiManager getInstance() {
 		
 		if (mInstance == null) {
-			synchronized (sync) {
+			synchronized (MyApplication.getAppContext()) {
 				if (mInstance == null) {
 					mInstance = new SimpleWifiManager(MyApplication.getAppContext());
 				}
@@ -122,7 +121,7 @@ public class SimpleWifiManager {
 	/**
 	 * Starts the Access Points Scanning
 	 * 
-	 * @param samples_interval
+	 * @param interval
 	 *            Interval used to perform a new scan
 	 * */
 	public void startScan(Long interval) {
@@ -179,9 +178,7 @@ public class SimpleWifiManager {
 
 	/**
 	 * Stop the Access Points Scanning
-	 * 
-	 * @param receiverWifi
-	 *            WifiReceiver to unregister
+	 *
 	 * */
 	public void stopScan() {
 

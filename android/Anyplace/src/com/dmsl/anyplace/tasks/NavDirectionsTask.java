@@ -50,7 +50,7 @@ import android.os.AsyncTask;
 public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
 
 	public interface NavDirectionsListener {
-		void onNavDirectionsAboart();
+		void onNavDirectionsAbort();
 
 		void onNavDirectionsErrorOrCancel(String result);
 
@@ -58,7 +58,7 @@ public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
 	}
 
 	private enum Status {
-		SUCCESS, ERROR, CANCEL
+		SUCCESS, ERROR, ABORT
 	}
 
 	private NavDirectionsListener mListener;
@@ -82,14 +82,14 @@ public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
 
 		try {
 			if (fromPosition == null || toPosition == null) {
-				status = Status.CANCEL;
+				status = Status.ABORT;
 				return "Task Cancelled";
 			}
 
 			// Avoid Running if the user is in or near the building
 			double distance = GeoPoint.getDistanceBetweenPoints(fromPosition.dlon, fromPosition.dlat, toPosition.dlon, toPosition.dlat, "");
 			if (distance < 500) {
-				status = Status.CANCEL;
+				status = Status.ABORT;
 				return "Task Cancelled";
 			}
 
@@ -115,8 +115,8 @@ public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
 			// call the error listener
 			mListener.onNavDirectionsErrorOrCancel(result);
 			break;
-		case CANCEL:
-			mListener.onNavDirectionsAboart();
+		case ABORT:
+			mListener.onNavDirectionsAbort();
 		}
 	}
 }

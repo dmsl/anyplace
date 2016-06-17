@@ -38,45 +38,52 @@ package com.dmsl.anyplace.tasks;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.dmsl.anyplace.nav.BuildingModel;
 import com.dmsl.anyplace.utils.GeoPoint;
 
 public class FetchNearBuildingsTask {
-	public List<BuildingModelDistance> distances;
+	public List<Double> distances;
 	public List<BuildingModel> buildings;
 
 	public FetchNearBuildingsTask() {
 
 	}
 
-	public void run(List<BuildingModel> buildings, String lat, String lon, int max) {
+	public void run(Iterator<BuildingModel> buildings, String lat, String lon, int max_distance) {
 		double dlat = Double.parseDouble(lat);
 		double dlon = Double.parseDouble(lon);
-		run(buildings, dlat, dlon, max);
+		run(buildings, dlat, dlon, max_distance);
 	}
 
-	public void run(List<BuildingModel> loadBuildings, double lat, double lon, int max) {
-		this.distances = new ArrayList<BuildingModelDistance>(loadBuildings.size());
-		this.buildings = new ArrayList<BuildingModel>(loadBuildings.size());
+	public void run(Iterator<BuildingModel> loadBuildings, double lat, double lon, int max_distance) {
+		LinkedList<BuildingModelDistance> sorted = new LinkedList<BuildingModelDistance>();
 
-		for (BuildingModel bm : loadBuildings) {
-			BuildingModelDistance bmd = new BuildingModelDistance(bm, lat, lon);
+		while (loadBuildings.hasNext()) {
+			BuildingModel b = loadBuildings.next();
 
-			if (bmd.distance < max) {
-				distances.add(bmd);
+			BuildingModelDistance bmd = new BuildingModelDistance(b, lat, lon);
+
+			if (bmd.distance < max_distance) {
+				sorted.add(bmd);
 			}
 		}
 
-		Collections.sort(distances);
+		Collections.sort(sorted);
 
-		for (BuildingModelDistance bmd : distances) {
+		this.distances = new ArrayList<Double>(sorted.size());
+		this.buildings = new ArrayList<BuildingModel>(sorted.size());
+
+		for (BuildingModelDistance bmd : sorted) {
 			buildings.add(bmd.bm);
+			distances.add(bmd.distance);
 		}
 	}
 
-	public static class BuildingModelDistance implements Comparable<BuildingModelDistance> {
+	private static class BuildingModelDistance implements Comparable<BuildingModelDistance> {
 		public BuildingModel bm;
 		public Double distance;
 
