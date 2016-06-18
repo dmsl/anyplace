@@ -201,11 +201,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     private boolean isTrackingErrorBackground;
     private Marker userMarker = null;
 
-    /****************************************************************************************************************************/
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -755,7 +751,9 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         adapter.notifyDataSetChanged();
     }
 
-    // GOOGLE MAP FUNCTIONS
+
+    // </ GOOGLE MAP FUNCTIONS
+
     // Called from onCreate or onResume
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the
@@ -1034,6 +1032,9 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         });
 
     }
+
+    // /> GOOGLE MAP FUNCTIONS
+
 
     // Select Building Activity based on gps location
     private void loadSelectBuildingActivity(GeoPoint loc, boolean invisibleSelection) {
@@ -1539,7 +1540,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         }
     }
 
-    // Play Services Functions
+
+    // </ Play Services Functions
     private boolean checkPlayServices() {
         // Check that Google Play services is available
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -1615,44 +1617,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     public void onDisconnected() {
         Log.d("Google Play services", "Disconnected. Please re-connect!");
     }
+    // /> Play Services Functions
 
-    private void updateLocation() {
 
-        GeoPoint location = userData.getLatestUserPosition();
-        if (location != null) {
-            // draw the location of the new position
-            if (userMarker != null) {
-                userMarker.remove();
-            }
-            MarkerOptions marker = new MarkerOptions();
-            marker.position(new LatLng(location.dlat, location.dlon));
-            marker.title("User").snippet("Estimated Position");
-            marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
-            marker.rotation(sensorsMain.getRAWHeading() - bearing);
-            userMarker = this.mMap.addMarker(marker);
-        }
-    }
-
-    // location listener
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            userData.setLocationGPS(location);
-            updateLocation();
-
-            if (mAutomaticGPSBuildingSelection) {
-                mAutomaticGPSBuildingSelection = false;
-                loadSelectBuildingActivity(userData.getLatestUserPosition(), true);
-            }
-
-        }
-    }
-
-    // *****************************************************************************
-    // * NAVIGATION FUNCTIONS
-    // *****************************************************************************
-    // /
-
+    // </ NAVIGATION FUNCTIONS
     private void startNavigationTask(String id) {
 
         if (!NetworkUtils.isOnline(this)) {
@@ -1759,7 +1727,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                 }
             }
 
-        }, userData.getLocationGPSorIP(), new GeoPoint(_entrance.lat(), _entrance.lng()));
+        }, userData.getLocationGPSorIP(), (_entrance != null) ? new GeoPoint(_entrance.lat(), _entrance.lng()) : null);
 
         // start the navigation task
         final AsyncTask<Void, Void, String> async2f = new NavRouteTask(new NavRouteTask.NavRouteListener() {
@@ -1849,10 +1817,6 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         for (PoisNav pt : puids) {
             // draw only the route for this floor
             if (pt.floor_number.equalsIgnoreCase(selectedFloor)) {
-                // TODO - if this is the first POI for this floor we should add
-                // a starting marker, if this floor is not the same with the
-                // floor of the starting position which already has a flag
-                // marker
                 p.add(new LatLng(Double.parseDouble(pt.lat), Double.parseDouble(pt.lon)));
             }
         }
@@ -1920,11 +1884,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
         }, this, forceReload);
     }
+    // /> NAVIGATION FUNCTIONS
+
 
     // </POIS
-    // adds markers for the received POIs and stores them inside
-    // the structures for later retrieval
-
     private void handlePoisOnMap(Collection<PoisModel> collection) {
 
         visiblePois.clearAll();
@@ -1972,16 +1935,29 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
             fetchPoisByBuidFloorTask.execute();
         }
     }
-
     // />POIS
-    // *****************************************************************************
-    // * Activity Listeners
-    // *****************************************************************************
 
+
+    // </ Activity Listeners
     @Override
     public void onNewWifiResults(int aps) {
         // Log.d( "Anyplace Tracker", "wifi res: " + list.size() );
         detectedAPs.setText("AP: " + aps);
+    }
+
+    //Play Services location listener
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            userData.setLocationGPS(location);
+            updateLocation();
+
+            if (mAutomaticGPSBuildingSelection) {
+                mAutomaticGPSBuildingSelection = false;
+                loadSelectBuildingActivity(userData.getLatestUserPosition(), true);
+            }
+
+        }
     }
 
     @Override
@@ -2082,10 +2058,27 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         }
     }
 
-    // *****************************************************************************
-    // * HELPER FUNCTIONS
-    // *****************************************************************************
+    private void updateLocation() {
 
+        GeoPoint location = userData.getLatestUserPosition();
+        if (location != null) {
+            // draw the location of the new position
+            if (userMarker != null) {
+                userMarker.remove();
+            }
+            MarkerOptions marker = new MarkerOptions();
+            marker.position(new LatLng(location.dlat, location.dlon));
+            marker.title("User").snippet("Estimated Position");
+            marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+            marker.rotation(sensorsMain.getRAWHeading() - bearing);
+            userMarker = this.mMap.addMarker(marker);
+        }
+    }
+
+    // /> Activity Listeners
+
+
+    // </ HELPER FUNCTIONS
     private void enableAnyplaceTracker() {
         // Do not change file wile enabling tracker
         if (lpTracker.trackOn()) {
@@ -2128,11 +2121,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     private void hideProgressBar() {
         progressBar.setVisibility(View.GONE);
     }
+    // /> HELPER FUNCTIONS
 
-    // *****************************************************************************
-    // * SEARCHING FUNCTIONS
-    // *****************************************************************************
 
+    // </ SEARCHING FUNCTIONS
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);

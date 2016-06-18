@@ -126,7 +126,6 @@ public class AnyUserData {
 	// <POSITIONING>
 	public void setPositionWifi(double lat, double lng) {
 		positionCoordsWifi = new GeoPoint(lat, lng);
-		// TODO update the fused position
 	}
 
 	public void setLocationGPS(Location loc) {
