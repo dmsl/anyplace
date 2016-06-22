@@ -181,8 +181,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     private AnyUserData userData = null;
     // holds the lines for the navigation route on map
     private Polyline pathLineInside = null;
-    private PolylineOptions pathLineOutsideOptions = null;
-    private Polyline pathLineOutside = null;
+    private PolylineOptions pathLineOutdoorOptions = null;
+    private Polyline pathLineOutdoor = null;
 
     private AnyplaceCache mAnyplaceCache = null;
     // holds the PoisModels and Markers on map
@@ -655,7 +655,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         ResetNav.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                clearLastNavigationInfo();
+                clearNavigationData();
                 return true;
             }
         });
@@ -1381,13 +1381,13 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
             @Override
             public void onSuccess(String result, Map<String, PoisModel> poisMap) {
                 handlePoisOnMap(poisMap.values());
-                loadFloorNavRoute();
+                loadIndoorOutdoorPath();
                 selectPlaceActivityResult_HELP2(b, f);
             }
 
             @Override
             public void onErrorOrCancel(String result) {
-                loadFloorNavRoute();
+                loadIndoorOutdoorPath();
                 selectPlaceActivityResult_HELP2(b, f);
             }
         });
@@ -1667,7 +1667,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                     if (pm.floor_number.equalsIgnoreCase(currentFloor)) {
                         double distance = Math.abs(pm.lat() - dest.lat()) + Math.abs(pm.lng() - dest.lng());
                         if (min > distance) {
-                            _entrance = pm;
+                            _entranceCurrentFloor = pm;
                             min = distance;
                         }
                     } else if (pm.floor_number.equalsIgnoreCase("0")) {
@@ -1692,7 +1692,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
 
         // Does not run if entrance==null or is near the building
-        final AsyncTask<Void, Void, String> async1f = new NavDirectionsTask(new NavDirectionsTask.NavDirectionsListener() {
+        final AsyncTask<Void, Void, String> async1f = new NavOutdoorTask(new NavOutdoorTask.NavDirectionsListener() {
 
             @Override
             public void onNavDirectionsSuccess(String result, List<LatLng> points) {
@@ -1700,8 +1700,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
                 if (!points.isEmpty()) {
                     // points.add(new LatLng(entrancef.dlat, entrancef.dlon));
-                    pathLineOutsideOptions = new PolylineOptions().addAll(points).width(10).color(Color.RED).zIndex(100.0f);
-                    pathLineOutside = mMap.addPolyline(pathLineOutsideOptions);
+                    pathLineOutdoorOptions = new PolylineOptions().addAll(points).width(10).color(Color.RED).zIndex(100.0f);
+                    pathLineOutdoor = mMap.addPolyline(pathLineOutdoorOptions);
                 }
             }
 
@@ -1723,14 +1723,14 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                     dialog.dismiss();
                 else {
                     // First task executed calls this
-                    clearLastNavigationInfo();
+                    clearNavigationData();
                 }
             }
 
         }, userData.getLocationGPSorIP(), (_entrance != null) ? new GeoPoint(_entrance.lat(), _entrance.lng()) : null);
 
         // start the navigation task
-        final AsyncTask<Void, Void, String> async2f = new NavRouteTask(new NavRouteTask.NavRouteListener() {
+        final AsyncTask<Void, Void, String> async2f = new NavIndoorTask(new NavIndoorTask.NavRouteListener() {
             @Override
             public void onNavRouteSuccess(String result, List<PoisNav> points) {
                 onNavDirectiosFinished();
@@ -1740,7 +1740,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                 userData.setNavPois(points);
 
                 // handle drawing of the points
-                handlePathDrawing(points);
+                handleIndoorPath(points);
             }
 
             @Override
@@ -1756,7 +1756,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                     dialog.dismiss();
                 else {
                     // First task executed calls this
-                    clearLastNavigationInfo();
+                    clearNavigationData();
                 }
             }
 
@@ -1774,35 +1774,35 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         async2f.execute();
     }
 
-    private void clearNavOverlays() {
+    private void removeNavOverlays() {
         if (pathLineInside != null) {
             pathLineInside.remove();
         }
-        if (pathLineOutside != null) {
-            pathLineOutside.remove();
+        if (pathLineOutdoor != null) {
+            pathLineOutdoor.remove();
         }
         visiblePois.clearFromMarker();
         visiblePois.clearToMarker();
     }
 
-    private void clearLastNavigationInfo() {
+    private void clearNavigationData() {
         if (userData != null) {
             userData.clearNav();
         }
-        clearNavOverlays();
+        removeNavOverlays();
         btnFloorUp.setVisibility(View.VISIBLE);
         btnFloorDown.setVisibility(View.VISIBLE);
     }
 
     // Loads the navigation route if any exists for the current floor selected
     // Multi Floor Route ex. DMSL --> Zeina
-    private void loadFloorNavRoute() {
+    private void loadIndoorOutdoorPath() {
         if (userData.isNavBuildingSelected()) {
-            clearNavOverlays();
-            handlePathDrawing(userData.getNavPois());
+            removeNavOverlays();
+            handleIndoorPath(userData.getNavPois());
 
-            if (pathLineOutsideOptions != null) {
-                pathLineOutside = mMap.addPolyline(pathLineOutsideOptions);
+            if (pathLineOutdoorOptions != null) {
+                pathLineOutdoor = mMap.addPolyline(pathLineOutdoorOptions);
             }
         } else {
             btnFloorUp.setVisibility(View.VISIBLE);
@@ -1811,7 +1811,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     }
 
     // draws the navigation route for the loaded floor
-    private void handlePathDrawing(List<PoisNav> puids) {
+    private void handleIndoorPath(List<PoisNav> puids) {
         List<LatLng> p = new ArrayList<LatLng>();
         String selectedFloor = userData.getSelectedFloorNumber();
         for (PoisNav pt : puids) {

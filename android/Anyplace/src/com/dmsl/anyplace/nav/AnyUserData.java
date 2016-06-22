@@ -53,8 +53,8 @@ public class AnyUserData {
 	private BuildingModel selectedBuilding = null;
 	// building used for last navigation
 	private BuildingModel navBuilding = null;
-	// holds all the POIs for the Navigation rout
-	private List<PoisNav> puids = null;
+	// holds all the POIs for the Navigation route
+	private List<PoisNav> navPois = null;
 	// the position based on ip address
 	private GeoPoint positionIP = null;
 	// last position estimated by Wifi Tracker
@@ -104,7 +104,7 @@ public class AnyUserData {
 	}
 
 	public List<PoisNav> getNavPois() {
-		return puids;
+		return navPois;
 	}
 
 	public void setNavBuilding(BuildingModel b) {
@@ -112,15 +112,15 @@ public class AnyUserData {
 	}
 
 	public void setNavPois(List<PoisNav> p) {
-		puids = p;
+		navPois = p;
 	}
 
 	public void clearNav() {
-		if (puids != null) {
-			puids.clear();
+		if (navPois != null) {
+			navPois.clear();
 		}
 		navBuilding = null;
-		puids = null;
+		navPois = null;
 	}
 
 	// <POSITIONING>

@@ -47,7 +47,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.os.AsyncTask;
 
-public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
+public class NavOutdoorTask extends AsyncTask<Void, Void, String> {
 
 	public interface NavDirectionsListener {
 		void onNavDirectionsAbort();
@@ -68,7 +68,7 @@ public class NavDirectionsTask extends AsyncTask<Void, Void, String> {
 	private ArrayList<LatLng> directionPoints;
 	private Status status = Status.ERROR;
 
-	public NavDirectionsTask(NavDirectionsListener l, GeoPoint fromPosition, GeoPoint pos) {
+	public NavOutdoorTask(NavDirectionsListener l, GeoPoint fromPosition, GeoPoint pos) {
 		this.mListener = l;
 		this.fromPosition = fromPosition;
 		this.toPosition = pos;

@@ -53,7 +53,7 @@ import com.dmsl.anyplace.nav.PoisNav;
 import com.dmsl.anyplace.utils.GeoPoint;
 import com.dmsl.anyplace.utils.NetworkUtils;
 
-public class NavRouteTask extends AsyncTask<Void, Void, String> {
+public class NavIndoorTask extends AsyncTask<Void, Void, String> {
 
 	public interface NavRouteListener {
 		void onNavRouteErrorOrCancel(String result);
@@ -68,7 +68,7 @@ public class NavRouteTask extends AsyncTask<Void, Void, String> {
 	private List<PoisNav> mPuids = new ArrayList<PoisNav>();
 	private boolean success = false;
 
-	public NavRouteTask(NavRouteListener l, Context ctx, String poid, GeoPoint pos, String floor) {
+	public NavIndoorTask(NavRouteListener l, Context ctx, String poid, GeoPoint pos, String floor) {
 		this.mListener = l;
 		this.mCtx = ctx;
 

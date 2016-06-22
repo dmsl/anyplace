@@ -58,7 +58,7 @@ public class AnyplaceAPI {
 
 	// private static String server ="http://thinklambros.in.cs.ucy.ac.cy:9000";
 	// private static String server ="http://anyplace.in.cs.ucy.ac.cy";
-	private static String server = "http://anyplace.rayzit.com";
+	private static String server = "https://anyplace.rayzit.com";
 	private static String serverTesting;
 
 	static {
