@@ -38,6 +38,7 @@ using AnyPlace.classes;
 using SharpGIS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
@@ -53,7 +54,7 @@ namespace AnyPlace.ApiClient
         public static Uri ServerBaseUri
         {
             //#error Replace with your IP address (the port is OK; it's part of the project)
-            get { return new Uri("http://anyplace.rayzit.com/"); }
+            get { return new Uri("https://anyplace.rayzit.com/"); }
         }
 
         public static Boolean IsDirty { get; private set; }
@@ -182,7 +183,7 @@ namespace AnyPlace.ApiClient
 
                             if (!string.IsNullOrEmpty(fileName))
                             {
-                                //Debug.WriteLine(fileName);
+                                Debug.WriteLine(fileName);
 
                                 //save file entry to storage
                                 using (var streamWriter =

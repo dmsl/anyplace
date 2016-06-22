@@ -26,7 +26,6 @@ using GestureEventArgs = System.Windows.Input.GestureEventArgs;
 using NetworkInterface = System.Net.NetworkInformation.NetworkInterface;
 using AnyPlace.classes;
 using Microsoft.Phone.Maps.Toolkit;
-using Microsoft.Maps.SpatialToolbox.Bing.Clustering;
 
 
 namespace AnyPlace
@@ -1175,105 +1174,13 @@ namespace AnyPlace
             }
         }
 
-
-        private ClusteringLayer layer;
-        private ItemLocationCollection mockData;
+        
         private void Map_Loaded(object sender, RoutedEventArgs e)
         {
             MapsSettings.ApplicationContext.ApplicationId = "<applicationid>";
             MapsSettings.ApplicationContext.AuthenticationToken = "<authenticationtoken>";
-            //layer = new ClusteringLayer(Mymap)
-            //{
-            //    ClusterRadius = 5,
-            //    ClusterType = ClusteringType.Grid
-            //};
-            
-            ////Add event handlers to create the pushpins 
-            //layer.CreateItemPushpin += CreateItemPushpin;
-            //layer.CreateClusteredItemPushpin += CreateClusteredItemPushpin;
-            //GenerateMockData(100);
         }
-
-        private Task GenerateMockData(int numEntities)
-        {
-            layer.Items.Clear();
-
-            return Task.Run(async () =>
-            {
-                mockData = new ItemLocationCollection();
-
-                GeoCoordinate loc;
-                foreach (var building in _worldbuildings.buildings)
-                {
-                    var lat = Double.Parse(building.coordinates_lat, CultureInfo.InvariantCulture);
-                    var lon = Double.Parse(building.coordinates_lon, CultureInfo.InvariantCulture);
-                    var poi = new BuildingPoi { Coordinate = new GeoCoordinate(lat, lon), Buid = building.buid };
-                   
-                    loc = new GeoCoordinate(lat, lon);
-                    mockData.Add(poi, loc);
-                }
-
-               
-                Dispatcher.BeginInvoke(() =>
-               {
-                   //Add mock data to layer 
-                   layer.Items.AddRange(mockData);
-               });
-            });
-        }
-
-        private MapOverlay CreateClusteredItemPushpin(ClusteredPoint clusterInfo)
-        {
-            MapOverlay newo = new MapOverlay();
-            var poi = new BuildingPoi { Coordinate = clusterInfo.Location, Buid = "adf" };
-            var imagePoiLocation = new Image
-            {
-                Source = new BitmapImage(new Uri("/Assets/location.png", UriKind.Relative)),
-                DataContext = poi
-            };
-
-            imagePoiLocation.Tap += loadClickedBuilding;
-            newo.Content = imagePoiLocation;
-            newo.PositionOrigin = new Point(0.5, 0.5);
-            newo.GeoCoordinate = clusterInfo.Location;
-
-            Ellipse el = new Ellipse();
-            el.Width = 50;
-            el.Height = 50;
-            el.Fill = new SolidColorBrush(Colors.Red);
-            el.Stroke = new SolidColorBrush(Colors.Black);
-            el.HorizontalAlignment = HorizontalAlignment.Center;
-            el.VerticalAlignment = VerticalAlignment.Center;
-
-            var grid = new Grid();
-            grid.Children.Add(el);
-            grid.Children.Add(new TextBlock { Text = clusterInfo.ItemIndices.Count.ToString(), HorizontalAlignment=HorizontalAlignment.Center, VerticalAlignment=VerticalAlignment.Center });
-            newo.Content = grid;
-
-            return newo;
-        }
-
-        private MapOverlay CreateItemPushpin(object item, ClusteredPoint clusterInfo)
-        {
-            MapOverlay newo = new MapOverlay();
-
-            var obj = (ItemLocation)item;
-
-            var bpoi = (BuildingPoi)obj.Item;
-            var poi = new BuildingPoi { Coordinate = bpoi.Coordinate, Buid = bpoi.Buid};
-            var imagePoiLocation = new Image
-            {
-                Source = new BitmapImage(new Uri("/Assets/MapPin.png", UriKind.Relative)),
-                DataContext = poi
-            };
-
-            imagePoiLocation.Tap += loadClickedBuilding;
-            newo.Content = imagePoiLocation;
-            newo.PositionOrigin = new Point(0.5, 0.5);
-            newo.GeoCoordinate = bpoi.Coordinate;
-
-            return newo;
-        }
+       
 
 
         private void Mymap_Hold(object sender, GestureEventArgs e)
