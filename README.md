@@ -57,7 +57,7 @@ Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
 
 ### Windows
 The Source code of the Anyplace Windows Phone Client (IP localization). Current Leader: Pangiotis Irakleous.
-Try: http://www.windowsphone.com/en-us/store/app/anyplace/29b741fd-0ca9-41ce-b736-76197a7c9f0a
+Try: https://www.microsoft.com/en-us/store/apps/anyplace/9nblgggzldsk
 
 ### iOS
 The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). Current Leader: Nikitin Artem.
@@ -65,15 +65,15 @@ Try: coming soon
 
 ### Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
-Try: http://anyplace.cs.ucy.ac.cy/viewer/
+Try: https://anyplace.cs.ucy.ac.cy/viewer/
 
 ### API
 The source code of Anyplace JSON API.  Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
-Try: http://anyplace.cs.ucy.ac.cy/developers/
+Try: https://anyplace.cs.ucy.ac.cy/developers/
 
 ### Architect
 The source code of Anyplace HTML5/CSS3 Architect Tool. Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
-Try: http://anyplace.cs.ucy.ac.cy/architect/
+Try: https://anyplace.cs.ucy.ac.cy/architect/
 
 Project Leader: Demetris Zeinalipour
 
