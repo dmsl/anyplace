@@ -1,0 +1,137 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Anyplace API - Navigation
+POST           /anyplace/navigation/building/id                             controllers.AnyplaceNavigation.getBuildingById()
+POST           /anyplace/navigation/pois/id                                 controllers.AnyplaceNavigation.getPoisById()
+POST           /anyplace/navigation/route                                   controllers.AnyplaceNavigation.getNavigationRoute()
+POST           /anyplace/navigation/route_xy                                controllers.AnyplaceNavigation.getNavigationRouteXY()
+
+# Anyplace API - Mapping
+POST           /anyplace/mapping/accounts/sign                              controllers.AnyplaceMapping.addAccount()
+POST           /anyplace/mapping/radio/heatmap_building_floor               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
+POST           /anyplace/mapping/building/coowners                          controllers.AnyplaceMapping.buildingUpdateCoOwners()
+POST           /anyplace/mapping/building/newowner                          controllers.AnyplaceMapping.buildingUpdateOwner()
+POST           /anyplace/mapping/building/get                               controllers.AnyplaceMapping.buildingGetOne()
+POST           /anyplace/mapping/building/add                               controllers.AnyplaceMapping.buildingAdd()
+POST           /anyplace/mapping/building/update                            controllers.AnyplaceMapping.buildingUpdate()
+POST           /anyplace/mapping/building/delete                            controllers.AnyplaceMapping.buildingDelete()
+POST           /anyplace/mapping/building/all                               controllers.AnyplaceMapping.buildingAll()
+POST           /anyplace/mapping/building/all_owner                         controllers.AnyplaceMapping.buildingAllByOwner()
+POST           /anyplace/mapping/building/all_bucode                        controllers.AnyplaceMapping.buildingByBucode()
+POST           /anyplace/mapping/building/coordinates                       controllers.AnyplaceMapping.buildingCoordinates()
+POST           /anyplace/mapping/floor/add                                  controllers.AnyplaceMapping.floorAdd()
+POST           /anyplace/mapping/floor/update                               controllers.AnyplaceMapping.floorUpdate()
+POST           /anyplace/mapping/floor/delete                               controllers.AnyplaceMapping.floorDelete()
+POST           /anyplace/mapping/floor/all                                  controllers.AnyplaceMapping.floorAll()
+POST           /anyplace/mapping/floor/upload                               controllers.AnyplaceMapping.floorPlanUpload()
+POST           /anyplace/mapping/pois/add                                   controllers.AnyplaceMapping.poisAdd()
+POST           /anyplace/mapping/pois/update                                controllers.AnyplaceMapping.poisUpdate()
+POST           /anyplace/mapping/pois/delete                                controllers.AnyplaceMapping.poisDelete()
+POST           /anyplace/mapping/pois/all_floor                             controllers.AnyplaceMapping.poisByFloor()
+POST           /anyplace/mapping/pois/all_building                          controllers.AnyplaceMapping.poisByBuid()
+POST           /anyplace/mapping/connection/add                             controllers.AnyplaceMapping.connectionAdd()
+POST           /anyplace/mapping/connection/update                          controllers.AnyplaceMapping.connectionUpdate()
+POST           /anyplace/mapping/connection/delete                          controllers.AnyplaceMapping.connectionDelete()
+POST           /anyplace/mapping/connection/all_floor                       controllers.AnyplaceMapping.connectionsByFloor()
+
+POST           /anyplace/floortiles/:buid/:floor_number                     controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
+GET            /anyplace/floortiles/:buid/:floor_number/*file               controllers.AnyplaceMapping.serveFloorPlanTilesStatic( buid: String, floor_number: String, file: String )
+# used by the Android Navigator
+POST           /anyplace/floortiles/zip/:buid/:floor_number                 controllers.AnyplaceMapping.serveFloorPlanTilesZip( buid: String, floor_number: String )
+# used by the websites
+POST           /anyplace/floorplans64/:buid/:floor_number                   controllers.AnyplaceMapping.serveFloorPlanBase64( buid: String, floor_number: String )
+
+# Anyplace API - Position
+POST           /anyplace/position/radio_upload                              controllers.AnyplacePosition.radioUpload()
+POST           /anyplace/position/radio_download_floor                      controllers.AnyplacePosition.radioDownloadFloor()
+POST           /anyplace/position/radio_by_building_floor                   controllers.AnyplacePosition.radioDownloadByBuildingFloor()
+
+POST           /anyplace/position/radio_by_floor_bbox                       controllers.AnyplacePosition.radioDownloadFloorBbox()
+
+POST           /anyplace/position/predictFloorAlgo1                         controllers.AnyplacePosition.predictFloorAlgo1()
+POST           /anyplace/radiomaps_frozen/:building/:floor/:filename        controllers.AnyplacePosition.serveFrozenRadioMap(building: String, floor: String, filename: String)
+POST           /anyplace/radiomaps/:radio_folder/:filename                  controllers.AnyplacePosition.serveRadioMap( radio_folder: String, filename: String )
+
+
+POST           /anyplace/position/path_add                                  controllers.AnyplacePosition.magneticPathAdd()
+POST           /anyplace/position/path_delete                               controllers.AnyplacePosition.magneticPathDelete()
+POST           /anyplace/position/paths_by_floor                            controllers.AnyplacePosition.magneticPathByFloor()
+POST           /anyplace/position/paths_by_buid                             controllers.AnyplacePosition.magneticPathByBuilding()
+POST           /anyplace/position/milestones_add                            controllers.AnyplacePosition.magneticMilestoneUpload()
+POST           /anyplace/position/milestones_by_floor                       controllers.AnyplacePosition.magneticMilestoneByFloor()
+
+
+# To allow cross domain requests CORS
+OPTIONS        /anyplace/navigation/building/id                             controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/navigation/pois/id                                 controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/navigation/route                                   controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/navigation/route_xy                                controllers.ApplicationAnyplace.checkPreFlight()
+
+OPTIONS        /anyplace/mapping/accounts/sign                              controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/radio/heatmap_building_floor               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/coowners                          controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/newowner                          controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/get                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/add                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/update                            controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/delete                            controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/all                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/all_owner                         controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/all_bucode                        controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/building/coordinates                       controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/floor/add                                  controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/floor/update                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/floor/delete                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/floor/all                                  controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/floor/upload                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/floortiles/:buid/:floor_number                     controllers.ApplicationAnyplace.checkPreFlightFloorplans(buid: String, floor_number: String)
+OPTIONS        /anyplace/floortiles/zip/:buid/:floor_number                 controllers.ApplicationAnyplace.checkPreFlightFloorplans(buid: String, floor_number: String)
+OPTIONS        /anyplace/floorplans/:buid/:floor_number                     controllers.ApplicationAnyplace.checkPreFlightFloorplans(buid: String, floor_number: String)
+OPTIONS        /anyplace/floorplans64/:buid/:floor_number                   controllers.ApplicationAnyplace.checkPreFlightFloorplans(buid: String, floor_number: String)
+OPTIONS        /anyplace/mapping/pois/add                                   controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/pois/update                                controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/pois/delete                                controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/pois/all_floor                             controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/pois/all_building                          controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/connection/add                             controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/connection/update                          controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/connection/delete                          controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/mapping/connection/all_floor                       controllers.ApplicationAnyplace.checkPreFlight()
+
+OPTIONS        /anyplace/position/radio_upload                              controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/radio_download_floor                      controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/radio_by_building_floor                   controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/radio_by_floor_bbox                       controllers.ApplicationAnyplace.checkPreFlight()
+
+OPTIONS        /anyplace/position/path_add                                  controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/path_delete                               controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/paths_by_floor                            controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/paths_by_buid                             controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/milestones_add                            controllers.ApplicationAnyplace.checkPreFlight()
+OPTIONS        /anyplace/position/milestones_by_floor                       controllers.ApplicationAnyplace.checkPreFlight()
+
+### ARCHITECT WEBSITE ###
+GET            /architect/*file                                             controllers.Assets.at(path="/public/anyplace_architect", file)
+GET            /architect/                                                  controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+GET            /architect                                                   controllers.AnyplaceWebApps.AddTrailingSlash()
+
+GET            /viewer/index.html                                           controllers.AnyplaceWebApps.serveViewer(file="index.html")
+GET            /viewer/*file                                                controllers.Assets.at(path="/public/anyplace_viewer", file)
+GET            /viewer/                                                     controllers.AnyplaceWebApps.serveViewer(file="index.html")
+GET            /viewer                                                      controllers.AnyplaceWebApps.AddTrailingSlash()
+
+### DEVELOPERS WEBSITE ###
+GET            /developers/*file                                            controllers.AnyplaceWebApps.serveDevelopers(file: String)
+GET            /developers/                                                 controllers.AnyplaceWebApps.serveDevelopers(file="index.html")
+GET            /developers                                                  controllers.AnyplaceWebApps.AddTrailingSlash()
+
+# Map static resources
+GET            /floortiles/zip/*file                                        controllers.ExternalAssets.at(path="/floor_plans", file)
+GET            /assets/*file                                                controllers.Assets.at(path="/public", file)
+
+## ROOT ##
+GET            /                                                            controllers.ApplicationAnyplace.index()
+# Redirect all unknown routes to the index page
+GET            /*any                                                        controllers.ApplicationAnyplace.indexAny(any)
