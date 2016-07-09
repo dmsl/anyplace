@@ -22,7 +22,6 @@ _WIP_
 ## Project Structure & Description  
 ```
 .
-├── anyplace_tiler
 ├── app
 │   ├── controllers
 │   ├── datasources
@@ -31,6 +30,7 @@ _WIP_
 │   ├── oauth
 │   ├── radiomapserver
 │   └── utils
+├── anyplace_tiler
 ├── conf
 ├── lib
 ├── project
