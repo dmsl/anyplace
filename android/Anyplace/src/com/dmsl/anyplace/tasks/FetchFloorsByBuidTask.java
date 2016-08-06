@@ -58,152 +58,153 @@ import com.dmsl.anyplace.utils.NetworkUtils;
 
 public class FetchFloorsByBuidTask extends AsyncTask<Void, Void, String> {
 
-	public interface FetchFloorsByBuidTaskListener {
-		void onErrorOrCancel(String result);
+    public interface FetchFloorsByBuidTaskListener {
+        void onErrorOrCancel(String result);
 
-		void onSuccess(String result, List<FloorModel> floors);
-	}
+        void onSuccess(String result, List<FloorModel> floors);
+    }
 
-	private FetchFloorsByBuidTaskListener mListener;
-	private Context ctx;
+    private FetchFloorsByBuidTaskListener mListener;
+    private Context ctx;
 
-	private List<FloorModel> floors = new ArrayList<FloorModel>();
+    private List<FloorModel> floors = new ArrayList<FloorModel>();
 
-	private String buid;
+    private String buid;
 
-	private boolean success = false;
+    private boolean success = false;
 
-	private ProgressDialog dialog;
-	private Boolean showDialog = true;
+    private ProgressDialog dialog;
+    private Boolean showDialog = true;
 
-	public FetchFloorsByBuidTask(FetchFloorsByBuidTaskListener fetchFloorsByBuidTaskListener, Context ctx, String buid) {
-		this.mListener = fetchFloorsByBuidTaskListener;
-		this.ctx = ctx;
-		this.buid = buid;
-	}
+    public FetchFloorsByBuidTask(FetchFloorsByBuidTaskListener fetchFloorsByBuidTaskListener, Context ctx, String buid) {
+        this.mListener = fetchFloorsByBuidTaskListener;
+        this.ctx = ctx;
+        this.buid = buid;
+    }
 
-	public FetchFloorsByBuidTask(FetchFloorsByBuidTaskListener fetchFloorsByBuidTaskListener, Context ctx, String buid, Boolean showDialog) {
-		this.mListener = fetchFloorsByBuidTaskListener;
-		this.ctx = ctx;
-		this.buid = buid;
-		this.showDialog = showDialog;
-	}
+    public FetchFloorsByBuidTask(FetchFloorsByBuidTaskListener fetchFloorsByBuidTaskListener, Context ctx, String buid, Boolean showDialog) {
+        this.mListener = fetchFloorsByBuidTaskListener;
+        this.ctx = ctx;
+        this.buid = buid;
+        this.showDialog = showDialog;
+    }
 
-	@Override
-	protected void onPreExecute() {
-		if (showDialog) {
-			dialog = new ProgressDialog(ctx);
-			dialog.setIndeterminate(true);
-			dialog.setTitle("Fetching floors");
-			dialog.setMessage("Please be patient...");
-			dialog.setCancelable(true);
-			dialog.setCanceledOnTouchOutside(false);
-			dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					// finishJob();
-					FetchFloorsByBuidTask.this.cancel(true);
-				}
-			});
-			dialog.show();
-		}
+    @Override
+    protected void onPreExecute() {
+        if (showDialog) {
+            dialog = new ProgressDialog(ctx);
+            dialog.setIndeterminate(true);
+            dialog.setTitle("Fetching floors");
+            dialog.setMessage("Please be patient...");
+            dialog.setCancelable(true);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    // finishJob();
+                    FetchFloorsByBuidTask.this.cancel(true);
+                }
+            });
+            dialog.show();
+        }
 
-	}
+    }
 
-	@Override
-	protected String doInBackground(Void... params) {
+    @Override
+    protected String doInBackground(Void... params) {
 
-		if (!NetworkUtils.isOnline(ctx)) {
-			return "No connection available!";
-		}
+        if (!NetworkUtils.isOnline(ctx)) {
+            return "No connection available!";
+        }
 
-		try {
-			JSONObject j = new JSONObject();
-			try {
-				j.put("username", "username");
-				j.put("password", "pass");
-				j.put("buid", this.buid);
-			} catch (JSONException e) {
-				return "Error requesting the floors for the buildings!";
-			}
+        try {
+            JSONObject j = new JSONObject();
+            try {
+                j.put("username", "username");
+                j.put("password", "pass");
+                j.put("buid", this.buid);
+            } catch (JSONException e) {
+                return "Error requesting the floors for the buildings!";
+            }
 
-			String response = NetworkUtils.downloadHttpClientJsonPostGzip(AnyplaceAPI.getFetchFloorsByBuidUrl(), j.toString());
-			JSONObject json = new JSONObject(response);
+            //Uses GZIP encoding
+            String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchFloorsByBuidUrl(), j.toString());
+            JSONObject json = new JSONObject(response);
 
-			if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {
-				return "Error Message: " + json.getString("message");
-			}
+            if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {
+                return "Error Message: " + json.getString("message");
+            }
 
-			// process the buildings received
-			FloorModel b;
-			JSONArray buids_json = new JSONArray(json.getString("floors"));
+            // process the buildings received
+            FloorModel b;
+            JSONArray buids_json = new JSONArray(json.getString("floors"));
 
-			if (buids_json.length() == 0) {
-				return "Error: 0 Floors found";
-			}
+            if (buids_json.length() == 0) {
+                return "Error: 0 Floors found";
+            }
 
-			for (int i = 0, sz = buids_json.length(); i < sz; i++) {
-				JSONObject cp = (JSONObject) buids_json.get(i);
-				b = new FloorModel();
-				b.buid = cp.getString("buid");
-				b.floor_name = cp.getString("floor_name");
-				b.floor_number = cp.getString("floor_number");
-				b.description = cp.getString("description");
+            for (int i = 0, sz = buids_json.length(); i < sz; i++) {
+                JSONObject cp = (JSONObject) buids_json.get(i);
+                b = new FloorModel();
+                b.buid = cp.getString("buid");
+                b.floor_name = cp.getString("floor_name");
+                b.floor_number = cp.getString("floor_number");
+                b.description = cp.getString("description");
 
-				// use optString() because these values might not exist of a
-				// floor plan has not been set for this floor
-				b.bottom_left_lat = cp.optString("bottom_left_lat");
-				b.bottom_left_lng = cp.optString("bottom_left_lng");
-				b.top_right_lat = cp.optString("top_right_lat");
-				b.top_right_lng = cp.optString("top_right_lng");
+                // use optString() because these values might not exist of a
+                // floor plan has not been set for this floor
+                b.bottom_left_lat = cp.optString("bottom_left_lat");
+                b.bottom_left_lng = cp.optString("bottom_left_lng");
+                b.top_right_lat = cp.optString("top_right_lat");
+                b.top_right_lng = cp.optString("top_right_lng");
 
-				floors.add(b);
-			}
+                floors.add(b);
+            }
 
-			Collections.sort(floors);
+            Collections.sort(floors);
 
-			success = true;
-			return "Successfully fetched floors";
+            success = true;
+            return "Successfully fetched floors";
 
-		} catch (ConnectTimeoutException e) {
-			return "Cannot connect to Anyplace service!";
-		} catch (SocketTimeoutException e) {
-			return "Communication with the server is taking too long!";
-		} catch (UnknownHostException e) {
-			return "No connection available!";
-		} catch (Exception e) {
-			// Log.d("fetching floors task", e.getMessage());
-			return "Error fetching floors. [ " + e.getMessage() + " ]";
-		}
-	}
+        } catch (ConnectTimeoutException e) {
+            return "Cannot connect to Anyplace service!";
+        } catch (SocketTimeoutException e) {
+            return "Communication with the server is taking too long!";
+        } catch (UnknownHostException e) {
+            return "No connection available!";
+        } catch (Exception e) {
+            // Log.d("fetching floors task", e.getMessage());
+            return "Error fetching floors. [ " + e.getMessage() + " ]";
+        }
+    }
 
-	@Override
-	protected void onPostExecute(String result) {
-		// removes the progress dialog
-		if (showDialog)
-			dialog.dismiss();
+    @Override
+    protected void onPostExecute(String result) {
+        // removes the progress dialog
+        if (showDialog)
+            dialog.dismiss();
 
-		if (success) {
-			mListener.onSuccess(result, floors);
-		} else {
-			// there was an error during the process
-			mListener.onErrorOrCancel(result);
-		}
+        if (success) {
+            mListener.onSuccess(result, floors);
+        } else {
+            // there was an error during the process
+            mListener.onErrorOrCancel(result);
+        }
 
-	}
+    }
 
-	@Override
-	protected void onCancelled(String result) {
-		if (showDialog)
-			dialog.dismiss();
-		mListener.onErrorOrCancel("Floor fetching cancelled...");
-	}
+    @Override
+    protected void onCancelled(String result) {
+        if (showDialog)
+            dialog.dismiss();
+        mListener.onErrorOrCancel("Floor fetching cancelled...");
+    }
 
-	@Override
-	protected void onCancelled() { // just for < API 11
-		if (showDialog)
-			dialog.dismiss();
-		mListener.onErrorOrCancel("Floor fetching cancelled...");
-	}
+    @Override
+    protected void onCancelled() { // just for < API 11
+        if (showDialog)
+            dialog.dismiss();
+        mListener.onErrorOrCancel("Floor fetching cancelled...");
+    }
 
 }

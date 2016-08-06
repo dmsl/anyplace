@@ -123,7 +123,8 @@ public class FetchBuildingsTask extends AsyncTask<Void, Void, String> {
 
 			String response = null;
 
-			response = NetworkUtils.downloadHttpClientJsonPostGzip(AnyplaceAPI.getFetchBuildingsUrl(), j.toString());
+			//Uses GZIP encoding
+			response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchBuildingsUrl(), j.toString());
 
 			JSONObject json = new JSONObject(response);
 

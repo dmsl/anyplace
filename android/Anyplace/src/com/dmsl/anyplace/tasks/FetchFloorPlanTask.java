@@ -135,8 +135,7 @@ public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
 
 			File okfile = new File(root, "ok.txt");
 
-			// check if the file already exists and if yes return
-			// immediately
+			// check if the file already exists and if yes return immediately
 			if (dest_path.exists() && dest_path.canRead() && dest_path.isFile() && okfile.exists()) {
 				floor_plan_file = dest_path;
 				success = true;

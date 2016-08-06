@@ -36,43 +36,26 @@
 
 package com.dmsl.anyplace.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.NetworkInterface;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.util.InetAddressUtils;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.http.AndroidHttpClient;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.zip.GZIPInputStream;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Network helpers for usual actions.
@@ -115,7 +98,10 @@ public class NetworkUtils {
         int response = conn.getResponseCode();
         if (response == 200) {
             is = conn.getInputStream();
+        } else {
+            throw new RuntimeException("Server Error Code: " + conn.getResponseCode());
         }
+
 
         return is;
     }
@@ -136,6 +122,8 @@ public class NetworkUtils {
         int response = conn.getResponseCode();
         if (response == 200) {
             is = conn.getInputStream();
+        } else {
+            throw new RuntimeException("Server Error Code: " + conn.getResponseCode());
         }
 
         return is;
@@ -172,143 +160,59 @@ public class NetworkUtils {
     }
     // </HTTP Get>
 
-    // <HTTP Post Json>
-    private static HttpEntity downloadHttpClientJsonPostHelp(String url, String json, int timeout) throws URISyntaxException, ClientProtocolException, IOException {
+    /* HTTP Post Json (InputStream) */
+    private static InputStream ISdownloadHttpClientJsonPostHelp(String url, String json, int timeout) throws URISyntaxException, IOException {
 
-        HttpParams httpParameters = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(httpParameters, timeout);
-        HttpConnectionParams.setSoTimeout(httpParameters, timeout);
+        InputStream is;
 
-        HttpClient client = new DefaultHttpClient(httpParameters);
-        HttpPost request = new HttpPost(encodeURL(url));
-        StringEntity se = new StringEntity(json);
-        request.setEntity(se);
-        request.setHeader("Accept", "application/json");
-        request.setHeader("Content-type", "application/json");
+        URL obj = new URL(url);
+        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+        con.setConnectTimeout(timeout);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Accept", "application/json");
+        con.setRequestProperty("Accept-Encoding", "gzip");
+        con.setRequestProperty("Content-type", "application/json");
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        con.connect();
 
-        HttpResponse response = client.execute(request);
+        OutputStream os = con.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+        writer.write(json);
+        writer.flush();
+        writer.close();
+        os.close();
 
-        int status = response.getStatusLine().getStatusCode();
-        if (status != 200 && status != 400) {
-            throw new RuntimeException("Server Error: " + response.getStatusLine().getReasonPhrase());
+        String encoding = con.getContentEncoding();
+
+        int response = con.getResponseCode();
+        if (response == HttpsURLConnection.HTTP_OK) {
+            if (encoding != null && encoding.equals("gzip")) {
+                is = new GZIPInputStream(con.getInputStream());
+            } else {
+                is = con.getInputStream();
+            }
+        } else {
+            throw new RuntimeException("Service Error: " + con.getResponseMessage());
         }
 
-        HttpEntity entity = response.getEntity();
-        if (entity == null)
-            throw new RuntimeException("Server Error: " + response.getStatusLine().getReasonPhrase());
-
-        return entity;
+        return is;
     }
 
-    public static String downloadHttpClientJsonPost(String url, String json, int timeout) throws URISyntaxException, ClientProtocolException, IOException {
+    public static String downloadHttpClientJsonPost(String url, String json, int timeout) throws URISyntaxException, IOException {
 
-        String content = EntityUtils.toString(downloadHttpClientJsonPostHelp(url, json, timeout));
+        String content = readInputStream(ISdownloadHttpClientJsonPostHelp(url, json, timeout));
         return content;
-
-		/*
-         * is = entity.getContent(); return readInputStream(is); Old Way Hangs
-		 * Sometimes <0.8
-		 */
     }
 
     public static String downloadHttpClientJsonPost(String url, String json) throws URISyntaxException, IOException {
         return downloadHttpClientJsonPost(url, json, 20000);
     }
 
-    public static InputStream downloadHttpClientJsonPostStream(String url, String json) throws IllegalStateException, ClientProtocolException, IOException, URISyntaxException {
-        return downloadHttpClientJsonPostHelp(url, json, 20000).getContent();
-    }
-
-    public static String downloadHttpClientJsonPostGzip(String url, String json) throws IllegalStateException, ClientProtocolException, IOException, URISyntaxException {
-        InputStream stream = AndroidHttpClient.getUngzippedContent(downloadHttpClientJsonPostHelp(url, json, 20000));
-        return readInputStream(stream);
+    public static InputStream downloadHttpClientJsonPostStream(String url, String json) throws IllegalStateException, IOException, URISyntaxException {
+        return ISdownloadHttpClientJsonPostHelp(url, json, 20000);
     }
     //</HTTP Post Json>
-
-    public static String getLocalIP(boolean useIPv4) {
-        String ip = "No Local IP assigned";
-        try {
-
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface ni : interfaces) {
-                List<InetAddress> addresses = Collections.list(ni.getInetAddresses());
-                for (InetAddress ia : addresses) {
-                    if (ia != null && !ia.isLoopbackAddress()) {
-                        String sAddr = ia.getHostAddress().toUpperCase(Locale.ENGLISH);
-                        boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
-                        if (useIPv4) {
-                            if (isIPv4) {
-                                ip = sAddr;
-                            }
-                        } else {
-                            if (!isIPv4) {
-                                int delim = sAddr.indexOf('%');
-                                ip = delim < 0 ? sAddr : sAddr.substring(0, delim);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            ip = "Unknown Error, Report it!";
-        }
-        return ip;
-    }
-
-    public static String getExternalIP(Activity activity) {
-        boolean hadError = false;
-        String ip = null;
-        try {
-
-            if (!NetworkUtils.haveNetworkConnection(activity)) {
-                return "No Internet Connection";
-            }
-
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet("http://www.lpcode.net/api/externalip/");
-
-            HttpResponse response = client.execute(request);
-            HttpEntity entity = response.getEntity();
-            InputStream content = entity.getContent();
-
-            // Log.d("update ip", "ip: " + content);
-
-            if (content == null)
-                return "Connection Error";
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(content, "utf-8"));
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            content.close();
-            ip = sb.toString().replaceAll("\"", "");
-
-        } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // Toast.makeText(getBaseContext(), e.getMessage(),
-            // Toast.LENGTH_SHORT).show();
-            hadError = true;
-        } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // Toast.makeText(getBaseContext(), e.getMessage(),
-            // Toast.LENGTH_SHORT).show();
-            hadError = true;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // Toast.makeText(getBaseContext(), e.getMessage(),
-            // Toast.LENGTH_SHORT).show();
-            hadError = true;
-        }
-        if (hadError) {
-            return "Unknown Error, Report it!";
-        }
-        return ip;
-    }
 
     public static boolean isOnline(Context context) {
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

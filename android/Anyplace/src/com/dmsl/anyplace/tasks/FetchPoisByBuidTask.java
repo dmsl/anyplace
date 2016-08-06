@@ -128,10 +128,10 @@ public class FetchPoisByBuidTask extends AsyncTask<Void, Void, String> {
 			String response;
 			if (floor_number != null) {
 				// fetch the pois of this floor
-				response = NetworkUtils.downloadHttpClientJsonPostGzip(AnyplaceAPI.getFetchPoisByBuidFloorUrl(), j.toString());
+				response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchPoisByBuidFloorUrl(), j.toString());
 			} else {
 				// fetch the pois for the whole building
-				response = NetworkUtils.downloadHttpClientJsonPostGzip(AnyplaceAPI.getFetchPoisByBuidUrl(), j.toString());
+				response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchPoisByBuidUrl(), j.toString());
 			}
 
 			JSONObject json_all = new JSONObject(response);

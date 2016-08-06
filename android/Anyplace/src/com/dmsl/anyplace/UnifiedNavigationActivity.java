@@ -1409,8 +1409,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         // clean the map in case there are overlays
         mMap.clear();
 
-        // add the Tile Provider that uses our Building tiles over
-        // Google Maps
+        // add the Tile Provider that uses our Building tiles over Google Maps
         TileOverlay mTileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new AnyPlaceMapTileProvider(getBaseContext(), b.buid, f.floor_number)));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(b.getPosition(), 19.0f), new CancelableCallback() {
 
@@ -1427,15 +1426,12 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
             }
         });
 
-        // ///////////////////////////////////////////////////////////////
-        // we must now change the radio map file since we changed floor
-        // RADIO MAP initialization
+        // we must now change the radio map file since we changed floor RADIO MAP initialization
         try {
             File root = AnyplaceUtils.getRadioMapFoler(this, b.buid, userData.getSelectedFloorNumber());
             lpTracker.setRadiomapFile(new File(root, AnyplaceUtils.getRadioMapFileName(userData.getSelectedFloorNumber())).getAbsolutePath());
         } catch (Exception e) {
-            // exception thrown by GetRootFolder when sdcard is not
-            // writable
+            // exception thrown by GetRootFolder when sdcard is not writable
             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
