@@ -74,11 +74,16 @@ public class NetworkUtils {
     private static String readInputStream(InputStream stream) throws IOException {
         int n = 0;
         char[] buffer = new char[1024 * 4];
-        InputStreamReader reader = new InputStreamReader(stream, "UTF8");
         StringWriter writer = new StringWriter();
-        while (-1 != (n = reader.read(buffer)))
-            writer.write(buffer, 0, n);
-        return writer.toString();
+        InputStreamReader reader = new InputStreamReader(stream, "UTF8");
+        try {
+            while (-1 != (n = reader.read(buffer)))
+                writer.write(buffer, 0, n);
+
+            return writer.toString();
+        } finally {
+            reader.close();
+        }
     }
 
     // <HTTP Get>
