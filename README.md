@@ -76,7 +76,6 @@ The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization).
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/viewer
 - Current Leaders: Kyriakos Georgiou, Dimitris Valeris
 
-
 ### API
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
@@ -87,6 +86,10 @@ The source code of Anyplace HTML5/CSS3 Architect Tool.
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
 - Current Leaders: Kyriakos Georgiou, Dimitris Valeris
+
+### Database
+Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
+- Couch Views: https://github.com/dmsl/anyplace/blob/develop/ddocs.json
 
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
