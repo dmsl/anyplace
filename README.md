@@ -87,7 +87,7 @@ The source code of Anyplace HTML5/CSS3 Architect Tool.
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
 - Current Leaders: Kyriakos Georgiou, Dimitris Valeris
 
-### Database
+### Data Store
 Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
 - Couch Views: https://github.com/dmsl/anyplace/blob/develop/ddocs.json
 
