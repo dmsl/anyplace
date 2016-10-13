@@ -81,6 +81,16 @@ The source code of Anyplace HTML5/CSS3 Architect Tool. Current Leaders: Kyriakos
 Try: https://anyplace.cs.ucy.ac.cy/architect/
 Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
 
+## LATEST DEVELOPMENT VERSION
+Available under:
+Code: https://github.com/dmsl/anyplace/tree/develop
+To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
+Viewer: goo.gl/eSzl8n
+Architect: goo.gl/5S0oN3
+API:goo.gl/p5YUdb 
+
+
+
 Project Leader: Demetris Zeinalipour
 
 
