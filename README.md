@@ -93,9 +93,9 @@ Anyplace uses a scalable document store for its backend (named Couchbase). The c
 
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
-- DEV Viewer: goo.gl/eSzl8n
-- DEV Architect: goo.gl/5S0oN3
-- DEV API:goo.gl/p5YUdb 
+- DEV Viewer: https://goo.gl/eSzl8n/
+- DEV Architect: https://goo.gl/5S0oN3/
+- DEV API: https://goo.gl/p5YUdb/ 
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
 
 Overall Project Supervision: Demetris Zeinalipour
