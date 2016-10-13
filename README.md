@@ -55,25 +55,31 @@ Short description of the contents included in this release.
 
 ### Android
 The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization). Current Leader: Timotheos Constambeys. 
+
 Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
 Documentation/Source: https://github.com/dmsl/anyplace/tree/master/android
 
 ### Windows
 The Source code of the Anyplace Windows Phone Client (IP localization). Current Leader: Pangiotis Irakleous.
+
 Try: https://www.microsoft.com/en-us/store/apps/anyplace/9nblgggzldsk
 Documentation/Source: https://github.com/dmsl/anyplace/tree/master/windows
 
 ### iOS
-The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). Current Leader: Nikitin Artem.
+The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). 
+
+Current Leader: Nikitin Artem.
 Try: coming soon
 
 ### Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
+
 Try: https://anyplace.cs.ucy.ac.cy/viewer/
 Documentation/Source: https://github.com/dmsl/anyplace/tree/master/viewer
 
 ### API
 The source code of Anyplace JSON API.  Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
+
 Try: https://anyplace.cs.ucy.ac.cy/developers/
 
 ### Architect
@@ -84,6 +90,7 @@ Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
 ## LATEST DEVELOPMENT VERSION
 Available under:
 Code: https://github.com/dmsl/anyplace/tree/develop
+
 To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
 Viewer: goo.gl/eSzl8n
 Architect: goo.gl/5S0oN3
