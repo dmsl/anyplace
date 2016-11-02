@@ -9,7 +9,6 @@ Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones.
 	 
 - URL: http://anyplace.cs.ucy.ac.cy
-- Contact: anyplace@cs.ucy.ac.cy
 
 It is recommended to watch the video tutorials of the Anyplace system on http://anyplace.cs.ucy.ac.cy/, before proceeding with these instructions.
 
