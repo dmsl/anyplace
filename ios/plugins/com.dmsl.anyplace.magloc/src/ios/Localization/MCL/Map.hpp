@@ -50,30 +50,41 @@
 
 class Map {
 private:
+    static const Vector2D DEFAULT_NORTH;
+    static const Size DEFAULT_SIZE;
     std::vector<const Feature *> _features;
-    std::map<Line, std::vector<const Feature *>*> _feature_lines;
+    //std::map<Line, std::vector<const Feature *>*> _feature_lines;
+    std::map<LineID,  std::vector<const Feature *>*> _line_id_to_features;
+    std::map<LineID, Line> _line_id_to_line;
     std::vector<const Obstacle *> _obstacles;
     const Vector2D _north_direction;
+    Size _size;
 
     
-    static const unsigned long find_nearest_feature_index_to_projection(const Point p, const Line l, const Map & map);
+    static const unsigned long find_nearest_feature_index_to_projection(const Point p, const LineID lid, const Map & map);
     
 public:
     /**
      * Features are stored in a heap to avoid copying during localization. Deletion of the features is done by Map class. Features should not be modifed outside of the Map class.
      */
     
-    Map() : Map(Vector2D{0.0, 1.0});
+    Map() : Map(Map::DEFAULT_SIZE, Map::DEFAULT_NORTH) {};
     
-    Map(Vector2D north_direction) : _north_direction(north_direction) {};
+    Map(Size size, Vector2D north_direction) : _size(size), _north_direction(north_direction) {};
     
-    Map(std::vector<Feature *> features, Vector2D north_direction = Vector2D{0.0, 1.0}) : _north_direction(north_direction) {
+    Map(std::vector<Feature *> features, Size size = Map::DEFAULT_SIZE, Vector2D north_direction = Map::DEFAULT_NORTH) : Map(size, north_direction) {
         add_features(features);
     };
     
+    void set_size(Size size) { _size = size; }
+    Size get_size() const { return _size; }
+    
+    void add_lines(std::map<LineID, Line> lines);
     void add_features(std::vector<Feature *> features);
     void add_obstacles(std::vector<Obstacle *> obstacles);
     
+    
+    void clear_lines();
     void clear_features();
     void clear_obstacles();
     
@@ -83,6 +94,8 @@ public:
     
     const Feature * const feature_at(unsigned long ind) const { return _features.at(ind); }
     const std::vector<const Feature *> features_at(std::vector<unsigned long> indices) const;
+    
+    Line get_line(LineID lineId) const { return _line_id_to_line.at(lineId); }
     
 //    const std::vector<unsigned long> find_KNN_features_indices(const Point p, const unsigned long k) const;
     
@@ -122,12 +135,12 @@ public:
     /**
      * find_KNN_lines() - returns k nearest lines to the given point (by distance to the endpoint or orthogonal projection)
      */
-    static const std::vector<Line> find_KNN_lines(const Point p, const unsigned long k, const Map & map);
+    static const std::vector<LineID> find_KNN_lines(const Point p, const unsigned long k, const Map & map);
     
     /**
      * find_KNN_lines() - returns nearest lines to the given point (by distance to the endpoint or orthogonal projection)
      */
-    static const Line find_NN_line(const Point p, const Map & map);
+    static const LineID find_NN_line(const Point p, const Map & map);
     
     
     ~Map() {

@@ -37,17 +37,25 @@
 
 #include "Map.hpp"
 
+const Vector2D Map::DEFAULT_NORTH = {0.0, 1.0};
+const Size Map::DEFAULT_SIZE = {(double)UINT_MAX, (double)UINT_MAX};
+
+void Map::add_lines(std::map<LineID, Line> lines) {
+    _line_id_to_line.insert(lines.begin(), lines.end());
+}
+
 void Map::add_features(std::vector<Feature *> features)  {
     for (Feature * feature : features) {
         _features.push_back(feature);
         
+        const LineID lineId = feature->lineId;
         std::vector<const Feature *>* feature_line = NULL;
-        if ( _feature_lines.count(feature->line) == 0 ) {
+        if ( _line_id_to_features.count(lineId) == 0 ) {
             feature_line = new std::vector<const Feature *>();
-            _feature_lines[feature->line] = feature_line;
+            _line_id_to_features[lineId] = feature_line;
         }
         else
-            feature_line = _feature_lines.at(feature->line);
+            feature_line = _line_id_to_features.at(lineId);
         feature_line->push_back(feature);
     }
 }
@@ -58,13 +66,19 @@ void Map::add_obstacles(std::vector<Obstacle *> obstacles) {
     }
 }
 
+
+void Map::clear_lines() {
+    _line_id_to_line.clear();
+    _line_id_to_features.clear();
+}
+
 void Map::clear_features() {
     for (const Feature * f : _features)
         delete f;
     _features.clear();
-    for (std::map<Line, std::vector<const Feature *>*>::iterator it = _feature_lines.begin(); it != _feature_lines.end(); ++it)
+    for (auto it = _line_id_to_features.begin(); it != _line_id_to_features.end(); ++it)
         delete it->second;
-    _feature_lines.clear();
+    _line_id_to_features.clear();
 }
 
 void Map::clear_obstacles() {
@@ -126,8 +140,8 @@ const std::vector<const Feature *> Map::find_lined_KNN_features(const Point p, c
     
     std::vector<const Feature *> knn;
     
-    Line nearest_line = Map::find_NN_line(p, map);
-    std::vector<const Feature *> *features = map._feature_lines.at(nearest_line);
+    LineID nearest_line = Map::find_NN_line(p, map);
+    std::vector<const Feature *> *features = map._line_id_to_features.at(nearest_line);
     
     for( int i = 0; i < features->size(); i++) {
         const Feature * const feature = features->at(i);
@@ -161,8 +175,8 @@ const std::vector<const Feature *> Map::find_fast_lined_KNN_features(const Point
     
     std::vector<const Feature *> knn;
     
-    Line nearest_line = Map::find_NN_line(p, map);
-    std::vector<const Feature *> *features = map._feature_lines.at(nearest_line);
+    LineID nearest_line = Map::find_NN_line(p, map);
+    std::vector<const Feature *> *features = map._line_id_to_features.at(nearest_line);
     
     unsigned long index = find_nearest_feature_index_to_projection(p, nearest_line, map);
     
@@ -196,8 +210,8 @@ const std::vector<const Feature *> Map::find_fast_lined_NN_features(const Point 
     
     std::vector<const Feature *> nns;
     
-    Line nearest_line = Map::find_NN_line(p, map);
-    std::vector<const Feature *> *features = map._feature_lines.at(nearest_line);
+    LineID nearest_line = Map::find_NN_line(p, map);
+    std::vector<const Feature *> *features = map._line_id_to_features.at(nearest_line);
     
     unsigned long index = find_nearest_feature_index_to_projection(p, nearest_line, map);
     
@@ -233,8 +247,9 @@ const std::vector<const Feature *> Map::find_fast_lined_NN_features(const Point 
     return nns;
 }
 
-const unsigned long Map::find_nearest_feature_index_to_projection(const Point p, const Line l, const Map &map) {
-    std::vector<const Feature *>* features = map._feature_lines.at(l);
+const unsigned long Map::find_nearest_feature_index_to_projection(const Point p, const LineID lid, const Map &map) {
+    Line l = map._line_id_to_line.at(lid);
+    std::vector<const Feature *>* features = map._line_id_to_features.at(lid);
     Point projection = l.projection(p);
     unsigned long index;
     if (l.projection_belongs(p))
@@ -268,11 +283,12 @@ const unsigned long Map::find_nearest_feature_index_to_projection(const Point p,
 }
 
 
-const std::vector<Line> Map::find_KNN_lines(const Point p, const unsigned long k, const Map & map) {
-    std::vector<Line> knn; knn.reserve(map._feature_lines.size());
+const std::vector<LineID> Map::find_KNN_lines(const Point p, const unsigned long k, const Map & map) {
+    std::vector<LineID> knn; knn.reserve(k);
     
-    for (std::map<Line, std::vector<const Feature *>*>::const_iterator it = map._feature_lines.begin(); it != map._feature_lines.end(); ++it) {
-        Line line = it->first;
+    for (std::map<LineID, std::vector<const  Feature *>*>::const_iterator it = map._line_id_to_features.begin(); it != map._line_id_to_features.end(); ++it) {
+        const LineID lineId = it->first;
+        const Line line = map._line_id_to_line.at(lineId);
         bool blocked = false;
         for (const Obstacle * obstacle: map._obstacles) {
             if (obstacle->intersects_line(Line(p, line.a)) && obstacle->intersects_line(Line(p, line.b)) ) {
@@ -281,18 +297,19 @@ const std::vector<Line> Map::find_KNN_lines(const Point p, const unsigned long k
             }
         }
         if (!blocked)
-            knn.push_back(line);
+            knn.push_back(lineId);
     }
     
-    std::sort(knn.begin(), knn.end(), [&](Line l1, Line l2){
-        return l1.dist(p) < l2.dist(p);
+    std::sort(knn.begin(), knn.end(), [&](LineID lid1, LineID lid2){
+        return map._line_id_to_line.at(lid1).dist(p) < map._line_id_to_line.at(lid2).dist(p);
     });
     
     knn.resize(k);
     
     return knn;
 }
-const Line Map::find_NN_line(const Point p, const Map & map) {
+
+const LineID Map::find_NN_line(const Point p, const Map & map) {
     return Map::find_KNN_lines(p, 1, map).at(0);
 }
 

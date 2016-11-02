@@ -45,8 +45,20 @@ class LatLng {
     private(set) var lng: Double
     
     init(lat: Double, lng: Double) {
+        assert(lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
         self.lat = lat
         self.lng = lng
+    }
+    
+    convenience init(ll: LatLng, d: Double, bearing: Double) {
+        let R = LatLng.radiusOfEarthAtLat(ll.lat)
+        let lat1 = toRad(ll.lat)
+        let lng1 = toRad(ll.lng)
+        let theta = toRad(bearing)
+        let dlt = d / R
+        let lat2 = asin(sin(lat1)*dlt + cos(lat1)*sin(dlt)*cos(theta))
+        let lng2 = lng1 + atan2( sin(theta)*sin(dlt)*cos(lat1), cos(dlt) - sin(lat1)*sin(lat2) )
+        self.init(lat: fromRad(lat2), lng: fromRad(lng2))
     }
     
     func toCartesian() -> Vector3D {
@@ -57,7 +69,8 @@ class LatLng {
         return Vector3D(x: x, y: y, z: z)
     }
     
-    static func radiusOfEarthAtLat(lat: Double) -> Double {
+    static func radiusOfEarthAtLat(latDegree: Double) -> Double {
+        let lat = toRad(latDegree)
         let a = EARTH_EQUATORIAL_RADIUS_M
         let b = EARTH_POLAR_RADIUS_M
         let nom = pow( pow(a, 2)*cos(lat), 2) + pow( pow(b, 2)*sin(lat), 2)
@@ -66,19 +79,27 @@ class LatLng {
         return R
     }
 
+    
     //Haversine formula
-    static func dist(p1: LatLng, p2: LatLng) -> Double {
-        let sin2_lat = pow( (p2.lat - p1.lat)/2, 2 )
-        let cos1 = cos(p1.lat)
-        let cos2 = cos(p2.lat)
-        let sin2_lng = pow( (p2.lng - p1.lng)/2, 2 )
+    static func dist(p1: LatLng, _ p2: LatLng) -> Double {
+        let sin2_lat = pow( sin(toRad( (p2.lat - p1.lat)/2 )), 2 )
+        let cos1 = cos(toRad(p1.lat))
+        let cos2 = cos(toRad(p2.lat))
+        let sin2_lng = pow( toRad((p2.lng - p1.lng)/2), 2 )
         let p_avg = (p1 + p2) / 2
-        let R = radiusOfEarthAtLat(p_avg.lat)
+        let R = LatLng.radiusOfEarthAtLat(p_avg.lat)
         return 2*R*asin(sqrt( sin2_lat + cos1*cos2*sin2_lng) )
     }
     
 }
 
+func toRad(angle: Double) -> Double {
+    return angle / 180.0 * M_PI
+}
+
+func fromRad(angle: Double) -> Double {
+    return angle / M_PI * 180.0
+}
 
 func +(left: LatLng, right: LatLng) -> LatLng { return LatLng(lat: left.lat + right.lat, lng: left.lng + right.lng) }
 func *(p: LatLng, k: Double) -> LatLng { return LatLng(lat: p.lat * k, lng: p.lng * k) }

@@ -44,6 +44,7 @@
 #define UINT unsigned int
 #define Field Vector3D
 #define PRECISION 1e-12
+typedef UINT LineID;
 
 typedef struct Vector2D {
     double x, y;
@@ -207,6 +208,17 @@ typedef struct {
     }
 } Rect;
 
+typedef struct Size {
+    double width;
+    double height;
+    Size(double w, double h) {
+        if (w <= 0 || h <= 0)
+            throw std::invalid_argument("Size dimensions must be positive.");
+        width = w;
+        height = h;
+    }
+} Size;
+
 typedef struct Line {
     Point a;
     Point b;
@@ -251,13 +263,13 @@ typedef struct: Obstacle {
 
 typedef struct {
     Point pos;
-    Line line;
-} Feature;
+    UINT lineId;
+} Feature __attribute__ ((aligned(8)));
 
-typedef struct : Feature {
+typedef struct: Feature {
     Field field;
     Quaternion attitude;
-} Milestone;
+} Milestone __attribute__ ((aligned(8)));
 
 typedef struct {
     Point pos;
@@ -268,10 +280,14 @@ typedef struct {
 
 typedef struct {
     unsigned long size;
-    double average_radius;
-    double maximum_radius;
+    double min_radius;
+    double max_radius;
+    double avg_radius;
+    double dev_radius;
 } ClusterProperties;
 
+std::vector<const Milestone *> p_to_milestones(std::vector<const Feature *>);
+std::vector<const Feature *> p_to_features(std::vector<const Milestone *>);
 
 
 

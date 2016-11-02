@@ -240,3 +240,14 @@ bool operator<(const Point & p, const Line &l) {
 bool operator>(const Point & p, const Line &l) { return !(p < l); }
 bool operator>=(const Point & p, const Line &l) { return p > l || l.contains(p); }
 bool operator<=(const Point & p, const Line &l)  { return p < l || l.contains(p); }
+
+
+std::vector<const Milestone *> p_to_milestones(std::vector<const Feature *> features) {
+    std::vector<const Milestone *> ret(features.size(), 0);
+    for (int i = 0; i < features.size(); i++)
+        ret.at(i) = (const Milestone *) features.at(i);
+    return ret;
+}
+std::vector<const Feature *> p_to_features(std::vector<const Milestone *> milestones) {
+    return std::vector<const Feature *>(milestones.begin(), milestones.end());
+}

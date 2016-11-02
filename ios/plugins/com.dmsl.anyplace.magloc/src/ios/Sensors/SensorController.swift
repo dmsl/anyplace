@@ -40,142 +40,144 @@ import CoreMotion
 import CoreLocation
 
 @objc protocol SensorControllerDelegate: class {
-    optional func handleUpdate(updateError error: NSError!, magneticData data: MagneticData!)
-    optional func handleUpdate(updateError error: NSError!, accelerationData data: AccelerationData!)
-    optional func handleUpdate(updateError error: NSError!, rotationData data: RotationData!)
-    optional func handleUpdate(updateError error: NSError!, attitudeData data: AttitudeData!)
-    optional func handleUpdate(updateError error: NSError!, altitudeData data: AltitudeData!)
-    optional func handleUpdate(updateError error: NSError!, pedometerData data: PedometerData!)
-}
-
-enum UpdateSource: Int {
-    case Raw, Calibrated
-}
-
-enum Accuracy {
-    case Raw, Uncalibrated, Low, Medium, High
-}
-
-enum Sensor: Int, Hashable {
-    case Magnetometer, Accelerometer, Gyro, Altimeter, Pedometer
-    
-    var hashValue: Int {
-        return rawValue
-    }
-    
-    static var all: [Sensor] {
-        return [Magnetometer, Accelerometer, Gyro, Altimeter, Pedometer]
-    }
-}
-
-enum Source: Int, Hashable {
-    case MagneticField, MagneticFieldCalibrated, Acceleration, AccelerationCalibrated, Rotation, RotationCalibrated, Attitude, Altitude, Pedometer
-    
-    var hashValue: Int {
-        return rawValue
-    }
-    
-    static var all: [Source] {
-        return [MagneticField, MagneticFieldCalibrated, Acceleration, AccelerationCalibrated, Rotation, RotationCalibrated, Attitude, Altitude, Pedometer]
-    }
-}
-
-struct SensorControllerOptions: OptionSetType {
-    let rawValue: Int
-    init(rawValue: Int) { self.rawValue = rawValue }
-    
-    private static let Calibrated = SensorControllerOptions(rawValue: 1)
-    static let ReferenceMagneticNorth = SensorControllerOptions(rawValue: 1 << 2)
-    static let ReferenceTrueNorth = SensorControllerOptions(rawValue: 1 << 3)
-    static let MagneticField = SensorControllerOptions(rawValue: 1 << 4)
-    static let MagneticFieldCalibrated = SensorControllerOptions(rawValue: 1 << 5 + 1)
-    static let Acceleration = SensorControllerOptions(rawValue: 1 << 6)
-    static let AccelerationCalibrated = SensorControllerOptions(rawValue: 1 << 7 + 1)
-    static let Rotation = SensorControllerOptions(rawValue: 1 << 8)
-    static let RotationCalibrated = SensorControllerOptions(rawValue: 1 << 9 + 1)
-    static let Attitude = SensorControllerOptions(rawValue: 1 << 10 + 1)
-    static let Altitude = SensorControllerOptions(rawValue: 1 << 11)
-    static let Pedometer = SensorControllerOptions(rawValue: 1 << 12)
-    static let Motion: SensorControllerOptions = [Acceleration, Rotation]
-    static let MotionCalibrated: SensorControllerOptions = [AccelerationCalibrated, RotationCalibrated]
-    static let Orientation: SensorControllerOptions = [MagneticField, Acceleration, Rotation]
-    static let OrientationCalibrated: SensorControllerOptions = [Attitude]
-    static let OrientationCalibratedReferenceMagneticNorth: SensorControllerOptions = [ReferenceMagneticNorth, OrientationCalibrated]
-    static let OrientationCalibratedReferenceTrueNorth: SensorControllerOptions = [ReferenceTrueNorth, OrientationCalibrated]
-    static let Navigation: SensorControllerOptions = [Orientation,  Pedometer]
-    static let NavigationCalibrated: SensorControllerOptions = [OrientationCalibrated,  Pedometer]
-    static let NavigationCalibratedReferenceMagneticNorth: SensorControllerOptions = [OrientationCalibratedReferenceMagneticNorth,  Pedometer]
-    static let NavigationCalibratedReferenceTrueNorth: SensorControllerOptions = [OrientationCalibratedReferenceTrueNorth,  Pedometer]
-}
-
-enum SensorControllerError: ErrorType {
-    case RawUnavailable, CalibratedUnavailable, NoDelegates, ConfigurationConflict, OperationUnavailableWhileActive, NeedLocationServicesEnabledWhenInUse
+    optional func handleUpdate(updateError error: NSError!, magneticData data: SensorController.MagneticData!)
+    optional func handleUpdate(updateError error: NSError!, accelerationData data: SensorController.AccelerationData!)
+    optional func handleUpdate(updateError error: NSError!, rotationData data: SensorController.RotationData!)
+    optional func handleUpdate(updateError error: NSError!, attitudeData data: SensorController.AttitudeData!)
+    optional func handleUpdate(updateError error: NSError!, altitudeData data: SensorController.AltitudeData!)
+    optional func handleUpdate(updateError error: NSError!, pedometerData data: SensorController.PedometerData!)
 }
 
 typealias Rotation = Vector3D
 typealias Acceleration = Vector3D
 typealias MagneticField = Vector3D
 
-@objc class SensorData: NSObject {
-    var timestamp: Double
-    let accuracy: Accuracy
-    init(timestamp: Double, accuracy: Accuracy ) {
-        self.timestamp = timestamp
-        self.accuracy = accuracy
-    }
-}
-
-class MagneticData: SensorData {
-    let field: MagneticField
-    init(field: MagneticField, timestamp: Double, accuracy: Accuracy ) {
-        self.field = field
-        super.init(timestamp: timestamp, accuracy: accuracy)
-    }
-}
-
-class AccelerationData: SensorData {
-    let acceleration: Acceleration
-    init(acceleration: Acceleration, timestamp: Double, accuracy: Accuracy ) {
-        self.acceleration = acceleration
-        super.init(timestamp: timestamp, accuracy: accuracy)
-    }
-}
-
-class RotationData: SensorData {
-    let rotation: Rotation
-    init(rotation: Rotation, timestamp: Double, accuracy: Accuracy ) {
-        self.rotation = rotation
-        super.init(timestamp: timestamp, accuracy: accuracy)
-    }
-}
-
-class AttitudeData: SensorData {
-    let attitude: CMAttitude
-    init(attitude: CMAttitude, timestamp: Double, accuracy: Accuracy ) {
-        self.attitude = attitude
-        super.init(timestamp: timestamp, accuracy: accuracy)
-    }
-}
-
-class AltitudeData: SensorData {
-    let altitude: Double
-    init(altitude: Double, timestamp: Double, accuracy: Accuracy ) {
-        self.altitude = altitude
-        super.init(timestamp: timestamp, accuracy: accuracy)
-    }
-}
-
-class PedometerData: SensorData {
-    let steps: UInt
-    let distance: Double
-    init(steps: UInt, distance: Double, timestamp: Double, accuracy: Accuracy ) {
-        self.steps = steps
-        self.distance = distance
-        super.init(timestamp: timestamp, accuracy: accuracy)
-    }
-}
-
+@available(iOS 8, *)
 @objc class SensorController: NSObject, StepCounterDelegate, CLLocationManagerDelegate {
+    
+    struct Options: OptionSetType {
+        let rawValue: Int
+        init(rawValue: Int) { self.rawValue = rawValue }
+        
+        private static let Calibrated = Options(rawValue: 1)
+        static let ReferenceMagneticNorth = Options(rawValue: 1 << 1)
+        static let ReferenceTrueNorth = Options(rawValue: 1 << 2)
+        static let MagneticField = Options(rawValue: 1 << 3)
+        static let MagneticFieldCalibrated: Options = [MagneticField, Calibrated]
+        static let Acceleration = Options(rawValue: 1 << 4)
+        static let AccelerationCalibrated: Options = [Acceleration, Calibrated]
+        static let Rotation = Options(rawValue: 1 << 5)
+        static let RotationCalibrated: Options = [Rotation, Calibrated]
+        //Attitude can be obtained only from CMDeviceMotion for now, but still leave it
+        static let Attitude = Options(rawValue: 1 << 6)
+        static let Altitude = Options(rawValue: 1 << 7)
+        static let Pedometer = Options(rawValue: 1 << 8)
+        static let Motion: Options = [Acceleration, Rotation]
+        static let MotionCalibrated: Options = [AccelerationCalibrated, RotationCalibrated]
+        static let Orientation: Options = [MagneticField, Acceleration, Rotation]
+        static let OrientationCalibrated: Options = [Attitude, Calibrated]
+        static let OrientationCalibratedReferenceMagneticNorth: Options = [ReferenceMagneticNorth, OrientationCalibrated]
+        static let OrientationCalibratedReferenceTrueNorth: Options = [ReferenceTrueNorth, OrientationCalibrated]
+        static let Navigation: Options = [Orientation,  Pedometer]
+        static let NavigationCalibrated: Options = [OrientationCalibrated,  Pedometer]
+        static let NavigationCalibratedReferenceMagneticNorth: Options = [OrientationCalibratedReferenceMagneticNorth,  Pedometer]
+        static let NavigationCalibratedReferenceTrueNorth: Options = [OrientationCalibratedReferenceTrueNorth,  Pedometer]
+    }
+    enum UpdateSource: Int {
+        case Raw, Calibrated
+    }
+    
+    enum Accuracy: Int {
+        case Raw, Uncalibrated, Low, Medium, High
+    }
+    
+    enum Sensor: Int, Hashable {
+        case Magnetometer, Accelerometer, Gyro, Altimeter, Pedometer
+        
+        var hashValue: Int {
+            return rawValue
+        }
+        
+        static var all: [Sensor] {
+            return [Magnetometer, Accelerometer, Gyro, Altimeter, Pedometer]
+        }
+    }
+    
+    enum Source: Int, Hashable {
+        case MagneticField, MagneticFieldCalibrated, Acceleration, AccelerationCalibrated, Rotation, RotationCalibrated, Attitude, Altitude, Pedometer
+        
+        var hashValue: Int {
+            return rawValue
+        }
+        
+        static var all: [Source] {
+            return [MagneticField, MagneticFieldCalibrated, Acceleration, AccelerationCalibrated, Rotation, RotationCalibrated, Attitude, Altitude, Pedometer]
+        }
+    }
+    
+    enum Error: ErrorType {
+        case RawUnavailable, CalibratedUnavailable, NoDelegates, ConfigurationConflict, OperationUnavailableWhileActive, NeedLocationServicesEnabledWhenInUse
+    }
+    
+    @objc class SensorData: NSObject {
+        var timestamp: Double
+        let accuracy: Accuracy
+        init(timestamp: Double, accuracy: Accuracy ) {
+            self.timestamp = timestamp
+            self.accuracy = accuracy
+        }
+    }
+    
+    class MagneticData: SensorData {
+        let field: MagneticField
+        init(field: MagneticField, timestamp: Double, accuracy: Accuracy ) {
+            self.field = field
+            super.init(timestamp: timestamp, accuracy: accuracy)
+        }
+    }
+    
+    class AccelerationData: SensorData {
+        let acceleration: Acceleration
+        init(acceleration: Acceleration, timestamp: Double, accuracy: Accuracy ) {
+            self.acceleration = acceleration
+            super.init(timestamp: timestamp, accuracy: accuracy)
+        }
+    }
+    
+    class RotationData: SensorData {
+        let rotation: Rotation
+        init(rotation: Rotation, timestamp: Double, accuracy: Accuracy ) {
+            self.rotation = rotation
+            super.init(timestamp: timestamp, accuracy: accuracy)
+        }
+    }
+    
+    class AttitudeData: SensorData {
+        let attitude: CMAttitude
+        init(attitude: CMAttitude, timestamp: Double, accuracy: Accuracy ) {
+            self.attitude = attitude
+            super.init(timestamp: timestamp, accuracy: accuracy)
+        }
+    }
+    
+    class AltitudeData: SensorData {
+        let altitude: Double
+        init(altitude: Double, timestamp: Double, accuracy: Accuracy ) {
+            self.altitude = altitude
+            super.init(timestamp: timestamp, accuracy: accuracy)
+        }
+    }
+    
+    class PedometerData: SensorData {
+        let steps: UInt
+        let distance: Double
+        init(steps: UInt, distance: Double, timestamp: Double, accuracy: Accuracy ) {
+            self.steps = steps
+            self.distance = distance
+            super.init(timestamp: timestamp, accuracy: accuracy)
+        }
+    }
+    
     
     func locationManager(manager: CLLocationManager, didUpdateToLocation newLocation: CLLocation, fromLocation oldLocation: CLLocation) {
         print("didUpdateLocation \(newLocation)")
@@ -272,21 +274,21 @@ class PedometerData: SensorData {
     private var altimeterActive: Bool = false
     private var pedometerActive: Bool = false
     
-    private let initialOptions: SensorControllerOptions
-    private var options: SensorControllerOptions
+    private let initialOptions: Options
+    private var options: Options
     
-    func changeOptions(options: SensorControllerOptions) throws {
+    func changeOptions(options: Options) throws {
         if active {
-            throw SensorControllerError.OperationUnavailableWhileActive
+            throw Error.OperationUnavailableWhileActive
         }
         if !initialOptions.contains(options) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         self.options = options
     }
     
     
-    init?(options: SensorControllerOptions) throws {
+    init?(options: Options) throws {
         self.initialOptions = options
         self.options = options
         self.motionManager = CMMotionManager()
@@ -310,7 +312,7 @@ class PedometerData: SensorData {
             if !referenceTrueNorthAvailable {
                 print("SensorController: init: Reference true north NOT available")
                 if !locationServicesEnabled {
-                    throw SensorControllerError.NeedLocationServicesEnabledWhenInUse
+                    throw Error.NeedLocationServicesEnabledWhenInUse
                 }
                 return nil
             } else {
@@ -417,9 +419,9 @@ print("SensorController: init: Calibration is NOT available")
 //        print("intervals \(updateIntervals)")
     }
     
-    private func start(options: SensorControllerOptions) throws {
+    private func start(options: Options) throws {
         if delegates.isEmpty {
-            throw SensorControllerError.NoDelegates
+            throw Error.NoDelegates
         }
         startTimestamps.removeAll()
         let calibrated = options.contains(.Calibrated)
@@ -454,7 +456,7 @@ print("SensorController: init: Calibration is NOT available")
     private func startMagnetometer() throws {
         print("SensorController: startMagnetometer")
         if !options.contains(.MagneticField) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         if magnetometerActive {
             print("SensorController: startMagnetometer: already active")
@@ -471,7 +473,7 @@ print("SensorController: init: Calibration is NOT available")
     private func startDeviceMotion() throws {
         print("SensorController: startDeviceMotion")
         if !options.contains(.Calibrated) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         if deviceMotionActive {
             print("SensorController: startDeviceMotion: already active")
@@ -527,7 +529,7 @@ print("SensorController: init: Calibration is NOT available")
     private func startAccelerometer() throws {
         print("SensorController: startAccelerometer")
         if !options.contains(.Acceleration) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         if accelerometerActive {
             print("SensorController: startAccelerometer: already active")
@@ -551,7 +553,7 @@ print("SensorController: init: Calibration is NOT available")
     private func startGyro() throws {
         print("SensorController: startGyro")
         if !options.contains(.Rotation) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         if gyroActive {
             print("SensorController: startGyro: already active")
@@ -569,7 +571,7 @@ print("SensorController: init: Calibration is NOT available")
     private func startAltimeter() throws {
         print("SensorController: startAltimeter")
         if !options.contains(.Altitude) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         if altimeterActive {
             print("SensorController: startAltimeter: already active")
@@ -586,7 +588,7 @@ print("SensorController: init: Calibration is NOT available")
     private func startPedometer() throws {
         print("SensorController: startPedometer")
         if !options.contains(.Pedometer) {
-            throw SensorControllerError.ConfigurationConflict
+            throw Error.ConfigurationConflict
         }
         assert( softwarePedometer == nil || hardwarePedometer == nil )
         if pedometerActive {
@@ -617,7 +619,7 @@ print("SensorController: init: Calibration is NOT available")
         stop(self.options)
     }
     
-    private func stop(options: SensorControllerOptions) {
+    private func stop(options: Options) {
         print("SensorController: stop");
         if options.contains(.Calibrated) {
             stopDeviceMotion()

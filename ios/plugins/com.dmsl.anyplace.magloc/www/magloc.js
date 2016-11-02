@@ -36,10 +36,94 @@
 
 /*global cordova, module*/
 
-var APMagloc = {
-  
+/*
+ * Here some magic happens. It should be possible to define plugin in the following manner:
+ * function APMagloc() {};
+ * APMagloc.prototype.prepare = function ...
+ * APMagloc.DictKey = {...}
+ * module.exports = new APMagloc()
+ * I.e. we define constructor and add some static variables and member functions
+ * However, plugin loads ("Device is ready") happens only if there is only 1 member function and no variables
+ * I have no clue why it happens, so define in the way you can see below.
+ */
+
+var exec = require('cordova/exec')
+
+module.exports = {
+
+    DictKey : {
+        STATUS : "status",
+        LOC : "location",
+        LAT : "lat",
+        LNG : "lng",
+        ACC : "acc",
+        FLD : "field",
+        ATT : "orientation",
+        TMS : "timestamp",
+        W : "w",
+        X : "x",
+        Y : "y",
+        Z : "z"
+    },
+
+    Status : {
+        0 : "NOT_PREPARED",
+        1 : "INACTIVE",
+        2 : "LOGGING",
+        3 : "LOCALIZING"
+    },
+
+    Error : {
+        0 : "UNEXPECTED",
+        1 : "NOT_PREPARED",
+        2 : "IS_ACTIVE",
+        3 : "NOT_ACTIVE",
+        4 : "SENSOR_DESYNC"
+    },
+    
+    Accuracy : {
+        0 : "LOW",
+        1 : "MEDIUM",
+        2 : "HIGH"
+    },
+
+    test : function (successCallback, errorCallback, val) {
+        exec(successCallback, errorCallback, "AnyplaceMagLoc", "test", [val]);
+    },
+    
+    /*prepare: function (successCallback, errorCallback, bl, tr, milestones) {
+        if (!bl.hasOwnProperty('lat') || !bl.hasOwnProperty('lng') ||
+            !tr.hasOwnProperty('lat') || !tr.hasOwnProperty('lat') ||
+            typeof milestones === "undefined"){
+            alert('APMagloc: prepare: wrong arguments!');
+        }
+        cordova.exec(successCallback, errorCallback, "AnyplaceMagLoc", "prepare", [bl.lat, bl.lng, tr.lat, tr.lng, tr, milestones]);
+    }*/
+
+    log : function (successCallback, errorCallback, updateInterval) {
+        exec(successCallback, errorCallback, "AnyplaceMagLoc", "log", [updateInterval]);
+    },
+
+    /*start: function (successCallback, errorCallback, fraction, a_slow, a_fast) {
+        if (typeof a_slow === "undefined" || typeof a_fast == "undefined")
+            args = [fraction];
+        else
+            args = [fraction, a_slow, a_fast];
+            
+        cordova.exec(successCallback, errorCallback, "AnyplaceMagLoc", "start", args);
+    }*/
+    
+    stop : function (successCallback, errorCallback) {
+        exec(successCallback, errorCallback, "AnyplaceMagLoc", "stop");
+    },
+
+    reset : function (successCallback, errorCallback) {
+        exec(successCallback, errorCallback, "AnyplaceMagLoc", "reset");
+    }
+
 }
 
-module.exports = APMagloc;
+//module.exports = new APMagloc();
+
 
 

@@ -36,12 +36,15 @@
 
 import Foundation
 
-enum SoftwarePedometerError: ErrorType {
-    case InvalidStateError
-}
+
+typealias AccelerationData = SensorController.AccelerationData
 
 class SoftwarePedometer: SensorControllerDelegate {
 
+    enum Error: ErrorType {
+        case InvalidState
+    }
+    
     var delegate: StepCounterDelegate! = nil
     
     static let BEST_UPDATE_INTERVAL: Double = 0.0
@@ -93,7 +96,7 @@ class SoftwarePedometer: SensorControllerDelegate {
                 let isPreviousLargeEnough: Bool = lastDiff > ( diff / 3 )
                 let isNotContra: Bool = ( lastMatch != 1 - extType )
                 if isAlmostAsLargeAsPrevious && isPreviousLargeEnough && isNotContra {
-                    steps++
+                    steps += 1
                     step = true
                     lastMatch = extType
                 } else {
@@ -110,7 +113,7 @@ class SoftwarePedometer: SensorControllerDelegate {
     func processData(error: NSError?, accelerationData data: AccelerationData?) throws {
 //        print("processData error = \(error) data = \(data)")
         if !active {
-            throw SoftwarePedometerError.InvalidStateError
+            throw Error.InvalidState
         }
         
         var stepData: StepData! = nil
