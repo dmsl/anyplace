@@ -48,3 +48,5 @@ Then hit *http://localhost:9000/* in your browser to launch AnyplaceArchitect.
 (The index.html file cannot be simply opened through the file system because the browser will throw security errors.)
 
 **The port number is important**. For security purposes, AnyplaceServer accepts Cross-Origin requests from *localhost* only on ports 3030, 8080 and 9000.
+
+[![Installation on Windows by @ManishChauhan000](http://2.sendvid.com/mzdx9xd7.jpg)](http://2.sendvid.com/mzdx9xd7.mp4)
