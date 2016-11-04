@@ -49,6 +49,8 @@ Then hit *http://localhost:9000/* in your browser to launch AnyplaceArchitect.
 
 **The port number is important**. For security purposes, AnyplaceServer accepts Cross-Origin requests from *localhost* only on ports 3030, 8080 and 9000.
 
-## Video
-![Video](http://2.sendvid.com/mzdx9xd7.jpg)](http://2.sendvid.com/mzdx9xd7.mp4)
+### Video
+The below video shows interactively how to install the Anyplace Architect
+- http://2.sendvid.com/mzdx9xd7.mp4
+Credits: Manish Chauhan @ManishChauhan000
 
