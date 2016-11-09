@@ -97,7 +97,6 @@ To test the latest development version you can use a replica installation of the
 - DEV API: https://goo.gl/p5YUdb
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
 
-Overall Project Supervision: Demetris Zeinalipour
-
-
+## TEAM
+- https://anyplace.cs.ucy.ac.cy/#about
 
