@@ -48,3 +48,5 @@ Then hit *http://localhost:9000/* in your browser to launch AnyplaceViewer.
 (The index.html file cannot be simply opened through the file system because the browser will throw security errors.)
 
 **The port number is important**. For security purposes, AnyplaceServer accepts Cross-Origin requests from *localhost* only on ports 3030, 8080 and 9000.
+
+Its important to remember that a real installation will require a real web server like Apache.
