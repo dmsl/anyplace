@@ -51,6 +51,6 @@ Then hit *http://localhost:9000/* in your browser to launch AnyplaceArchitect.
 
 ### Video
 The below video shows interactively how to install the Anyplace Architect
-- http://2.sendvid.com/mzdx9xd7.mp4
+- https://www.youtube.com/watch?v=m7uFkm2xHEU
 Credits: Manish Chauhan @ManishChauhan000
 
