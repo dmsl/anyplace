@@ -1,480 +1,480 @@
 [
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/accounts",
-                "rev": "3-867cd20b"
-            },
-            "json": {
-                "views": {
-                    "accounts_by_client_id": {
-                        "map": "function (doc, meta) {\n  if( doc.doctype == \"account\" ){\n    var sz = doc.clients.length;\n    for( var i=0; i<sz; i++ ){\n      emit(doc.clients[i].client_id, null);  \n    }\n  }\n}"
-                    },
-                    "accounts_all": {
-                        "map": "function (doc, meta) {\n  if( doc.doctype == \"account\" )\n    emit(meta.id, null);\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Faccounts/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Faccounts/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/admin",
-                "rev": "3-b3bb7452"
-            },
-            "json": {
-                "views": {
-                    "all_documents": {
-                        "map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
-                    },
-                    "raw_radio_all": {
-                        "map": "function (doc, meta) {\n  if( doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y )\n      emit(meta.id, meta.id);\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fadmin/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fadmin/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/campus",
-                "rev": "1-180be949"
-            },
-            "json": {
-                "views": {
-                    "all_by_cuid": {
-                        "map": "function (doc, meta) {\n  if( doc.cuid && !doc.buid)\n    // delete pois & floor & building & connection\n  \temit( doc.cuid, meta.id);\n  \n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fcampus/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fcampus/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_accounts",
-                "rev": "56-f433cc81"
-            },
-            "json": {
-                "views": {
-                    "accounts_by_client_id": {
-                        "map": "function (doc, meta) {\n  if( doc.doctype == \"account\" ){\n    var sz = doc.clients.length;\n    for( var i=0; i<sz; i++ ){\n      emit(doc.clients[i].client_id, null);  \n    }\n  }\n}"
-                    },
-                    "accounts_all": {
-                        "map": "function (doc, meta) {\n  if( doc.owner_id && doc.name && !doc.buid)\n    emit(doc.name, null);\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_accounts/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_accounts/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_admin",
-                "rev": "12-330925cf"
-            },
-            "json": {
-                "views": {
-                    "all_documents": {
-                        "map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
-                    },
-                    "raw_radio_all": {
-                        "map": "function (doc, meta) {\n  if( doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y )\n      emit(meta.id, meta.id);\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_admin/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_admin/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_campus",
-                "rev": "11-ba4d9729"
-            },
-            "json": {
-                "views": {
-                    "all_by_cuid": {
-                        "map": "function (doc, meta) {\n  if( doc.cuid && !doc.buid)\n    // delete pois & floor & building & connection\n  \temit( doc.cuid, meta.id);\n  \n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_campus/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_campus/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_floor",
-                "rev": "2-5f630104"
-            },
-            "json": {
-                "views": {
-                    "group_wifi": {
-                        "map": "function (doc, meta) {\n  if (doc.strongestWifi && doc.geometry && doc.MAC && doc.rss) {\n    emit([doc.strongestWifi, doc.geometry.coordinates[0],doc.geometry.coordinates[1],doc.timestamp], {\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC});\n  }\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_floor/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_floor/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_magnetic",
-                "rev": "8-49a5ae0d"
-            },
-            "json": {
-                "views": {
-                    "mpaths_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
-                    },
-                    "mpaths_by_buid": {
-                        "map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid) {\n     emit(doc.buid, null);\n  }\n}"
-                    },
-                    "mmilestones_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_milestone\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_magnetic/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_magnetic/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_nav",
-                "rev": "100-f13adada"
-            },
-            "json": {
-                "views": {
-                    "pois_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.pois_type && !doc.cuid )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
-                    },
-                    "pois_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.floor_number )\n      //emit([doc.buid,doc.floor_number], doc);\n      emit([doc.buid,doc.floor_number], null);\n}"
-                    },
-                    "connection_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.edge_type && doc.pois_a && doc.pois_b )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
-                    },
-                    "building_all": {
-                        "map": "function (doc, meta) {\n  if( !doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.is_published == \"true\")\n  \t//emit(meta.id, doc);\n    emit(meta.id, null);\n}"
-                    },
-                    "floor_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.floor_number && doc.floor_name && doc.buid && !doc.puid )\n  \t//emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
-                    },
-                    "connection_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b )\n    //emit([doc.buid,doc.floor_a], doc);  \n    emit([doc.buid,doc.floor_a], null);\n}"
-                    },
-                    "all_by_pois": {
-                        "map": "function (doc, meta) {\n  if( doc.puid )\n    // delete pois\n  \temit(doc.puid, meta.id);\n  else if( doc.pois_a && doc.pois_b && doc.pois_a != doc.pois_b){\n    // delete connections\n  \temit( doc.pois_a, meta.id );\n    \temit( doc.pois_b, meta.id );\n  }\n}"
-                    },
-                    "all_by_floor": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.floor_number )\n    // delete pois & floor\n  \temit( [doc.buid, doc.floor_number], meta.id);\n  else if( doc.floor_a && doc.floor_b && doc.floor_a != doc.floor_b){\n    // delete connections between floors\n  \temit( [doc.buid, doc.floor_a], meta.id );\n    \temit( [doc.buid, doc.floor_b], meta.id );\n  }else if( doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b){\n    // connections on the same floor\n    \temit( [doc.buid, doc.floor_a], meta.id );\n  }\n}"
-                    },
-                    "all_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.buid )\n    // delete pois & floor & building & connection\n  \temit( doc.buid, meta.id);\n  \n}"
-                    },
-                    "building_all_by_owner": {
-                        "map": "function (doc, meta) {\n  if(!doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.owner_id) {\n    emit(doc.owner_id, meta.id);\n    \n    if(doc.co_owners) {\n      for (var i = 0; i < doc.co_owners.length; i++) {\n        if (doc.co_owners[i] != doc.owner_id) {\n           emit(doc.co_owners[i], meta.id);\n        }\n      }\n    }\n    \n  }\n}"
-                    },
-                    "buildings_all_coordinates": {
-                        "map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
-                    },
-                    "building_all_by_bucode_by_owner": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.bucode && doc.owner_id) {\n    emit([doc.bucode, doc.owner_id], null);\n  }\n}"
-                    },
-                    "building_all_by_bucode": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.bucode) {\n  \temit(doc.bucode, null);\n  }\n}"
-                    },
-                    "connection_by_buid_all_floors": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b)\n      emit(doc.buid, doc);\n}"
-                    },
-                    "cuid_all_by_owner": {
-                        "map": "function (doc, meta) {\n  if (!doc.puid && !doc.floor_number && !doc.edge_type && doc.cuid && doc.owner_id){\n    emit( doc.owner_id, meta.id);\n  }\n}"
-                    },
-                    "get_campus": {
-                        "map": "function (doc, meta) {\n  if(doc.cuid && doc.owner_id )\n  \temit(meta.id, doc.cuid);\n}"
-                    },
-                    "all_pois_types": {
-                        "map": "function (doc, meta) {\n  if (doc.poistypeid && doc.owner_id && doc.types && !doc.buid) {\n  \temit(doc.owner_id, meta.id);\n  }\n}"
-                    }
-                },
-                "spatial": {
-                    "building_coordinates": "function (doc) {\n  if (doc.geometry && doc.buid && !doc.floor_number && !doc.puid && !doc.rss) {\n    //emit(doc.geometry, doc);\n    emit(doc.geometry, null);\n  }\n}"
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_nav/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_nav/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_radio",
-                "rev": "155-a48a898b"
-            },
-            "json": {
-                "views": {
-                    "raw_radio_all": {
-                        "map": "function (doc, meta) {\n  if(doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y && doc.buid) {\n    emit(meta.id, meta.id);\n  }\n}"
-                    },
-                    "raw_radio_building_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor], null);\n  }\n}"
-                    },
-                    "radio_heatmap_building_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], null);\n  }\n}",
-                        "reduce": "_count"
-                    },
-                    "tempview": {
-                        "map": "function (doc, meta) {\n  if (doc.rss && doc.MAC && doc.x >= 40.44159232134214 && doc.y >= -80.00603422522545 & doc.x <= 40.44192454900267 && doc.y <= -80.00557959079742)\n  \temit(meta.id, null);\n}"
-                    }
-                },
-                "spatial": {
-                    "raw_radio": "function (doc) {\n  if (doc.geometry && doc.MAC && doc.rss && doc.heading) {\n    emit(doc.geometry, {\n   \"timestamp\": doc.timestamp,\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC,\n   \"heading\": doc.heading,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}",
-                    "radio_heatmap_bbox_byxy": "function (doc) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y){\n    emit(doc.geometry, {\n   \"floor\": doc.floor,\n   \"buid\": doc.buid,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}"
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_radio/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_radio/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/dev_test",
-                "rev": "8-77f6f145"
-            },
-            "json": {
-                "views": {
-                    "find_invalid_json": {
-                        "map": "function (doc, meta) {\n  emit(doc.$att_reason, meta.id);\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_test/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_test/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/floor",
-                "rev": "1-0f5a9e2e"
-            },
-            "json": {
-                "views": {
-                    "group_wifi": {
-                        "map": "function (doc, meta) {\n  if (doc.strongestWifi && doc.geometry && doc.MAC && doc.rss) {\n    emit([doc.strongestWifi, doc.geometry.coordinates[0],doc.geometry.coordinates[1],doc.timestamp], {\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC});\n  }\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Ffloor/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Ffloor/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/magnetic",
-                "rev": "1-8ad96438"
-            },
-            "json": {
-                "views": {
-                    "mpaths_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
-                    },
-                    "mpaths_by_buid": {
-                        "map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid) {\n     emit(doc.buid, null);\n  }\n}"
-                    },
-                    "mmilestones_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_milestone\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fmagnetic/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fmagnetic/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/nav",
-                "rev": "18-5adc2add"
-            },
-            "json": {
-                "views": {
-                    "pois_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.pois_type && !doc.cuid )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
-                    },
-                    "pois_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.floor_number )\n      //emit([doc.buid,doc.floor_number], doc);\n      emit([doc.buid,doc.floor_number], null);\n}"
-                    },
-                    "connection_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.edge_type && doc.pois_a && doc.pois_b )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
-                    },
-                    "building_all": {
-                        "map": "function (doc, meta) {\n  if( !doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.is_published == \"true\")\n  \t//emit(meta.id, doc);\n    emit(meta.id, null);\n}"
-                    },
-                    "floor_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.floor_number && doc.floor_name && doc.buid && !doc.puid )\n  \t//emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
-                    },
-                    "connection_by_buid_floor": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b )\n    //emit([doc.buid,doc.floor_a], doc);  \n    emit([doc.buid,doc.floor_a], null);\n}"
-                    },
-                    "all_by_pois": {
-                        "map": "function (doc, meta) {\n  if( doc.puid )\n    // delete pois\n  \temit(doc.puid, meta.id);\n  else if( doc.pois_a && doc.pois_b && doc.pois_a != doc.pois_b){\n    // delete connections\n  \temit( doc.pois_a, meta.id );\n    \temit( doc.pois_b, meta.id );\n  }\n}"
-                    },
-                    "all_by_floor": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.floor_number )\n    // delete pois & floor\n  \temit( [doc.buid, doc.floor_number], meta.id);\n  else if( doc.floor_a && doc.floor_b && doc.floor_a != doc.floor_b){\n    // delete connections between floors\n  \temit( [doc.buid, doc.floor_a], meta.id );\n    \temit( [doc.buid, doc.floor_b], meta.id );\n  }else if( doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b){\n    // connections on the same floor\n    \temit( [doc.buid, doc.floor_a], meta.id );\n  }\n}"
-                    },
-                    "all_by_buid": {
-                        "map": "function (doc, meta) {\n  if( doc.buid )\n    // delete pois & floor & building & connection\n  \temit( doc.buid, meta.id);\n  \n}"
-                    },
-                    "building_all_by_owner": {
-                        "map": "function (doc, meta) {\n  if(!doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.owner_id) {\n    emit(doc.owner_id, meta.id);\n    \n    if(doc.co_owners) {\n      for (var i = 0; i < doc.co_owners.length; i++) {\n        if (doc.co_owners[i] != doc.owner_id) {\n           emit(doc.co_owners[i], meta.id);\n        }\n      }\n    }\n    \n  }\n}"
-                    },
-                    "buildings_all_coordinates": {
-                        "map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
-                    },
-                    "building_all_by_bucode_by_owner": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.bucode && doc.owner_id) {\n    emit([doc.bucode, doc.owner_id], null);\n  }\n}"
-                    },
-                    "building_all_by_bucode": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.bucode) {\n  \temit(doc.bucode, null);\n  }\n}"
-                    },
-                    "connection_by_buid_all_floors": {
-                        "map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b)\n      emit(doc.buid, doc);\n}"
-                    },
-                    "cuid_all_by_owner": {
-                        "map": "function (doc, meta) {\n  if (!doc.puid && !doc.floor_number && !doc.edge_type && doc.cuid && doc.owner_id){\n    emit( doc.owner_id, meta.id);\n  }\n}"
-                    },
-                    "get_campus": {
-                        "map": "function (doc, meta) {\n  if(doc.cuid && doc.owner_id )\n  \temit(meta.id, doc.cuid);\n}"
-                    },
-                    "all_pois_types": {
-                        "map": "function (doc, meta) {\n  if (doc.poistypeid && doc.owner_id && doc.types && !doc.buid) {\n  \temit(doc.owner_id, meta.id);\n  }\n}"
-                    }
-                },
-                "spatial": {
-                    "building_coordinates": "function (doc) {\n  if (doc.geometry && doc.buid && !doc.floor_number && !doc.puid && !doc.rss) {\n    //emit(doc.geometry, doc);\n    emit(doc.geometry, null);\n  }\n}"
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fnav/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fnav/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/radio",
-                "rev": "17-2d44899b"
-            },
-            "json": {
-                "views": {
-                    "raw_radio_all": {
-                        "map": "function (doc, meta) {\n  if(doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y && doc.buid) {\n    emit(meta.id, meta.id);\n  }\n}"
-                    },
-                    "raw_radio_building_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor], null);\n  }\n}"
-                    },
-                    "radio_heatmap_building_floor": {
-                        "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], null);\n  }\n}",
-                        "reduce": "_count"
-                    },
-                    "tempview": {
-                        "map": "function (doc, meta) {\n  if (doc.rss && doc.MAC && doc.x >= 40.44159232134214 && doc.y >= -80.00603422522545 && doc.x <= 40.44192454900267 && doc.y <= -80.00557959079742)\n  \temit(meta.id, null);\n}"
-                    }
-                },
-                "spatial": {
-                    "raw_radio": "function (doc) {\n  if (doc.geometry && doc.MAC && doc.rss && doc.heading) {\n    emit(doc.geometry, {\n   \"timestamp\": doc.timestamp,\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC,\n   \"heading\": doc.heading,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}",
-                    "radio_heatmap_bbox_byxy": "function (doc) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y){\n    emit(doc.geometry, {\n   \"floor\": doc.floor,\n   \"buid\": doc.buid,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}"
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fradio/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fradio/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/spatial",
-                "rev": "1-85b8918a"
-            },
-            "json": {
-                "views": {},
-                "spatial": {
-                    "raw_spatial": "function (doc, meta) {\n  if (doc.timestamp && doc.geometry && doc.rss && doc.MAC && doc.x && doc.y && doc.heading ) {\n    emit(doc.timestamp);\n  }\n}",
-                    "raw": "function (doc) {\n  if (doc.geometry) {\n    emit(doc.geometry, null);\n  }\n}"
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fspatial/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fspatial/controller/setUpdateMinChanges"
-        }
-    },
-    {
-        "doc": {
-            "meta": {
-                "id": "_design/test",
-                "rev": "1-c5373f7c"
-            },
-            "json": {
-                "views": {
-                    "find_invalid_json": {
-                        "map": "function (doc, meta) {\n  emit(doc.$att_reason, meta.id);\n}"
-                    }
-                }
-            }
-        },
-        "controllers": {
-            "compact": "/pools/default/buckets/anyplace/ddocs/_design%2Ftest/controller/compactView",
-            "setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Ftest/controller/setUpdateMinChanges"
-        }
-    }
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/accounts",
+					"rev": "3-867cd20b"
+				},
+				"json": {
+					"views": {
+						"accounts_by_client_id": {
+							"map": "function (doc, meta) {\n  if( doc.doctype == \"account\" ){\n    var sz = doc.clients.length;\n    for( var i=0; i<sz; i++ ){\n      emit(doc.clients[i].client_id, null);  \n    }\n  }\n}"
+						},
+						"accounts_all": {
+							"map": "function (doc, meta) {\n  if( doc.doctype == \"account\" )\n    emit(meta.id, null);\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Faccounts/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Faccounts/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/admin",
+					"rev": "3-b3bb7452"
+				},
+				"json": {
+					"views": {
+						"all_documents": {
+							"map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
+						},
+						"raw_radio_all": {
+							"map": "function (doc, meta) {\n  if( doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y )\n      emit(meta.id, meta.id);\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fadmin/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fadmin/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/campus",
+					"rev": "1-180be949"
+				},
+				"json": {
+					"views": {
+						"all_by_cuid": {
+							"map": "function (doc, meta) {\n  if( doc.cuid && !doc.buid)\n    // delete pois & floor & building & connection\n  \temit( doc.cuid, meta.id);\n  \n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fcampus/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fcampus/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_accounts",
+					"rev": "56-f433cc81"
+				},
+				"json": {
+					"views": {
+						"accounts_by_client_id": {
+							"map": "function (doc, meta) {\n  if( doc.doctype == \"account\" ){\n    var sz = doc.clients.length;\n    for( var i=0; i<sz; i++ ){\n      emit(doc.clients[i].client_id, null);  \n    }\n  }\n}"
+						},
+						"accounts_all": {
+							"map": "function (doc, meta) {\n  if( doc.owner_id && doc.name && !doc.buid)\n    emit(doc.name, null);\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_accounts/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_accounts/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_admin",
+					"rev": "12-330925cf"
+				},
+				"json": {
+					"views": {
+						"all_documents": {
+							"map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
+						},
+						"raw_radio_all": {
+							"map": "function (doc, meta) {\n  if( doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y )\n      emit(meta.id, meta.id);\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_admin/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_admin/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_campus",
+					"rev": "11-ba4d9729"
+				},
+				"json": {
+					"views": {
+						"all_by_cuid": {
+							"map": "function (doc, meta) {\n  if( doc.cuid && !doc.buid)\n    // delete pois & floor & building & connection\n  \temit( doc.cuid, meta.id);\n  \n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_campus/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_campus/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_floor",
+					"rev": "2-5f630104"
+				},
+				"json": {
+					"views": {
+						"group_wifi": {
+							"map": "function (doc, meta) {\n  if (doc.strongestWifi && doc.geometry && doc.MAC && doc.rss) {\n    emit([doc.strongestWifi, doc.geometry.coordinates[0],doc.geometry.coordinates[1],doc.timestamp], {\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC});\n  }\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_floor/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_floor/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_magnetic",
+					"rev": "8-49a5ae0d"
+				},
+				"json": {
+					"views": {
+						"mpaths_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
+						},
+						"mpaths_by_buid": {
+							"map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid) {\n     emit(doc.buid, null);\n  }\n}"
+						},
+						"mmilestones_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_milestone\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_magnetic/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_magnetic/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_nav",
+					"rev": "100-f13adada"
+				},
+				"json": {
+					"views": {
+						"pois_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.pois_type && !doc.cuid )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
+						},
+						"pois_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.floor_number )\n      //emit([doc.buid,doc.floor_number], doc);\n      emit([doc.buid,doc.floor_number], null);\n}"
+						},
+						"connection_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.edge_type && doc.pois_a && doc.pois_b )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
+						},
+						"building_all": {
+							"map": "function (doc, meta) {\n  if( !doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.is_published == \"true\")\n  \t//emit(meta.id, doc);\n    emit(meta.id, null);\n}"
+						},
+						"floor_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.floor_number && doc.floor_name && doc.buid && !doc.puid )\n  \t//emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
+						},
+						"connection_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b )\n    //emit([doc.buid,doc.floor_a], doc);  \n    emit([doc.buid,doc.floor_a], null);\n}"
+						},
+						"all_by_pois": {
+							"map": "function (doc, meta) {\n  if( doc.puid )\n    // delete pois\n  \temit(doc.puid, meta.id);\n  else if( doc.pois_a && doc.pois_b && doc.pois_a != doc.pois_b){\n    // delete connections\n  \temit( doc.pois_a, meta.id );\n    \temit( doc.pois_b, meta.id );\n  }\n}"
+						},
+						"all_by_floor": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.floor_number )\n    // delete pois & floor\n  \temit( [doc.buid, doc.floor_number], meta.id);\n  else if( doc.floor_a && doc.floor_b && doc.floor_a != doc.floor_b){\n    // delete connections between floors\n  \temit( [doc.buid, doc.floor_a], meta.id );\n    \temit( [doc.buid, doc.floor_b], meta.id );\n  }else if( doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b){\n    // connections on the same floor\n    \temit( [doc.buid, doc.floor_a], meta.id );\n  }\n}"
+						},
+						"all_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.buid )\n    // delete pois & floor & building & connection\n  \temit( doc.buid, meta.id);\n  \n}"
+						},
+						"building_all_by_owner": {
+							"map": "function (doc, meta) {\n  if(!doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.owner_id) {\n    emit(doc.owner_id, meta.id);\n    \n    if(doc.co_owners) {\n      for (var i = 0; i < doc.co_owners.length; i++) {\n        if (doc.co_owners[i] != doc.owner_id) {\n           emit(doc.co_owners[i], meta.id);\n        }\n      }\n    }\n    \n  }\n}"
+						},
+						"buildings_all_coordinates": {
+							"map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
+						},
+						"building_all_by_bucode_by_owner": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.bucode && doc.owner_id) {\n    emit([doc.bucode, doc.owner_id], null);\n  }\n}"
+						},
+						"building_all_by_bucode": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.bucode) {\n  \temit(doc.bucode, null);\n  }\n}"
+						},
+						"connection_by_buid_all_floors": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b)\n      emit(doc.buid, doc);\n}"
+						},
+						"cuid_all_by_owner": {
+							"map": "function (doc, meta) {\n  if (!doc.puid && !doc.floor_number && !doc.edge_type && doc.cuid && doc.owner_id){\n    emit( doc.owner_id, meta.id);\n  }\n}"
+						},
+						"get_campus": {
+							"map": "function (doc, meta) {\n  if(doc.cuid && doc.owner_id )\n  \temit(meta.id, doc.cuid);\n}"
+						},
+						"all_pois_types": {
+							"map": "function (doc, meta) {\n  if (doc.poistypeid && doc.owner_id && doc.types && !doc.buid) {\n  \temit(doc.owner_id, meta.id);\n  }\n}"
+						}
+					},
+					"spatial": {
+						"building_coordinates": "function (doc) {\n  if (doc.geometry && doc.buid && !doc.floor_number && !doc.puid && !doc.rss) {\n    //emit(doc.geometry, doc);\n    emit(doc.geometry, null);\n  }\n}"
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_nav/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_nav/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_radio",
+					"rev": "155-a48a898b"
+				},
+				"json": {
+					"views": {
+						"raw_radio_all": {
+							"map": "function (doc, meta) {\n  if(doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y && doc.buid) {\n    emit(meta.id, meta.id);\n  }\n}"
+						},
+						"raw_radio_building_floor": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor], null);\n  }\n}"
+						},
+						"radio_heatmap_building_floor": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], null);\n  }\n}",
+							"reduce": "_count"
+						},
+						"tempview": {
+							"map": "function (doc, meta) {\n  if (doc.rss && doc.MAC && doc.x >= 40.44159232134214 && doc.y >= -80.00603422522545 & doc.x <= 40.44192454900267 && doc.y <= -80.00557959079742)\n  \temit(meta.id, null);\n}"
+						}
+					},
+					"spatial": {
+						"raw_radio": "function (doc) {\n  if (doc.geometry && doc.MAC && doc.rss && doc.heading) {\n    emit(doc.geometry, {\n   \"timestamp\": doc.timestamp,\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC,\n   \"heading\": doc.heading,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}",
+						"radio_heatmap_bbox_byxy": "function (doc) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y){\n    emit(doc.geometry, {\n   \"floor\": doc.floor,\n   \"buid\": doc.buid,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}"
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_radio/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_radio/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/dev_test",
+					"rev": "8-77f6f145"
+				},
+				"json": {
+					"views": {
+						"find_invalid_json": {
+							"map": "function (doc, meta) {\n  emit(doc.$att_reason, meta.id);\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_test/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fdev_test/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/floor",
+					"rev": "1-0f5a9e2e"
+				},
+				"json": {
+					"views": {
+						"group_wifi": {
+							"map": "function (doc, meta) {\n  if (doc.strongestWifi && doc.geometry && doc.MAC && doc.rss) {\n    emit([doc.strongestWifi, doc.geometry.coordinates[0],doc.geometry.coordinates[1],doc.timestamp], {\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC});\n  }\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Ffloor/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Ffloor/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/magnetic",
+					"rev": "1-8ad96438"
+				},
+				"json": {
+					"views": {
+						"mpaths_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
+						},
+						"mpaths_by_buid": {
+							"map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_path\" && doc.buid) {\n     emit(doc.buid, null);\n  }\n}"
+						},
+						"mmilestones_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if (doc.doctype === \"magnetic_milestone\" && doc.buid && doc.floor_num) {\n     emit([doc.buid, doc.floor_num], null);\n  }\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fmagnetic/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fmagnetic/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/nav",
+					"rev": "18-5adc2add"
+				},
+				"json": {
+					"views": {
+						"pois_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.pois_type && !doc.cuid )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
+						},
+						"pois_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.puid && doc.floor_number )\n      //emit([doc.buid,doc.floor_number], doc);\n      emit([doc.buid,doc.floor_number], null);\n}"
+						},
+						"connection_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.edge_type && doc.pois_a && doc.pois_b )\n      //emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
+						},
+						"building_all": {
+							"map": "function (doc, meta) {\n  if( !doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.is_published == \"true\")\n  \t//emit(meta.id, doc);\n    emit(meta.id, null);\n}"
+						},
+						"floor_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.floor_number && doc.floor_name && doc.buid && !doc.puid )\n  \t//emit(doc.buid, doc);\n    emit(doc.buid, null);\n}"
+						},
+						"connection_by_buid_floor": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b )\n    //emit([doc.buid,doc.floor_a], doc);  \n    emit([doc.buid,doc.floor_a], null);\n}"
+						},
+						"all_by_pois": {
+							"map": "function (doc, meta) {\n  if( doc.puid )\n    // delete pois\n  \temit(doc.puid, meta.id);\n  else if( doc.pois_a && doc.pois_b && doc.pois_a != doc.pois_b){\n    // delete connections\n  \temit( doc.pois_a, meta.id );\n    \temit( doc.pois_b, meta.id );\n  }\n}"
+						},
+						"all_by_floor": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.floor_number )\n    // delete pois & floor\n  \temit( [doc.buid, doc.floor_number], meta.id);\n  else if( doc.floor_a && doc.floor_b && doc.floor_a != doc.floor_b){\n    // delete connections between floors\n  \temit( [doc.buid, doc.floor_a], meta.id );\n    \temit( [doc.buid, doc.floor_b], meta.id );\n  }else if( doc.floor_a && doc.floor_b && doc.floor_a == doc.floor_b){\n    // connections on the same floor\n    \temit( [doc.buid, doc.floor_a], meta.id );\n  }\n}"
+						},
+						"all_by_buid": {
+							"map": "function (doc, meta) {\n  if( doc.buid )\n    // delete pois & floor & building & connection\n  \temit( doc.buid, meta.id);\n  \n}"
+						},
+						"building_all_by_owner": {
+							"map": "function (doc, meta) {\n  if(!doc.puid && !doc.floor_number && !doc.edge_type && doc.buid && doc.owner_id) {\n    emit(doc.owner_id, meta.id);\n    \n    if(doc.co_owners) {\n      for (var i = 0; i < doc.co_owners.length; i++) {\n        if (doc.co_owners[i] != doc.owner_id) {\n           emit(doc.co_owners[i], meta.id);\n        }\n      }\n    }\n    \n  }\n}"
+						},
+						"buildings_all_coordinates": {
+							"map": "function (doc, meta) {\n  emit(meta.id, null);\n}"
+						},
+						"building_all_by_bucode_by_owner": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.bucode && doc.owner_id) {\n    emit([doc.bucode, doc.owner_id], null);\n  }\n}"
+						},
+						"building_all_by_bucode": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.bucode) {\n  \temit(doc.bucode, null);\n  }\n}"
+						},
+						"connection_by_buid_all_floors": {
+							"map": "function (doc, meta) {\n  if( doc.buid && doc.cuid && doc.floor_a && doc.floor_b)\n      emit(doc.buid, doc);\n}"
+						},
+						"cuid_all_by_owner": {
+							"map": "function (doc, meta) {\n  if (!doc.puid && !doc.floor_number && !doc.edge_type && doc.cuid && doc.owner_id){\n    emit( doc.owner_id, meta.id);\n  }\n}"
+						},
+						"get_campus": {
+							"map": "function (doc, meta) {\n  if(doc.cuid && doc.owner_id )\n  \temit(meta.id, doc.cuid);\n}"
+						},
+						"all_pois_types": {
+							"map": "function (doc, meta) {\n  if (doc.poistypeid && doc.owner_id && doc.types && !doc.buid) {\n  \temit(doc.owner_id, meta.id);\n  }\n}"
+						}
+					},
+					"spatial": {
+						"building_coordinates": "function (doc) {\n  if (doc.geometry && doc.buid && !doc.floor_number && !doc.puid && !doc.rss) {\n    //emit(doc.geometry, doc);\n    emit(doc.geometry, null);\n  }\n}"
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fnav/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fnav/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/radio",
+					"rev": "17-2d44899b"
+				},
+				"json": {
+					"views": {
+						"raw_radio_all": {
+							"map": "function (doc, meta) {\n  if(doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y && doc.buid) {\n    emit(meta.id, meta.id);\n  }\n}"
+						},
+						"raw_radio_building_floor": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor], null);\n  }\n}"
+						},
+						"radio_heatmap_building_floor": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], null);\n  }\n}",
+							"reduce": "_count"
+						},
+						"tempview": {
+							"map": "function (doc, meta) {\n  if (doc.rss && doc.MAC && doc.x >= 40.44159232134214 && doc.y >= -80.00603422522545 && doc.x <= 40.44192454900267 && doc.y <= -80.00557959079742)\n  \temit(meta.id, null);\n}"
+						}
+					},
+					"spatial": {
+						"raw_radio": "function (doc) {\n  if (doc.geometry && doc.MAC && doc.rss && doc.heading) {\n    emit(doc.geometry, {\n   \"timestamp\": doc.timestamp,\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC,\n   \"heading\": doc.heading,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}",
+						"radio_heatmap_bbox_byxy": "function (doc) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y){\n    emit(doc.geometry, {\n   \"floor\": doc.floor,\n   \"buid\": doc.buid,\n   \"y\": doc.y,\n   \"x\": doc.x});\n  }\n}"
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fradio/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fradio/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/spatial",
+					"rev": "1-85b8918a"
+				},
+				"json": {
+					"views": {},
+					"spatial": {
+						"raw_spatial": "function (doc, meta) {\n  if (doc.timestamp && doc.geometry && doc.rss && doc.MAC && doc.x && doc.y && doc.heading ) {\n    emit(doc.timestamp);\n  }\n}",
+						"raw": "function (doc) {\n  if (doc.geometry) {\n    emit(doc.geometry, null);\n  }\n}"
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Fspatial/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Fspatial/controller/setUpdateMinChanges"
+			}
+		},
+		{
+			"doc": {
+				"meta": {
+					"id": "_design/test",
+					"rev": "1-c5373f7c"
+				},
+				"json": {
+					"views": {
+						"find_invalid_json": {
+							"map": "function (doc, meta) {\n  emit(doc.$att_reason, meta.id);\n}"
+						}
+					}
+				}
+			},
+			"controllers": {
+				"compact": "/pools/default/buckets/anyplace/ddocs/_design%2Ftest/controller/compactView",
+				"setUpdateMinChanges": "/pools/default/buckets/anyplace/ddocs/_design%2Ftest/controller/setUpdateMinChanges"
+			}
+		}
 ]
 
