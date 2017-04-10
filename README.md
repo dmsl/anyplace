@@ -12,7 +12,7 @@ localization, navigation and search inside buildings using ordinary smartphones.
 
 It is recommended to watch the video tutorials of the Anyplace system on http://anyplace.cs.ucy.ac.cy/, before proceeding with these instructions.
 
-We hope that you find our Anyplace Indoor Information Service useful for your research and innovation activities.  We would like to have your feedback, comments and remarks and of course any experiences and test results from your own experimental setups. Currently, we can offer only limited support and assistance on the code, due to lack of resources, but we will try to get back to you as soon as possible. Questions and feedback may be sent to anyplace@cs.ucy.ac.cy
+We hope that you find our Anyplace Indoor Information Service useful for your research and innovation activities.  We would like to have feedback, comments, remarks, and, of course, any experience or test results from your own experimental setups. Currently, we can offer only limited support and assistance on the code, due to lack of resources, but we will try to get back to you as soon as possible. Questions and feedback may be sent to anyplace@cs.ucy.ac.cy
 
 In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
