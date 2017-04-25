@@ -90,6 +90,8 @@ The source code of Anyplace HTML5/CSS3 Architect Tool.
 ### Data Store
 Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
 - Couch Views: https://github.com/dmsl/anyplace/blob/develop/ddocs.json
+- Couchbase 2.2.1 Installation: https://www.digitalocean.com/community/tutorials/how-to-install-couchbase-from-source-with-git-and-make-on-a-debian-7-vps
+- Anyplace Couchbase 3.0 Version: available in May 2017.
 - Current Leaders: Constantinos Costa
 
 ## LATEST DEVELOPMENT VERSION
