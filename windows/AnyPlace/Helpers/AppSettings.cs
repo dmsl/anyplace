@@ -57,6 +57,7 @@ namespace AnyPlace
 		public const string showoptionsKeyName = "OptionsSettings";
 
         public const string getServerName = "ServerName";
+        public const string portNumber = "PortNumber";
 
 
         public const string bingEnnableKeyName = "BingEnnableSettings";
@@ -91,12 +92,13 @@ namespace AnyPlace
 		const bool rotate_map = true;
 
         const String serverName = "https://anyplace.rayzit.com";
+        const String port = "443";
 
 
-		/// <summary>
-		/// Constructor that gets the application settings.
-		/// </summary>
-		public AppSettings()
+        /// <summary>
+        /// Constructor that gets the application settings.
+        /// </summary>
+        public AppSettings()
 		{
 			if (!System.ComponentModel.DesignerProperties.IsInDesignTool)
 			{
@@ -487,6 +489,21 @@ namespace AnyPlace
             set
             {
                 if (AddOrUpdateValue(getServerName, value))
+                {
+                    Save();
+                }
+            }
+        }
+
+        public String PortNumber
+        {
+            get
+            {
+                return GetValueOrDefault(portNumber, port);
+            }
+            set
+            {
+                if (AddOrUpdateValue(portNumber, value))
                 {
                     Save();
                 }

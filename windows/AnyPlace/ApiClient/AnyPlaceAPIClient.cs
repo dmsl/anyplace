@@ -56,7 +56,20 @@ namespace AnyPlace.ApiClient
         {
             //#error Replace with your IP address (the port is OK; it's part of the project)
             get {
-                String uri = App.Settings.ServerName + "/";
+                String sName = App.Settings.ServerName;
+                String port = App.Settings.PortNumber;
+
+                String uri = "";
+
+                if(port==null || port.Length == 0)
+                {
+                    uri = sName + "/";
+                }
+                else
+                {
+                    uri = sName + ":" + port + "/";
+                }
+
                 //return new Uri("https://anyplace.rayzit.com/");
                 return new Uri(uri);
             }

@@ -90,7 +90,8 @@
                             <RowDefinition Height="115"/>
                             <RowDefinition Height="115"/>
                             <RowDefinition Height="115"/>
-                            <RowDefinition Height="200"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Toolkit:ToggleSwitch Grid.Row="0" IsChecked="{Binding Source={StaticResource appSettings}, Path=ToogleButtonTiles, Mode=TwoWay}"  x:Name="showTiles" VerticalAlignment="Top" Checked="showTiles_Checked" Unchecked="showTiles_Unchecked" Style="{StaticResource ToggleSwitchStyle1}">
                             <Toolkit:ToggleSwitch.Header>
@@ -110,6 +111,10 @@
                         <StackPanel Grid.Row="3">
                             <TextBlock Foreground="#FF1912AE" Text="Server Url"></TextBlock>
                             <TextBox  Text="{Binding Source={StaticResource appSettings}, Path=ServerName, Mode=TwoWay}" TextChanged="TextBox_TextChanged"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Row="4">
+                            <TextBlock Foreground="#FF1912AE" Text="Port"></TextBlock>
+                            <TextBox  Text="{Binding Source={StaticResource appSettings}, Path=PortNumber, Mode=TwoWay}" TextChanged="TextBox_TextChanged"></TextBox>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
