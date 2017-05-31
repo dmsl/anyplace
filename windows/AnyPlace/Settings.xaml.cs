@@ -372,8 +372,12 @@ namespace AnyPlace
 			
 		}
 
-		#endregion
 
-		
-	}
+        #endregion
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+    }
 }

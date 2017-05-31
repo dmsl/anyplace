@@ -1504,11 +1504,12 @@ namespace AnyPlace
                     if (_tilesCheck)
                     {
                         _buildingSearch = obj.buid;
+                        _selectedBuild = obj.buid;
+                        _selectedFloor = floor_num;
                         _wmstileprovider.setBuidAndFloor(obj.buid, floor_num);
                         if (!Mymap.TileSources.Contains(_wmstileprovider))
                             Mymap.TileSources.Add(_wmstileprovider);
-                        _selectedBuild = obj.buid;
-                        _selectedFloor = floor_num;
+                        
 
                         Dispatcher.BeginInvoke(() =>
                         {

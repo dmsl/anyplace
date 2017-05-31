@@ -37,6 +37,7 @@
 using System.Diagnostics;
 using Microsoft.Phone.Maps.Controls;
 using System;
+using System.IO.IsolatedStorage;
 
 namespace AnyPlace.ApiClient
 {
@@ -56,7 +57,18 @@ namespace AnyPlace.ApiClient
 
         public override Uri GetUri(int x, int y, int zoomLevel)
         {
-            return new Uri("isostore:/" + buid + "/" + floor + "/z" + zoomLevel + "x" + x + "y" + y + ".png ", UriKind.Absolute);
+
+            var uri = new Uri("isostore:/" + buid + "/" + floor + "/z" + zoomLevel + "x" + x + "y" + y + ".png ", UriKind.RelativeOrAbsolute);
+
+            //var isoStore = IsolatedStorageFile.GetUserStoreForApplication();
+            //var j = false;
+            //var abs = uri.AbsolutePath;
+            //if (isoStore.FileExists(abs))
+            //{
+            //    j= true;
+            //}
+
+            return uri;
         }
 
     }

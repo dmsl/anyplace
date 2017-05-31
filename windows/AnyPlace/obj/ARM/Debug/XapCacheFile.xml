@@ -1,5 +1,5 @@
-﻿<xapCache source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Bin\ARM\Debug\AnyPlace.xap" wasSigned="False" wasTritonized="False" certificateThumbprint="" TimeStampUrl="" signKeyFile="" signKeyPassword="" lastWriteTime="6/22/2016 7:19:18 PM">
-  <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\obj\ARM\Debug\AnyPlace.dll" archivePath="AnyPlace.dll" lastWriteTime="6/22/2016 7:19:17 PM" />
+﻿<xapCache source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Bin\ARM\Debug\AnyPlace.xap" wasSigned="False" wasTritonized="False" certificateThumbprint="" TimeStampUrl="" signKeyFile="" signKeyPassword="" lastWriteTime="5/31/2017 6:05:42 PM">
+  <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\obj\ARM\Debug\AnyPlace.dll" archivePath="AnyPlace.dll" lastWriteTime="5/31/2017 5:44:50 PM" />
   <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\anyplace_logo_icon.png" archivePath="anyplace_logo_icon.png" lastWriteTime="6/22/2016 6:41:58 PM" />
   <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Assets\anyplace_larg.png" archivePath="Assets\anyplace_larg.png" lastWriteTime="6/22/2016 6:41:53 PM" />
   <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Assets\anyplace_large.png" archivePath="Assets\anyplace_large.png" lastWriteTime="6/22/2016 6:41:53 PM" />
@@ -84,5 +84,5 @@
   <file source="C:\Users\panag\Desktop\anyplace\windows\packages\System.Spatial.5.6.4\lib\portable-net45+wp8+win8+wpa\System.Spatial.xml" archivePath="System.Spatial.xml" lastWriteTime="6/22/2016 6:42:02 PM" />
   <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\app_icon.png" archivePath="app_icon.png" lastWriteTime="6/22/2016 6:41:58 PM" />
   <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Assets\anyplace_medium.png" archivePath="Assets\anyplace_medium.png" lastWriteTime="6/22/2016 6:41:53 PM" />
-  <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Bin\ARM\Debug\Properties\WMAppManifest.xml" archivePath="WMAppManifest.xml" lastWriteTime="6/22/2016 6:58:59 PM" />
+  <file source="C:\Users\panag\Desktop\anyplace\windows\AnyPlace\Bin\ARM\Debug\Properties\WMAppManifest.xml" archivePath="WMAppManifest.xml" lastWriteTime="5/31/2017 6:05:42 PM" />
 </xapCache>

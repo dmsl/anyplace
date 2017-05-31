@@ -44,6 +44,7 @@ using System.IO.IsolatedStorage;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace AnyPlace.ApiClient
 {
@@ -54,7 +55,11 @@ namespace AnyPlace.ApiClient
         public static Uri ServerBaseUri
         {
             //#error Replace with your IP address (the port is OK; it's part of the project)
-            get { return new Uri("https://anyplace.rayzit.com/"); }
+            get {
+                String uri = App.Settings.ServerName + "/";
+                //return new Uri("https://anyplace.rayzit.com/");
+                return new Uri(uri);
+            }
         }
 
         public static Boolean IsDirty { get; private set; }
@@ -170,6 +175,42 @@ namespace AnyPlace.ApiClient
 
                 var x = await response.Content.ReadAsStreamAsync();
 
+                var install = Windows.ApplicationModel.Package.Current;
+                var local = ApplicationData.Current.LocalFolder;
+               
+                using (var zipStream = new UnZipper(x))
+                {
+                    var dataFolder = await local.CreateFolderAsync("Datafolder", CreationCollisionOption.OpenIfExists);
+
+                    foreach (var file in zipStream.FileNamesInZip)
+                    {
+                        // var par = await storageFolder.CreateFolderAsync("/data");
+                        var splited = file.Split('/');
+                        var zoom = splited[0];
+                        string fileName = buid + "." + floor_number + "." + splited[1];
+
+                        var fi = await dataFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            Debug.WriteLine(fileName);
+                            var str = await fi.OpenStreamForWriteAsync();
+
+                            Stream fileStream = zipStream.GetFileStream(file);
+
+                            var buffer = new byte[2048];
+                            int size;
+                            while ((size = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+                            {
+                                str.Write(buffer, 0, size);
+                            }
+                            fileStream.Close();
+                            await str.FlushAsync();
+                            str.Close();
+                        }
+                    }
+                }
+
                 using (var isoStore = IsolatedStorageFile.GetUserStoreForApplication())
                 {
                     using (var zipStream = new UnZipper(x))
@@ -205,7 +246,6 @@ namespace AnyPlace.ApiClient
                         }
                     }
                 }
-
             }
             catch (Exception e) {
                 var x = e.Message;

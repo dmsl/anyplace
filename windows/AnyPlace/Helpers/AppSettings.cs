@@ -56,8 +56,10 @@ namespace AnyPlace
 		public const string showtrackmeKeyName = "TrackmeSettings";
 		public const string showoptionsKeyName = "OptionsSettings";
 
+        public const string getServerName = "ServerName";
 
-		public const string bingEnnableKeyName = "BingEnnableSettings";
+
+        public const string bingEnnableKeyName = "BingEnnableSettings";
 		public const string buildingEnnableKeyName = "BuildingEnnableSettings";
 		public const string countryEnnableKeyName = "CountryEnnableSettings";
 		public const string cityEnnableKeyName = "CityEnnableSettings";
@@ -87,6 +89,8 @@ namespace AnyPlace
 		const bool district_ennable = false;
 
 		const bool rotate_map = true;
+
+        const String serverName = "https://anyplace.rayzit.com";
 
 
 		/// <summary>
@@ -474,25 +478,40 @@ namespace AnyPlace
 			}
 		}
 
-		//public static void LoadSettings(){
-		//	IsolatedStorageSettings set = IsolatedStorageSettings.ApplicationSettings;
-		//	set.Add(buildinKeyName, building_check);
-		//	set.Add(countryKeyName, country_check);
-		//	set.Add(cityKeyName, city_check);
-		//	set.Add(streetKeyName, street_check);
-		//	set.Add(districtKeyName, district_check);
-		//	set.Add(bingKeyName, bing_check);
-		//	set.Add(showtilesKeyName, showtiles_check);
-		//	set.Add(showzoomKeyName, showzoom_check);
-		//	set.Add(showtrackmeKeyName, showtrackme_check);
-		//	set.Add(showoptionsKeyName, showoptions_check);
-		//	set.Add(bingEnnableKeyName, bing_ennable);
-		//	set.Add(buildingEnnableKeyName, building_ennable);
-		//	set.Add(countryEnnableKeyName, country_ennable);
-		//	set.Add(cityEnnableKeyName, city_ennable);
-		//	set.Add(streetEnnableKeyName, street_ennable);
-		//	set.Add(districtEnnableKeyName, district_ennable);
-		//	set.Add(rotateMapEnableKeyName, rotate_map);
-		//}
-	}
+        public String ServerName
+        {
+            get
+            {
+                return GetValueOrDefault(getServerName, serverName);
+            }
+            set
+            {
+                if (AddOrUpdateValue(getServerName, value))
+                {
+                    Save();
+                }
+            }
+        }
+
+        //public static void LoadSettings(){
+        //	IsolatedStorageSettings set = IsolatedStorageSettings.ApplicationSettings;
+        //	set.Add(buildinKeyName, building_check);
+        //	set.Add(countryKeyName, country_check);
+        //	set.Add(cityKeyName, city_check);
+        //	set.Add(streetKeyName, street_check);
+        //	set.Add(districtKeyName, district_check);
+        //	set.Add(bingKeyName, bing_check);
+        //	set.Add(showtilesKeyName, showtiles_check);
+        //	set.Add(showzoomKeyName, showzoom_check);
+        //	set.Add(showtrackmeKeyName, showtrackme_check);
+        //	set.Add(showoptionsKeyName, showoptions_check);
+        //	set.Add(bingEnnableKeyName, bing_ennable);
+        //	set.Add(buildingEnnableKeyName, building_ennable);
+        //	set.Add(countryEnnableKeyName, country_ennable);
+        //	set.Add(cityEnnableKeyName, city_ennable);
+        //	set.Add(streetEnnableKeyName, street_ennable);
+        //	set.Add(districtEnnableKeyName, district_ennable);
+        //	set.Add(rotateMapEnableKeyName, rotate_map);
+        //}
+    }
 }
