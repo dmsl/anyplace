@@ -71,7 +71,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         if (!$scope.gAuth) {
             return;
         }
-        AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
+        AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.id_token);
     };
 
     $scope.signinCallback = function (authResult) {
@@ -82,7 +82,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             $scope.setAuthenticated(true);
             $scope.gAuth = authResult;
 
-            app.access_token = authResult.access_token;
+            app.access_token = authResult.id_token;
 
             gapi.client.load('plus', 'v1', apiClientLoaded);
 
