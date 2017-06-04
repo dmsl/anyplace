@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/anyplace/build/intermediates/res/merged/debug/menu/unified_options_menu.xml",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/anyplace/src/main/res/menu/unified_options_menu.xml"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/anyplace/build/intermediates/res/merged/debug/menu/main_menu_select_building.xml",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/anyplace/src/main/res/menu/main_menu_select_building.xml"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/anyplace/build/intermediates/res/merged/debug/menu/main_menu_logger.xml",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/anyplace/src/main/res/menu/main_menu_logger.xml"
+    }
+]

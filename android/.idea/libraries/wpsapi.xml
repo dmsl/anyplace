@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="wpsapi">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/anyplace/libs/wpsapi.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

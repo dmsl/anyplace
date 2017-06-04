@@ -1,0 +1,850 @@
+[
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__menu_dropdown_panel_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__menu_dropdown_panel_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_plusone_small_off_client.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/ic_plusone_small_off_client.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_focused_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_focused_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/cast_ic_notification_2.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-cast/8.4.0/res/drawable-xhdpi/cast_ic_notification_2.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_light_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_light_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_popup_background_mtrl_mult.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_popup_background_mtrl_mult.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_solid_light_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_solid_light_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__progress_bg_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__progress_bg_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_ab_back_holo_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_ab_back_holo_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__progress_primary_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__progress_primary_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_focused_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_focused_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_commit_search_api_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_search_api_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_search_api_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_dark_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_dark_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_route_on_1_mono_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_route_on_1_mono_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_disabled_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_disabled_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_menu_share_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_menu_share_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_48_inner_holo.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_48_inner_holo.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_menu_paste_mtrl_am_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_menu_paste_mtrl_am_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_light_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_light_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/places_ic_clear.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/8.4.0/res/drawable-xhdpi/places_ic_clear.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_normal_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_normal_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_disabled_focus_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_disabled_focus_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_on_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_on_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_dark_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_dark_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_default_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_default_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_disabled_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_disabled_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_dark_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_dark_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_light_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_light_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_solid_dark_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_solid_dark_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_dark_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_dark_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__btn_cab_done_default_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__btn_cab_done_default_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_clear_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_clear_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_check_to_on_mtrl_015.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_dark_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_dark_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_radio_to_on_mtrl_015.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_pressed_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_dark_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_dark_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_longpressed_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_longpressed_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_radio_to_on_mtrl_000.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_dark_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_dark_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_voice_search.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_voice_search.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_cab_done_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_cab_done_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_menu_share_holo_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_menu_share_holo_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__tab_selected_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__tab_selected_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_light_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_light_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_selector_disabled_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_selector_disabled_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_switch_track_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_play_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_play_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_stacked_solid_light_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_stacked_solid_light_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_menu_share_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_menu_share_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_textfield_default_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_textfield_default_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/places_ic_search.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-location/8.4.0/res/drawable-xhdpi/places_ic_search.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_selector_disabled_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_selector_disabled_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__progress_secondary_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__progress_secondary_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_disabled_focus_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_disabled_focus_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_selected_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_selected_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_full_open_on_phone.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/7.0.0/res/drawable-xhdpi/common_full_open_on_phone.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_voice_search_api_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_voice_search_api_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__cab_background_bottom_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__cab_background_bottom_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_right_default_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_right_default_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_ab_back_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_ab_back_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_pressed_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_pressed_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/bubble_mask.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/src/main/res/drawable-xhdpi/bubble_mask.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__btn_cab_done_focused_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__btn_cab_done_focused_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__progress_secondary_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__progress_secondary_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_plusone_standard_off_client.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/ic_plusone_standard_off_client.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_pause_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_pause_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_on_1_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_on_1_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_light_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_light_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_commit_search_api_holo_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_commit_search_api_holo_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_bottom_solid_inverse_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_bottom_solid_inverse_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_route_on_mono_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_route_on_mono_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_dark_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_dark_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__btn_cab_done_focused_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__btn_cab_done_focused_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_light_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_light_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_light_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_light_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_clear_search_api_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_clear_search_api_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_stacked_transparent_light_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_stacked_transparent_light_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/cast_ic_notification_0.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-cast/8.4.0/res/drawable-xhdpi/cast_ic_notification_0.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_menu_moreoverflow_normal_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_menu_moreoverflow_normal_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_menu_hardkey_panel_mtrl_mult.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_disabled_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_disabled_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_light_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_light_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_default_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_default_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__cab_background_top_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__cab_background_top_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__progress_primary_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__progress_primary_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_commit_search_api_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_commit_search_api_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_dark_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_dark_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_textfield_search_activated_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_pressed_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_bottom_transparent_dark_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_bottom_transparent_dark_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_cab_background_top_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_cab_background_top_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__cab_background_bottom_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__cab_background_bottom_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__toast_frame.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__toast_frame.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_activated_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_activated_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_light_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_light_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_menu_moreoverflow_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_menu_moreoverflow_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_divider_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_divider_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_right_default_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_right_default_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_dark_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_dark_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_disabled_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_disabled_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_textfield_activated_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_textfield_activated_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__tab_selected_pressed_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__tab_selected_pressed_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_light_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_light_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_plusone_tall_off_client.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/ic_plusone_tall_off_client.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_setting_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_setting_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__btn_cab_done_default_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__btn_cab_done_default_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/cast_ic_notification_1.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-cast/8.4.0/res/drawable-xhdpi/cast_ic_notification_1.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_default_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_default_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_menu_moreoverflow_normal_holo_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_menu_moreoverflow_normal_holo_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/bubble_shadow.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/src/main/res/drawable-xhdpi/bubble_shadow.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_selector_disabled_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_selector_disabled_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_check_to_on_mtrl_000.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_off_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_off_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__btn_cab_done_pressed_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__btn_cab_done_pressed_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_route_off_mono_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_route_off_mono_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_disabled_focus_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_disabled_focus_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_disabled_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_disabled_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_icon_light_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_icon_light_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_disabled_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_disabled_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_divider_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_divider_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/powered_by_google_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/powered_by_google_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_48_outer_holo.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_48_outer_holo.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_bottom_transparent_light_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_bottom_transparent_light_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_solid_shadow_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_solid_shadow_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_transparent_light_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_transparent_light_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_clear_disabled.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_clear_disabled.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__tab_unselected_pressed_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__tab_unselected_pressed_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_menu_cut_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_list_pressed_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_list_pressed_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__cab_background_top_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__cab_background_top_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_dark_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_dark_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_default_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_default_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_bottom_solid_dark_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_bottom_solid_dark_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_clear_search_api_disabled_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_clear_search_api_disabled_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_spinner_mtrl_am_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_go.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_go.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_normal_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_normal_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_rating_star_off_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_rating_star_off_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_focused_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_focused_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_route_disabled_mono_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_route_disabled_mono_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_focus_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_focus_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_switch_to_on_mtrl_00012.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__btn_cab_done_pressed_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__btn_cab_done_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_route_on_2_mono_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_route_on_2_mono_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_play_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_play_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_ab_back_mtrl_am_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_ab_back_mtrl_am_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_textfield_search_default_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_dark_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_dark_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_setting_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_setting_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_tab_indicator_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_pressed_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_pressed_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_right_selected_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_right_selected_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_pause_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_pause_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_dark_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_dark_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_pressed_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_pressed_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_right_selected_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_right_selected_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_switch_to_on_mtrl_00001.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__progress_bg_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__progress_bg_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_pressed_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_normal_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_normal_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_dark_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_dark_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__menu_dropdown_panel_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__menu_dropdown_panel_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_menu_selectall_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_menu_selectall_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_light_normal.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_light_normal.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_stacked_transparent_dark_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_stacked_transparent_dark_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_transparent_dark_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_transparent_dark_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_cab_done_holo_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_cab_done_holo_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_plusone_medium_off_client.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/ic_plusone_medium_off_client.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_light_disabled.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_light_disabled.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_pause.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_pause.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_longpressed_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_longpressed_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/cast_ic_notification_on.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-cast/8.4.0/res/drawable-xhdpi/cast_ic_notification_on.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_btn_rating_star_on_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_btn_rating_star_on_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_focus_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_focus_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_stacked_solid_dark_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_stacked_solid_dark_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_on_0_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_on_0_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_focused_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_focused_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_focus_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_focus_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_dark_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_dark_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_pressed_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_pressed_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_route_on_0_mono_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_route_on_0_mono_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_light_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_light_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_selector_disabled_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_selector_disabled_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_go_search_api_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_go_search_api_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_text_light_pressed.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_text_light_pressed.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_search.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_search.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_google_signin_btn_text_light_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_google_signin_btn_text_light_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__textfield_search_selected_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__textfield_search_selected_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_disabled_focus_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_disabled_focus_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_share_pack_holo_dark.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_share_pack_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_plus_signin_btn_icon_dark_focused.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/res/drawable-xhdpi/common_plus_signin_btn_icon_dark_focused.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_text_pressed_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_text_pressed_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_pressed_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_pressed_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_media_play.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_media_play.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_normal_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_normal_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__tab_selected_focused_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__tab_selected_focused_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_share_pack_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_share_pack_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/ic_cast_on_2_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/mediarouter-v7/23.0.0/res/drawable-xhdpi/ic_cast_on_2_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/common_signin_btn_icon_focus_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/common_signin_btn_icon_focus_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_go_search_api_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_go_search_api_mtrl_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/powered_by_google_dark.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.google.android.gms/play-services/4.4.52/res/drawable-xhdpi/powered_by_google_dark.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__spinner_ab_disabled_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__spinner_ab_disabled_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__list_divider_holo_light.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__list_divider_holo_light.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ab_share_pack_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_menu_copy_mtrl_am_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_menu_copy_mtrl_am_alpha.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ab_bottom_solid_light_holo.9.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ab_bottom_solid_light_holo.9.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abs__ic_search_api_holo_light.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.actionbarsherlock/actionbarsherlock/4.4.0/res/drawable-xhdpi/abs__ic_search_api_holo_light.png"
+    },
+    {
+        "merged": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_ic_voice_search_api_mtrl_alpha.png",
+        "source": "/home/gibran/Descargas/Anyplace_Android_Studio/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.0/res/drawable-xhdpi/abc_ic_voice_search_api_mtrl_alpha.png"
+    }
+]

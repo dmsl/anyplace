@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="apache-mime4j-core-0.7.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/anyplace/libs/apache-mime4j-core-0.7.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

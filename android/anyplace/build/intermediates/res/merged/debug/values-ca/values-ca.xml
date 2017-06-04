@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"Una aplicació requereix que s\'activin els serveis de Google Play."</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"Una aplicació requereix que s\'instal·lin els serveis de Google Play."</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"Una aplicació requereix que s\'actualitzin els serveis de Google Play."</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Error dels serveis de Google Play"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Sol·licitada per <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"Una aplic. ha intentat utilitzar una versió errònia de serveis de Play."</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Activa els serveis de Google Play"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Aquesta aplicació no funcionarà si no actives els serveis de Google Play."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Activa els serveis de Google Play"</string>
+    <string msgid="2443362625939284971" name="common_google_play_services_error_notification_requested_by_msg">"Sol·licitada per <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Baixa els serveis de Google Play"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Aquesta aplicació no s\'executarà si el telèfon no té instal·lats els serveis de  Google Play."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Aquesta aplicació no funcionarà si la tauleta no té instal·lats els serveis de Google Play."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Baixa els serveis de Google Play"</string>
+    <string msgid="4983316348021735578" name="common_google_play_services_invalid_account_text">"El compte especificat no existeix en aquest dispositiu. Tria un compte diferent."</string>
+    <string msgid="1066672360770936753" name="common_google_play_services_invalid_account_title">"Compte no vàlid"</string>
+    <string msgid="2583358409598976717" name="common_google_play_services_needs_enabling_title">"Una aplicació requereix que s\'activin els serveis de Google Play."</string>
+    <string msgid="9038847255613537209" name="common_google_play_services_network_error_text">"Es requereix una connexió de dades per connectar amb els serveis de Google Play."</string>
+    <string msgid="3827284619958211114" name="common_google_play_services_network_error_title">"Error de xarxa"</string>
+    <string msgid="8120534356798772974" name="common_google_play_services_notification_needs_installation_title">"Una aplicació requereix que s\'instal·lin els serveis de Google Play."</string>
+    <string msgid="1388129345631079938" name="common_google_play_services_notification_needs_update_title">"Una aplicació requereix que s\'actualitzin els serveis de Google Play."</string>
+    <string msgid="1852570676146674985" name="common_google_play_services_notification_ticker">"Error dels serveis de Google Play"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Error desconegut relacionat amb els serveis de Google Play."</string>
+    <string msgid="4725396522367789365" name="common_google_play_services_unsupported_date_text">"Sembla que la data del dispositiu no és correcta. Comprova-la."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"El teu dispositiu no és compatible amb els serveis de Google Play, en què es basen les teves aplicacions. Per obtenir assistència, contacta amb el fabricant."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Serveis de Google Play"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Actualitza"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Aquesta aplicació no s\'executarà si no actualitzes els serveis de Google Play."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Actualitza els serveis de Google Play"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Inicia sessió"</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Inicia sessió amb Google"</string>
+</resources>

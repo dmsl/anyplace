@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="WiLocateService">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/anyplace/libs/WiLocateService.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

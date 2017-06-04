@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="3983201110833868073" name="auth_client_needs_enabling_title">"Lai lietojumprogramma darbotos, ir jāiespējo Google Play pakalpojumi."</string>
+    <string msgid="7999585836145154206" name="auth_client_needs_installation_title">"Lai lietojumprogramma darbotos, ir jāinstalē Google Play pakalpojumi."</string>
+    <string msgid="6488605506794595966" name="auth_client_needs_update_title">"Lai lietojumprogramma darbotos, jāatjaunina Google Play pakalpojumi."</string>
+    <string msgid="3635065018897986478" name="auth_client_play_services_err_notification_msg">"Google Play pakalpojumu kļūda"</string>
+    <string msgid="6304135633531965756" name="auth_client_requested_by_msg">"Pieprasījums no lietotnes <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="2534454398764507874" name="auth_client_using_bad_version_title">"Lietojumpr. mēģināja izmantot nederīgu Google Play pakalp. versiju."</string>
+    <string msgid="4181637455539816337" name="common_google_play_services_enable_button">"Iespējot Google Play pakalpojumus"</string>
+    <string msgid="7627896071867667758" name="common_google_play_services_enable_text">"Lai šī lietotne darbotos, iespējojiet Google Play pakalpojumus."</string>
+    <string msgid="529078775174559253" name="common_google_play_services_enable_title">"Google Play pakalpojumu iespējošana"</string>
+    <string msgid="2443362625939284971" name="common_google_play_services_error_notification_requested_by_msg">"Pieprasījums no lietotnes <ns1:g id="APP_NAME">%1$s</ns1:g>"</string>
+    <string msgid="8515591849428043265" name="common_google_play_services_install_button">"Iegūt Google Play pakalpojumus"</string>
+    <string msgid="8685301130651051380" name="common_google_play_services_install_text_phone">"Lai šī lietotne darbotos, tālrunī ir jāinstalē Google Play pakalpojumi."</string>
+    <string msgid="1589957570365247855" name="common_google_play_services_install_text_tablet">"Lai šī lietotne darbotos, planšetdatorā ir jāinstalē Google Play pakalpojumi."</string>
+    <string msgid="26645092511305524" name="common_google_play_services_install_title">"Google Play pakalpojumu iegūšana"</string>
+    <string msgid="4983316348021735578" name="common_google_play_services_invalid_account_text">"Norādītais konts šajā ierīcē nepastāv. Lūdzu, izvēlieties citu kontu."</string>
+    <string msgid="1066672360770936753" name="common_google_play_services_invalid_account_title">"Nederīgs konts"</string>
+    <string msgid="2583358409598976717" name="common_google_play_services_needs_enabling_title">"Lai lietojumprogramma darbotos, jāiespējo Google Play pakalpojumi."</string>
+    <string msgid="9038847255613537209" name="common_google_play_services_network_error_text">"Lai izveidotu savienojumu ar Google Play pakalpojumiem, ir nepieciešams datu savienojums."</string>
+    <string msgid="3827284619958211114" name="common_google_play_services_network_error_title">"Tīkla kļūda"</string>
+    <string msgid="8120534356798772974" name="common_google_play_services_notification_needs_installation_title">"Lai lietojumprogramma darbotos, jāinstalē Google Play pakalpojumi."</string>
+    <string msgid="1388129345631079938" name="common_google_play_services_notification_needs_update_title">"Lai lietojumprogramma darbotos, jāatjaunina Google Play pakalpojumi."</string>
+    <string msgid="1852570676146674985" name="common_google_play_services_notification_ticker">"Google Play pakalpojumu kļūda"</string>
+    <string msgid="4762332809710093730" name="common_google_play_services_unknown_issue">"Nezināma problēma ar Google Play pakalpojumiem."</string>
+    <string msgid="4725396522367789365" name="common_google_play_services_unsupported_date_text">"Šķiet, ka ierīcē ir iestatīts nepareizs datums. Lūdzu, pārbaudiet ierīces datumu."</string>
+    <string msgid="3542578567569488671" name="common_google_play_services_unsupported_text">"Jūsu ierīce neatbalsta Google Play pakalpojumus, kuri nepieciešami dažu jūsu lietojumprogrammu darbībai. Lūdzu, sazinieties ar ražotāju, lai saņemtu palīdzību."</string>
+    <string msgid="6334768798839376943" name="common_google_play_services_unsupported_title">"Google Play pakalpojumi"</string>
+    <string msgid="8932944190611227642" name="common_google_play_services_update_button">"Atjaunināt"</string>
+    <string msgid="448354684997260580" name="common_google_play_services_update_text">"Lai šī lietotne darbotos, atjauniniet Google Play pakalpojumus."</string>
+    <string msgid="6006316683626838685" name="common_google_play_services_update_title">"Google Play pakalpojumu atjaunināšana"</string>
+    <string msgid="9071884888741449141" name="common_signin_button_text">"Pierakst."</string>
+    <string msgid="2429381841831957106" name="common_signin_button_text_long">"Pierakstīties Google"</string>
+</resources>
