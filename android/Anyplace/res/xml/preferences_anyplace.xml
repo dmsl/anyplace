@@ -34,11 +34,20 @@
 * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 * DEALINGS IN THE SOFTWARE.
 *
-*/
+*/
+
 -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="pref_screen_key" >
+
+    <PreferenceCategory android:title="Server" >
+    <EditTextPreference
+        android:defaultValue="@string/default_server_ip_address"
+        android:key="server_ip_address"
+        android:summary="Modify Anyplace Server IP Address"
+        android:title="Anyplace Server IP Address" />
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="Cache" >
         <Preference
@@ -58,6 +67,7 @@
             android:summary="Reload the map pois from server"
             android:title="Refresh Map" />
     </PreferenceCategory>
+
     <PreferenceCategory android:title="Algorithms" >
         <ListPreference
             android:defaultValue="WKNN"

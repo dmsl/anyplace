@@ -36,6 +36,9 @@
 
 package com.dmsl.anyplace;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import java.io.File;
 
 public class AnyplaceAPI {
@@ -58,14 +61,15 @@ public class AnyplaceAPI {
 
 	// private static String server ="http://thinklambros.in.cs.ucy.ac.cy:9000";
 	// private static String server ="http://anyplace.in.cs.ucy.ac.cy";
-	private static String server = "https://anyplace.rayzit.com";
-	private static String serverTesting;
+	// private static String server = "https://anyplace.rayzit.com";
 
-	static {
+	private static String getServerIPAddress(){
 		if (!DEBUG_URL) {
-			serverTesting = server;
+			Context c = MyApplication.getAppContext();
+			SharedPreferences preferences = c.getSharedPreferences(UnifiedNavigationActivity.SHARED_PREFS_ANYPLACE, c.MODE_PRIVATE);
+			return preferences.getString("server_ip_address", c.getString(R.string.default_server_ip_address));
 		} else {
-			serverTesting = "http://192.168.1.2:9000";
+			return "http://192.168.1.2:9000";
 		}
 	}
 
@@ -83,73 +87,77 @@ public class AnyplaceAPI {
 	private final static String FLOOR_TILES_ZIP_DOWNLOAD = "/anyplace/floortiles/zip";
 
 	public static String predictFloorAlgo1() {
-		return server + PREDICT_FLOOR_ALGO1;
+		return getServerIPAddress() + PREDICT_FLOOR_ALGO1;
 	}
 
 	public static String predictFloorAlgo2() {
-		return server + PREDICT_FLOOR_ALGO2;
+		return getServerIPAddress() + PREDICT_FLOOR_ALGO2;
 	}
 
 	public static String getRadioDownloadBuid() {
-		return server + RADIO_DOWNLOAD_BUID;
+		return getServerIPAddress() + RADIO_DOWNLOAD_BUID;
 	}
 
 	public static String getRadioDownloadXY() {
-		return server + RADIO_DOWNLOAD_XY;
+		return getServerIPAddress() + RADIO_DOWNLOAD_XY;
 	}
 
 	public static String getRadioUploadUrl() {
-		return serverTesting + RADIO_UPLOAD_URL_API;
+		return getServerIPAddress() + RADIO_UPLOAD_URL_API;
 	}
 
 	private static String getNavRouteUrl() {
-		return server + NAV_ROUTE_URL_API;
+		return getServerIPAddress() + NAV_ROUTE_URL_API;
 	}
 
 	public static String getNavRouteXYUrl() {
-		return server + NAV_ROUTE_XY_URL_API;
+		return getServerIPAddress() + NAV_ROUTE_XY_URL_API;
 	}
 
 	// --------------Select Building Activity--------------------------
+
 	public static String getFetchBuildingsUrl() {
-		return server + "/anyplace/mapping/building/all";
+		return getServerIPAddress() + "/anyplace/mapping/building/all";
 	}
 
 	public static String getFetchBuildingsByBuidUrl() {
-		return server + "/anyplace/navigation/building/id";
+		return getServerIPAddress() + "/anyplace/navigation/building/id";
 	}
 
 	public static String getFetchFloorsByBuidUrl() {
-		return server + "/anyplace/mapping/floor/all";
+		return getServerIPAddress() + "/anyplace/mapping/floor/all";
 	}
 
 	public static String getServeFloorTilesZipUrl(String buid, String floor_number) {
-		return server + FLOOR_TILES_ZIP_DOWNLOAD + File.separatorChar + buid + File.separatorChar + floor_number;
+		return getServerIPAddress() + FLOOR_TILES_ZIP_DOWNLOAD + File.separatorChar + buid + File.separatorChar + floor_number;
 	}
 
-	// Near coordinates
+	// -------------- Near coordinates ----------------------------------
+
 	private static String getFetchBuildingsCoordinatesUrl() {
-		return server + "/anyplace/mapping/building/coordinates";
+		return getServerIPAddress() + "/anyplace/mapping/building/coordinates";
 	}
 
 	private static String getServeFloorPlanUrl(String buid, String floor_number) {
-		return server + FLOOR_PLAN_DOWNLOAD + File.separatorChar + buid + File.separatorChar + floor_number;
+		return getServerIPAddress() + FLOOR_PLAN_DOWNLOAD + File.separatorChar + buid + File.separatorChar + floor_number;
 	}
 
 	// ----------------------------------------------------------------
 
 	// --------------POIS Api--------------------------
+
 	public static String getFetchPoisByBuidUrl() {
-		return server + "/anyplace/mapping/pois/all_building";
+		return getServerIPAddress() + "/anyplace/mapping/pois/all_building";
 	}
 
 	public static String getFetchPoisByBuidFloorUrl() {
-		return server + "/anyplace/mapping/pois/all_floor";
+		return getServerIPAddress() + "/anyplace/mapping/pois/all_floor";
 	}
 
 	public static String getFetchPoisByPuidUrl() {
-		return server + "/anyplace/navigation/pois/id";
+		return getServerIPAddress() + "/anyplace/navigation/pois/id";
 	}
+
 	// ------------------------------------------------
 
 }

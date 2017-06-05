@@ -499,7 +499,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
             }
         };
 
-        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (!wifi.isWifiEnabled() || !NetworkUtils.isOnline(UnifiedNavigationActivity.this)) {
             AndroidUtils.showWifiSettings(this, null, checkGPS);
         } else {
