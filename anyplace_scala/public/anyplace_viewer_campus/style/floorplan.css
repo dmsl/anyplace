@@ -1,0 +1,11 @@
+.ui-resizable-se, .ui-resizable-sw, .ui-resizable-nw, .ui-resizable-ne {
+    background-color: red;
+}
+
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 9px;
+    height: 9px;
+    right: -5px;
+    bottom: -5px;
+}

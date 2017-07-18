@@ -63,6 +63,7 @@ Try: http://www.windowsphone.com/en-us/store/app/anyplace/29b741fd-0ca9-41ce-b73
 The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). Current Leader: Nikitin Artem.
 Try: coming soon
 
+## Server
 ### Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
 Try: http://anyplace.cs.ucy.ac.cy/viewer/

@@ -1,0 +1,35 @@
+@(apks: java.util.List[utils.AndroidAPKFile])
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+
+    <div id="outer-wrapper">
+
+        <h1>AnyPlace for Android Client(<a class="log_inout" href="@routes.ApplicationAnyplace.logout()">Logout</a>)</h1>
+
+        <p></p>
+
+        <section id="anyplace-info">
+
+        </section>
+
+        <section id="section-apk">
+            <h1>Available Versions: [ @apks.size() ]</h1>
+            <ul>
+                @for(apk <- apks) {
+                    <li><a href="@apk.getDownloadUrl()" title="Download link">Download</a> &mdash; <strong>@apk.getVersion()</strong> ( <em>@apk.getDate().toString()</em> ) &mdash; <em>@if( apk.isRelease()){ Release }else{ Dev }</em></li>
+                }
+            </ul>
+        </section>
+
+
+        <footer>Maintained by Lambros Petrou</footer>
+    </div>
+
+
+</body>
+</html>
