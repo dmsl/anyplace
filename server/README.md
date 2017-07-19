@@ -5,13 +5,13 @@ You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backe
  
 ##Cloud Mode 
  In this mode you host the backend but not the datastore.
- 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://www.dropbox.com/s/nm9iw98oreb5to0/anyplace_scala.zip?dl=0](https://www.dropbox.com/s/nm9iw98oreb5to0/anyplace_scala.zip?dl=0).   
+ 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/archive/master.zip](https://github.com/dmsl/anyplace/archive/master.zip).   
  2. **Run Anyplace v3.0a:** Follow the instructions at the end of this document.
    
- **Note:** Please be aware that in this mode you will connect a replica READ-ONLY datastore of Anyplace on <<IP.165>>.
+ **Note:** Please be aware that in this mode you will connect a replica READ-ONLY datastore of Anyplace on http://194.42.17.165.
  If you want to observe the couchbase 4.5 administrative interface for this mode use the following details. 
   
- * `url: http://<<IP>>:8091/ui/index.html#/overview`
+ * `url: http://194.42.17.165:8091/ui/index.html#/overview`
  * `username: open`
  * `password: openopen`
 
