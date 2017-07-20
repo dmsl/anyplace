@@ -33,6 +33,7 @@ You can use the automated script (`create-views.sh`) in order to create the view
 You need to set the username and the password for your couchbase instance.  
     * `USERNAME=""` - This is the administrator's username for the couchbase instance.
     * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
+    * `BUCKET=""` - This is the bucket for the couchbase instance.
 
 **Important**: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
  
