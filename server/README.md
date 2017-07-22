@@ -1,21 +1,24 @@
 # Anyplace Server v3.0a (Alpha release)
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., couchbase 4.5 and play framework 2.5).
 
+# Anyplace v3.0a for testers
+
 You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backend but not the datastore and b) Hosted Mode, where you run the backend and the datastore.
  
-##Cloud Mode 
+## Cloud Mode (Testing only) 
  In this mode you host the backend but not the datastore.
- 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/archive/master.zip](https://github.com/dmsl/anyplace/archive/master.zip).   
- 2. **Run Anyplace v3.0a:** Follow the instructions at the end of this document.
+ 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/archive/v3.zip](https://github.com/dmsl/anyplace/archive/v3.zip).   
+ 2. **Run Anyplace v3.0a:** Follow the instructions below ("How to run Anyplace v3.0a?").
    
- **Note:** Please be aware that in this mode you will connect a replica READ-ONLY datastore of Anyplace on http://194.42.17.165.
+ **Note:** Please be aware that in this mode you will connect a replica READ-ONLY datastore of Anyplace on http://194.42.17.165. This datastore has been setup mainly for testing (i.e., proof-of-concept validation). Its not fully operational as it doesn't allow additions. 
+ 
  If you want to observe the couchbase 4.5 administrative interface for this mode use the following details. 
   
  * `url: http://194.42.17.165:8091/ui/index.html#/overview`
  * `username: open`
  * `password: openopen`
 
-##Hosted Mode
+## Hosted Mode (Fully operational)
   In this mode you run the backend and the datastore.
   1. **Install Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
   2. **Download Anyplace v3.0a:** Obtain the zip file as this is described in cloud mode.
@@ -44,7 +47,7 @@ You need to set the username and the password for your couchbase instance.
     * `chmod +x anyplace_scala` 
     * Run the script (Linux based systems) or the batch file (Windows)
 
-#Anyplace v3.0a for developers
+# Anyplace v3.0a for developers
 
 ## How to setup Anyplace v3.0a in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
