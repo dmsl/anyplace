@@ -1,6 +1,8 @@
 # Anyplace Server v3.0a (Alpha release)
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., couchbase 4.5 and play framework 2.5).
 
+# Anyplace v3.0a for testers
+
 You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backend but not the datastore and b) Hosted Mode, where you run the backend and the datastore.
  
 ## Cloud Mode (Testing only) 
