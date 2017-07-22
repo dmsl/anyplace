@@ -45,7 +45,7 @@ You need to set the username and the password for your couchbase instance.
     * `chmod +x` ...
     * Run the script (Linux based systems) or the batch file (Windows)
 
-#Anyplace v3.0a for developers
+# Anyplace v3.0a for developers
 
 ## How to setup Anyplace v3.0a in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
