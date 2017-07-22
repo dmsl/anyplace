@@ -41,7 +41,7 @@ You need to set the username and the password for your couchbase instance.
 1. You can run the distribution package under the  [`target/universal`](target/universal) directory.
     * Unzip the *.zip file
     * Go to the `bin` directory
-    * `chmod +x` ...
+    * `chmod +x anyplace_scala` 
     * Run the script (Linux based systems) or the batch file (Windows)
 
 #Anyplace v3.0a for developers
