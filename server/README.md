@@ -7,7 +7,7 @@ You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backe
  
 ## Cloud Mode (Testing only) 
  In this mode you host the backend but not the datastore.
- 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/archive/master.zip](https://github.com/dmsl/anyplace/archive/master.zip).   
+ 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/archive/v3.zip](https://github.com/dmsl/anyplace/archive/v3.zip).   
  2. **Run Anyplace v3.0a:** Follow the instructions below ("How to run Anyplace v3.0a?").
    
  **Note:** Please be aware that in this mode you will connect a replica READ-ONLY datastore of Anyplace on http://194.42.17.165. This datastore has been setup mainly for testing (i.e., proof-of-concept validation). Its not fully operational as it doesn't allow additions. 
