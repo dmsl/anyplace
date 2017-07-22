@@ -3,7 +3,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
 You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backend but not the datastore and b) Hosted Mode, where you run the backend and the datastore.
  
-##Cloud Mode 
+## Cloud Mode 
  In this mode you host the backend but not the datastore.
  1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/archive/master.zip](https://github.com/dmsl/anyplace/archive/master.zip).   
  2. **Run Anyplace v3.0a:** Follow the instructions at the end of this document.
@@ -15,7 +15,7 @@ You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backe
  * `username: open`
  * `password: openopen`
 
-##Hosted Mode
+## Hosted Mode
   In this mode you run the backend and the datastore.
   1. **Install Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
   2. **Download Anyplace v3.0a:** Obtain the zip file as this is described in cloud mode.
