@@ -41,10 +41,15 @@ You need to set the username and the password for your couchbase instance.
 **Important**: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
  
 ## How to run Anyplace v3.0a?
-    * Unzip the *.zip file
-    * Go to the `bin` directory
-    * `chmod +x anyplace_scala` 
-    * Run the script (Linux based systems) or the batch file (Windows)
+    * wget https://github.com/dmsl/anyplace/blob/develop/server/target/universal/anyplace_scala-1.0.zip
+    * unzip anyplace_scala-1.0.zip
+    * cd anyplace_scala-1.0/bin
+    * chmod +x anyplace_scala
+    * ./anyplace_scala
+    
+    Done!
+    
+    * To change the default configurations follow the instructions that were presented above in section "Hosted Mode"
 
 # Anyplace v3.0a for developers
 
