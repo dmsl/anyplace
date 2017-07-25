@@ -35,9 +35,11 @@
  */
 package controllers
 
-import java.io.File
+import play.api.libs.concurrent.Execution.Implicits._
 
 import play.Play
+import play.api.libs.MimeTypes
+import play.api.libs.iteratee.Enumerator
 import play.api.mvc.Action
 
 object AnyplaceAssets extends play.api.mvc.Controller {
@@ -56,10 +58,10 @@ object AnyplaceAssets extends play.api.mvc.Controller {
       }
 
       val reqFile = path + viewerDir + file
-      val f = Play.application().resource(reqFile)
-      if (f != null) {
-        val ff = new File(f.getFile)
-        Ok.sendFile(ff)
+      val istream = Play.application().resourceAsStream(reqFile)
+      if (istream != null) {
+        val contentType = MimeTypes.forFileName(reqFile).getOrElse(BINARY)
+        Ok.chunked(Enumerator.fromStream(istream).andThen(Enumerator.eof)).as(contentType)
       }
       else
         NotFound

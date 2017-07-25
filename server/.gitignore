@@ -12,11 +12,5 @@ dist
 /.project
 /RUNNING_PID
 /.settings
-
-
+/target/
 !/target/universal/
-!/target/
-/target/resolution-cache/
-/target/scala-2.11/
-/target/streams/
-/target/web/

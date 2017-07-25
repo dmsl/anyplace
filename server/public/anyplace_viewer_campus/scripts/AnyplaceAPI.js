@@ -36,7 +36,7 @@
 
 var AnyplaceAPI = {};
 
-AnyplaceAPI.FULL_SERVER = "http://anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
 /**
  * MAPPING API

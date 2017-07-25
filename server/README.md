@@ -3,27 +3,13 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
 # Anyplace v3.0a for testers
 
-You can run Anyplace v3.0a in two modes: a) Cloud Mode, where you host the backend but not the datastore and b) Hosted Mode, where you run the backend and the datastore.
+You can run Anyplace v3.0a using the provided backend and your own datastore.
  
-## Cloud Mode (Testing only) 
- In this mode you host the backend but not the datastore.
- 1. **Download Anyplace v3.0a:** To proceed just download the following zip file [https://github.com/dmsl/anyplace/blob/develop/server/target/universal/anyplace_scala-1.0.zip](https://github.com/dmsl/anyplace/blob/develop/server/target/universal/anyplace_scala-1.0.zip).   
- 2. **Run Anyplace v3.0a:** Follow the instructions below ("How to run Anyplace v3.0a?").
-   
- **Note:** Please be aware that in this mode you will connect a replica READ-ONLY datastore of Anyplace on http://194.42.17.165. This datastore has been setup mainly for testing (i.e., proof-of-concept validation). Its not fully operational as it doesn't allow additions. 
- 
- If you want to observe the couchbase 4.5 administrative interface for this mode use the following details. 
-  
- * `url: http://194.42.17.165:8091/ui/index.html#/overview`
- * `username: open`
- * `password: openopen`
-
-## Hosted Mode (Fully operational)
+## How to setup your own datastore and bankend?
   In this mode you run the backend and the datastore.
   1. **Install Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
   2. **Download Anyplace v3.0a:** Obtain the zip file as this is described in cloud mode.
   3. **Configure Anyplace v3.0a:**  
-
 + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
     * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
     * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
@@ -55,7 +41,22 @@ You need to set the username and the password for your couchbase instance.
 
 ## How to setup Anyplace v3.0a in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
-**Important**: In order to run the Play project you need download and install the Ultimate edition.
++ Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free)
++ Install the Scala plugin during the installation process
++ Download the project from [GitHub](https://github.com/dmsl/anyplace/archive/develop.zip)
++ Extract the `develop.zip` file
++ Click `Open` under the `File` menu on the IntelliJ IDEA
++ Choose the `anyplace-develop/server` directory of the extracted file (The directory icon should be marked)
++ Check the `SBT sources` checkbox
++ Setup the JAVA `jdk` if necessary
++ Click `OK` (It should start downloading the required libraries ~10-15 mins)  
++ If you are using the Community Edition you need to do the following three additional steps
+    * Click the dropdown menu on the right side of the IDE to `Edit configuration`
+    * Add a new configuration click the `+` symbol
+    * Choose `SBT Task` and then write "run" in the `tasks` fields
++ Done!
+
+**Important**: In order to fully support the Play project you need download and install the Ultimate edition.
 
 
 **Important**: You need to have installed the JAVA enviroment.

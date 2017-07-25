@@ -73,9 +73,10 @@ object CouchbaseDatasource {
       if (sInstance == null) {
         val hostname = Play.application().configuration().getString("couchbase.hostname")
         val port = Play.application().configuration().getString("couchbase.port")
+        val username = Play.application().configuration().getString("couchbase.username")
         val bucket = Play.application().configuration().getString("couchbase.bucket")
         val password = Play.application().configuration().getString("couchbase.password")
-        sInstance = CouchbaseDatasource.createNewInstance(hostname, port, bucket, password)
+        sInstance = CouchbaseDatasource.createNewInstance(hostname, port, bucket,username, password)
         try {
           sInstance.init()
         } catch {
@@ -91,6 +92,7 @@ object CouchbaseDatasource {
   def createNewInstance(hostname_in: String,
                         port_in: String,
                         bucket_in: String,
+                        username_in: String,
                         password_in: String): CouchbaseDatasource = {
     if (hostname_in == null || port_in == null || bucket_in == null || password_in == null) {
       throw new IllegalArgumentException("[null] parameters are not allowed to create a CouchbaseDatasource")
@@ -99,16 +101,18 @@ object CouchbaseDatasource {
     val port = port_in.trim()
     val bucket = bucket_in.trim()
     val password = password_in.trim()
-    if (hostname.isEmpty || port.isEmpty || bucket.isEmpty || password.isEmpty) {
+    val username= username_in.trim()
+    if (hostname.isEmpty || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
       throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource")
     }
-    new CouchbaseDatasource(hostname, port, bucket, password)
+    new CouchbaseDatasource(hostname, port, bucket,username, password)
   }
 }
 
 class CouchbaseDatasource private(hostname: String,
                                   port: String,
                                   bucket: String,
+                                  username:String,
                                   password: String) extends IDatasource with IAccountService {
 
   private var mHostname: String = hostname
@@ -116,6 +120,9 @@ class CouchbaseDatasource private(hostname: String,
   private var mPort: String = port
 
   private var mBucket: String = bucket
+
+
+  private var mUsername: String = username
 
   private var mPassword: String = password
 
@@ -135,13 +142,14 @@ class CouchbaseDatasource private(hostname: String,
         .builder()
         .autoreleaseAfter(100000) //100000ms = 100s, default is 2s
         .connectTimeout(100000) //100000ms = 100s, default is 5s
+        .socketConnectTimeout(100000) //100000ms = 100s, default is 5s
         .build()
 
       // Connects to a cluster on hostname
       // if the other one does not respond during bootstrap.
       mCluster = CouchbaseCluster.create(env, mHostname)
 
-      mSecureBucket = mCluster.openBucket(mBucket, mPassword)
+      mSecureBucket = mCluster.openBucket(mBucket,mPassword)
     } catch {
       case e: java.net.SocketTimeoutException =>
         LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
@@ -337,7 +345,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(JsonArray.from(buid))
 
     val res = couchbaseClient.query(viewQuery)
-    println("couchbase results: " + res.size)
+    println("couchbase results: " + res.totalRows())
     if (!res.success()) {
       throw new DatasourceException("Error retrieving floors from database!")
     }
