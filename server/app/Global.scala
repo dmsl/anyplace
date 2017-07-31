@@ -33,18 +33,22 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
+
+import java.io.{BufferedReader, InputStreamReader}
+
 import datasources.CouchbaseDatasource
 import datasources.DatasourceException
-import play.Application
-import play.GlobalSettings
-import play.Logger
-import java.nio.charset.Charset
+import play.{Application, GlobalSettings, Logger}
+
+import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
+import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
 
 class Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     Logger.info("Global::onStart():: AnyPlace Application started")
     CouchbaseDatasource.getStaticInstance
+    log()
   }
 
   override def onStop(app: Application) {
@@ -56,4 +60,19 @@ class Global extends GlobalSettings {
         e.getMessage)
     }
   }
+
+  def log(): Unit = {
+    /**
+      * Log the entry point from server installation
+      */
+    JGoogleAnalyticsTracker.setProxy(System.getenv("http_proxy"))
+    val config = new AnalyticsConfigData("UA-61313158-2")
+    val tracker = new JGoogleAnalyticsTracker(config, GoogleAnalyticsVersion.V_4_7_2)
+    tracker.trackEvent("Anyplace Installation", "Anyplace Server start", "Anyplace logging")
+    /**
+      * End
+      */
+
+  }
+
 }

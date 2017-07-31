@@ -94,7 +94,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
     def getId(): String = {
         var buid: String = fields.get("buid")
-        if (buid.isEmpty || buid == "") {
+        if (buid==null||buid.isEmpty || buid == "") {
             val finalId = LPUtils.getRandomUUID + "_" + System.currentTimeMillis()
             fields.put("buid", "building_" + finalId)
             buid = fields.get("buid")

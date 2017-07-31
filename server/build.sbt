@@ -1,8 +1,8 @@
-name := "anyplace_scala"
+name := "anyplace_v3"
 
-version := "1.0"
+version := "0.3b"
 
-lazy val `anyplace_scala` = (project in file(".")).enablePlugins(PlayScala)
+lazy val `anyplace_v3` = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 

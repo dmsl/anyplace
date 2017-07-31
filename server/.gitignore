@@ -13,4 +13,3 @@ dist
 /RUNNING_PID
 /.settings
 /target/
-!/target/universal/

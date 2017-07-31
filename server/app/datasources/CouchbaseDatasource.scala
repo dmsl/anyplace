@@ -76,7 +76,7 @@ object CouchbaseDatasource {
         val username = Play.application().configuration().getString("couchbase.username")
         val bucket = Play.application().configuration().getString("couchbase.bucket")
         val password = Play.application().configuration().getString("couchbase.password")
-        sInstance = CouchbaseDatasource.createNewInstance(hostname, port, bucket,username, password)
+        sInstance = CouchbaseDatasource.createNewInstance(hostname, port, bucket, username, password)
         try {
           sInstance.init()
         } catch {
@@ -101,18 +101,18 @@ object CouchbaseDatasource {
     val port = port_in.trim()
     val bucket = bucket_in.trim()
     val password = password_in.trim()
-    val username= username_in.trim()
+    val username = username_in.trim()
     if (hostname.isEmpty || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
       throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource")
     }
-    new CouchbaseDatasource(hostname, port, bucket,username, password)
+    new CouchbaseDatasource(hostname, port, bucket, username, password)
   }
 }
 
 class CouchbaseDatasource private(hostname: String,
                                   port: String,
                                   bucket: String,
-                                  username:String,
+                                  username: String,
                                   password: String) extends IDatasource with IAccountService {
 
   private var mHostname: String = hostname
@@ -149,7 +149,7 @@ class CouchbaseDatasource private(hostname: String,
       // if the other one does not respond during bootstrap.
       mCluster = CouchbaseCluster.create(env, mHostname)
 
-      mSecureBucket = mCluster.openBucket(mBucket,mPassword)
+      mSecureBucket = mCluster.openBucket(mBucket, mPassword)
     } catch {
       case e: java.net.SocketTimeoutException =>
         LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
@@ -306,7 +306,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poisByBuildingAsJson(buid: String): List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     val pois = new ArrayList[JsonObject]()
@@ -327,7 +327,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poisByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
 
@@ -342,7 +342,7 @@ class CouchbaseDatasource private(hostname: String,
   override def floorsByBuildingAsJson(buid: String): List[JsonObject] = {
     val floors = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(buid).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
     println("couchbase results: " + res.totalRows())
@@ -366,7 +366,7 @@ class CouchbaseDatasource private(hostname: String,
   @throws[DatasourceException] override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = {
     val result = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     println("couchbase results: " + res.size)
@@ -390,7 +390,7 @@ class CouchbaseDatasource private(hostname: String,
   override def connectionsByBuildingAsJson(buid: String): List[JsonObject] = {
 
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
@@ -411,7 +411,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def connectionsByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     var hm: HashMap[String, String] = null
@@ -451,7 +451,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByBuilding(buid: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_buid").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "all_by_buid").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
 
@@ -474,7 +474,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_floor").key(JsonArray.from(buid))
+    val viewQuery = ViewQuery.from("nav", "all_by_floor").key((buid))
     val res = couchbaseClient.query(viewQuery)
     if (res.totalRows() > 0)
       for (row <- res) {
@@ -503,7 +503,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByPoi(puid: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_pois").key(JsonArray.from(puid))
+    val viewQuery = ViewQuery.from("nav", "all_by_pois").key((puid))
     val res = couchbaseClient.query(viewQuery)
 
     if (res.totalRows() > 0)
@@ -552,14 +552,13 @@ class CouchbaseDatasource private(hostname: String,
     println("couchbase results: " + res.size)
     var json: JsonObject = null
     if (res.totalRows() > 0)
-      for (row <- res) {
+      for (row <- res.allRows()) {
         try {
           json = JsonObject.empty()
           var k = row.key().toString
-          k = k.substring(1, k.length - 1)
           val array = k.split(",")
-          json.put("x", array(2).substring(1, array(2).length - 1))
-          json.put("y", array(3).substring(1, array(3).length - 1))
+          json.put("x", array(2))
+          json.put("y", array(3))
           json.put("w", row.value().toString)
           points.add(json)
         } catch {
@@ -600,7 +599,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getAllBuildingsByOwner(oid: String): List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "building_all_by_owner").key(JsonArray.from(oid)).includeDocs(true)
+    val viewQuery = ViewQuery.from("nav", "building_all_by_owner").key((oid)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows)
@@ -623,7 +622,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getAllBuildingsByBucode(bucode: String): List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "building_all_by_bucode").key(JsonArray.from(bucode)).includeDocs(true)
+    val viewQuery = ViewQuery.from("nav", "building_all_by_bucode").key((bucode)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
     if (res.totalRows() > 0)
@@ -675,7 +674,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getBuildingByAlias(alias: String): JsonObject = {
     var jsn: JsonObject = null
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "building_by_alias").key(JsonArray.from(alias)).includeDocs(true)
+    val viewQuery = ViewQuery.from("nav", "building_by_alias").key((alias)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
     // println("couchbase results: " + res.size)
     if (!res.iterator().hasNext) {
@@ -690,15 +689,16 @@ class CouchbaseDatasource private(hostname: String,
   }
 
 
-  @throws[DatasourceException] override def getBuildingSet(cuid2: String): List[JsonObject] = {
+  @throws[DatasourceException]
+  override def getBuildingSet(cuid2: String): List[JsonObject] = {
     val buildingSet = new ArrayList[JsonObject]()
     val allPois = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
-    var break=false
-    for (row <- res if !break) { // handle each building entry
+    var break = false
+    for (row <- res.allRows() if !break) { // handle each building entry
       try {
         json = row.document().content()
         val cuid = json.toString
@@ -707,7 +707,7 @@ class CouchbaseDatasource private(hostname: String,
         if (cuid.contains(cuid2)) {
           json.removeKey("cuid")
           buildingSet.add(json)
-          break=true
+          break = true
         }
       } catch {
         case e: IOException =>
@@ -719,10 +719,9 @@ class CouchbaseDatasource private(hostname: String,
     if (allPoisbycuid.get(cuid2) == null) {
       System.out.println("LOAD CUID:" + cuid2)
       var i = 0
-      while ( {
-        i < buildingSet.get(0).getArray("buids").size()
-      }) {
-        val buid = buildingSet.get(0).getArray("buids").get(i).toString.substring(1, buildingSet.get(0).getArray("buids").get(i).toString.length - 1)
+      for ( i <- 0 until buildingSet.get(0).getArray("buids").size )
+   {
+        val buid = buildingSet.get(0).getArray("buids").get(i).toString
         if (allPoisSide.get(buid) != null) {
           val pois = allPoisSide.get(buid)
           allPois.addAll(pois)
@@ -749,7 +748,6 @@ class CouchbaseDatasource private(hostname: String,
         try {
           json = row.document().content()
           var cuid = json.getString("cuid")
-          cuid = cuid.substring(1, cuid.length - 1)
           if (cuid.compareTo(cuid2) == 0) return true
         } catch {
           case e: IOException =>
@@ -764,7 +762,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getAllBuildingsetsByOwner(oid: String): util.List[JsonObject] = {
     val buildingsets = new util.ArrayList[JsonObject]
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "cuid_all_by_owner").key(JsonArray.from(oid)).includeDocs(true)
+    val viewQuery = ViewQuery.from("nav", "cuid_all_by_owner").key((oid)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
     System.out.println("couchbase results campus: " + res.totalRows())
@@ -973,7 +971,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def magneticPathsByBuildingAsJson(buid: String): List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid").key(JsonArray.from(buid)).includeDocs(true)
+    val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid").key((buid)).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
     if (0 == res.size) {
@@ -1029,7 +1027,7 @@ class CouchbaseDatasource private(hostname: String,
 
     }
 
-    val viewQuery = ViewQuery.from("accounts", "accounts_by_client_id").key(JsonArray.from(clientId)).includeDocs(true)
+    val viewQuery = ViewQuery.from("accounts", "accounts_by_client_id").key((clientId)).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
 
@@ -1154,10 +1152,9 @@ class CouchbaseDatasource private(hostname: String,
       try {
         json = JsonObject.empty()
         var k = row.key().toString
-        k = k.substring(1, k.length - 1)
         val array = k.split(",")
-        val x = array(2).substring(1, array(2).length - 1)
-        val y = array(3).substring(1, array(3).length - 1)
+        val x = array(2)
+        val y = array(3)
         if (x.toDouble >= bbox(0).dlat && x.toDouble <= bbox(1).dlat && y.toDouble >= bbox(0).dlon && y.toDouble <= bbox(1).dlon) {
           json.put("x", x)
           json.put("y", y)
@@ -1199,8 +1196,8 @@ class CouchbaseDatasource private(hostname: String,
           val p = new util.ArrayList[String]
           val x = json.getString("x")
           val y = json.getString("y")
-          p.add(x.substring(1, x.length - 1))
-          p.add(y.substring(1, y.length - 1))
+          p.add(x)
+          p.add(y)
           if (point.containsKey(p)) point.put(p, point.get(p) + 1)
           else {
             point.put(p, 1)
@@ -1256,8 +1253,8 @@ class CouchbaseDatasource private(hostname: String,
           val p = new util.ArrayList[String]
           val x = json.getString("x")
           val y = json.getString("y")
-          p.add(x.substring(1, x.length - 1))
-          p.add(y.substring(1, y.length - 1))
+          p.add(x)
+          p.add(y)
           if (!point.containsKey(p)) {
             json2 = JsonObject.empty()
             json2.put("x", p.get(0))
@@ -1628,7 +1625,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poisByBuildingIDAsJson(buid: String): util.List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key(JsonArray.from(buid)).includeDocs(true)
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid)).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
     val result = new util.ArrayList[JsonObject]
@@ -1653,7 +1650,7 @@ class CouchbaseDatasource private(hostname: String,
   def getAllPoisTypesByOwner(oid: String): util.List[JsonObject] = {
     val poistypes = new util.ArrayList[JsonObject]
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_pois_types").key(JsonArray.from(oid)).includeDocs(true)
+    val viewQuery = ViewQuery.from("nav", "all_pois_types").key((oid)).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
