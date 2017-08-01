@@ -7,9 +7,19 @@ You can run Anyplace v3.0b using the provided backend and your own datastore.
  
 ## How to setup your own datastore and bankend?
   In this mode you run the backend and the datastore.
-  1. **Install Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
-  2. **Download Anyplace v3.0b:** Obtain the zip file as this is described in cloud mode.
-  3. **Configure Anyplace v3.0b:**  
+  1. **Install & Configure Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
+  
+
+  2. **Download Anyplace v3.0b:**
+ 
+    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip
+    $ unzip anyplace_v3-0.3b.zip
+
+    
+  3. ** Link Couchbase to Anyplace **
+    
+    Now you have to change the default configurations. Please follow the below instructions before running Anyplace
+  
 + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
     * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
     * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
@@ -25,17 +35,26 @@ You need to set the username and the password for your couchbase instance.
     * `BUCKET=""` - This is the bucket for the couchbase instance.
 
 **Important**: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
- 
-## How to run Anyplace v3.0b?
-    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip
-    $ unzip anyplace_v3-0.3b.zip
+  
+
+    
+  2. **Test Anyplace v3.0b:**
+
     $ cd anyplace_v3-0.3b/bin
     $ chmod +x anyplace_v3
     $ ./anyplace_v3 (alternatively use: $ nohup ./anyplace_scala > anyplace.log 2>&1 )
     
-    Done!
+You can test if your configuration was successful by opening one of the following URLs:
+   
+    http://localhost:9000/viewer
+    http://localhost:9000/architect
+    http://localhost:9000/developers
     
-    * To change the default configurations follow the instructions that were presented above in section "Hosted Mode"
+    
+    
+
+
+ 
 
 # Anyplace v3.0b for developers
 
