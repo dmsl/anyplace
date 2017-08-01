@@ -16,44 +16,43 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
   3. **Link Couchbase to Anyplace**
     Now you have to change the default configurations. Please follow the below instructions before running Anyplace
   
-+ Fill in the paremeters in `conf/application.conf` according to the development or production environment.
-    * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
-    * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
-    * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
-    * `couchbase.port` - Couchbase's port. The default is `8092`.
-    * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.
-    * `couchbase.password` - The password to access the DB instance.
-+ Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
-You can use the automated script (`create-views.sh`) in order to create the views under the [`anyplace_views`](anyplace_views) directory.
-You need to set the username and the password for your couchbase instance.  
-    * `USERNAME=""` - This is the administrator's username for the couchbase instance.
-    * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
-    * `BUCKET=""` - This is the bucket for the couchbase instance.
-
-+ Important: As with all passwords, this should be kept a secret. 
+    + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
+        * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
+        * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
+        * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
+        * `couchbase.port` - Couchbase's port. The default is `8092`.
+        * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.
+        * `couchbase.password` - The password to access the DB instance.
+    + Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
+    You can use the automated script (`create-views.sh`) in order to create the views under the [`anyplace_views`](anyplace_views) directory.
+    You need to set the username and the password for your couchbase instance.  
+        * `USERNAME=""` - This is the administrator's username for the couchbase instance.
+        * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
+        * `BUCKET=""` - This is the bucket for the couchbase instance.
+    + Important: As with all passwords, this should be kept a secret. 
   
 # Running
 
-You can now launch the Anyplace service:
-1. **LINUX / MACOSX**
-$ cd anyplace_v3-0.3b/bin
-$ chmod +x anyplace_v3
-$ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
-#To stop press Ctrl-C or kill the respective process
-    
+    You can now launch the Anyplace service:
+    1. **LINUX / MACOSX**
+    $ cd anyplace_v3-0.3b/bin
+    $ chmod +x anyplace_v3
+    $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
+    #To stop press Ctrl-C or kill the respective process
+
 2. **WINDOWS**
-$ Go to the folder you unzipped in the prior step, then go to "bin" 
-$ Double click  anyplace_v3.bat
-#To stop press Ctrl-C or kill the respective process through the task manager
+    $ Go to the folder you unzipped in the prior step, then go to "bin" 
+    $ Double click  anyplace_v3.bat
+    #To stop press Ctrl-C or kill the respective process through the task manager
     
 # Testing
-Just open a browser and test the following URLs.
-   
-$ http://localhost:9000/viewer
-$ http://localhost:9000/architect
-$ http://localhost:9000/developers
-    
-You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
+    Just open a browser and test the following URLs.
+
+    $ http://localhost:9000/viewer
+    $ http://localhost:9000/architect
+    $ http://localhost:9000/developers
+
+    You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
     
 # Anyplace v3.0b for developers
 
