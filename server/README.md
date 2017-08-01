@@ -13,7 +13,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ unzip anyplace_v3-0.3b.zip
     # if you don't have unzip, just use any unzip tool (winzip, etc.)
 
-  3. ** Link Couchbase to Anyplace **
+  3. **Link Couchbase to Anyplace**
     
     # Now you have to change the default configurations. Please follow the below instructions before running Anyplace
   
