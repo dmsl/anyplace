@@ -1,5 +1,7 @@
 # AnyPlace v3
 
+[![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A free and open Indoor Navigation Service with superb accuracy!
 
 ## Preface 
@@ -15,14 +17,14 @@ We hope that you find our Anyplace Indoor Information Service useful for your re
 
 In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
-- "Internet-based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou and Georgios Chatzimiloudis IEEE Internet Computing (IC '16), IEEE Press, Volume xx, Pages: xx-xx, 2016. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
+- "Internet-based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou and Georgios Chatzimiloudis IEEE Internet Computing (IC '17), IEEE Press, Volume xx, Pages: xx-xx, 2016. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
 - “Anyplace: A Crowdsourced Indoor Information Service”, Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti, Proceedings of the 16th IEEE International Conference on Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf
 
 Enjoy Anyplace!
 
 The Anyplace Team 
 	 
-Copyright (c) 2015, Data Management Systems Lab (DMSL), Department of Computer Science
+Copyright (c) 2017, Data Management Systems Lab (DMSL), Department of Computer Science
 University of Cyprus.
 
 All rights reserved.
@@ -53,30 +55,46 @@ Short description of the contents included in this release.
 
 ### Android
 The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization). Current Leader: Timotheos Constambeys. 
-Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
+- Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/android
+- Current Leader: Timotheos Constambeys
 
 ### Windows
-The Source code of the Anyplace Windows Phone Client (IP localization). Current Leader: Pangiotis Irakleous.
-Try: http://www.windowsphone.com/en-us/store/app/anyplace/29b741fd-0ca9-41ce-b736-76197a7c9f0a
+The Source code of the Anyplace Windows Phone Client (IP localization). 
+- Try: https://www.microsoft.com/en-us/store/apps/anyplace/9nblgggzldsk
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/windows
+- Current Leader: Pangiotis Irakleous
 
 ### iOS
-The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). Current Leader: Nikitin Artem.
-Try: coming soon
+The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). 
+- Try: coming soon
+- Current Leader: Nikitin Artem.
 
-## Server
 ### Viewer
-The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
-Try: http://anyplace.cs.ucy.ac.cy/viewer/
+The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
+- Try: https://anyplace.cs.ucy.ac.cy/viewer/
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/viewer
+- Current Leaders: Kyriakos Georgiou
 
 ### API
-The source code of Anyplace JSON API.  Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
-Try: http://anyplace.cs.ucy.ac.cy/developers/
+The source code of Anyplace JSON API.  
+- Try: https://anyplace.cs.ucy.ac.cy/developers/
+- Current Leaders: Constantinos Costa, Kyriakos Georgiou 
 
 ### Architect
-The source code of Anyplace HTML5/CSS3 Architect Tool. Current Leaders: Kyriakos Georgiou, Dimitris Valeris.
-Try: http://anyplace.cs.ucy.ac.cy/architect/
+The source code of Anyplace HTML5/CSS3 Architect Tool. 
+- Try: https://anyplace.cs.ucy.ac.cy/architect/
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
+- Current Leaders: Kyriakos Georgiou
 
-Project Leader: Demetris Zeinalipour
+### Data Store
+Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
+- Current Leaders: Constantinos Costa
 
+## LATEST DEVELOPMENT VERSION
+To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
+- DEV Code: https://github.com/dmsl/anyplace/tree/develop
 
+## TEAM
+- https://anyplace.cs.ucy.ac.cy/#about
 
