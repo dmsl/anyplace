@@ -1,4 +1,4 @@
-# AnyPlace v3.x.x (Alpha)
+# AnyPlace v3
 
 A free and open Indoor Navigation Service with superb accuracy!
 
