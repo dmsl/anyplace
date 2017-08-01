@@ -1,7 +1,7 @@
 # Anyplace v3.0b (Beta)
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., couchbase 4.5 and play framework 2.5).
 
-# Setup/Configuration?
+# Setup/Configuration
 
   1. **Install & Configure Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
   
@@ -30,7 +30,7 @@ You need to set the username and the password for your couchbase instance.
     * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
     * `BUCKET=""` - This is the bucket for the couchbase instance.
 
-+Important: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
++ Important: As with all passwords, this should be kept a secret. 
   
 
   # Running
