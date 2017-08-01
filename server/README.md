@@ -8,15 +8,17 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
   2. **Download Anyplace v3.0b:**
  
     $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip  
-    # (if you don't have wget, just download the file with a browser)
+    # if you don't have wget, just download the file with a browser)
     
     $ unzip anyplace_v3-0.3b.zip
+    # if you don't have unzip, just use any unzip tool (winzip, etc.)
     
-    You can observe if this was succesful by following the below:
+   # You can observe if this was succesful by following the below:
     
+    # For windows, just go to the folder you unzipped in the prior step, then go to "bin" and then double click  anyplace_v3.bat
     $ cd anyplace_v3-0.3b/bin
     $ chmod +x anyplace_v3
-    $ ./anyplace_v3  (For windows, just double click on anyplace_v3.bat
+    $ ./anyplace_v3  
 
   3. ** Link Couchbase to Anyplace **
     
