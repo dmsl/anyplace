@@ -1,7 +1,7 @@
 # Anyplace v3.0b (Beta)
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., couchbase 4.5 and play framework 2.5).
 
-# How to setup and run your own Anyplace v3 service?
+# Setup/Configuration?
 
   1. **Install & Configure Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
   
@@ -33,24 +33,30 @@ You need to set the username and the password for your couchbase instance.
 +Important: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
   
 
-  4. **Run Anyplace v3.0b:**
-  You can observe if this was succesful by following the below:
+  # Running
+  You can now launch the Anyplace service:
    
     #LINUX / MACOSX
     $ cd anyplace_v3-0.3b/bin
     $ chmod +x anyplace_v3
     $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
+    #To stop press Ctrl-C or kill the respective process
     
     #WINDOWS
     1. go to the folder you unzipped in the prior step, then go to "bin" 
     2. Double click  anyplace_v3.bat
+    #To stop press Ctrl-C or kill the respective process through the task manager
     
     
-  # You can test if your configuration was successful by opening one of the following URLs:
+  # Testing
+  
+  Just open a browser and test the following URLs.
    
     $ http://localhost:9000/viewer
     $ http://localhost:9000/architect
     $ http://localhost:9000/developers
+    
+  You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
     
 # Anyplace v3.0b for developers
 
