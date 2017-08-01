@@ -20,24 +20,23 @@ You can run Anyplace v3.0b using the provided backend and your own datastore.
     
     Now you have to change the default configurations. Please follow the below instructions before running Anyplace
   
-$ Fill in the paremeters in `conf/application.conf` according to the development or production environment.
++ Fill in the paremeters in `conf/application.conf` according to the development or production environment.
     * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
     * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
     * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
     * `couchbase.port` - Couchbase's port. The default is `8092`.
     * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.
     * `couchbase.password` - The password to access the DB instance.
-$ Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
++ Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
 You can use the automated script (`create-views.sh`) in order to create the views under the [`anyplace_views`](anyplace_views) directory.
 You need to set the username and the password for your couchbase instance.  
     * `USERNAME=""` - This is the administrator's username for the couchbase instance.
     * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
     * `BUCKET=""` - This is the bucket for the couchbase instance.
 
-**Important**: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
++Important: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
   
 
-    
   2. **Test Anyplace v3.0b:**
 
     $ cd anyplace_v3-0.3b/bin
