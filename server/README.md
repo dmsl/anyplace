@@ -54,7 +54,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
     You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
     
-# Anyplace v3.0b for developers
+# Anyplace v3 for developers
 
 ## How to setup Anyplace v3 in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
