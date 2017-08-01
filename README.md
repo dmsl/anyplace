@@ -70,22 +70,23 @@ The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization).
 - Try: coming soon
 - Current Leader: Nikitin Artem.
 
-### Viewer
+### Server
+#### Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/viewer
-- Current Leaders: Kyriakos Georgiou
+- Current Leaders: Constantinos Costa, Kyriakos Georgiou 
 
-### API
+#### API
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
 - Current Leaders: Constantinos Costa, Kyriakos Georgiou 
 
-### Architect
+#### Architect
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
-- Current Leaders: Kyriakos Georgiou
+- Current Constantinos Costa, Kyriakos Georgiou 
 
 ### Data Store
 Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
