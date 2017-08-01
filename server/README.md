@@ -8,14 +8,13 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
   2. **Download Anyplace v3.0b:**
  
     $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip  
-    # if you don't have wget, just download the file with a browser)
+    #if you don't have wget, just download the file with a browser)
     
     $ unzip anyplace_v3-0.3b.zip
-    # if you don't have unzip, just use any unzip tool (winzip, etc.)
+    #if you don't have unzip, just use any unzip tool (winzip, etc.)
 
   3. **Link Couchbase to Anyplace**
-    
-    # Now you have to change the default configurations. Please follow the below instructions before running Anyplace
+    Now you have to change the default configurations. Please follow the below instructions before running Anyplace
   
 + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
     * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
@@ -35,15 +34,14 @@ You need to set the username and the password for your couchbase instance.
   
 
   4. **Run Anyplace v3.0b:**
-
-   # You can observe if this was succesful by following the below:
+  You can observe if this was succesful by following the below:
    
-    # LINUX / MACOSX
+    #LINUX / MACOSX
     $ cd anyplace_v3-0.3b/bin
     $ chmod +x anyplace_v3
     $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
     
-    # WINDOWS
+    #WINDOWS
     1. go to the folder you unzipped in the prior step, then go to "bin" 
     2. Double click  anyplace_v3.bat
     
