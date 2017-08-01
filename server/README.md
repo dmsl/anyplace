@@ -12,13 +12,6 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     
     $ unzip anyplace_v3-0.3b.zip
     # if you don't have unzip, just use any unzip tool (winzip, etc.)
-    
-   # You can observe if this was succesful by following the below:
-    
-    # For windows, just go to the folder you unzipped in the prior step, then go to "bin" and then double click  anyplace_v3.bat
-    $ cd anyplace_v3-0.3b/bin
-    $ chmod +x anyplace_v3
-    $ ./anyplace_v3  
 
   3. ** Link Couchbase to Anyplace **
     
@@ -41,24 +34,26 @@ You need to set the username and the password for your couchbase instance.
 +Important: As with all passwords, this should be kept a secret. Do not push it to a Version Control System.
   
 
-  2. **Test Anyplace v3.0b:**
+  4. **Run Anyplace v3.0b:**
 
+   # You can observe if this was succesful by following the below:
+   
+    # LINUX / MACOSX
     $ cd anyplace_v3-0.3b/bin
     $ chmod +x anyplace_v3
-    $ ./anyplace_v3 (alternatively use: $ nohup ./anyplace_scala > anyplace.log 2>&1 )
+    $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
     
-You can test if your configuration was successful by opening one of the following URLs:
+    # WINDOWS
+    1. go to the folder you unzipped in the prior step, then go to "bin" 
+    2. Double click  anyplace_v3.bat
+    
+    
+  # You can test if your configuration was successful by opening one of the following URLs:
    
     $ http://localhost:9000/viewer
     $ http://localhost:9000/architect
     $ http://localhost:9000/developers
     
-    
-    
-
-
- 
-
 # Anyplace v3.0b for developers
 
 ## How to setup Anyplace v3.0b in you IDE?
