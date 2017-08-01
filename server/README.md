@@ -15,7 +15,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
   3. ** Link Couchbase to Anyplace **
     
-    Now you have to change the default configurations. Please follow the below instructions before running Anyplace
+    # Now you have to change the default configurations. Please follow the below instructions before running Anyplace
   
 + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
     * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
