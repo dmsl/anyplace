@@ -1,21 +1,22 @@
 # Anyplace v3.0b (Beta)
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., couchbase 4.5 and play framework 2.5).
 
-# Anyplace v3.0b for testers
+# How to setup and run your own Anyplace v3 service?
 
-You can run Anyplace v3.0b using the provided backend and your own datastore.
- 
-## How to setup your own datastore and bankend?
-  In this mode you run the backend and the datastore.
   1. **Install & Configure Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
   
-
   2. **Download Anyplace v3.0b:**
  
-    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip
+    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip  
+    (if you don't have wget, just download the file with a browser)
     $ unzip anyplace_v3-0.3b.zip
-
     
+    You can observe if this was succesful by following the below:
+    
+    $ cd anyplace_v3-0.3b/bin
+    $ chmod +x anyplace_v3
+    $ ./anyplace_v3  (For windows, just double click on anyplace_v3.bat
+
   3. ** Link Couchbase to Anyplace **
     
     Now you have to change the default configurations. Please follow the below instructions before running Anyplace
