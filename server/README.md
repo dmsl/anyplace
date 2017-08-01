@@ -40,7 +40,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
     #To stop press Ctrl-C or kill the respective process
 
-2. **WINDOWS**
+    2. **WINDOWS**
     $ Go to the folder you unzipped in the prior step, then go to "bin" 
     $ Double click  anyplace_v3.bat
     #To stop press Ctrl-C or kill the respective process through the task manager
