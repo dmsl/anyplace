@@ -269,13 +269,13 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.size) {
+    if (0 == res.totalRows()) {
       return Collections.emptyList()
     }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
     if (res.totalRows() > 0)
-      for (row <- res) {
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           json.removeKey("owner_id")
