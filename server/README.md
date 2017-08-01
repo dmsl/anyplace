@@ -1,16 +1,16 @@
-# Anyplace v3.0b (Beta)
-This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., couchbase 4.5 and play framework 2.5).
+# Anyplace v3
+This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
 
 # Setup/Configuration
 
-  1. **Install & Configure Couchbase v4.5:** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads)  
+  1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is possible.
   
   2. **Download Anyplace v3.0b:**
  
-    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-0.3b.zip  
+    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
     #if you don't have wget, just download the file with a browser)
     
-    $ unzip anyplace_v3-0.3b.zip
+    $ unzip anyplace_v3.zip
     #if you don't have unzip, just use any unzip tool (winzip, etc.)
 
   3. **Link Couchbase to Anyplace**
@@ -35,7 +35,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
-    $ cd anyplace_v3-0.3b/bin
+    $ cd anyplace_v3/bin
     $ chmod +x anyplace_v3
     $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
     # To stop press Ctrl-C or kill the respective process
@@ -56,7 +56,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     
 # Anyplace v3.0b for developers
 
-## How to setup Anyplace v3.0b in you IDE?
+## How to setup Anyplace v3 in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 + Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free)
 + Install the Scala plugin during the installation process
