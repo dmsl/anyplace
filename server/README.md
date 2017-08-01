@@ -36,13 +36,13 @@ You need to set the username and the password for your couchbase instance.
   # Running
   You can now launch the Anyplace service:
    
-    #LINUX / MACOSX
+    # LINUX / MACOSX
     $ cd anyplace_v3-0.3b/bin
     $ chmod +x anyplace_v3
     $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
     #To stop press Ctrl-C or kill the respective process
     
-    #WINDOWS
+    # WINDOWS
     1. go to the folder you unzipped in the prior step, then go to "bin" 
     2. Double click  anyplace_v3.bat
     #To stop press Ctrl-C or kill the respective process through the task manager
