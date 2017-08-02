@@ -1,0 +1,454 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.Controls</name>
+    </assembly>
+    <members>
+        <member name="T:ImageTools.Controls.ImageEditorSelectionMode">
+            <summary>
+            Defines the selection mode of the image editor.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorSelectionMode.Normal">
+            <summary>
+            Default selection mode.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorSelectionMode.FixedSize">
+            <summary>
+            The size and width of the selected area is fixed.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorSelectionMode.FixedRatio">
+            <summary>
+            The ratio between height and width of the selection area is fixed.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Controls.ImageEditorScalingMode">
+            <summary>
+            Defines the behavior of the the image editor to scale the image.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorScalingMode.FixedScaling">
+            <summary>
+            The scaling of the image is fix and has a predefined value.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorScalingMode.Auto">
+            <summary>
+            The image is calculated to make the image fit to the width 
+            and height of the editor but to keep the ratio of the image.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Controls.AnimationMode">
+            <summary>
+            Defines how the image should be animated.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimationMode.None">
+            <summary>
+            The image should not be animated.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimationMode.PlayOnce">
+            <summary>
+            The Animation should always be played once.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimationMode.Repeat">
+            <summary>
+            Animation should always be repeated. If the end of the animation
+            is reached, the animation will start again.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Controls.ImageConverter">
+            <summary>
+            Converts images that are defined by paths as strings or uris or defined as 
+            images to an extended image to bind it to an animated image.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.ImageConverter.Convert(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <summary>
+            Modifies the source data before passing it to the target for display in the UI.
+            </summary>
+            <param name="value">The source data being passed to the target.</param>
+            <param name="targetType">The <see cref="T:System.Type"/> of data expected by the target dependency property.</param>
+            <param name="parameter">An optional parameter to be used in the converter logic.</param>
+            <param name="culture">The culture of the conversion.</param>
+            <returns>
+            The value to be passed to the target dependency property.
+            </returns>
+        </member>
+        <member name="M:ImageTools.Controls.ImageConverter.ConvertBack(System.Object,System.Type,System.Object,System.Globalization.CultureInfo)">
+            <summary>
+            Modifies the target data before passing it to the source object.  This method is called only in <see cref="F:System.Windows.Data.BindingMode.TwoWay"/> bindings.
+            </summary>
+            <param name="value">The target data being passed to the source.</param>
+            <param name="targetType">The <see cref="T:System.Type"/> of data expected by the source object.</param>
+            <param name="parameter">An optional parameter to be used in the converter logic.</param>
+            <param name="culture">The culture of the conversion.</param>
+            <returns>
+            The value to be passed to the source object.
+            </returns>
+        </member>
+        <member name="T:ImageTools.Controls.AnimatedImage">
+            <summary>
+            Represents a control, that displays an image or an animated image.
+            </summary>
+            <remarks>
+            	<para>
+                    This control only define the 'Image' template parts.
+                    This template part renders the image after it is converted to a writeable bitmap.
+                </para>
+            	<para>
+            	    This class has some breaking changes:
+                    <list type="bullet">
+            			<item>
+            			    The image is able to render images that has not been loaded yet, but not able
+                            to render empty images that are filled after they are assinged. Assign the image again
+                            when you change the pixels by code.
+                        </item>
+                        <item>
+                            This control is only able to render extended images. This reduces the complexity
+                            of this class and is type safe. Use the image converter when you directly want to bind 
+                            string or uris.
+                        </item>
+            	    </list>
+            	</para>
+            </remarks>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.ImagePart">
+            <summary>
+            Defines the name of the 'Image' template part.
+            This template part renders the image after it is converted to a writeable bitmap.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.OnLoadingCompleted(System.EventArgs)">
+            <summary>
+            Raises the <see cref="E:LoadingCompleted"/> event.
+            </summary>
+            <param name="e">The <see cref="T:System.EventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.OnLoadingFailed(System.UnhandledExceptionEventArgs)">
+            <summary>
+            Raises the <see cref="E:LoadingFailed"/> event.
+            </summary>
+            <param name="e">The <see cref="T:System.UnhandledExceptionEventArgs"/> instance 
+            containing the event data.</param>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.PauseProperty">
+            <summary>
+            Defines the <see cref="P:ImageTools.Controls.AnimatedImage.Pause"/> dependency property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.FilterProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.AnimatedImage.Filter"/> dependency property. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.StretchProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.AnimatedImage.Stretch"/> dependency property. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.AutoSizeProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.AnimatedImage.AutoSize"/> dependency property. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.AnimationModeProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.AnimatedImage.AnimationMode"/> dependency property. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.AnimatedImage.SourceProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.AnimatedImage.Source"/> dependency property. 
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.OnSourcePropertyChanged(System.Windows.DependencyObject,System.Windows.DependencyPropertyChangedEventArgs)">
+            <summary>
+            Called when source property is changed.
+            </summary>
+            <param name="d">The dependency object, which raised the event.</param>
+            <param name="e">The <see cref="T:System.Windows.DependencyPropertyChangedEventArgs"/> 
+            instance containing the event data.</param>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.OnSourceChanged">
+            <summary>
+            Called when the value of the source property is changed.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Controls.AnimatedImage"/> class.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.OnApplyTemplate">
+            <summary>
+            When overridden in a derived class, is invoked whenever application code or 
+            internal processes (such as a rebuilding layout pass) 
+            call <see cref="M:System.Windows.Controls.Control.ApplyTemplate"/>. 
+            In simplest terms, this means the method is called just before a UI element 
+            displays in an application. For more information, see Remarks.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.MeasureOverride(System.Windows.Size)">
+            <summary>
+            Provides the behavior for the Measure pass of Silverlight layout. 
+            Classes can override this method to define their own Measure pass behavior.
+            </summary>
+            <param name="availableSize">The available size that this object can give to child objects.</param>
+            <returns>
+            The size that this object determines it needs during layout, based on its 
+            calculations of the allocated sizes for child objects; 
+            or based on other considerations, such as a fixed container size.
+            </returns>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.Start">
+            <summary>
+            Starts the animation. If there is no image assigned or the 
+            assigned image is not a animated image, this method will just be ignored. If 
+            the animation was paused, the animation will continue where it was stopped.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.AnimatedImage.Stop">
+            <summary>
+            Stops the animation. If there is no image assigned or the 
+            assigned image is not a animated image, this method will just be ignored.
+            </summary>
+        </member>
+        <member name="E:ImageTools.Controls.AnimatedImage.LoadingCompleted">
+            <summary>
+            Occurs when the loading of the image has been completed.
+            </summary>
+        </member>
+        <member name="E:ImageTools.Controls.AnimatedImage.LoadingFailed">
+            <summary>
+            Occurs when the loading of the image failed.
+            </summary>
+        </member>
+        <member name="P:ImageTools.Controls.AnimatedImage.Pause">
+            <summary>
+            Gets or sets a value indicating if the animation is paused.
+            </summary>
+            <value>A value indicating if the animation is paused.</value>
+        </member>
+        <member name="P:ImageTools.Controls.AnimatedImage.Filter">
+            <summary>
+            Gets or sets the filter that will be used before the image will be applied.
+            </summary>
+            <value>The filter.</value>
+        </member>
+        <member name="P:ImageTools.Controls.AnimatedImage.Stretch">
+            <summary>
+            Gets or sets a value that describes how an <see cref="T:ImageTools.Controls.AnimatedImage"/> 
+            should be stretched to fill the destination rectangle. This is a dependency property.
+            </summary>
+            <value>A value of the enumeration that specifies how the source image is applied if the 
+            Height and Width of the Image are specified and are different than the source image's height and width.
+            The default value is Uniform.</value>
+        </member>
+        <member name="P:ImageTools.Controls.AnimatedImage.AutoSize">
+            <summary>
+            Gets or sets a value indicating whether the control should be auto sized. If the value is true
+            the control will get the width and the height of its image source. This is a 
+            dependency property.
+            </summary>
+            <value><c>true</c> if the size of the control should be set to the image
+            width and height; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:ImageTools.Controls.AnimatedImage.AnimationMode">
+            <summary>
+            Gets or sets the animation mode of the image. This property will be just
+            ignored if the specified source is not an animated image.
+            </summary>
+            <value>A value of the enumeration, that defines how to animate the image.</value>
+        </member>
+        <member name="P:ImageTools.Controls.AnimatedImage.Source">
+            <summary>
+            Gets or sets the source for the image.
+            </summary>
+            <value>The source of the image control.</value>
+            <remarks>
+            The property supports the following types:
+            <list type="table">
+            <listheader>
+            	<term>Type</term>
+            	<description>Description</description>
+            </listheader>
+            <item>
+            	<term><see cref="T:System.String"/></term>
+            	<description>A string will be transformed to a <see cref="T:System.Uri"/> object with a relative path. A new BitmapImage
+                will be loaded asynchronously and assigned to the internal image element. Only png and .jpeg files
+                are supported usings string directly.</description>
+            </item>
+            <item>
+            	<term><see cref="T:System.Windows.Media.ImageSource"/></term>
+            	<description>The image source will be directly assigned. No animations will be used.</description>
+            </item>
+            <item>
+            	<term><see cref="T:ImageTools.Controls.AnimatedImage"/></term>
+            	<description>The image will be assigned. Depending of the fact, if it is an animated image or not, 
+            	the animation will be started immediatly.</description>
+            </item>
+            	</list>
+            </remarks>
+            <exception cref="T:System.ArgumentException">The specified value is not supported. Must be one of the types 
+            defined below.</exception>
+        </member>
+        <member name="T:ImageTools.Controls.ImageEditorContainer">
+            <summary>
+            Defines a container for editing images, where images can be zoomed or 
+            or selected with a selection border.
+            </summary>
+            <remarks>
+                <para>
+                    This control defines the following template parts:
+                    <list type="bullet"> 
+            		    <item>
+            			    <term>ImageElement</term>
+            			    <description>The animated image control, which renders the image that is edited.</description>
+            		    </item>
+            		    <item>
+            			    <term>ScrollViewer</term>
+            			    <description>Container of the image. Allows scrolling.</description>
+            		    </item>
+            		    <item>
+            			    <term>SelectionArea</term>
+            			    <description>The area which is used to subscribe to mouse events to calculate 
+            			    the selection border.</description>
+            		    </item>
+            		    <item>
+            			    <term>SelectionBorder</term>
+            			    <description>A border to select an area of the image. It should be
+            			    should be filled with a transparent or semi-transparent color.</description>
+            		    </item>
+            	    </list>
+                </para>
+            </remarks>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.ScrollViewerElementPart">
+            <summary>
+            Defines the name for the 'ScrollViewer' template part, which is used 
+            to scroll the image when it is zoomed in.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.SelectionAreaPart">
+            <summary>
+            Defines the name for the selection area template part.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.SelectionBorderPart">
+            <summary>
+            Defines the name for the selection border template part.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.ImagePart">
+            <summary>
+            Defines the name for the image element template part.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.RequiredSelectionHeightProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.RequiredSelectionHeight"/> property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.RequiredSelectionWidthProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.RequiredSelectionWidth"/> property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.SelectionModeProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.SelectionMode"/> property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.SelectionProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.Selection"/> property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.SourceProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.Source"/> dependency property. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.ScalingModeProperty">
+            <summary>
+            Defines the <see cref="P:ImageTools.Controls.ImageEditorContainer.ScalingMode"/> dependency property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.ScalingProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.Scaling"/> property.
+            </summary>
+        </member>
+        <member name="F:ImageTools.Controls.ImageEditorContainer.MoveSelectionProperty">
+            <summary>
+            Identifies the <see cref="P:ImageTools.Controls.ImageEditorContainer.MoveSelection"/> property.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.ImageEditorContainer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Controls.ImageEditorContainer"/> class.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Controls.ImageEditorContainer.OnApplyTemplate">
+            <summary>
+            When overridden in a derived class, is invoked whenever application code or 
+            internal processes (such as a rebuilding layout pass) 
+            call <see cref="M:System.Windows.Controls.Control.ApplyTemplate"/>.
+            </summary>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.RequiredSelectionHeight">
+            <summary>
+            Gets or sets the height of the selection border.
+            </summary>
+            <value>The height of the selection.</value>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.RequiredSelectionWidth">
+            <summary>
+            Gets or sets the width of the selection border.
+            </summary>
+            <value>The width of the selection.</value>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.SelectionMode">
+            <summary>
+            Gets or sets the selection mode.
+            </summary>
+            <value>The selection mode.</value>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.Selection">
+            <summary>
+            Gets or sets the selection.
+            </summary>
+            <value>The selection.</value>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.Source">
+            <summary>
+            Gets or sets the source for the image.
+            </summary>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.ScalingMode">
+            <summary>
+            Gets or sets the selection mode.
+            </summary>
+            <value>The selection mode.</value>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.Scaling">
+            <summary>
+            Gets or sets the scaling, which defines how the image should be scaled.
+            </summary>
+            <value>The scaling.</value>
+            <remarks>Define the zomming factor with a positive value or apply a negative value, if the image should
+            be scaled to fit to the screeen.</remarks>
+        </member>
+        <member name="P:ImageTools.Controls.ImageEditorContainer.MoveSelection">
+            <summary>
+            Gets or sets the interaction mode, which defines how the control behaves when the mouse is moved.
+            </summary>
+            <value>The interaction mode.</value>
+        </member>
+    </members>
+</doc>

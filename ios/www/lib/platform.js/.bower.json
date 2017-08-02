@@ -1,0 +1,24 @@
+{
+  "name": "platform.js",
+  "main": "platform.js",
+  "ignore": [
+    ".*",
+    "*.log",
+    "*.md",
+    "package.json",
+    "doc",
+    "test"
+  ],
+  "homepage": "https://github.com/bestiejs/platform.js",
+  "version": "1.3.1",
+  "_release": "1.3.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.3.1",
+    "commit": "b81c009ae432319052a1032c07aafeb87c430833"
+  },
+  "_source": "git://github.com/bestiejs/platform.js.git",
+  "_target": "~1.3.1",
+  "_originalSource": "platform",
+  "_direct": true
+}

@@ -1,0 +1,399 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.Filtering</name>
+    </assembly>
+    <members>
+        <member name="T:ImageTools.Filtering.MatrixFilter">
+            <summary>
+            Defines an abstract base filter that uses a matrix a factor and a bias value to 
+            change the color of a matrix.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.MatrixFilter.Initialize(System.Double[0:,0:])">
+            <summary>
+            Initializes this filter with the filter matrix.
+            </summary>
+            <param name="filter">The filter matrix. Cannot be null.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="filter"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            	<para>The row length of the <paramref name="filter"/> matrix is less or equals than zero.</para>
+            	<para>- or -</para>
+            	<para>The row length of the <paramref name="filter"/> matrix is an even number.</para>
+            	<para>- or -</para>
+            	<para>The column length of the <paramref name="filter"/> matrix is less or equals than zero.</para>
+            	<para>- or -</para>
+            	<para>The column length of the <paramref name="filter"/> matrix is an even number.</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.Filtering.MatrixFilter.Initialize(System.Double[0:,0:],System.Double,System.Double)">
+            <summary>
+            Initializes this filter with the filter matrix a factor and a bias.
+            </summary>
+            <param name="filter">The filter matrix. Cannot be null.</param>
+            <param name="factor">The factor of the filter. Must be greater than zero.</param>
+            <param name="bias">The bias that is added to the final color.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="filter"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">
+            	<para><paramref name="factor"/> is equals or less than zero.</para>
+            	<para>- or -</para>
+            	<para>The row length of the <paramref name="filter"/> matrix is less or equals than zero.</para>
+            	<para>- or -</para>
+            	<para>The row length of the <paramref name="filter"/> matrix is an even number.</para>
+            	<para>- or -</para>
+            	<para>The column length of the <paramref name="filter"/> matrix is less or equals than zero.</para>
+            	<para>- or -</para>
+            	<para>The column length of the <paramref name="filter"/> matrix is an even number.</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.Filtering.MatrixFilter.PrepareFilter">
+            <summary>
+            This method is called before the filter is applied to prepare the filter 
+            matrix. Only calculate a new matrix, when the properties has been changed.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.MatrixFilter.Apply(ImageTools.ImageBase,ImageTools.ImageBase,ImageTools.Rectangle)">
+            <summary>
+            Apply filter to an image at the area of the specified rectangle.
+            </summary>
+            <param name="target">Target image to apply filter to.</param>
+            <param name="source">The source image. Cannot be null.</param>
+            <param name="rectangle">The rectangle, which defines the area of the
+            image where the filter should be applied to.</param>
+            <remarks>The method keeps the source image unchanged and returns the
+            the result of image processing filter as new image.</remarks>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="target"/> is null.</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null.</para>
+            </exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rectangle"/> doesnt fits
+            to the image.</exception>
+        </member>
+        <member name="T:ImageTools.Filtering.GrayscaleRMY">
+            <summary>
+            Grayscale image using R-Y algorithm.
+            </summary>
+            <remarks>The class uses R-Y algorithm to convert color image to grayscale. 
+            The conversion coefficients are:
+            <list type="table">
+                <listheader>
+                    <term>Channel</term>
+                    <description>Coefficient</description>
+                </listheader>
+                <item>
+                    <term>Red</term>
+                    <description>0.5</description>
+                </item>
+                <item>
+                    <term>Green</term>
+                    <description>0.419</description>
+                </item>
+                <item>
+                    <term>Blue</term>
+                    <description>0.081</description>
+                </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="T:ImageTools.Filtering.Grayscale">
+            <summary>
+            Base class for image grayscaling.
+            </summary>
+            <remarks>
+            This class is the base class for image grayscaling. Other classes should inherit from 
+            this class and specify coefficients used for image conversion to grayscale.
+            </remarks>
+        </member>
+        <member name="M:ImageTools.Filtering.Grayscale.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.Grayscale"/> class.
+            </summary>
+            <param name="redCoefficient">Red coefficient.</param>
+            <param name="greenCoefficient">Green coefficient.</param>
+            <param name="blueCoefficient">Blue coefficient.</param>
+        </member>
+        <member name="M:ImageTools.Filtering.Grayscale.Apply(ImageTools.ImageBase,ImageTools.ImageBase,ImageTools.Rectangle)">
+            <summary>
+            Apply filter to an image at the area of the specified rectangle.
+            </summary>
+            <param name="target">Target image to apply filter to.</param>
+            <param name="source">The source image. Cannot be null.</param>
+            <param name="rectangle">The rectangle, which defines the area of the
+            image where the filter should be applied to.</param>
+            <remarks>The method keeps the source image unchanged and returns the
+            the result of image processing filter as new image.</remarks>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="target"/> is null.</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null.</para>
+            </exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rectangle"/> doesnt fits
+            to the image.</exception>
+        </member>
+        <member name="M:ImageTools.Filtering.GrayscaleRMY.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.GrayscaleRMY"/> class.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Filtering.GrayscaleBT709">
+            <summary>
+            Grayscale image using BT709 algorithm.
+            </summary>
+            <remarks>The class uses BT709 algorithm to convert color image to grayscale. 
+            The conversion coefficients are:
+            <list type="table">
+                <listheader>
+                    <term>Channel</term>
+                    <description>Coefficient</description>
+                </listheader>
+                <item>
+                    <term>Red</term>
+                    <description>0.2125</description>
+                </item>
+                <item>
+                    <term>Green</term>
+                    <description>0.7154</description>
+                </item>
+                <item>
+                    <term>Blue</term>
+                    <description>0.0721</description>
+                </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:ImageTools.Filtering.GrayscaleBT709.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.GrayscaleBT709"/> class.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Filtering.PrewittY">
+            <summary>
+            Implements the prewitt filter for detection of vertical edges.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.PrewittY.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.PrewittY"/> class.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Filtering.PrewittX">
+            <summary>
+            Implements the prewitt filter for detection of horizontal edges.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.PrewittX.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.PrewittX"/> class.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Filtering.Inverter">
+            <summary>
+            Simple filter for inverting the colors of an image.
+            </summary>
+            <remarks>The filter inverts colored and grayscale images.</remarks> 
+        </member>
+        <member name="M:ImageTools.Filtering.Inverter.Apply(ImageTools.ImageBase,ImageTools.ImageBase,ImageTools.Rectangle)">
+            <summary>
+            Apply filter to an image at the area of the specified rectangle.
+            </summary>
+            <param name="target">Target image to apply filter to.</param>
+            <param name="source">The source image. Cannot be null.</param>
+            <param name="rectangle">The rectangle, which defines the area of the
+            image where the filter should be applied to.</param>
+            <remarks>The method keeps the source image unchanged and returns the
+            the result of image processing filter as new image.</remarks>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="target"/> is null.</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null.</para>
+            </exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rectangle"/> doesnt fits
+            to the image.</exception>
+        </member>
+        <member name="T:ImageTools.Filtering.Contrast">
+            <summary>
+            An <see cref="T:ImageTools.IImageFilter"/> to change the contrast of an <see cref="T:ImageTools.ExtendedImage"/>.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.Contrast.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.Contrast"/> class and sets 
+            the new contrast of the image.
+            </summary>
+            <param name="contrast">The new contrast of the image. Must be between -100 and 100.</param>      
+            <exception cref="T:System.ArgumentException">
+            	<para><paramref name="contrast"/> is less than -100.</para>
+            	<para>- or -</para>
+            	<para><paramref name="contrast"/> is greater than 100.</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.Filtering.Contrast.Apply(ImageTools.ImageBase,ImageTools.ImageBase,ImageTools.Rectangle)">
+            <summary>
+            Apply filter to an image at the area of the specified rectangle.
+            </summary>
+            <param name="target">Target image to apply filter to.</param>
+            <param name="source">The source image. Cannot be null.</param>
+            <param name="rectangle">The rectangle, which defines the area of the
+            image where the filter should be applied to.</param>
+            <remarks>The method keeps the source image unchanged and returns the
+            the result of image processing filter as new image.</remarks>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="target"/> is null.</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null.</para>
+            </exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rectangle"/> doesnt fits
+            to the image.</exception>
+        </member>
+        <member name="T:ImageTools.Filtering.Brightness">
+            <summary>
+            An <see cref="T:ImageTools.IImageFilter"/> for changing the brightness of an <see cref="T:ImageTools.ExtendedImage"/>.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.Brightness.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.Brightness"/> class.
+            </summary>
+            <param name="brightness">The brightness value. Must be between -255 and 255.</param>
+            <exception cref="T:System.ArgumentException">
+            	<para><paramref name="brightness"/> is less than -255.</para>
+            	<para>- or -</para>
+            	<para><paramref name="brightness"/> is greater than 255.</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.Filtering.Brightness.Apply(ImageTools.ImageBase,ImageTools.ImageBase,ImageTools.Rectangle)">
+            <summary>
+            Apply filter to an image at the area of the specified rectangle.
+            </summary>
+            <param name="target">Target image to apply filter to.</param>
+            <param name="source">The source image. Cannot be null.</param>
+            <param name="rectangle">The rectangle, which defines the area of the
+            image where the filter should be applied to.</param>
+            <remarks>The method keeps the source image unchanged and returns the
+            the result of image processing filter as new image.</remarks>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="target"/> is null.</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null.</para>
+            </exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rectangle"/> doesnt fits
+            to the image.</exception>
+        </member>
+        <member name="T:ImageTools.Filtering.Sepia">
+            <summary>
+            Simple sepia filter, which makes the image look like an old brown photo.
+            </summary>
+            <remarks>The filter makes an image look like an old brown photo.</remarks>
+        </member>
+        <member name="M:ImageTools.Filtering.Sepia.Apply(ImageTools.ImageBase,ImageTools.ImageBase,ImageTools.Rectangle)">
+            <summary>
+            Apply filter to an image at the area of the specified rectangle.
+            </summary>
+            <param name="target">Target image to apply filter to.</param>
+            <param name="source">The source image. Cannot be null.</param>
+            <param name="rectangle">The rectangle, which defines the area of the
+            image where the filter should be applied to.</param>
+            <remarks>The method keeps the source image unchanged and returns the
+            the result of image processing filter as new image.</remarks>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="target"/> is null.</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null.</para>
+            </exception>
+            <exception cref="T:System.ArgumentException"><paramref name="rectangle"/> doesnt fits
+            to the image.</exception>
+        </member>
+        <member name="T:ImageTools.Filtering.NearestNeighborResizer">
+            <summary>
+            Default image resizer, which resizes the image with the fast known method,
+            without optimizing the quality of the image. Uses the nearest neighbor interpolation.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.NearestNeighborResizer.Resize(ImageTools.ImageBase,ImageTools.ImageBase,System.Int32,System.Int32)">
+            <summary>
+            Resizes the specified source image by creating a new image with
+            the spezified size which is a resized version of the passed image..
+            </summary>
+            <param name="source">The source image, where the pixel data should be get from.</param>
+            <param name="target">The resized image.</param>
+            <param name="width">The width of the new image. Must be greater than zero.</param>
+            <param name="height">The height of the new image. Must be greater than zero..</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="source"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="target"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            	<para><paramref name="width"/> is negative.</para>
+            	<para>- or -</para>
+            	<para><paramref name="height"/> is negative.</para>
+            </exception>
+        </member>
+        <member name="T:ImageTools.Filtering.GaussianBlur">
+            <summary>
+            Implements a gaussian blur filter using a filter matrix.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.GaussianBlur.PrepareFilter">
+            <summary>
+            This method is called before the filter is applied to prepare the filter
+            matrix. Only calculate a new matrix, when the properties has been changed.
+            </summary>
+        </member>
+        <member name="P:ImageTools.Filtering.GaussianBlur.Variance">
+            <summary>
+            Gets or sets the variance that is used to calculate the filter matrix.
+            </summary>
+            <value>The variance to calculate the filter matrix.</value>
+        </member>
+        <member name="T:ImageTools.Filtering.SobelY">
+            <summary>
+            Implements the sobel filter for detection of vertical edges.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.SobelY.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.SobelY"/> class.
+            </summary>
+        </member>
+        <member name="T:ImageTools.Filtering.ZXingBarcodeReader">
+            <summary>
+            Reads a barcode from an image using the zxing barcode reader.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.ZXingBarcodeReader.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.ZXingBarcodeReader"/> class.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.ZXingBarcodeReader.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.ZXingBarcodeReader"/> class with 
+            a flag indicating if the barcode reader should work accurate.
+            </summary>
+            <param name="accurate">True, when the barcode reader must work accurate.</param>
+        </member>
+        <member name="M:ImageTools.Filtering.ZXingBarcodeReader.ReadBarcode(ImageTools.ExtendedImage)">
+            <summary>
+            Reads an barcode from the specified image.
+            </summary>
+            <param name="image">The image to read the barcode from.</param>
+            <returns>
+            The result of the reading operation when a barcode could be read or null otherwise.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="image"/> is null.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="image"/> is empty.</exception>
+        </member>
+        <member name="T:ImageTools.Filtering.SobelX">
+            <summary>
+            Implements the sobel filter for detection of horizontal edges.
+            </summary>
+        </member>
+        <member name="M:ImageTools.Filtering.SobelX.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.Filtering.SobelX"/> class.
+            </summary>
+        </member>
+    </members>
+</doc>

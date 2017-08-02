@@ -1,0 +1,308 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.IO.Bmp</name>
+    </assembly>
+    <members>
+        <member name="T:ImageTools.IO.Bmp.BmpInfoHeader">
+            <summary>
+            This block of bytes tells the application detailed information 
+            about the image, which will be used to display the image on 
+            the screen.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.Size">
+            <summary>
+            Defines of the data structure in the bitmap file.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.HeaderSize">
+            <summary>
+            The size of this header (40 bytes)
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.Width">
+            <summary>
+            The bitmap width in pixels (signed integer).
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.Height">
+            <summary>
+            The bitmap height in pixels (signed integer).
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.Planes">
+            <summary>
+            The number of color planes being used. Must be set to 1.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.BitsPerPixel">
+            <summary>
+            The number of bits per pixel, which is the color depth of the image. 
+            Typical values are 1, 4, 8, 16, 24 and 32.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.Compression">
+            <summary>
+            The compression method being used. 
+            See the next table for a list of possible values.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.ImageSize">
+            <summary>
+            The image size. This is the size of the raw bitmap data (see below), 
+            and should not be confused with the file size.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.XPelsPerMeter">
+            <summary>
+            The horizontal resolution of the image. 
+            (pixel per meter, signed integer)
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.YPelsPerMeter">
+            <summary>
+            The vertical resolution of the image. 
+            (pixel per meter, signed integer)
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.ClrUsed">
+            <summary>
+            The number of colors in the color palette, 
+            or 0 to default to 2^n.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpInfoHeader.ClrImportant">
+            <summary>
+            The number of important colors used, 
+            or 0 when every color is important; generally ignored.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Bmp.BmpEncoder">
+            <summary>
+            Image encoder for writing an image to a stream
+            as windows bitmap.
+            </summary>
+            <remarks>The encoder can only write 24-bit rpg images
+            to streams. All other formats does not make much sense today.</remarks>
+        </member>
+        <member name="M:ImageTools.IO.Bmp.BmpEncoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image encoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns>
+            <c>true</c>, if the encoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <remarks>For example, the <see cref="T:ImageTools.IO.Bmp.BmpDecoder"/>
+            supports BMP or DIP as file extension.</remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Bmp.BmpEncoder.Encode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Encodes the data of the specified image and writes the result to
+            the specified stream.
+            </summary>
+            <param name="image">The image, where the data should be get from.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The stream, where the image data should be written to. 
+            Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Bmp.BmpEncoder.Extension">
+            <summary>
+            Gets the default file extension for this encoder ("bmp");
+            </summary>
+            <value>The default file extension for this encoder.</value>
+            <remarks>Please recognize, that "dmp" is also a valid file
+            extension for Windows Bitmap files but should not be used.</remarks>
+        </member>
+        <member name="T:ImageTools.IO.Bmp.BmpCompression">
+            <summary>
+            Defines how the compression type of the image data
+            in the bitmap file.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpCompression.RGB">
+            <summary>
+            Each image row has a multiple of four elements. If the 
+            row has less elements, zeros will be added at the right side.
+            The format depends on the number of bits, stored in the info header.
+            If the number of bits are one, four or eight each pixel data is 
+            a index to the palette. If the number of bits are sixteen, 
+            twenty-four or thirtee-two each pixel contains a color.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpCompression.RLE8">
+            <summary>
+            Two bytes are one data record. If the first byte is not zero, the 
+            next two half bytes will be repeated as much as the value of the first byte.
+            If the first byte is zero, the record has different meanings, depending
+            on the second byte. If the second byte is zero, it is the end of the row,
+            if it is one, it is the end of the image.
+            Not supported at the moment.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpCompression.RLE4">
+            <summary>
+            Two bytes are one data record. If the first byte is not zero, the 
+            next byte will be repeated as much as the value of the first byte.
+            If the first byte is zero, the record has different meanings, depending
+            on the second byte. If the second byte is zero, it is the end of the row,
+            if it is one, it is the end of the image.
+            Not supported at the moment.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpCompression.BitFields">
+            <summary>
+            Each image row has a multiple of four elements. If the 
+            row has less elements, zeros will be added at the right side.
+            Not supported at the moment.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpCompression.JPEG">
+            <summary>
+            The bitmap contains a JPG image. 
+            Not supported at the moment.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpCompression.PNG">
+            <summary>
+            The bitmap contains a PNG image. 
+            Not supported at the moment.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Bmp.BmpFileHeader">
+            <summary>
+            Stores general information about the Bitmap file.
+            </summary>
+            <remarks>
+            The first two bytes of the Bitmap file format
+            (thus the Bitmap header) are stored in big-endian order.
+            All of the other integer values are stored in little-endian format
+            (i.e. least-significant byte first).
+            </remarks>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpFileHeader.Size">
+            <summary>
+            Defines of the data structure in the bitmap file.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpFileHeader.Type">
+            <summary>
+            The magic number used to identify the bitmap file: 0x42 0x4D 
+            (Hex code points for B and M)
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpFileHeader.FileSize">
+            <summary>
+            The size of the bitmap file in bytes.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpFileHeader.Reserved">
+            <summary>
+            Reserved; actual value depends on the application 
+            that creates the image.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpFileHeader.Offset">
+            <summary>
+            The offset, i.e. starting address, of the byte where 
+            the bitmap data can be found.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Bmp.BmpDecoder">
+            <summary>
+            Image decoder for generating an image out of an windows 
+            bitmap _stream.
+            </summary>
+            <remarks>
+            Does not support the following formats at the moment:
+            <list type="bullet">
+            	<item>JPG</item>
+            	<item>PNG</item>
+            	<item>RLE4</item>
+            	<item>RLE8</item>
+            	<item>BitFields</item>
+            </list>
+            Formats will be supported in a later realease. We advice always 
+            to use only 24 Bit windows bitmaps.
+            </remarks>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpDecoder.Rgb16RMask">
+            <summary>
+            The mask for the red part of the color for 16 bit rgb bitmaps.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpDecoder.Rgb16GMask">
+            <summary>
+            The mask for the green part of the color for 16 bit rgb bitmaps.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Bmp.BmpDecoder.Rgb16BMask">
+            <summary>
+            The mask for the blue part of the color for 16 bit rgb bitmaps.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Bmp.BmpDecoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns>
+            	<c>true</c>, if the decoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <remarks>For example, the <see cref="T:ImageTools.IO.Bmp.BmpDecoder"/>
+            supports BMP or DIP as file extension.</remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Bmp.BmpDecoder.IsSupportedFileFormat(System.Byte[])">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file header.
+            </summary>
+            <param name="header">The file header.</param>
+            <returns>
+            	<c>true</c>, if the decoder supports the specified
+            file header; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="header"/>
+            is null (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.IO.Bmp.BmpDecoder.Decode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Decodes the image from the specified _stream and sets
+            the data to image.
+            </summary>
+            <param name="image">The image, where the data should be set to.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The _stream, where the image should be
+            decoded from. Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Bmp.BmpDecoder.HeaderSize">
+            <summary>
+            Gets the size of the header for this image type.
+            </summary>
+            <value>The size of the header.</value>
+        </member>
+    </members>
+</doc>

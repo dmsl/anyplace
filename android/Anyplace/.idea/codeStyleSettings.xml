@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectCodeStyleSettingsManager">
+    <option name="PER_PROJECT_SETTINGS">
+      <value>
+        <AndroidXmlCodeStyleSettings>
+          <option name="USE_CUSTOM_SETTINGS" value="true" />
+        </AndroidXmlCodeStyleSettings>
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
+        <codeStyleSettings language="XML">
+          <arrangement>
+            <rules>
+              <rule>
+                <match>
+                  <NAME>xmlns:.*</NAME>
+                </match>
+              </rule>
+            </rules>
+          </arrangement>
+        </codeStyleSettings>
+      </value>
+    </option>
+    <option name="USE_PER_PROJECT_SETTINGS" value="true" />
+  </component>
+</project>
+

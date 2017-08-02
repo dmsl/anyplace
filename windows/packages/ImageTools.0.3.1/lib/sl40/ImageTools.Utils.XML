@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.Utils</name>
+    </assembly>
+    <members>
+        <member name="T:ImageTools.ImageExtensions">
+            <summary>
+            Contains some extension methods for improving the usablilty of 
+            the image class.
+            </summary>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.#cctor">
+            <summary>
+            Initializes the <see cref="T:ImageTools.ImageExtensions"/> class.
+            </summary>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToStream(ImageTools.ExtendedImage)">
+            <summary>
+            Converts the image to a png stream, which can be assigned to 
+            a silverlight image control as image source.
+            </summary>
+            <param name="image">The image, which should be converted. Cannot be null
+            (Nothing in Visual Basic).</param>
+            <returns>The resulting stream.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="image"/> is null
+            (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToStream(ImageTools.ExtendedImage,ImageTools.IImageFilter)">
+            <summary>
+            Converts the image to a png stream, which can be assigned to
+            a silverlight image control as image source and applies the specified
+            filter before converting the image.
+            </summary>
+            <param name="image">The image, which should be converted. Cannot be null
+            (Nothing in Visual Basic).</param>
+            <param name="filter">The filter, which should be applied before converting the 
+            image or null, if no filter should be applied to. Cannot be null.</param>
+            <returns>The resulting stream.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="filter"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToStreamByExtension(ImageTools.ExtendedImage,System.String)">
+            <summary>
+            Converts the image to a stream, which can be assigned to
+            a silverlight image control as image source and applies the specified
+            filter before converting the image. The encoder to use will be created by
+            the file extension name.
+            </summary>
+            <param name="image">The image, which should be converted. Cannot be null
+            (Nothing in Visual Basic).</param>
+            <param name="extension">The file extension to create the <see cref="T:ImageTools.IO.IImageEncoder"/> that
+            will be used to create an image stream.</param>
+            <returns>The resulting stream.</returns>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is empty or 
+            contains only blanks.</exception>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="extension"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToBitmap(ImageTools.ImageBase)">
+            <summary>
+            Converts the image to a silverlight bitmap, which can be assigned
+            to a image control.
+            </summary>
+            <param name="image">The image, which should be converted. Cannot be null
+            (Nothing in Visual Basic).</param>
+            <returns>The resulting bitmap.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="image"/> is null 
+            (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToBitmap(ImageTools.ImageBase,ImageTools.IImageFilter)">
+            <summary>
+            Converts the image to a silverlight bitmap, which can be assigned
+            to a image control.
+            </summary>
+            <param name="image">The image, which should be converted. Cannot be null
+            (Nothing in Visual Basic).</param>
+            <param name="filter">The filter, which should be applied before converting the
+            image or null, if no filter should be applied to. Cannot be null.</param>
+            <returns>The resulting bitmap.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="filter"/> is null 
+            (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToImage(System.Windows.UIElement)">
+            <summary>
+            Converts the content of a <see cref="T:System.Windows.Controls.Canvas"/> to an image.
+            </summary>
+            <param name="element">The <see cref="T:System.Windows.UIElement"/> to convert. Cannot be null.</param>
+            <returns>The resulting image.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="element"/> is null.</exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.ToImage(System.Windows.Media.Imaging.WriteableBitmap)">
+            <summary>
+            Converts a <see cref="T:System.Windows.Media.Imaging.WriteableBitmap"/> to an image.
+            </summary>
+            <param name="bitmap">The bitmap to convert. Cannot be null.</param>
+            <returns>The resulting image.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="bitmap"/> is null.</exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.WriteToStream(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Writes to specified image to the stream.
+            </summary>
+            <param name="image">The image to write to the stream. Cannot be null.</param>
+            <param name="stream">The target stream. Cannot be null.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="M:ImageTools.ImageExtensions.WriteToStream(ImageTools.ExtendedImage,System.IO.Stream,System.String)">
+            <summary>
+            Writes to specified image to the stream. The method loops through all encoders and 
+            uses the encoder which supports the extension of the specified file name.
+            </summary>
+            <param name="image">The image to write to the stream. Cannot be null.</param>
+            <param name="stream">The target stream. Cannot be null.</param>
+            <param name="fileName">Name of the file.</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+    </members>
+</doc>

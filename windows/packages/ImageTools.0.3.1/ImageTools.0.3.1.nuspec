@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ImageTools</id>
+    <version>0.3.1</version>
+    <title>ImageTools</title>
+    <authors>Sebastian Stehle</authors>
+    <owners>Sebastian Stehle</owners>
+    <licenseUrl>http://imagetools.codeplex.com/license</licenseUrl>
+    <projectUrl>http://imagetools.codeplex.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ImageTools for Silverlight is a library, which provides additional functionality for loading, saving and manipulation images from different sources and with different formats.</description>
+  </metadata>
+</package>

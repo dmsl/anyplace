@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html ng-app="anyViewer">
+<head>
+
+    <link rel="icon" type="image/png" href="build/images/logo.png">
+
+    <link rel="apple-touch-icon-precomposed" href="build/images/ios-icons/touch-icon-ipad.png"/>
+    <link rel="apple-touch-icon" href="build/images/ios-icons/touch-icon-iphone.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="build/images/ios-icons/touch-icon-ipad.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="build/images/ios-icons/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="build/images/ios-icons/touch-icon-ipad-retina.png">
+
+    <!-- STARTUP IMAGES -->
+
+    <!-- iPad retina portrait startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-1536x2008.png"
+          media="(device-width: 768px) and (device-height: 1024px)
+                 and (-webkit-device-pixel-ratio: 2)
+                 and (orientation: portrait)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPad retina landscape startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-1496x2048.png"
+          media="(device-width: 768px) and (device-height: 1024px)
+                 and (-webkit-device-pixel-ratio: 2)
+                 and (orientation: landscape)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPad non-retina portrait startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-768x1004.png"
+          media="(device-width: 768px) and (device-height: 1024px)
+                 and (-webkit-device-pixel-ratio: 1)
+                 and (orientation: portrait)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPad non-retina landscape startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-748x1024.png"
+          media="(device-width: 768px) and (device-height: 1024px)
+                 and (-webkit-device-pixel-ratio: 1)
+                 and (orientation: landscape)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPhone 6 Plus portrait startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-1242x2148.png"
+          media="(device-width: 414px) and (device-height: 736px)
+                 and (-webkit-device-pixel-ratio: 3)
+                 and (orientation: portrait)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPhone 6 Plus landscape startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-1182x2208.png"
+          media="(device-width: 414px) and (device-height: 736px)
+                 and (-webkit-device-pixel-ratio: 3)
+                 and (orientation: landscape)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPhone 6 startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-750x1294.png"
+          media="(device-width: 375px) and (device-height: 667px)
+                 and (-webkit-device-pixel-ratio: 2)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPhone 5 startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-640x1096.png"
+          media="(device-width: 320px) and (device-height: 568px)
+                 and (-webkit-device-pixel-ratio: 2)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPhone < 5 retina startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-640x920.png"
+          media="(device-width: 320px) and (device-height: 480px)
+                 and (-webkit-device-pixel-ratio: 2)"
+          rel="apple-touch-startup-image">
+
+    <!-- iPhone < 5 non-retina startup image -->
+    <link href="images/ios-icons/apple-touch-startup-image-320x460.png"
+          media="(device-width: 320px) and (device-height: 480px)
+                 and (-webkit-device-pixel-ratio: 1)"
+          rel="apple-touch-startup-image">
+
+    <meta name="apple-mobile-web-app-title" content="Anyplace">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <meta charset="utf-8">
+
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCRLbtsuuKx5cdY2ydiri2r4ji3FTYdbY&libraries=places">
+    </script>
+
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+
+    <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="bower_components/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="libs/markerclusterer.js"></script>
+
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
+
+    <script src="bower_components/angular-ui-select/dist/select.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css"/>
+    <link rel="stylesheet" href="bower_components/select2/select2.css">
+
+    <!-- Must come after jquery/ui imports -->
+    <script type="text/javascript" src="bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <title>Anyplace Viewer</title>
+
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+    <script type="text/javascript" src="bower_components/angular-loading-bar/src/loading-bar.js"></script>
+    <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css">
+
+    <script type="text/javascript" src="build/js/anyplace.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
+
+    <script type="text/javascript" src="bower_components/add-to-homescreen/src/addtohomescreen.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="bower_components/add-to-homescreen/style/addtohomescreen.css"/>
+
+    <script>
+        addToHomescreen({
+            maxDisplayCount: 1
+        });
+    </script>
+
+</head>
+<body>
+
+<div id="control-bar" class="box-shadow-1 ng-cloak" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
+
+    <div class="container-fluid" id="gray-bg">
+
+        <div class="col-md-1 col-sm-2 col-xs-2 " id="div-logo">
+            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white.png"/>
+        </div>
+
+        <!-- BUILDINGS -->
+        <div ng-hide="anyService.selectedBuilding" class="col-md-8 col-sm-7 col-xs-10" id="ctrl-bar-buildings"
+             ng-controller="BuildingController as buildingCtrl">
+            <div class="bold-f" style="color:transparent; pointer-events:none;">_</div>
+
+            <ui-select ng-model="anyService.selectedBuilding" theme="bootstrap" ng-disabled="disabled">
+                <ui-select-match placeholder="Select a Building...">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices
+                        repeat="b in myBuildings | orderBy : orderByDistCentre | propsFilter: { name: $select.search, description: $select.search }">
+                    <div ng-bind-html="b.name | highlight: $select.search"></div>
+                    <small>
+                        {{b.description}}
+                    </small>
+                </ui-select-choices>
+            </ui-select>
+
+        </div>
+
+        <!-- FLOORS -->
+        <div ng-show="false" id="ctrl-bar-floors" ng-controller="FloorController as floorCtrl">
+        </div>
+
+        <!-- POIS -->
+        <div ng-show="anyService.selectedBuilding" class="col-md-8 col-sm-7 col-xs-10" id="ctrl-bar-pois"
+             ng-controller="PoiController as poiCtrl"
+             ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null && anyService.selectedFloor !== undefined && anyService.selectedFloor !== null">
+            <div class="bold-f one-line-wrap-div">
+                <button ng-click="unselectBuilding()" id="change-building-btn" class="btn btn-primary"
+                        style="padding: 3px 6px; margin-bottom: 3px; outline-style: none">
+                    <span class="glyphicon glyphicon-remove" id="change-building-box"></span>
+                </button>
+                <span id="clear-routes-box" ng-click="clearNavPolylines()"
+                      ng-show="navRoutesShown()"> (Clear Routes)</span>
+                {{anyService.selectedBuilding.name}}:
+            </div>
+
+            <ui-select ng-model="anyService.selectedPoi" theme="bootstrap" ng-disabled="disabled">
+                <ui-select-match placeholder="Select a Point of Interest..."><b>[ {{$select.selected.floor_number}}
+                    ]</b> : {{$select.selected.name}} | {{$select.selected.description | limitTo : 40}}{{$select.selected.description.length > 40 ? '...' : ''}}
+                </ui-select-match>
+                <ui-select-choices
+                        repeat="p in myPois | filter : { pois_type : '!None' } | propsFilter: { name: $select.search, description: $select.search, floor_number: $select.search } | orderBy : orderByFloor">
+                    <div ng-bind-html="'['+ p.floor_number +'] : ' + p.name + ' | ' + p.description | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+
+        </div>
+
+        <div class="col-md-2 col-sm-1 col-xs-2" id="more-menu">
+            <div class="bold-f" style="color:transparent; pointer-events:none;"
+                 ng-style="{ 'height' : (anyService.selectedBuilding?'2em':null)}">_
+            </div>
+            <div ng-controller="DropDownCtrl">
+
+                <!-- Single button -->
+                <div class="btn-group" dropdown is-open="status.isopen">
+                    <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
+                        <span
+                                class="glyphicon glyphicon-menu-hamburger"> </span>
+                        <!--</span><span class="caret"></span>-->
+                    </button>
+                    <ul id="dropdown-ham-menu" class="dropdown-menu" role="menu">
+                        <li style="text-align: center;">
+                            <a href="//anyplace.cs.ucy.ac.cy" target="_blank">
+                                <div class="div-logo-menu">
+                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text.png"/>
+                                </div>
+                            </a>
+                        </li>
+                        <li><a href="http://anyplace.cs.ucy.ac.cy/architect" target="_blank">Add Venue</a></li>
+                        <li><a href="https://play.google.com/store/apps/details?id=com.dmsl.anyplace" target="_blank">Anyplace
+                            Navigator</a></li>
+                        <li><a href="http://anyplace.cs.ucy.ac.cy" target="_blank">About</a></li>
+                        <li><a href="http://anyplace.cs.ucy.ac.cy#contact" target="_blank">Contact</a></li>
+                        <li><a href="http://anyplace.cs.ucy.ac.cy/tos" target="_blank">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="notification_panel" ng-controller="AlertController as alertCtrl"
+         ng-show="alerts.length || anyService.isLoading">
+        <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="anyService.closeAlert($index)">
+            {{alert.msg}}
+        </alert>
+    </div>
+
+    <div id="android_top_DIV_1" ng-init="showAndroidPrompt()">
+        <a href="#" id="android_top_A_2" ng-click="hideAndroidBar()"></a>
+        <a href="#" id="android_top_A_3"></a>
+
+        <div id="android_top_DIV_4">
+            <div id="android_top_DIV_5">
+                <strong id="android_top_STRONG_7">For superb location accuracy download Anyplace for Android</strong><br
+                    id="android_top_BR_8"/>
+            </div>
+            <div id="android_top_DIV_17">
+                <a href="https://play.google.com/store/apps/details?id=com.dmsl.anyplace" target="_blank"
+                   id="android_top_A_18">Install</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="map-canvas"></div>
+
+<div id="floor-controls">
+    <div id="DIV_1" ng-show="anyService.selectedBuilding" class="ng-cloak" ng-cloak>
+        <span ng-click="floorUp()" title="Level up" id="A_2">
+            <i class="fa fa-building"></i>
+            <i class="fa fa-caret-up"></i>
+        </span>
+        <a id="A_5">
+            <select id="floor-select-list" ng-model="anyService.selectedFloor"
+                    style="border: none; outline-style: none; width: 45px; font-size: 15px; background-color: white; padding-left: 5px;"
+                    ng-options="floor.floor_number for floor in xFloors | orderBy:orderByFloorNo"
+                    title="Floors">
+            </select>
+        </a>
+        <span ng-click="floorDown()" title="Level Down" id="A_6">
+            <i class="fa fa-building"></i>
+            <i class="fa fa-caret-down"></i>
+        </span>
+    </div>
+</div>
+
+<div id="my-loc-control" class="ng-cloak" ng-cloak>
+
+    <div ng-show="anyService.selectedBuilding" ng-click="centerViewToSelectedItem()"
+         class="center-view-box-parent box-shadow-1">
+        <div id="center-view-box">
+            <span>
+                <img width="25" height="25" src="build/images/any-bullseye.png">
+            </span>
+        </div>
+    </div>
+
+    <div ng-click="showUserLocation()" class="find-me-box-parent box-shadow-1">
+        <div id="find-me-box">
+            <span>
+                <img ng-show="getIsUserLocVisible()" width="25" height="25" src="build/images/html5-location-blue.png">
+                <img ng-hide="getIsUserLocVisible()" width="25" height="25" src="build/images/html5-location-grey.png">
+            </span>
+        </div>
+    </div>
+
+    <div ng-show="getIsUserLocVisible()" ng-click="panToUserLocation()" class="pan-find-me-box-parent box-shadow-1">
+        <div id="pan-find-me-box">
+            <span>
+                <img width="25" height="25" src="build/images/bullseye.png">
+            </span>
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+<footer>
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic,900italic" rel="stylesheet"
+          type="text/css">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <script src="//cdn.flurry.com/js/flurry.js"></script>
+    <script>FlurryAgent.startSession("CTSR4NQFNXTQZHRR3C3V");</script>
+</footer>
+
+</html>

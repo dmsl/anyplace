@@ -1,0 +1,15 @@
+﻿<Deployment xmlns="http://schemas.microsoft.com/client/2007/deployment" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" EntryPointAssembly="AnyPlace" EntryPointType="AnyPlace.App" RuntimeVersion="4.7.50308.0">
+  <Deployment.Parts>
+    <AssemblyPart x:Name="AnyPlace" Source="AnyPlace.dll" />
+    <AssemblyPart x:Name="FlurryWP8SDK" Source="FlurryWP8SDK.dll" />
+    <AssemblyPart x:Name="Microsoft.Phone.Controls" Source="Microsoft.Phone.Controls.dll" />
+    <AssemblyPart x:Name="Microsoft.Phone.Controls.Toolkit" Source="Microsoft.Phone.Controls.Toolkit.dll" />
+    <AssemblyPart x:Name="Newtonsoft.Json" Source="Newtonsoft.Json.dll" />
+    <AssemblyPart x:Name="PhoneCodeContractsAssemblies" Source="PhoneCodeContractsAssemblies.dll" />
+    <AssemblyPart x:Name="System.Net.Http" Source="System.Net.Http.dll" />
+    <AssemblyPart x:Name="System.Net.Http.Extensions" Source="System.Net.Http.Extensions.dll" />
+    <AssemblyPart x:Name="System.Net.Http.Formatting" Source="System.Net.Http.Formatting.dll" />
+    <AssemblyPart x:Name="System.Net.Http.Primitives" Source="System.Net.Http.Primitives.dll" />
+    <AssemblyPart x:Name="System.Spatial" Source="System.Spatial.dll" />
+  </Deployment.Parts>
+</Deployment>

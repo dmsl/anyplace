@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html ng-app="anyArchitect">
+<head>
+    <link rel="icon" type="image/png" href="build/images/logo.png">
+
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+
+    <script src="https://apis.google.com/js/client:platform.js" async defer></script>
+    <script src="https://plus.google.com/js/client:plusone.js"></script>
+
+    <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet"
+          type="text/css"/>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="libs/jquery.ui.rotatable.min.js"></script>
+
+
+    <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCRLbtsuuKx5cdY2ydiri2r4ji3FTYdbY&libraries=places,visualization">
+    </script>
+
+    <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
+
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic,900italic" rel="stylesheet"
+          type="text/css">
+
+    <!-- Must come after jquery/ui imports -->
+    <script type="text/javascript" src="bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <script src="bower_components/angular-ui-select/dist/select.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css"/>
+    <link rel="stylesheet" href="bower_components/select2/select2.css">
+
+    <title>Anyplace Architect</title>
+
+</head>
+<body>
+
+<div id="top-container">
+
+    <div id="control-bar" class="ng-cloak box-shadow-1" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
+
+        <div id="logistics">
+            <button id="minimize-btn" class="btn btn-default" ng-click="toggleFullControls()"></button>
+            <div id="div-logo" class="pull-left"></div>
+            <span id="login-details" ng-show="isAuthenticated">
+                <span class="subnote">
+                    {{person.displayName}}
+                </span>
+                <button class="btn profile-photo-wrapper">
+                    <span class="profile-photo" ng-style="{'background-image': 'url('+person.image.url+')'}"></span>
+                </button>
+                <button ng-click="signOut()" class="btn btn-primary">Log Out</button>
+            </span>
+        </div>
+
+        <script>
+            var signinCallback = function (authResult) {
+                var $element = $('#control-bar');
+                var scope = angular.element($element).scope();
+                scope.signinCallback(authResult);
+            };
+        </script>
+
+        <div id="sign-in-box" ng-hide="isAuthenticated || !showFullControls">
+
+            <span id="signinButton" style="display: block; text-align: center">
+                <span
+                        class="g-signin"
+                        data-callback="signinCallback"
+                        data-clientid="587500723971-si8s4qqat9v5efgemnebihpi3qe9onlp.apps.googleusercontent.com"
+                        data-cookiepolicy="single_host_origin"
+                        data-scope="profile"
+                        data-width="wide"
+                        data-height="tall">
+                </span>
+            </span>
+
+        </div>
+
+        <div ng-show="isAuthenticated && showFullControls">
+            <ul id="ctrl-bar-tablist" class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active:isTabSet(1) }">
+                    <a href="" ng-click="setTab(1)">Buildings</a>
+                </li>
+                <li role="presentation" ng-class="{ active:isTabSet(2) }">
+                    <a href="" ng-click="setTab(2)">Floors</a>
+                </li>
+                <li role="presentation" ng-class="{ active:isTabSet(3) }">
+                    <a href="" ng-click="setTab(3)">POIs</a>
+                </li>
+                <li role="presentation" ng-class="{ active:isTabSet(4) }">
+                    <a href="" ng-click="setTab(4)">More</a>
+                </li>
+            </ul>
+
+            <!-- BUILDINGS -->
+
+            <div id="ctrl-bar-buildings" ng-show="isTabSet(1)" ng-controller="BuildingController as buildingCtrl">
+
+                <ui-select ng-model="anyService.selectedBuilding" theme="bootstrap" ng-disabled="disabled">
+                    <ui-select-match placeholder="Select a Building...">{{$select.selected.name}}</ui-select-match>
+                    <ui-select-choices
+                            repeat="b in myBuildings | orderBy : 'name' | propsFilter: { name: $select.search, description: $select.search }">
+                        <div ng-bind-html="b.name | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+
+                <div class="divider-top-15-line">
+                    <div class="subnote">Building Toolbox</div>
+
+                    <div class="divider-top-10">
+                        <ul class="nav nav-pills" role="tablist">
+                            <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
+                                <a href="" ng-click="setCrudTabSelected(1)">Add</a>
+                            </li>
+                            <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
+                                <a href="" ng-click="setCrudTabSelected(2)">Edit</a>
+                            </li>
+                            <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
+                                <a href="" ng-click="setCrudTabSelected(3)">Delete</a>
+                            </li>
+                            <li role="presentation" ng-class="{ active:isCrudTabSelected(4) }">
+                                <a href="" ng-click="setCrudTabSelected(4)">More</a>
+                            </li>
+                        </ul>
+
+                        <!-- Tab 1-->
+                        <div class="divider-top-10" ng-show="isCrudTabSelected(1)">
+                            <div class="draggable-border">
+                                <img id="draggable-building" src='build/images/building-icon.png'/>
+                            </div>
+                            <span class="subnote">drag to add new building</span>
+                        </div>
+
+                        <!-- Tab 2 -->
+                        <div class="divider-top-10" ng-show="isCrudTabSelected(2) && anyService.selectedBuilding">
+                            <div class="form-group">Drag the building's marker to change its position.</div>
+                            <form name="buildingEditForm">
+                                <fieldset class="form-group">
+                                    <input ng-model="anyService.selectedBuilding.bucode"
+                                           class="form-control" type="text"
+                                           placeholder="Building Code">
+                                </fieldset>
+                                <fieldset class="form-group">
+                                    <input ng-model="anyService.selectedBuilding.name"
+                                           class="form-control" type="text"
+                                           placeholder="Building Name">
+                                </fieldset>
+                                <fieldset class="form-group">
+                                    <textarea ng-model="anyService.selectedBuilding.description"
+                                              class="form-control" type="text"
+                                              placeholder="Building Description"></textarea>
+                                </fieldset>
+                                <fieldset class="form-group">
+                                    <input ng-model="anyService.selectedBuilding.is_published" type="checkbox"><span> Make building public to view.</span>
+                                </fieldset>
+                                <fieldset>
+                                    <button type="submit" class="btn btn-success pull-right add-any-button"
+                                            ng-click="updateBuilding()"><span class="glyphicon glyphicon-pencil"></span>
+                                        click to update
+                                    </button>
+                                </fieldset>
+                            </form>
+                        </div>
+
+                        <!-- Tab 3-->
+                        <div class="divider-top-10 center-delete-div"
+                             ng-show="isCrudTabSelected(3) && anyService.selectedBuilding">
+
+                            <div><b>WARNING</b>: Once you click the delete button below, every floor, POI and connection
+                                that is attached to the building <i>{{anyService.getBuildingName()}}</i> will be lost
+                                <b>PERMANENTLY.</b></div>
+                            <button class="btn btn-danger divider-top-10" ng-click="deleteBuilding()">Confirm Deletion
+                            </button>
+
+                        </div>
+
+                        <!-- Tab 4 -->
+                        <div class="divider-top-10" ng-show="isCrudTabSelected(4) && anyService.selectedBuilding">
+                            <div>
+                                <div>
+                                    <div ng-show="anyService.selectedBuilding.is_published" class="subnote">Share building
+                                    </div>
+                                    <div ng-show="!anyService.selectedBuilding.is_published" class="subnote">Share building
+                                        (Only people with the link can view it)
+                                    </div>
+                                    <div>
+                                        <input class="form-control" value="{{anyService.getBuildingViewerUrl()}}">
+                                    </div>
+                                </div>
+                                <div class="divider-top-10">
+                                    <div class="subnote">Export / Import</div>
+                                    <div>
+                                        <button class="btn btn-success" ng-click="exportBuildingToJson()">Export to JSON
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- FLOORS -->
+
+            <div id="ctrl-bar-floors" ng-show="isTabSet(2)" ng-controller="FloorController as floorCtrl">
+
+                <div ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null">
+                    <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
+                    <select id="floor-select-list" ng-model="anyService.selectedFloor" class="form-control"
+                            ng-options="floor.floor_number for floor in xFloors | orderBy:orderByFloorNo"
+                            title="Floors">
+                        <option value="">Select Floor</option>
+                    </select>
+
+                    <div class="divider-top-15-line">
+
+                        <div class="subnote">Floor Toolbox</div>
+
+                        <div class="divider-top-10">
+                            <ul class="nav nav-pills" role="tablist">
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
+                                    <a href="" ng-click="setCrudTabSelected(1)">Add</a>
+                                </li>
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
+                                    <a href="" ng-click="setCrudTabSelected(2)">Edit</a>
+                                </li>
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
+                                    <a href="" ng-click="setCrudTabSelected(3)">Delete</a>
+                                </li>
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(4) }">
+                                    <a href="" ng-click="setCrudTabSelected(4)">WiFi Map</a>
+                                </li>
+                            </ul>
+
+                            <div ng-show="isCrudTabSelected(1)">
+                                <div class="divider-top-10">
+                                    <label for="input-new-floor-num">Floor Number </label>
+                                    <input class="form-control" id="input-new-floor-num" type="number" min="-256"
+                                           max="256"
+                                           ng-model="newFloorNumber">
+
+                                    <label for="input-floor-plan">Floor Plan </label>
+                                    <input class="form-control" type="file" id="input-floor-plan"
+                                           name="files[]"
+                                           data-file="param.file"/>
+                                </div>
+
+                                <div class="divider-top-10" ng-show="isCanvasOverlayActive">
+                                    <button class="btn btn-success" ng-click="setFloorPlan()"><span
+                                            class="glyphicon glyphicon-ok"></span></button>
+                                    <button class="btn btn-danger" ng-click="removeFloorPlan()"><span
+                                            class="glyphicon glyphicon-remove"></span></button>
+                                </div>
+                                <div class="divider-top-10">
+                                    <span class="subnote"><b>Note:</b> Zooming in the map as much as possible while placing the floor plan will result to better image quality.</span>
+                                </div>
+                            </div>
+                            <div ng-show="isCrudTabSelected(2)">
+                                <div class="divider-top-10">
+                                    <div style="text-align: center" class="divider-top-10">
+                                        <span>To edit a floor's plan you can switch to the "Add" tab, select the "Floor Number" you want to change and upload the new image. The old image will be overwritten.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="divider-top-10 center-delete-div"
+                                 ng-show="isCrudTabSelected(3) && anyService.selectedBuilding">
+
+                                <div><b>WARNING</b>: Once you click the delete button below, every POI and connection
+                                    that
+                                    is attached to floor <i>{{anyService.getFloorNumber()}}</i> of building <i>{{anyService.getBuildingName()}}</i>
+                                    will be lost <b>PERMANENTLY.</b></div>
+                                <button ng-click="deleteFloor()" class="btn btn-danger divider-top-10">Confirm Deletion
+                                </button>
+
+                            </div>
+
+                            <div ng-show="isCrudTabSelected(4)" class="divider-top-10 center-wifi-div">
+                                <div class="subnote">The WiFi map represents the area of the floor that was mapped using
+                                    the <a href="//play.google.com/store/apps/details?id=com.dmsl.anyplace"
+                                           target="_blank">Anyplace Logger</a>.
+                                </div>
+                                <div class="subnote">For greater localization accuracy map the whole floor.</div>
+                                <div style="margin: 10px; font-weight: bold">
+                                    <button class="btn btn-success" ng-click="toggleRadioHeatmap()">
+                                        {{getHeatMapButtonText()}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-prereq"
+                     ng-show="anyService.selectedBuilding === undefined || anyService.selectedBuilding === null">
+                    <div class="midnote">
+                        No building selected.
+                    </div>
+                    <div class="midnote">
+                        You can add a new one from the Building Toolbox.
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- POIS -->
+
+            <div id="ctrl-bar-pois" ng-show="isTabSet(3)" ng-controller="PoiController as poiCtrl">
+
+                <div ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null && anyService.selectedFloor !== undefined && anyService.selectedFloor !== null">
+                    <div class="working-on-indicator">[ {{anyService.selectedFloor.floor_number}} ] :
+                        {{anyService.selectedBuilding.name}}
+                    </div>
+
+                    <ui-select ng-model="anyService.selectedPoi" theme="bootstrap" ng-disabled="disabled">
+                        <ui-select-match placeholder="Select POI...">{{$select.selected.name}}
+                        </ui-select-match>
+                        <ui-select-choices
+                                repeat="p in myPois | filter : { pois_type : '!None' } | propsFilter: { name: $select.search, description: $select.search, floor_number: $select.search } | orderBy : orderByName">
+                            <div ng-bind-html="p.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+
+                    <div id="poi-toolbox" class="divider-top-15-line">
+                        <div>
+                            <div class="subnote">POI Toolbox</div>
+
+                            <div class="divider-top-10">
+                                <div class="draggable-border">
+                                    <img id="draggable-poi" src='build/images/poi-icon.png'/>
+                                </div>
+                                <span class="subnote">drag to add new POI</span>
+                            </div>
+
+                            <div class="divider-top-10">
+                            <span id="helper-connector" class="draggable-border">
+                                <img id="draggable-connector" class="poi-toolbox-btn"
+                                     src='build/images/edge-connector-icon.png'/>
+                            </span>
+                                <span class="subnote">drag to add new connector</span>
+                            </div>
+
+                            <div class="divider-top-10">
+                            <span id="poi-edge-mode" ng-class="(edgeMode) ? 'draggable-border-green' : ''"
+                                  ng-click="toggleEdgeMode()">
+                                <img id="edge-mode-btn" src="build/images/edge-mode.png"/>
+                            </span>
+                                <span ng-hide="edgeMode" class="subnote">toggle edge mode (off)</span>
+                                <span ng-show="edgeMode" class="subnote">toggle edge mode (on)</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="warning-prereq"
+                     ng-show="anyService.selectedBuilding === undefined || anyService.selectedBuilding === null || anyService.selectedFloor === undefined || anyService.selectedFloor === null">
+                    <div class="midnote">
+                        No floor selected.
+                    </div>
+                    <div class="midnote">
+                        You can add a new one from the Floor Toolbox.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="ctrl-bar-more" ng-show="isTabSet(4) && isAuthenticated">
+            <div class="subnote">Your API Key</div>
+            <div class="divider-top-10">
+                <input class="form-control" value="{{gAuth.access_token}}">
+            </div>
+        </div>
+
+        <div id="notification_panel" ng-controller="AlertController as alertCtrl" ng-show="alerts.length">
+            <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="anyService.closeAlert($index)">
+                {{alert.msg}}
+            </alert>
+        </div>
+
+    </div>
+
+    <input id="pac-input" class="controls" type="text" placeholder="Search for desired area to add a Building">
+
+    <div id="map-canvas"></div>
+
+</div>
+
+<script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+<script type="text/javascript" src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+
+<script type="text/javascript" src="build/js/anyplace.min.js"></script>
+
+<script type="text/javascript" src="bower_components/FileSaver/FileSaver.min.js"></script>
+
+<script src="//cdn.flurry.com/js/flurry.js"></script>
+<script>FlurryAgent.startSession("DND8DGH2MT7VZGBMNBPP");</script>
+
+</body>
+
+</html>

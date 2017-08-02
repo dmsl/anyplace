@@ -1,0 +1,414 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageTools.IO.Png</name>
+    </assembly>
+    <members>
+        <member name="T:ImageTools.IO.Png.PngHeader">
+            <summary>
+            Represents the png header chunk.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.Width">
+            <summary>
+            The dimension in x-direction of the image in pixels.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.Height">
+            <summary>
+            The dimension in y-direction of the image in pixels.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.BitDepth">
+            <summary>
+            Bit depth is a single-byte integer giving the number of bits per sample 
+            or per palette index (not per pixel). Valid values are 1, 2, 4, 8, and 16, 
+            although not all values are allowed for all color types. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.ColorType">
+            <summary>
+            Color type is a integer that describes the interpretation of the 
+            image data. Color type codes represent sums of the following values: 
+            1 (palette used), 2 (color used), and 4 (alpha channel used).
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.CompressionMethod">
+            <summary>
+            Indicates the method  used to compress the image data. At present, 
+            only compression method 0 (deflate/inflate compression with a sliding 
+            window of at most 32768 bytes) is defined.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.FilterMethod">
+            <summary>
+            Indicates the preprocessing method applied to the image 
+            data before compression. At present, only filter method 0 
+            (adaptive filtering with five basic filter types) is defined.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngHeader.InterlaceMethod">
+            <summary>
+            Indicates the transmission order of the image data. 
+            Two values are currently defined: 0 (no interlace) or 1 (Adam7 interlace).
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Png.GrayscaleReader">
+            <summary>
+            Color reader for reading grayscale colors from a PNG file.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Png.IColorReader">
+            <summary>
+            Interface for color readers, which are responsible for reading 
+            different color formats from a png file.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.IColorReader.ReadScanline(System.Byte[],System.Byte[],ImageTools.IO.Png.PngHeader)">
+            <summary>
+            Reads the specified scanline.
+            </summary>
+            <param name="scanline">The scanline.</param>
+            <param name="pixels">The pixels, where the colors should be stored in RGBA format.</param>
+            <param name="header">The header, which contains information about the png file, like
+            the width of the image and the height.</param>
+        </member>
+        <member name="F:ImageTools.IO.Png.GrayscaleReader._row">
+            <summary>
+            The index of the current row.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.GrayscaleReader._useAlpha">
+            <summary>
+            Indicates, if the color reader should read the alpha channel.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.GrayscaleReader.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.IO.Png.GrayscaleReader"/> class.
+            </summary>
+            <param name="useAlpha">if set to <c>true</c> the color reader will also read the
+            alpha channel from the scanline.</param>
+        </member>
+        <member name="M:ImageTools.IO.Png.GrayscaleReader.ReadScanline(System.Byte[],System.Byte[],ImageTools.IO.Png.PngHeader)">
+            <summary>
+            Reads the specified scanline.
+            </summary>
+            <param name="scanline">The scanline.</param>
+            <param name="pixels">The pixels, where the colors should be stored in RGBA format.</param>
+            <param name="header">The header, which contains information about the png file, like
+            the width of the image and the height.</param>
+        </member>
+        <member name="T:ImageTools.IO.Png.PngEncoder">
+            <summary>
+            Image encoder for writing image data to a stream in png format.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngEncoder.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.IO.Png.PngEncoder"/> class.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngEncoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image encoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns><c>true</c>, if the encoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngEncoder.Encode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Encodes the data of the specified image and writes the result to
+            the specified stream.
+            </summary>
+            <param name="image">The image, where the data should be get from.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The stream, where the image data should be written to.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            <para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            <para>- or -</para>
+            <para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngEncoder.IsWritingUncompressed">
+            <summary>
+            Gets or sets a value indicating whether this encoder
+            will write the image uncompressed the stream.
+            </summary>
+            <value>
+            <c>true</c> if the image should be written uncompressed to
+            the stream; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngEncoder.IsWritingGamma">
+            <summary>
+            Gets or sets a value indicating whether this instance is writing
+            gamma information to the stream. The default value is false.
+            </summary>
+            <value>
+            <c>true</c> if this instance is writing gamma 
+            information to the stream.; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngEncoder.Gamma">
+            <summary>
+            Gets or sets the gamma value, that will be written
+            the the stream, when the <see cref="P:ImageTools.IO.Png.PngEncoder.IsWritingGamma"/> property
+            is set to true. The default value is 2.2f.
+            </summary>
+            <value>The gamma value of the image.</value>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngEncoder.Extension">
+            <summary>
+            Gets the default file extension for this encoder.
+            </summary>
+            <value>The default file extension for this encoder.</value>
+        </member>
+        <member name="T:ImageTools.IO.Png.TrueColorReader">
+            <summary>
+            Color reader for reading truecolors from a PNG file. Only colors
+            with 24 or 32 bit (3 or 4 bytes) per pixel are supported at the moment.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.TrueColorReader.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.IO.Png.TrueColorReader"/> class.
+            </summary>
+            <param name="useAlpha">if set to <c>true</c> the color reader will also read the
+            alpha channel from the scanline.</param>
+        </member>
+        <member name="M:ImageTools.IO.Png.TrueColorReader.ReadScanline(System.Byte[],System.Byte[],ImageTools.IO.Png.PngHeader)">
+            <summary>
+            Reads the specified scanline.
+            </summary>
+            <param name="scanline">The scanline.</param>
+            <param name="pixels">The pixels, where the colors should be stored in RGBA format.</param>
+            <param name="header">The header, which contains information about the png file, like
+            the width of the image and the height.</param>
+        </member>
+        <member name="T:ImageTools.IO.Png.PaletteIndexReader">
+            <summary>
+            A color reader for reading palette indices from the PNG file.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.PaletteIndexReader.#ctor(System.Byte[],System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.IO.Png.PaletteIndexReader"/> class.
+            </summary>
+            <param name="palette">The palette as simple byte array. It will contains 3 values for each
+            color, which represents the red-, the green- and the blue channel.</param>
+            <param name="paletteAlpha">The alpha palette. Can be null, if the image does not have an
+            alpha channel and can contain less entries than the number of colors in the palette.</param>
+        </member>
+        <member name="M:ImageTools.IO.Png.PaletteIndexReader.ReadScanline(System.Byte[],System.Byte[],ImageTools.IO.Png.PngHeader)">
+            <summary>
+            Reads the specified scanline.
+            </summary>
+            <param name="scanline">The scanline.</param>
+            <param name="pixels">The pixels, where the colors should be stored in RGBA format.</param>
+            <param name="header">The header, which contains information about the png file, like
+            the width of the image and the height.</param>
+        </member>
+        <member name="T:ImageTools.IO.Png.PngDecoder">
+            <summary>
+            Encoder for generating a image out of a png stream.
+            </summary>
+            <remarks>
+            At the moment the following features are supported:
+            <para>
+            <b>Filters:</b> all filters are supported.
+            </para>
+            <para>
+            <b>Pixel formats:</b>
+            <list type="bullet">
+                <item>RGB (Truecolor) with alpha (8 bit).</item>
+                <item>RGB (Truecolor) without alpha (8 bit).</item>
+                <item>Greyscale with alpha (8 bit).</item>
+                <item>Greyscale without alpha (8 bit).</item>
+                <item>Palette Index with alpha (8 bit).</item>
+                <item>Palette Index without alpha (8 bit).</item>
+            </list>
+            </para> 
+            </remarks>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngDecoder.IsSupportedFileExtension(System.String)">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file extension.
+            </summary>
+            <param name="extension">The file extension.</param>
+            <returns>
+            	<c>true</c>, if the decoder supports the specified
+            extensions; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="extension"/>
+            is null (Nothing in Visual Basic).</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="extension"/> is a string
+            of length zero or contains only blanks.</exception>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngDecoder.IsSupportedFileFormat(System.Byte[])">
+            <summary>
+            Indicates if the image decoder supports the specified
+            file header.
+            </summary>
+            <param name="header">The file header.</param>
+            <returns>
+            <c>true</c>, if the decoder supports the specified
+            file header; otherwise <c>false</c>.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="header"/>
+            is null (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngDecoder.Decode(ImageTools.ExtendedImage,System.IO.Stream)">
+            <summary>
+            Decodes the image from the specified stream and sets
+            the data to image.
+            </summary>
+            <param name="image">The image, where the data should be set to.
+            Cannot be null (Nothing in Visual Basic).</param>
+            <param name="stream">The stream, where the image should be
+            decoded from. Cannot be null (Nothing in Visual Basic).</param>
+            <exception cref="T:System.ArgumentNullException">
+            	<para><paramref name="image"/> is null (Nothing in Visual Basic).</para>
+            	<para>- or -</para>
+            	<para><paramref name="stream"/> is null (Nothing in Visual Basic).</para>
+            </exception>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngDecoder.HeaderSize">
+            <summary>
+            Gets the size of the header for this image type.
+            </summary>
+            <value>The size of the header.</value>
+        </member>
+        <member name="T:ImageTools.IO.Png.PngColorTypeInformation">
+            <summary>
+            Contains information that are required when loading a png with a specific color type.
+            </summary>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngColorTypeInformation.#ctor(System.Int32,System.Int32[],System.Func{System.Byte[],System.Byte[],ImageTools.IO.Png.IColorReader})">
+            <summary>
+            Initializes a new instance of the <see cref="T:ImageTools.IO.Png.PngColorTypeInformation"/> class with 
+            the scanline factory, the function to create the color reader and the supported bit depths.
+            </summary>
+            <param name="scanlineFactor">The scanline factor.</param>
+            <param name="supportedBitDepths">The supported bit depths.</param>
+            <param name="scanlineReaderFactory">The factory to create the color reader.</param>
+        </member>
+        <member name="M:ImageTools.IO.Png.PngColorTypeInformation.CreateColorReader(System.Byte[],System.Byte[])">
+            <summary>
+            Creates the color reader for the color type where this object is create for.
+            </summary>
+            <param name="palette">The palette of the image. Can be null when no palette is used.</param>
+            <param name="paletteAlpha">The alpha palette of the image. Can be null when 
+            no palette is used for the image or when the image has no alpha.</param>
+            <returns>The color reader for the image.</returns>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngColorTypeInformation.SupportedBitDepths">
+            <summary>
+            Gets an array with the bit depths that are supported for the color type
+            where this object is created for.
+            </summary>
+            <value>The supported bit depths that can be used in combination with this color type.</value>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngColorTypeInformation.ScanlineReaderFactory">
+            <summary>
+            Gets a function that is used the create the color reader for the color type where 
+            this object is created for.
+            </summary>
+            <value>The factory function to create the color type.</value>
+        </member>
+        <member name="P:ImageTools.IO.Png.PngColorTypeInformation.ScanlineFactor">
+            <summary>
+            Gets a factor that is used when iterating through the scanlines.
+            </summary>
+            <value>The scanline factor.</value>
+        </member>
+        <member name="T:ImageTools.IO.Png.PngChunkTypes">
+            <summary>
+            Contains a list of possible chunk type identifier.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.Header">
+            <summary>
+            The first chunk in a png file. Can only exists once. Contains 
+            common information like the width and the height of the image or
+            the used compression method.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.Palette">
+            <summary>
+            The PLTE chunk contains from 1 to 256 palette entries, each a three byte
+            series in the RGB format.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.Data">
+            <summary>
+            The IDAT chunk contains the actual image data. The image can contains more
+            than one chunk of this type. All chunks together are the whole image.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.End">
+            <summary>
+            This chunk must appear last. It marks the end of the PNG datastream. 
+            The chunk's data field is empty. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.PaletteAlpha">
+            <summary>
+            This chunk specifies that the image uses simple transparency: 
+            either alpha values associated with palette entries (for indexed-color images) 
+            or a single transparent color (for grayscale and truecolor images). 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.Text">
+            <summary>
+            Textual information that the encoder wishes to record with the image can be stored in 
+            tEXt chunks. Each tEXt chunk contains a keyword and a text string.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunkTypes.Gamma">
+            <summary>
+            Thes chunk specifies the relationship between the image samples and the desired 
+            display output intensity.
+            </summary>
+        </member>
+        <member name="T:ImageTools.IO.Png.PngChunk">
+            <summary>
+            Stores header information about a chunk.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunk.Length">
+            <summary>
+            An unsigned integer giving the number of bytes in the chunk's 
+            data field. The length counts only the data field, not itself, 
+            the chunk type code, or the CRC. Zero is a valid length
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunk.Type">
+            <summary>
+            A chunk type as string with 4 chars.
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunk.Data">
+            <summary>
+            The data bytes appropriate to the chunk type, if any. 
+            This field can be of zero length. 
+            </summary>
+        </member>
+        <member name="F:ImageTools.IO.Png.PngChunk.Crc">
+            <summary>
+            A CRC (Cyclic Redundancy Check) calculated on the preceding bytes in the chunk, 
+            including the chunk type code and chunk data fields, but not including the length field. 
+            The CRC is always present, even for chunks containing no data
+            </summary>
+        </member>
+    </members>
+</doc>
