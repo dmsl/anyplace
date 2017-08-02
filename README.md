@@ -55,7 +55,7 @@ Short description of the contents included in this release.
 
 ### A. Server
 
-The server entails all components to run the anyplace service on your own server. The server, implemented in the Play Framework 2.5. You have to install the latest Couchbase server to run this service as this is described here: 
+The server entails all components to run the anyplace service on your own server. 
 
 - Executable (Binary): https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip 
 - Source Code (including IntelliJ IDE SBT file) : https://github.com/dmsl/anyplace/archive/master.zip
