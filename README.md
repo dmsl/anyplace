@@ -77,10 +77,8 @@ The source code of Anyplace HTML5/CSS3 Architect Tool.
 
 #### > Data Store
 Anyplace uses a scalable document store for its backend (named Couchbase). To setup anyplace with couchbase follow the instructions here:
-- https://github.com/dmsl/anyplace/tree/master/server
-The couchbase views are available through the following JSON file:
 - Couchbase Installation:  https://github.com/dmsl/anyplace/tree/master/server
-Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views
+- Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views (can be imported with .sh file)
 - Current Leaders: Constantinos Costa
 
 ### B. Android
