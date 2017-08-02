@@ -58,9 +58,9 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
 ## How to setup Anyplace v3 in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
-+ Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free but if you are a student we recommend taking advantage of the Enterprise Edition which is free for 1 year - this has built-in integration for Play Framework debugging)
++ Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free but if you are a student we recommend taking advantage of the Ultimate Edition which is free for 1 year - this has built-in integration for Play Framework debugging)
 + Install the Scala plugin during the installation process
-+ Download the project from [GitHub](https://github.com/dmsl/anyplace/archive/develop.zip)
++ Download the project from [GitHub](https://github.com/dmsl/anyplace/archive/master.zip)
 + Extract the `develop.zip` file
 + Click `Open` under the `File` menu on the IntelliJ IDEA
 + Choose the `anyplace-develop/server` directory of the extracted file (The directory icon should be marked)
