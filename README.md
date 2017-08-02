@@ -1,4 +1,4 @@
-# AnyPlace
+# AnyPlace v3 
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -6,7 +6,7 @@ A free and open Indoor Navigation Service with superb accuracy!
 
 ## Preface 
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
-localization, navigation and search inside buildings using ordinary smartphones.
+localization, navigation and search inside buildings using ordinary smartphones. 
 	 
 - URL: http://anyplace.cs.ucy.ac.cy
 
@@ -16,7 +16,7 @@ We hope that you find our Anyplace Indoor Information Service useful for your re
 
 In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
-- "Internet-based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou and Georgios Chatzimiloudis IEEE Internet Computing (IC '16), IEEE Press, Volume xx, Pages: xx-xx, 2016. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
+- "Internet-based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou and Georgios Chatzimiloudis IEEE Internet Computing (IC '17), IEEE Press, Volume xx, Pages: xx-xx, 2016. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
 
 - “Anyplace: A Crowdsourced Indoor Information Service”, Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti, Proceedings of the 16th IEEE International Conference on Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf
 
@@ -24,7 +24,7 @@ Enjoy Anyplace!
 
 The Anyplace Team 
 	 
-Copyright (c) 2015, Data Management Systems Lab (DMSL), Department of Computer Science
+Copyright (c) 2017, Data Management Systems Lab (DMSL), Department of Computer Science
 University of Cyprus.
 
 All rights reserved.
@@ -70,35 +70,40 @@ The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization).
 - Try: coming soon
 - Current Leader: Nikitin Artem.
 
-### Viewer
+### Server
+
+The server entails all components to run the anyplace service on your own server. The server, implemented in the Play Framework 2.5. You have to install the latest Couchbase server to run this service as this is described here: https://github.com/dmsl/anyplace/tree/master/server
+
+
+#### Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
-- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/viewer
-- Current Leaders: Kyriakos Georgiou, Dimitris Valeris
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
+- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
-### API
+#### API
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
-- Current Leaders: Kyriakos Georgiou, Dimitris Valeris
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_developers
+- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
-### Architect
+#### Architect
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
-- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
-- Current Leaders: Kyriakos Georgiou, Dimitris Valeris
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
+- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
 ### Data Store
-Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
-- Couch Views: https://github.com/dmsl/anyplace/blob/develop/ddocs.json
-- Couchbase 2.2.1 Installation: https://www.digitalocean.com/community/tutorials/how-to-install-couchbase-from-source-with-git-and-make-on-a-debian-7-vps
-- Anyplace Couchbase 3.0 Version: available in May 2017.
+Anyplace uses a scalable document store for its backend (named Couchbase). To setup anyplace with couchbase follow the instructions here:
+- https://github.com/dmsl/anyplace/tree/master/server
+The couchbase views are available through the following JSON file:
+- Couchbase Installation:  https://github.com/dmsl/anyplace/tree/master/server
+Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views
 - Current Leaders: Constantinos Costa
 
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
-- DEV Viewer: https://goo.gl/eSzl8n
-- DEV Architect: https://goo.gl/5S0oN3
-- DEV API: https://goo.gl/p5YUdb
+
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
 
 ## TEAM
