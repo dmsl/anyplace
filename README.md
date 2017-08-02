@@ -60,29 +60,27 @@ The server entails all components to run the anyplace service on your own server
 - Executable (Binary): https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip
 - Source Code (including IntelliJ IDE SBT file) : https://github.com/dmsl/anyplace/archive/master.zip
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
+- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
 #### > Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
-- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
 #### > API
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_developers
-- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
 #### > Architect
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
-- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
 #### > Data Store
-Anyplace uses a scalable document store for its backend (named Couchbase). To setup anyplace with couchbase follow the instructions here:
-- Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views (can be imported with .sh file)
-- Current Leaders: Constantinos Costa
+To setup Anyplace with Couchbase follow the general server instructions here:
+- Instructions: https://github.com/dmsl/anyplace/tree/master/server
+- Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views 
 
 ### B. Android
 The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization). Current Leader: Timotheos Constambeys. 
