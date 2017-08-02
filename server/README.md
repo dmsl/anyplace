@@ -5,7 +5,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
   1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is possible.
   
-  2. **Download Anyplace v3.0b:**
+  2. **Download Anyplace v3:**
  
     $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
     #if you don't have wget, just download the file with a browser)
