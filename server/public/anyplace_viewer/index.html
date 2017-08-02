@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html ng-app="anyViewer">
 <head>
-
+    <script>
+//        if (window.location.protocol != "https:")
+//            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+    </script>
     <link rel="icon" type="image/png" href="build/images/logo.png">
 
     <link rel="apple-touch-icon-precomposed" href="build/images/ios-icons/touch-icon-ipad.png"/>
@@ -86,27 +89,24 @@
 
     <meta charset="utf-8">
 
+    <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet"  type="text/css"/>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="bower_components/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css"/>
+    <link rel="stylesheet" href="bower_components/select2/select2.css">
+
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCRLbtsuuKx5cdY2ydiri2r4ji3FTYdbY&libraries=places">
     </script>
 
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
-
-    <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet"
-          type="text/css"/>
-    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" type="text/css"/>
-    <link href="bower_components/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
-
     <script type="text/javascript" src="libs/markerclusterer.js"></script>
 
     <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
-    <script type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
-
-    <script src="bower_components/angular-ui-select/dist/select.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css"/>
-    <link rel="stylesheet" href="bower_components/select2/select2.css">
+    <script type="text/javascript"  type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript"  src="bower_components/angular-ui-select/dist/select.js"></script>
+    <script type="text/javascript"  src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
 
     <!-- Must come after jquery/ui imports -->
     <script type="text/javascript" src="bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js"></script>
@@ -119,23 +119,7 @@
     <script type="text/javascript" src="bower_components/angular-loading-bar/src/loading-bar.js"></script>
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css">
 
-    <!--<link rel="stylesheet" type="text/css" href="style/map.css"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="style/floorplan.css"/>-->
-    <!--<link rel="stylesheet" type="text/css" href="style/android-app-top.css"/>-->
-    <!--<script type="text/javascript" src="app.js"></script>-->
-    <!--<script type="text/javascript" src="scripts/AnyplaceAPI.js"></script>-->
-    <!--<script type="text/javascript" src="controllers/AlertController.js"></script>-->
-    <!--<script type="text/javascript" src="controllers/BuildingController.js"></script>-->
-    <!--<script type="text/javascript" src="controllers/ControlBarController.js"></script>-->
-    <!--<script type="text/javascript" src="controllers/FloorController.js"></script>-->
-    <!--<script type="text/javascript" src="controllers/PoiController.js"></script>-->
-    <!--<script type="text/javascript" src="controllers/DropDownController.js"></script>-->
-    <!--<script type="text/javascript" src="scripts/CanvasOverlay.js"></script>-->
-    <!--<script type="text/javascript" src="scripts/USGSOverlay.js"></script>-->
-    <!--<script type="text/javascript" src="scripts/LPUtils.js"></script>-->
-
-
-    <script type="text/javascript" src="build/js/anyplace.min.js"></script>
+    <script type="text/javascript" src="build/js/anyplace.js"></script>
     <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
 
     <script type="text/javascript" src="bower_components/add-to-homescreen/src/addtohomescreen.min.js"></script>
@@ -155,7 +139,7 @@
     <div class="container-fluid" id="gray-bg">
 
         <div class="col-md-1 col-sm-2 col-xs-2 " id="div-logo">
-            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white.png"/>
+            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white3_0.png"/>
         </div>
 
         <!-- BUILDINGS -->
@@ -218,7 +202,7 @@
                     ]</b> : {{$select.selected.name}} | {{$select.selected.description | limitTo : 40}}{{$select.selected.description.length > 40 ? '...' : ''}}
                 </ui-select-match>
                 <ui-select-choices
-                        repeat="p in myPois | filter : { pois_type : '!None' } | propsFilter: { name: $select.search, description: $select.search, floor_number: $select.search } | orderBy : orderByFloor">
+                        repeat="p in poiCtrl.querySearch($select.search) | filter : { pois_type : '!None' } | orderBy : orderByFloor">
                     <div ng-bind-html="'['+ p.floor_number +'] : ' + p.name + ' | ' + p.description | highlight: $select.search"></div>
                     <!--<small>-->
                     <!--<span ng-bind-html="'[ ' + p.floor_number + ' ] ' | highlight: $select.search"></span>-->
@@ -250,18 +234,15 @@
                         <!--</li>-->
                         <!--<li class="divider"></li>-->
                         <li style="text-align: center;">
-                            <a href="//anyplace.cs.ucy.ac.cy" target="_blank">
+                            <a href="https://anyplace.cs.ucy.ac.cy" target="_blank">
                                 <div class="div-logo-menu">
-                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text.png"/>
+                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text3_0.png"/>
                                 </div>
                             </a>
                         </li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy/architect" target="_blank">Add Venue</a></li>
-                        <li><a href="https://play.google.com/store/apps/details?id=com.dmsl.anyplace" target="_blank">Anyplace
-                            Navigator</a></li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy" target="_blank">About</a></li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy#contact" target="_blank">Contact</a></li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy/tos" target="_blank">Terms</a></li>
+                        <li><a href="https://anyplace.cs.ucy.ac.cy" target="_blank">About</a></li>
+                        <li><a href="https://anyplace.cs.ucy.ac.cy#contact" target="_blank">Contact</a></li>
+                        <li><a href="https://anyplace.cs.ucy.ac.cy/tos" target="_blank">Terms</a></li>
                     </ul>
                 </div>
             </div>
@@ -356,13 +337,11 @@
 
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic,900italic" rel="stylesheet"
           type="text/css">
-
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <!-- Optional theme -->
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
-
     <script src="//cdn.flurry.com/js/flurry.js"></script>
     <script>FlurryAgent.startSession("CTSR4NQFNXTQZHRR3C3V");</script>
 </footer>

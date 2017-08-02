@@ -1,0 +1,48 @@
+@(form: Form[ApplicationAnyplace.Login])
+<html>
+    <head>
+        <title>AnyPlace Admin</title>
+        <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
+        <link rel="stylesheet" type="text/css" media="screen" href="/assets/stylesheets/login.css">
+    </head>
+    <body>
+
+        <div id="login_form">
+            @helper.form(routes.ApplicationAnyplace.authenticate) {
+                <h1>AnyPlace Admin</h1>
+
+                @if(form.hasGlobalErrors) {
+                    <p class="error">
+                    @form.globalError.get.message
+                    </p>
+                }
+                @if(!form.hasGlobalErrors) {
+                    <p class="success">
+                    Success
+                    </p>
+                }
+
+                <p>
+                    <input type="username" name="username" placeholder="Username" value="@form("username").value">
+                </p>
+                <p>
+                    <input type="password" name="password" placeholder="Password">
+                </p>
+
+                <p>
+                    <select name="admin_mode">
+                        <option value ="architect">Architect</option>
+                        <option value ="architect2">Architect 2</option>
+                        <option value ="admin">Admin</option>
+                        <option value ="android">Android</option>
+                    </select>
+                </p>
+
+                <p>
+                    <button type="submit">Login</button>
+                </p>
+            }
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,2 @@
+target\universal\*.zip filter=lfs diff=lfs merge=lfs -text
+.\target\universal\anyplace_v3-0.3a.zip filter=lfs diff=lfs merge=lfs -text

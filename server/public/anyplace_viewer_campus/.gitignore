@@ -1,0 +1,6 @@
+node_modules
+bower_components
+build
+
+# ignore all temporary files ending with a tilde
+**/*~

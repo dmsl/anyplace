@@ -1,12 +1,22 @@
-name := "AnyplaceServer"
+name := "anyplace_v3"
 
-version := "1.0-SNAPSHOT"
+version := "0.3b"
+
+lazy val `anyplace_v3` = (project in file(".")).enablePlugins(PlayScala)
+
+scalaVersion := "2.11.7"
+
+libraryDependencies ++= Seq( jdbc , cache , ws   , specs2 % Test )
 
 libraryDependencies ++= Seq(
-  javaJdbc,
-  javaEbean,
-  cache
-)     
+  // Add here the specific dependencies for this module:
+  filters
+)
 
+libraryDependencies += "com.couchbase.client" % "java-client" % "2.4.5"
 
-play.Project.playJavaSettings
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+
+unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
+
+javaOptions += "-Dfile.encoding=UTF-8"
