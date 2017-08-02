@@ -1,4 +1,4 @@
-# Anyplace v3
+# Anyplace v3 Installation Notes
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
 
 # Setup/Configuration
