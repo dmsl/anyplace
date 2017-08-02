@@ -55,7 +55,11 @@ Short description of the contents included in this release.
 
 ### A. Server
 
-The server entails all components to run the anyplace service on your own server. The server, implemented in the Play Framework 2.5. You have to install the latest Couchbase server to run this service as this is described here: https://github.com/dmsl/anyplace/tree/master/server
+The server entails all components to run the anyplace service on your own server. The server, implemented in the Play Framework 2.5. You have to install the latest Couchbase server to run this service as this is described here: 
+
+- Executable (Binary): https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip 
+- Source Code (including IntelliJ IDE SBT file) : https://github.com/dmsl/anyplace/archive/master.zip
+- Instructions: https://github.com/dmsl/anyplace/tree/master/server
 
 #### > Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
@@ -77,7 +81,6 @@ The source code of Anyplace HTML5/CSS3 Architect Tool.
 
 #### > Data Store
 Anyplace uses a scalable document store for its backend (named Couchbase). To setup anyplace with couchbase follow the instructions here:
-- Couchbase Installation:  https://github.com/dmsl/anyplace/tree/master/server
 - Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views (can be imported with .sh file)
 - Current Leaders: Constantinos Costa
 
@@ -99,8 +102,7 @@ The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization).
 - Current Leader: Nikitin Artem.
 
 ## LATEST DEVELOPMENT VERSION
-To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
-
+To test the latest development version you can fork the DEVELOP branch: 
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
 
 ## TEAM
