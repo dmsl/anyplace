@@ -1,7 +1,9 @@
 # Anyplace v3 Installation Notes
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
 
-# Setup/Configuration
+# Anyplace v3 for administrators
+
+## Setup/Configuration
 
   1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is expected.
   
@@ -31,7 +33,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
         * `BUCKET=""` - This is the bucket for the couchbase instance.
     + Important: As with all passwords, this should be kept a secret. 
   
-# Running
+## Launching 
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
@@ -45,7 +47,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ Double click  anyplace_v3.bat
     # To stop press Ctrl-C or kill the respective process through the task manager
     
-# Testing
+## Testing
     Just open a browser and test the following URLs.
 
     $ http://localhost:9000/viewer
