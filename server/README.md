@@ -73,6 +73,8 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     * Click the dropdown menu on the right side of the IDE to `Edit configuration`
     * Add a new configuration click the `+` symbol
     * Choose `SBT Task` and then write "run" in the `tasks` fields
++ (Tentatively) Refresh Viewer Packages: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
++ (Tentatively) Refresh Architect Packages:  https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
 + Done!
 
 **Important**: In order to fully support the Play project you need download and install the Ultimate edition.
