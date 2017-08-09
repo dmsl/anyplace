@@ -1710,7 +1710,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     implicit request =>
 
       val anyReq = new OAuth2Request(request)
-      val body = anyReq.getMultipartFormData
+      val body = anyReq.getMultipartFormData()
       if (body == null) AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
       var floorplan = body.file("floorplan").get
       if (floorplan == null) AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!")
@@ -1742,7 +1742,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         stored_floor.put("bottom_left_lng", bottom_left_lng)
         stored_floor.put("top_right_lat", top_right_lat)
         stored_floor.put("top_right_lng", top_right_lng)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString)) AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
+        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
+          AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
       }

@@ -80,7 +80,7 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
 
     def getId(): String = {
         var fuid: String = this.json.getString("fuid")
-        if (fuid.trim().isEmpty) {
+        if (fuid==null || fuid.trim().isEmpty) {
             fuid = Floor.getId(fields.get("buid"), fields.get("floor_number"))
             fields.put("fuid", fuid)
             this.json.put("fuid", fuid)

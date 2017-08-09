@@ -205,16 +205,16 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = {
-    val client = getConnection
+    val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.replace(json, PersistTo.ONE, expiry, TimeUnit.MILLISECONDS)
+    val db_res = client.replace(json, PersistTo.ONE).toBlocking.first()
     db_res.equals(json)
   }
 
   override def deleteFromKey(key: String): Boolean = {
-    val client = getConnection
-    val db_res = client.remove(key, PersistTo.ONE)
+    val client = getConnection.async()
+    val db_res = client.remove(key, PersistTo.ONE).toBlocking.first()
     true
   }
 
