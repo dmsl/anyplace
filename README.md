@@ -53,7 +53,7 @@ DEALINGS IN THE SOFTWARE.
 
 Short description of the contents included in this release.
 
-### A. Server
+### A. Server v3.0.4
 
 The server entails all components to run the anyplace service on your own server. 
 
@@ -62,39 +62,39 @@ The server entails all components to run the anyplace service on your own server
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
-#### > Viewer
+#### > Viewer v3.0.4
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
 
-#### > API
+#### > API v3.0.4
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_developers
 
-#### > Architect
+#### > Architect v3.0.4
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
 
-#### > Data Store
+#### > Data Store v3.0.4
 To setup Anyplace with Couchbase follow the general server instructions here:
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views 
 
-### B. Android
+### B. Android v2.3.7
 The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization). Current Leader: Timotheos Constambeys. 
 - Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/android
 - Current Leader: Timotheos Constambeys
 
-### C. Windows
+### C. Windows v1.3.4
 The Source code of the Anyplace Windows Phone Client (IP localization). 
 - Try: https://www.microsoft.com/en-us/store/apps/anyplace/9nblgggzldsk
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/windows
 - Current Leader: Pangiotis Irakleous
 
-### D. iOS
+### D. iOS v0
 The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). 
 - Try: coming soon
 - Current Leader: Nikitin Artem.
