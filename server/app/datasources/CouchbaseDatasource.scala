@@ -546,7 +546,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(JsonArray.from(buid, floor)).endKey(JsonArray.from(buid, floor, null, null)).group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.size)
@@ -719,8 +719,7 @@ class CouchbaseDatasource private(hostname: String,
     if (allPoisbycuid.get(cuid2) == null) {
       System.out.println("LOAD CUID:" + cuid2)
       var i = 0
-      for ( i <- 0 until buildingSet.get(0).getArray("buids").size )
-   {
+      for (i <- 0 until buildingSet.get(0).getArray("buids").size) {
         val buid = buildingSet.get(0).getArray("buids").get(i).toString
         if (allPoisSide.get(buid) != null) {
           val pois = allPoisSide.get(buid)

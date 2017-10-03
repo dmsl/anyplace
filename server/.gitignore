@@ -14,3 +14,4 @@ dist
 /.settings
 /target/
 /conf/application.conf
+/floor_plans/
