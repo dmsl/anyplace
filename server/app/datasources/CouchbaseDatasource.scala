@@ -274,7 +274,7 @@ class CouchbaseDatasource private(hostname: String,
     }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
-    if (res.totalRows() > 0)
+
       for (row <- res.allRows()) {
         try {
           json = row.document().content()
@@ -293,12 +293,12 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.size) {
+    if (0 == res.totalRows) {
       return Collections.emptyList()
     }
     val result = new ArrayList[HashMap[String, String]]()
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         result.add(JsonUtils.getHashMapStrStr(row.document().toString))
       }
     result
@@ -311,8 +311,8 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
     val pois = new ArrayList[JsonObject]()
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           json.removeKey("owner_id")
@@ -332,8 +332,8 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
     val pois = new ArrayList[HashMap[String, String]]()
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         pois.add(JsonUtils.getHashMapStrStr(row.document().toString))
       }
     pois
@@ -350,7 +350,7 @@ class CouchbaseDatasource private(hostname: String,
       throw new DatasourceException("Error retrieving floors from database!")
     }
     var json: JsonObject = null
-    if (res.totalRows() > 0)
+
       for (row <- res.allRows()) {
         try {
           json = row.document().content()
@@ -369,12 +369,12 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
-    println("couchbase results: " + res.size)
+    println("couchbase results: " + res.totalRows)
     if (!res.success()) {
       throw new DatasourceException("Error retrieving floors from database!")
     }
     var json: JsonObject = null
-    if (res.totalRows() > 0)
+
       for (row <- res.allRows()) {
         try {
           json = row.document().content()
@@ -395,8 +395,8 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
     val conns = new ArrayList[JsonObject]()
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           if (json.getString("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR)) //continue
@@ -416,8 +416,8 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
     var hm: HashMap[String, String] = null
     val conns = new ArrayList[HashMap[String, String]]()
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         hm = JsonUtils.getHashMapStrStr(row.document().toString)
         if (hm.get("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR)) //continue
           conns.add(hm)
@@ -430,13 +430,13 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.size) {
+    if (0 == res.totalRows) {
       return Collections.emptyList()
     }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           json.removeKey("owner_id")
@@ -454,9 +454,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "all_by_buid").key((buid))
 
     val res = couchbaseClient.query(viewQuery)
-
-    if (res.totalRows() > 0)
-      for (row <- res) {
+      for (row <- res.allRows()) {
         val id = row.id()
         val db_res = couchbaseClient.remove(id, PersistTo.ONE)
         try {
@@ -476,8 +474,8 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "all_by_floor").key((buid))
     val res = couchbaseClient.query(viewQuery)
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         val id = row.id()
         val db_res = couchbaseClient.remove(id, PersistTo.ONE)
         try {
@@ -506,8 +504,8 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "all_by_pois").key((puid))
     val res = couchbaseClient.query(viewQuery)
 
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         val id = row.id()
         val db_res = couchbaseClient.remove(id, PersistTo.ONE)
         try {
@@ -528,10 +526,10 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("radio", "radio_new_campus_experiment").group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.size)
+    println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.key().asInstanceOf[JsonObject]
           json.put("weight", row.value().toString)
@@ -546,19 +544,19 @@ class CouchbaseDatasource private(hostname: String,
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(JsonArray.from(buid, floor)).endKey(JsonArray.from(buid, floor, null, null)).group(true).reduce(true)
+    val startkey=JsonArray.from(buid, floor)
+    val endkey=JsonArray.from(buid, floor,"90","180")
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.size)
+    println("couchbase results: " + res.totalRows())
     var json: JsonObject = null
-    if (res.totalRows() > 0)
       for (row <- res.allRows()) {
         try {
           json = JsonObject.empty()
-          var k = row.key().toString
-          val array = k.split(",")
-          json.put("x", array(2))
-          json.put("y", array(3))
+          val array = row.key().asInstanceOf[JsonArray]
+          json.put("x", array.get(2))
+          json.put("y", array.get(3))
           json.put("w", row.value().toString)
           points.add(json)
         } catch {
@@ -574,7 +572,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "building_all").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    //  if (res.totalRows() > 0)
+    //
 
     for (row <- res.allRows()) {
       try {
@@ -604,7 +602,7 @@ class CouchbaseDatasource private(hostname: String,
 
     println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
-    if (res.totalRows() > 0)
+
       for (row <- res.allRows()) {
         try {
           json = row.document().content()
@@ -625,7 +623,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "building_all_by_bucode").key((bucode)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
-    if (res.totalRows() > 0)
+
       for (row <- res) {
         try {
           json = row.document().content()
@@ -676,7 +674,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "building_by_alias").key((alias)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    // println("couchbase results: " + res.size)
+    // println("couchbase results: " + res.totalRows)
     if (!res.iterator().hasNext) {
       return null
     }
@@ -740,7 +738,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    System.out.println("couchbase results: " + res.size)
+    System.out.println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
     if (res.nonEmpty)
       for (row <- res) {
@@ -834,8 +832,8 @@ class CouchbaseDatasource private(hostname: String,
       val res = couchbaseClient.query(viewQuery)
       if (!(res.totalRows() > 0)) return totalFetched
       currentFetched = 0
-      if (res.totalRows() > 0)
-        for (row <- res) {
+
+        for (row <- res.allRows()) {
           currentFetched += 1
           try {
             rssEntry = row.document().content()
@@ -860,13 +858,13 @@ class CouchbaseDatasource private(hostname: String,
 
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.size)
+    println("couchbase results: " + res.totalRows)
     if (res.error().size > 0) {
       throw new DatasourceException("Error retrieving accounts from database!")
     }
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           if (row.document() == null) //continue
             json = row.document().content()
@@ -883,8 +881,8 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("radio", "tempview").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         deleteFromKey(row.key().toString)
       }
     true
@@ -951,13 +949,13 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
-    if (0 == res.size) {
+    if (0 == res.totalRows) {
       return Collections.emptyList()
     }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           result.add(json)
@@ -973,13 +971,13 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid").key((buid)).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.size) {
+    if (0 == res.totalRows) {
       return Collections.emptyList()
     }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           result.add(json)
@@ -994,13 +992,13 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("magnetic", "mmilestones_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.size) {
+    if (0 == res.totalRows) {
       return Collections.emptyList()
     }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res) {
+
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           result.add(json)
