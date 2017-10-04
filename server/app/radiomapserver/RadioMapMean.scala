@@ -44,6 +44,7 @@ import java.util.HashMap
 import scala.beans.BeanProperty
 //remove if not needed
 import scala.collection.JavaConversions._
+import util.control.Breaks._
 
 class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNValue: Int)
 {
@@ -84,54 +85,60 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
             reader = new BufferedReader(new FileReader(inFile))
             var c = 0
             while ({line = reader.readLine; line != null}) {
-                c += 1
-                if (c == 33) {
-                    System.out.print("tet")
-                }
-                if (line.trim() == "") {
-                    //continue
-                }
-                line = line.replace(", ", " ")
-                temp = line.split(" ")
-                if (temp(0).trim() == "#") {
-                    if (temp(1).trim() == "NaN") {
-                        //continue
+                breakable {
+                    c += 1
+                    if (c == 33) {
+                        System.out.print("tet")
                     }
-                    if (temp.length < 5) {
-                        return false
-                    } else if (this.isIndoor &&
-                      (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
-                        return false
+                    if (line.trim() == "") {
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    for (i <- 4 until temp.length) {
-                        if (!temp(i).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
+                    line = line.replace(", ", " ")
+                    temp = line.split(" ")
+                    if (temp(0).trim() == "#") {
+                        if (temp(1).trim() == "NaN") {
+                            //continue (break from breakable inside loop)
+                            break
+                        }
+                        if (temp.length < 5) {
+                            return false
+                        } else if (this.isIndoor &&
+                          (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
                             return false
                         }
-                        this.MacAdressList.add(temp(i))
+                        for (i <- 4 until temp.length) {
+                            if (!temp(i).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
+                                return false
+                            }
+                            this.MacAdressList.add(temp(i))
+                        }
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    //continue
-                }
-                key = temp(0) + " " + temp(1)
-                group = java.lang.Integer.parseInt(temp(2))
-                RSS_Values = new ArrayList[String]()
-                for (i <- 3 until temp.length) {
-                    RSS_Values.add(temp(i))
-                }
-                if (this.MacAdressList.size != RSS_Values.size) {
-                    return false
-                }
-                if (key != lastKey) {
-                    this.OrderList.add(key)
-                    lastKey = key
-                }
-                this.LocationRSS_HashMap = this.GroupLocationRSS_HashMap.get(group)
-                if (this.LocationRSS_HashMap == null) {
-                    this.LocationRSS_HashMap = new HashMap[String, ArrayList[String]]()
+                    key = temp(0) + " " + temp(1)
+                    group = java.lang.Integer.parseInt(temp(2))
+                    RSS_Values = new ArrayList[String]()
+                    for (i <- 3 until temp.length) {
+                        RSS_Values.add(temp(i))
+                    }
+                    if (this.MacAdressList.size != RSS_Values.size) {
+                        return false
+                    }
+                    if (key != lastKey) {
+                        this.OrderList.add(key)
+                        lastKey = key
+                    }
+                    this.LocationRSS_HashMap = this.GroupLocationRSS_HashMap.get(group)
+                    if (this.LocationRSS_HashMap == null) {
+                        this.LocationRSS_HashMap = new HashMap[String, ArrayList[String]]()
+                        this.LocationRSS_HashMap.put(key, RSS_Values)
+                        this.GroupLocationRSS_HashMap.put(group, LocationRSS_HashMap)
+                        //continue (break from breakable inside loop)
+                        break
+                    }
                     this.LocationRSS_HashMap.put(key, RSS_Values)
-                    this.GroupLocationRSS_HashMap.put(group, LocationRSS_HashMap)
-                    //continue
                 }
-                this.LocationRSS_HashMap.put(key, RSS_Values)
             }
             reader.close()
         } catch {
@@ -142,6 +149,10 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
             }
         }
         true
+    }
+
+    def getGroupLocationRSS_HashMap(): HashMap[Integer, HashMap[String, ArrayList[String]]] = {
+        GroupLocationRSS_HashMap
     }
 
     override def toString(): String = {

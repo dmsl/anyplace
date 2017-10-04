@@ -50,10 +50,16 @@ import java.text.ParseException
 import java.util
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
-import java.util.HashMap
 
+import acces.GeoUtils
+import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import play.api.libs.json.{JsObject, JsString, Json}
+import radiomapserver.{RadioMap, RadioMapMean}
+import acces.AccesRBF
+
+import scala.collection.mutable.ListBuffer
+import collection.JavaConversions._
 
 
 object AnyplaceMapping extends play.api.mvc.Controller {
@@ -126,8 +132,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
       val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").toString
-      val floor = (json \ "floor").toString
+      val buid = (json \ "buid").as[String]
+      val floor = (json \ "floor").as[String]
       try {
         val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor(buid, floor)
         if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -1831,4 +1837,221 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     gzipOutputStream.close()
     stringOutputStream
   }
+
+
+  def getAccesHeatmapByBuildingFloor() = Action {
+    implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) {
+        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      }
+      val json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
+      if (!requiredMissing.isEmpty) {
+        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      }
+      val floor_number = (json \ "floor").as[String]
+      val buid = (json \ "buid").as[String]
+      val cut_k_features = (json \ "cut_k_features").asOpt[Int]
+      //Default 5 meter grid step
+      val h = (json \ "h").asOpt[Double].getOrElse(5.0)
+
+      if (!Floor.checkFloorNumberFormat(floor_number)) {
+        AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+      }
+      try {
+        val rm = getRadioMapMeanByBuildingFloor(buid = buid, floor_number = floor_number)
+        if (rm.isEmpty) {
+          AnyResponseHelper.bad_request("Area not supported yet!")
+        } else {
+          val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
+            cut_k_features = cut_k_features, h = h)
+          val res = JsonObject.empty()
+          res.put("geojson",  JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
+          res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.toList)))
+          AnyResponseHelper.ok(res, "Successfully served ACCES map.")
+        }
+      } catch {
+        case e: FileNotFoundException => AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        case e: IOException => AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+        case e: Exception => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+  }
+
+  private def getAccesMap(rm: RadioMapMean,
+                          buid: String, floor_number: String,
+                          cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
+
+    val hm = rm.getGroupLocationRSS_HashMap()
+    val keys = hm.keySet()
+
+    val list_latlon = ListBuffer[GeoPoint]()
+    val list_rss = ListBuffer[DenseVector[Double]]()
+
+    val m = rm.getMacAdressList().size()
+    for (key <- keys) {
+      val lrhm = hm.get(key)
+      for (loc: String <- lrhm.keySet()) {
+        val rss: util.List[String] = lrhm.get(loc)
+        val rss_vec = DenseVector.zeros[Double](m)
+        for (i <- 0 until rss.size()) {
+          rss_vec(i) = rss.get(i).toDouble
+        }
+        val slat_slon = loc.split(" ")
+        val point = new GeoPoint(lat = slat_slon(0), lon = slat_slon(1))
+        list_latlon.append(point)
+        list_rss.append(rss_vec)
+      }
+    }
+    val n = rm.getOrderList().size()
+    val multipoint = new GeoJSONMultiPoint()
+    for (i <- 0 until n) {
+      multipoint.points.add(list_latlon(i))
+    }
+    LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): fingerprints, APs: "
+      + n.toString + ", " + m.toString)
+
+    LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): multipoint: " + multipoint.toGeoJSON().toString)
+
+    val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
+    val floor = floors.filter((js: JsonObject) => js.getString("floor_number") == floor_number)(0)
+    val bl = new GeoPoint(lat = floor.getString("bottom_left_lat"), lon = floor.getString("bottom_left_lng"))
+    val ur = new GeoPoint(lat = floor.getString("top_right_lat"), lon = floor.getString("top_right_lng"))
+    val X = GeoUtils.latlng2xy(multipoint, bl=bl, ur=ur)
+    val Y = DenseMatrix.zeros[Double](n,m)
+    for (i <- 0 until n) {
+      Y(i, ::) := list_rss.get(i).t
+    }
+
+
+
+    val X_min = GeoUtils.latlng2xy(point=bl, bl=bl, ur=ur)
+    val X_max = GeoUtils.latlng2xy(point=ur, bl=bl, ur=ur)
+    val Y_min = -110.0 * DenseVector.ones[Double](m)
+    val Y_max = 0.0 * DenseVector.ones[Double](m)
+    val acces = new AccesRBF(
+      X=X, Y=Y,
+      X_min=Option(X_min), X_max=Option(X_max),
+      Y_min=Option(Y_min), Y_max=Option(Y_max),
+      normalize_x = false,
+      normalize_y = true,
+      drop_redundant_features = true,
+      cut_k_features = cut_k_features
+    )
+
+    acces.fit_gpr(estimate = true, use_default_params = false)
+    //X_min and X_max are bl and ur in XY coordinates
+    val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
+    val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+    val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+      GeoUtils.xy2latlng(xy = X_predict, bl=bl, ur=ur)
+    )
+
+//    throw new Exception("Waaat")
+
+    return (latlon_predict, crlbs)
+  }
+
+
+  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {
+    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floor_number)
+    val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
+    if (rmapDir.exists() && meanFile.exists()) {
+      val folder = rmapDir.toString
+      val radiomap_mean_filename = new File(folder + File.separatorChar + "indoor-radiomap-mean.txt").getAbsolutePath
+      val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
+      rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
+      return Option[RadioMapMean](rm_mean)
+    }
+
+    if (!rmapDir.mkdirs() && !rmapDir.exists()) {
+      throw new IOException("Could not create %s".format(rmapDir.toString))
+    }
+    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
+    var fout: FileOutputStream = null
+    fout = new FileOutputStream(radio)
+    println(radio.toPath().getFileName)
+    var floorFetched: Long = 0l
+    floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+    try {
+      fout.close()
+    } catch {
+      case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
+    }
+    if (floorFetched == 0) {
+      Option[RadioMapMean](null)
+    }
+
+    val folder = rmapDir.toString
+    val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath
+    var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
+    var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
+    var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
+    val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
+    if (!rm.createRadioMap()) {
+      LPLogger.error("Error while creating Radio Map on-the-fly!")
+      throw new Exception("Error while creating Radio Map on-the-fly!")
+    }
+    val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
+    rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
+    return Option[RadioMapMean](rm_mean)
+  }
+
+
+//  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {
+//    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floor_number)
+//    val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
+//    if (rmapDir.exists() && meanFile.exists()) {
+//      LPLogger.info("AnyplaceMapping::getRadioMapMeanByBuildingFloor(): necessary files exist:"
+//        + rmapDir.toString + ", " + meanFile.toString)
+//      val folder = rmapDir.toString
+//      var radiomap_mean_filename = new File(folder + File.separatorChar + "indoor-radiomap-mean.txt").getAbsolutePath
+//      val api = AnyplaceServerAPI.SERVER_API_ROOT
+//      var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
+//      radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
+//      val rm = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
+//      rm.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
+//      return Option[RadioMapMean](rm)
+//    }
+//    LPLogger.info("AnyplaceMapping::getRadioMapMeanByBuildingFloor(): necessary files do not exist:"
+//      + rmapDir.toString + ", " + meanFile.toString)
+//    if (!rmapDir.mkdirs() && !rmapDir.exists()) {
+//      throw new IOException("Could not create %s".format(rmapDir.toString))
+//    }
+//    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
+//    var fout: FileOutputStream = null
+//    fout = new FileOutputStream(radio)
+//    println(radio.toPath().getFileName)
+//
+//    var floorFetched: Long = 0l
+//    floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+//    try {
+//      fout.close()
+//    } catch {
+//      case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
+//    }
+//
+//    if (floorFetched == 0) {
+//      return Option[RadioMapMean](null)
+//    }
+//
+//    val folder = rmapDir.toString
+//    val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath
+//    var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
+//    val api = AnyplaceServerAPI.SERVER_API_ROOT
+//    var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
+//    radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
+//    val rm = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
+//    rm.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
+//    return Option[RadioMapMean](rm)
+//  }
+
+
+
 }
+
+
+
