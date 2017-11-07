@@ -200,7 +200,7 @@ class CouchbaseDatasource private(hostname: String,
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.upsert(json, PersistTo.ONE).toBlocking.first()
+    val db_res = client.insert(json, PersistTo.ONE).toBlocking.first()
     db_res.equals(json)
   }
 
