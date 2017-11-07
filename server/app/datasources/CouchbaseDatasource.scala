@@ -638,7 +638,7 @@ class CouchbaseDatasource private(hostname: String,
     buildings
   }
 
-  override def getAllBuildingsNearMe(lat: Double, lng: Double): List[JsonObject] = {
+  override def getAllBuildingsNearMe(owner_id:String, lat: Double, lng: Double): List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
 
@@ -654,10 +654,14 @@ class CouchbaseDatasource private(hostname: String,
       for (row <- res) {
         try {
           json = row.document().content()
-          json.removeKey("geometry")
-          json.removeKey("owner_id")
-          json.removeKey("co_owners")
-          buildings.add(json)
+          val pub=json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
+          val owner=json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").toList.contains(owner_id)
+          if (pub || owner) {
+            json.removeKey("geometry")
+            json.removeKey("owner_id")
+            json.removeKey("co_owners")
+            buildings.add(json)
+          }
         } catch {
           case e: IOException =>
         }

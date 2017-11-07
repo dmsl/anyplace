@@ -116,7 +116,7 @@ trait IDatasource {
 
   def getBuildingByAlias(alias: String): JsonObject
 
-  def getAllBuildingsNearMe(lat: Double, lng: Double): List[JsonObject]
+  def getAllBuildingsNearMe(oid: String,lat: Double, lng: Double): List[JsonObject]
 
   def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long
 

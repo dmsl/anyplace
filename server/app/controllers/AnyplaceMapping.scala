@@ -512,10 +512,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
       var json = anyReq.getJsonBody
       LPLogger.info("AnyplaceMapping::buildingCoordinates(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon")
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      if (json.\("access_token").get == null) AnyResponseHelper.forbidden("Unauthorized")
+      var owner_id = verifyOwnerId((json \ "access_token").as[String])
+      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
+      owner_id = appendToOwnerId(owner_id)
+      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+       requiredMissing.addAll(JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon"))
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       try {
-        val buildings = ProxyDataSource.getIDatasource.getAllBuildingsNearMe(java.lang.Double.parseDouble(json.\\("coordinates_lat").mkString.replace("\"", "")),
+        val buildings = ProxyDataSource.getIDatasource.getAllBuildingsNearMe(owner_id,java.lang.Double.parseDouble(json.\\("coordinates_lat").mkString.replace("\"", "")),
           java.lang.Double.parseDouble(json.\\("coordinates_lon").mkString.replace("\"", "")))
         val res = JsonObject.empty()
         res.put("buildings", (buildings))
