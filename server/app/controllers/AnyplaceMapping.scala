@@ -516,7 +516,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       if (json.\("access_token").get == null) AnyResponseHelper.forbidden("Unauthorized")
       var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
+      if (owner_id == null) owner_id=""
       owner_id = appendToOwnerId(owner_id)
       json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
        requiredMissing.addAll(JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon"))
