@@ -160,6 +160,13 @@
           "uri": "/mapping/building/coordinates",
           "parameters": [
             {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
               "name": "coordinates_lat",
               "required": "Y",
               "type": "text",

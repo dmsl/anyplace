@@ -62,7 +62,8 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
   }
 
   def assertJsonBody(): Boolean = {
-    if (this.mJsonBody == null) this.mJsonBody = this.mRequest.body.asJson.get
+    if (this.mJsonBody == null)
+      this.mJsonBody = this.mRequest.body.asJson.orNull
     this.mJsonBody != null
   }
 
@@ -74,7 +75,7 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
   }
 
   def assertFormUrlEncodedBody(): Boolean = {
-    this.mFormBody = this.mBody.asFormUrlEncoded.get
+    this.mFormBody = this.mBody.asFormUrlEncoded.orNull
     if (this.mFormBody == null) {
       return false
     }

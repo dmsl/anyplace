@@ -205,9 +205,9 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getBuildingByAlias(alias)
   }
 
-  override def getAllBuildingsNearMe(lat: Double, lng: Double): List[JsonObject] = {
+  override def getAllBuildingsNearMe(ownerid:String,lat: Double, lng: Double): List[JsonObject] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsNearMe(lat, lng)
+    mActiveDatabase.getAllBuildingsNearMe(ownerid,lat, lng)
   }
 
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
