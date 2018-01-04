@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.dmsl.anyplace</groupId>
+	<artifactId>anyplace-simulator</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+
+	<name>Anyplace-Simulator</name>
+	<description>A trace-driven simulator for the Anyplace Indoor Localization Service. The simulator connects directly with the Anyplace API and is written in JAVA. It allows developers to test various ideas on top of Anyplace before prototyping them in a real setting. </description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+
+	<modules>
+		<module>DataConnector</module>
+		<module>DatasetCreator</module>
+        <module>TracesCreator</module>
+        <module>Visualizer</module>
+        <module>Simulator</module>
+	</modules>
+</project>
