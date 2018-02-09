@@ -61,7 +61,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 + Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.
 + (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
 
-## Optional Anyplace Server Configurations
+## Optional Cluster and SSL Configurations for Anyplace Server 
 + (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
 + (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
   
