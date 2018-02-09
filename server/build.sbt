@@ -23,7 +23,6 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze-viz" % "0.12"
 )
 
-
 //Required for ACCES
 libraryDependencies += "com.github.danielkorzekwa" % "bayes-scala-gp_2.11" % "0.1-SNAPSHOT"
 

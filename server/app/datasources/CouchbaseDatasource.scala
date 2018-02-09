@@ -200,7 +200,7 @@ class CouchbaseDatasource private(hostname: String,
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.insert(json, PersistTo.ONE).toBlocking.first()
+    val db_res = client.insert(json, PersistTo.MASTER).toBlocking.first()
     db_res.equals(json)
   }
 
@@ -208,13 +208,13 @@ class CouchbaseDatasource private(hostname: String,
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.replace(json, PersistTo.ONE).toBlocking.first()
+    val db_res = client.replace(json, PersistTo.MASTER).toBlocking.first()
     db_res.equals(json)
   }
 
   override def deleteFromKey(key: String): Boolean = {
     val client = getConnection.async()
-    val db_res = client.remove(key, PersistTo.ONE).toBlocking.first()
+    val db_res = client.remove(key, PersistTo.MASTER).toBlocking.first()
     true
   }
 

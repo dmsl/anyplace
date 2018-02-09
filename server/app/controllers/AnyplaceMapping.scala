@@ -50,11 +50,16 @@ import java.text.ParseException
 import java.util
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
-import java.util.HashMap
 
+import acces.GeoUtils
+import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import play.api.libs.json.{JsObject, JsString, Json}
+import radiomapserver.{RadioMap, RadioMapMean}
+import acces.AccesRBF
 
+import scala.collection.mutable.ListBuffer
+import collection.JavaConversions._
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -1798,7 +1803,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
     if (building != null && building.get("owner_id") != null &&
-      building.getString("owner_id") == userId) true
+      building.getString("owner_id").equals(userId)) return true
     false
   }
 
@@ -1806,7 +1811,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val cws: JsonArray = building.getArray("co_owners")
     if (building != null && !cws.isEmpty) {
       val it = cws.iterator()
-      while (it.hasNext) if (it.next().toString == userId) true
+      while (it.hasNext) if (it.next().toString.equals(userId)) return true
     }
     false
   }
