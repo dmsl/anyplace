@@ -55,6 +55,17 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ http://localhost:9000/developers
 
     You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
+
+## Connecting the Anyplace Android Client
++ Download the Android Client from the Play Store: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en (https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en)
++ Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.
++ (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
+
+## Optional Anyplace Server Configurations
++ (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
++ (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
+  
+
     
 # Anyplace v3 for developers
 
