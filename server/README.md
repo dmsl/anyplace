@@ -32,6 +32,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
         * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
         * `BUCKET=""` - This is the bucket for the couchbase instance.
     + Important: As with all passwords, this should be kept a secret. 
+    + Note: If you are getting Authentication Failure errors, then create a user with the bucket name. This is a new change from Couchbase 5.0 (V5.0 - NEW Role-Based Authentication - Bucket Passwords, etc)(https://forums.couchbase.com/t/v5-0-new-role-based-authentication-bucket-passwords-etc/14637)
   
 ## Launching 
 
