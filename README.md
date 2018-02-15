@@ -1,4 +1,4 @@
-# AnyPlace
+# AnyPlace v3 
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -6,7 +6,7 @@ A free and open Indoor Navigation Service with superb accuracy!
 
 ## Preface 
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
-localization, navigation and search inside buildings using ordinary smartphones.
+localization, navigation and search inside buildings using ordinary smartphones. 
 	 
 - URL: http://anyplace.cs.ucy.ac.cy
 
@@ -16,7 +16,7 @@ We hope that you find our Anyplace Indoor Information Service useful for your re
 
 In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
-- "Internet-based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou and Georgios Chatzimiloudis IEEE Internet Computing (IC '16), IEEE Press, Volume xx, Pages: xx-xx, 2016. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
+- "Internet-Based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou, Georgios Chatzimilioudis,  IEEE Internet Computing, vol. 21, no. , pp. 54-63, July 2017, doi:10.1109/MIC.2017.2911420 Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
 
 - “Anyplace: A Crowdsourced Indoor Information Service”, Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti, Proceedings of the 16th IEEE International Conference on Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf
 
@@ -24,7 +24,7 @@ Enjoy Anyplace!
 
 The Anyplace Team 
 	 
-Copyright (c) 2015, Data Management Systems Lab (DMSL), Department of Computer Science
+Copyright (c) 2017, Data Management Systems Lab (DMSL), Department of Computer Science
 University of Cyprus.
 
 All rights reserved.
@@ -53,52 +53,54 @@ DEALINGS IN THE SOFTWARE.
 
 Short description of the contents included in this release.
 
-### Android
+### A. Server v3.0.4
+
+The server entails all components to run the anyplace service on your own server. 
+
+- Executable (Binary): https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip
+- Source Code (including IntelliJ IDE SBT file) : https://github.com/dmsl/anyplace/archive/master.zip
+- Instructions: https://github.com/dmsl/anyplace/tree/master/server
+- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
+
+#### > Viewer v3.0.4
+The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
+- Try: https://anyplace.cs.ucy.ac.cy/viewer/
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
+
+#### > API v3.0.4
+The source code of Anyplace JSON API.  
+- Try: https://anyplace.cs.ucy.ac.cy/developers/
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_developers
+
+#### > Architect v3.0.4
+The source code of Anyplace HTML5/CSS3 Architect Tool. 
+- Try: https://anyplace.cs.ucy.ac.cy/architect/
+- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
+
+#### > Data Store v3.0.4
+To setup Anyplace with Couchbase follow the general server instructions here:
+- Instructions: https://github.com/dmsl/anyplace/tree/master/server
+- Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views 
+
+### B. Android v2.3.9 
 The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization). Current Leader: Timotheos Constambeys. 
 - Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/android
 - Current Leader: Timotheos Constambeys
 
-### Windows
+### C. Windows v1.3.4
 The Source code of the Anyplace Windows Phone Client (IP localization). 
 - Try: https://www.microsoft.com/en-us/store/apps/anyplace/9nblgggzldsk
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/windows
 - Current Leader: Pangiotis Irakleous
 
-### iOS
+### D. iOS v0
 The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization). 
 - Try: coming soon
 - Current Leader: Nikitin Artem.
 
-### Viewer
-The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
-- Try: https://anyplace.cs.ucy.ac.cy/viewer/
-- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/viewer
-- Current Leaders: Kyriakos Georgiou, Dimitris Valeris
-
-### API
-The source code of Anyplace JSON API.  
-- Try: https://anyplace.cs.ucy.ac.cy/developers/
-- Current Leaders: Kyriakos Georgiou, Dimitris Valeris
-
-### Architect
-The source code of Anyplace HTML5/CSS3 Architect Tool. 
-- Try: https://anyplace.cs.ucy.ac.cy/architect/
-- Documentation/Source: https://github.com/dmsl/anyplace/tree/master/architect
-- Current Leaders: Kyriakos Georgiou, Dimitris Valeris
-
-### Data Store
-Anyplace uses a scalable document store for its backend (named Couchbase). The couchbase views are available through the following JSON file:
-- Couch Views: https://github.com/dmsl/anyplace/blob/develop/ddocs.json
-- Couchbase 2.2.1 Installation: https://www.digitalocean.com/community/tutorials/how-to-install-couchbase-from-source-with-git-and-make-on-a-debian-7-vps
-- Anyplace Couchbase 3.0 Version: available in May 2017.
-- Current Leaders: Constantinos Costa
-
 ## LATEST DEVELOPMENT VERSION
-To test the latest development version you can use a replica installation of the backend architecture through the following URL (the backend database is not updated, as such you might not see the latest data here): 
-- DEV Viewer: https://goo.gl/eSzl8n
-- DEV Architect: https://goo.gl/5S0oN3
-- DEV API: https://goo.gl/p5YUdb
+To test the latest development version you can fork the DEVELOP branch: 
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
 
 ## TEAM
