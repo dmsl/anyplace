@@ -546,25 +546,27 @@ class CouchbaseDatasource private(hostname: String,
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
+//    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from("0", "0")).group(true).reduce(true)
+//    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").reduce(true).group(true)
+      .startKey(JsonArray.from(buid, floor, "", "")).endKey(JsonArray.from(buid, floor, "\u0fff", "\u0fff"))
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.size)
+//    println("couchbase results: " + res.size) - consumes results
     var json: JsonObject = null
-    if (res.totalRows() > 0)
-      for (row <- res.allRows()) {
-        try {
-          json = JsonObject.empty()
-          var k = row.key().toString
-          val array = k.split(",")
-          json.put("x", array(2))
-          json.put("y", array(3))
-          json.put("w", row.value().toString)
-          points.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.rows()) {
+      try {
+        json = JsonObject.empty()
+        var k = row.key().asInstanceOf[JsonArray]
+//        val array = k.split(",")
+        json.put("x", k.get(2))
+        json.put("y", k.get(3))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     points
   }
 
@@ -827,11 +829,23 @@ class CouchbaseDatasource private(hostname: String,
     var currentFetched: Int = 0
     var rssEntry: JsonObject = null
 
-    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
+//    val key = JsonArray.from(buid, floor_number)
+//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").includeDocs(true)
+//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(key).includeDocs(true)
+//    for (row <- couchbaseClient.query(viewQuery)) {
+//      println(row)
+//      println(buid)
+//      println(row.key().asInstanceOf[JsonArray].get(0))
+//      println(buid == row.key().asInstanceOf[JsonArray].get(0))
+//    }
+
+//    println("totalRows:" + r.totalRows())
+
+//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
 
     do {
-      viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
-
+      var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
+//      var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(key)
       val res = couchbaseClient.query(viewQuery)
       if (!(res.totalRows() > 0)) return totalFetched
       currentFetched = 0
