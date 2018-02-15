@@ -25,27 +25,34 @@
  THE SOFTWARE.
  */
 
+
+
+var changedfloor = false;
+var foundFloor = false;
+
 app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, AnyplaceService, GMapService, AnyplaceAPIService) {
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
     $scope.gmapService = GMapService;
-
+    //$scope.controlBarService = ControlBarController;
     $scope.xFloors = [];
 
     $scope.myFloors = {};
     $scope.myFloorId = 0;
 
     $scope.newFloorNumber = 0;
-
     var heatmap;
+
 
     $scope.crudTabSelected = 1;
     $scope.setCrudTabSelected = function (n) {
         $scope.crudTabSelected = n;
     };
     $scope.isCrudTabSelected = function (n) {
+
         return $scope.crudTabSelected === n;
     };
+
 
     $scope.data = {
         floor_plan_coords: {},
@@ -73,8 +80,8 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         if (newVal) {
-            if (heatmap)
-                heatmap.setMap(null);
+            changedfloor = false;
+
             $scope.fetchAllFloorsForBuilding(newVal);
         }
     });
@@ -111,26 +118,19 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     };
 
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
-        if (newVal !== undefined && newVal !== null) {
+        if (newVal !== undefined && newVal !== null && !_.isEqual(newVal, oldVal)) {
             $scope.fetchFloorPlanOverlay(newVal);
             GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
             GMapService.gmap.setZoom(19);
 
-            if (heatmap)
-                heatmap.setMap(null);
-
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem("lastFloor", newVal.floor_number);
             }
-        }
-    });
 
-    $scope.orderByFloorNo = function (floor) {
-        if (!floor || LPUtils.isNullOrUndefined(floor.floor_number)) {
-            return 0;
+            changedfloor = false;
         }
-        return parseInt(floor.floor_number);
-    };
+
+    });
 
     $scope.fetchAllFloorsForBuilding = function (b) {
         // TODO: check for b.buid
@@ -140,32 +140,53 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
             function (resp) {
+                //if(!foundFloor) {
                 $scope.xFloors = resp.data.floors;
-                // Set default selected
-                var found = false;
-                if (typeof(Storage) !== "undefined" && localStorage && !LPUtils.isNullOrUndefined(localStorage.getItem('lastBuilding')) && !LPUtils.isNullOrUndefined(localStorage.getItem('lastFloor'))) {
-                    for (var i = 0; i < $scope.xFloors.length; i++) {
-                        if (String($scope.xFloors[i].floor_number) === String(localStorage.getItem('lastFloor'))) {
-                            $scope.anyService.selectedFloor = $scope.xFloors[i];
-                            found = true;
-                            break;
+
+                $scope.xFloors = $scope.xFloors.sort(function (a, b) {
+                    return parseInt(a.floor_number) - parseInt(b.floor_number)
+                });
+
+
+                $scope.anyService.availableFloors=[];
+                $scope.anyService.availableFloors=$scope.xFloors;
+
+                // give priority to floor in url parameter - if exists
+                if ($scope.urlFloor) {
+                    for (var k = 0; k < $scope.xFloors.length; k++) {
+                        if ($scope.urlFloor == $scope.xFloors[k].floor_number) {
+                            $scope.anyService.selectedFloor = $scope.xFloors[k];
+                            return;
                         }
                     }
                 }
 
-                if (!found && $scope.xFloors[0]) {
+                // Set default selected
+                if (typeof(Storage) !== "undefined" && localStorage && !LPUtils.isNullOrUndefined(localStorage.getItem('lastBuilding')) && !LPUtils.isNullOrUndefined(localStorage.getItem('lastFloor'))) {
+                    for (var i = 0; i < $scope.xFloors.length; i++) {
+                        if (String($scope.xFloors[i].floor_number) === String(localStorage.getItem('lastFloor'))) {
+                            $scope.anyService.selectedFloor = $scope.xFloors[i];
+                            foundFloor = true;
+                            return;
+                        }
+                    }
+                }
+
+                if (!foundFloor && $scope.xFloors[0]) {
                     $scope.anyService.selectedFloor = $scope.xFloors[0];
                 }
 
                 _setNextFloor();
 
 //                _suc("Successfully fetched all floors.");
+                //}
             },
             function (resp) {
                 console.log(resp.data.message);
                 _err("Something went wrong while fetching all floors");
             }
         );
+
     };
 
     var _setNextFloor = function () {
@@ -452,6 +473,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         );
     };
 
+
     var _floorNoExists = function (n) {
         for (var i = 0; i < $scope.xFloors.length; i++) {
             var f = $scope.xFloors[i];
@@ -552,7 +574,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 _suc("Successfully uploaded new floor plan.");
             });
 
-    }
+    };
 
     $scope.toggleRadioHeatmap = function () {
         if (heatmap && heatmap.getMap()) {
@@ -563,9 +585,6 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         $scope.showRadioHeatmap();
     };
 
-    $scope.getHeatMapButtonText = function () {
-        return heatmap && heatmap.getMap() ? "Hide WiFi Map" : "Show WiFi Map";
-    };
 
     $scope.showRadioHeatmapPoi = function () {
         var jsonReq = {
@@ -664,5 +683,6 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             }
         );
     }
+
 }
 ]);

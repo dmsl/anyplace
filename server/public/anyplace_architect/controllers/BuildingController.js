@@ -57,6 +57,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.poisTypes = {};
     $scope.catTypes = {};
 
+    $scope.pageLoad=false;
+
     $scope.crudTabSelected = 1;
     $scope.setCrudTabSelected = function (n) {
         $scope.crudTabSelected = n;
@@ -1735,5 +1737,11 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             }
         );
     };
+
+    function showWelcomeMessage(){
+        $('#myModal_Welcome').modal('show');
+    }
+
+    window.onload=showWelcomeMessage;
 
 }]);

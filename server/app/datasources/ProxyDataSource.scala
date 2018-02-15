@@ -185,6 +185,42 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getRadioHeatmapByBuildingFloor(buid, floor)
   }
 
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage(buid, floor)
+  }
+
+   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
+  }
+
+   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
+  }
+
+   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+  }
+
+  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getAPsByBuildingFloor(buid, floor)
+  }
+
+
+  override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): List[String] = {
+    _checkActiveDatasource()
+    mActiveDatabase.deleteAllByXsYs(buid,floor,x,y)
+  }
+
+    override def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
+  }
+
   override def getAllBuildings(): List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllBuildings
@@ -205,9 +241,9 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getBuildingByAlias(alias)
   }
 
-  override def getAllBuildingsNearMe(lat: Double, lng: Double): List[JsonObject] = {
+  override def getAllBuildingsNearMe(ownerid:String,lat: Double, lng: Double): List[JsonObject] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsNearMe(lat, lng)
+    mActiveDatabase.getAllBuildingsNearMe(ownerid,lat, lng)
   }
 
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
