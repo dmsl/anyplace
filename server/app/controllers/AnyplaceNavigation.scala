@@ -54,166 +54,168 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
 
   def getBuildingById() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
-    if (!anyReq.assertJsonBody()) {
-      AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-    }
-    val json = anyReq.getJsonBody
-    LPLogger.info("AnyplaceNavigation::getBuildingById():: " + json.toString)
-    val notFound = JsonUtils.requirePropertiesInJson(json, "buid")
-    if (!notFound.isEmpty) {
-      AnyResponseHelper.requiredFieldsMissing(notFound)
-    }
-    val buid = json.\\("buid").mkString
-    try {
-      val doc = ProxyDataSource.getIDatasource.buildingFromKeyAsJson(buid)
-      if (doc == null) {
-        AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+      if (!anyReq.assertJsonBody()) {
+        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
       }
-      AnyResponseHelper.ok(doc, "Successfully fetched building information!")
-    } catch {
-      case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-    }
+      val json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceNavigation::getBuildingById():: " + json.toString)
+      val notFound = JsonUtils.requirePropertiesInJson(json, "buid")
+      if (!notFound.isEmpty) {
+        AnyResponseHelper.requiredFieldsMissing(notFound)
+      }
+      val buid = (json \ "buid").as[String]
+      try {
+        val doc = ProxyDataSource.getIDatasource.buildingFromKeyAsJson(buid)
+        if (doc == null) {
+          AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+        }
+        AnyResponseHelper.ok(doc, "Successfully fetched building information!")
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
   }
 
-  def getPoisById()= Action {
+  def getPoisById() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
-    if (!anyReq.assertJsonBody()) {
-      AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-    }
-    val json = anyReq.getJsonBody
-    LPLogger.info("AnyplaceNavigation::getPoisById():: " + json.toString)
-    val notFound = JsonUtils.requirePropertiesInJson(json, "pois")
-    if (!notFound.isEmpty) {
-      AnyResponseHelper.requiredFieldsMissing(notFound)
-    }
-    val puid = json.\\("pois").mkString
-    try {
-      val doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid)
-      if (doc == null) {
-        AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
+      if (!anyReq.assertJsonBody()) {
+        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
       }
-      doc.removeKey("owner_id")
-      AnyResponseHelper.ok(doc, "Successfully fetched Poi information!")
-    } catch {
-      case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-    }
+      val json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceNavigation::getPoisById():: " + json.toString)
+      val notFound = JsonUtils.requirePropertiesInJson(json, "pois")
+      if (!notFound.isEmpty) {
+        AnyResponseHelper.requiredFieldsMissing(notFound)
+      }
+      val puid = (json \ "pois").as[String]
+      try {
+        val doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid)
+        if (doc == null) {
+          AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
+        }
+        doc.removeKey("owner_id")
+        AnyResponseHelper.ok(doc, "Successfully fetched Poi information!")
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
   }
 
-  def getNavigationRoute()= Action {
+  def getNavigationRoute() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
-    if (!anyReq.assertJsonBody()) {
-       AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-    }
-    val json = anyReq.getJsonBody
-    LPLogger.info("AnyplaceNavigation::getNavigationRoute(): " + json.toString)
-    val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_from", "pois_to")
-    if (!requiredMissing.isEmpty) {
-       AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-    }
-    val puid_from = json.\\("pois_from").mkString
-    val puid_to = json.\\("pois_to").mkString
-    if (puid_from == puid_to) {
-       AnyResponseHelper.bad_request("Destination and Source is the same!")
-    }
-    try {
-      val poiFrom = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from)
-      if (poiFrom == null) {
-         AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
+      if (!anyReq.assertJsonBody()) {
+        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
       }
-      val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
-      if (poiFrom == null) {
-         AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
+      val json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceNavigation::getNavigationRoute(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_from", "pois_to")
+      if (!requiredMissing.isEmpty) {
+        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val buid_from = poiFrom.getString("buid")
-      val floor_from = poiFrom.getString("floor_number")
-      val buid_to = poiTo.getString("buid")
-      val floor_to = poiTo.getString("floor_number")
-      var points: List[NavResultPoint] = null
-      if (buid_from.equalsIgnoreCase(buid_to)) {
-        points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(poiFrom, poiTo) else navigateSameBuilding(poiFrom,
-          poiTo)
-      } else {
-         AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
+      val puid_from = (json \ "pois_from").as[String]
+      val puid_to = (json \ "pois_to").as[String]
+      if (puid_from == puid_to) {
+        AnyResponseHelper.bad_request("Destination and Source is the same!")
       }
-      val res =JsonObject.empty()
-      res.put("num_of_pois", points.size)
-      res.put("pois",(points))
-      AnyResponseHelper.ok(res, "Successfully plotted navigation.")
-    } catch {
-      case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-    }
+      try {
+        val poiFrom = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from)
+        if (poiFrom == null) {
+          AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
+        }
+        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
+        if (poiFrom == null) {
+          AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
+        }
+        val buid_from = poiFrom.getString("buid")
+        val floor_from = poiFrom.getString("floor_number")
+        val buid_to = poiTo.getString("buid")
+        val floor_to = poiTo.getString("floor_number")
+        var points: List[NavResultPoint] = null
+        if (buid_from.equalsIgnoreCase(buid_to)) {
+          if (floor_from.equalsIgnoreCase(floor_to))
+            points = navigateSameFloor(poiFrom, poiTo)
+          else
+            points = navigateSameBuilding(poiFrom, poiTo)
+        } else {
+          AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
+        }
+        val res = JsonObject.empty()
+        res.put("num_of_pois", points.size)
+        res.put("pois", (points))
+        AnyResponseHelper.ok(res, "Successfully plotted navigation.")
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
   }
 
   def getNavigationRouteXY() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
-    if (!anyReq.assertJsonBody()) {
-       AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-    }
-    val json = anyReq.getJsonBody
-    LPLogger.info("AnyplaceNavigation::getNavigationRouteXY():: " + json.toString)
-    val notFound = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon", "floor_number",
-      "pois_to")
-    if (!notFound.isEmpty) {
-       AnyResponseHelper.requiredFieldsMissing(notFound)
-    }
-    val coordinates_lat = json.\\("coordinates_lat").mkString
-    val coordinates_lon = json.\\("coordinates_lon").mkString
-    val floor_number = json.\\("floor_number").mkString
-    val puid_to = json.\\("pois_to").mkString
-    try {
-      val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
-      if (poiTo == null) {
-         AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
+      if (!anyReq.assertJsonBody()) {
+        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
       }
-      val buid_to = poiTo.getString("buid")
-      val floor_to = poiTo.getString("floor_number")
-      val dlat = java.lang.Double.parseDouble(coordinates_lat)
-      val dlon = java.lang.Double.parseDouble(coordinates_lon)
-      val floorPois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
-      if (0 == floorPois.size) {
-         AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
+      val json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceNavigation::getNavigationRouteXY():: " + json.toString)
+      val notFound = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon", "floor_number",
+        "pois_to")
+      if (!notFound.isEmpty) {
+        AnyResponseHelper.requiredFieldsMissing(notFound)
       }
-      var poiFrom: JsonObject = null
-      var dlat2: Double = 0.0
-      var dlon2: Double = 0.0
-      var min_distance = java.lang.Double.POSITIVE_INFINITY
-      var cdist: Double = 0.0
-      for (poi <- floorPois) {
-        dlat2 = java.lang.Double.parseDouble(poi.getString("coordinates_lat"))
-        dlon2 = java.lang.Double.parseDouble(poi.getString("coordinates_lon"))
-        cdist = GeoPoint.getDistanceBetweenPoints(dlon, dlat, dlon2, dlat2, "K")
-        if (cdist < min_distance) {
-          min_distance = cdist
-          poiFrom = poi
+      val coordinates_lat = (json \ "coordinates_lat").as[String]
+      val coordinates_lon = (json \ "coordinates_lon").as[String]
+      val floor_number = (json \ "pfloor_number").as[String]
+      val puid_to = (json \ "pois_to").as[String]
+      try {
+        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
+        if (poiTo == null) {
+          AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }
+        val buid_to = poiTo.getString("buid")
+        val floor_to = poiTo.getString("floor_number")
+        val dlat = java.lang.Double.parseDouble(coordinates_lat)
+        val dlon = java.lang.Double.parseDouble(coordinates_lon)
+        val floorPois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
+        if (0 == floorPois.size) {
+          AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
+        }
+        var poiFrom: JsonObject = null
+        var dlat2: Double = 0.0
+        var dlon2: Double = 0.0
+        var min_distance = java.lang.Double.POSITIVE_INFINITY
+        var cdist: Double = 0.0
+        for (poi <- floorPois) {
+          dlat2 = java.lang.Double.parseDouble(poi.getString("coordinates_lat"))
+          dlon2 = java.lang.Double.parseDouble(poi.getString("coordinates_lon"))
+          cdist = GeoPoint.getDistanceBetweenPoints(dlon, dlat, dlon2, dlat2, "K")
+          if (cdist < min_distance) {
+            min_distance = cdist
+            poiFrom = poi
+          }
+        }
+        if (poiFrom == null) {
+          AnyResponseHelper.bad_request("Navigation is not supported from your position!")
+        }
+        val buid_from = poiFrom.getString("buid")
+        val floor_from = poiFrom.getString("floor_number")
+        var points: List[NavResultPoint] = null
+        if (buid_from.equalsIgnoreCase(buid_to)) {
+          points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(poiFrom, poiTo) else navigateSameBuilding(poiFrom,
+            poiTo)
+        } else {
+          AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
+        }
+        val result = JsonObject.empty()
+        result.put("num_of_pois", points.size)
+        result.put("pois", (points))
+        AnyResponseHelper.ok(result, "Successfully plotted navigation.")
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
-      if (poiFrom == null) {
-         AnyResponseHelper.bad_request("Navigation is not supported from your position!")
-      }
-      val buid_from = poiFrom.getString("buid")
-      val floor_from = poiFrom.getString("floor_number")
-      var points: List[NavResultPoint] = null
-      if (buid_from.equalsIgnoreCase(buid_to)) {
-        points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(poiFrom, poiTo) else navigateSameBuilding(poiFrom,
-          poiTo)
-      } else {
-         AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
-      }
-      val result = JsonObject.empty()
-      result.put("num_of_pois", points.size)
-      result.put("pois",(points))
-      AnyResponseHelper.ok(result, "Successfully plotted navigation.")
-    } catch {
-      case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-    }
   }
 
   private def navigateSameFloor(from: JsonObject, to: JsonObject): List[NavResultPoint] = {
@@ -225,10 +227,8 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
     graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
-    val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString ("puid"))
-    if (routePois.isEmpty) {
-      return Collections.emptyList()
-    }
+    val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
+
     val final_points = new ArrayList[NavResultPoint]()
     var p: NavResultPoint = null
     for (poi <- routePois) {
@@ -249,9 +249,6 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
     graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap(from.getString("buid")))
     graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
     val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
-    if (routePois.isEmpty) {
-      return Collections.emptyList()
-    }
     val final_points = new ArrayList[NavResultPoint]()
     var p: NavResultPoint = null
     for (poi <- routePois) {

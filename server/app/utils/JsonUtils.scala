@@ -52,6 +52,11 @@ object JsonUtils {
 
   }
 
+  def getHashMapStrStr(json: JsonObject): HashMap[String, String] = {
+    json.toMap.asInstanceOf[HashMap[String, String]]
+
+  }
+
   def fillMapFromJson(json: JsonObject, map: HashMap[String, String], keys: String*): List[String] = {
     if (json == null || map == null) {
       throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
