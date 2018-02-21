@@ -46,8 +46,7 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
   }
 
   def serveArchitect2(file: String) = Action {
-//    val archiDir = "public/anyplace_architect"
-val archiDir = "public/anyplace_architect_test"
+    val archiDir = "public/anyplace_architect"
     serveFile(archiDir, file)
   }
 

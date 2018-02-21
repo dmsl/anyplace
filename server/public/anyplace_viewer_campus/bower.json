@@ -18,6 +18,7 @@
   "dependencies": {
     "add-to-homescreen": "~3.1.1",
     "angular": "*",
+    "angular-messages": "~1.5",
     "angular-route": "~1.3.14",
     "angular-loading-bar": "~0.7.1",
     "angular-bootstrap": "~0.12.0",

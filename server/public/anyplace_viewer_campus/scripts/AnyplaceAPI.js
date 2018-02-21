@@ -38,6 +38,7 @@ var AnyplaceAPI = {};
 
 AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
+AnyplaceAPI.FULL_SERVER = "https://c5e95863.ngrok.io/anyplace";
 /**
  * MAPPING API
  */

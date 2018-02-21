@@ -27,12 +27,10 @@
 
 var AnyplaceAPI = {};
 
-//AnyplaceAPI.SERVER = "http://127.0.0.1"
-//AnyplaceAPI.PORT = "9000";
-//AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
-//AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
-//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
+
+
+AnyplaceAPI.FULL_SERVER = "https://c5e95863.ngrok.io/anyplace";
 
 /**
  * MAPPING API
