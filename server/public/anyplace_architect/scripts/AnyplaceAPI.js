@@ -31,8 +31,8 @@ var AnyplaceAPI = {};
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
-///AnyplaceAPI.FULL_SERVER = "http://marilenh-vm:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "http://marilenh-vm:9000/anyplace";
+///AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
 
 
 /**
