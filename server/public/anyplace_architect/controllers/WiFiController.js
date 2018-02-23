@@ -63,6 +63,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     $scope.APsMode = false;
     $scope.filterByMAC=false;
     $scope.filterByMAN=false;
+    $scope.radioHeatmapRSSHasGreen=false;
+    $scope.radioHeatmapRSSHasYellow=false;
+    $scope.radioHeatmapRSSHasOrange=false;
+    $scope.radioHeatmapRSSHasPurple=false;
+    $scope.radioHeatmapRSSHasRed=false;
     $scope.selected="Filters:";
 
     var MAX = 1000;
@@ -372,6 +377,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             setColorClicked('p',false);
             setColorClicked('r',false);
             $scope.radioHeatmapRSSMode = false;
+            $scope.radioHeatmapRSSHasGreen=false;
+            $scope.radioHeatmapRSSHasYellow=false;
+            $scope.radioHeatmapRSSHasOrange=false;
+            $scope.radioHeatmapRSSHasPurple=false;
+            $scope.radioHeatmapRSSHasRed=false;
             $cookieStore.put('RSSClicked', 'NO');
             return;
         }
@@ -640,6 +650,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     $('#LA_1').unbind().click(function () {
         $('#LAs').click();
+        _err("Not available yet. Please check in the next release.");
     });
 
     $('#POIs_1').unbind().click(function () {
@@ -894,16 +905,49 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     function setColorClicked(color,value){
 
-        if(color==='g')
-            colorBarGreenClicked=value;
-        else if(color==='y')
-            colorBarYellowClicked=value;
-        else if (color==='o')
-            colorBarOrangeClicked=value;
-        else if (color==='p')
-            colorBarPurpleClicked=value;
-        else
-            colorBarRedClicked=value;
+        if(color==='g') {
+            colorBarGreenClicked = value;
+            if(value){
+                document.getElementById("greenSquares").classList.add('faded');
+            }else{
+                document.getElementById("greenSquares").classList.remove('faded');
+            }
+
+        }else if(color==='y') {
+            colorBarYellowClicked = value;
+            if(value){
+                document.getElementById("yellowSquares").classList.add('faded');
+            }else{
+                document.getElementById("yellowSquares").classList.remove('faded');
+            }
+
+        }else if (color==='o') {
+            colorBarOrangeClicked = value;
+            if(value){
+                document.getElementById("orangeSquares").classList.add('faded');
+            }else{
+                document.getElementById("orangeSquares").classList.remove('faded');
+            }
+
+        }else if (color==='p') {
+            colorBarPurpleClicked = value;
+            if(value){
+                document.getElementById("purpleSquares").classList.add('faded');
+            }else{
+                document.getElementById("purpleSquares").classList.remove('faded');
+            }
+
+        }else {
+            colorBarRedClicked = value;
+            if(value){
+                document.getElementById("redSquares").classList.add('faded');
+            }else{
+                document.getElementById("redSquares").classList.remove('faded');
+            }
+
+        }
+
+
     };
 
     function getColorClicked(color){
@@ -962,6 +1006,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             }
         }
         setColorClicked(color,!getColorClicked(color));
+
     };
 
     $scope.showRadioHeatmapRSS = function () {
@@ -994,12 +1039,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     return;
                 }
                 var j = 0;
-
-                $scope.radioHeatmapRSSHasGreen=false;
-                $scope.radioHeatmapRSSHasYellow=false;
-                $scope.radioHeatmapRSSHasOrange=false;
-                $scope.radioHeatmapRSSHasPurple=false;
-                $scope.radioHeatmapRSSHasRed=false;
 
                 while (i--) {
 
@@ -1036,7 +1075,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     } else if (w <= -91 && w >= -100) {
 
                         heatMapData.push(
-                            {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#800080',id:'p'}
+                            {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#bd06bd',id:'p'}
                         );
 
                         $scope.radioHeatmapRSSHasPurple=true;
@@ -1065,11 +1104,15 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         strokeWeight: 1,
                         fillColor: heatMapData[j].color,
                         fillOpacity: 0.5,
-                        map: $scope.gmapService.gmap,
                         bounds: new google.maps.LatLngBounds(
                             new google.maps.LatLng(s, w),
                             new google.maps.LatLng(n, e))
                     });
+                    if(getColorClicked(heatMapData[j].id)){
+                        rectangle.setMap(null);
+                    }else{
+                        rectangle.setMap($scope.gmapService.gmap);
+                    }
 
                     heatMap.push(
                         { rectangle: rectangle, location: center, id:heatMapData[j].id, clicked: false }
@@ -1155,70 +1198,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     return;
                 }
 
-                while (i--) {
-                    var rp = resp.data.accessPoints[i];
-                    var rss = rp.RSS;
-                    APsData.push(
-                        {AP: rp.AP, x: rp.x, y: rp.y, RSS: rss.average}
-                    );
-
-                    resp.data.accessPoints.splice(i, 1);
-                }
 
                 //algorithm to find the location of each AP
-                var values = [];
+                var values = resp.data.accessPoints;
 
-                var j;
+                i = values.length;
 
-                i = APsData.length;
-
-                while (i--) {
-                    j = 0;
-                        while (true) {
-
-                            if (values[j] === undefined || values[j] === null) {
-                                if( parseInt(APsData[i].RSS)>-30) {
-                                    values.push(
-                                        {
-                                            AP: APsData[i].AP,
-                                            numx: APsData[i].RSS * APsData[i].x,
-                                            numy: APsData[i].RSS * APsData[i].y,
-                                            den: APsData[i].RSS
-                                        }
-                                    );
-                                }else{
-                                    values.push(
-                                        {
-                                            AP: APsData[i].AP,
-                                            numx: APsData[i].x,
-                                            numy: APsData[i].y,
-                                            den: 0
-                                        }
-                                    );
-
-                                }
-
-                                $scope.example9data[j] = {id: APsData[i].AP, label: APsData[i].AP};
-                                $scope.example9model[j] = {id: APsData[i].AP, label: APsData[i].AP};
-
-                                break;
-                            } else if (values[j].AP === APsData[i].AP
-                                || values[j].AP.slice(0,values[j].AP.length-9) ===  APsData[i].AP.slice(0,APsData[i].AP.length-9)) {
-                                if( parseInt(APsData[i].RSS)>-30) {
-                                    values[j].numx += parseFloat((APsData[i].RSS * APsData[i].x));
-                                    values[j].numy += parseFloat((APsData[i].RSS * APsData[i].y));
-                                    values[j].den += parseFloat(APsData[i].RSS);
-                                }else{
-                                    values[j].numx =  APsData[i].x;
-                                    values[j].numy = APsData[i].y;
-                                    values[j].den = 0
-                                }
-                                break;
-                            }
-                            j++;
-                        }
-
-                }
 
                 //create AccessPoint "map"
                 var _ACCESS_POINT_IMAGE = 'build/images/access-point-icon.png';
@@ -1238,13 +1223,16 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         break;
                     }
                     if( values[i].den!=0) {
-                        x = values[i].numx / values[i].den;
-                        y = values[i].numy / values[i].den;
+                        x = values[i].x / values[i].den;
+                        y = values[i].y / values[i].den;
                     }else{
-                        x = values[i].numx;
-                        y = values[i].numy;
+                        x = values[i].x;
+                        y = values[i].y;
 
                     }
+                    $scope.example9data.push({id: values[i].AP, label: values[i].AP});
+                    $scope.example9model.push({id: values[i].AP, label: values[i].AP});
+
                     //alert("x: "+x+" y: "+y);
 
                     var accessPoint = new google.maps.Marker({

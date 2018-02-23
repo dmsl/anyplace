@@ -683,7 +683,7 @@ class CouchbaseDatasource private(hostname: String,
         json.put("AP", array.get(4))
         json.put("RSS", row.value())
         if ((jsonCheck.getString("buid").compareTo(buid) == 0) && (jsonCheck.getString("floor").compareTo(floor) == 0)) {
-          if (json.getObject("RSS").getDouble("average") < -70) {
+          if (json.getObject("RSS").getDouble("average") >= -70) {
             points.add(json)
           }
         }

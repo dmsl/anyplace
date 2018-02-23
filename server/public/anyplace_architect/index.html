@@ -2,8 +2,8 @@
 <html ng-app="anyArchitect">
 <head>
     <script>
-        if (window.location.protocol != "https:")
-            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+        //if (window.location.protocol != "https:")
+          //  window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
     <link rel="icon" type="image/png" href="build/images/logo.png">
 
@@ -944,20 +944,20 @@
                     </div>
                     <div id="color-bar" ng-show="radioHeatmapRSSMode" class="">
                         <ul class="spot">
-                                        <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0">
-                                            <button style="background-color: rgb(78, 212, 25); width: 70px;">0-60</button>
+                                        <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0" >
+                                            <button style="background-color: rgb(78, 212, 25); width: 100px;" id="greenSquares">0 t0 -60</button>
                                         </span>
-                            <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0">
-                                        <button style="background-color: rgb(255, 255, 0); width: 70px;">60-70</button>
+                            <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0" >
+                                        <button style="background-color: rgb(255, 255, 0); width: 100px;" id="yellowSquares">-60 to -70</button>
                                         </span>
                             <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
-                                        <button style="background-color: rgb(255, 165, 0); width: 70px;">70-90</button>
+                                        <button style="background-color: rgb(255, 165, 0); width: 100px;" id="orangeSquares">-70 to -90</button>
                                         </span>
                             <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
-                                        <button style="background-color: rgb(128, 0, 128); width: 70px;">90-100</button>
+                                        <button style="background-color: rgb(189,6,189); width: 100px;" id="purpleSquares">-90 to -100</button>
                                         </span>
-                            <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('red')}}" class="A_0">
-                                        <button style="background-color: rgb(255, 0, 0); width: 70px;">100-110</button>
+                            <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('red')}}" class="A_0" >
+                                        <button style="background-color: rgb(255, 0, 0); width: 100px;" id="redSquares">-100 to -110</button>
                                         </span>
                         </ul>
                     </div>
@@ -1111,21 +1111,22 @@
                     The image below shows the Wi-Fi signal intensity:<br>
                 <ul class="spot">
                                         <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0">
-                                            <li style="background-color: rgb(78, 212, 25); width: 60px;">0-60</li>
+                                            <li style="background-color: rgb(78, 212, 25); width: 100px;">0 to 60</li>
                                         </span>
                     <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0">
-                                        <li style="background-color: rgb(255, 255, 0); width: 60px;">60-70</li>
+                                        <li style="background-color: rgb(255, 255, 0); width: 100px;">-60 to -70</li>
                                         </span>
                     <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
-                                        <li style="background-color: rgb(255, 165, 0); width: 60px;">70-90</li>
+                                        <li style="background-color: rgb(255, 165, 0); width: 100px;">-70 to -90</li>
                                         </span>
                     <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
-                                        <li style="background-color: rgb(128, 0, 128); width: 60px;">90-100</li>
+                                        <li style="background-color: rgb(128, 0, 128); width: 100px;">-90 to -100</li>
                                         </span>
                     <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('r')}}" class="A_0">
-                                        <li style="background-color: rgb(255, 0, 0); width: 60px;">100-110</li>
+                                        <li style="background-color: rgb(255, 0, 0); width: 100px;">-100 to -110</li>
                                         </span><br>
             </ul>
+                <b>You can click on a certain color (range) to filter the measurements in that range.</b><br>
                 </p>
                 <p>Connectivity Scale:
                 <ul>

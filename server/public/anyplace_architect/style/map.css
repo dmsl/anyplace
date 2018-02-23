@@ -695,7 +695,7 @@ contextmenu {
 
 /*WiFi Connectivity Scale*/
 .spot {
-    width: 130%;
+    width: 200%;
 }
 
 .spot li {
@@ -727,5 +727,11 @@ contextmenu {
 .spot li:last-child {
     border-right: 2px solid white;
 }
+
+.faded{
+    opacity: 0.5;
+}
+
+
 
 

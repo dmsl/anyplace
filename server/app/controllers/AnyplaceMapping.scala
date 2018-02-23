@@ -51,6 +51,8 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
 import utils._
 
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -265,10 +267,50 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       val buid = json.\\("buid").mkString.replace("\"", "")
       val floor = json.\\("floor").mkString.replace("\"", "")
       try {
-        val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor)
+        val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor).asScala
+
+        val uniqueAPs: util.HashMap[String, JsonObject] = new util.HashMap()
+        for(accessPoint:JsonObject <- accessPoints){
+          var id =accessPoint.getString("AP")
+          id=id.substring(0,id.length-9)
+
+          var ap=uniqueAPs.get(id)
+          var avg=accessPoint.getObject("RSS").getDouble("average")
+          var x=accessPoint.getString("x").toDouble
+          var y=accessPoint.getString("y").toDouble
+          if(ap==null){
+            if(avg < -40){
+              accessPoint.put("den",avg)
+              accessPoint.put("x",avg*x)
+              accessPoint.put("y",avg*y)
+            }else{
+              accessPoint.put("den",0)
+              accessPoint.put("x",x)
+              accessPoint.put("y",y)
+            }
+           ap=accessPoint
+          }else if(ap.getDouble("den")<0){
+            if(avg < -40){
+              var ap_den=ap.getDouble("den")
+              var ap_x=ap.getDouble("x")
+              var ap_y=ap.getDouble("y")
+              accessPoint.put("den",avg+ap_den)
+              accessPoint.put("x",avg*x+ap_x)
+              accessPoint.put("y",avg*y+ap_y)
+            }else{
+              accessPoint.put("den",0)
+              accessPoint.put("x",x)
+              accessPoint.put("y",y)
+            }
+            ap=accessPoint
+          }
+          //overwrite old object in case that there is one
+          uniqueAPs.put(id,ap)
+        }
+
         if (accessPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
         val res = JsonObject.empty()
-        res.put("accessPoints", accessPoints)
+        res.put("accessPoints",new util.ArrayList[JsonObject](uniqueAPs.values()))
         try {
           gzippedJSONOk(res.toString)
         } catch {
