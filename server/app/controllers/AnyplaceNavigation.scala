@@ -134,7 +134,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         val floor_from = poiFrom.getString("floor_number")
         val buid_to = poiTo.getString("buid")
         val floor_to = poiTo.getString("floor_number")
-        var points: List[NavResultPoint] = null
+        var points: List[JsonObject] = null
         if (buid_from.equalsIgnoreCase(buid_to)) {
           if (floor_from.equalsIgnoreCase(floor_to))
             points = navigateSameFloor(poiFrom, poiTo)
@@ -145,7 +145,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         val res = JsonObject.empty()
         res.put("num_of_pois", points.size)
-        res.put("pois", (points))
+        res.put("pois", points)
         AnyResponseHelper.ok(res, "Successfully plotted navigation.")
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
@@ -202,7 +202,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         val buid_from = poiFrom.getString("buid")
         val floor_from = poiFrom.getString("floor_number")
-        var points: List[NavResultPoint] = null
+        var points: List[JsonObject] = null
         if (buid_from.equalsIgnoreCase(buid_to)) {
           points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(poiFrom, poiTo) else navigateSameBuilding(poiFrom,
             poiTo)
@@ -211,25 +211,25 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         val result = JsonObject.empty()
         result.put("num_of_pois", points.size)
-        result.put("pois", (points))
+        result.put("pois", points)
         AnyResponseHelper.ok(result, "Successfully plotted navigation.")
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
   }
 
-  private def navigateSameFloor(from: JsonObject, to: JsonObject): List[NavResultPoint] = {
+  private def navigateSameFloor(from: JsonObject, to: JsonObject): List[JsonObject] = {
     navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap(from.getString("buid"),
       from.getString("floor_number")))
   }
 
-  private def navigateSameFloor(from: JsonObject, to: JsonObject, floorPois: List[HashMap[String, String]]): List[NavResultPoint] = {
+  private def navigateSameFloor(from: JsonObject, to: JsonObject, floorPois: List[HashMap[String, String]]): List[JsonObject] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
     graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
     val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
 
-    val final_points = new ArrayList[NavResultPoint]()
+    val final_points = new ArrayList[JsonObject]()
     var p: NavResultPoint = null
     for (poi <- routePois) {
       p = new NavResultPoint()
@@ -239,17 +239,17 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       p.buid = poi.get("buid")
       p.floor_number = poi.get("floor_number")
       p.pois_type = poi.get("pois_type")
-      final_points.add(p)
+      final_points.add(p.toValidCouchJson())
     }
     final_points
   }
 
-  private def navigateSameBuilding(from: JsonObject, to: JsonObject): List[NavResultPoint] = {
+  private def navigateSameBuilding(from: JsonObject, to: JsonObject): List[JsonObject] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap(from.getString("buid")))
     graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
     val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
-    val final_points = new ArrayList[NavResultPoint]()
+    val final_points = new ArrayList[JsonObject]()
     var p: NavResultPoint = null
     for (poi <- routePois) {
       p = new NavResultPoint()
@@ -258,7 +258,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       p.puid = poi.get("puid")
       p.buid = poi.get("buid")
       p.floor_number = poi.get("floor_number")
-      final_points.add(p)
+      final_points.add(p.toValidCouchJson())
     }
     final_points
   }

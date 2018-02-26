@@ -1514,14 +1514,10 @@ class CouchbaseDatasource private(hostname: String,
     words.add("")
     val myChars = greeklish.toCharArray
     var i = 0
-    while ( {
-      i < greeklish.length
-    }) {
+    for (i <- 0 until greeklish.length) {
       val size = words.size
       var j = 0
-      while ( {
-        j < size
-      }) {
+      for (j <- 0 until size){
         var myword = ""
         myword = words.get(j)
         if (myChars(i) == 'a') words.add(myword + "α")
@@ -1618,7 +1614,7 @@ class CouchbaseDatasource private(hostname: String,
 
       }
 
-      for (j <- 0 to size) {
+      for (k <- 0 until size) {
         words.remove(0)
       }
     }
