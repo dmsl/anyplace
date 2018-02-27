@@ -601,10 +601,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         var key = Object.keys(POIsMap);
         var check = 0;
         if (POIsMap.hasOwnProperty(key[check])) {
-            if (POIsMap[key[check]].marker.getMap() !== null && POIsMap[key[check]].marker.getMap() !== undefined ) {
-                document.getElementById("POIs-mode").classList.add('draggable-border-green');
-                $scope.POIsMode = true;
-                return "Hide POIs";
+            if(POIsMap[key[check]].marker.getMap() !== undefined) {
+                if (POIsMap[key[check]].marker.getMap() !== null) {
+                    document.getElementById("POIs-mode").classList.add('draggable-border-green');
+                    $scope.POIsMode = true;
+                    return "Hide POIs";
+                }
             }
         }
         document.getElementById("POIs-mode").classList.remove('draggable-border-green');
@@ -618,10 +620,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         var key = Object.keys(connectionsMap);
         var check = 0;
         if (connectionsMap.hasOwnProperty(key[check])) {
-            if (connectionsMap[key[check]].polyLine.getMap() !== null && connectionsMap[key[check]].polyLine.getMap() !== undefined) {
-                document.getElementById("connections-mode").classList.add('draggable-border-green');
-                $scope.connectionsMode = true;
-                return "Hide Edges";
+            if(connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                    document.getElementById("connections-mode").classList.add('draggable-border-green');
+                    $scope.connectionsMode = true;
+                    return "Hide Edges";
+                }
             }
         }
         document.getElementById("connections-mode").classList.remove('draggable-border-green');
