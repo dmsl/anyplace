@@ -501,9 +501,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val lot = json.\("dlong").as[Double]
         val bbox = GeoPoint.getGeoBoundingBox(lat, lot, 100)
         val strongestMAC = new ArrayList[String](2)
-        if (json.\("first").get == null) AnyResponseHelper.bad_request("Sent first Wifi")
+        if (json.\("first").getOrElse(null) != null) AnyResponseHelper.bad_request("Sent first Wifi")
         strongestMAC.add(json.\("first").\("MAC").as[String])
-        if (json.\("second").get != null) strongestMAC.add(json.\("second").\("MAC").as[String])
+        if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\("MAC").as[String])
         val res = JsonObject.empty()
         if (ProxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
           res.put("floor", alg1.getFloor)

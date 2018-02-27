@@ -1,6 +1,9 @@
+import com.typesafe.sbt.packager.MappingsHelper._
+mappings in Universal ++= directory(baseDirectory.value / "floor_plans")
+
 name := "anyplace_v3"
 
-version := "0.5"
+version := "1.0"
 
 scalaVersion := "2.11.7"
 
@@ -60,3 +63,4 @@ resolvers ++= Seq(
 )
 
 lazy val `anyplace_v3` = (project in file(".")).enablePlugins(PlayScala)
+
