@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['ngCookies','angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 

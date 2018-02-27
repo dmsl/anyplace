@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou, Data Management Systems Laboratory (DMSu
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 

@@ -56,6 +56,7 @@ import play.api.libs.json.{JsObject, JsString, Json}
 import radiomapserver.{RadioMap, RadioMapMean}
 import acces.AccesRBF
 
+import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
 import collection.JavaConversions._
 
@@ -272,10 +273,50 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       val buid = json.\\("buid").mkString.replace("\"", "")
       val floor = json.\\("floor").mkString.replace("\"", "")
       try {
-        val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor)
+        val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor).asScala
+
+        val uniqueAPs: util.HashMap[String, JsonObject] = new util.HashMap()
+        for(accessPoint:JsonObject <- accessPoints){
+          var id =accessPoint.getString("AP")
+          id=id.substring(0,id.length-9)
+
+          var ap=uniqueAPs.get(id)
+          var avg=accessPoint.getObject("RSS").getDouble("average")
+          var x=accessPoint.getString("x").toDouble
+          var y=accessPoint.getString("y").toDouble
+          if(ap==null){
+            if(avg < -40){
+              accessPoint.put("den",avg)
+              accessPoint.put("x",avg*x)
+              accessPoint.put("y",avg*y)
+            }else{
+              accessPoint.put("den",0)
+              accessPoint.put("x",x)
+              accessPoint.put("y",y)
+            }
+           ap=accessPoint
+          }else if(ap.getDouble("den")<0){
+            if(avg < -40){
+              var ap_den=ap.getDouble("den")
+              var ap_x=ap.getDouble("x")
+              var ap_y=ap.getDouble("y")
+              accessPoint.put("den",avg+ap_den)
+              accessPoint.put("x",avg*x+ap_x)
+              accessPoint.put("y",avg*y+ap_y)
+            }else{
+              accessPoint.put("den",0)
+              accessPoint.put("x",x)
+              accessPoint.put("y",y)
+            }
+            ap=accessPoint
+          }
+          //overwrite old object in case that there is one
+          uniqueAPs.put(id,ap)
+        }
+
         if (accessPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
         val res = JsonObject.empty()
-        res.put("accessPoints", accessPoints)
+        res.put("accessPoints",new util.ArrayList[JsonObject](uniqueAPs.values()))
         try {
           gzippedJSONOk(res.toString)
         } catch {
@@ -2126,7 +2167,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       Y(i, ::) := list_rss.get(i).t
     }
 
-
     val X_min = GeoUtils.latlng2xy(point = bl, bl = bl, ur = ur)
     val X_max = GeoUtils.latlng2xy(point = ur, bl = bl, ur = ur)
     val Y_min = -110.0 * DenseVector.ones[Double](m)
@@ -2146,13 +2186,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
     val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
     val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+
       GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur)
     )
 
-    //    throw new Exception("Waaat")
-
     return (latlon_predict, crlbs)
   }
+
 
 
   private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String): Option[RadioMapMean] = {
@@ -2248,3 +2288,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   //    return Option[RadioMapMean](rm)
   //  }
 }
+
+
+

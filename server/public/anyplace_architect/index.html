@@ -2,6 +2,7 @@
 <html ng-app="anyArchitect">
 <head>
     <script>
+
 //        if (window.location.protocol != "https:")
 //            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
@@ -66,8 +67,11 @@
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+    <!--<script src="/bower_components/angular-cookies/angular-cookies.js"></script>-->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular-cookies.js"></script>
+
 </head>
-<body>
+<body >
 
 <div id="top-container">
 
@@ -906,13 +910,19 @@
                                         {{getAPsButtonText()}}
                                     </button>
 
-                                    <div  ng-dropdown-multiselect="" events="multiuserevents" options="example9data" selected-model="example9model" extra-settings="example9settings" ng-show="APsisON()" ></div>
+                                    <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsisON()">
+                                        <option id="defaultOption" selected disabled>Filters:</option>
+                                        <option style="margin: 10px; font-weight: bold" value="0">By MAC</option>
+                                        <option style="margin: 10px; font-weight: bold" value="1">By manufacturer</option>
 
+                                    </select>
+
+                                    <div ng-dropdown-multiselect="" events="multiuserevents" options="example9data" selected-model="example9model" extra-settings="example9settings" ng-show="filterByMAC" ></div>
+
+                                    <div ng-dropdown-multiselect="" events="multiuserevents1" options="example8data" selected-model="example8model" extra-settings="example9settings" ng-show="filterByMAN" ></div>
                                 </div>
 
-                                <div id="color-bar" ng-show="heatmapRSSisON()">
-                                    <img width="600" height="70" src="build/images/colorbar-heatmap-menu.png">
-                                </div>
+                                <!--here-->
 
                             </div>
 
@@ -926,6 +936,34 @@
                             </div>
 
                         </div>
+                    </div>
+                    <div id="color-bar" ng-show="radioHeatmapRSSMode" class="">
+                        <ul class="spot">
+                                        <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0" >
+                                            <button style="background-color: rgb(78, 212, 25); width: 100px;" id="greenSquares">0 t0 -60</button>
+                                        </span>
+                            <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0" >
+                                        <button style="background-color: rgb(255, 255, 0); width: 100px;" id="yellowSquares">-60 to -70</button>
+                                        </span>
+                            <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
+                                        <button style="background-color: rgb(255, 165, 0); width: 100px;" id="orangeSquares">-70 to -90</button>
+                                        </span>
+                            <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
+                                        <button style="background-color: rgb(189,6,189); width: 100px;" id="purpleSquares">-90 to -100</button>
+                                        </span>
+                            <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('red')}}" class="A_0" >
+                                        <button style="background-color: rgb(255, 0, 0); width: 100px;" id="redSquares">-100 to -110</button>
+                                        </span>
+
+                            <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
+
+                            <button style="width: 50px;">
+                                <a data-toggle="modal" data-target="#myModal_2">
+                                    <i class="fa fa-info-circle"></i>
+                                </a>
+                            </button>
+
+                        </ul>
                     </div>
                 </div>
                 <div class="warning-prereq"
@@ -1075,7 +1113,46 @@
                     your network has a GOOD Wi-Fi coverage (for a given square).<br>Lower signal intensity
                     (i.e., red or -110 dBm) means that you have NO coverage (at particular square).<br>
                     The image below shows the Wi-Fi signal intensity:<br>
-                    <img width="600" height="70" src="build/images/colorbar-heatmap-menu.png"></p>
+                <ul class="spot">
+                                        <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0">
+                                            <li style="background-color: rgb(78, 212, 25); width: 100px;">0 to 60</li>
+                                        </span>
+                    <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0">
+                                        <li style="background-color: rgb(255, 255, 0); width: 100px;">-60 to -70</li>
+                                        </span>
+                    <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
+                                        <li style="background-color: rgb(255, 165, 0); width: 100px;">-70 to -90</li>
+                                        </span>
+                    <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
+                                        <li style="background-color: rgb(128, 0, 128); width: 100px;">-90 to -100</li>
+                                        </span>
+                    <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('r')}}" class="A_0">
+                                        <li style="background-color: rgb(255, 0, 0); width: 100px;">-100 to -110</li>
+                                        </span> dBm<br>
+            </ul>
+                <b>You can click on a certain color (range) to filter the measurements in that range.</b><br>
+                </p>
+                <p>Connectivity Scale:
+                <ul>
+                    <li>PERFECT: 0-60 (GREEN) <br>excellent connectivity at the highest speeds.</li>
+                <li>GOOD: 60-70 (YELLOW) <br>good connectivity to your Wi-Fi,  but not always at the highest speeds.</li>
+                <li>ACCEPTABLE: 70-90 (ORANGE) <br> fine connectivity to your Wi-Fi, accept occasional interruptions but should be fine for email and web browsing.</li>
+                <li>INTERMITTENT: 90-100 (PURPLE) <br> intermittent (flaky) connectivity, slow transfer rates and performance issues with multimedia content.</li>
+                    <li>NO-CONNECTIVITY: 100-110 (RED) <br> expect no connectivity to your Wi-Fi.</li>
+                </ul></p>
+            </div>
+            <div class="modal-header">
+                <b>ESTIMATED ACCESS POINTS (APs)</b>
+            </div>
+
+            <div class="modal-body">
+                <p>
+                By clicking on the “Show Estimated Wi-Fi AP position” button, you can calculate from the
+                fingerprints where the Access Points (APs) are located in your building.
+                These locations are inferred (i.e., estimated)
+                and might not correspond to the real location of the APs.
+                To improve the accuracy of the AP derivation process, try to upload as many high
+                fingerprints close to the real AP as possible using the Anyplace Logger.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -1092,12 +1169,29 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <b>Localization</b>
+                <b>Localization Accuracy Estimation:</b>
             </div>
             <div class="modal-body">
-                <p>This area allows you to observe the expected localization accuracy using the ACCES
-                    algorithm (available under research).<br> Green shows higher localization accuracy
-                    and red lower accuracy.<br>You can see a DEMO in the video below:<br>
+                This area allows you to observe the expected localization accuracy (i.e., different than Wi-Fi coverage) using the ACCES algorithm .<br>
+                Green shows higher localization accuracy and red lower accuracy. To improve the expected localization accuracy you have to improve the data collection process as it is described under the <a href="https://github.com/dmsl/anyplace/wiki"
+                                                                                                                                                                                                               target="_blank">Wiki page</a>.<br>
+                More details on how the localization accuracy works in theory are documented in the following publications.<br>
+                <ul>
+                <li><a href=" http://www.cs.ucy.ac.cy/~dzeina/papers/mdm17-acces.pdf"
+                       target="_blank">[C66] "Indoor Localization Accuracy Estimation from Fingerprint Data", Artyom Nikitin,
+                    Christos Laoudias, Georgios Chatzimilioudis, Panagiotis Karras and Demetrios Zeinalipour-Yazti
+                    "Proceedings of the 18th IEEE International Conference on Mobile Data Management"
+                    (MDM '17), IEEE Computer Society, Pages: 196--205, May 29 - June 1, 2017,
+                    Daejeon, South Korea, 2017.[ Honorable Mention Award! ]</a>,
+                </li>
+
+                <li><a href="http://www.cs.ucy.ac.cy/~dzeina/papers/mdm17-acces-demo.pdf"
+                       target="_blank"> [C65] "ACCES: Offline Accuracy Estimation for Fingerprint-based Localization",
+                    Artyom Nikitin, Christos Laoudias, Georgios Chatzimilioudis, Panagiotis Karras and Demetrios Zeinalipour-Yazti "Proceedings of the 18th IEEE International
+                    Conference on Mobile Data Management" (MDM '17), IEEE Computer Society, Pages: 358--359, May 29 - June 1, 2017, Daejeon, South Korea, 2017.</a>
+                    </li>
+                </ul>
+                You can see a demo of ACCES in the video below:<br>
                     <iframe width="560" height="315" src="https://www.youtube.com/embed/xPZlwKngcGo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
             </div>
             <div class="modal-footer">
@@ -1108,7 +1202,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="myModal_Welcome" role="dialog">
+<div class="modal fade" id="myModal_Welcome" role="dialog" >
     <div class="modal-dialog">
 
         <!-- Modal content-->
@@ -1133,6 +1227,7 @@
                     <iframe width="560" height="315" src="https://www.youtube.com/embed/dIVxcQ_5Wbg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
             </div>
             <div class="modal-footer">
+                <label><input type="checkbox" name="dismiss" id="dismiss">Don't show again!</label>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>

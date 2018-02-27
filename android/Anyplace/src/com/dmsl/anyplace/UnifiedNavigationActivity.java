@@ -500,9 +500,16 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         };
 
         WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (!wifi.isWifiEnabled() || !NetworkUtils.isOnline(UnifiedNavigationActivity.this)) {
-            AndroidUtils.showWifiSettings(this, null, checkGPS);
-        } else {
+        boolean isWifiOn = wifi.isWifiEnabled();
+        boolean isOnline = NetworkUtils.isOnline(UnifiedNavigationActivity.this);
+
+        if (!isOnline) {
+            AndroidUtils.showWifiSettings(this,"No Internet Connection", null, checkGPS);
+        }
+        else if (!isWifiOn){
+            AndroidUtils.showWifiSettings(this,"WiFi is disabled", null, checkGPS);
+        }
+        else {
             checkGPS.run();
         }
 
@@ -2013,7 +2020,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         final BuildingModel b = userData.getSelectedBuilding();
 
         if (b == null) {
-            Log.e("Unified Activity/onNewFloor", "Floor Number Not found");
+            Log.e("Unified Activity", "onNewFloor b=null");
             return;
         }
 

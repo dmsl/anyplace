@@ -171,19 +171,18 @@ footer{
 }
 
 #color-bar {
-    width: auto;
+    /*width: auto;
     max-width: 0%;
     min-width: 0px;
     height: auto;
-    max-height: 100%;
+    max-height: 100%;*/
     position: fixed;
-    /*top:0;*/
     bottom: 0;
     left: 50%;
-    margin: 0;
+    /*margin: 0;
     z-index: 99;
     border: 1px solid #ddd;
-    background-color: white;
+    background-color: white;*/
     right:50%;
     margin-left:-300px;
     /*border-top: 10px #428bca solid;*/
@@ -693,5 +692,46 @@ contextmenu {
     bottom: 0;
     left: 0;
 }
+
+/*WiFi Connectivity Scale*/
+.spot {
+    width: 250%;
+}
+
+.spot li {
+    float          : left;
+    width          : 50px;
+    border         : 2px solid white;
+    border-left    : none;
+    border-right   : none;
+    padding        : 2px;
+    list-style     : none;
+    text-align     : center;
+
+}
+
+.spot button {
+    float          : left;
+    width          : 50px;
+    margin-bottom  : 10px ;
+}
+
+.spot li:hover {
+    opacity : 1;
+}
+
+.spot li:first-child {
+    border-left: 2px solid white;
+}
+
+.spot li:last-child {
+    border-right: 2px solid white;
+}
+
+.faded{
+    opacity: 0.5;
+}
+
+
 
 

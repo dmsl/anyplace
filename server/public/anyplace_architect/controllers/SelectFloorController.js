@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Marileni Angelidou, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -30,7 +30,6 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
     $scope.gmapService = GMapService;
-    //$scope.controlBarService = ControlBarController;
     $scope.xFloors = [];
 
     $scope.$watch('anyService.availableFloors', function (newVal, oldVal) {

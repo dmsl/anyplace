@@ -27,6 +27,7 @@
 
 var AnyplaceAPI = {};
 
+
 AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
 /**

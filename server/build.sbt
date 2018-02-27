@@ -62,5 +62,6 @@ resolvers ++= Seq(
   "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 )
 
+
 lazy val `anyplace_v3` = (project in file(".")).enablePlugins(PlayScala)
 
