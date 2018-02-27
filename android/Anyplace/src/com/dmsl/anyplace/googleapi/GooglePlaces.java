@@ -138,7 +138,7 @@ public class GooglePlaces {
 			return list;
 
 		} catch (HttpResponseException e) {
-			Log.e("Error:", e.getMessage());
+			Log.e("GooglePlaces:", e.getMessage());
 			return null;
 		}
 
@@ -165,7 +165,7 @@ public class GooglePlaces {
 			return place;
 
 		} catch (HttpResponseException e) {
-			Log.e("Error in Perform Details", e.getMessage());
+			Log.e("GooglePlaces", e.getMessage());
 			throw e;
 		}
 	}

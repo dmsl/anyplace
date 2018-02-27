@@ -87,36 +87,12 @@ public class NetworkUtils {
     }
 
     // <HTTP Get>
-    public static InputStream downloadHttps(String urlS) throws IOException, URISyntaxException {
+    public static InputStream downloadHttp(String urlS) throws IOException, URISyntaxException {
         InputStream is = null;
 
         URL url = new URL(encodeURL(urlS));
 
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        conn.setReadTimeout(10000);
-        conn.setConnectTimeout(15000);
-        conn.setRequestMethod("GET");
-        conn.setDoInput(true);
-
-        conn.connect();
-
-        int response = conn.getResponseCode();
-        if (response == 200) {
-            is = conn.getInputStream();
-        } else {
-            throw new RuntimeException("Server Error Code: " + conn.getResponseCode());
-        }
-
-
-        return is;
-    }
-
-    public static InputStream downloadHttp(String urlS) throws URISyntaxException, IOException {
-        InputStream is = null;
-
-        URL url = new URL(encodeURL(urlS));
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpURLConnection  conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000);
         conn.setConnectTimeout(15000);
         conn.setRequestMethod("GET");
@@ -149,29 +125,15 @@ public class NetworkUtils {
         }
     }
 
-    public static String downloadUrlAsStringHttps(String urlS) throws IOException, URISyntaxException {
-        InputStream is = null;
-        try {
-            is = downloadHttps(urlS);
-            return readInputStream(is);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
     // </HTTP Get>
 
-    /* HTTP Post Json (InputStream) */
+    // <HTTP Post Json>
     private static InputStream ISdownloadHttpClientJsonPostHelp(String url, String json, int timeout) throws URISyntaxException, IOException {
 
         InputStream is;
 
         URL obj = new URL(url);
-        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+        HttpURLConnection  con = (HttpURLConnection) obj.openConnection();
         con.setConnectTimeout(timeout);
         con.setRequestMethod("POST");
         con.setRequestProperty("Accept", "application/json");

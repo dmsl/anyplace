@@ -67,7 +67,7 @@ public class AnyplaceAPI {
 		if (!DEBUG_URL) {
 			Context c = MyApplication.getAppContext();
 			SharedPreferences preferences = c.getSharedPreferences(UnifiedNavigationActivity.SHARED_PREFS_ANYPLACE, c.MODE_PRIVATE);
-			return preferences.getString("server_ip_address", c.getString(R.string.default_server_ip_address));
+			return preferences.getString("server_ip_address", c.getString(R.string.default_server_ip_address)).trim();
 		} else {
 			return "http://192.168.1.2:9000";
 		}

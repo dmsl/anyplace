@@ -44,8 +44,11 @@ import java.util.HashMap
 import java.util.LinkedList
 
 import RadioMap._
+import scala.util.control.Breaks._
 //remove if not needed
 import scala.collection.JavaConversions._
+
+
 
 object RadioMap {
 
@@ -57,22 +60,26 @@ object RadioMap {
             val fr = new FileReader(inFile)
             reader = new BufferedReader(fr)
             while ({line = reader.readLine; line != null}) {
-                line_num += 1
-                if (line.startsWith("#")) {
-                    //continue
-                } else if (line.trim().isEmpty) {
-                    //continue
+                breakable {
+                    line_num += 1
+                    if (line.startsWith("#")) {
+                        //continue (break from breakable inside loop)
+                        break
+                    } else if (line.trim().isEmpty) {
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    line = line.replace(", ", " ")
+                    val temp = line.split(" ")
+                    java.lang.Float.parseFloat(temp(1))
+                    java.lang.Float.parseFloat(temp(2))
+                    java.lang.Float.parseFloat(temp(3))
+                    if (!temp(4).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
+                        throw new Exception("Line " + line_num + " MAC Address is not valid.")
+                    }
+                    java.lang.Integer.parseInt(temp(5))
+                    java.lang.Integer.parseInt(temp(6))
                 }
-                line = line.replace(", ", " ")
-                val temp = line.split(" ")
-                java.lang.Float.parseFloat(temp(1))
-                java.lang.Float.parseFloat(temp(2))
-                java.lang.Float.parseFloat(temp(3))
-                if (!temp(4).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
-                    throw new Exception("Line " + line_num + " MAC Address is not valid.")
-                }
-                java.lang.Integer.parseInt(temp(5))
-                java.lang.Integer.parseInt(temp(6))
             }
             fr.close()
             reader.close()
@@ -104,29 +111,33 @@ object RadioMap {
             val fr = new FileReader(inFile)
             reader = new BufferedReader(fr)
             while ({line = reader.readLine; line != null}) {
-                line_num += 1
-                if (line.startsWith("#")) {
-                    //continue
-                } else if (line.trim().isEmpty) {
-                    //continue
-                }
-                line = line.replace(", ", " ")
-                val temp = line.split(" ")
-                if (temp.length != 8) {
-                    throw new Exception("Line " + line_num + " length is not equal to 8.")
-                }
-                java.lang.Float.parseFloat(temp(1))
-                java.lang.Float.parseFloat(temp(2))
-                java.lang.Float.parseFloat(temp(3))
-                if (!temp(4).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
-                    throw new Exception("Line " + line_num + " MAC Address is not valid.")
-                }
-                java.lang.Integer.parseInt(temp(5))
-                java.lang.Integer.parseInt(temp(6))
-                if (!buildingsFloors.containsKey(temp(7))) {
-                    val tempList = new LinkedList[String]()
-                    tempList.add(temp(6))
-                    buildingsFloors.put(temp(7), tempList)
+                breakable {
+                    line_num += 1
+                    if (line.startsWith("#")) {
+                        //continue (break from breakable inside loop)
+                        break
+                    } else if (line.trim().isEmpty) {
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    line = line.replace(", ", " ")
+                    val temp = line.split(" ")
+                    if (temp.length != 8) {
+                        throw new Exception("Line " + line_num + " length is not equal to 8.")
+                    }
+                    java.lang.Float.parseFloat(temp(1))
+                    java.lang.Float.parseFloat(temp(2))
+                    java.lang.Float.parseFloat(temp(3))
+                    if (!temp(4).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
+                        throw new Exception("Line " + line_num + " MAC Address is not valid.")
+                    }
+                    java.lang.Integer.parseInt(temp(5))
+                    java.lang.Integer.parseInt(temp(6))
+                    if (!buildingsFloors.containsKey(temp(7))) {
+                        val tempList = new LinkedList[String]()
+                        tempList.add(temp(6))
+                        buildingsFloors.put(temp(7), tempList)
+                    }
                 }
             }
             fr.close()
@@ -276,61 +287,66 @@ class RadioMap(private val rss_folder: File,
             val fr = new FileReader(f)
             reader = new BufferedReader(fr)
             while ({line = reader.readLine; line != null}) {
-                line_num += 1
-                if (line.startsWith("#") || line.trim().isEmpty) {
-                    //continue
-                }
-                line = line.replace(", ", " ")
-                val temp = line.split(" ")
-                RSS_Value = java.lang.Integer.parseInt(temp(5))
-                key = temp(1) + ", " + temp(2)
-                group = (((Math.round((java.lang.Float.parseFloat(temp(3))) + deviation) %
-                  degrees) /
-                  range) %
-                  num_orientations).toInt
-                orientationLists = NewRadioMap.get(key)
-                if (orientationLists == null) {
-                    orientationLists = new HashMap[Integer, ArrayList[Any]](Math.round(num_orientations))
-                    orientationList = new ArrayList[Any](2)
-                    orientationLists.put(group, orientationList)
-                    MACAddressMap = new HashMap[String, ArrayList[Integer]]()
-                    RSS_Values = new ArrayList[Integer]()
-                    RSS_Values.add(RSS_Value)
-                    MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
-                    orientationList.add(MACAddressMap)
-                    orientationList.add(0)
-                    NewRadioMap.put(key, orientationLists)
-                    //continue
-                }
-                if (orientationLists.get(group) == null) {
-                    orientationList = new ArrayList[Any](2)
-                    orientationLists.put(group, orientationList)
-                    MACAddressMap = new HashMap[String, ArrayList[Integer]]()
-                    RSS_Values = new ArrayList[Integer]()
-                    RSS_Values.add(RSS_Value)
-                    MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
-                    orientationList.add(MACAddressMap)
-                    orientationList.add(0)
-                    NewRadioMap.put(key, orientationLists)
-                    //continue
-                }
-                MACAddressMap = orientationLists.get(group).get(0).asInstanceOf[HashMap[String, ArrayList[Integer]]]
-                RSS_Values = MACAddressMap.get(temp(4).toLowerCase())
-                var position = orientationLists.get(group).get(1).asInstanceOf[java.lang.Integer]
-                if (RSS_Values == null) {
-                    RSS_Values = new ArrayList[Integer]()
-                }
-                if (position == RSS_Values.size) {
-                    position = position + 1
-                    orientationLists.get(group).set(1, position)
-                    RSS_Values.add(RSS_Value)
-                    MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
-                } else {
-                    for (i <- RSS_Values.size until position - 1) {
-                        RSS_Values.add(this.defaultNaNValue)
+                breakable {
+                    line_num += 1
+                    if (line.startsWith("#") || line.trim().isEmpty) {
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    RSS_Values.add(RSS_Value)
-                    MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
+                    line = line.replace(", ", " ")
+                    val temp = line.split(" ")
+                    RSS_Value = java.lang.Integer.parseInt(temp(5))
+                    key = temp(1) + ", " + temp(2)
+                    group = (((Math.round((java.lang.Float.parseFloat(temp(3))) + deviation) %
+                      degrees) /
+                      range) %
+                      num_orientations).toInt
+                    orientationLists = NewRadioMap.get(key)
+                    if (orientationLists == null) {
+                        orientationLists = new HashMap[Integer, ArrayList[Any]](Math.round(num_orientations))
+                        orientationList = new ArrayList[Any](2)
+                        orientationLists.put(group, orientationList)
+                        MACAddressMap = new HashMap[String, ArrayList[Integer]]()
+                        RSS_Values = new ArrayList[Integer]()
+                        RSS_Values.add(RSS_Value)
+                        MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
+                        orientationList.add(MACAddressMap)
+                        orientationList.add(0)
+                        NewRadioMap.put(key, orientationLists)
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    if (orientationLists.get(group) == null) {
+                        orientationList = new ArrayList[Any](2)
+                        orientationLists.put(group, orientationList)
+                        MACAddressMap = new HashMap[String, ArrayList[Integer]]()
+                        RSS_Values = new ArrayList[Integer]()
+                        RSS_Values.add(RSS_Value)
+                        MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
+                        orientationList.add(MACAddressMap)
+                        orientationList.add(0)
+                        NewRadioMap.put(key, orientationLists)
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    MACAddressMap = orientationLists.get(group).get(0).asInstanceOf[HashMap[String, ArrayList[Integer]]]
+                    RSS_Values = MACAddressMap.get(temp(4).toLowerCase())
+                    var position = orientationLists.get(group).get(1).asInstanceOf[java.lang.Integer]
+                    if (RSS_Values == null) {
+                        RSS_Values = new ArrayList[Integer]()
+                    }
+                    if (position == RSS_Values.size) {
+                        position = position + 1
+                        orientationLists.get(group).set(1, position)
+                        RSS_Values.add(RSS_Value)
+                        MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
+                    } else {
+                        for (i <- RSS_Values.size until position - 1) {
+                            RSS_Values.add(this.defaultNaNValue)
+                        }
+                        RSS_Values.add(RSS_Value)
+                        MACAddressMap.put(temp(4).toLowerCase(), RSS_Values)
+                    }
                 }
             }
             fr.close()
@@ -399,29 +415,34 @@ class RadioMap(private val rss_folder: File,
             frRadiomap = new FileReader(radiomap_filename)
             readerRadiomap = new BufferedReader(frRadiomap)
             while ({radiomapLine =readerRadiomap.readLine; radiomapLine != null}) {
-                if (radiomapLine.trim() == "") {
-                    //continue
-                }
-                radiomapLine = radiomapLine.replace(", ", " ")
-                temp = radiomapLine.split(" ")
-                if (temp(0).trim() == "#") {
-                    if (temp(1).trim() == "NaN") {
-                        //continue
+                breakable {
+                    if (radiomapLine.trim() == "") {
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    if (temp.length < 5) {
-                        return false
-                    } else if (this.isIndoor &&
-                      (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
+                    radiomapLine = radiomapLine.replace(", ", " ")
+                    temp = radiomapLine.split(" ")
+                    if (temp(0).trim() == "#") {
+                        if (temp(1).trim() == "NaN") {
+                            //continue (break from breakable inside loop)
+                            break
+                        }
+                        if (temp.length < 5) {
+                            return false
+                        } else if (this.isIndoor &&
+                          (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
+                            return false
+                        }
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    if (temp.length < 4) {
                         return false
                     }
-                    //continue
-                }
-                if (temp.length < 4) {
-                    return false
-                }
-                if (java.lang.Integer.parseInt(temp(2)) == group) {
-                    for (i <- 3 until temp.length) {
-                        set_MIN_MAX_RSS(java.lang.Integer.parseInt(temp(i)))
+                    if (java.lang.Integer.parseInt(temp(2)) == group) {
+                        for (i <- 3 until temp.length) {
+                            set_MIN_MAX_RSS(java.lang.Integer.parseInt(temp(i)))
+                        }
                     }
                 }
             }
@@ -735,32 +756,37 @@ class RadioMap(private val rss_folder: File,
             readerRadiomapMean = new BufferedReader(frRadiomapMean)
             var line: String = null
             while ({line = readerRadiomapMean.readLine; line != null}) {
-                if (line.trim() == "") {
-                    //continue
-                }
-                line = line.replace(", ", " ")
-                temp = line.split(" ")
-                if (temp(0).trim() == "#") {
-                    if (temp(1).trim() == "NaN") {
-                        //continue
+                breakable {
+                    if (line.trim() == "") {
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    if (temp.length < 5) {
+                    line = line.replace(", ", " ")
+                    temp = line.split(" ")
+                    if (temp(0).trim() == "#") {
+                        if (temp(1).trim() == "NaN") {
+                            //continue (break from breakable inside loop)
+                            break
+                        }
+                        if (temp.length < 5) {
+                            return null
+                        } else if (this.isIndoor &&
+                          (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
+                            return null
+                        }
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    if (temp.length < 4) {
                         return null
-                    } else if (this.isIndoor &&
-                      (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
-                        return null
                     }
-                    //continue
-                }
-                if (temp.length < 4) {
-                    return null
-                }
-                CArrayLine = new ArrayList[Double]()
-                if (java.lang.Integer.parseInt(temp(2)) == orientation) {
-                    for (i <- 3 until temp.length) {
-                        CArrayLine.add(java.lang.Double.parseDouble(temp(i)))
+                    CArrayLine = new ArrayList[Double]()
+                    if (java.lang.Integer.parseInt(temp(2)) == orientation) {
+                        for (i <- 3 until temp.length) {
+                            CArrayLine.add(java.lang.Double.parseDouble(temp(i)))
+                        }
+                        CArray.add(CArrayLine)
                     }
-                    CArray.add(CArrayLine)
                 }
             }
             frRadiomapMean.close()
@@ -787,40 +813,45 @@ class RadioMap(private val rss_folder: File,
             frRadiomap = new FileReader(radiomap_filename)
             readerRadiomap = new BufferedReader(frRadiomap)
             while ({radiomapLine =readerRadiomap.readLine; radiomapLine != null}) {
-                if (radiomapLine.trim() == "") {
-                    //continue
-                }
-                radiomapLine = radiomapLine.replace(", ", " ")
-                temp = radiomapLine.split(" ")
-                if (temp(0).trim() == "#") {
-                    if (temp(1).trim() == "NaN") {
-                        //continue
+                breakable {
+                    if (radiomapLine.trim() == "") {
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    if (temp.length < 5) {
+                    radiomapLine = radiomapLine.replace(", ", " ")
+                    temp = radiomapLine.split(" ")
+                    if (temp(0).trim() == "#") {
+                        if (temp(1).trim() == "NaN") {
+                            //continue (break from breakable inside loop)
+                            break
+                        }
+                        if (temp.length < 5) {
+                            return null
+                        } else if (this.isIndoor &&
+                          (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
+                            return null
+                        }
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    if (temp.length < 4) {
                         return null
-                    } else if (this.isIndoor &&
-                      (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
-                        return null
                     }
-                    //continue
-                }
-                if (temp.length < 4) {
-                    return null
-                }
-                if (java.lang.Integer.parseInt(temp(2)) == orientation) {
-                    Srow = new ArrayList[Double]()
-                    for (i <- 3 until temp.length) {
-                        Srow.add(java.lang.Double.parseDouble(temp(i)))
-                        set_MIN_MAX_RSS(java.lang.Integer.parseInt(temp(i)))
+                    if (java.lang.Integer.parseInt(temp(2)) == orientation) {
+                        Srow = new ArrayList[Double]()
+                        for (i <- 3 until temp.length) {
+                            Srow.add(java.lang.Double.parseDouble(temp(i)))
+                            set_MIN_MAX_RSS(java.lang.Integer.parseInt(temp(i)))
+                        }
+                        Urow = new ArrayList[Double]()
+                        for (i <- 0 until CArray.size) {
+                            Crow = CArray.get(i)
+                            val numerator = computeNumerator(Srow, Crow)
+                            val denominator = computeDenominator(Srow, CArray)
+                            Urow.add(numerator / denominator)
+                        }
+                        UArray.add(Urow)
                     }
-                    Urow = new ArrayList[Double]()
-                    for (i <- 0 until CArray.size) {
-                        Crow = CArray.get(i)
-                        val numerator = computeNumerator(Srow, Crow)
-                        val denominator = computeDenominator(Srow, CArray)
-                        Urow.add(numerator / denominator)
-                    }
-                    UArray.add(Urow)
                 }
             }
             frRadiomap.close()
@@ -870,31 +901,36 @@ class RadioMap(private val rss_folder: File,
             frRadiomap = new FileReader(radiomap_filename)
             readerRadiomap = new BufferedReader(frRadiomap)
             while ({radiomapLine =readerRadiomap.readLine; radiomapLine != null}) {
-                if (radiomapLine.trim() == "") {
-                    //continue
-                }
-                radiomapLine = radiomapLine.replace(", ", " ")
-                temp = radiomapLine.split(" ")
-                if (temp(0).trim() == "#") {
-                    if (temp(1).trim() == "NaN") {
-                        //continue
+                breakable {
+                    if (radiomapLine.trim() == "") {
+                        //continue (break from breakable inside loop)
+                        break
                     }
-                    if (temp.length < 5) {
+                    radiomapLine = radiomapLine.replace(", ", " ")
+                    temp = radiomapLine.split(" ")
+                    if (temp(0).trim() == "#") {
+                        if (temp(1).trim() == "NaN") {
+                            //continue (break from breakable inside loop)
+                            break
+                        }
+                        if (temp.length < 5) {
+                            return null
+                        } else if (this.isIndoor &&
+                          (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
+                            return null
+                        }
+                        //continue (break from breakable inside loop)
+                        break
+                    }
+                    if (temp.length < 4) {
                         return null
-                    } else if (this.isIndoor &&
-                      (!temp(1).trim().equalsIgnoreCase("X") || !temp(2).trim().equalsIgnoreCase("Y"))) {
-                        return null
                     }
-                    //continue
-                }
-                if (temp.length < 4) {
-                    return null
-                }
-                if (java.lang.Integer.parseInt(temp(2)) == orientation) {
-                    for (k <- 0 until 2) {
-                        dArrayMatrix(i)(k) = java.lang.Double.parseDouble(temp(k))
+                    if (java.lang.Integer.parseInt(temp(2)) == orientation) {
+                        for (k <- 0 until 2) {
+                            dArrayMatrix(i)(k) = java.lang.Double.parseDouble(temp(k))
+                        }
+                        i
                     }
-                    i
                 }
             }
             frRadiomap.close()

@@ -57,15 +57,10 @@ import android.text.TextPaint;
 
 public class AndroidUtils {
 
-	public static void showWifiSettings(final Activity activity) {
-		showWifiSettings(activity, null, null);
-	}
-
-	// Runnable default value null
-	public static void showWifiSettings(final Activity activity, final Runnable yes, final Runnable no) {
+	public static void showWifiSettings(final Activity activity, final String title, final Runnable yes, final Runnable no) {
 		// check for internet connection
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
-		alertDialog.setTitle("No Internet Connection");
+		alertDialog.setTitle(title);
 		alertDialog.setMessage("Would you like to change settings ?");
 		// Setting Positive "Yes" Button
 		alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
