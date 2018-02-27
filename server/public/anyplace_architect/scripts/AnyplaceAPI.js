@@ -30,9 +30,10 @@ var AnyplaceAPI = {};
 //AnyplaceAPI.SERVER = "http://127.0.0.1"
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
-AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
-//AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
 //AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "http://marilenh-vm:9000/anyplace";
+///AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
+
 
 /**
  * MAPPING API
@@ -40,6 +41,27 @@ AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 AnyplaceAPI.Mapping = {};
 AnyplaceAPI.Mapping.RADIO_HEATMAP = "/mapping/radio/heatmap_building_floor";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP;
+
+//new marileni
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS = "/mapping/radio/heatmap_building_floor_avarage";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS;
+//end new marileni
+
+//new marileni 2/2
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/mapping/radio/heatmap_building_floor_average_1";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1;
+
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2 = "/mapping/radio/heatmap_building_floor_average_2";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2;
+
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/mapping/radio/heatmap_building_floor_average_3";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3;
+//end new marileni
+
+//new marileni 4/1
+AnyplaceAPI.Mapping.APs = "/mapping/radio/APs_building_floor";
+AnyplaceAPI.Mapping.APs_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.APs;
+//end new marileni
 
 AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_POI;
@@ -118,6 +140,10 @@ AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + Anyplac
 
 AnyplaceAPI.Mapping.SIGN = "/mapping/accounts/sign";
 AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIGN;
+//new marileni 17/1
+AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/mapping/radio/delete";
+AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE;
+//end new marileni
 
 
 app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
@@ -139,6 +165,100 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             return data;
         });
     };
+
+    //new marileni
+
+    apiService.getRadioHeatmapRSS = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+    //end new marileni
+
+    //new marileni 2/2
+
+    apiService.getRadioHeatmapRSS_1 = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioHeatmapRSS_2 = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioHeatmapRSS_3 = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+
+    //end new marileni 2/2
+
+    //new marileni 4/1
+
+    apiService.getAPs= function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.APs_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+    //end new marileni
+
+
+    //new marileni 17/1
+
+    apiService.deleteFingerprints = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+
+    };
+    //end new marileni
+
 //retrievePoisTypes
 
     apiService.retrievePoisTypes = function (json_req) {
@@ -585,6 +705,8 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             return data;
         });
     };
+
+
 
     // we return apiService controller in order to be able to use it in ng-click
     return apiService;

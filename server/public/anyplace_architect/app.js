@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['ngCookies','angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 
@@ -40,6 +40,10 @@ app.service('GMapService', function () {
         zoom: 8,
         panControl: true,
         zoomControl: true,
+        zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.LARGE,
+            position: google.maps.ControlPosition.LEFT_CENTER
+        },
         mapTypeControl: true,
         mapTypeControlOptions: {
             position: google.maps.ControlPosition.RIGHT_BOTTOM
@@ -102,6 +106,13 @@ app.factory('AnyplaceService', function () {
     anyService.selectedCampus = undefined;
     anyService.ShowShareProp = undefined;
     anyService.progress = undefined;
+    //new marileni
+    anyService.selector = undefined;
+    //end new marileni
+    //new marileni 2/2
+    anyService.allPois = {};
+    anyService.allConnections = {};
+    //end new marileni
 
     anyService.alerts = [];
 
@@ -113,6 +124,13 @@ app.factory('AnyplaceService', function () {
     anyService.getBuilding = function () {
         return this.selectedBuilding;
     };
+
+    //new marileni
+    anyService.selector = function () {
+
+       // return this.selectedBuilding;
+    };
+    //end new marileni
 
     anyService.getCampus = function () {
         return this.selectedCampus;
@@ -198,12 +216,42 @@ app.factory('AnyplaceService', function () {
         return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
+    //new marileni 2/2
+
+    anyService.setAllPois= function (p) {
+        this.allPois={};
+        this.allPois = p;
+    };
+
+    anyService.setAllConnection = function (c) {
+        this.allConnections = {};
+        this.allConnections = c;
+    };
+
+    anyService.getAllPois = function () {
+        if (!this.allPois) {
+            return 'N/A';
+        }
+        return this.allPois;
+    };
+
+    anyService.getAllConnections = function () {
+        if (!this.allConnections) {
+            return 'N/A';
+        }
+        return this.allConnections;
+    };
+
+    //end new marileni
+
     anyService.clearAllData = function () {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
         anyService.selectedBuilding = undefined;
         anyService.selectedCampus = undefined;
         anyService.ShowShareProp = undefined;
+        anyService.allPois={};
+        anyService.allConnections={};
     };
 
     return anyService;

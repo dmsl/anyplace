@@ -111,7 +111,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
     def toCouchGeoJSON(): String = {
         val sb = new StringBuilder()
-        var json= JsonObject.empty()
+        var json= toValidCouchJson()
         try {
             json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
                 java.lang.Double.parseDouble(fields.get("coordinates_lon")))
@@ -133,7 +133,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
     def appendCoOwners(jsonReq: JsValue): String = {
         val sb = new StringBuilder()
-        var json= JsonObject.empty()
+        var json= toValidCouchJson()
         try {
             json = JsonObject.empty()
             if (json.get("owner_id") == null || json.getString("owner_id") != jsonReq.\\("owner_id").mkString) {
@@ -160,7 +160,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
     def changeOwner(newOwnerId: String): String = {
         val sb = new StringBuilder()
-        var json = JsonObject.empty()
+        var json = toValidCouchJson()
         try {
             this.fields.put("owner_id", newOwnerId)
             val ja = JsonArray.empty()

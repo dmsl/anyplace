@@ -1,6 +1,6 @@
-name := "anyplace_v3"
+name := "server"
 
-version := "0.3b"
+version := "0.5"
 
 scalaVersion := "2.11.7"
 

@@ -1,13 +1,11 @@
-# Anyplace v3 Installation Notes
+# Anyplace v3
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
 
-# Anyplace v3 for administrators
+# Setup/Configuration
 
-## Setup/Configuration
-
-  1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is expected.
+  1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is possible.
   
-  2. **Download Anyplace v3:**
+  2. **Download Anyplace v3.0b:**
  
     $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
     #if you don't have wget, just download the file with a browser)
@@ -32,9 +30,8 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
         * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
         * `BUCKET=""` - This is the bucket for the couchbase instance.
     + Important: As with all passwords, this should be kept a secret. 
-    + Note: If you are getting Authentication Failure errors, then create a user with the bucket name. This is a new change from Couchbase 5.0 (V5.0 - NEW Role-Based Authentication - Bucket Passwords, etc)(https://forums.couchbase.com/t/v5-0-new-role-based-authentication-bucket-passwords-etc/14637)
   
-## Launching 
+# Running
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
@@ -48,7 +45,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ Double click  anyplace_v3.bat
     # To stop press Ctrl-C or kill the respective process through the task manager
     
-## Testing
+# Testing
     Just open a browser and test the following URLs.
 
     $ http://localhost:9000/viewer
@@ -56,25 +53,14 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ http://localhost:9000/developers
 
     You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
-
-## Connecting the Anyplace Android Client
-+ Download the Android Client from the Play Store: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en (https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en)
-+ Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.
-+ (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
-
-## Optional Cluster and SSL Configurations for Anyplace Server 
-+ (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
-+ (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
-  
-
     
 # Anyplace v3 for developers
 
 ## How to setup Anyplace v3 in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
-+ Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free but if you are a student we recommend taking advantage of the Ultimate Edition which is free for 1 year - this has built-in integration for Play Framework debugging)
++ Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free)
 + Install the Scala plugin during the installation process
-+ Download the project from [GitHub](https://github.com/dmsl/anyplace/archive/master.zip)
++ Download the project from [GitHub](https://github.com/dmsl/anyplace/archive/develop.zip)
 + Extract the `develop.zip` file
 + Click `Open` under the `File` menu on the IntelliJ IDEA
 + Choose the `anyplace-develop/server` directory of the extracted file (The directory icon should be marked)
@@ -85,8 +71,6 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     * Click the dropdown menu on the right side of the IDE to `Edit configuration`
     * Add a new configuration click the `+` symbol
     * Choose `SBT Task` and then write "run" in the `tasks` fields
-+ (Tentatively) Refresh Viewer Packages: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
-+ (Tentatively) Refresh Architect Packages:  https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
 + Done!
 
 **Important**: In order to fully support the Play project you need download and install the Ultimate edition.

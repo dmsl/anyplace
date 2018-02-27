@@ -46,7 +46,6 @@ import play.mvc.Controller
 import utils.AnyResponseHelper
 import utils.JsonUtils
 import utils.LPLogger
-import java.util.List
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import play.api.mvc.Action

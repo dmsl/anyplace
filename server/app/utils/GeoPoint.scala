@@ -52,6 +52,23 @@ object GeoPoint {
         bbox
     }
 
+    //new marileni 17/1
+
+    def getGeoBoundingBoxByRange(latitude1: Double, longitude1: Double,latitude2: Double, longitude2: Double): Array[GeoPoint] = {
+        val lat1 = Math.toRadians(latitude1)
+        val lon1 = Math.toRadians(longitude1)
+        val lat2 = Math.toRadians(latitude2)
+        val lon2 = Math.toRadians(longitude2)
+        val lat_min = Math.toDegrees(lat2)
+        val lat_max = Math.toDegrees(lat1)
+        val lon_min = Math.toDegrees(lon2)
+        val lon_max = Math.toDegrees(lon1)
+        val bbox = Array(new GeoPoint(lat_min, lon_min), new GeoPoint(lat_max, lon_max))
+        bbox
+    }
+
+    //end new marileni
+
     def getDistanceBetweenPoints(lon1: Double,
                                  lat1: Double,
                                  lon2: Double,

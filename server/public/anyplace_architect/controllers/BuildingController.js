@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
+app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($cookieStore,$scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     $scope.myMarkers = {};
     $scope.myMarkerId = 0;
@@ -56,6 +56,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     $scope.poisTypes = {};
     $scope.catTypes = {};
+
+    $scope.pageLoad=false;
 
     $scope.crudTabSelected = 1;
     $scope.setCrudTabSelected = function (n) {
@@ -1735,5 +1737,22 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             }
         );
     };
+
+    //set cookies
+
+    $('#dismiss').on('click', function() {
+        $cookieStore.put('dismissClicked', 'YES');
+    });
+
+    if ($cookieStore.get('dismissClicked') !== 'YES') {
+        function showWelcomeMessage(){
+            $('#myModal_Welcome').modal('show');
+        }
+
+        window.onload=showWelcomeMessage;
+
+
+    }
+
 
 }]);
