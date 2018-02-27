@@ -35,18 +35,9 @@
  */
 package controllers
 
-import datasources.DatasourceException
-import datasources.ProxyDataSource
-import db_models._
-import oauth.provider.v2.models.OAuth2Request
-import org.apache.commons.codec.binary.Base64
-import play.api.mvc._
-import utils._
 import java.io._
-import java.net.HttpURLConnection
-import java.net.URL
-import java.text.NumberFormat
-import java.text.ParseException
+import java.net.{HttpURLConnection, URL}
+import java.text.{NumberFormat, ParseException}
 import java.util
 import java.util.{HashMap, Locale}
 import java.util.zip.GZIPOutputStream
@@ -54,6 +45,13 @@ import java.util.zip.GZIPOutputStream
 import acces.GeoUtils
 import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import datasources.{DatasourceException, ProxyDataSource}
+import db_models._
+import oauth.provider.v2.models.OAuth2Request
+import org.apache.commons.codec.binary.Base64
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc._
+import utils._
 import play.api.libs.json.{JsObject, JsString, Json}
 import radiomapserver.{RadioMap, RadioMapMean}
 import acces.AccesRBF
@@ -147,6 +145,200 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
   }
+
+  //new marileni
+
+  def getRadioHeatmapByBuildingFloorAverage() = Action {
+    implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      var json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      val buid = json.\\("buid").mkString.replace("\"", "")
+      val floor = json.\\("floor").mkString.replace("\"", "")
+      try {
+        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage(buid, floor)
+        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+        val res = JsonObject.empty()
+        res.put("radioPoints", radioPoints)
+        try {
+          gzippedJSONOk(res.toString)
+        } catch {
+          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+        }
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+  }
+//end new marileni
+
+  //new marileni 2/2
+  def getRadioHeatmapByBuildingFloorAverage1() = Action {
+    implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      var json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      val buid = json.\\("buid").mkString.replace("\"", "")
+      val floor = json.\\("floor").mkString.replace("\"", "")
+      try {
+        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
+        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+        val res = JsonObject.empty()
+        res.put("radioPoints", radioPoints)
+        try {
+          gzippedJSONOk(res.toString)
+        } catch {
+          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+        }
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+  }
+
+  def getRadioHeatmapByBuildingFloorAverage2() = Action {
+    implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      var json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      val buid = json.\\("buid").mkString.replace("\"", "")
+      val floor = json.\\("floor").mkString.replace("\"", "")
+      try {
+        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
+        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+        val res = JsonObject.empty()
+        res.put("radioPoints", radioPoints)
+        try {
+          gzippedJSONOk(res.toString)
+        } catch {
+          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+        }
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+  }
+
+  def getRadioHeatmapByBuildingFloorAverage3() = Action {
+    implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      var json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      val buid = json.\\("buid").mkString.replace("\"", "")
+      val floor = json.\\("floor").mkString.replace("\"", "")
+      try {
+        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+        val res = JsonObject.empty()
+        res.put("radioPoints", radioPoints)
+        try {
+          gzippedJSONOk(res.toString)
+        } catch {
+          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+        }
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+  }
+
+
+
+  //end new marileni
+
+  //new marileni 4/1
+
+    def getAPsByBuildingFloor() = Action {
+    implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      var json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::getAPs(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      val buid = json.\\("buid").mkString.replace("\"", "")
+      val floor = json.\\("floor").mkString.replace("\"", "")
+      try {
+        val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor)
+        if (accessPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+        val res = JsonObject.empty()
+        res.put("accessPoints", accessPoints)
+        try {
+          gzippedJSONOk(res.toString)
+        } catch {
+          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+        }
+      } catch {
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+  }
+
+  //end new marileni
+
+  //new marileni 17/1
+
+
+  def FingerPrintsDelete() = Action {
+     implicit request =>
+
+      val anyReq = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody)
+        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      var json = anyReq.getJsonBody
+      LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + json.toString)
+      val requiredMissing = JsonUtils.requirePropertiesInJson(json,"buid","floor", "lat1", "lon1","lat2","lon2")
+      if (!requiredMissing.isEmpty)
+        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+
+       val buid = json.\\("buid").mkString.replace("\"", "")
+       val floor_number = json.\\("floor").mkString.replace("\"", "")
+      val lat1 = json.\\("lat1").mkString.replace("\"", "")
+      val lon1 = json.\\("lon1").mkString.replace("\"", "")
+       val lat2 = json.\\("lat2").mkString.replace("\"", "")
+       val lon2 = json.\\("lon2").mkString.replace("\"", "")
+
+
+      try {
+        val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsBBox(buid,floor_number,lat1,lon1,lat2,lon2)
+        if (radioPoints.isEmpty)
+          AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
+
+        for(i<-0 until radioPoints.size())
+          ProxyDataSource.getIDatasource.deleteFromKey(radioPoints.get(i).getString("id"))
+
+
+        val res = JsonObject.empty()
+        res.put("radioPoints", radioPoints)
+        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+        gzippedJSONOk(res.toString)
+        //                }
+        //                return AnyResponseHelper.ok(res.toString());
+        catch {
+          case ioe: IOException =>
+            AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+        }
+      } catch {
+        case e: DatasourceException =>
+          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      }
+
+  }
+
+  //end new marileni
+
 
 
   def getRadioHeatmapBbox = Action {
@@ -550,6 +742,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   import java.io.IOException
   import java.util
 
+  import datasources.{DatasourceException, ProxyDataSource}
+  import oauth.provider.v2.models.OAuth2Request
+  import utils.{AnyResponseHelper, JsonUtils, LPLogger}
+
   /**
     * Retrieve the building Set.
     *
@@ -699,13 +895,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
 
-  import datasources.DatasourceException
-  import datasources.ProxyDataSource
-  import oauth.provider.v2.models.OAuth2Request
-  import utils.AnyResponseHelper
-  import utils.JsonUtils
-  import utils.LPLogger
   import java.io.IOException
+
+  import datasources.{DatasourceException, ProxyDataSource}
+  import oauth.provider.v2.models.OAuth2Request
+  import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
   def buildingsetAllByOwner = Action {
     implicit request =>
@@ -1450,13 +1644,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       }
   }
 
-  import datasources.DatasourceException
-  import datasources.ProxyDataSource
-  import oauth.provider.v2.models.OAuth2Request
-  import utils.AnyResponseHelper
-  import utils.JsonUtils
-  import utils.LPLogger
   import java.io.IOException
+
+  import datasources.{DatasourceException, ProxyDataSource}
+  import oauth.provider.v2.models.OAuth2Request
+  import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
   /**
     * Retrieve all the pois of a building/floor combination.

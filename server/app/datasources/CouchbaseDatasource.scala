@@ -35,18 +35,7 @@
  */
 package datasources
 
-import db_models.Connection
-import db_models.Poi
-import db_models.RadioMapRaw
-import floor_module.IAlgo
-import play.Logger
-import play.Play
-import utils.GeoPoint
-import utils.JsonUtils
-import utils.LPLogger
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.PrintWriter
+import java.io.{FileOutputStream, IOException, PrintWriter}
 import java.net.URI
 import java.util
 import java.util._
@@ -56,10 +45,14 @@ import accounts.IAccountService
 import com.couchbase.client.java.document.JsonDocument
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment
-import com.couchbase.client.java.view.{SpatialView, SpatialViewQuery, ViewQuery}
+import com.couchbase.client.java.view.{SpatialViewQuery, ViewQuery}
 import com.couchbase.client.java.{Bucket, CouchbaseCluster, PersistTo}
+import db_models.{Connection, Poi, RadioMapRaw}
+import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
+import play.{Logger, Play}
+import utils.{GeoPoint, JsonUtils, LPLogger}
 //remove if not needed
 import scala.collection.JavaConversions._
 import scala.util.control._
@@ -545,6 +538,32 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
+    println("couchbase results: " + res.totalRows())
+    var json: JsonObject = null
+      for (row <- res.allRows()) {
+        try {
+          json = JsonObject.empty()
+          val array = row.key().asInstanceOf[JsonArray]
+          json.put("x", array.get(2))
+          json.put("y", array.get(3))
+          json.put("w", row.value().toString)
+          points.add(json)
+        } catch {
+          case e: IOException =>
+        }
+      }
+    points
+  }
+
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey=JsonArray.from(buid, floor)
+    val endkey=JsonArray.from(buid, floor,"90","180")
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    println("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -560,6 +579,184 @@ class CouchbaseDatasource private(hostname: String,
     }
     points
   }
+
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey=JsonArray.from(buid, floor)
+    val endkey=JsonArray.from(buid, floor,"90","180")
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    println("couchbase results: " + res.totalRows())
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(2))
+        json.put("y", array.get(3))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey=JsonArray.from(buid, floor)
+    val endkey=JsonArray.from(buid, floor,"90","180")
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    println("couchbase results: " + res.totalRows())
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(2))
+        json.put("y", array.get(3))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey=JsonArray.from(buid, floor)
+    val endkey=JsonArray.from(buid, floor,"90","180")
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    println("couchbase results: " + res.totalRows())
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(2))
+        json.put("y", array.get(3))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(2))
+        json.put("y", array.get(3))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+   override def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey=JsonArray.from(buid, floor)
+    val endkey=JsonArray.from(buid, floor,"90","180")
+    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    println("couchbase results: " + res.totalRows())
+    var json: JsonObject = null
+     var jsonCheck: JsonObject= null
+
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        jsonCheck = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        jsonCheck.put("buid",array.get(0))
+        jsonCheck.put("floor",array.get(1))
+        json.put("x", array.get(2))
+        json.put("y", array.get(3))
+        json.put("AP", array.get(4))
+        json.put("RSS", row.value())
+        if ((jsonCheck.getString("buid").compareTo(buid) == 0) && (jsonCheck.getString("floor").compareTo(floor) == 0)) {
+          if (json.getObject("RSS").getDouble("average") < -70) {
+            points.add(json)
+          }
+        }
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+  override def deleteAllByXsYs(id: String,floor: String,x: String,y: String): List[String] = {
+    val all_items_failed = new ArrayList[String]()
+    val couchbaseClient = getConnection
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").key((id))
+
+    val res = couchbaseClient.query(viewQuery)
+      for (row <- res.allRows()) {
+        val id = row.id()
+        val db_res = couchbaseClient.remove(id, PersistTo.ONE)
+        try {
+          if (db_res.id.ne(id)) {
+            all_items_failed.add(id)
+          } else {
+          }
+        } catch {
+          case e: Exception => all_items_failed.add(id)
+        }
+      }
+    all_items_failed
+  }
+
+  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = {
+
+    val points = new util.ArrayList[JsonObject]
+
+    val couchbaseClient = getConnection
+
+    val bbox = GeoPoint.getGeoBoundingBoxByRange(lat1.toDouble, lon1.toDouble, lat2.toDouble, lon2.toDouble)
+
+    val viewQuery = SpatialViewQuery.from("radio_spatial", "radio_buid_floor")
+      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+    val res = couchbaseClient.query(viewQuery)
+
+
+    //System.out.println("couchbase results: " + res.size)
+
+    var json: JsonObject = null
+    for (row <- res.allRows()) { // handle each building entry
+      try {
+        val document= row.document()
+        json = document.content()
+        if ((json.getString("buid").compareTo( buid ) == 0) && (json.getString("floor").compareTo(floor) == 0)) {
+          points.add(JsonObject.create().put("id",document.id()))
+        }
+      } catch {
+        case e: IOException =>
+
+        // skip this NOT-JSON document
+      }
+    }
+
+    points
+  }
+
 
   override def getAllBuildings(): List[JsonObject] = {
 
@@ -738,7 +935,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
-      for (row <- res) {
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           var cuid = json.getString("cuid")
