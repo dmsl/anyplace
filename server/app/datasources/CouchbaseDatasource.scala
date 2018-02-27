@@ -202,7 +202,7 @@ class CouchbaseDatasource private(hostname: String,
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.insert(json, PersistTo.MASTER).toBlocking.first()
+    val db_res = client.upsert(json, PersistTo.MASTER).toBlocking.first()
     db_res.equals(json)
   }
 
@@ -271,9 +271,6 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.totalRows()) {
-      return Collections.emptyList()
-    }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
@@ -740,9 +737,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    System.out.println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
-    if (res.nonEmpty)
       for (row <- res) {
         try {
           json = row.document().content()

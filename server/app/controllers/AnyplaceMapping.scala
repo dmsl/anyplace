@@ -48,7 +48,7 @@ import java.net.URL
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util
-import java.util.Locale
+import java.util.{HashMap, Locale}
 import java.util.zip.GZIPOutputStream
 
 import acces.GeoUtils
@@ -67,7 +67,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   private def verifyOwnerId(authToken: String): String = {
     //remove the double string qoutes due to json processing
-    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken.replace("\"\"", "\"")
+    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
     var res = ""
     try
       res = sendGet(gURL)
@@ -310,17 +310,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
         if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
         if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        if (json.\("is_published").get != null) {
+        if (json.\\("is_published") != null) {
           val is_published = (json\"is_published").as[String]
           if (is_published == "true" || is_published == "false") stored_building.put("is_published",(json\"is_published").as[String])
         }
-        if (json.\("name").get != null) stored_building.put("name", (json\"name").as[String])
-        if (json.\("bucode").get != null) stored_building.put("bucode", (json\"bucode").as[String])
-        if (json.\("description").get != null) stored_building.put("description", (json\"description").as[String])
-        if (json.\("url") != null) stored_building.put("url",(json\"url").as[String])
-        if (json.\("address") != null) stored_building.put("address", (json\"address").as[String])
-        if (json.\("coordinates_lat").get != null) stored_building.put("coordinates_lat", (json\"coordinates_lat").as[String])
-        if (json.\("coordinates_lon").get != null) stored_building.put("coordinates_lon",(json\"coordinates_lon").as[String])
+        if (json.\\("name") != null) stored_building.put("name", (json\"name").as[String])
+        if (json.\\("bucode") != null) stored_building.put("bucode", (json\"bucode").as[String])
+        if (json.\\("description") != null) stored_building.put("description", (json\"description").as[String])
+        if (json.\\("url") != null) stored_building.put("url",(json\"url").as[String])
+        if (json.\\("address") != null) stored_building.put("address", (json\"address").as[String])
+        if (json.\\("coordinates_lat") != null) stored_building.put("coordinates_lat", (json\"coordinates_lat").as[String])
+        if (json.\\("coordinates_lon") != null) stored_building.put("coordinates_lon",(json\"coordinates_lon").as[String])
         val building = new Building(stored_building)
         if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.toCouchGeoJSON())) AnyResponseHelper.bad_request("Building could not be updated!")
         AnyResponseHelper.ok("Successfully updated building!")
@@ -636,7 +636,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         else {
           var buildingset: BuildingSet = null
           try
-            buildingset = new BuildingSet(json.asInstanceOf[JsonObject])
+            buildingset = new BuildingSet(JsonObject.fromJson(json.toString()))
           catch {
             case e: NumberFormatException =>
               AnyResponseHelper.bad_request("Building coordinates are invalid!")
@@ -1808,7 +1808,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   private def isBuildingCoOwner(building: JsonObject, userId: String): Boolean = {
     val cws: JsonArray = building.getArray("co_owners")
-    if (building != null && !cws.isEmpty) {
+    if (building != null && cws!=null) {
       val it = cws.iterator()
       while (it.hasNext) if (it.next().toString.equals(userId)) return true
     }

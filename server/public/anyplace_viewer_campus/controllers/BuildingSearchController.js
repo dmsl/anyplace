@@ -56,6 +56,8 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
     $scope.mylastquery = "";
     $scope.myallPois = [];
+    $scope.buid = "";
+
     var self = this;
     self.querySearch = querySearch;
 
@@ -79,7 +81,7 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
     $scope.fetchAllPoi = function (letters , cuid) {
 
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus, "letters":letters, "greeklish":$scope.greeklish };
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus, "letters":letters, "greeklish":$scope.greeklish };
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
