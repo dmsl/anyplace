@@ -93,7 +93,7 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
 
     def getId(): String = {
         var cuid: String = fields.get("cuid")
-        if (cuid.isEmpty  || cuid == "") {
+        if (cuid == null || cuid.isEmpty  || cuid == "") {
             cuid = Connection.getId(json.getString("pois_a"), json.getString("pois_b"))
             fields.put("cuid", cuid)
             this.json.put("cuid", cuid)

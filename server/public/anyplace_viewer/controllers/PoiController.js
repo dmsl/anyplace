@@ -94,7 +94,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     }
 
     $scope.fetchAllPoi = function (letters , buid) {
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters };
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters, "greeklish":$scope.greeklish };
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
@@ -249,9 +249,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
         if (poi.is_building_entrance) {
             img = 'build/images/poi_icon_entrance-green.png';
-        } else if (poi.pois_type == "Stair") {
+        } else if (poi.pois_type === "Stair") {
             img = 'build/images/poi_icon_stairs-orange.png';
-        } else if (poi.pois_type == "Elevator") {
+        } else if (poi.pois_type === "Elevator") {
             img = 'build/images/poi_icon_elevator-purple.png';
         }
 
@@ -389,7 +389,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 for (var i = sz - 1; i >= 0; i--) {
                     var puid = $scope.myPois[i].puid;
 
-                    if ($scope.myPois[i].is_building_entrance == 'true') {
+                    if ($scope.myPois[i].is_building_entrance === 'true') {
                         $scope.myPois[i].is_building_entrance = true;
                         // add poi to entrances array for faster processing later
                         $scope.myEntrances.push($scope.myPois[i]);
@@ -468,7 +468,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                             strokeWeight: 6
                         });
 
-                        if ($scope.anyService.selectedFloor.floor_number == fkey)
+                        if ($scope.anyService.selectedFloor.floor_number === fkey)
                             poiRoutePolyline[fkey].polyline.setMap($scope.gmapService.gmap);
                     }
                 }
@@ -542,7 +542,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var minPoi = undefined;
 
         for (var i = 0; i < entr.length; i++) {
-            if (entr[i].puid == b.puid)
+            if (entr[i].puid === b.puid)
                 continue;
 
             var x = parseFloat(entr[i].coordinates_lat);

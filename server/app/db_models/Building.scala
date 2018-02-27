@@ -111,7 +111,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
     def toCouchGeoJSON(): String = {
         val sb = new StringBuilder()
-        var json= toValidCouchJson()
+        val json= toValidCouchJson()
         try {
             json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
                 java.lang.Double.parseDouble(fields.get("coordinates_lon")))

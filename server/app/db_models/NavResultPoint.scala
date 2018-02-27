@@ -35,17 +35,32 @@
  */
 package db_models
 
+import com.couchbase.client.java.document.json.JsonObject
+
 class NavResultPoint {
 
-    var lat: String = _
+  var lat: String = _
 
-    var lon: String = _
+  var lon: String = _
 
-    var puid: String = _
+  var puid: String = _
 
-    var buid: String = _
+  var buid: String = _
 
-    var floor_number: String = _
+  var floor_number: String = _
 
-    var pois_type: String = _
+  var pois_type: String = _
+
+  def toValidCouchJson(): JsonObject = {
+
+    val p = JsonObject.empty()
+    p.put("lat",lat)
+    p.put("lon",lon)
+    p.put("puid", puid)
+    p.put("buid",buid)
+    p.put("floor_number",floor_number)
+    p.put("pois_type",pois_type)
+    p
+  }
+
 }

@@ -61,7 +61,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def radioUpload() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       val body = anyReq.getMultipartFormData()
       if (body == null) {
@@ -133,7 +133,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def radioDownloadFloor() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -214,7 +214,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def radioDownloadByBuildingFloor() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -225,9 +225,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val floor_number = json.\\("floor").mkString
-      val buid = json.\\("buid").mkString
-      val mode = json.\\("mode").mkString
+      val floor_number = (json \ "floor").as[String]
+      val buid = (json \ "buid").as[String]
+
       if (!Floor.checkFloorNumberFormat(floor_number)) {
         AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
       }
@@ -326,7 +326,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
     try {
       fr = new FileReader(infile)
       bf = new BufferedReader(fr)
-      while ({line = bf.readLine; line != null}) {
+      while ( {
+        line = bf.readLine; line != null
+      }) {
         if (line.startsWith("# Timestamp")) //continue
           lineNumber += 1
         val segs = line.split(" ")
@@ -357,7 +359,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def serveRadioMap(radio_folder: String, fileName: String) = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request, false)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -370,8 +372,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       val file = new File(filePath)
       try {
         if (!file.exists() || !file.canRead()) {
-          AnyResponseHelper.bad_request("Requested file does not exist or cannot be read! (" +
-            fileName +
+          AnyResponseHelper.bad_request("Requested file does not exist or cannot be read! (" + fileName +
             ")")
         }
         Ok.sendFile(file)
@@ -451,7 +452,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
       fr = new FileReader(infile)
       bf = new BufferedReader(fr)
       val values = new ArrayList[String](10)
-      while ({line = bf.readLine; line != null}) {
+      while ( {
+        line = bf.readLine; line != null
+      }) {
         if (line.startsWith("# Timestamp")) {
           val result = storeFloorAlgoToDB_Help(values)
           if (result != null) return result
@@ -478,7 +481,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def predictFloorAlgo1() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -498,10 +501,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val lot = json.\("dlong").as[Double]
         val bbox = GeoPoint.getGeoBoundingBox(lat, lot, 100)
         val strongestMAC = new ArrayList[String](2)
-        if (json.\("first").get == null) AnyResponseHelper.bad_request("Sent first Wifi")
-        strongestMAC.add(json.\("first").\\("MAC").mkString)
-        if (json.\("second").get != null) strongestMAC.add(json.\("second").\\("MAC").mkString)
-        val res =JsonObject.empty()
+        if (json.\("first").getOrElse(null) != null) AnyResponseHelper.bad_request("Sent first Wifi")
+        strongestMAC.add(json.\("first").\("MAC").as[String])
+        if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\("MAC").as[String])
+        val res = JsonObject.empty()
         if (ProxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
           res.put("floor", alg1.getFloor)
         } else {
@@ -564,7 +567,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos)
       pos = radiomap_parameters_filename.indexOf("radiomaps_frozen")
       radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
-      val res =JsonObject.empty()
+      val res = JsonObject.empty()
       res.put("map_url_mean", radiomap_mean_filename)
       res.put("map_url_weights", radiomap_rbf_weights_filename)
       res.put("map_url_parameters", radiomap_parameters_filename)
@@ -576,7 +579,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def radioDownloadFloorBbox() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -588,10 +591,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val lat = json.\\("coordinates_lat").mkString
-      val lon = json.\\("coordinates_lon").mkString
-      val floor_number = json.\\("floor_number").mkString
-      val strRange = json.\\("range").mkString
+      val lat = (json \ "coordinates_lat").as[String]
+      val lon = (json \ "coordinates_lon").as[String]
+      val floor_number = (json \ "floor_number").as[String]
+      val strRange = (json \ "range").as[String]
       val range = java.lang.Integer.parseInt(strRange)
       if (!Floor.checkFloorNumberFormat(floor_number)) {
         AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
@@ -658,7 +661,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def magneticPathAdd() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -690,7 +693,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def magneticPathDelete() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -701,7 +704,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val mpuid = json.\\("mpuid").mkString
+      val mpuid = (json \ "mpuid").as[String]
       try {
         val success = ProxyDataSource.getIDatasource.deleteFromKey(mpuid)
         if (!success) {
@@ -715,7 +718,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def magneticPathByFloor() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -726,12 +729,12 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val buid = json.\\("buid").mkString
-      val floor_number = json.\\("floor_num").mkString
+      val buid = (json \ "buid").as[String]
+      val floor_number = (json \ "floor_num").as[String]
       try {
         val mpaths = ProxyDataSource.getIDatasource.magneticPathsByBuildingFloorAsJson(buid, floor_number)
         val res = JsonObject.empty()
-        res.put("mpaths",JsonArray.from(mpaths))
+        res.put("mpaths", JsonArray.from(mpaths))
         AnyResponseHelper.ok(res.toString)
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
@@ -740,7 +743,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def magneticPathByBuilding() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -751,11 +754,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val buid = json.\\("buid").mkString
+      val buid = (json \ "buid").as[String]
       try {
         val mpaths = ProxyDataSource.getIDatasource.magneticPathsByBuildingAsJson(buid)
         val res = JsonObject.empty()
-        res.put("mpaths",JsonArray.from(mpaths))
+        res.put("mpaths", JsonArray.from(mpaths))
         AnyResponseHelper.ok(res.toString)
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
@@ -764,7 +767,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def magneticMilestoneUpload() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -775,10 +778,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val buid = json.\\("buid").mkString
-      val floor_num = json.\\("floor_num").mkString
-      val mpuid = json.\\("mpuid").mkString
-      var milestones:JsonArray = JsonArray.empty()
+      val buid = (json \ "buid").as[String]
+      val floor_num = (json \ "floor_num").as[String]
+      val mpuid = (json \ "mpuid").as[String]
+      var milestones: JsonArray = JsonArray.empty()
       try {
         JsonArray.fromJson(json.\\("milestones").mkString)
       } catch {
@@ -799,7 +802,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   def magneticMilestoneByFloor() = Action {
     implicit request =>
-     
+
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -810,12 +813,12 @@ object AnyplacePosition extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty) {
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
       }
-      val buid = json.\\("buid").mkString
-      val floor_number = json.\\("floor_num").mkString
+      val buid = (json \ "buid").as[String]
+      val floor_number = (json \ "floor_num").as[String]
       try {
         val mpaths = ProxyDataSource.getIDatasource.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
         val res = JsonObject.empty()
-        res.put("mpaths",JsonArray.from(mpaths))
+        res.put("mpaths", JsonArray.from(mpaths))
         AnyResponseHelper.ok(res.toString)
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")

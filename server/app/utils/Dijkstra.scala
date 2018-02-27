@@ -75,11 +75,10 @@ object Dijkstra {
                 }
                 val a = hmp.get(e.get("pois_a"))
                 val b = hmp.get(e.get("pois_b"))
-                if (a == null || b == null) {
-                    //continue
+                if (!(a == null || b == null)) {
+                    a.adjacencies.add(new DEdge(w, b))
+                    b.adjacencies.add(new DEdge(w, a))
                 }
-                a.adjacencies.add(new DEdge(w, b))
-                b.adjacencies.add(new DEdge(w, a))
             }
         }
 
@@ -137,7 +136,7 @@ object Dijkstra {
         var tar: DVertex = null
         while (!vqueue.isEmpty) {
             dv = vqueue.poll()
-            if (visited.contains(dv.puid)) //continue
+            if (!visited.contains(dv.puid)) //continue
                 visited.add(dv.puid)
             if (dv.minDistance == java.lang.Double.POSITIVE_INFINITY) {
                 return Collections.emptyList()

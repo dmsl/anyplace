@@ -179,6 +179,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
                 $scope.myBuildings = data.buildings;
+                $scope.greeklish = data.greeklish;
 
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',

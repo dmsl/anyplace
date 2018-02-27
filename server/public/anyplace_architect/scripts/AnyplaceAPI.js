@@ -27,13 +27,8 @@
 
 var AnyplaceAPI = {};
 
-//AnyplaceAPI.SERVER = "http://127.0.0.1"
-//AnyplaceAPI.PORT = "9000";
-//AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
-//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
-AnyplaceAPI.FULL_SERVER = "http://marilenh-vm:9000/anyplace";
-///AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
 
+AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
 /**
  * MAPPING API
@@ -705,8 +700,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             return data;
         });
     };
-
-
 
     // we return apiService controller in order to be able to use it in ng-click
     return apiService;

@@ -120,7 +120,7 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
     def getId(): String = {
         var puid: String = fields.get("puid")
-        if (puid.isEmpty || puid == "") {
+        if (puid==null || puid.isEmpty || puid == "") {
             fields.put("puid", Poi.getId(fields.get("username_creator"), fields.get("buid"), fields.get("floor_number"),
                 fields.get("coordinates_lat"), fields.get("coordinates_lon")))
             this.json.put("puid", fields.get("puid"))
@@ -137,9 +137,8 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
     def toCouchGeoJSON(): String = {
         val sb = new StringBuilder()
-        var json: JsonObject = null
+        val json= toValidCouchJson()
         try {
-            json = JsonObject.empty()
             json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
                 java.lang.Double.parseDouble(fields.get("coordinates_lon")))
               .toGeoJSON())
