@@ -37,7 +37,6 @@
 
 
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
-    <link href="bower_components/fontawesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
 
     <link href="https://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic,900italic" rel="stylesheet"
           type="text/css">
@@ -50,7 +49,7 @@
     <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css"/>
     <link rel="stylesheet" href="bower_components/select2/select2.css">
 
-    <script type="text/javascript" src="bower_components/angularjs-dropdown-multiselect/src/angularjs-dropdown-multiselect.js"></script>
+    <script type="text/javascript" src="bower_components/angularjs-dropdown-multiselect/dist/angularjs-dropdown-multiselect.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bower_components/angularjs-dropdown-multiselect/pages/stylesheets/stylesheet.css"/>
     <link rel="stylesheet" href="style/rrssb.css"/>
 
@@ -85,7 +84,7 @@
                     {{person.displayName}}
                 </span>
                 <button class="btn profile-photo-wrapper">
-                    <span class="profile-photo" ng-style="{'background-image': 'url('+person.image.url+')'}"></span>
+                    <span class="profile-photo" ng-style="{'background-image': 'url('+person.image+')'}"></span>
                 </button>
                 <button ng-click="signOut()" class="btn btn-primary">Log Out</button>
             </span>
@@ -108,7 +107,6 @@
             </span>
 
         </div>
-
         <div ng-show="isAuthenticated && showFullControls" ng-controller="BuildingController as buildingCtrl">
             <ul id="ctrl-bar-tablist" class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active:isTabSet(1) }">
@@ -1129,15 +1127,15 @@
                     <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('r')}}" class="A_0">
                                         <li style="background-color: rgb(255, 0, 0); width: 100px;">-100 to -110</li>
                                         </span> dBm<br>
-            </ul>
+                </ul>
                 <b>You can click on a certain color (range) to filter the measurements in that range.</b><br>
                 </p>
                 <p>Connectivity Scale:
                 <ul>
                     <li>PERFECT: 0-60 (GREEN) <br>excellent connectivity at the highest speeds.</li>
-                <li>GOOD: 60-70 (YELLOW) <br>good connectivity to your Wi-Fi,  but not always at the highest speeds.</li>
-                <li>ACCEPTABLE: 70-90 (ORANGE) <br> fine connectivity to your Wi-Fi, accept occasional interruptions but should be fine for email and web browsing.</li>
-                <li>INTERMITTENT: 90-100 (PURPLE) <br> intermittent (flaky) connectivity, slow transfer rates and performance issues with multimedia content.</li>
+                    <li>GOOD: 60-70 (YELLOW) <br>good connectivity to your Wi-Fi,  but not always at the highest speeds.</li>
+                    <li>ACCEPTABLE: 70-90 (ORANGE) <br> fine connectivity to your Wi-Fi, accept occasional interruptions but should be fine for email and web browsing.</li>
+                    <li>INTERMITTENT: 90-100 (PURPLE) <br> intermittent (flaky) connectivity, slow transfer rates and performance issues with multimedia content.</li>
                     <li>NO-CONNECTIVITY: 100-110 (RED) <br> expect no connectivity to your Wi-Fi.</li>
                 </ul></p>
             </div>
@@ -1147,12 +1145,12 @@
 
             <div class="modal-body">
                 <p>
-                By clicking on the “Show Estimated Wi-Fi AP position” button, you can calculate from the
-                fingerprints where the Access Points (APs) are located in your building.
-                These locations are inferred (i.e., estimated)
-                and might not correspond to the real location of the APs.
-                To improve the accuracy of the AP derivation process, try to upload as many high
-                fingerprints close to the real AP as possible using the Anyplace Logger.</p>
+                    By clicking on the “Show Estimated Wi-Fi AP position” button, you can calculate from the
+                    fingerprints where the Access Points (APs) are located in your building.
+                    These locations are inferred (i.e., estimated)
+                    and might not correspond to the real location of the APs.
+                    To improve the accuracy of the AP derivation process, try to upload as many high
+                    fingerprints close to the real AP as possible using the Anyplace Logger.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -1177,22 +1175,22 @@
                                                                                                                                                                                                                target="_blank">Wiki page</a>.<br>
                 More details on how the localization accuracy works in theory are documented in the following publications.<br>
                 <ul>
-                <li><a href=" http://www.cs.ucy.ac.cy/~dzeina/papers/mdm17-acces.pdf"
-                       target="_blank">[C66] "Indoor Localization Accuracy Estimation from Fingerprint Data", Artyom Nikitin,
-                    Christos Laoudias, Georgios Chatzimilioudis, Panagiotis Karras and Demetrios Zeinalipour-Yazti
-                    "Proceedings of the 18th IEEE International Conference on Mobile Data Management"
-                    (MDM '17), IEEE Computer Society, Pages: 196--205, May 29 - June 1, 2017,
-                    Daejeon, South Korea, 2017.[ Honorable Mention Award! ]</a>,
-                </li>
+                    <li><a href=" http://www.cs.ucy.ac.cy/~dzeina/papers/mdm17-acces.pdf"
+                           target="_blank">[C66] "Indoor Localization Accuracy Estimation from Fingerprint Data", Artyom Nikitin,
+                        Christos Laoudias, Georgios Chatzimilioudis, Panagiotis Karras and Demetrios Zeinalipour-Yazti
+                        "Proceedings of the 18th IEEE International Conference on Mobile Data Management"
+                        (MDM '17), IEEE Computer Society, Pages: 196--205, May 29 - June 1, 2017,
+                        Daejeon, South Korea, 2017.[ Honorable Mention Award! ]</a>,
+                    </li>
 
-                <li><a href="http://www.cs.ucy.ac.cy/~dzeina/papers/mdm17-acces-demo.pdf"
-                       target="_blank"> [C65] "ACCES: Offline Accuracy Estimation for Fingerprint-based Localization",
-                    Artyom Nikitin, Christos Laoudias, Georgios Chatzimilioudis, Panagiotis Karras and Demetrios Zeinalipour-Yazti "Proceedings of the 18th IEEE International
-                    Conference on Mobile Data Management" (MDM '17), IEEE Computer Society, Pages: 358--359, May 29 - June 1, 2017, Daejeon, South Korea, 2017.</a>
+                    <li><a href="http://www.cs.ucy.ac.cy/~dzeina/papers/mdm17-acces-demo.pdf"
+                           target="_blank"> [C65] "ACCES: Offline Accuracy Estimation for Fingerprint-based Localization",
+                        Artyom Nikitin, Christos Laoudias, Georgios Chatzimilioudis, Panagiotis Karras and Demetrios Zeinalipour-Yazti "Proceedings of the 18th IEEE International
+                        Conference on Mobile Data Management" (MDM '17), IEEE Computer Society, Pages: 358--359, May 29 - June 1, 2017, Daejeon, South Korea, 2017.</a>
                     </li>
                 </ul>
                 You can see a demo of ACCES in the video below:<br>
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/xPZlwKngcGo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/xPZlwKngcGo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

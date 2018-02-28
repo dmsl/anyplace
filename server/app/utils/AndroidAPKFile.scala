@@ -46,69 +46,72 @@ import java.util.Locale
 
 object AndroidAPKFile {
 
-    class AndroidAPKComparator extends Comparator[AndroidAPKFile] {
+  class AndroidAPKComparator extends Comparator[AndroidAPKFile] {
 
-        override def compare(thiss: AndroidAPKFile, that: AndroidAPKFile): Int =
-            try {
-                val vThis: String = thiss.getVersion.substring(1)
-                val vThat: String = that.getVersion.substring(1)
-                val segsThis: Array[String] = vThis.split("[.]")
-                val segsThat: Array[String] = vThat.split("[.]")
-                for (i <- 0 until segsThis.length) {
-                    val a: Int = java.lang.Integer.parseInt(segsThis(i))
-                    val b: Int = java.lang.Integer.parseInt(segsThat(i))
-                    if (a < b) {
-                        -1
-                    } else if (a > b) {
-                        1
-                    }
-                }
-                if (thiss.isRelease) -1 else 1
-            } catch {
-                case e: NumberFormatException => -1
+    override def compare(thiss: AndroidAPKFile, that: AndroidAPKFile): Int =
+      try {
+        val vThis: String = thiss.getVersion.substring(1)
+        val vThat: String = that.getVersion.substring(1)
+        val segsThis: Array[String] = vThis.split("[.]")
+        val segsThat: Array[String] = vThat.split("[.]")
+        for (i <- 0 until segsThis.length) {
+          val a: Int = java.lang.Integer.parseInt(segsThis(i))
+          val b: Int = java.lang.Integer.parseInt(segsThat(i))
+          if (a < b) {
+            -1
+          } else if (a > b) {
+            1
+          }
+        }
+        if (thiss.isRelease) -1 else 1
+      } catch {
+        case e: NumberFormatException => -1
 
-            }
+      }
 
-    }
+  }
 
 }
 
 class AndroidAPKFile(private var mFile: File) {
 
-    private var mFileBasename: String = mFile.getAbsolutePath.substring(
-        mFile.getAbsolutePath.lastIndexOf(File.separatorChar) + 1)
 
-    private var mUrl: String = _
+  private var mFileBasename: String = mFile.getAbsolutePath.substring(
+    mFile.getAbsolutePath.lastIndexOf(File.separatorChar) + 1)
 
-    private var mVersion: String = segs(2)
+  val segs: Array[String] = mFileBasename.split("_")
 
-    private var mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
 
-    private var mIsDev: Boolean = !mIsRelease
+  private var mUrl: String = _
 
-    private var mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
+  private var mVersion: String = segs(2)
 
-    val segs: Array[String] = mFileBasename.split("_")
+  private var mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
 
-    def getVersion(): String = mVersion
+  private var mIsDev: Boolean = !mIsRelease
 
-    def isRelease(): Boolean = mIsRelease
+  private var mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
 
-    def isDev(): Boolean = mIsDev
 
-    def getFile(): File = mFile
+  def getVersion(): String = mVersion
 
-    def getDate(): Date = mDate
+  def isRelease(): Boolean = mIsRelease
 
-    def getFilePath(): String = mFile.getAbsolutePath
+  def isDev(): Boolean = mIsDev
 
-    def getFilePathBasename(): String = mFileBasename
+  def getFile(): File = mFile
 
-    def setDownloadUrl(url: String): Unit = {
-        mUrl = url
-    }
+  def getDate(): Date = mDate
 
-    def getDownloadUrl(): String = mUrl
+  def getFilePath(): String = mFile.getAbsolutePath
+
+  def getFilePathBasename(): String = mFileBasename
+
+  def setDownloadUrl(url: String): Unit = {
+    mUrl = url
+  }
+
+  def getDownloadUrl(): String = mUrl
 
 }
 

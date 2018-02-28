@@ -20,11 +20,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
 app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, $rootScope, AnyplaceService,GMapService, AnyplaceAPIService) {
 
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
+
     $scope.isAuthenticated = false;
 
     $scope.signInType = "google";
@@ -39,6 +39,10 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.owner_id = undefined;
     $scope.displayName = undefined;
+
+
+    var self = this; //to be able to reference to it in a callback, you could use $scope instead
+
 
     $scope.setAuthenticated = function (bool) {
         $scope.isAuthenticated = bool;
@@ -69,42 +73,41 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         if (!$scope.gAuth) {
             return;
         }
-        AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.id_token);
+        AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
     };
 
-    $scope.signinCallback = function (authResult) {
+    $scope.onSignIn = function (googleUser) {
 
-        if (authResult['status']['signed_in']) {
-            // Update the app to reflect a signed in user
-            // Hide the sign-in button now that the user is authorized, for example:
-            // document.getElementById('signinButton').setAttribute('style', 'display: none');
-
-
-            $scope.setAuthenticated(true);
-            $scope.gAuth = authResult;
-
-
-            app.access_token = authResult.id_token;
-
-            gapi.client.load('plus', 'v1', apiClientLoaded);
-
-
-        } else {
-            // Update the app to reflect a signed out user
-            // Possible error values:
-            //   "user_signed_out" - User is signed-out
-            //   "access_denied" - User denied access to your app
-            //   "immediate_failed" - Could not automatically log in the user
-            console.log('Sign-in state: ' + authResult['error']);
+        if ($scope.getCookie("username")==="") {
+            $scope.setCookie("username", "true", 365);
+            location.reload();
         }
 
+        //location.reload();
+        $scope.setAuthenticated(true);
+
+        $scope.gAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
+
+        $scope.gAuth.access_token = $scope.gAuth.id_token;
+
+        app.access_token = $scope.gAuth.id_token;
+
+        $scope.personLookUp(googleUser);
     };
 
+
+    $scope.onSignInFailure = function () {
+        console.log('Sign-in state: Error');
+    };
+
+    window.onSignIn = $scope.onSignIn;
+    window.onSignInFailure = $scope.onSignInFailure;
+
     $scope.personLookUp = function (resp) {
-
-        $scope.person = resp;
-
-
+        $scope.person = resp.getBasicProfile();
+        $scope.person.image =$scope.person.getImageUrl();
+        $scope.person.id = $scope.person.getId();
+        $scope.person.displayName = $scope.person.getName();
         // compose user id
         $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
         $scope.displayName = $scope.person.displayName;
@@ -127,14 +130,53 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.signOut = function () {
-        gapi.auth.signOut();
+        $scope.setCookie("username", "", 365);
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            console.log('User signed out.');
+        });
         $scope.isAuthenticated = false;
 
         $scope.$broadcast('loggedOff', []);
         $scope.gAuth = {};
         $scope.owner_id = undefined;
         $scope.person = undefined;
+
+
     };
+
+    $scope.getCookie = function(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length,c.length);
+            }
+        }
+        return "";
+    };
+
+    $scope.setCookie = function(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    };
+
+    $scope.tab = 1;
+
+    $scope.setTab = function (num) {
+        $scope.tab = num;
+    };
+
+    $scope.isTabSet = function (num) {
+        return $scope.tab === num;
+    };
+
 
     $scope.tab = 1;
 

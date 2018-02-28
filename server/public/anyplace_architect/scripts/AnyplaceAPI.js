@@ -27,8 +27,8 @@
 
 var AnyplaceAPI = {};
 
-
 AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
+
 
 /**
  * MAPPING API
@@ -102,11 +102,11 @@ AnyplaceAPI.Mapping.FLOOR_DELETE = "/mapping/floor/delete";
 AnyplaceAPI.Mapping.FLOOR_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_DELETE;
 AnyplaceAPI.Mapping.FLOOR_ALL = "/mapping/floor/all";
 AnyplaceAPI.Mapping.FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_ALL;
-AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/upload"
+AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/upload";
 AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD;
-AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/"
+AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/";
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD;
-AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64all/"
+AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64all/";
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL;
 
 AnyplaceAPI.Mapping.POIS_ADD = "/mapping/pois/add";
@@ -700,6 +700,8 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             return data;
         });
     };
+
+
 
     // we return apiService controller in order to be able to use it in ng-click
     return apiService;

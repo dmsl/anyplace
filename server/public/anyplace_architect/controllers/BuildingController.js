@@ -243,8 +243,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     };
     $scope.fetchAllPoisTypes = function () {
 
-        //TODO: validation
-
         var jsonReq = {};
 
         jsonReq.username = $scope.creds.username;
@@ -1732,7 +1730,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
                 }
             },
             function (resp) {
-                // TODO: alert failure
                 console.log(resp.data.message);
             }
         );
@@ -1750,9 +1747,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
         }
 
         window.onload=showWelcomeMessage;
-
-
     }
-
 
 }]);

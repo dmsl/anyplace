@@ -551,7 +551,6 @@ class CouchbaseDatasource private(hostname: String,
         } catch {
           case e: IOException =>
         }
-      }
     }
     points
   }
@@ -641,18 +640,6 @@ class CouchbaseDatasource private(hostname: String,
 
     println("couchbase results: " + res.totalRows())
     var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(2))
-        json.put("y", array.get(3))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
     for (row <- res.allRows()) {
       try {
         json = JsonObject.empty()

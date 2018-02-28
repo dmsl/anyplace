@@ -158,8 +158,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + json.toString)
       val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = json.\\("buid").mkString.replace("\"", "")
-      val floor = json.\\("floor").mkString.replace("\"", "")
+      val buid = (json \ "buid").as[String]
+      val floor = (json \ "floor").as[String]
       try {
         val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage(buid, floor)
         if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -186,8 +186,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + json.toString)
       val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = json.\\("buid").mkString.replace("\"", "")
-      val floor = json.\\("floor").mkString.replace("\"", "")
+      val buid = (json \ "buid").as[String]
+      val floor = (json \ "floor").as[String]
       try {
         val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
         if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -212,8 +212,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + json.toString)
       val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = json.\\("buid").mkString.replace("\"", "")
-      val floor = json.\\("floor").mkString.replace("\"", "")
+      val buid = (json \ "buid").as[String]
+      val floor = (json \ "floor").as[String]
       try {
         val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
         if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -238,8 +238,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
       val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = json.\\("buid").mkString.replace("\"", "")
-      val floor = json.\\("floor").mkString.replace("\"", "")
+      val buid = (json \ "buid").as[String]
+      val floor = (json \ "floor").as[String]
       try {
         val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
         if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -270,8 +270,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       LPLogger.info("AnyplaceMapping::getAPs(): " + json.toString)
       val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
       if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = json.\\("buid").mkString.replace("\"", "")
-      val floor = json.\\("floor").mkString.replace("\"", "")
+      val buid = (json \ "buid").as[String]
+      val floor = (json \ "floor").as[String]
       try {
         val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor).asScala
 
@@ -344,12 +344,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       if (!requiredMissing.isEmpty)
         AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
-       val buid = json.\\("buid").mkString.replace("\"", "")
-       val floor_number = json.\\("floor").mkString.replace("\"", "")
-      val lat1 = json.\\("lat1").mkString.replace("\"", "")
-      val lon1 = json.\\("lon1").mkString.replace("\"", "")
-       val lat2 = json.\\("lat2").mkString.replace("\"", "")
-       val lon2 = json.\\("lon2").mkString.replace("\"", "")
+       val buid = (json \ "buid").as[String]
+       val floor_number = (json \ "floor").as[String]
+      val lat1 = (json \ "lat1").as[String]
+      val lon1 = (json \ "lon1").as[String]
+       val lat2 = (json \ "lat2").as[String]
+       val lon2 = (json \ "lon2").as[String]
 
 
       try {
