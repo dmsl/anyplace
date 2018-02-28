@@ -39,6 +39,7 @@ var AnyplaceAPI = {};
 
 AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
+// AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
 /**
  * MAPPING API
  */

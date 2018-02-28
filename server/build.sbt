@@ -3,7 +3,7 @@ mappings in Universal ++= directory(baseDirectory.value / "floor_plans")
 
 name := "anyplace_v3"
 
-version := "1.0"
+version := "2.0"
 
 scalaVersion := "2.11.7"
 

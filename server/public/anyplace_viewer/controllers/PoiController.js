@@ -612,7 +612,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             $scope.anyService.selectedPoi = $scope.myPoisHashT[puid].model;
         }
 
-        var viewerUrl = $scope.anyService.getViewerUrl();
+        var viewerUrl = "https://anyplace.cs.ucy.ac.cy/viewer/?cuid="+$scope.anyService.getViewerUrl();
 
         $scope.poiShareUrl.embed = '<iframe width="100%" height="500" frameborder="0" scrolling="yes" marginheight="0" marginwidth="0" src="' + viewerUrl + '"></iframe>';
 
