@@ -282,7 +282,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poisByBuildingFloorAsMap(buid: String, floor_number: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
     val result = new util.ArrayList[HashMap[String, String]]()
@@ -294,7 +294,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poisByBuildingAsJson(buid: String): List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     val pois = new ArrayList[JsonObject]()
@@ -315,7 +315,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poisByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
 
@@ -354,7 +354,7 @@ class CouchbaseDatasource private(hostname: String,
   @throws[DatasourceException] override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = {
     val result = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").key((buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     println("couchbase results: " + res.totalRows)
@@ -378,7 +378,7 @@ class CouchbaseDatasource private(hostname: String,
   override def connectionsByBuildingAsJson(buid: String): List[JsonObject] = {
 
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
@@ -399,7 +399,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def connectionsByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     var hm: HashMap[String, String] = null
@@ -415,7 +415,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").key(JsonArray.from(buid, floor_number))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
     if (0 == res.totalRows) {
@@ -439,7 +439,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByBuilding(buid: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "all_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     for (row <- res.allRows()) {
@@ -460,7 +460,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_floor").key((buid))
+    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key((buid))
     val res = couchbaseClient.query(viewQuery)
 
     for (row <- res.allRows()) {
@@ -489,7 +489,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByPoi(puid: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_pois").key((puid))
+    val viewQuery = ViewQuery.from("nav", "all_by_pois").includeDocs(true).key((puid))
     val res = couchbaseClient.query(viewQuery)
 
 
@@ -534,7 +534,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
     val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -560,7 +560,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -585,7 +585,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -610,7 +610,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -635,7 +635,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -660,7 +660,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -693,7 +693,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByXsYs(id: String,floor: String,x: String,y: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").key((id))
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).key((id))
 
     val res = couchbaseClient.query(viewQuery)
       for (row <- res.allRows()) {
@@ -1037,7 +1037,7 @@ class CouchbaseDatasource private(hostname: String,
       }
       totalFetched += currentFetched
       LPLogger.info("total fetched: " + totalFetched)
-    } while (currentFetched >= queryLimit);
+    } while (currentFetched >= queryLimit)
     writer.flush()
     writer.close()
     totalFetched
@@ -1329,7 +1329,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").includeDocs(true).key(JsonArray.from(buid, floor)).group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
     val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
@@ -1472,19 +1472,13 @@ class CouchbaseDatasource private(hostname: String,
     var flag = false
     var flag2 = false
     var flag3 = false
+
     if (letters.compareTo(lastletters) != 0) {
       lastletters = letters
       wordsELOT = new util.ArrayList[util.ArrayList[String]]
       var j = 0
-      while ( {
-        j < words.length
-      }) {
-        wordsELOT.add(greeklishTogreekList(words(j).toLowerCase))
-
-        {
-          j += 1;
-          j - 1
-        }
+      for (word <- words) {
+        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
       }
     }
     for (json <- pois) {
@@ -1492,31 +1486,42 @@ class CouchbaseDatasource private(hostname: String,
       flag2 = true
       flag3 = true
       var j = 0
-      for (w <- words if !(!flag3 && !flag && !flag2)) {
-        if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
-        val greeklish = greeklishTogreek(w.toLowerCase)
-        if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
-        if (wordsELOT.size != 0) {
-          var wordsELOT2 = new util.ArrayList[String]
-          wordsELOT2 = wordsELOT.get({
-            j += 1;
-            j - 1
-          })
-          if (wordsELOT2.size == 0) flag3 = false
-          else {
-            for (greeklishELOT <- wordsELOT2 if !flag3) {
-              if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
-              else {
-                flag3 = true
+      // create a Breaks object as follows
+      val loop = new Breaks
+
+      val ex_loop = new Breaks
+      ex_loop.breakable {
+        for (w <- words) {
+          if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
+          val greeklish = greeklishTogreek(w.toLowerCase)
+          if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
+          if (wordsELOT.size != 0) {
+            var wordsELOT2 = new util.ArrayList[String]
+            wordsELOT2 = wordsELOT.get({
+              j += 1
+              j - 1
+            })
+            if (wordsELOT2.size == 0) flag3 = false
+            else {
+              loop.breakable {
+                for (greeklishELOT <- wordsELOT2) {
+                  if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
+                  else {
+                    flag3 = true
+                    loop.break()
+                  }
+                }
               }
             }
           }
+          else flag3 = false
+          if (!flag3 && !flag && !flag2) ex_loop.break()
+          if (flag || flag2 || flag3) pois2.add(json)
         }
-        else flag3 = false
       }
-      if (flag || flag2 || flag3) pois2.add(json)
     }
-    return pois2
+
+    pois2
   }
 
   @throws[DatasourceException]

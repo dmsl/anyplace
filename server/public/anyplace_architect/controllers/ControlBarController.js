@@ -1,26 +1,26 @@
 /**
-*
-The MIT License (MIT)
-Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
-Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
-    dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-    The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, $rootScope, AnyplaceService,GMapService, AnyplaceAPIService) {
+ *
+ The MIT License (MIT)
+ Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
+ dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, $rootScope, AnyplaceService, GMapService, AnyplaceAPIService) {
 
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
@@ -76,9 +76,30 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
     };
 
+    $scope.startApp = function () {
+        gapi.load('auth2', function () {
+            gapi.client.load('plus', 'v1').then(function () {
+                gapi.signin2.render('signin-button', {
+                    scope: 'https://www.googleapis.com/auth/plus.login',
+                    fetch_basic_profile: false
+                });
+                gapi.auth2.init({
+                    fetch_basic_profile: false,
+                    scope: 'https://www.googleapis.com/auth/plus.login'
+                }).then(
+                    function () {
+                        console.log('init');
+                        auth2 = gapi.auth2.getAuthInstance();
+                        auth2.isSignedIn.listen(updateSignIn);
+                        auth2.then(updateSignIn);
+                    });
+            });
+        });
+    };
+
     $scope.onSignIn = function (googleUser) {
 
-        if ($scope.getCookie("username")==="") {
+        if ($scope.getCookie("username") === "") {
             $scope.setCookie("username", "true", 365);
             location.reload();
         }
@@ -105,7 +126,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.personLookUp = function (resp) {
         $scope.person = resp.getBasicProfile();
-        $scope.person.image =$scope.person.getImageUrl();
+        $scope.person.image = $scope.person.getImageUrl();
         $scope.person.id = $scope.person.getId();
         $scope.person.displayName = $scope.person.getName();
         // compose user id
@@ -145,25 +166,25 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     };
 
-    $scope.getCookie = function(cname) {
+    $scope.getCookie = function (cname) {
         var name = cname + "=";
         var ca = document.cookie.split(';');
-        for(var i = 0; i <ca.length; i++) {
+        for (var i = 0; i < ca.length; i++) {
             var c = ca[i];
-            while (c.charAt(0)==' ') {
+            while (c.charAt(0) == ' ') {
                 c = c.substring(1);
             }
             if (c.indexOf(name) == 0) {
-                return c.substring(name.length,c.length);
+                return c.substring(name.length, c.length);
             }
         }
         return "";
     };
 
-    $scope.setCookie = function(cname, cvalue, exdays) {
+    $scope.setCookie = function (cname, cvalue, exdays) {
         var d = new Date();
-        d.setTime(d.getTime() + (exdays*24*60*60*1000));
-        var expires = "expires="+d.toUTCString();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
         document.cookie = cname + "=" + cvalue + "; " + expires;
     };
 
@@ -318,7 +339,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.centerViewToSelectedItem = function () {
-        if($scope.anyService.selectedBuilding==null || $scope.anyService.selectedBuilding==undefined){
+        if ($scope.anyService.selectedBuilding == null || $scope.anyService.selectedBuilding == undefined) {
             _err("You have to select a building first");
             return;
 

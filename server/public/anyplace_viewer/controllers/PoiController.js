@@ -247,7 +247,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _getImageIconForPoi = function (poi) {
         var img = 'build/images/any-poi-icon-blue.png';
 
-        if (poi.is_building_entrance) {
+        if (poi.is_building_entrance && poi.is_building_entrance !== "false") {
             img = 'build/images/poi_icon_entrance-green.png';
         } else if (poi.pois_type === "Stair") {
             img = 'build/images/poi_icon_stairs-orange.png';

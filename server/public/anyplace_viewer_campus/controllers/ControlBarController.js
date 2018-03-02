@@ -191,64 +191,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
         }
     };
 
-    $scope.showUserLocation2 = function () {
-
-        if ($scope.getIsUserLocVisible()) {
-            $scope.hideUserLocation();
-
-            if (navigator.geolocation)
-                navigator.geolocation.clearWatch(watchPosNum);
-
-            return;
-        }
-
-        if (navigator.geolocation) {
-            watchPosNum = navigator.geolocation.watchPosition(
-                function (position) {
-
-                    var posLatlng = {lat: position.coords.latitude, lng: position.coords.longitude};
-                    //var radius = position.coords.accuracy;
-
-                    $scope.userPosition = posLatlng;
-
-                    $scope.displayMyLocMarker(posLatlng);
-
-                    var infowindow = new google.maps.InfoWindow({
-                        content: 'Your current location.',
-                        maxWidth: 500
-                    });
-
-                    google.maps.event.addListener(myLocMarker, 'click', function () {
-                        var self = this;
-                        $scope.$apply(function () {
-                            infowindow.open(GMapService.gmap, self);
-                        })
-                    });
-
-                    if (!$scope.isUserLocVisible) {
-                        $scope.$apply(function () {
-                            $scope.isUserLocVisible = true;
-                        });
-                    }
-                },
-                function (err) {
-                    $scope.$apply(function () {
-                        if (err.code == 1) {
-                            _err("Permission denied. Anyplace was not able to retrieve your Geolocation.")
-                        } else if (err.code == 2) {
-                            _err("Position unavailable. The network is down or the positioning satellites couldn't be contacted.")
-                        } else if (err.code == 3) {
-                            _err("Timeout. The request for retrieving your Geolocation was timed out.")
-                        } else {
-                            _err("There was an error while retrieving your Geolocation. Please try again.");
-                        }
-                    });
-                });
-        } else {
-            _err("The Geolocation feature is not supported by this browser.");
-        }
-    };
-    $scope.showUserLocation2();
     $scope.hideUserLocation = function () {
         if (myLocMarker)
             myLocMarker.setMap(null);

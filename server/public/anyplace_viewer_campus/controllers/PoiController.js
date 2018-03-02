@@ -204,14 +204,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         GMapService.gmap.panTo(_latLngFromPoi(newVal));
         GMapService.gmap.setZoom(20);
 
-        // make previous selected POI's marker smaller
-        if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] && $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
-            $scope.myPoisHashT[prevSelectedPoi.puid].marker.setIcon(_getNormalPoiIconNormal(prevSelectedPoi));
-            if (GMapService.gmap.getZoom() <= HIDE_POIS_ZOOM_LEVEL) {
-                $scope.myPoisHashT[prevSelectedPoi.puid].marker.setVisible(false);
-            }
-        }
-
         // make marker bigger and open infowindow
         if (newVal.puid && $scope.myPoisHashT[newVal.puid] && $scope.myPoisHashT[newVal.puid].marker) {
             var m = $scope.myPoisHashT[newVal.puid].marker;
@@ -225,7 +217,13 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             }
         }
 
-
+        // make previous selected POI's marker smaller
+        if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] && $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
+            $scope.myPoisHashT[prevSelectedPoi.puid].marker.setIcon(_getNormalPoiIconNormal(prevSelectedPoi));
+            if (GMapService.gmap.getZoom() <= HIDE_POIS_ZOOM_LEVEL) {
+                $scope.myPoisHashT[prevSelectedPoi.puid].marker.setVisible(false);
+            }
+        }
 
         try {
             if (typeof(Storage) !== "undefined" && localStorage)
@@ -266,7 +264,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _getImageIconForPoi = function (poi) {
         var img = 'build/images/any-poi-icon-blue.png';
 
-        if (poi.is_building_entrance) {
+        if (poi.is_building_entrance  && poi.is_building_entrance !== "false") {
             img = 'build/images/poi_icon_entrance-green.png';
         } else if (poi.pois_type == "Stair") {
             img = 'build/images/poi_icon_stairs-orange.png';

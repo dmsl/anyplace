@@ -118,7 +118,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       }
       val puid_from = (json \ "pois_from").as[String]
       val puid_to = (json \ "pois_to").as[String]
-      if (puid_from == puid_to) {
+      if (puid_from.equalsIgnoreCase(puid_to)) {
         AnyResponseHelper.bad_request("Destination and Source is the same!")
       }
       try {
