@@ -39,7 +39,7 @@ import java.io._
 import java.net.{HttpURLConnection, URL}
 import java.text.{NumberFormat, ParseException}
 import java.util
-import java.util.{HashMap, Locale}
+import java.util.{Locale}
 import java.util.zip.GZIPOutputStream
 
 import acces.GeoUtils
@@ -49,10 +49,10 @@ import datasources.{DatasourceException, ProxyDataSource}
 import db_models._
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
-import play.api.libs.json.{JsObject, Json}
+
 import play.api.mvc._
 import utils._
-import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.{JsObject, Json}
 import radiomapserver.{RadioMap, RadioMapMean}
 import acces.AccesRBF
 
@@ -105,226 +105,253 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   def getRadioHeatmap() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
-      try {
-        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmap
-        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", (radioPoints))
-        AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
+        try {
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmap
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", (radioPoints))
+          return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   def getRadioHeatmapByBuildingFloor() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor = (json \ "floor").as[String]
-      try {
-        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor(buid, floor)
-        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   //new marileni
 
   def getRadioHeatmapByBuildingFloorAverage() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor = (json \ "floor").as[String]
-      try {
-        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage(buid, floor)
-        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
-//end new marileni
+
+  //end new marileni
 
   //new marileni 2/2
   def getRadioHeatmapByBuildingFloorAverage1() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor = (json \ "floor").as[String]
-      try {
-        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
-        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
+
 
   def getRadioHeatmapByBuildingFloorAverage2() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor = (json \ "floor").as[String]
-      try {
-        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
-        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def getRadioHeatmapByBuildingFloorAverage3() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor = (json \ "floor").as[String]
-      try {
-        val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
-        if (radioPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
-  }
 
+      inner(request)
+  }
 
 
   //end new marileni
 
   //new marileni 4/1
 
-    def getAPsByBuildingFloor() = Action {
+  def getAPsByBuildingFloor() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getAPs(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor = (json \ "floor").as[String]
-      try {
-        val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor).asScala
-
-        val uniqueAPs: util.HashMap[String, JsonObject] = new util.HashMap()
-        for(accessPoint:JsonObject <- accessPoints){
-          var id =accessPoint.getString("AP")
-          id=id.substring(0,id.length-9)
-
-          var ap=uniqueAPs.get(id)
-          var avg=accessPoint.getObject("RSS").getDouble("average")
-          var x=accessPoint.getString("x").toDouble
-          var y=accessPoint.getString("y").toDouble
-          if(ap==null){
-            if(avg < -40){
-              accessPoint.put("den",avg)
-              accessPoint.put("x",avg*x)
-              accessPoint.put("y",avg*y)
-            }else{
-              accessPoint.put("den",0)
-              accessPoint.put("x",x)
-              accessPoint.put("y",y)
-            }
-           ap=accessPoint
-          }else if(ap.getDouble("den")<0){
-            if(avg < -40){
-              var ap_den=ap.getDouble("den")
-              var ap_x=ap.getDouble("x")
-              var ap_y=ap.getDouble("y")
-              accessPoint.put("den",avg+ap_den)
-              accessPoint.put("x",avg*x+ap_x)
-              accessPoint.put("y",avg*y+ap_y)
-            }else{
-              accessPoint.put("den",0)
-              accessPoint.put("x",x)
-              accessPoint.put("y",y)
-            }
-            ap=accessPoint
-          }
-          //overwrite old object in case that there is one
-          uniqueAPs.put(id,ap)
-        }
-
-        if (accessPoints == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("accessPoints",new util.ArrayList[JsonObject](uniqueAPs.values()))
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getAPs(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor).asScala
+
+          val uniqueAPs: util.HashMap[String, JsonObject] = new util.HashMap()
+          for (accessPoint: JsonObject <- accessPoints) {
+            var id = accessPoint.getString("AP")
+            id = id.substring(0, id.length - 9)
+
+            var ap = uniqueAPs.get(id)
+            var avg = accessPoint.getObject("RSS").getDouble("average")
+            var x = accessPoint.getString("x").toDouble
+            var y = accessPoint.getString("y").toDouble
+            if (ap == null) {
+              if (avg < -40) {
+                accessPoint.put("den", avg)
+                accessPoint.put("x", avg * x)
+                accessPoint.put("y", avg * y)
+              } else {
+                accessPoint.put("den", 0)
+                accessPoint.put("x", x)
+                accessPoint.put("y", y)
+              }
+              ap = accessPoint
+            } else if (ap.getDouble("den") < 0) {
+              if (avg < -40) {
+                var ap_den = ap.getDouble("den")
+                var ap_x = ap.getDouble("x")
+                var ap_y = ap.getDouble("y")
+                accessPoint.put("den", avg + ap_den)
+                accessPoint.put("x", avg * x + ap_x)
+                accessPoint.put("y", avg * y + ap_y)
+              } else {
+                accessPoint.put("den", 0)
+                accessPoint.put("x", x)
+                accessPoint.put("y", y)
+              }
+              ap = accessPoint
+            }
+            //overwrite old object in case that there is one
+            uniqueAPs.put(id, ap)
+          }
+
+          if (accessPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("accessPoints", new util.ArrayList[JsonObject](uniqueAPs.values()))
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   //end new marileni
@@ -333,459 +360,479 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   def FingerPrintsDelete() = Action {
-     implicit request =>
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor", "lat1", "lon1", "lat2", "lon2")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json,"buid","floor", "lat1", "lon1","lat2","lon2")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-
-       val buid = (json \ "buid").as[String]
-       val floor_number = (json \ "floor").as[String]
-      val lat1 = (json \ "lat1").as[String]
-      val lon1 = (json \ "lon1").as[String]
-       val lat2 = (json \ "lat2").as[String]
-       val lon2 = (json \ "lon2").as[String]
-
-
-      try {
-        val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsBBox(buid,floor_number,lat1,lon1,lat2,lon2)
-        if (radioPoints.isEmpty)
-          AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
-
-        for(i<-0 until radioPoints.size())
-          ProxyDataSource.getIDatasource.deleteFromKey(radioPoints.get(i).getString("id"))
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor").as[String]
+        val lat1 = (json \ "lat1").as[String]
+        val lon1 = (json \ "lon1").as[String]
+        val lat2 = (json \ "lat2").as[String]
+        val lon2 = (json \ "lon2").as[String]
 
 
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+        try {
+          val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsBBox(buid, floor_number, lat1, lon1, lat2, lon2)
+          if (radioPoints.isEmpty)
+            return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
+
+          for (i <- 0 until radioPoints.size())
+            ProxyDataSource.getIDatasource.deleteFromKey(radioPoints.get(i).getString("id"))
+
+
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                return AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+
       }
 
+      inner(request)
   }
 
   //end new marileni
 
 
-
   def getRadioHeatmapBbox = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon", "floor", "buid", "range")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val lat = (json \ "coordinates_lat").as[String]
-      val lon = (json \ "coordinates_lon").as[String]
-      val floor_number = (json \ "floor").as[String]
-      val buid = (json \ "buid").as[String]
-      val strRange = (json \ "range").as[String]
-      val weight = (json \ "weight").as[String]
-      val range = strRange.toInt
-      try {
-        var radioPoints: util.List[JsonObject] = null
-        if (weight.compareTo("false") == 0) radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapBBox2(lat, lon, buid, floor_number, range)
-        else if (weight.compareTo("true") == 0) radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapBBox(lat, lon, buid, floor_number, range)
-        else if (weight.compareTo("no spatial") == 0) radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floor_number, range)
-        if (radioPoints == null)
-          AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        val res = JsonObject.empty()
-        res.put("radioPoints", radioPoints)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon", "floor", "buid", "range")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val lat = (json \ "coordinates_lat").as[String]
+        val lon = (json \ "coordinates_lon").as[String]
+        val floor_number = (json \ "floor").as[String]
+        val buid = (json \ "buid").as[String]
+        val strRange = (json \ "range").as[String]
+        val weight = (json \ "weight").as[String]
+        val range = strRange.toInt
+        try {
+          var radioPoints: util.List[JsonObject] = null
+          if (weight.compareTo("false") == 0) radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapBBox2(lat, lon, buid, floor_number, range)
+          else if (weight.compareTo("true") == 0) radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapBBox(lat, lon, buid, floor_number, range)
+          else if (weight.compareTo("no spatial") == 0) radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floor_number, range)
+          if (radioPoints == null)
+            return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                return AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def deleteRadiosInBox() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::deleteRadiosInBox(): " + json.toString)
-      try {
-        if (!ProxyDataSource.getIDatasource.deleteRadiosInBox()) AnyResponseHelper.bad_request("Building already exists or could not be added!")
-        AnyResponseHelper.ok("Success")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::deleteRadiosInBox(): " + json.toString)
+        try {
+          if (!ProxyDataSource.getIDatasource.deleteRadiosInBox()) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
+          return AnyResponseHelper.ok("Success")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   def buildingAdd() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingAdd(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "name", "description",
-        "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if ((json \ "access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id.toString)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      try {
-        var building: Building = null
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "name", "description",
+          "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if ((json \ "access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id.toString)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         try {
-          building = new Building(JsonObject.fromJson(json.toString()))
+          var building: Building = null
+          try {
+            building = new Building(JsonObject.fromJson(json.toString()))
+          } catch {
+            case e: NumberFormatException => return AnyResponseHelper.bad_request("Building coordinates are invalid!")
+          }
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
+          val res = JsonObject.empty()
+          res.put("buid", building.getId)
+          return AnyResponseHelper.ok(res, "Successfully added building!")
         } catch {
-          case e: NumberFormatException => AnyResponseHelper.bad_request("Building coordinates are invalid!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getId, 0, building.toCouchGeoJSON())) AnyResponseHelper.bad_request("Building already exists or could not be added!")
-        val res = JsonObject.empty()
-        res.put("buid", building.getId)
-        AnyResponseHelper.ok(res, "Successfully added building!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def buildingUpdateCoOwners() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody()
-      LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "co_owners")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\\("access_token") == null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        val building = new Building(stored_building)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.appendCoOwners(json))) AnyResponseHelper.bad_request("Building could not be updated!")
-        AnyResponseHelper.ok("Successfully updated building!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "co_owners")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\\("access_token") == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          val building = new Building(stored_building)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.appendCoOwners(json))) return AnyResponseHelper.bad_request("Building could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated building!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   def buildingUpdateOwner() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "new_owner")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      var newOwner = (json \ "new_owner").as[String]
-      newOwner = appendToOwnerId(newOwner)
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        val building = new Building(stored_building)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.changeOwner(newOwner))) AnyResponseHelper.bad_request("Building could not be updated!")
-        AnyResponseHelper.ok("Successfully updated building!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "new_owner")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        var newOwner = (json \ "new_owner").as[String]
+        newOwner = appendToOwnerId(newOwner)
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          val building = new Building(stored_building)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.changeOwner(newOwner))) return AnyResponseHelper.bad_request("Building could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated building!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   def buildingUpdate() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingUpdate(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        if (json.\("is_published").getOrElse(null) != null) {
-          val is_published = (json \ "is_published").as[String]
-          if (is_published == "true" || is_published == "false") stored_building.put("is_published", (json \ "is_published").as[String])
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingUpdate(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          if (json.\("is_published").getOrElse(null) != null) {
+            val is_published = (json \ "is_published").as[String]
+            if (is_published == "true" || is_published == "false") stored_building.put("is_published", (json \ "is_published").as[String])
+          }
+          if (json.\("name").getOrElse(null) != null) stored_building.put("name", (json \ "name").as[String])
+          if (json.\("bucode").getOrElse(null) != null) stored_building.put("bucode", (json \ "bucode").as[String])
+          if (json.\("description").getOrElse(null) != null) stored_building.put("description", (json \ "description").as[String])
+          if (json.\("url").getOrElse(null) != null) stored_building.put("url", (json \ "url").as[String])
+          if (json.\("address").getOrElse(null) != null) stored_building.put("address", (json \ "address").as[String])
+          if (json.\("coordinates_lat").getOrElse(null) != null) stored_building.put("coordinates_lat", (json \ "coordinates_lat").as[String])
+          if (json.\("coordinates_lon").getOrElse(null) != null) stored_building.put("coordinates_lon", (json \ "coordinates_lon").as[String])
+          val building = new Building(stored_building)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated building!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        if (json.\("name").getOrElse(null) != null) stored_building.put("name", (json \ "name").as[String])
-        if (json.\("bucode").getOrElse(null) != null) stored_building.put("bucode", (json \ "bucode").as[String])
-        if (json.\("description").getOrElse(null) != null) stored_building.put("description", (json \ "description").as[String])
-        if (json.\("url").getOrElse(null) != null) stored_building.put("url", (json \ "url").as[String])
-        if (json.\("address").getOrElse(null) != null) stored_building.put("address", (json \ "address").as[String])
-        if (json.\("coordinates_lat").getOrElse(null) != null) stored_building.put("coordinates_lat", (json \ "coordinates_lat").as[String])
-        if (json.\("coordinates_lon").getOrElse(null) != null) stored_building.put("coordinates_lon", (json \ "coordinates_lon").as[String])
-        val building = new Building(stored_building)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.toCouchGeoJSON())) AnyResponseHelper.bad_request("Building could not be updated!")
-        AnyResponseHelper.ok("Successfully updated building!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def buildingDelete() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingDelete(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid).asInstanceOf[JsonObject]
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      try {
-        val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
-        if (all_items_failed.size > 0) {
-          val obj = JsonObject.empty()
-          obj.put("ids", (all_items_failed))
-          AnyResponseHelper.bad_request(obj, "Some items related to the deleted building could not be deleted: " +
-            all_items_failed.size +
-            " items.")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingDelete(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid).asInstanceOf[JsonObject]
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        try {
+          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
+          if (all_items_failed.size > 0) {
+            val obj = JsonObject.empty()
+            obj.put("ids", (all_items_failed))
+            return AnyResponseHelper.bad_request(obj, "Some items related to the deleted building could not be deleted: " +
+              all_items_failed.size +
+              " items.")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        val filePath = AnyPlaceTilerHelper.getRootFloorPlansDirFor(buid)
+        try {
+          val buidfile = new File(filePath)
+          if (buidfile.exists()) HelperMethods.recDeleteDirFile(buidfile)
+        } catch {
+          case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plans." +
+            "\nAll related information is deleted from the database!")
+        }
+        return AnyResponseHelper.ok("Successfully deleted everything related to building!")
       }
-      val filePath = AnyPlaceTilerHelper.getRootFloorPlansDirFor(buid)
-      try {
-        val buidfile = new File(filePath)
-        if (buidfile.exists()) HelperMethods.recDeleteDirFile(buidfile)
-      } catch {
-        case e: IOException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plans." +
-          "\nAll related information is deleted from the database!")
-      }
-      AnyResponseHelper.ok("Successfully deleted everything related to building!")
+
+      inner(request)
   }
 
   def buildingAll = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
-      try {
 
-        val buildings = ProxyDataSource.getIDatasource.getAllBuildings
-        val res = JsonObject.empty()
-        res.put("buildings", buildings)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
         try {
-          gzippedJSONOk(res.toString)
-        }
 
-        catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+          val buildings = ProxyDataSource.getIDatasource.getAllBuildings
+          val res = JsonObject.empty()
+          res.put("buildings", buildings)
+          try {
+            gzippedJSONOk(res.toString)
+          }
+
+          catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def echo = Action { implicit request =>
     var response = Ok("Got request [" + request + "]")
-    //    val anyReq = new OAuth2Request(request)
-    //    if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-    //    var json = anyReq.getJsonBody
-    //    LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
-    //    try {
-    //      val buildings = ProxyDataSource.getIDatasource.getAllBuildings
-    //      val res = JsonUtils.createObjectNode()
-    //      res.put("buildings",(buildings))
-    //      try {
-    //        gzippedJSONOk(res.toString)
-    //      }
-    //
-    //      catch {
-    //        case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
-    //      }
-    //    } catch {
-    //      case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-    //    }
     response
   }
 
   def buildingGetOne() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingGet(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      try {
-        val building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (building != null && building.get("buid") != null && building.get("coordinates_lat") != null &&
-          building.get("coordinates_lon") != null &&
-          building.get("owner_id") != null &&
-          building.get("name") != null &&
-          building.get("description") != null &&
-          building.get("puid") == null &&
-          building.get("floor_number") == null) {
-          building.asInstanceOf[JsonObject].removeKey("owner_id")
-          building.asInstanceOf[JsonObject].removeKey("co_owners")
-          val res = JsonObject.empty()
-          res.put("building", building)
-          try {
-            gzippedJSONOk(res.toString)
-          } catch {
-            case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingGet(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        try {
+          val building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (building != null && building.get("buid") != null && building.get("coordinates_lat") != null &&
+            building.get("coordinates_lon") != null &&
+            building.get("owner_id") != null &&
+            building.get("name") != null &&
+            building.get("description") != null &&
+            building.get("puid") == null &&
+            building.get("floor_number") == null) {
+            building.asInstanceOf[JsonObject].removeKey("owner_id")
+            building.asInstanceOf[JsonObject].removeKey("co_owners")
+            val res = JsonObject.empty()
+            res.put("building", building)
+            try {
+              gzippedJSONOk(res.toString)
+            } catch {
+              case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+            }
           }
+          return AnyResponseHelper.not_found("Building not found.")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        AnyResponseHelper.not_found("Building not found.")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def buildingAllByOwner() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      if (owner_id == null || owner_id.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      try {
-        val buildings = ProxyDataSource.getIDatasource.getAllBuildingsByOwner(owner_id)
-        val res = JsonObject.empty()
-        res.put("buildings", (buildings))
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        if (owner_id == null || owner_id.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
-          gzippedJSONOk(res.toString)
+          val buildings = ProxyDataSource.getIDatasource.getAllBuildingsByOwner(owner_id)
+          val res = JsonObject.empty()
+          res.put("buildings", (buildings))
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def buildingByBucode() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "bucode")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val bucode = (json \ "bucode").as[String]
-      try {
-        val buildings = ProxyDataSource.getIDatasource.getAllBuildingsByBucode(bucode)
-        val res = JsonObject.empty()
-        res.put("buildings", buildings)
-        try {
-          gzippedJSONOk(res.toString)
-        }
+      def inner(request: Request[AnyContent]): Result = {
 
-        catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "bucode")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val bucode = (json \ "bucode").as[String]
+        try {
+          val buildings = ProxyDataSource.getIDatasource.getAllBuildingsByBucode(bucode)
+          val res = JsonObject.empty()
+          res.put("buildings", buildings)
+          try {
+            gzippedJSONOk(res.toString)
+          }
+
+          catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def buildingCoordinates() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingCoordinates(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) owner_id = ""
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      requiredMissing.addAll(JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon"))
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      try {
-        val buildings = ProxyDataSource.getIDatasource.getAllBuildingsNearMe(owner_id, java.lang.Double.parseDouble((json \ "coordinates_lat").as[String]),
-          java.lang.Double.parseDouble((json \ "coordinates_lon").as[String]))
-        val res = JsonObject.empty()
-        res.put("buildings", (buildings))
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingCoordinates(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) owner_id = ""
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        requiredMissing.addAll(JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon"))
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
-          gzippedJSONOk(res.toString)
+          val buildings = ProxyDataSource.getIDatasource.getAllBuildingsNearMe(owner_id, java.lang.Double.parseDouble((json \ "coordinates_lat").as[String]),
+            java.lang.Double.parseDouble((json \ "coordinates_lon").as[String]))
+          val res = JsonObject.empty()
+          res.put("buildings", (buildings))
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings near your position!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all buildings near your position!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
-  import datasources.DatasourceException
-  import datasources.ProxyDataSource
-  import oauth.provider.v2.models.OAuth2Request
-  import utils.AnyResponseHelper
-  import utils.JsonUtils
-  import utils.LPLogger
-  import java.io.IOException
-  import java.util
-
-  import datasources.{DatasourceException, ProxyDataSource}
-  import oauth.provider.v2.models.OAuth2Request
-  import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
   /**
     * Retrieve the building Set.
@@ -794,54 +841,60 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def buildingSetAll = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString)
-      var cuid = request.getQueryString("cuid").orNull
-      if (cuid == null) cuid = (json \ "cuid").as[String]
-      try {
-        val campus = ProxyDataSource.getIDatasource.getBuildingSet(cuid)
-        val buildings = ProxyDataSource.getIDatasource.getAllBuildings
-        val result = new util.ArrayList[JsonObject]
-        var cuname = ""
-        var greeklish = ""
-        var i = 0
-        for (i <- 0 until campus.size) {
-          val temp = campus.get(i)
-          var j = 0
-          for (j <- 0 until temp.getArray("buids").size) {
-            if (j == 0) cuname = temp.get("name").toString
-            if (j == 0) greeklish = temp.get("greeklish").toString
-            var k = 0
-            for (k <- 0 until buildings.size) { //a
-              val temp2 = buildings.get(k)
-              if (temp2.get("buid").toString.compareTo(temp.getArray("buids").get(j).toString) == 0)
-                result.add(temp2)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper
+            .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString)
+        var cuid = request.getQueryString("cuid").orNull
+        if (cuid == null) cuid = (json \ "cuid").as[String]
+        try {
+          val campus = ProxyDataSource.getIDatasource.getBuildingSet(cuid)
+          val buildings = ProxyDataSource.getIDatasource.getAllBuildings
+          val result = new util.ArrayList[JsonObject]
+          var cuname = ""
+          var greeklish = ""
+          var i = 0
+          for (i <- 0 until campus.size) {
+            val temp = campus.get(i)
+            var j = 0
+            for (j <- 0 until temp.getArray("buids").size) {
+              if (j == 0) cuname = temp.get("name").toString
+              if (j == 0) greeklish = temp.get("greeklish").toString
+              var k = 0
+              for (k <- 0 until buildings.size) { //a
+                val temp2 = buildings.get(k)
+                if (temp2.get("buid").toString.compareTo(temp.getArray("buids").get(j).toString) == 0)
+                  result.add(temp2)
+              }
             }
-          }
 
+          }
+          val res = JsonObject.empty()
+          res.put("buildings", result)
+          res.put("name", cuname)
+          System.out.println(greeklish)
+          if (greeklish == null) greeklish = "false"
+          res.put("greeklish", greeklish)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                return AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              AnyResponseHelper.ok(res, "Successfully retrieved all buildings Sets!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        val res = JsonObject.empty()
-        res.put("buildings", result)
-        res.put("name", cuname)
-        System.out.println(greeklish)
-        if (greeklish == null) greeklish = "false"
-        res.put("greeklish", greeklish)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all buildings Sets!")
-        }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
+
 
   /**
     * Adds a new building set to the database
@@ -850,44 +903,49 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def buildingSetAdd = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "description", "name", "buids", "greeklish")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      // get access token from url and check it against google's service
-      if (json.\\("access_token") == null)
-        AnyResponseHelper.forbidden("Unauthorized1")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null)
-        AnyResponseHelper.forbidden("Unauthorized2")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      try {
-        val cuid = (json \ "cuid").as[String]
-        val campus = ProxyDataSource.getIDatasource.BuildingSetsCuids(cuid)
-        if (campus) AnyResponseHelper.bad_request("Building set already exists!")
-        else {
-          var buildingset: BuildingSet = null
-          try
-            buildingset = new BuildingSet(JsonObject.fromJson(json.toString()))
-          catch {
-            case e: NumberFormatException =>
-              AnyResponseHelper.bad_request("Building coordinates are invalid!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper
+            .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "description", "name", "buids", "greeklish")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        // get access token from url and check it against google's service
+        if (json.\\("access_token") == null)
+          return AnyResponseHelper.forbidden("Unauthorized1")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null)
+          return AnyResponseHelper.forbidden("Unauthorized2")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        try {
+          val cuid = (json \ "cuid").as[String]
+          val campus = ProxyDataSource.getIDatasource.BuildingSetsCuids(cuid)
+          if (campus) return AnyResponseHelper.bad_request("Building set already exists!")
+          else {
+            var buildingset: BuildingSet = null
+            try
+              buildingset = new BuildingSet(JsonObject.fromJson(json.toString()))
+            catch {
+              case e: NumberFormatException =>
+                return AnyResponseHelper.bad_request("Building coordinates are invalid!")
+            }
+            if (!ProxyDataSource.getIDatasource.addJsonDocument(buildingset.getId, 0, buildingset.toCouchGeoJSON))
+              return AnyResponseHelper.bad_request("Building set already exists or could not be added!")
+            val res = JsonObject.empty()
+            res.put("cuid", buildingset.getId)
+            return AnyResponseHelper.ok(res, "Successfully added building Set!")
           }
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(buildingset.getId, 0, buildingset.toCouchGeoJSON))
-            AnyResponseHelper.bad_request("Building set already exists or could not be added!")
-          val res = JsonObject.empty()
-          res.put("cuid", buildingset.getId)
-          AnyResponseHelper.ok(res, "Successfully added building Set!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
 
@@ -898,41 +956,45 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def campusUpdate = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::campusUpdate(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      // get access token from url and check it against google's service
-      if (json.\\("access_token") == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val cuid = (json \ "cuid").as[String]
-      try {
-        val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid)
-        if (stored_campus == null)
-          AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
-        if (!isCampusOwner(stored_campus, owner_id))
-          AnyResponseHelper.unauthorized("Unauthorized")
-        // check for values to update
-        if (json.\\("name") != null) stored_campus.put("name", (json \ "name").as[String])
-        if (json.\\("description") != null) stored_campus.put("description", (json \ "description").as[String])
-        if (json.\\("cuidnew") != null) stored_campus.put("cuid", (json \ "cuid").as[String])
-        val campus = new BuildingSet(stored_campus)
-        if (!ProxyDataSource.getIDatasource().replaceJsonDocument(campus.getId(), 0, campus.toCouchGeoJSON()))
-          AnyResponseHelper.bad_request("Campus could not be updated!")
-        AnyResponseHelper.ok("Successfully updated campus!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::campusUpdate(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        // get access token from url and check it against google's service
+        if (json.\\("access_token") == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val cuid = (json \ "cuid").as[String]
+        try {
+          val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid)
+          if (stored_campus == null)
+            return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
+          if (!isCampusOwner(stored_campus, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          // check for values to update
+          if (json.\\("name") != null) stored_campus.put("name", (json \ "name").as[String])
+          if (json.\\("description") != null) stored_campus.put("description", (json \ "description").as[String])
+          if (json.\\("cuidnew") != null) stored_campus.put("cuid", (json \ "cuid").as[String])
+          val campus = new BuildingSet(stored_campus)
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(campus.getId(), 0, campus.toCouchGeoJSON()))
+            return AnyResponseHelper.bad_request("Campus could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated campus!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
 
@@ -944,40 +1006,44 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   def buildingsetAllByOwner = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      // get access token from url and check it against google's service
-      if (json.\\("access_token") == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      if (owner_id == null || owner_id.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      try {
-        val buildingsets = ProxyDataSource.getIDatasource().getAllBuildingsetsByOwner(owner_id)
-        val res = JsonObject.empty()
-        res.put("buildingsets", buildingsets)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all buildingsets!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        // get access token from url and check it against google's service
+        if (json.\\("access_token") == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        if (owner_id == null || owner_id.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        try {
+          val buildingsets = ProxyDataSource.getIDatasource().getAllBuildingsetsByOwner(owner_id)
+          val res = JsonObject.empty()
+          res.put("buildingsets", buildingsets)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                return AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all buildingsets!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   /**
@@ -987,36 +1053,40 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def campusDelete = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::campusDelete(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      // get access token from url and check it against google's service
-      if (json.\\("access_token") == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val cuid = (json \ "cuid").as[String]
-      try {
-        val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid)
-        if (stored_campus == null)
-          AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
-        if (!isCampusOwner(stored_campus, owner_id))
-          AnyResponseHelper.unauthorized("Unauthorized")
-        if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid))
-          AnyResponseHelper.internal_server_error("Server Internal Error while trying to delete Campus")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::campusDelete(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        // get access token from url and check it against google's service
+        if (json.\\("access_token") == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val cuid = (json \ "cuid").as[String]
+        try {
+          val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid)
+          if (stored_campus == null)
+            return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
+          if (!isCampusOwner(stored_campus, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid))
+            return AnyResponseHelper.internal_server_error("Server Internal Error while trying to delete Campus")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        return AnyResponseHelper.ok("Successfully deleted everything related to building!")
       }
-      AnyResponseHelper.ok("Successfully deleted everything related to building!")
+
+      inner(request)
   }
 
   private def isCampusOwner(campus: JsonObject, userId: String): Boolean = { // Admin
@@ -1030,180 +1100,195 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   def floorAdd() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::floorAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
+          "description", "floor_number", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        val floor_number = (json \ "floor_number").as[String]
+        if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+        try {
+          val floor = new Floor(JsonObject.fromJson(json.toString()))
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor already exists or could not be added!")
+          return AnyResponseHelper.ok("Successfully added floor " + floor_number + "!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::floorAdd(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
-        "description", "floor_number", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      val floor_number = (json \ "floor_number").as[String]
-      if (!Floor.checkFloorNumberFormat(floor_number)) AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-      try {
-        val floor = new Floor(JsonObject.fromJson(json.toString()))
-        if (!ProxyDataSource.getIDatasource.addJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) AnyResponseHelper.bad_request("Floor already exists or could not be added!")
-        AnyResponseHelper.ok("Successfully added floor " + floor_number + "!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
+      inner(request)
   }
 
   def floorUpdate() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::floorUpdate(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        val floor_number = (json \ "fllor_number").as[String]
+        if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+        try {
+          val fuid = Floor.getId(buid, floor_number)
+          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
+          if (json.\("is_published").getOrElse(null) != null) stored_floor.put("is_published", (json \ "is_published").as[String])
+          if (json.\("floor_name").getOrElse(null) != null) stored_floor.put("floor_name", (json \ "floor_name").as[String])
+          if (json.\("description").getOrElse(null) != null) stored_floor.put("description", (json \ "description").as[String])
+          val floor = new Floor(stored_floor)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated floor!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::floorUpdate(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      val floor_number = (json \ "fllor_number").as[String]
-      if (!Floor.checkFloorNumberFormat(floor_number)) AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-      try {
-        val fuid = Floor.getId(buid, floor_number)
-        val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
-        if (stored_floor == null) AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
-        if (json.\("is_published").getOrElse(null) != null) stored_floor.put("is_published", (json \ "is_published").as[String])
-        if (json.\("floor_name").getOrElse(null) != null) stored_floor.put("floor_name", (json \ "floor_name").as[String])
-        if (json.\("description").getOrElse(null) != null) stored_floor.put("description", (json \ "description").as[String])
-        val floor = new Floor(stored_floor)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) AnyResponseHelper.bad_request("Floor could not be updated!")
-        AnyResponseHelper.ok("Successfully updated floor!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
+      inner(request)
   }
 
   def floorDelete() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::floorDelete(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      val floor_number = (json \ "floor_name").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      try {
-        val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
-        if (all_items_failed.size > 0) {
-          val obj = JsonObject.empty()
-          obj.put("ids", all_items_failed)
-          AnyResponseHelper.bad_request(obj, "Some items related to the deleted floor could not be deleted: " +
-            all_items_failed.size +
-            " items.")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::floorDelete(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor_name").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        try {
+          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
+          if (all_items_failed.size > 0) {
+            val obj = JsonObject.empty()
+            obj.put("ids", all_items_failed)
+            return AnyResponseHelper.bad_request(obj, "Some items related to the deleted floor could not be deleted: " +
+              all_items_failed.size +
+              " items.")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
+        try {
+          val floorfile = new File(filePath)
+          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile)
+        } catch {
+          case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plan." +
+            "\nAll related information is deleted from the database!")
+        }
+        return AnyResponseHelper.ok("Successfully deleted everything related to the floor!")
       }
-      val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
-      try {
-        val floorfile = new File(filePath)
-        if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile)
-      } catch {
-        case e: IOException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plan." +
-          "\nAll related information is deleted from the database!")
-      }
-      AnyResponseHelper.ok("Successfully deleted everything related to the floor!")
+
+      inner(request)
   }
 
   def floorAll() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::floorAll(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      try {
-        val buildings = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
-        val res = JsonObject.empty()
-        res.put("floors", buildings)
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::floorAll(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val buildings = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
+          val res = JsonObject.empty()
+          res.put("floors", buildings)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all floors!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all floors!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def poisAdd() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
+          "floor_number", "name", "pois_type", "is_door", "is_building_entrance", "coordinates_lat", "coordinates_lon",
+          "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        try {
+          val poi = new Poi(JsonObject.fromJson(json.toString()))
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Poi already exists or could not be added!")
+          val res = JsonObject.empty()
+          res.put("puid", poi.getId)
+          return AnyResponseHelper.ok(res, "Successfully added poi!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisAdd(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
-        "floor_number", "name", "pois_type", "is_door", "is_building_entrance", "coordinates_lat", "coordinates_lon",
-        "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      try {
-        val poi = new Poi(JsonObject.fromJson(json.toString()))
-        if (!ProxyDataSource.getIDatasource.addJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) AnyResponseHelper.bad_request("Poi already exists or could not be added!")
-        val res = JsonObject.empty()
-        res.put("puid", poi.getId)
-        AnyResponseHelper.ok(res, "Successfully added poi!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
+      inner(request)
   }
 
   /**
@@ -1213,181 +1298,198 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def categoryAdd = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "poistypeid", "poistype", "owner_id", "types")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      // get access token from url and check it against google's service
-      if (json.\\("access_token") == null)
-        AnyResponseHelper.forbidden("Unauthorized1")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null)
-        AnyResponseHelper.forbidden("Unauthorized2")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      try {
-        var poiscategory: PoisCategory = null
-        try
-          poiscategory = new PoisCategory(json.asInstanceOf[JsonObject])
-        catch {
-          case e: NumberFormatException =>
-            AnyResponseHelper.bad_request("Bad request!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "poistypeid", "poistype", "owner_id", "types")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        // get access token from url and check it against google's service
+        if (json.\\("access_token") == null)
+          return AnyResponseHelper.forbidden("Unauthorized1")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null)
+          return AnyResponseHelper.forbidden("Unauthorized2")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        try {
+          var poiscategory: PoisCategory = null
+          try
+            poiscategory = new PoisCategory(json.asInstanceOf[JsonObject])
+          catch {
+            case e: NumberFormatException =>
+              return AnyResponseHelper.bad_request("Bad request!")
+          }
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(poiscategory.getId, 0, poiscategory.toCouchGeoJSON))
+            return AnyResponseHelper.bad_request("Building set already exists or could not be added!")
+          val res = JsonObject.empty()
+          res.put("poistypeid", poiscategory.getId)
+          return AnyResponseHelper.ok(res, "Successfully added Pois Category!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        if (!ProxyDataSource.getIDatasource.addJsonDocument(poiscategory.getId, 0, poiscategory.toCouchGeoJSON))
-          AnyResponseHelper.bad_request("Building set already exists or could not be added!")
-        val res = JsonObject.empty()
-        res.put("poistypeid", poiscategory.getId)
-        AnyResponseHelper.ok(res, "Successfully added Pois Category!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def poisUpdate() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisUpdate(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val puid = (json \ "puid").as[String]
+        val buid = (json \ "puid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+        try {
+          val stored_poi = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid)
+          if (stored_poi == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (json.\("is_published").getOrElse(null) != null) {
+            val is_published = (json \ "is_published").as[String]
+            if (is_published == "true" || is_published == "false") stored_poi.put("is_published", (json \ "is_published").as[String])
+          }
+          if (json.\("name").getOrElse(null) != null) stored_poi.put("name", (json \ "name").as[String])
+          if (json.\("description").getOrElse(null) != null) stored_poi.put("description", (json \ "description").as[String])
+          if (json.\("url").getOrElse(null) != null) stored_poi.put("url", (json \ "url").as[String])
+          if (json.\("pois_type").getOrElse(null) != null) stored_poi.put("pois_type", (json \ "pois_type").as[String])
+          if (json.\("is_door").getOrElse(null) != null) {
+            val is_door = (json \ "is_door").as[String]
+            if (is_door == "true" || is_door == "false") stored_poi.put("is_door", (json \ "is_door").as[String])
+          }
+          if (json.\("is_building_entrance").getOrElse(null) != null) {
+            val is_building_entrance = (json \ "is_building_entrance").as[String]
+            if (is_building_entrance == "true" || is_building_entrance == "false") stored_poi.put("is_building_entrance", (json \ "is_building_entrance").as[String])
+          }
+          if (json.\("image").getOrElse(null) != null) stored_poi.put("image", (json \ "image").as[String])
+          if (json.\("coordinates_lat").getOrElse(null) != null) stored_poi.put("coordinates_lat", (json \ "coordinates_lat").as[String])
+          if (json.\("coordinates_lon").getOrElse(null) != null) stored_poi.put("coordinates_lon", (json \ "coordinates_lon").as[String])
+          val poi = new Poi(stored_poi)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Poi could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated poi!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisUpdate(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val puid = (json \ "puid").as[String]
-      val buid = (json \ "puid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      try {
-        val stored_poi = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid)
-        if (stored_poi == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (json.\("is_published").getOrElse(null) != null) {
-          val is_published = (json \ "is_published").as[String]
-          if (is_published == "true" || is_published == "false") stored_poi.put("is_published", (json \ "is_published").as[String])
-        }
-        if (json.\("name").getOrElse(null) != null) stored_poi.put("name", (json \ "name").as[String])
-        if (json.\("description").getOrElse(null) != null) stored_poi.put("description", (json \ "description").as[String])
-        if (json.\("url").getOrElse(null) != null) stored_poi.put("url", (json \ "url").as[String])
-        if (json.\("pois_type").getOrElse(null) != null) stored_poi.put("pois_type", (json \ "pois_type").as[String])
-        if (json.\("is_door").getOrElse(null) != null) {
-          val is_door = (json \ "is_door").as[String]
-          if (is_door == "true" || is_door == "false") stored_poi.put("is_door", (json \ "is_door").as[String])
-        }
-        if (json.\("is_building_entrance").getOrElse(null) != null) {
-          val is_building_entrance = (json \ "is_building_entrance").as[String]
-          if (is_building_entrance == "true" || is_building_entrance == "false") stored_poi.put("is_building_entrance", (json \ "is_building_entrance").as[String])
-        }
-        if (json.\("image").getOrElse(null) != null) stored_poi.put("image", (json \ "image").as[String])
-        if (json.\("coordinates_lat").getOrElse(null) != null) stored_poi.put("coordinates_lat", (json \ "coordinates_lat").as[String])
-        if (json.\("coordinates_lon").getOrElse(null) != null) stored_poi.put("coordinates_lon", (json \ "coordinates_lon").as[String])
-        val poi = new Poi(stored_poi)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) AnyResponseHelper.bad_request("Poi could not be updated!")
-        AnyResponseHelper.ok("Successfully updated poi!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
+      inner(request)
   }
 
   def poisDelete() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poiDelete(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid = (json \ "buid").as[String]
-      val puid = (json \ "puid").as[String]
-      try {
-        val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      try {
-        val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByPoi(puid)
-        if (all_items_failed.size > 0) {
-          val obj = JsonObject.empty()
-          obj.put("ids", (all_items_failed))
-          AnyResponseHelper.bad_request(obj, "Some items related to the deleted poi could not be deleted: " +
-            all_items_failed.size +
-            " items.")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poiDelete(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid = (json \ "buid").as[String]
+        val puid = (json \ "puid").as[String]
+        try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        AnyResponseHelper.ok("Successfully deleted everything related to the poi!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        try {
+          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByPoi(puid)
+          if (all_items_failed.size > 0) {
+            val obj = JsonObject.empty()
+            obj.put("ids", (all_items_failed))
+            return AnyResponseHelper.bad_request(obj, "Some items related to the deleted poi could not be deleted: " +
+              all_items_failed.size +
+              " items.")
+          }
+          return AnyResponseHelper.ok("Successfully deleted everything related to the poi!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+
       }
+
+      inner(request)
   }
 
   def poisByFloor() = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor_number = (json \ "floor_number").as[String]
-      try {
-        val pois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid, floor_number)
-        val res = JsonObject.empty()
-        res.put("pois", (pois))
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor_number").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val pois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid, floor_number)
+          val res = JsonObject.empty()
+          res.put("pois", (pois))
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number +
+              "!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number +
-            "!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def poisByBuid() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisByBuid(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      try {
-        val pois = ProxyDataSource.getIDatasource.poisByBuildingAsJson(buid)
-        val res = JsonObject.empty()
-        res.put("pois", (pois))
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisByBuid(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val pois = ProxyDataSource.getIDatasource.poisByBuildingAsJson(buid)
+          val res = JsonObject.empty()
+          res.put("pois", (pois))
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   /**
@@ -1397,36 +1499,40 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def poisAll = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      var cuid = request.getQueryString("cuid").orNull
-      if (cuid == null) cuid = (json \ "cuid").as[String]
-      var letters = request.getQueryString("letters").orNull
-      if (letters == null) letters = (json \ "letters").as[String]
-      var buid = request.getQueryString("buid").orNull
-      if (buid == null) buid = (json \ "buid").as[String]
-      var greeklish = request.getQueryString("greeklish").orNull
-      if (greeklish == null) greeklish = (json \ "greeklish").as[String]
-      try {
-        var result: util.List[JsonObject] = new util.ArrayList[JsonObject]
-        if (cuid.compareTo("") == 0) result = ProxyDataSource.getIDatasource.poisByBuildingAsJson3(buid, letters)
-        else if (greeklish.compareTo("true") == 0) result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2GR(cuid, letters)
-        else result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2(cuid, letters)
-        val res = JsonObject.empty()
-        res.put("pois", result)
-        try
-          gzippedJSONOk(res.toString)
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.")
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        var cuid = request.getQueryString("cuid").orNull
+        if (cuid == null) cuid = (json \ "cuid").as[String]
+        var letters = request.getQueryString("letters").orNull
+        if (letters == null) letters = (json \ "letters").as[String]
+        var buid = request.getQueryString("buid").orNull
+        if (buid == null) buid = (json \ "buid").as[String]
+        var greeklish = request.getQueryString("greeklish").orNull
+        if (greeklish == null) greeklish = (json \ "greeklish").as[String]
+        try {
+          var result: util.List[JsonObject] = new util.ArrayList[JsonObject]
+          if (cuid.compareTo("") == 0) result = ProxyDataSource.getIDatasource.poisByBuildingAsJson3(buid, letters)
+          else if (greeklish.compareTo("true") == 0) result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2GR(cuid, letters)
+          else result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2(cuid, letters)
+          val res = JsonObject.empty()
+          res.put("pois", result)
+          try
+            gzippedJSONOk(res.toString)
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
 
@@ -1437,32 +1543,35 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def poisByBuidincConnectors = Action {
     implicit request =>
-
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      try {
-        val pois = ProxyDataSource.getIDatasource.poisByBuildingIDAsJson(buid)
-        val res = JsonObject.empty()
-        res.put("pois", pois)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all pois from buid " + buid + "!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        try {
+          val pois = ProxyDataSource.getIDatasource.poisByBuildingIDAsJson(buid)
+          val res = JsonObject.empty()
+          res.put("pois", pois)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                returnreturn AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all pois from buid " + buid + "!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   /**
@@ -1472,217 +1581,238 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def poisTypes = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisTypes(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      // get access token from url and check it against google's service
-      if (json.\\("access_token") == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null)
-        AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      if (owner_id == null || owner_id.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      try {
-        val poistypes = ProxyDataSource.getIDatasource.getAllPoisTypesByOwner(owner_id)
-        val res = JsonObject.empty()
-        res.put("poistypes", poistypes)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all poistypes!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisTypes(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        // get access token from url and check it against google's service
+        if (json.\\("access_token") == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null)
+          return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        if (owner_id == null || owner_id.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        try {
+          val poistypes = ProxyDataSource.getIDatasource.getAllPoisTypesByOwner(owner_id)
+          val res = JsonObject.empty()
+          res.put("poistypes", poistypes)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                returnreturn AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all poistypes!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def connectionAdd() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::connectionAdd(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "pois_a", "floor_a",
-        "buid_a", "pois_b", "floor_b", "buid_b", "buid", "edge_type", "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid1 = (json \ "buid_a").as[String]
-      val buid2 = (json \ "buid_b").as[String]
-      try {
-        var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      val edge_type = (json \ "edge_type").as[String]
-      if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
-        edge_type != Connection.EDGE_TYPE_ROOM &&
-        edge_type != Connection.EDGE_TYPE_OUTDOOR &&
-        edge_type != Connection.EDGE_TYPE_STAIR) AnyResponseHelper.bad_request("Invalid edge type specified.")
-      val pois_a = (json \ "pois_a").as[String]
-      val pois_b = (json \ "pois_b").as[String]
-      try {
-        val weight = calculateWeightOfConnection(pois_a, pois_b)
-        JsonObject.fromJson(json.toString()).put("weight", java.lang.Double.toString(weight))
-        if (edge_type == Connection.EDGE_TYPE_ELEVATOR || edge_type == Connection.EDGE_TYPE_STAIR) {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::connectionAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "pois_a", "floor_a",
+          "buid_a", "pois_b", "floor_b", "buid_b", "buid", "edge_type", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid1 = (json \ "buid_a").as[String]
+        val buid2 = (json \ "buid_b").as[String]
+        try {
+          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        val conn = new Connection(JsonObject.fromJson(json.toString()))
-        if (!ProxyDataSource.getIDatasource.addJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) AnyResponseHelper.bad_request("Connection already exists or could not be added!")
-        val res = JsonObject.empty()
-        res.put("cuid", conn.getId)
-        AnyResponseHelper.ok(res, "Successfully added new connection!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        val edge_type = (json \ "edge_type").as[String]
+        if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
+          edge_type != Connection.EDGE_TYPE_ROOM &&
+          edge_type != Connection.EDGE_TYPE_OUTDOOR &&
+          edge_type != Connection.EDGE_TYPE_STAIR) return AnyResponseHelper.bad_request("Invalid edge type specified.")
+        val pois_a = (json \ "pois_a").as[String]
+        val pois_b = (json \ "pois_b").as[String]
+        try {
+          val weight = calculateWeightOfConnection(pois_a, pois_b)
+          JsonObject.fromJson(json.toString()).put("weight", java.lang.Double.toString(weight))
+          if (edge_type == Connection.EDGE_TYPE_ELEVATOR || edge_type == Connection.EDGE_TYPE_STAIR) {
+          }
+          val conn = new Connection(JsonObject.fromJson(json.toString()))
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Connection already exists or could not be added!")
+          val res = JsonObject.empty()
+          res.put("cuid", conn.getId)
+          return AnyResponseHelper.ok(res, "Successfully added new connection!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   def connectionUpdate() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::connectionUpdate(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
-        "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid1 = (json \ "buid_a").as[String]
-      val buid2 = (json \ "buid_b").as[String]
-      try {
-        var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      try {
-        val pois_a = (json \ "pois_a").as[String]
-        val pois_b = (json \ "pois_b").as[String]
-        val cuid = Connection.getId(pois_a, pois_b)
-        val stored_conn = ProxyDataSource.getIDatasource.getFromKeyAsJson(cuid)
-        if (stored_conn == null) AnyResponseHelper.bad_request("Connection does not exist or could not be retrieved!")
-        if (json.\("is_published").getOrElse(null) != null) {
-          val is_published = (json \ "is_published").as[String]
-          if (is_published == "true" || is_published == "false") stored_conn.put("is_published", (json \ "is_published").as[String])
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::connectionUpdate(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
+          "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid1 = (json \ "buid_a").as[String]
+        val buid2 = (json \ "buid_b").as[String]
+        try {
+          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        if (json.\("edge_type").getOrElse(null) != null) {
-          val edge_type = (json \ "edge_type").as[String]
-          if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
-            edge_type != Connection.EDGE_TYPE_ROOM &&
-            edge_type != Connection.EDGE_TYPE_OUTDOOR &&
-            edge_type != Connection.EDGE_TYPE_STAIR) AnyResponseHelper.bad_request("Invalid edge type specified.")
-          stored_conn.put("edge_type", edge_type)
+        try {
+          val pois_a = (json \ "pois_a").as[String]
+          val pois_b = (json \ "pois_b").as[String]
+          val cuid = Connection.getId(pois_a, pois_b)
+          val stored_conn = ProxyDataSource.getIDatasource.getFromKeyAsJson(cuid)
+          if (stored_conn == null) return AnyResponseHelper.bad_request("Connection does not exist or could not be retrieved!")
+          if (json.\("is_published").getOrElse(null) != null) {
+            val is_published = (json \ "is_published").as[String]
+            if (is_published == "true" || is_published == "false") stored_conn.put("is_published", (json \ "is_published").as[String])
+          }
+          if (json.\("edge_type").getOrElse(null) != null) {
+            val edge_type = (json \ "edge_type").as[String]
+            if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
+              edge_type != Connection.EDGE_TYPE_ROOM &&
+              edge_type != Connection.EDGE_TYPE_OUTDOOR &&
+              edge_type != Connection.EDGE_TYPE_STAIR) return AnyResponseHelper.bad_request("Invalid edge type specified.")
+            stored_conn.put("edge_type", edge_type)
+          }
+          val conn = new Connection(stored_conn)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Connection could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated connection!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        val conn = new Connection(stored_conn)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) AnyResponseHelper.bad_request("Connection could not be updated!")
-        AnyResponseHelper.ok("Successfully updated connection!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def connectionDelete() = Action {
     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poiDelete(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
-        "access_token")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-      val buid1 = (json \ "buid_a").as[String]
-      val buid2 = (json \ "buid_b").as[String]
-      try {
-        var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-        stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
-        if (stored_building == null) AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-        if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) AnyResponseHelper.unauthorized("Unauthorized")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-      }
-      val pois_a = (json \ "pois_a").as[String]
-      val pois_b = (json \ "pois_b").as[String]
-      try {
-        val cuid = Connection.getId(pois_a, pois_b)
-        val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByConnection(cuid)
-        if (all_items_failed == null) {
-          LPLogger.info("AnyplaceMapping::connectionDelete(): " + cuid + " not found.")
-          AnyResponseHelper.bad_request("POI Connection not found")
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poiDelete(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
+          "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        val buid1 = (json \ "buid_a").as[String]
+        val buid2 = (json \ "buid_b").as[String]
+        try {
+          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        if (all_items_failed.size > 0) {
-          val obj = JsonObject.empty()
-          obj.put("ids", (all_items_failed))
-          AnyResponseHelper.bad_request(obj, "Some items related to the deleted connection could not be deleted: " +
-            all_items_failed.size +
-            " items.")
+        val pois_a = (json \ "pois_a").as[String]
+        val pois_b = (json \ "pois_b").as[String]
+        try {
+          val cuid = Connection.getId(pois_a, pois_b)
+          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByConnection(cuid)
+          if (all_items_failed == null) {
+            LPLogger.info("AnyplaceMapping::connectionDelete(): " + cuid + " not found.")
+            return AnyResponseHelper.bad_request("POI Connection not found")
+          }
+          if (all_items_failed.size > 0) {
+            val obj = JsonObject.empty()
+            obj.put("ids", (all_items_failed))
+            return AnyResponseHelper.bad_request(obj, "Some items related to the deleted connection could not be deleted: " +
+              all_items_failed.size +
+              " items.")
+          }
+          return AnyResponseHelper.ok("Successfully deleted everything related to the connection!")
+        } catch {
+          case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-        AnyResponseHelper.ok("Successfully deleted everything related to the connection!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   def connectionsByFloor() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      val floor_number = (json \ "floor_number").as[String]
-      try {
-        val pois = ProxyDataSource.getIDatasource.connectionsByBuildingFloorAsJson(buid, floor_number)
-        val res = JsonObject.empty()
-        res.put("connections", (pois))
+      def inner(request: Request[AnyContent]): Result = {
+
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor_number").as[String]
         try {
-          gzippedJSONOk(res.toString)
+          val pois = ProxyDataSource.getIDatasource.connectionsByBuildingFloorAsJson(buid, floor_number)
+          val res = JsonObject.empty()
+          res.put("connections", (pois))
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number +
+              "!")
+          }
         } catch {
-          case ioe: IOException => AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number +
-            "!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   import java.io.IOException
@@ -1699,31 +1829,35 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def connectionsByallFloors = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
-      if (!requiredMissing.isEmpty)
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = (json \ "buid").as[String]
-      try {
-        val pois = ProxyDataSource.getIDatasource.connectionsByBuildingAllFloorsAsJson(buid)
-        val res = JsonObject.empty()
-        res.put("connections", pois)
-        try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-        gzippedJSONOk(res.toString)
-        //                }
-        //                return AnyResponseHelper.ok(res.toString());
-        catch {
-          case ioe: IOException =>
-            AnyResponseHelper.ok(res, "Successfully retrieved all pois from all floors !")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        try {
+          val pois = ProxyDataSource.getIDatasource.connectionsByBuildingAllFloorsAsJson(buid)
+          val res = JsonObject.empty()
+          res.put("connections", pois)
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                returnreturn AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all pois from all floors !")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
       }
+
+      inner(request)
   }
 
   private def calculateWeightOfConnection(pois_a: String, pois_b: String) = {
@@ -1758,116 +1892,136 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def serveFloorPlanBinary(buid: String, floor_number: String) = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::serveFloorPlan(): " + json.toString)
-      val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
-      LPLogger.info("requested: " + filePath)
-      try {
-        val file = new File(filePath)
-        if (!file.exists() || !file.canRead()) AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-          floor_number +
-          ")")
-        Ok.sendFile(file)
-      } catch {
-        case e: FileNotFoundException => AnyResponseHelper.internal_server_error("Could not read floor plan.")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::serveFloorPlan(): " + json.toString)
+        val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
+        LPLogger.info("requested: " + filePath)
+        try {
+          val file = new File(filePath)
+          if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
+            floor_number +
+            ")")
+          Ok.sendFile(file)
+        } catch {
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
+        }
       }
+
+      inner(request)
   }
 
   def serveFloorPlanTilesZip(buid: String, floor_number: String) = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZip(): " + json.toString)
-      if (!Floor.checkFloorNumberFormat(floor_number)) AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-      val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
-      LPLogger.info("requested: " + filePath)
-      try {
-        val file = new File(filePath)
-        if (!file.exists() || !file.canRead()) AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-          floor_number +
-          ")")
-        Ok.sendFile(file)
-      } catch {
-        case e: FileNotFoundException => AnyResponseHelper.internal_server_error("Could not read floor plan.")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZip(): " + json.toString)
+        if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+        val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
+        LPLogger.info("requested: " + filePath)
+        try {
+          val file = new File(filePath)
+          if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
+            floor_number +
+            ")")
+          Ok.sendFile(file)
+        } catch {
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
+        }
       }
+
+      inner(request)
   }
 
   def serveFloorPlanTilesZipLink(buid: String, floor_number: String) = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + json.toString)
-      if (!Floor.checkFloorNumberFormat(floor_number)) AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-      val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
-      LPLogger.info("requested: " + filePath)
-      val file = new File(filePath)
-      if (!file.exists() || !file.canRead()) AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-        floor_number +
-        ")")
-      val res = JsonObject.empty()
-      res.put("tiles_archive", AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
-      AnyResponseHelper.ok(res, "Successfully fetched link for the tiles archive!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + json.toString)
+        if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+        val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
+        LPLogger.info("requested: " + filePath)
+        val file = new File(filePath)
+        if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
+          floor_number +
+          ")")
+        val res = JsonObject.empty()
+        res.put("tiles_archive", AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
+        return AnyResponseHelper.ok(res, "Successfully fetched link for the tiles archive!")
+      }
+
+      inner(request)
   }
 
   def serveFloorPlanTilesStatic(buid: String, floor_number: String, path: String) = Action {
-    LPLogger.info("AnyplaceMapping::serveFloorPlanTilesStatic(): " + buid +
-      ":" +
-      floor_number +
-      ":" +
-      path)
-    if (path == null || buid == null || floor_number == null ||
-      path.trim().isEmpty ||
-      buid.trim().isEmpty ||
-      floor_number.trim().isEmpty) NotFound(<h1>Page not found</h1>)
-    var filePath: String = null
-    filePath = if (path == AnyPlaceTilerHelper.FLOOR_TILES_ZIP_NAME) AnyPlaceTilerHelper.getFloorTilesZipFor(buid,
-      floor_number) else AnyPlaceTilerHelper.getFloorTilesDirFor(buid, floor_number) +
-      path
-    LPLogger.info("static requested: " + filePath)
-    try {
-      val file = new File(filePath)
-      if (!file.exists() || !file.canRead()) AnyResponseHelper.not_found("File requested not found")
-      Ok.sendFile(file)
-    } catch {
-      case e: FileNotFoundException => AnyResponseHelper.internal_server_error("Could not read floor plan.")
+    def inner(): Result = {
+      LPLogger.info("AnyplaceMapping::serveFloorPlanTilesStatic(): " + buid +
+        ":" +
+        floor_number +
+        ":" +
+        path)
+      if (path == null || buid == null || floor_number == null ||
+        path.trim().isEmpty ||
+        buid.trim().isEmpty ||
+        floor_number.trim().isEmpty) NotFound(<h1>Page not found</h1>)
+      var filePath: String = null
+      filePath = if (path == AnyPlaceTilerHelper.FLOOR_TILES_ZIP_NAME) AnyPlaceTilerHelper.getFloorTilesZipFor(buid,
+        floor_number) else AnyPlaceTilerHelper.getFloorTilesDirFor(buid, floor_number) +
+        path
+      LPLogger.info("static requested: " + filePath)
+      try {
+        val file = new File(filePath)
+        if (!file.exists() || !file.canRead()) return AnyResponseHelper.not_found("File requested not found")
+        Ok.sendFile(file)
+      } catch {
+        case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
+      }
     }
+
+    inner()
   }
 
   def serveFloorPlanBase64(buid: String, floor_number: String) = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::serveFloorPlanBase64(): " + json.toString)
-      val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
-      LPLogger.info("requested: " + filePath)
-      val file = new File(filePath)
-      try {
-        if (!file.exists() || !file.canRead()) AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-          floor_number +
-          ")")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64(): " + json.toString)
+        val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
+        LPLogger.info("requested: " + filePath)
+        val file = new File(filePath)
         try {
-          val s = encodeFileToBase64Binary(filePath)
-          try {
-            gzippedOk(s)
-          } catch {
-            case ioe: IOException => Ok(s)
-          }
-        } catch {
-          case e: IOException => AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" +
+          if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
             floor_number +
             ")")
+          try {
+            val s = encodeFileToBase64Binary(filePath)
+            try {
+              gzippedOk(s)
+            } catch {
+              case ioe: IOException => Ok(s)
+            }
+          } catch {
+            case e: IOException => return AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" +
+              floor_number +
+              ")")
+          }
+        } catch {
+          case e: Exception => return AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!")
         }
-      } catch {
-        case e: Exception => AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!")
       }
+
+      inner(request)
   }
 
 
@@ -1880,49 +2034,54 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     */
   def serveFloorPlanBase64all(buid: String, floor_number: String) = Action {
     implicit request =>
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody)
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::serveFloorPlanBase64all(): " + json.toString + " " + floor_number)
-      val floors = floor_number.split(" ")
-      val all_floors = new util.ArrayList[String]
-      var z = 0
-      while ( {
-        z < floors.length
-      }) {
-        val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floors(z))
-        LPLogger.info("requested: " + filePath)
-        val file = new File(filePath)
-        try
-            if (!file.exists || !file.canRead) {
-              all_floors.add("")
-            }
-            else try {
-              val s = encodeFileToBase64Binary(filePath)
-              all_floors.add(s)
-            } catch {
-              case e: IOException =>
-                AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" + floors(z) + ")")
-            }
-        catch {
-          case e: Exception =>
-            AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!")
-        }
 
-        {
-          z += 1;
-          z - 1
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64all(): " + json.toString + " " + floor_number)
+        val floors = floor_number.split(" ")
+        val all_floors = new util.ArrayList[String]
+        var z = 0
+        while ( {
+          z < floors.length
+        }) {
+          val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floors(z))
+          LPLogger.info("requested: " + filePath)
+          val file = new File(filePath)
+          try
+              if (!file.exists || !file.canRead) {
+                all_floors.add("")
+              }
+              else try {
+                val s = encodeFileToBase64Binary(filePath)
+                all_floors.add(s)
+              } catch {
+                case e: IOException =>
+                  return AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" + floors(z) + ")")
+              }
+          catch {
+            case e: Exception =>
+              return AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!")
+          }
+
+          {
+            z += 1;
+            z - 1
+          }
+        }
+        val res = JsonObject.empty()
+        res.put("all_floors", all_floors)
+        try
+          gzippedJSONOk(res.toString)
+        catch {
+          case ioe: IOException =>
+            return AnyResponseHelper.ok(res, "Successfully retrieved all floors!")
         }
       }
-      val res = JsonObject.empty()
-      res.put("all_floors", all_floors)
-      try
-        gzippedJSONOk(res.toString)
-      catch {
-        case ioe: IOException =>
-          AnyResponseHelper.ok(res, "Successfully retrieved all floors!")
-      }
+
+      inner(request)
   }
 
   private def encodeFileToBase64Binary(fileName: String) = {
@@ -1953,84 +2112,92 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def floorPlanUpload() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      val body = anyReq.getMultipartFormData()
-      if (body == null) AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
-      var floorplan = body.file("floorplan").get
-      if (floorplan == null) AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!")
-      val urlenc = body.asFormUrlEncoded
-      val json_str = urlenc.get("json").get(0)
-      if (json_str == null) AnyResponseHelper.bad_request("Cannot find json in the request!")
-      var json: JsonObject = null
-      try {
-        json = JsonObject.fromJson(json_str)
-      } catch {
-        case e: IOException => AnyResponseHelper.bad_request("Cannot parse json in the request!")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val body = anyReq.getMultipartFormData()
+        if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
+        var floorplan = body.file("floorplan").get
+        if (floorplan == null) return AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!")
+        val urlenc = body.asFormUrlEncoded
+        val json_str = urlenc.get("json").get(0)
+        if (json_str == null) return AnyResponseHelper.bad_request("Cannot find json in the request!")
+        var json: JsonObject = null
+        try {
+          json = JsonObject.fromJson(json_str)
+        } catch {
+          case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
+        }
+        LPLogger.info("Floorplan Request[json]: " + json.toString)
+        LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
+          "bottom_left_lng", "top_right_lat", "top_right_lng")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = json.getString("buid")
+        val floor_number = json.getString("floor_number")
+        val bottom_left_lat = json.getString("bottom_left_lat")
+        val bottom_left_lng = json.getString("bottom_left_lng")
+        val top_right_lat = json.getString("top_right_lat")
+        val top_right_lng = json.getString("top_right_lng")
+        val fuid = Floor.getId(buid, floor_number)
+        try {
+          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
+          stored_floor.put("bottom_left_lat", bottom_left_lat)
+          stored_floor.put("bottom_left_lng", bottom_left_lng)
+          stored_floor.put("top_right_lat", top_right_lat)
+          stored_floor.put("top_right_lng", top_right_lng)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
+            return AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
+        }
+        var floor_file: File = null
+        try {
+          floor_file = AnyPlaceTilerHelper.storeFloorPlanToServer(buid, floor_number, floorplan.ref.file)
+        } catch {
+          case e: AnyPlaceException => return AnyResponseHelper.bad_request("Cannot save floor plan on the server!")
+        }
+        val top_left_lat = top_right_lat
+        val top_left_lng = bottom_left_lng
+        try {
+          AnyPlaceTilerHelper.tileImage(floor_file, top_left_lat, top_left_lng)
+        } catch {
+          case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
+        }
+        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
-      LPLogger.info("Floorplan Request[json]: " + json.toString)
-      LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
-        "bottom_left_lng", "top_right_lat", "top_right_lng")
-      if (!requiredMissing.isEmpty) AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      val buid = json.getString("buid")
-      val floor_number = json.getString("floor_number")
-      val bottom_left_lat = json.getString("bottom_left_lat")
-      val bottom_left_lng = json.getString("bottom_left_lng")
-      val top_right_lat = json.getString("top_right_lat")
-      val top_right_lng = json.getString("top_right_lng")
-      val fuid = Floor.getId(buid, floor_number)
-      try {
-        val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
-        if (stored_floor == null) AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
-        stored_floor.put("bottom_left_lat", bottom_left_lat)
-        stored_floor.put("bottom_left_lng", bottom_left_lng)
-        stored_floor.put("top_right_lat", top_right_lat)
-        stored_floor.put("top_right_lng", top_right_lng)
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
-          AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
-      }
-      var floor_file: File = null
-      try {
-        floor_file = AnyPlaceTilerHelper.storeFloorPlanToServer(buid, floor_number, floorplan.ref.file)
-      } catch {
-        case e: AnyPlaceException => AnyResponseHelper.bad_request("Cannot save floor plan on the server!")
-      }
-      val top_left_lat = top_right_lat
-      val top_left_lng = bottom_left_lng
-      try {
-        AnyPlaceTilerHelper.tileImage(floor_file, top_left_lat, top_left_lng)
-      } catch {
-        case e: AnyPlaceException => AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
-      }
-      LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
-      AnyResponseHelper.ok("Successfully updated floor plan!")
+
+      inner(request)
   }
 
   def addAccount() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      var json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceAccounts::addAccount():: ")
-      val notFound = JsonUtils.requirePropertiesInJson(json, "access_token", "type")
-      if (!notFound.isEmpty) AnyResponseHelper.requiredFieldsMissing(notFound)
-      if (json.\("access_token").getOrElse(null) != null) AnyResponseHelper.forbidden("Unauthorized")
-      var owner_id = verifyOwnerId((json \ "access_token").as[String])
-      if (owner_id == null) AnyResponseHelper.forbidden("Unauthorized")
-      owner_id = appendToOwnerId(owner_id)
-      json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceAccounts::addAccount():: ")
+        val notFound = JsonUtils.requirePropertiesInJson(json, "access_token", "type")
+        if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
+        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
 
-      val newAccount = new Account(JsonObject.fromJson(json.toString()))
-      try {
-        if (!ProxyDataSource.getIDatasource.addJsonDocument(newAccount.getId, 0, newAccount.toValidCouchJson().toString)) AnyResponseHelper.ok("Returning user.")
-        val res = JsonObject.empty()
-        AnyResponseHelper.ok("New user.")
-      } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        val newAccount = new Account(JsonObject.fromJson(json.toString()))
+        try {
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(newAccount.getId, 0, newAccount.toValidCouchJson().toString)) return AnyResponseHelper.ok("Returning user.")
+          val res = JsonObject.empty()
+          return AnyResponseHelper.ok("New user.")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
@@ -2083,43 +2250,47 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def getAccesHeatmapByBuildingFloor() = Action {
     implicit request =>
 
-      val anyReq = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): " + json.toString)
-      val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
-      if (!requiredMissing.isEmpty) {
-        AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-      }
-      val floor_number = (json \ "floor").as[String]
-      val buid = (json \ "buid").as[String]
-      val cut_k_features = (json \ "cut_k_features").asOpt[Int]
-      //Default 5 meter grid step
-      val h = (json \ "h").asOpt[Double].getOrElse(5.0)
-
-      if (!Floor.checkFloorNumberFormat(floor_number)) {
-        AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-      }
-      try {
-        val rm = getRadioMapMeanByBuildingFloor(buid = buid, floor_number = floor_number)
-        if (rm.isEmpty) {
-          AnyResponseHelper.bad_request("Area not supported yet!")
-        } else {
-          val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
-            cut_k_features = cut_k_features, h = h)
-          val res = JsonObject.empty()
-          res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
-          res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.toList)))
-          AnyResponseHelper.ok(res, "Successfully served ACCES map.")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
-      } catch {
-        case e: FileNotFoundException => AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-        case e: IOException => AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
-        case e: Exception => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
+        if (!requiredMissing.isEmpty) {
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        }
+        val floor_number = (json \ "floor").as[String]
+        val buid = (json \ "buid").as[String]
+        val cut_k_features = (json \ "cut_k_features").asOpt[Int]
+        //Default 5 meter grid step
+        val h = (json \ "h").asOpt[Double].getOrElse(5.0)
+
+        if (!Floor.checkFloorNumberFormat(floor_number)) {
+          return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+        }
+        try {
+          val rm = getRadioMapMeanByBuildingFloor(buid = buid, floor_number = floor_number)
+          if (rm.isEmpty) {
+            return AnyResponseHelper.bad_request("Area not supported yet!")
+          } else {
+            val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
+              cut_k_features = cut_k_features, h = h)
+            val res = JsonObject.empty()
+            res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
+            res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.toList)))
+            return AnyResponseHelper.ok(res, "Successfully served ACCES map.")
+          }
+        } catch {
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: IOException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          case e: Exception => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
       }
+
+      inner(request)
   }
 
   private def getAccesMap(rm: RadioMapMean,
@@ -2192,7 +2363,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
     return (latlon_predict, crlbs)
   }
-
 
 
   private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String): Option[RadioMapMean] = {

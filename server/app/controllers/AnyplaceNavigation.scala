@@ -168,7 +168,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       }
       val coordinates_lat = (json \ "coordinates_lat").as[String]
       val coordinates_lon = (json \ "coordinates_lon").as[String]
-      val floor_number = (json \ "pfloor_number").as[String]
+      val floor_number = (json \ "floor_number").as[String]
       val puid_to = (json \ "pois_to").as[String]
       try {
         val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)

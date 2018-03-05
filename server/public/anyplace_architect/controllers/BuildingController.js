@@ -329,10 +329,10 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
                     });
 
                     var htmlContent = '<div class="infowindow-scroll-fix">'
-                        + '<h5 style="margin: 0">Building:</h5>'
+                        + '<h5>Building:</h5>'
                         + '<span>' + b.name + '</span>'
-                        + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
-                        + '<span>' + b.description + '</span>'
+                        + '<h5>Description:</h5>'
+                        + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
                         + '</div>';
 
                     marker.infoContent = htmlContent;

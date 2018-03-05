@@ -1099,9 +1099,9 @@ class CouchbaseDatasource private(hostname: String,
         *query.setRange(startkey, endkey)
         */
 
-      val viewQuery = SpatialViewQuery.from(designDoc, viewName)
-        .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-        .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
+      val viewQuery =ViewQuery.from(designDoc, viewName)
+        .startKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+        .endKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
       val response = couchbaseClient.query(viewQuery)
 
 

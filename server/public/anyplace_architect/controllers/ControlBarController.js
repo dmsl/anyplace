@@ -76,27 +76,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
     };
 
-    $scope.startApp = function () {
-        gapi.load('auth2', function () {
-            gapi.client.load('plus', 'v1').then(function () {
-                gapi.signin2.render('signin-button', {
-                    scope: 'https://www.googleapis.com/auth/plus.login',
-                    fetch_basic_profile: false
-                });
-                gapi.auth2.init({
-                    fetch_basic_profile: false,
-                    scope: 'https://www.googleapis.com/auth/plus.login'
-                }).then(
-                    function () {
-                        console.log('init');
-                        auth2 = gapi.auth2.getAuthInstance();
-                        auth2.isSignedIn.listen(updateSignIn);
-                        auth2.then(updateSignIn);
-                    });
-            });
-        });
-    };
-
     $scope.onSignIn = function (googleUser) {
 
         if ($scope.getCookie("username") === "") {

@@ -455,7 +455,7 @@ contextmenu {
 
 .infowindow-scroll-fix {
     line-height: 1.35;
-    overflow: hidden;
+    overflow: auto;
     white-space: nowrap;
 }
 
@@ -732,6 +732,11 @@ contextmenu {
     opacity: 0.5;
 }
 
+.infowindow-scroll-fix.h5, .infowindow-scroll-fix h5:before{
+    margin: 0;!important;
+}
 
-
-
+.infowindow-text-area{
+    resize: none;
+    border:0px
+}
