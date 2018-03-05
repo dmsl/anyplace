@@ -39,7 +39,7 @@ import java.io._
 import java.net.{HttpURLConnection, URL}
 import java.text.{NumberFormat, ParseException}
 import java.util
-import java.util.{Locale}
+import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
 import acces.GeoUtils
@@ -49,12 +49,12 @@ import datasources.{DatasourceException, ProxyDataSource}
 import db_models._
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
-
 import play.api.mvc._
 import utils._
 import play.api.libs.json.{JsObject, Json}
 import radiomapserver.{RadioMap, RadioMapMean}
 import acces.AccesRBF
+import radiomapserver.RadioMap.RadioMap
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer

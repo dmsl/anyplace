@@ -204,6 +204,16 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         GMapService.gmap.panTo(_latLngFromPoi(newVal));
         GMapService.gmap.setZoom(20);
 
+
+
+        // make previous selected POI's marker smaller
+        if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] && $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
+            $scope.myPoisHashT[prevSelectedPoi.puid].marker.setIcon(_getNormalPoiIconNormal(prevSelectedPoi));
+            if (GMapService.gmap.getZoom() <= HIDE_POIS_ZOOM_LEVEL) {
+                $scope.myPoisHashT[prevSelectedPoi.puid].marker.setVisible(false);
+            }
+        }
+
         // make marker bigger and open infowindow
         if (newVal.puid && $scope.myPoisHashT[newVal.puid] && $scope.myPoisHashT[newVal.puid].marker) {
             var m = $scope.myPoisHashT[newVal.puid].marker;
@@ -214,14 +224,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             if (m.infowindow) {
                 m.infowindow.setContent(m.tpl2);
                 m.infowindow.open(GMapService.gmap, m);
-            }
-        }
-
-        // make previous selected POI's marker smaller
-        if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] && $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
-            $scope.myPoisHashT[prevSelectedPoi.puid].marker.setIcon(_getNormalPoiIconNormal(prevSelectedPoi));
-            if (GMapService.gmap.getZoom() <= HIDE_POIS_ZOOM_LEVEL) {
-                $scope.myPoisHashT[prevSelectedPoi.puid].marker.setVisible(false);
             }
         }
 

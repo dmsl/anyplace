@@ -21,6 +21,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
         * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
         * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
+        * `server.port` - The port the server is running on. (e.g. `80 (htpp), 443 (https) `)     
         * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
         * `couchbase.port` - Couchbase's port. The default is `8091`.
         * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.

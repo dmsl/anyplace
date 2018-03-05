@@ -36,6 +36,7 @@
 package controllers
 
 import java.io._
+import java.net.URI
 import java.util._
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
@@ -47,6 +48,7 @@ import org.apache.commons.lang3.time.StopWatch
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.libs.F
 import radiomapserver.RadioMap
+import radiomapserver.RadioMap.RadioMap
 import utils._
 
 import scala.collection.JavaConversions._
@@ -152,13 +154,13 @@ object AnyplacePosition extends play.api.mvc.Controller {
           val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
             500)
           LPLogger.info("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
-          val dir = new File("radiomaps" + File.separatorChar + LPUtils.generateRandomToken() +
+          val dir = new File("radiomaps" + AnyplaceServerAPI.URL_SEPARATOR + LPUtils.generateRandomToken() +
             "_" +
             System.currentTimeMillis())
           if (!dir.mkdirs()) {
             null
           }
-          val radio = new File(dir.getAbsolutePath + File.separatorChar + "rss-log")
+          val radio = new File(dir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
@@ -182,7 +184,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           }
           try {
             val folder = dir.toString
-            val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt")
+            val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
               .getAbsolutePath
             var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
             var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
@@ -233,20 +235,20 @@ object AnyplacePosition extends play.api.mvc.Controller {
         if (!Floor.checkFloorNumberFormat(floor_number)) {
           return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         }
-        val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar +
+        val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number)
-        val radiomapFile = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar +
+        val radiomapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number +
-          File.separatorChar +
+          AnyplaceServerAPI.URL_SEPARATOR +
           "indoor-radiomap.txt")
-        val meanFile = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar +
+        val meanFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number +
-          File.separatorChar +
+          AnyplaceServerAPI.URL_SEPARATOR +
           "indoor-radiomap-mean.txt")
         if (rmapDir.exists() && radiomapFile.exists() && meanFile.exists()) {
           try {
             val folder = rmapDir.toString
-            val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt")
+            val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
               .getAbsolutePath
             var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
             var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
@@ -270,7 +272,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         if (!rmapDir.mkdirs()) {
           return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
         }
-        val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
+        val radio = new File(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
         var fout: FileOutputStream = null
         try {
           fout = new FileOutputStream(radio)
@@ -294,7 +296,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         try {
           val folder = rmapDir.toString
-          val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt")
+          val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
             .getAbsolutePath
           var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
           var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
@@ -375,7 +377,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::serveRadioMap(): " + json.toString)
-        val filePath = "radiomaps" + File.separatorChar + radio_folder + File.separatorChar +
+        val filePath = "radiomaps" + AnyplaceServerAPI.URL_SEPARATOR + radio_folder + AnyplaceServerAPI.URL_SEPARATOR +
           fileName
         LPLogger.info("requested: " + filePath)
         val file = new File(filePath)
@@ -396,9 +398,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
   def serveFrozenRadioMap(building: String, floor: String, fileName: String) = Action {
 
     def inner(): Result = {
-      val filePath = "radiomaps_frozen" + File.separatorChar + building + File.separatorChar +
+      val filePath = "radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + building + AnyplaceServerAPI.URL_SEPARATOR +
         floor +
-        File.separatorChar +
+        AnyplaceServerAPI.URL_SEPARATOR +
         fileName
       LPLogger.info("requested: " + filePath)
       val file = new File(filePath)
@@ -544,12 +546,12 @@ object AnyplacePosition extends play.api.mvc.Controller {
     if (!Floor.checkFloorNumberFormat(floor_number)) {
       return
     }
-    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar +
+    val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
       floor_number)
     if (!rmapDir.exists() && !rmapDir.mkdirs()) {
       return
     }
-    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
+    val radio = new File(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(radio)
@@ -573,7 +575,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
     }
     try {
       val folder = rmapDir.toString
-      val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt")
+      val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
         .getAbsolutePath
       var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
       var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
@@ -624,13 +626,13 @@ object AnyplacePosition extends play.api.mvc.Controller {
           val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
             range)
           LPLogger.info("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
-          val dir = new File("radiomaps" + File.separatorChar + LPUtils.generateRandomToken() +
+          val dir = new File("radiomaps" + AnyplaceServerAPI.URL_SEPARATOR + LPUtils.generateRandomToken() +
             "_" +
             System.currentTimeMillis())
           if (!dir.mkdirs()) {
             null
           }
-          val radio = new File(dir.getAbsolutePath + File.separatorChar + "rss-log")
+          val radio = new File(dir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
@@ -654,7 +656,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           }
           try {
             val folder = dir.toString
-            val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt")
+            val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
               .getAbsolutePath
             var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
             var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")

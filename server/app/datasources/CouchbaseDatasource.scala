@@ -1005,25 +1005,11 @@ class CouchbaseDatasource private(hostname: String,
     var currentFetched: Int = 0
     var rssEntry: JsonObject = null
 
-//    val key = JsonArray.from(buid, floor_number)
-//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").includeDocs(true)
-//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(key).includeDocs(true)
-//    for (row <- couchbaseClient.query(viewQuery)) {
-//      println(row)
-//      println(buid)
-//      println(row.key().asInstanceOf[JsonArray].get(0))
-//      println(buid == row.key().asInstanceOf[JsonArray].get(0))
-//    }
-
-//    println("totalRows:" + r.totalRows())
-
-//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
 
     do {
       var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
-//      var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(key)
       val res = couchbaseClient.query(viewQuery)
-      if (!(res.totalRows() > 0)) return totalFetched
+      if (res==null) return totalFetched
       currentFetched = 0
 
       for (row <- res.allRows()) {
