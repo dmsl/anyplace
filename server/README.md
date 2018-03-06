@@ -1,18 +1,18 @@
-# Anyplace v3 Installation Notes
+# Anyplace v3.2 Installation Notes
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
 
-# Anyplace v3 for administrators
+# Anyplace v3.2 for administrators
 
 ## Setup/Configuration
 
-  1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is expected.
+  1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3.2 has been tested with Couchbase 4.5, but compatibility with later versions is expected.
   
-  2. **Download Anyplace v3:**
+  2. **Download Anyplace v3.2:**
  
-    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
+    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-2.zip  
     #if you don't have wget, just download the file with a browser)
     
-    $ unzip anyplace_v3.zip
+    $ unzip anyplace_v3-2.zip
     #if you don't have unzip, just use any unzip tool (winzip, etc.)
 
   3. **Link Couchbase to Anyplace**
@@ -38,9 +38,9 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
-    $ cd anyplace_v3/bin
-    $ chmod +x anyplace_v3
-    $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
+    $ cd anyplace_v3-2/bin
+    $ chmod +x anyplace_v3-2
+    $ ./anyplace_v3-2  (alternatively use: $ nohup ./anyplace_v3-2 > anyplace.log 2>&1 )
     # To stop press Ctrl-C or kill the respective process
 
     # WINDOWS
