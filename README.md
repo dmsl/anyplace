@@ -16,6 +16,8 @@ We hope that you find our Anyplace Indoor Information Service useful for your re
 
 In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
+- "The Anatomy of the Anyplace Indoor Navigation Service", Demetrios Zeinalipour-Yazti and Christos Laoudias, ACM SIGSPATIAL Special (SIGSPATIAL '17), ACM Press, Vol. 9, pp. 3-10, 2017. Download: http://www.sigspatial.org/sigspatial-special-issues/sigspatial-special-volume-9-number-2-july-2017/04-Paper01_Anatomy.pdf
+
 - "Internet-Based Indoor Navigation Services", Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou, Georgios Chatzimilioudis,  IEEE Internet Computing, vol. 21, no. , pp. 54-63, July 2017, doi:10.1109/MIC.2017.2911420 Download: http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf
 
 - “Anyplace: A Crowdsourced Indoor Information Service”, Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti, Proceedings of the 16th IEEE International Conference on Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf
