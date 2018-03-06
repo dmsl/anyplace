@@ -62,7 +62,7 @@ The server entails all components to run the anyplace service on your own server
 - Executable (Binary): https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip
 - Source Code (including IntelliJ IDE SBT file) : https://github.com/dmsl/anyplace/archive/master.zip
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
-- Current Leaders: Kyriakos Georgiou, Constantinos Costa 
+- Current Leaders: Constantinos Costa, Kyriakos Georgiou, 
 
 #### > Viewer v3.2
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
