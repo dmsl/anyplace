@@ -1,4 +1,4 @@
-# AnyPlace v3.2 
+# AnyPlace v3.2 (March 2018)
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -26,7 +26,7 @@ Enjoy Anyplace!
 
 The Anyplace Team 
 	 
-Copyright (c) 2017, Data Management Systems Lab (DMSL), Department of Computer Science
+Copyright (c) 2018, Data Management Systems Lab (DMSL), Department of Computer Science
 University of Cyprus.
 
 All rights reserved.
