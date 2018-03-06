@@ -1,4 +1,4 @@
-# AnyPlace v3 
+# AnyPlace v3.2 
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -53,7 +53,7 @@ DEALINGS IN THE SOFTWARE.
 
 Short description of the contents included in this release.
 
-### A. Server v3.0.4
+### A. Server v3.2
 
 The server entails all components to run the anyplace service on your own server. 
 
@@ -62,27 +62,27 @@ The server entails all components to run the anyplace service on your own server
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Current Leaders: Kyriakos Georgiou, Constantinos Costa 
 
-#### > Viewer v3.0.4
+#### > Viewer v3.2
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
 
-#### > API v3.0.4
+#### > API v3.2
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_developers
 
-#### > Architect v3.0.4
+#### > Architect v3.2
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
 
-#### > Data Store v3.0.4
+#### > Data Store v3.2
 To setup Anyplace with Couchbase follow the general server instructions here:
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views 
 
-### B. Android v2.3.9 
+### B. Android v2.5 
 The Source code for the Anyplace Android Logger and Navigator (WiFi/IMU/IP Localization). Current Leader: Timotheos Constambeys. 
 - Try: https://play.google.com/store/apps/details?id=com.dmsl.anyplace
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/android
