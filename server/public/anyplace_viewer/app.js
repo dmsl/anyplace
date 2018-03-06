@@ -50,7 +50,7 @@ app.service('GMapService', function () {
         rotateControl: true,
         mapTypeControl: true,
         mapTypeControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_CENTER
+            position: google.maps.ControlPosition.LEFT_CENTER
         },
         scaleControl: true,
         streetViewControl: false,

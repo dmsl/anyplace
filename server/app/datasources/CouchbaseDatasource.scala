@@ -534,7 +534,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
     val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -560,7 +560,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -585,7 +585,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -610,7 +610,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -635,10 +635,9 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -660,10 +659,9 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
     var json: JsonObject = null
      var jsonCheck: JsonObject= null
 
@@ -1315,7 +1313,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").includeDocs(true).key(JsonArray.from(buid, floor)).group(true).reduce(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
     val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
