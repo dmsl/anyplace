@@ -9,10 +9,10 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
   
   2. **Download Anyplace v3.2:**
  
-    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3-2.zip  
+    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
     #if you don't have wget, just download the file with a browser)
     
-    $ unzip anyplace_v3-2.zip
+    $ unzip anyplace_v3.zip
     #if you don't have unzip, just use any unzip tool (winzip, etc.)
 
   3. **Link Couchbase to Anyplace**
@@ -38,9 +38,9 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
-    $ cd anyplace_v3-2/bin
-    $ chmod +x anyplace_v3-2
-    $ ./anyplace_v3-2  (alternatively use: $ nohup ./anyplace_v3-2 > anyplace.log 2>&1 )
+    $ cd anyplace_v3/bin
+    $ chmod +x anyplace_v3
+    $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
     # To stop press Ctrl-C or kill the respective process
 
     # WINDOWS
