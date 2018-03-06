@@ -82,14 +82,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (json.get("user_id") != null)
           return json.get("user_id").toString
         else if (json.get("sub") != null)
-          return json.get("sub").toString
+          return appendToOwnerId(json.get("sub").toString)
       } catch {
         case ioe: IOException => null
       }
     null
   }
 
-  private def appendToOwnerId(ownerId: String) = ownerId + "_google"
+  //Make the id to the appropriate format
+  private def appendToOwnerId(ownerId: String) = if (ownerId.contains("_google")) ownerId else ownerId + "_google"
 
   private def sendGet(url: String) = {
     val obj = new URL(url)
@@ -2201,15 +2202,18 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
+    // Admin
+    if (userId.equals(ADMIN_ID)) return true
     if (building != null && building.get("owner_id") != null &&
       building.getString("owner_id").equals(userId)) return true
     false
   }
 
   private def isBuildingCoOwner(building: JsonObject, userId: String): Boolean = {
-
+    // Admin
+    if (userId.equals(ADMIN_ID)) return true
     if (building != null) {
-      val cws: JsonArray = building.getArray("co_owners")
+      val cws = building.getArray("co_owners")
       if (cws != null) {
         val it = cws.iterator()
         while (it.hasNext) if (it.next().toString.equals(userId)) return true

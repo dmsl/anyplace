@@ -199,21 +199,21 @@ app.factory('AnyplaceService', function () {
         if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
+        return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
     };
 
     anyService.getCampusViewerUrl = function () {
         if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
-        return "https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
+        return "https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
     };
 
     anyService.getCampusViewerUrlEncoded = function () {
         if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
-        return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
+        return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
     //new marileni 2/2
