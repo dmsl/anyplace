@@ -469,7 +469,7 @@ body {
     font: normal normal normal normal 18px/27px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     margin: 10px 0px 0px 10px;
     position: absolute;
-    bottom: 20px;
+    top: 40%;
     right: 10px;
 }
 
