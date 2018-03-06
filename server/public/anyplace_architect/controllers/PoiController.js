@@ -623,7 +623,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         + '<option value="">Select POI Type</option>'
                         + '</select>'
                         + '</fieldset class="form-group">'
-                        + '<fieldset class="form-group">Or ender your one type name:'
+                        + '<fieldset class="form-group">Or enter your own type:'
                         + '<input ng-model="myPois[' + i + '].pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
                         + '</fieldset>'
                         + '<fieldset class="form-group">'

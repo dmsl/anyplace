@@ -1,9 +1,9 @@
 {
-  "name": "AnyplaceViewerKG",
-  "version": "2.0.1",
+  "name": "AnyplaceViewer",
+  "version": "3.2.0",
   "homepage": "http://anyplace.cs.ucy.ac.cy/viewer/",
   "authors": [
-    "Kyriakos Georgiou"
+    "Costantinos Costa","Kyriakos Georgiou"
   ],
   "main": "app.js",
   "license": "MIT",
@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "add-to-homescreen": "~3.1.1",
-    "angular": "*",
+    "angular": "1.3.20",
     "angular-route": "~1.3.14",
     "angular-loading-bar": "~0.7.1",
     "angular-bootstrap": "~0.12.0",
@@ -32,5 +32,8 @@
     "angular-aria": "1.5.8",
     "angular-animate": "1.5.8",
     "angular-material": "^1.1.4"
+  },
+  "resolutions": {
+    "angular": "~1.3.20"
   }
 }

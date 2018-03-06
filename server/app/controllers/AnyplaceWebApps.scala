@@ -46,8 +46,7 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
   }
 
   def serveArchitect2(file: String) = Action {
-//    val archiDir = "public/anyplace_architect"
-val archiDir = "public/anyplace_architect_test"
+    val archiDir = "public/anyplace_architect"
     serveFile(archiDir, file)
   }
 
@@ -145,7 +144,7 @@ val archiDir = "public/anyplace_architect_test"
     val file = Play.application().resourceAsStream(reqFile)
 
     if (file != null)
-        Ok(scala.io.Source.fromInputStream(file, "UTF-8").mkString).as("text/html")
+      Ok(scala.io.Source.fromInputStream(file, "UTF-8").mkString).as("text/html")
     else
       NotFound
   }

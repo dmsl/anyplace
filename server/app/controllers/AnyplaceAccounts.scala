@@ -46,9 +46,8 @@ import play.mvc.Controller
 import utils.AnyResponseHelper
 import utils.JsonUtils
 import utils.LPLogger
-
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent, Request, Result}
 
 
 object AnyplaceAccounts extends Controller {
@@ -61,25 +60,30 @@ object AnyplaceAccounts extends Controller {
   def fetchAllAccounts() = Action {
     implicit request =>
 
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = JsonObject.empty()
-      LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): " + json.toString)
-      try {
-        val accounts: util.List[JsonObject] = ProxyDataSource.getIDatasource().getAllAccounts()
-        val res: JsonObject = JsonObject.empty()
-        res.put("accounts", JsonArray.from(accounts))
-        AnyResponseHelper.ok(res, "Successfully retrieved all accounts!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = JsonObject.empty()
+        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): " + json.toString)
+        try {
+          val accounts: util.List[JsonObject] = ProxyDataSource.getIDatasource().getAllAccounts()
+          val res: JsonObject = JsonObject.empty()
+          res.put("accounts", JsonArray.from(accounts))
+          AnyResponseHelper.ok(res, "Successfully retrieved all accounts!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
 
+        }
       }
+
+      inner(request)
   }
+
 
   /**
     * Fetches the account with the AUID passed in.
@@ -89,40 +93,45 @@ object AnyplaceAccounts extends Controller {
     */
   def fetchAccount(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody()
-      LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
-      // check if there is any required parameter missing
-      val notFound: util.List[String] =
-        JsonUtils.requirePropertiesInJson(json, "auid")
-      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.requiredFieldsMissing(notFound)
-      }
-      // if the auid in the route is empty then try to get the one from the POST json body
-      if (auid == null || auid.trim().isEmpty)
-        auid = json.\\("auid").mkString
-      try {
-        var storedAccount: JsonObject = null
-        storedAccount =
-          ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
-        if (storedAccount ==
-          null) {
-          AnyResponseHelper.bad_request("Account could not be found!")
-        }
-        AnyResponseHelper.ok(storedAccount,
-          "Successfully created account!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
+        // check if there is any required parameter missing
+        val notFound: util.List[String] =
+          JsonUtils.requirePropertiesInJson(json, "auid")
+        if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.requiredFieldsMissing(notFound)
+        }
+        // if the auid in the route is empty then try to get the one from the POST json body
+        if (auid == null || auid.trim().isEmpty)
+          auid = json.\\("auid").mkString
+        try {
+          var storedAccount: JsonObject = null
+          storedAccount =
+            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          if (storedAccount ==
+            null) {
+            return AnyResponseHelper.bad_request("Account could not be found!")
+          }
+          return AnyResponseHelper.ok(storedAccount,
+            "Successfully created account!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
   /**
@@ -133,35 +142,40 @@ object AnyplaceAccounts extends Controller {
     */
   def deleteAccount(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody()
-      LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
-      // check if there is any required parameter missing
-      val notFound: util.List[String] =
-        JsonUtils.requirePropertiesInJson(json, "auid")
-      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.requiredFieldsMissing(notFound)
-      }
-      // if the auid in the route is empty then try to get the one from the POST json body
-      if (auid == null || auid.trim().isEmpty)
-        auid = json.\\("auid").mkString
-      try {
-        if (!ProxyDataSource.getIDatasource.deleteFromKey(auid)) {
-          AnyResponseHelper.bad_request("Account could not be deleted!")
-        }
-        AnyResponseHelper.ok("Successfully deleted account!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
+        // check if there is any required parameter missing
+        val notFound: util.List[String] =
+          JsonUtils.requirePropertiesInJson(json, "auid")
+        if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.requiredFieldsMissing(notFound)
+        }
+        // if the auid in the route is empty then try to get the one from the POST json body
+        if (auid == null || auid.trim().isEmpty)
+          auid = json.\\("auid").mkString
+        try {
+          if (!ProxyDataSource.getIDatasource.deleteFromKey(auid)) {
+            return AnyResponseHelper.bad_request("Account could not be deleted!")
+          }
+          return AnyResponseHelper.ok("Successfully deleted account!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
   /**
@@ -172,57 +186,62 @@ object AnyplaceAccounts extends Controller {
     */
   def UpdateAccount(auid: String)(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody()
-      LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
-      // check if there is any required parameter missing
-      val notFound: util.List[String] =
-        JsonUtils.requirePropertiesInJson(json, "auid")
-      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.requiredFieldsMissing(notFound)
-      }
-      // if the auid in the route is empty then try to get the one from the POST json body
-      if (auid == null || auid.trim().isEmpty)
-        auid = json.\\("auid").mkString
-      try {
-        // fetch the stored object
-        var storedAccount: JsonObject = null
-        storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
-        if (storedAccount == null) {
-          AnyResponseHelper.bad_request(
-            "Account could not be updated! Try again...")
-        }
-        // apply any change made
-        val updateableFields: Array[String] =
-          AccountModel.getChangeableProperties()
-        for (s <- updateableFields) {
-          val value = json.\\(s)
-          if (value.asInstanceOf[Boolean]) {
-            storedAccount.put(s, value.asInstanceOf[Boolean])
-          } else {
-            val nv: String = value.mkString
-            if (nv == null || nv.trim().isEmpty) //continue
-              storedAccount.put(s, nv)
-          }
-        }
-        // save the changes
-        if (!ProxyDataSource.getIDatasource().replaceJsonDocument(auid, 0, storedAccount.toString)) {
-          AnyResponseHelper.bad_request(
-            "Account could not be updated! Try again...")
-        }
-        AnyResponseHelper.ok("Successfully updated account!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
+        // check if there is any required parameter missing
+        val notFound: util.List[String] =
+          JsonUtils.requirePropertiesInJson(json, "auid")
+        if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.requiredFieldsMissing(notFound)
+        }
+        // if the auid in the route is empty then try to get the one from the POST json body
+        if (auid == null || auid.trim().isEmpty)
+          auid = json.\\("auid").mkString
+        try {
+          // fetch the stored object
+          var storedAccount: JsonObject = null
+          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          if (storedAccount == null) {
+            return AnyResponseHelper.bad_request(
+              "Account could not be updated! Try again...")
+          }
+          // apply any change made
+          val updateableFields: Array[String] =
+            AccountModel.getChangeableProperties()
+          for (s <- updateableFields) {
+            val value = json.\\(s)
+            if (value.asInstanceOf[Boolean]) {
+              storedAccount.put(s, value.asInstanceOf[Boolean])
+            } else {
+              val nv: String = value.mkString
+              if (nv == null || nv.trim().isEmpty) //continue
+                storedAccount.put(s, nv)
+            }
+          }
+          // save the changes
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(auid, 0, storedAccount.toString)) {
+            return AnyResponseHelper.bad_request(
+              "Account could not be updated! Try again...")
+          }
+          return AnyResponseHelper.ok("Successfully updated account!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
   // check if there is any required parameter missing
@@ -236,41 +255,46 @@ object AnyplaceAccounts extends Controller {
     */
   def fetchAccountClients(auid: String)(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody()
-      LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
-      // check if there is any required parameter missing
-      val notFound: util.List[String] =
-        JsonUtils.requirePropertiesInJson(json, "auid")
-      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.requiredFieldsMissing(notFound)
-      }
-      // if the auid in the route is empty then try to get the one from the POST json body
-      if (auid == null || auid.trim().isEmpty)
-        auid = json.\\("auid").mkString
-      try {
-        var storedAccount: JsonObject = null
-        storedAccount =
-          ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
-        if (storedAccount == null) {
-          AnyResponseHelper.bad_request("Account could not be found!")
-        }
-        val json_clients = storedAccount.getArray("clients")
-        val resp: JsonObject = JsonObject.empty()
-        resp.put("clients", json_clients)
-        AnyResponseHelper.ok(resp, "Successfully fetched account clients!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
+        // check if there is any required parameter missing
+        val notFound: util.List[String] =
+          JsonUtils.requirePropertiesInJson(json, "auid")
+        if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.requiredFieldsMissing(notFound)
+        }
+        // if the auid in the route is empty then try to get the one from the POST json body
+        if (auid == null || auid.trim().isEmpty)
+          auid = json.\\("auid").mkString
+        try {
+          var storedAccount: JsonObject = null
+          storedAccount =
+            ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          if (storedAccount == null) {
+            return AnyResponseHelper.bad_request("Account could not be found!")
+          }
+          val json_clients = storedAccount.getArray("clients")
+          val resp: JsonObject = JsonObject.empty()
+          resp.put("clients", json_clients)
+          return AnyResponseHelper.ok(resp, "Successfully fetched account clients!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
   /**
@@ -281,53 +305,58 @@ object AnyplaceAccounts extends Controller {
     */
   def addAccountClient(auid: String)(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody()
-      LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
-      // check if there is any required parameter missing
-      val notFound: util.List[String] =
-        JsonUtils.requirePropertiesInJson(json, "auid", "grant_type")
-      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.requiredFieldsMissing(notFound)
-      }
-      // if the auid in the route is empty then try to get the one from the POST json body
-      if (auid == null || auid.trim().isEmpty)
-        auid = json.\\("auid").mkString
-      val grant_type: String = json.\\("grant_type").mkString
-      val scope: String = json.\\("scope").mkString
-      val redirect_uri: String = json.\\("redirect_uri").mkString
-      if (!GrantHandlerFactory.isGrantTypeSupported(grant_type)) {
-        AnyResponseHelper.bad_request("grant_type specified is not supported!")
-      }
-      try {
-        var storedAccount: JsonObject = null
-        storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
-        if (storedAccount == null) {
-          AnyResponseHelper.bad_request("Account could not be found!")
-        }
-        val account: AccountModel = new AccountModel(storedAccount)
-        account.addNewClient(grant_type, scope, redirect_uri)
-        // save the changes
-        if (!ProxyDataSource.getIDatasource().replaceJsonDocument(
-          auid,
-          0,
-          account.toJson().toString)) {
-          AnyResponseHelper.bad_request(
-            "Account could not be updated! Try again...")
-        }
-        AnyResponseHelper.ok("Successfully added account client!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
+        // check if there is any required parameter missing
+        val notFound: util.List[String] =
+          JsonUtils.requirePropertiesInJson(json, "auid", "grant_type")
+        if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.requiredFieldsMissing(notFound)
+        }
+        // if the auid in the route is empty then try to get the one from the POST json body
+        if (auid == null || auid.trim().isEmpty)
+          auid = json.\\("auid").mkString
+        val grant_type: String = json.\\("grant_type").mkString
+        val scope: String = json.\\("scope").mkString
+        val redirect_uri: String = json.\\("redirect_uri").mkString
+        if (!GrantHandlerFactory.isGrantTypeSupported(grant_type)) {
+          return AnyResponseHelper.bad_request("grant_type specified is not supported!")
+        }
+        try {
+          var storedAccount: JsonObject = null
+          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          if (storedAccount == null) {
+            return AnyResponseHelper.bad_request("Account could not be found!")
+          }
+          val account: AccountModel = new AccountModel(storedAccount)
+          account.addNewClient(grant_type, scope, redirect_uri)
+          // save the changes
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(
+            auid,
+            0,
+            account.toJson().toString)) {
+            return AnyResponseHelper.bad_request(
+              "Account could not be updated! Try again...")
+          }
+          return AnyResponseHelper.ok("Successfully added account client!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
   /**
@@ -338,41 +367,46 @@ object AnyplaceAccounts extends Controller {
     */
   def fetchAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
-      // check the arguments
-      if ((auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.bad_request("Invalid account id provided!")
-      }
-      if ((client_id == null || client_id.trim().isEmpty)) {
-        AnyResponseHelper.bad_request("Invalid client id provided!")
-      }
-      try {
-        var storedAccount: JsonObject = null
-        storedAccount = ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
-        if (storedAccount == null) {
-          AnyResponseHelper.bad_request("Account could not be found!")
-        }
-        val account: AccountModel = new AccountModel(storedAccount)
-        val client: AccountModel.ClientModel = account.getClient(client_id)
-        if (client == null) {
-          AnyResponseHelper.bad_request("Account client could not be found!")
-        }
-        AnyResponseHelper.ok(client.toJson(),
-          "Successfully fetched account client!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
+        // check the arguments
+        if ((auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.bad_request("Invalid account id provided!")
+        }
+        if ((client_id == null || client_id.trim().isEmpty)) {
+          AnyResponseHelper.bad_request("Invalid client id provided!")
+        }
+        try {
+          var storedAccount: JsonObject = null
+          storedAccount = ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          if (storedAccount == null) {
+            return AnyResponseHelper.bad_request("Account could not be found!")
+          }
+          val account: AccountModel = new AccountModel(storedAccount)
+          val client: AccountModel.ClientModel = account.getClient(client_id)
+          if (client == null) {
+            return AnyResponseHelper.bad_request("Account client could not be found!")
+          }
+          return AnyResponseHelper.ok(client.toJson(),
+            "Successfully fetched account client!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
   /**
@@ -383,48 +417,53 @@ object AnyplaceAccounts extends Controller {
     */
   def deleteAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
     implicit request =>
-      var auid: String = auid_in
-      // create the Request and check it
-      val anyReq: OAuth2Request = new OAuth2Request(request)
-      if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-      }
-      val json = anyReq.getJsonBody
-      LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
-      // check the arguments
-      if ((auid == null || auid.trim().isEmpty)) {
-        AnyResponseHelper.bad_request("Invalid account id provided!")
-      }
-      if ((client_id == null || client_id.trim().isEmpty)) {
-        AnyResponseHelper.bad_request("Invalid client id provided!")
-      }
-      try {
-        var storedAccount: JsonObject = null
-        storedAccount =
-          ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
-        if (storedAccount == null) {
-          AnyResponseHelper.bad_request("Account could not be found!")
-        }
-        val account: AccountModel = new AccountModel(storedAccount)
-        if (!account.deleteClient(client_id)) {
-          AnyResponseHelper.bad_request("Account client could not be found!")
-        }
-        // save the changes
-        if (!ProxyDataSource.getIDatasource.replaceJsonDocument(
-          auid,
-          0,
-          account.toJson().toString)) {
-          AnyResponseHelper.bad_request(
-            "Account could not be updated! Try again...")
-        }
-        AnyResponseHelper.ok("Successfully deleted account client!")
-      } catch {
-        case e: DatasourceException =>
-          AnyResponseHelper.internal_server_error(
-            "Server Internal Error [" + e.getMessage + "]")
 
+      def inner(request: Request[AnyContent]): Result = {
+        var auid: String = auid_in
+        // create the Request and check it
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
+        // check the arguments
+        if ((auid == null || auid.trim().isEmpty)) {
+          return AnyResponseHelper.bad_request("Invalid account id provided!")
+        }
+        if ((client_id == null || client_id.trim().isEmpty)) {
+          return AnyResponseHelper.bad_request("Invalid client id provided!")
+        }
+        try {
+          var storedAccount: JsonObject = null
+          storedAccount =
+            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          if (storedAccount == null) {
+            return AnyResponseHelper.bad_request("Account could not be found!")
+          }
+          val account: AccountModel = new AccountModel(storedAccount)
+          if (!account.deleteClient(client_id)) {
+            return AnyResponseHelper.bad_request("Account client could not be found!")
+          }
+          // save the changes
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(
+            auid,
+            0,
+            account.toJson().toString)) {
+            return AnyResponseHelper.bad_request(
+              "Account could not be updated! Try again...")
+          }
+          return AnyResponseHelper.ok("Successfully deleted account client!")
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error(
+              "Server Internal Error [" + e.getMessage + "]")
+
+        }
       }
+
+      inner(request)
   }
 
 }

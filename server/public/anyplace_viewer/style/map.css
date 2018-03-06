@@ -770,3 +770,13 @@ body {
 #buildings-btn {
     padding: 10px;
 }
+
+
+.infowindow-scroll-fix.h5, .infowindow-scroll-fix h5:before{
+    margin: 0;!important;
+}
+
+.infowindow-text-area{
+    resize: none;
+    border:0px
+}

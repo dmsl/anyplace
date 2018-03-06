@@ -55,6 +55,8 @@ import play.{Logger, Play}
 import utils.{GeoPoint, JsonUtils, LPLogger}
 //remove if not needed
 import scala.collection.JavaConversions._
+import scala.util.control._
+
 
 object CouchbaseDatasource {
 
@@ -193,7 +195,7 @@ class CouchbaseDatasource private(hostname: String,
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.insert(json, PersistTo.ONE).toBlocking.first()
+    val db_res = client.upsert(json, PersistTo.MASTER).toBlocking.first()
     db_res.equals(json)
   }
 
@@ -201,7 +203,7 @@ class CouchbaseDatasource private(hostname: String,
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
     val json = JsonDocument.create(key, content)
-    val db_res = client.replace(json, PersistTo.ONE).toBlocking.first()
+    val db_res = client.replace(json, PersistTo.MASTER).toBlocking.first()
     db_res.equals(json)
   }
 
@@ -248,7 +250,7 @@ class CouchbaseDatasource private(hostname: String,
     building.put("floors", floors)
     val pois = JsonArray.empty()
     for (p <- poisByBuildingAsJson(key)) {
-      if (p.getString("pois_type") == Poi.POIS_TYPE_NONE) //continue
+      if (!p.getString("pois_type").equalsIgnoreCase(Poi.POIS_TYPE_NONE)) //continue
         pois.add(p)
     }
     building.put("pois", floors)
@@ -262,73 +264,66 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.totalRows()) {
-      return Collections.emptyList()
-    }
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          json.removeKey("owner_id")
-          json.removeKey("geometry")
-          result.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        json.removeKey("owner_id")
+        json.removeKey("geometry")
+        result.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     result
   }
 
   override def poisByBuildingFloorAsMap(buid: String, floor_number: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    if (0 == res.totalRows) {
-      return Collections.emptyList()
+    val result = new util.ArrayList[HashMap[String, String]]()
+    for (row <- res.allRows()) {
+      result.add(JsonUtils.getHashMapStrStr(row.document().content()))
     }
-    val result = new ArrayList[HashMap[String, String]]()
-
-      for (row <- res.allRows()) {
-        result.add(JsonUtils.getHashMapStrStr(row.document().toString))
-      }
     result
   }
 
   override def poisByBuildingAsJson(buid: String): List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     val pois = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          json.removeKey("owner_id")
-          json.removeKey("geometry")
-          pois.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        json.removeKey("owner_id")
+        json.removeKey("geometry")
+        pois.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     pois
   }
 
   override def poisByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
 
     val pois = new ArrayList[HashMap[String, String]]()
 
-      for (row <- res.allRows()) {
-        pois.add(JsonUtils.getHashMapStrStr(row.document().toString))
-      }
+    for (row <- res.allRows()) {
+      pois.add(JsonUtils.getHashMapStrStr(row.document().content()))
+    }
     pois
   }
 
@@ -344,22 +339,22 @@ class CouchbaseDatasource private(hostname: String,
     }
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          json.removeKey("owner_id")
-          floors.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        json.removeKey("owner_id")
+        floors.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     floors
   }
 
   @throws[DatasourceException] override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = {
     val result = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").key((buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     println("couchbase results: " + res.totalRows)
@@ -368,59 +363,59 @@ class CouchbaseDatasource private(hostname: String,
     }
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          json.removeKey("owner_id")
-          result.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        json.removeKey("owner_id")
+        result.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     result
   }
 
   override def connectionsByBuildingAsJson(buid: String): List[JsonObject] = {
 
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
     val conns = new ArrayList[JsonObject]()
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          if (json.getString("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR)) //continue
-            conns.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        if (!json.getString("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR)) //continue
+          conns.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     conns
   }
 
 
   override def connectionsByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
     var hm: HashMap[String, String] = null
     val conns = new ArrayList[HashMap[String, String]]()
 
-      for (row <- res.allRows()) {
-        hm = JsonUtils.getHashMapStrStr(row.document().toString)
-        if (hm.get("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR)) //continue
-          conns.add(hm)
-      }
+    for (row <- res.allRows()) {
+      hm = JsonUtils.getHashMapStrStr(row.document().content())
+      if (!hm.get("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR))
+        conns.add(hm)
+    }
     conns
   }
 
   override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").key(JsonArray.from(buid, floor_number))
+    val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
     if (0 == res.totalRows) {
@@ -429,57 +424,57 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          json.removeKey("owner_id")
-          result.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        json.removeKey("owner_id")
+        result.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     result
   }
 
   override def deleteAllByBuilding(buid: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_buid").key((buid))
+    val viewQuery = ViewQuery.from("nav", "all_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
-      for (row <- res.allRows()) {
-        val id = row.id()
-        val db_res = couchbaseClient.remove(id, PersistTo.ONE)
-        try {
-          if (db_res.id.ne(id)) {
-            all_items_failed.add(id)
-          } else {
-          }
-        } catch {
-          case e: Exception => all_items_failed.add(id)
+    for (row <- res.allRows()) {
+      val id = row.id()
+      val db_res = couchbaseClient.remove(id, PersistTo.ONE)
+      try {
+        if (db_res.id.ne(id)) {
+          all_items_failed.add(id)
+        } else {
         }
+      } catch {
+        case e: Exception => all_items_failed.add(id)
       }
+    }
     all_items_failed
   }
 
   override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_floor").key((buid))
+    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key((buid))
     val res = couchbaseClient.query(viewQuery)
 
-      for (row <- res.allRows()) {
-        val id = row.id()
-        val db_res = couchbaseClient.remove(id, PersistTo.ONE)
-        try {
-          if (db_res.id.ne(id)) {
-            all_items_failed.add(id)
-          } else {
-          }
-        } catch {
-          case e: Exception => all_items_failed.add(id)
+    for (row <- res.allRows()) {
+      val id = row.id()
+      val db_res = couchbaseClient.remove(id, PersistTo.ONE)
+      try {
+        if (db_res.id.ne(id)) {
+          all_items_failed.add(id)
+        } else {
         }
+      } catch {
+        case e: Exception => all_items_failed.add(id)
       }
+    }
     all_items_failed
   }
 
@@ -494,22 +489,22 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByPoi(puid: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_pois").key((puid))
+    val viewQuery = ViewQuery.from("nav", "all_by_pois").includeDocs(true).key((puid))
     val res = couchbaseClient.query(viewQuery)
 
 
-      for (row <- res.allRows()) {
-        val id = row.id()
-        val db_res = couchbaseClient.remove(id, PersistTo.ONE)
-        try {
-          if (db_res.id.ne(id)) {
-            all_items_failed.add(id)
-          } else {
-          }
-        } catch {
-          case e: Exception => all_items_failed.add(id)
+    for (row <- res.allRows()) {
+      val id = row.id()
+      val db_res = couchbaseClient.remove(id, PersistTo.ONE)
+      try {
+        if (db_res.id.ne(id)) {
+          all_items_failed.add(id)
+        } else {
         }
+      } catch {
+        case e: Exception => all_items_failed.add(id)
       }
+    }
     all_items_failed
   }
 
@@ -522,26 +517,27 @@ class CouchbaseDatasource private(hostname: String,
     println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.key().asInstanceOf[JsonObject]
-          json.put("weight", row.value().toString)
-          points.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.key().asInstanceOf[JsonObject]
+        json.put("weight", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     points
   }
 
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val startkey=JsonArray.from(buid, floor)
-    val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val startkey = JsonArray.from(buid, floor)
+    val endkey = JsonArray.from(buid, floor, "90", "180")
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
+    println("couchbase results: " + res.totalRows())
     println("couchbase results: " + res.totalRows())
     var json: JsonObject = null
       for (row <- res.allRows()) {
@@ -555,7 +551,6 @@ class CouchbaseDatasource private(hostname: String,
         } catch {
           case e: IOException =>
         }
-      }
     }
     points
   }
@@ -565,7 +560,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -590,7 +585,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -615,7 +610,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -640,7 +635,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -665,7 +660,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey=JsonArray.from(buid, floor)
     val endkey=JsonArray.from(buid, floor,"90","180")
-    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").includeDocs(true).startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
     println("couchbase results: " + res.totalRows())
@@ -698,7 +693,7 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByXsYs(id: String,floor: String,x: String,y: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").key((id))
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).key((id))
 
     val res = couchbaseClient.query(viewQuery)
       for (row <- res.allRows()) {
@@ -788,17 +783,17 @@ class CouchbaseDatasource private(hostname: String,
     println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          json.removeKey("geometry")
-          json.removeKey("owner_id")
-          json.removeKey("co_owners")
-          buildings.add(json)
-        } catch {
-          case e: Exception =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        json.removeKey("geometry")
+        json.removeKey("owner_id")
+        json.removeKey("co_owners")
+        buildings.add(json)
+      } catch {
+        case e: Exception =>
       }
+    }
     buildings
   }
 
@@ -809,21 +804,21 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
 
-      for (row <- res) {
-        try {
-          json = row.document().content()
-          json.removeKey("geometry")
-          json.removeKey("owner_id")
-          json.removeKey("co_owners")
-          buildings.add(json)
-        } catch {
-          case e: Exception =>
-        }
+    for (row <- res) {
+      try {
+        json = row.document().content()
+        json.removeKey("geometry")
+        json.removeKey("owner_id")
+        json.removeKey("co_owners")
+        buildings.add(json)
+      } catch {
+        case e: Exception =>
       }
+    }
     buildings
   }
 
-  override def getAllBuildingsNearMe(owner_id:String, lat: Double, lng: Double): List[JsonObject] = {
+  override def getAllBuildingsNearMe(owner_id: String, lat: Double, lng: Double): List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
 
@@ -839,8 +834,8 @@ class CouchbaseDatasource private(hostname: String,
       for (row <- res) {
         try {
           json = row.document().content()
-          val pub=json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
-          val owner=json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").toList.contains(owner_id)
+          val pub = json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
+          val owner = json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").toList.contains(owner_id)
           if (pub || owner) {
             json.removeKey("geometry")
             json.removeKey("owner_id")
@@ -927,10 +922,8 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    System.out.println("couchbase results: " + res.totalRows)
     var json: JsonObject = null
-    if (res.nonEmpty)
-      for (row <- res) {
+      for (row <- res.allRows()) {
         try {
           json = row.document().content()
           var cuid = json.getString("cuid")
@@ -991,11 +984,10 @@ class CouchbaseDatasource private(hostname: String,
         } catch {
           case e: IOException => //continue
         }
-        if (rssEntry.getString("floor") != floor_number) {
-          //continue
+        if (rssEntry.getString("floor") == floor_number) {
+          floorFetched += 1
+          writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
         }
-        floorFetched += 1
-        writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
       }
       totalFetched += currentFetched
       LPLogger.info("total fetched: " + totalFetched)
@@ -1013,39 +1005,25 @@ class CouchbaseDatasource private(hostname: String,
     var currentFetched: Int = 0
     var rssEntry: JsonObject = null
 
-//    val key = JsonArray.from(buid, floor_number)
-//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").includeDocs(true)
-//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(key).includeDocs(true)
-//    for (row <- couchbaseClient.query(viewQuery)) {
-//      println(row)
-//      println(buid)
-//      println(row.key().asInstanceOf[JsonArray].get(0))
-//      println(buid == row.key().asInstanceOf[JsonArray].get(0))
-//    }
-
-//    println("totalRows:" + r.totalRows())
-
-//    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
 
     do {
       var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
-//      var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(key)
       val res = couchbaseClient.query(viewQuery)
-      if (!(res.totalRows() > 0)) return totalFetched
+      if (res==null) return totalFetched
       currentFetched = 0
 
-        for (row <- res.allRows()) {
-          currentFetched += 1
-          try {
-            rssEntry = row.document().content()
-          } catch {
-            case e: IOException => //continue
-          }
-          writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
+      for (row <- res.allRows()) {
+        currentFetched += 1
+        try {
+          rssEntry = row.document().content()
+        } catch {
+          case e: IOException => //continue
         }
+        writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
+      }
       totalFetched += currentFetched
       LPLogger.info("total fetched: " + totalFetched)
-    } while (currentFetched >= queryLimit);
+    } while (currentFetched >= queryLimit)
     writer.flush()
     writer.close()
     totalFetched
@@ -1065,16 +1043,17 @@ class CouchbaseDatasource private(hostname: String,
     }
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          if (row.document() == null) //continue
-            json = row.document().content()
+    for (row <- res.allRows()) {
+      try {
+        if (row.document() != null) {
+          json = row.document().content()
           json.removeKey("doctype")
           accounts.add(json)
-        } catch {
-          case e: IOException =>
         }
+      } catch {
+        case e: IOException =>
       }
+    }
     accounts
   }
 
@@ -1083,9 +1062,9 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("radio", "tempview").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
-      for (row <- res.allRows()) {
-        deleteFromKey(row.key().toString)
-      }
+    for (row <- res.allRows()) {
+      deleteFromKey(row.key().toString)
+    }
     true
   }
 
@@ -1106,9 +1085,9 @@ class CouchbaseDatasource private(hostname: String,
         *query.setRange(startkey, endkey)
         */
 
-      val viewQuery = SpatialViewQuery.from(designDoc, viewName)
-        .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-        .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
+      val viewQuery =ViewQuery.from(designDoc, viewName)
+        .startKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+        .endKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
       val response = couchbaseClient.query(viewQuery)
 
 
@@ -1156,14 +1135,14 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          result.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        result.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     result
   }
 
@@ -1178,14 +1157,14 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          result.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        result.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     result
   }
 
@@ -1199,14 +1178,14 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-      for (row <- res.allRows()) {
-        try {
-          json = row.document().content()
-          result.add(json)
-        } catch {
-          case e: IOException =>
-        }
+    for (row <- res.allRows()) {
+      try {
+        json = row.document().content()
+        result.add(json)
+      } catch {
+        case e: IOException =>
       }
+    }
     result
   }
 
@@ -1317,9 +1296,7 @@ class CouchbaseDatasource private(hostname: String,
         tokenModel.toJson().toString,
         tokenModel.getExpiresIn().toInt, TimeUnit.MILLISECONDS)
 
-      try if (!db_res) {
-        //continue
-      } else {
+      try if (db_res) {
         return tokenModel
       } catch {
         case e: Exception =>
@@ -1338,7 +1315,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
+    val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").includeDocs(true).key(JsonArray.from(buid, floor)).group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
     val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
@@ -1481,19 +1458,13 @@ class CouchbaseDatasource private(hostname: String,
     var flag = false
     var flag2 = false
     var flag3 = false
+
     if (letters.compareTo(lastletters) != 0) {
       lastletters = letters
       wordsELOT = new util.ArrayList[util.ArrayList[String]]
       var j = 0
-      while ( {
-        j < words.length
-      }) {
-        wordsELOT.add(greeklishTogreekList(words(j).toLowerCase))
-
-        {
-          j += 1;
-          j - 1
-        }
+      for (word <- words) {
+        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
       }
     }
     for (json <- pois) {
@@ -1501,31 +1472,42 @@ class CouchbaseDatasource private(hostname: String,
       flag2 = true
       flag3 = true
       var j = 0
-      for (w <- words if !(!flag3 && !flag && !flag2)) {
-        if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
-        val greeklish = greeklishTogreek(w.toLowerCase)
-        if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
-        if (wordsELOT.size != 0) {
-          var wordsELOT2 = new util.ArrayList[String]
-          wordsELOT2 = wordsELOT.get({
-            j += 1;
-            j - 1
-          })
-          if (wordsELOT2.size == 0) flag3 = false
-          else {
-            for (greeklishELOT <- wordsELOT2 if !flag3) {
-              if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
-              else {
-                flag3 = true
+      // create a Breaks object as follows
+      val loop = new Breaks
+
+      val ex_loop = new Breaks
+      ex_loop.breakable {
+        for (w <- words) {
+          if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
+          val greeklish = greeklishTogreek(w.toLowerCase)
+          if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
+          if (wordsELOT.size != 0) {
+            var wordsELOT2 = new util.ArrayList[String]
+            wordsELOT2 = wordsELOT.get({
+              j += 1
+              j - 1
+            })
+            if (wordsELOT2.size == 0) flag3 = false
+            else {
+              loop.breakable {
+                for (greeklishELOT <- wordsELOT2) {
+                  if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
+                  else {
+                    flag3 = true
+                    loop.break()
+                  }
+                }
               }
             }
           }
+          else flag3 = false
+          if (!flag3 && !flag && !flag2) ex_loop.break()
+          if (flag || flag2 || flag3) pois2.add(json)
         }
-        else flag3 = false
       }
-      if (flag || flag2 || flag3) pois2.add(json)
     }
-    return pois2
+
+    pois2
   }
 
   @throws[DatasourceException]
@@ -1552,60 +1534,65 @@ class CouchbaseDatasource private(hostname: String,
   override def poisByBuildingAsJson3(buid: String, letters: String): util.List[JsonObject] = {
     var pois: List[JsonObject] = null
     val pois2 = new util.ArrayList[JsonObject]
+    import java.util
     if (allPoisSide.get(buid) != null) pois = allPoisSide.get(buid)
     else pois = poisByBuildingAsJson(buid)
+
     val words = letters.split(" ")
+
     var flag = false
     var flag2 = false
     var flag3 = false
+
     if (letters.compareTo(lastletters) != 0) {
       lastletters = letters
       wordsELOT = new util.ArrayList[util.ArrayList[String]]
       var j = 0
-      while ( {
-        j < words.length
-      }) {
-        wordsELOT.add(greeklishTogreekList(words(j).toLowerCase))
-
-        {
-          j += 1;
-          j - 1
-        }
+      for (word <- words) {
+        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
       }
     }
-
     for (json <- pois) {
       flag = true
       flag2 = true
       flag3 = true
       var j = 0
-      for (w <- words if !(!flag3 && !flag && !flag2)) {
-        if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
-        val greeklish = greeklishTogreek(w.toLowerCase)
-        if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
-        if (wordsELOT.size != 0) {
-          var wordsELOT2 = new util.ArrayList[String]
-          wordsELOT2 = wordsELOT.get({
-            j += 1;
-            j - 1
-          })
-          if (wordsELOT2.size == 0) flag3 = false
-          else {
-            scala.util.control.Breaks.breakable {
-              for (greeklishELOT <- wordsELOT2 if !flag3) {
-                if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
-                else {
-                  flag3 = true
+      // create a Breaks object as follows
+      val loop = new Breaks
+
+      val ex_loop = new Breaks
+      ex_loop.breakable {
+        for (w <- words) {
+          if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
+          val greeklish = greeklishTogreek(w.toLowerCase)
+          if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
+          if (wordsELOT.size != 0) {
+            var wordsELOT2 = new util.ArrayList[String]
+            wordsELOT2 = wordsELOT.get({
+              j += 1
+              j - 1
+            })
+            if (wordsELOT2.size == 0) flag3 = false
+            else {
+              loop.breakable {
+                for (greeklishELOT <- wordsELOT2) {
+                  if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
+                  else {
+                    flag3 = true
+                    loop.break()
+                  }
                 }
               }
             }
           }
+          else flag3 = false
+          if (!flag3 && !flag && !flag2) ex_loop.break()
+          if (flag || flag2 || flag3) pois2.add(json)
         }
-        else flag3 = false
       }
-      if (flag || flag2 || flag3) pois2.add(json)
     }
-    return pois2
+
+    pois2
   }
 
   def greeklishTogreek(greeklish: String) = {
@@ -1710,14 +1697,10 @@ class CouchbaseDatasource private(hostname: String,
     words.add("")
     val myChars = greeklish.toCharArray
     var i = 0
-    while ( {
-      i < greeklish.length
-    }) {
+    for (i <- 0 until greeklish.length) {
       val size = words.size
       var j = 0
-      while ( {
-        j < size
-      }) {
+      for (j <- 0 until size){
         var myword = ""
         myword = words.get(j)
         if (myChars(i) == 'a') words.add(myword + "α")
@@ -1814,7 +1797,7 @@ class CouchbaseDatasource private(hostname: String,
 
       }
 
-      for (j <- 0 to size) {
+      for (k <- 0 until size) {
         words.remove(0)
       }
     }

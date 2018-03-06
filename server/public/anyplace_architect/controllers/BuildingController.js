@@ -243,8 +243,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     };
     $scope.fetchAllPoisTypes = function () {
 
-        //TODO: validation
-
         var jsonReq = {};
 
         jsonReq.username = $scope.creds.username;
@@ -331,10 +329,10 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
                     });
 
                     var htmlContent = '<div class="infowindow-scroll-fix">'
-                        + '<h5 style="margin: 0">Building:</h5>'
+                        + '<h5>Building:</h5>'
                         + '<span>' + b.name + '</span>'
-                        + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
-                        + '<span>' + b.description + '</span>'
+                        + '<h5>Description:</h5>'
+                        + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
                         + '</div>';
 
                     marker.infoContent = htmlContent;
@@ -1732,7 +1730,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
                 }
             },
             function (resp) {
-                // TODO: alert failure
                 console.log(resp.data.message);
             }
         );
@@ -1750,9 +1747,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
         }
 
         window.onload=showWelcomeMessage;
-
-
     }
-
 
 }]);

@@ -36,9 +36,10 @@
 
 var AnyplaceAPI = {};
 
-AnyplaceAPI.FULL_SERVER = "http://marilenh-vm:9000/anyplace";
-///AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
 
+AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
+
+// AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
 /**
  * MAPPING API
  */
@@ -64,6 +65,9 @@ AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.M
 
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
+
+AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/all_pois";
+AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.ALL_POIS;
 
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;

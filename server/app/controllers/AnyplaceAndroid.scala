@@ -35,7 +35,7 @@
  */
 package controllers
 
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.mvc.Security
 import utils.{AndroidAPKFile, AnyplaceServerAPI}
 
@@ -55,30 +55,37 @@ object AnyplaceAndroid extends play.api.mvc.Controller {
 
   // the action for the Anyplce Architect
   @Security.Authenticated(classOf[Secured])
-  def getApks = Action  {
-    val dirApks: File = new File(ANDROID_APKS_ROOT_DIRECTORY_LOCAL)
-    if (!dirApks.isDirectory || !dirApks.canExecute() || !dirApks.canRead()) {
-      BadRequest("No Android apk available!")
+  def getApks = Action {
+    def inner(): Result = {
+      val dirApks: File = new File(ANDROID_APKS_ROOT_DIRECTORY_LOCAL)
+      if (!dirApks.isDirectory || !dirApks.canExecute() || !dirApks.canRead()) {
+        return BadRequest("No Android apk available!")
+      }
+      var apk: AndroidAPKFile = null
+      val apks: List[AndroidAPKFile] = new ArrayList[AndroidAPKFile]()
+      for (fileApk <- dirApks.listFiles()) {
+        if (!fileApk.isFile) //continue
+          apk = new AndroidAPKFile(fileApk)
+        apk.setDownloadUrl(ANDROID_APk_DOWNLOAD + apk.getFilePathBasename)
+        apks.add(apk)
+      }
+      Collections.sort(apks, new AndroidAPKFile.AndroidAPKComparator())
+     Ok(views.html.anyplace_android.render(apks))
     }
-    var apk: AndroidAPKFile = null
-    val apks: List[AndroidAPKFile] = new ArrayList[AndroidAPKFile]()
-    for (fileApk <- dirApks.listFiles()) {
-      if (!fileApk.isFile) //continue
-        apk = new AndroidAPKFile(fileApk)
-      apk.setDownloadUrl(ANDROID_APk_DOWNLOAD + apk.getFilePathBasename)
-      apks.add(apk)
-    }
-    Collections.sort(apks, new AndroidAPKFile.AndroidAPKComparator())
-    Ok(views.html.anyplace_android.render(apks))
+    inner()
   }
 
   def downloadApk(file: String) = Action {
-    val fileApk: File = new File(ANDROID_APKS_ROOT_DIRECTORY_LOCAL, file)
-    println("requested: " + fileApk)
-    if (!fileApk.exists() || !fileApk.canRead()) {
-      BadRequest("Requested APK does not exist on our database!")
+
+    def inner(): Result = {
+      val fileApk: File = new File(ANDROID_APKS_ROOT_DIRECTORY_LOCAL, file)
+      println("requested: " + fileApk)
+      if (!fileApk.exists() || !fileApk.canRead()) {
+        return BadRequest("Requested APK does not exist on our database!")
+      }
+      Ok.sendFile(fileApk)
     }
-    Ok.sendFile(fileApk)
+    inner()
   }
 
 }

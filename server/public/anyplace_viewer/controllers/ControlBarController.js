@@ -57,6 +57,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
         $scope.urlBuid = _urlParams.buid;
         $scope.urlFloor = _urlParams.floor;
         $scope.urlPuid = _urlParams.selected;
+        $scope.greeklish = "false";
     }
 
     $scope.setTab = function (num) {

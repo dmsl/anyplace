@@ -106,7 +106,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.fetchAllPoi = function (letters , buid) {
 
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters };
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters , "greeklish":$scope.greeklish};
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
@@ -204,6 +204,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         GMapService.gmap.panTo(_latLngFromPoi(newVal));
         GMapService.gmap.setZoom(20);
 
+
+
         // make previous selected POI's marker smaller
         if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] && $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
             $scope.myPoisHashT[prevSelectedPoi.puid].marker.setIcon(_getNormalPoiIconNormal(prevSelectedPoi));
@@ -224,8 +226,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 m.infowindow.open(GMapService.gmap, m);
             }
         }
-
-
 
         try {
             if (typeof(Storage) !== "undefined" && localStorage)
@@ -266,7 +266,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _getImageIconForPoi = function (poi) {
         var img = 'build/images/any-poi-icon-blue.png';
 
-        if (poi.is_building_entrance) {
+        if (poi.is_building_entrance  && poi.is_building_entrance !== "false") {
             img = 'build/images/poi_icon_entrance-green.png';
         } else if (poi.pois_type == "Stair") {
             img = 'build/images/poi_icon_stairs-orange.png';
