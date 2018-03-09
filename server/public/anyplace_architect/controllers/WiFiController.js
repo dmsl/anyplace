@@ -620,7 +620,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         var key = Object.keys(connectionsMap);
         var check = 0;
         if (connectionsMap.hasOwnProperty(key[check])) {
-            if(connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+            if(connectionsMap[key[check]].polyLine !== undefined) {
                 if (connectionsMap[key[check]].polyLine.getMap() !== null) {
                     document.getElementById("connections-mode").classList.add('draggable-border-green');
                     $scope.connectionsMode = true;
