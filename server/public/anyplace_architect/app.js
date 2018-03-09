@@ -106,12 +106,10 @@ app.factory('AnyplaceService', function () {
     anyService.selectedCampus = undefined;
     anyService.ShowShareProp = undefined;
     anyService.progress = undefined;
-    //new marileni
-    anyService.selector = undefined;
-    //end new marileni
     //new marileni 2/2
     anyService.allPois = {};
     anyService.allConnections = {};
+    anyService.availableFloors=[];
     //end new marileni
 
     anyService.alerts = [];
@@ -124,13 +122,6 @@ app.factory('AnyplaceService', function () {
     anyService.getBuilding = function () {
         return this.selectedBuilding;
     };
-
-    //new marileni
-    anyService.selector = function () {
-
-       // return this.selectedBuilding;
-    };
-    //end new marileni
 
     anyService.getCampus = function () {
         return this.selectedCampus;

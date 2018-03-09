@@ -36,7 +36,9 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
         if (newVal) {
             $scope.xFloors=[];
             $scope.xFloors=$scope.anyService.availableFloors;
-            $scope.anyService.selectedFloor=$scope.xFloors[0];
+            // $scope.anyService.selectedFloor=$scope.xFloors[0];
+            console.log($scope.anyService.selectedFloor)
+
         }
     });
 

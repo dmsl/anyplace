@@ -28,7 +28,7 @@
 
 
 var changedfloor = false;
-var foundFloor = false;
+
 
 app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, AnyplaceService, GMapService, AnyplaceAPIService) {
     $scope.anyService = AnyplaceService;
@@ -123,8 +123,12 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
             GMapService.gmap.setZoom(19);
 
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem("lastFloor", newVal.floor_number);
+            try {
+                if (typeof(Storage) !== "undefined" && localStorage) {
+                    localStorage.setItem("lastFloor", newVal.floor_number);
+                }
+            } catch (e) {
+
             }
 
             changedfloor = false;
@@ -140,7 +144,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
             function (resp) {
-                //if(!foundFloor) {
+
                 $scope.xFloors = resp.data.floors;
 
                 $scope.xFloors = $scope.xFloors.sort(function (a, b) {
@@ -166,20 +170,23 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                     for (var i = 0; i < $scope.xFloors.length; i++) {
                         if (String($scope.xFloors[i].floor_number) === String(localStorage.getItem('lastFloor'))) {
                             $scope.anyService.selectedFloor = $scope.xFloors[i];
-                            foundFloor = true;
+
                             return;
                         }
                     }
                 }
 
-                if (!foundFloor && $scope.xFloors[0]) {
+                //if not found selected floor by now set default the first floor
+                if ($scope.xFloors && $scope.xFloors.length > 0) {
                     $scope.anyService.selectedFloor = $scope.xFloors[0];
+                } else {
+                    $scope.anyService.selectedFloor = undefined;
                 }
 
                 _setNextFloor();
 
 //                _suc("Successfully fetched all floors.");
-                //}
+
             },
             function (resp) {
                 console.log(resp.data.message);
