@@ -60,7 +60,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 + Download the Android Client from the Play Store: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en (https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en)
 + Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.
 + (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
-# + IMPORTANT: You have to install an SSL certificate on your server to allow the Android Client to connect to your server.
++ IMPORTANT: You have to install an SSL certificate on your server to allow the Android Client to connect to your server.
 
 ## Optional Cluster and SSL Configurations for Anyplace Server 
 + (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
