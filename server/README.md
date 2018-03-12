@@ -1,13 +1,13 @@
-# Anyplace v3 Installation Notes
+# Anyplace v3.x Installation Notes
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
 
-# Anyplace v3 for administrators
+# Anyplace v3.x for administrators
 
 ## Setup/Configuration
 
   1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is expected.
   
-  2. **Download Anyplace v3:**
+  2. **Download Anyplace v3.x:**
  
     $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
     #if you don't have wget, just download the file with a browser)
@@ -60,6 +60,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 + Download the Android Client from the Play Store: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en (https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en)
 + Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.
 + (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
+# + IMPORTANT: You have to install an SSL certificate on your server to allow the Android Client to connect to your server.
 
 ## Optional Cluster and SSL Configurations for Anyplace Server 
 + (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
