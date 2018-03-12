@@ -68,9 +68,9 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
   
 
     
-# Anyplace v3 for developers
+# Anyplace v3.x for developers
 
-## How to setup Anyplace v3 in you IDE?
+## How to setup Anyplace v3.x in you IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 + Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free but if you are a student we recommend taking advantage of the Ultimate Edition which is free for 1 year - this has built-in integration for Play Framework debugging)
 + Install the Scala plugin during the installation process
