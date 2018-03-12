@@ -62,8 +62,8 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 + (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
 + IMPORTANT: You have to install an SSL certificate on your server to allow the Android Client to connect to your server.
 
-## Optional Cluster and SSL Configurations for Anyplace Server 
-+ (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
+## SSL and Cluster Configurations for Anyplace Server 
++ Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection. SSL is only optional for web functionality. For Android, SSL is a prerequisite!
 + (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
   
 
