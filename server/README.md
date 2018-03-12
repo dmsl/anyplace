@@ -21,7 +21,6 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
         * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
         * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
-        * `server.port` - The port the server is running on. (e.g. `80 (htpp), 443 (https) `)     
         * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
         * `couchbase.port` - Couchbase's port. The default is `8091`.
         * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.
@@ -33,8 +32,8 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
         * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
         * `BUCKET=""` - This is the bucket for the couchbase instance.
     + Important: As with all passwords, this should be kept a secret. 
-    + Note: If you are getting Authentication Failure errors, then create a user with the bucket name. This is a new change from Couchbase 5.0 (V5.0 - NEW Role-Based Authentication - Bucket Passwords, etc)(https://forums.couchbase.com/t/v5-0-new-role-based-authentication-bucket-passwords-etc/14637)
-# Running
+  
+## Launching 
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
@@ -56,6 +55,17 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     $ http://localhost:9000/developers
 
     You can obviously setup the service on an IP/Domain name by configuring the underlying Operating System with standard unix, mac or windows configurations.
+
+## Connecting the Anyplace Android Client
++ Download the Android Client from the Play Store: https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en (https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en)
++ Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.
++ (Optional) Download and recompile the Android client  and apply your default settings. (Note: Requires a seperate Android Developer Account.
+
+## Optional Cluster and SSL Configurations for Anyplace Server 
++ (Optional) Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection.
++ (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
+  
+
     
 # Anyplace v3 for developers
 
