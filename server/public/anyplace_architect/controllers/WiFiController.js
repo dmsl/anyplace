@@ -553,24 +553,28 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             return;
         }
 
-        if(connectionsMap[key[check]].polyLine.getMap() !== undefined) {
-            if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+        if (connectionsMap[key[check]].polyLine !== undefined) {
 
-                for (var key in connectionsMap) {
-                    if (connectionsMap.hasOwnProperty(key)) {
+            if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
 
-                        var con = connectionsMap[key];
-                        if (con && con.polyLine) {
+                    for (var key in connectionsMap) {
+                        if (connectionsMap.hasOwnProperty(key)) {
 
-                            con.polyLine.setMap(null);
+                            var con = connectionsMap[key];
+                            if (con && con.polyLine) {
+
+                                con.polyLine.setMap(null);
+                            }
                         }
+
                     }
 
+                    $scope.anyService.setAllConnection(connectionsMap);
+                    connectionsMap = {};
+                    _CONNECTIONS_IS_ON = false;
+                    return;
                 }
-                $scope.anyService.setAllConnection(connectionsMap);
-                connectionsMap = {};
-                _CONNECTIONS_IS_ON = false;
-                return;
             }
         }
 
@@ -627,11 +631,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         var key = Object.keys(connectionsMap);
         var check = 0;
         if (connectionsMap.hasOwnProperty(key[check])) {
-            if(connectionsMap[key[check]].polyLine.getMap() !== undefined) {
-                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                    document.getElementById("connections-mode").classList.add('draggable-border-green');
-                    $scope.connectionsMode = true;
-                    return "Hide Edges";
+            if(connectionsMap[key[check]].polyLine !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                        document.getElementById("connections-mode").classList.add('draggable-border-green');
+                        $scope.connectionsMode = true;
+                        return "Hide Edges";
+                    }
                 }
             }
         }
