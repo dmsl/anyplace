@@ -1091,11 +1091,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   private def isCampusOwner(campus: JsonObject, userId: String): Boolean = { // Admin
-    if (userId == ADMIN_ID)
-      true
+    if (userId.equals(ADMIN_ID))
+      return true
     // Check if owner
     if (campus != null && campus.get("owner_id") != null && campus.getString("owner_id").equals(userId))
-      true
+      return true
     false
   }
 
