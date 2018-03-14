@@ -815,13 +815,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 reqObj.floor = f;
 
-                reqObj.lat1 = start.lat();
+                reqObj.lat1 = start.lat()+"";
 
-                reqObj.lon1 = start.lng();
+                reqObj.lon1 = start.lng()+"";
 
-                reqObj.lat2 = end.lat();
+                reqObj.lat2 = end.lat()+"";
 
-                reqObj.lon2 = end.lng();
+                reqObj.lon2 = end.lng()+"";
 
                 var data = [];
 

@@ -103,8 +103,11 @@ object JsonUtils {
         val svalue = value.asOpt[String].getOrElse("")
         if (svalue.isEmpty) {
           val avalue = value.asOpt[JsArray].orNull
-          if (avalue == null)
+          if (avalue == null) {
+            val ovalue = value.asOpt[JsValue].orNull
+            if (ovalue == null)
             notFound.add(k)
+          }
         }
       }
     }

@@ -103,6 +103,9 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
         $scope.myBuildingsHashT = {};
     });
 
+    /**
+     * @return {string}
+     */
     function S4() {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
