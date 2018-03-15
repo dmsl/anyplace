@@ -1269,10 +1269,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     var infowindow=new google.maps.InfoWindow();
                     if(!infowindow.getMap()) {
                         APmap[c].addListener('click', function () {
-                            /*var infowindow = new google.maps.InfoWindow({
-                               content: "MAC: " + this.id
-                           });*/
-                            infowindow.setContent("MAC: " + this.id);
+
+                            if(this.mun !== undefined) {
+                                infowindow.setContent(this.id + "<br><center>-</center><br>" + this.mun);
+                            }else{
+                                infowindow.setContent(this.id);
+                            }
+
                             infowindow.open(this.gmap, this);
                         });
                     }
