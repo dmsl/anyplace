@@ -42,7 +42,7 @@ import java.util.HashMap
 import java.util.List
 
 import com.couchbase.client.java.document.json.JsonObject
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsArray, JsValue}
 
 object JsonUtils {
 
@@ -96,8 +96,20 @@ object JsonUtils {
     }
     val notFound = new util.ArrayList[String]()
     for (k <- keys) {
-      val value = (json \ k).toString
-      if (value == null || 0 == value.trim().length) notFound.add(k)
+      val value = json \ k
+      if (value == null)
+        notFound.add(k)
+      else {
+        val svalue = value.asOpt[String].getOrElse("")
+        if (svalue.isEmpty) {
+          val avalue = value.asOpt[JsArray].orNull
+          if (avalue == null) {
+            val ovalue = value.asOpt[JsValue].orNull
+            if (ovalue == null)
+            notFound.add(k)
+          }
+        }
+      }
     }
     notFound
   }
