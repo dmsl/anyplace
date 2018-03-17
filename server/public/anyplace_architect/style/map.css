@@ -30,8 +30,14 @@ footer{
     top: 2px;
     padding: 2px 8px;
     outline-style: none;
-    background: #428bca;
+    /*background: #428bca;*/
     border-radius: 0;
+    margin-bottom: 10px;
+}
+
+.fa-window-minimize{
+    color:#428bca;
+    margin-bottom: 10px;
 }
 
 .controls {
@@ -685,6 +691,11 @@ contextmenu {
 
 #control-bar-FMS .btn-default {
     width: 40px;
+}
+
+.btn-primary{
+    margin-right: 15px;
+
 }
 
 #my-loc-control {

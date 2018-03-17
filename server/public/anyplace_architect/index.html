@@ -74,7 +74,10 @@
     <div id="control-bar" class="ng-cloak box-shadow-1" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
 
         <div id="logistics">
-            <button id="minimize-btn" class="btn btn-default" ng-click="toggleFullControls()"></button>
+            <!--<button id="minimize-btn" class="btn btn-default" ng-click="toggleFullControls()"></button>-->
+            <button type="button"  id="minimize-btn" class="btn btn-minimize"  ng-click="toggleFullControls()">
+                <i class="fa fa-window-minimize" ></i>
+            </button>
             <div id="div-logo" class="pull-left"></div>
             <span id="login-details" ng-show="isAuthenticated">
                 <span class="subnote">
@@ -100,8 +103,8 @@
             </span>
 
         </div>
-        <div ng-show="isAuthenticated && showFullControls" ng-controller="BuildingController as buildingCtrl">
-            <ul id="ctrl-bar-tablist" class="nav nav-tabs" role="tablist">
+        <div ng-show="isAuthenticated" ng-controller="BuildingController as buildingCtrl">
+            <ul id="ctrl-bar-tablist" class="nav nav-tabs" role="tablist" ng-show="showFullControls">
                 <li role="presentation" ng-class="{ active:isTabSet(1) }">
                     <a href="" ng-click="setTab(1)">Buildings</a>
                 </li>
@@ -122,8 +125,7 @@
                 </li>
             </ul>
 
-
-            <div id="ctrl-bar-buildings" >
+            <div id="ctrl-bar-buildings" ng-show="showFullControls">
 
                 <div  ng-show="isTabSet(1)" >
 
@@ -521,7 +523,7 @@
 
             </div>
 
-            <div id="ctrl-bar-floors" ng-show="isTabSet(2)" ng-controller="FloorController as floorCtrl">
+            <div id="ctrl-bar-floors" ng-show="isTabSet(2) && showFullControls" ng-controller="FloorController as floorCtrl">
 
                 <div ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null">
                     <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
@@ -601,7 +603,7 @@
 
             <!-- POIS -->
 
-            <div id="ctrl-bar-pois" ng-show="isTabSet(3)" ng-controller="PoiController as poiCtrl">
+            <div id="ctrl-bar-pois" ng-show="isTabSet(3) && showFullControls" ng-controller="PoiController as poiCtrl">
 
                 <div ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null && anyService.selectedFloor !== undefined && anyService.selectedFloor !== null">
                     <div class="working-on-indicator">[ {{anyService.selectedFloor.floor_number}} ] :
@@ -759,18 +761,9 @@
 
                 <div ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null">
 
+                    <div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>
 
-
-                    <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
-
-                    <div class="divider-top-15-line">
-
-
-                        <div class="divider-top-10">
-
-                            <div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>
-
-                                <div class="divider-top-10" >
+                        <div class="divider-top-10" >
                                  <span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >
                                     <span id="fingerPrints-mode">
                                         <button type="button" class="btn btn-default">
@@ -779,16 +772,16 @@
                                     </span>
 
                                  </span>
-                                    <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsisON()" >
+                            <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsisON()" >
                                     <span id="delete-mode">
                                       <button type="button" class="btn btn-default">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </span>
                                  </span>
-                                </div>
+                        </div>
 
-                                <div class="divider-top-10">
+                        <div class="divider-top-10">
                                 <span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">
                                     <span id="radioHeatmapRSS-mode">
                                      <button type="button" class="btn btn-default">
@@ -797,9 +790,9 @@
                                     </span>
 
                                 </span>
-                                </div>
+                        </div>
 
-                                <div class="divider-top-10">
+                        <div class="divider-top-10">
                                  <span title="{{ getAPsModeText() }}" id="APs_1"  class="A_0">
                                     <span id="APs-mode">
                                         <button type="button" class="btn btn-default">
@@ -807,9 +800,9 @@
                                         </button>
                                     </span>
                                  </span>
-                                </div>
+                        </div>
 
-                                <div class="divider-top-10">
+                        <div class="divider-top-10">
                                  <span title="{{ getLocalizationAccurancyModeText() }}" id="LA_1" class="A_0">
                                     <span id="localizationAccurancy-mode">
                                        <button type="button" class="btn btn-default">
@@ -817,8 +810,8 @@
                                         </button>
                                     </span>
                                  </span>
-                                </div>
-                                <div class="divider-top-10">
+                        </div>
+                        <div class="divider-top-10">
                                  <span title="{{ getPOIsModeText() }}" id="POIs_1"  class="A_0" >
                                     <span id="POIs-mode">
                                          <button type="button" class="btn btn-default">
@@ -827,8 +820,8 @@
 
                                     </span>
                                  </span>
-                                </div>
-                                <div class="divider-top-10">
+                        </div>
+                        <div class="divider-top-10">
                                  <span title="{{ getConnectionsModeText() }}" id="CNs_1"  class="A_0" >
                                     <span id="connections-mode">
                                          <button type="button" class="btn btn-default">
@@ -837,9 +830,93 @@
 
                                     </span>
                                  </span>
-                                </div>
+                        </div>
 
-                            </div>
+                    </div>
+
+                    <div ng-show="showFullControls">
+                    <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
+
+
+
+                    <div class="divider-top-15-line">
+
+
+                        <div class="divider-top-10">
+
+                            <!--<div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>-->
+
+                                <!--<div class="divider-top-10" >-->
+                                 <!--<span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >-->
+                                    <!--<span id="fingerPrints-mode">-->
+                                        <!--<button type="button" class="btn btn-default">-->
+                                            <!--<i class="fa fa-podcast"></i>-->
+                                        <!--</button>-->
+                                    <!--</span>-->
+
+                                 <!--</span>-->
+                                    <!--<span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsisON()" >-->
+                                    <!--<span id="delete-mode">-->
+                                      <!--<button type="button" class="btn btn-default">-->
+                                            <!--<i class="fa fa-trash"></i>-->
+                                        <!--</button>-->
+                                    <!--</span>-->
+                                 <!--</span>-->
+                                <!--</div>-->
+
+                                <!--<div class="divider-top-10">-->
+                                <!--<span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">-->
+                                    <!--<span id="radioHeatmapRSS-mode">-->
+                                     <!--<button type="button" class="btn btn-default">-->
+                                            <!--<i class="fa fa-area-chart"></i>-->
+                                        <!--</button>-->
+                                    <!--</span>-->
+
+                                <!--</span>-->
+                                <!--</div>-->
+
+                                <!--<div class="divider-top-10">-->
+                                 <!--<span title="{{ getAPsModeText() }}" id="APs_1"  class="A_0">-->
+                                    <!--<span id="APs-mode">-->
+                                        <!--<button type="button" class="btn btn-default">-->
+                                            <!--<i class="fa fa-wifi"></i>-->
+                                        <!--</button>-->
+                                    <!--</span>-->
+                                 <!--</span>-->
+                                <!--</div>-->
+
+                                <!--<div class="divider-top-10">-->
+                                 <!--<span title="{{ getLocalizationAccurancyModeText() }}" id="LA_1" class="A_0">-->
+                                    <!--<span id="localizationAccurancy-mode">-->
+                                       <!--<button type="button" class="btn btn-default">-->
+                                            <!--<i class="fa fa-map"></i>-->
+                                        <!--</button>-->
+                                    <!--</span>-->
+                                 <!--</span>-->
+                                <!--</div>-->
+                                <!--<div class="divider-top-10">-->
+                                 <!--<span title="{{ getPOIsModeText() }}" id="POIs_1"  class="A_0" >-->
+                                    <!--<span id="POIs-mode">-->
+                                         <!--<button type="button" class="btn btn-default">-->
+                                            <!--<img src="build/images/poi-icon.png" height="16px" width="14px"/>-->
+                                        <!--</button>-->
+
+                                    <!--</span>-->
+                                 <!--</span>-->
+                                <!--</div>-->
+                                <!--<div class="divider-top-10">-->
+                                 <!--<span title="{{ getConnectionsModeText() }}" id="CNs_1"  class="A_0" >-->
+                                    <!--<span id="connections-mode">-->
+                                         <!--<button type="button" class="btn btn-default">-->
+                                             <!--<img src="build/images/edge-mode.png" height="16px" width="14px"/>-->
+                                        <!--</button>-->
+
+                                    <!--</span>-->
+                                 <!--</span>-->
+                                <!--</div>-->
+
+                            <!--</div>-->
+
 
                             <ul class="nav nav-pills" role="tablist">
                                 <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
@@ -925,7 +1002,7 @@
                                 </div>
 
                             </div>
-
+                        </div>
                         </div>
                     </div>
                     <div id="color-bar" ng-show="radioHeatmapRSSMode" class="">
@@ -972,7 +1049,7 @@
         </div>
 
 
-        <div id="ctrl-bar-more" ng-show="isTabSet(5)">
+        <div id="ctrl-bar-more" ng-show="isTabSet(5) && showFullControls">
             <div class="subnote">Your API Key</div>
             <div class="divider-top-10">
                 <input class="form-control" value="{{gAuth.access_token}}">

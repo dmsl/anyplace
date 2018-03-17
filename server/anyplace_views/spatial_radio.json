@@ -1,6 +1,5 @@
 {
 	"spatial": {
-							"building_coordinates": "function (doc) {\n  if (doc.geometry && doc.buid && !doc.floor_number && !doc.puid && !doc.rss) {\n    //emit(doc.geometry, doc);\n    emit(doc.geometry, null);\n }\n}",
 							"raw_radio": "function (doc) {\n  if (doc.geometry && doc.MAC && doc.rss && doc.heading) {\n    emit(doc.geometry, {   \"timestamp\": doc.timestamp,   \"floor\": doc.floor,   \"rss\": doc.rss,   \"MAC\": doc.MAC,   \"heading\": doc.heading,   \"y\": doc.y,   \"x\": doc.x});  }\n}",
 							"radio_heatmap_bbox_byxy": "function (doc) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y){\n    emit(doc.geometry, {   \"floor\": doc.floor,   \"buid\": doc.buid,   \"y\": doc.y,   \"x\": doc.x});  }\n}",
 							"radio_buid_floor":"function (doc,meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y){\n    emit(doc.geometry, {   \"floor\": doc.floor,   \"buid\": doc.buid,   \"id\": meta.id});  }\n}"
