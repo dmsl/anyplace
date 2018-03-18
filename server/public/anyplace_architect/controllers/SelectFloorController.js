@@ -36,7 +36,6 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
         if (newVal) {
             $scope.xFloors=[];
             $scope.xFloors=$scope.anyService.availableFloors;
-            $scope.anyService.selectedFloor=$scope.xFloors[0];
         }
     });
 
@@ -52,7 +51,6 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
     };
 
 
-    // new marileni 4/1
 
     $scope.floorUp = function () {
         //here new
@@ -96,6 +94,5 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
         _err("Floor not found.");
     };
 
-    // end new marileni
 
 }]);

@@ -1091,11 +1091,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   private def isCampusOwner(campus: JsonObject, userId: String): Boolean = { // Admin
-    if (userId == ADMIN_ID)
-      true
+    if (userId.equals(ADMIN_ID))
+      return true
     // Check if owner
     if (campus != null && campus.get("owner_id") != null && campus.getString("owner_id").equals(userId))
-      true
+      return true
     false
   }
 
@@ -1353,7 +1353,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         owner_id = appendToOwnerId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val puid = (json \ "puid").as[String]
-        val buid = (json \ "puid").as[String]
+        val buid = (json \ "buid").as[String]
         try {
           val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")

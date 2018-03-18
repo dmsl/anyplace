@@ -28,7 +28,6 @@
 
 
 var changedfloor = false;
-var foundFloor = false;
 
 app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, AnyplaceService, GMapService, AnyplaceAPIService) {
     $scope.anyService = AnyplaceService;
@@ -140,7 +139,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
             function (resp) {
-                //if(!foundFloor) {
+
                 $scope.xFloors = resp.data.floors;
 
                 $scope.xFloors = $scope.xFloors.sort(function (a, b) {
@@ -166,20 +165,22 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                     for (var i = 0; i < $scope.xFloors.length; i++) {
                         if (String($scope.xFloors[i].floor_number) === String(localStorage.getItem('lastFloor'))) {
                             $scope.anyService.selectedFloor = $scope.xFloors[i];
-                            foundFloor = true;
                             return;
                         }
                     }
                 }
 
-                if (!foundFloor && $scope.xFloors[0]) {
+                // Set default the first floor if selected floor
+                if ($scope.xFloors && $scope.xFloors.length > 0) {
                     $scope.anyService.selectedFloor = $scope.xFloors[0];
+                } else {
+                    $scope.anyService.selectedFloor = undefined;
                 }
 
                 _setNextFloor();
 
 //                _suc("Successfully fetched all floors.");
-                //}
+
             },
             function (resp) {
                 console.log(resp.data.message);

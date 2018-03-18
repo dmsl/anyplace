@@ -49,7 +49,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
     private var lng: Double = _
 
-    private var admins: Array[String] = Array()
+    private var admins: Array[String] = Array("112997031510415584062_google")
 
     this.fields = hm
 

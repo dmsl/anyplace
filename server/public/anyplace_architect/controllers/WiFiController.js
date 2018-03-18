@@ -48,6 +48,7 @@ var colorBarOrangeClicked=false;
 var colorBarPurpleClicked=false;
 var colorBarRedClicked=false;
 
+
 app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($cookieStore,$scope, AnyplaceService, GMapService, AnyplaceAPIService) {
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
@@ -166,18 +167,20 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 connectionsMap = $scope.anyService.getAllConnections();
                 var key = Object.keys(connectionsMap);
                 if (connectionsMap[key[check]] !== undefined) {
-                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                        for (var key in connectionsMap) {
-                            if (connectionsMap.hasOwnProperty(key)) {
-                                var con = connectionsMap[key];
-                                if (con && con.polyLine) {
-                                    con.polyLine.setMap(null);
+                    if(connectionsMap[key[check]].polyLine !== undefined) {
+                        if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                            for (var key in connectionsMap) {
+                                if (connectionsMap.hasOwnProperty(key)) {
+                                    var con = connectionsMap[key];
+                                    if (con && con.polyLine) {
+                                        con.polyLine.setMap(null);
+                                    }
                                 }
-                            }
 
+                            }
+                            $scope.anyService.setAllConnection(connectionsMap);
+                            connectionsMap = {};
                         }
-                        $scope.anyService.setAllConnection(connectionsMap);
-                        connectionsMap = {};
                     }
                 }
 
@@ -305,18 +308,20 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 connectionsMap = $scope.anyService.getAllConnections();
                 var key = Object.keys(connectionsMap);
                 if (connectionsMap[key[check]] !== undefined) {
-                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                        for (var key in connectionsMap) {
-                            if (connectionsMap.hasOwnProperty(key)) {
-                                var con = connectionsMap[key];
-                                if (con && con.polyLine) {
-                                    con.polyLine.setMap(null);
+                    if(connectionsMap[key[check]].polyLine !== undefined) {
+                        if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                            for (var key in connectionsMap) {
+                                if (connectionsMap.hasOwnProperty(key)) {
+                                    var con = connectionsMap[key];
+                                    if (con && con.polyLine) {
+                                        con.polyLine.setMap(null);
+                                    }
                                 }
-                            }
 
+                            }
+                            $scope.anyService.setAllConnection(connectionsMap);
+                            connectionsMap = {};
                         }
-                        $scope.anyService.setAllConnection(connectionsMap);
-                        connectionsMap = {};
                     }
                 }
 
@@ -548,23 +553,29 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             return;
         }
 
-        if (connectionsMap[key[check]].polyLine.getMap() !== null && connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+        if (connectionsMap[key[check]].polyLine !== undefined) {
 
-            for (var key in connectionsMap) {
-                if (connectionsMap.hasOwnProperty(key)) {
+            if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
 
-                    var con = connectionsMap[key];
-                    if (con && con.polyLine) {
+                    for (var key in connectionsMap) {
+                        if (connectionsMap.hasOwnProperty(key)) {
 
-                        con.polyLine.setMap(null);
+                            var con = connectionsMap[key];
+                            if (con && con.polyLine) {
+
+                                con.polyLine.setMap(null);
+                            }
+                        }
+
                     }
-                }
 
+                    $scope.anyService.setAllConnection(connectionsMap);
+                    connectionsMap = {};
+                    _CONNECTIONS_IS_ON = false;
+                    return;
+                }
             }
-            $scope.anyService.setAllConnection(connectionsMap);
-            connectionsMap = {};
-            _CONNECTIONS_IS_ON = false;
-            return;
         }
 
         $scope.showConnections();
@@ -620,11 +631,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         var key = Object.keys(connectionsMap);
         var check = 0;
         if (connectionsMap.hasOwnProperty(key[check])) {
-            if(connectionsMap[key[check]].polyLine.getMap() !== undefined) {
-                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                    document.getElementById("connections-mode").classList.add('draggable-border-green');
-                    $scope.connectionsMode = true;
-                    return "Hide Edges";
+            if(connectionsMap[key[check]].polyLine !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                        document.getElementById("connections-mode").classList.add('draggable-border-green');
+                        $scope.connectionsMode = true;
+                        return "Hide Edges";
+                    }
                 }
             }
         }
@@ -802,13 +815,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 reqObj.floor = f;
 
-                reqObj.lat1 = start.lat();
+                reqObj.lat1 = start.lat()+"";
 
-                reqObj.lon1 = start.lng();
+                reqObj.lon1 = start.lng()+"";
 
-                reqObj.lat2 = end.lat();
+                reqObj.lat2 = end.lat()+"";
 
-                reqObj.lon2 = end.lng();
+                reqObj.lon2 = end.lng()+"";
 
                 var data = [];
 
@@ -1256,10 +1269,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     var infowindow=new google.maps.InfoWindow();
                     if(!infowindow.getMap()) {
                         APmap[c].addListener('click', function () {
-                            /*var infowindow = new google.maps.InfoWindow({
-                               content: "MAC: " + this.id
-                           });*/
-                            infowindow.setContent("MAC: " + this.id);
+
+                            if(this.mun !== undefined) {
+                                infowindow.setContent(this.id + "<br><center>-</center><br>" + this.mun);
+                            }else{
+                                infowindow.setContent(this.id);
+                            }
+
                             infowindow.open(this.gmap, this);
                         });
                     }
