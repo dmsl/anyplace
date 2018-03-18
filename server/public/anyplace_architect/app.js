@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -106,13 +106,9 @@ app.factory('AnyplaceService', function () {
     anyService.selectedCampus = undefined;
     anyService.ShowShareProp = undefined;
     anyService.progress = undefined;
-    //new marileni
-    anyService.selector = undefined;
-    //end new marileni
-    //new marileni 2/2
     anyService.allPois = {};
     anyService.allConnections = {};
-    //end new marileni
+
 
     anyService.alerts = [];
 
@@ -120,17 +116,11 @@ app.factory('AnyplaceService', function () {
         username: 'username',
         password: 'password'
     };
+    anyService.BASE_URL="https://ap.cs.ucy.ac.cy";
 
     anyService.getBuilding = function () {
         return this.selectedBuilding;
     };
-
-    //new marileni
-    anyService.selector = function () {
-
-       // return this.selectedBuilding;
-    };
-    //end new marileni
 
     anyService.getCampus = function () {
         return this.selectedCampus;
@@ -216,8 +206,6 @@ app.factory('AnyplaceService', function () {
         return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
-    //new marileni 2/2
-
     anyService.setAllPois= function (p) {
         this.allPois={};
         this.allPois = p;
@@ -241,8 +229,6 @@ app.factory('AnyplaceService', function () {
         }
         return this.allConnections;
     };
-
-    //end new marileni
 
     anyService.clearAllData = function () {
         anyService.selectedPoi = undefined;
