@@ -42,23 +42,27 @@ import java.util
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
-import acces.GeoUtils
+import acces.{AccesRBF, GeoUtils}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models._
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
+import play.Play
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
-import utils._
-import play.api.libs.json.{JsObject, Json}
-import radiomapserver.{RadioMap, RadioMapMean}
-import acces.AccesRBF
 import radiomapserver.RadioMap.RadioMap
+import radiomapserver.RadioMapMean
+import utils._
 
+import scala.util.control.Breaks
+//new marileni 16/3
+import play.api.libs.json.Reads._
+
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
-import collection.JavaConversions._
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -355,7 +359,115 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+
   //end new marileni
+
+  def getAPsIds() = Action {
+     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json  = anyReq.getJsonBody
+        var accessPointsOfReq= (json\"ids").as[List[String]]
+
+
+//        LPLogger.info("AnyplaceMapping::getAPsIDs(): " + accessPoints.toString)
+//        val requiredMissing = JsonUtils.requirePropertiesInJson(accessPoints, "MAC")
+//        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+//        val mac = (accessPoints \ "MAC").as[String]
+
+
+        try {
+          val reqFile = "public/anyplace_architect/ids.json"
+          val file = Play.application().resourceAsStream(reqFile)
+
+          var accessPointsOfFile: List[JsObject]= null
+          if (file != null) {
+            accessPointsOfFile = Json.parse(file).as[List[JsObject]]
+          }else{
+            return AnyResponseHelper.not_found(reqFile)
+          }
+
+          val APsIDs: util.ArrayList[String]= new util.ArrayList[String]()
+          var found = false
+          var firstBitFound = false
+          var sameBits = 0
+          var sameBitsOfReq = 0
+          var idOfReq : String = ""
+          val loop = new Breaks
+
+          val inner_loop = new Breaks
+
+
+            for (accessPointOfReq : String <- accessPointsOfReq) {
+              idOfReq="N/A"
+              loop.breakable {
+                for (accessPointOfFile: JsObject <- accessPointsOfFile) {
+
+                  val bitsR = accessPointOfReq.split(":")
+                  val bitsA = accessPointOfFile.value("mac").as[String].split(":")
+                  if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
+
+                    firstBitFound=true
+
+                    var i = 0
+                    inner_loop.breakable {
+                      for (i <- 0 until bitsA.length) {
+
+                        if (bitsA(i).equalsIgnoreCase(bitsR(i))) {
+                          sameBits += 1
+                        } else {
+
+                          inner_loop.break
+                        }
+                      }
+                    }
+
+                    if(sameBits >= 3)
+                      found = true
+
+                  } else {
+                    sameBits = 0
+
+                    if (firstBitFound) {
+                      firstBitFound=false
+                      loop.break
+                    }
+                  }
+
+                  if (sameBitsOfReq < sameBits && found) {
+                    sameBitsOfReq = sameBits
+                    idOfReq = accessPointOfFile.value("id").as[String]
+                  }
+                  sameBits = 0
+
+                }
+              }//accessPointOfFile break
+
+              APsIDs.add(idOfReq)
+              sameBitsOfReq = 0
+              found=false
+
+          }
+
+          if (accessPointsOfReq == null) return AnyResponseHelper.bad_request("Access Points does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+
+          res.put("accessPoints", APsIDs)
+
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all id for Access Points!")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
 
   //new marileni 17/1
 

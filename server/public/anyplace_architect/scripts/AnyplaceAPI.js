@@ -137,10 +137,11 @@ AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + Anyplac
 
 AnyplaceAPI.Mapping.SIGN = "/mapping/accounts/sign";
 AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIGN;
-//new marileni 17/1
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/mapping/radio/delete";
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE;
-//end new marileni
+// new marileni 16/3
+AnyplaceAPI.Mapping.GET_APS_IDS="/mapping/radio/aps_ids";
+AnyplaceAPI.Mapping.GET_APS_IDS_URL=AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.GET_APS_IDS;
 
 
 app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
@@ -237,6 +238,19 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
     //end new marileni
+
+    apiService.getAPsIds= function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.GET_APS_IDS_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
 
 
     //new marileni 17/1

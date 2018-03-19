@@ -765,7 +765,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             var i = fingerPrintsMap.length;
             while (i--) {
-                if (fingerPrintsMap[i].getPosition().lat() <= start.lat() && fingerPrintsMap[i].getPosition().lng() <= start.lng() && fingerPrintsMap[i].getPosition().lat() >= end.lat() && fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
+                if (fingerPrintsMap[i] <= start.lat() && fingerPrintsMap[i].getPosition().lng() <= start.lng() && fingerPrintsMap[i].getPosition().lat() >= end.lat() && fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
 
                     confirmation = confirm("Confirm:\nAre you sure you want to delete the selected fingerprints?");
                     break;
@@ -1151,41 +1151,82 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     }
 
 
-    $scope.getAPsIds=function(){
+    $scope.getAPsIds=function(jsonInfo){
 
-        var bits;
+        var jsonReq={};
+        jsonReq.ids=jsonInfo;
 
-        $.getJSON("ids.json", function (json) {
-            var i = APmap.length;
-            var alreadyExist=false;
-            while (i--) {
-                bits = APmap[i].id.slice(0, APmap[i].id.length - 9);
+        var promise= $scope.anyAPI.getAPsIds(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data.accessPoints;
 
-                for (key in json) {
-                    if (key === bits.toUpperCase()) {
+                var i = data.length;
 
-                        APmap[i].mun = json[key];
-                        var j=$scope.example8data.length;
-                        while(j--) {
-                            if($scope.example8data[j].id===APmap[i].mun){
-                                alreadyExist=true;
-                                break;
-                            }
-                        }
+                if (i <= 0) {
+                    _err("Access Points seems to not have ids");
+                    return;
+                }
 
-                        if(!alreadyExist){
-                            $scope.example8data.push({id: APmap[i].mun, label: APmap[i].mun});
-                            $scope.example8model.push({id: APmap[i].mun, label: APmap[i].mun});
-                        }
-                        alreadyExist=false;
+                var dataIDs=new Set();
 
-                    }
+                while(i--){
+                    APmap[i].mun=data[i];
+                    dataIDs.add(data[i]);
 
                 }
 
-            }
+                dataIDs.forEach(function (element) {
+                    if(element!=="N/A"){
+                    $scope.example8data.push({id: element, label: element});
+                    $scope.example8model.push({id: element, label: element});
+                }
+            });
 
-        });
+
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err('Something went wrong while fetching the ids of access points.');
+            }
+        );
+
+
+        // var bits;
+        //
+        // $.getJSON("ids.json", function (json) {
+        //     var i = APmap.length;
+        //     var alreadyExist=false;
+        //     while (i--) {
+        //         bits = APmap[i].id.slice(0, APmap[i].id.length - 9);
+        //
+        //         for (key in json) {
+        //             if (key === bits.toUpperCase()) {
+        //
+        //                 APmap[i].mun = json[key];
+        //                 var j=$scope.example8data.length;
+        //                 while(j--) {
+        //                     if($scope.example8data[j].id===APmap[i].mun){
+        //                         alreadyExist=true;
+        //                         break;
+        //                     }
+        //                 }
+        //
+        //                 if(!alreadyExist){
+        //                     $scope.example8data.push({id: APmap[i].mun, label: APmap[i].mun});
+        //                     $scope.example8model.push({id: APmap[i].mun, label: APmap[i].mun});
+        //                 }
+        //                 alreadyExist=false;
+        //
+        //             }
+        //
+        //         }
+        //
+        //     }
+        //
+        // });
 
 
     };
@@ -1198,15 +1239,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var APsData = [];
-
         var i;
 
         var promise = $scope.anyAPI.getAPs(jsonReq);
         promise.then(
             function (resp) {
                 // on success
-                var data = resp.data;
 
                 i = resp.data.accessPoints.length;
 
@@ -1233,6 +1271,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 var c = 0;
                 var x;
                 var y;
+                var jsonInfo=[];
                 while (i--) {
                     //check for limit
                     if (c == MAX) {
@@ -1266,11 +1305,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         accessPoint
                     );
 
+                    jsonInfo.push(accessPoint.id);
+
                     var infowindow=new google.maps.InfoWindow();
                     if(!infowindow.getMap()) {
                         APmap[c].addListener('click', function () {
 
-                            if(this.mun !== undefined) {
+                            if(this.mun !== "N/A") {
                                 infowindow.setContent(this.id + "<br><center>-</center><br>" + this.mun);
                             }else{
                                 infowindow.setContent(this.id);
@@ -1283,7 +1324,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                     c++;
                 }
-                $scope.getAPsIds();
+                $scope.getAPsIds(jsonInfo);
             },
             function (resp) {
                 // on error
@@ -1301,6 +1342,10 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     $scope.showFingerPrints = function () {
 
+        // var x=window.screen.availHeight
+        // var y=window.screen.availWidth
+        // console.log(x+" "+y)
+
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
         jsonReq.username = $scope.creds.username;
@@ -1310,6 +1355,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
         promise.then(
             function (resp) {
+
                 // on success
                 var data = resp.data;
 

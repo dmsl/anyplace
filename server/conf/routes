@@ -28,8 +28,8 @@ POST           /anyplace/mapping/radio/heatmap_building_floor_average_1       co
 POST           /anyplace/mapping/radio/heatmap_building_floor_average_2       controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage2()
 POST           /anyplace/mapping/radio/heatmap_building_floor_average_3       controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
 
-POST           /anyplace/mapping/radio/APs_building_floor                   controllers.AnyplaceMapping.getAPsByBuildingFloor()
-
+POST            /anyplace/mapping/radio/APs_building_floor                   controllers.AnyplaceMapping.getAPsByBuildingFloor()
+POST            /anyplace/mapping/radio/aps_ids                              controllers.AnyplaceMapping.getAPsIds()
 POST           /anyplace/mapping/radio/delete                               controllers.AnyplaceMapping.FingerPrintsDelete()
 
 POST           /anyplace/mapping/radio/radio_buid_floor                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
