@@ -104,6 +104,7 @@ The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization).
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the DEVELOP branch: 
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
+- DEV Testing: https://ap-dev.cs.ucy.ac.cy *** Important: On the given service, you can observe the latest bug fixes and additions. The given service uses the SAME database as the live service so please don't accidentally delete anything **** 
 
 ## TEAM
 - https://anyplace.cs.ucy.ac.cy/#about
