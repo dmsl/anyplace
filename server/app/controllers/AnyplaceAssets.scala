@@ -35,16 +35,11 @@
  */
 package controllers
 
-import play.api.libs.concurrent.Execution.Implicits._
-
-import play.Play
-import play.api.libs.MimeTypes
-import play.api.libs.iteratee.Enumerator
 import play.api.mvc.Action
 
 object AnyplaceAssets extends play.api.mvc.Controller {
 
-  def at(path: String, file: String) = Action {
+  def at(path: String, file: String) = Action.async {
     implicit request =>
       //    Assets.at(path+"/anyplace_viewer_campus", file)
       val uri = request.headers.get("referer").getOrElse("")
@@ -56,14 +51,7 @@ object AnyplaceAssets extends play.api.mvc.Controller {
       else {
         viewerDir = "/anyplace_viewer_campus/"
       }
+      Assets.at(path + viewerDir, file).apply(request)
 
-      val reqFile = path + viewerDir + file
-      val istream = Play.application().resourceAsStream(reqFile)
-      if (istream != null) {
-        val contentType = MimeTypes.forFileName(reqFile).getOrElse(BINARY)
-        Ok.chunked(Enumerator.fromStream(istream).andThen(Enumerator.eof)).as(contentType)
-      }
-      else
-        NotFound
   }
 }
