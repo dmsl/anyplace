@@ -30,6 +30,9 @@ var app = angular.module('anyArchitect', ['ngCookies','angularjs-dropdown-multis
 app.service('GMapService', function () {
 
     this.gmap = {};
+    // this.directionsService = {};
+    // this.directionsDisplay = {};
+
 //    this.searchBox = {};
 
     var self = this;
@@ -51,7 +54,9 @@ app.service('GMapService', function () {
         scaleControl: true,
         streetViewControl: false,
         overviewMapControl: true
+
     };
+    
     self.gmap = new google.maps.Map(document.getElementById('map-canvas'),
         mapOptions);
 

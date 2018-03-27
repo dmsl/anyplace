@@ -349,6 +349,22 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
+    apiService.getHeatmapAcces = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: "http://localhost:9000/anyplace/mapping/radio/acces",
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+
+    };
+
+
+
 //retrievePoisTypes
 
     apiService.retrievePoisTypes = function (json_req) {

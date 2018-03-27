@@ -1512,11 +1512,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     $scope.getFingerPrintsTime = function (option){
 
 
+
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
-
 
         var promise=$scope.anyAPI.getFingerprintsTime(jsonReq);
 
