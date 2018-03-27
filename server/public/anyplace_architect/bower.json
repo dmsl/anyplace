@@ -20,7 +20,7 @@
     "angular": "1.3.20",
     "angular-route": "~1.3.14",
     "angular-loading-bar": "~0.7.1",
-    "FileSaver": "*",
+    "FileSaver": "1.3.3",
     "jquery-ui": "~1.11.2",
     "jquery": "*",
     "jqueryui-touch-punch": "*",
@@ -28,7 +28,7 @@
     "angular-ui-select": "~0.11.2",
     "bootstrap": "~3.2.0",
     "select2": "~3.4",
-    "angularjs-dropdown-multiselect": "1.5.2",
+    "angularjs-dropdown-multiselect": "1.11.0",
     "jszip": "3.0.0"
   },
   "resolutions": {

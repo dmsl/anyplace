@@ -171,7 +171,9 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.addAlert = function (type, msg) {
+        // this.alerts[0] = ({msg: msg, type: type});
         this.alerts[0] = ({msg: msg, type: type});
+
     };
 
     anyService.closeAlert = function (index) {

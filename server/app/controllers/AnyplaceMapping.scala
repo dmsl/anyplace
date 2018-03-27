@@ -50,7 +50,7 @@ import db_models._
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
 import play.Play
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
 import radiomapserver.RadioMap.RadioMap
 import radiomapserver.RadioMapMean
@@ -287,6 +287,115 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   //end new marileni
 
+  def getRadioHeatmapByBuildingFloorTimestamp()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+  def getRadioHeatmapByBuildingFloorTimestampAverage1()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX,timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+  def getRadioHeatmapByBuildingFloorTimestampAverage2()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX,timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+
   //new marileni 4/1
 
   def getAPsByBuildingFloor() = Action {
@@ -370,13 +479,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json  = anyReq.getJsonBody
         var accessPointsOfReq= (json\"ids").as[List[String]]
-
-
-//        LPLogger.info("AnyplaceMapping::getAPsIDs(): " + accessPoints.toString)
-//        val requiredMissing = JsonUtils.requirePropertiesInJson(accessPoints, "MAC")
-//        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-//        val mac = (accessPoints \ "MAC").as[String]
-
 
         try {
           val reqFile = "public/anyplace_architect/ids.json"
@@ -522,6 +624,50 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   //end new marileni
+
+  def FingerPrintsTime() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::FingerPrintsTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor").as[String]
+
+
+        try {
+          val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsTime(buid, floor_number)
+          if (radioPoints.isEmpty)
+            return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
+
+
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+          gzippedJSONOk(res.toString)
+          //                }
+          //                return AnyResponseHelper.ok(res.toString());
+          catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+
+      }
+
+      inner(request)
+  }
+
 
 
   def getRadioHeatmapBbox = Action {

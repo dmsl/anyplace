@@ -194,6 +194,13 @@ footer{
     /*border-top: 10px #428bca solid;*/
 }
 
+#time-bar{
+    position:fixed;
+    bottom: 10%;
+    left: 5%;
+    right:95%;
+}
+
 .A_0 {
     cursor: pointer;
 }
@@ -355,14 +362,27 @@ contextmenu {
     outline-style: none;
 }
 
-#DL_1{
+#FPs_2{
     position:fixed;
     top:11px;
     left:50px;
 
 }
 
-#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode{
+#DL_1{
+    position:fixed;
+    top:11px;
+    left:100px;
+
+}
+
+#HMs_2{
+    position:fixed;
+    top:58px;
+    left:50px;
+}
+
+#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
     padding: 0px;
 }
 
@@ -750,4 +770,63 @@ contextmenu {
 .infowindow-text-area{
     resize: none;
     border:0px
+}
+
+/*Style for Crossfilter*/
+
+#charts {
+    padding: 10px 0;
+}
+
+.chart {
+    display: inline-block;
+    height: 151px;
+    margin-bottom: 20px;
+}
+
+.reset {
+    padding-left: 1em;
+    font-size: smaller;
+    color: #ccc;
+}
+
+.background.bar {
+    fill: #ccc;
+}
+
+.foreground.bar {
+    fill: steelblue;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font: 10px sans-serif;
+}
+
+.brush rect.extent {
+    fill: steelblue;
+    fill-opacity: .125;
+}
+
+.brush .resize path {
+    fill: #eee;
+    stroke: #666;
+}
+
+
+#date-chart {
+    width: 920px;
+}
+
+
+aside {
+    position: absolute;
+    left: 740px;
+    font-size: smaller;
+    width: 220px;
 }

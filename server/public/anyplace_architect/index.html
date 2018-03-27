@@ -64,7 +64,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <!--<script src="/bower_components/angular-cookies/angular-cookies.js"></script>-->
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular-cookies.js"></script>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular-cookies.js"></script>
 
 </head>
 <body >
@@ -764,32 +764,46 @@
                     <div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>
 
                         <div class="divider-top-10" >
-                                 <span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >
-                                    <span id="fingerPrints-mode">
+                            <span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >
+                                <span id="fingerPrints-mode">
                                         <button type="button" class="btn btn-default">
                                             <i class="fa fa-podcast"></i>
                                         </button>
                                     </span>
 
-                                 </span>
-                            <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsisON()" >
+                            </span>
+                            <span title="FingerPrints Time MODE: {{ getFingerPrintsTimeModeText() }}" id="FPs_2"  class="A_0" ng-show="fingerPrintsMode" >
+                                    <span id="fingerPrints-time-mode">
+                                      <button type="button" class="btn btn-default">
+                                            <i class="fa fa-clock-o"></i>
+                                        </button>
+                                    </span>
+                            </span>
+                            <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsMode" >
                                     <span id="delete-mode">
                                       <button type="button" class="btn btn-default">
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </span>
-                                 </span>
+                            </span>
+
                         </div>
 
                         <div class="divider-top-10">
-                                <span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">
-                                    <span id="radioHeatmapRSS-mode">
-                                     <button type="button" class="btn btn-default">
-                                            <i class="fa fa-area-chart"></i>
+                            <span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">
+                                <span id="radioHeatmapRSS-mode">
+                                    <button type="button" class="btn btn-default">
+                                        <i class="fa fa-area-chart"></i>
+                                    </button>
+                                </span>
+                            </span>
+                            <span title="WiFi Map Time MODE: {{ getHeatmapTimeModeText() }}" id="HMs_2"  class="A_0" ng-show="radioHeatmapRSSMode" >
+                                    <span id="radioHeatmapRSS-time-mode">
+                                      <button type="button" class="btn btn-default">
+                                            <i class="fa fa-clock-o"></i>
                                         </button>
                                     </span>
-
-                                </span>
+                            </span>
                         </div>
 
                         <div class="divider-top-10">
@@ -837,86 +851,10 @@
                     <div ng-show="showFullControls">
                     <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
 
-
-
                     <div class="divider-top-15-line">
 
 
                         <div class="divider-top-10">
-
-                            <!--<div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>-->
-
-                                <!--<div class="divider-top-10" >-->
-                                 <!--<span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >-->
-                                    <!--<span id="fingerPrints-mode">-->
-                                        <!--<button type="button" class="btn btn-default">-->
-                                            <!--<i class="fa fa-podcast"></i>-->
-                                        <!--</button>-->
-                                    <!--</span>-->
-
-                                 <!--</span>-->
-                                    <!--<span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsisON()" >-->
-                                    <!--<span id="delete-mode">-->
-                                      <!--<button type="button" class="btn btn-default">-->
-                                            <!--<i class="fa fa-trash"></i>-->
-                                        <!--</button>-->
-                                    <!--</span>-->
-                                 <!--</span>-->
-                                <!--</div>-->
-
-                                <!--<div class="divider-top-10">-->
-                                <!--<span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">-->
-                                    <!--<span id="radioHeatmapRSS-mode">-->
-                                     <!--<button type="button" class="btn btn-default">-->
-                                            <!--<i class="fa fa-area-chart"></i>-->
-                                        <!--</button>-->
-                                    <!--</span>-->
-
-                                <!--</span>-->
-                                <!--</div>-->
-
-                                <!--<div class="divider-top-10">-->
-                                 <!--<span title="{{ getAPsModeText() }}" id="APs_1"  class="A_0">-->
-                                    <!--<span id="APs-mode">-->
-                                        <!--<button type="button" class="btn btn-default">-->
-                                            <!--<i class="fa fa-wifi"></i>-->
-                                        <!--</button>-->
-                                    <!--</span>-->
-                                 <!--</span>-->
-                                <!--</div>-->
-
-                                <!--<div class="divider-top-10">-->
-                                 <!--<span title="{{ getLocalizationAccurancyModeText() }}" id="LA_1" class="A_0">-->
-                                    <!--<span id="localizationAccurancy-mode">-->
-                                       <!--<button type="button" class="btn btn-default">-->
-                                            <!--<i class="fa fa-map"></i>-->
-                                        <!--</button>-->
-                                    <!--</span>-->
-                                 <!--</span>-->
-                                <!--</div>-->
-                                <!--<div class="divider-top-10">-->
-                                 <!--<span title="{{ getPOIsModeText() }}" id="POIs_1"  class="A_0" >-->
-                                    <!--<span id="POIs-mode">-->
-                                         <!--<button type="button" class="btn btn-default">-->
-                                            <!--<img src="build/images/poi-icon.png" height="16px" width="14px"/>-->
-                                        <!--</button>-->
-
-                                    <!--</span>-->
-                                 <!--</span>-->
-                                <!--</div>-->
-                                <!--<div class="divider-top-10">-->
-                                 <!--<span title="{{ getConnectionsModeText() }}" id="CNs_1"  class="A_0" >-->
-                                    <!--<span id="connections-mode">-->
-                                         <!--<button type="button" class="btn btn-default">-->
-                                             <!--<img src="build/images/edge-mode.png" height="16px" width="14px"/>-->
-                                        <!--</button>-->
-
-                                    <!--</span>-->
-                                 <!--</span>-->
-                                <!--</div>-->
-
-                            <!--</div>-->
-
 
                             <ul class="nav nav-pills" role="tablist">
                                 <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
@@ -944,6 +882,11 @@
                                     </button>
                                     <button id="deleteButton" class="btn btn-success" ng-click="deleteFingerPrints()">
                                         Delete FingerPrints
+                                    </button>
+                                </div>
+                                <div style="margin: 10px; font-weight: bold" ng-show="fingerPrintsMode">
+                                    <button id="FPsTimeButton" class="btn btn-success" ng-click="toggleFingerPrintsTime()" >
+                                        {{getFingerPrintTimeButtonText()}}
                                     </button>
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
@@ -974,11 +917,17 @@
                                         {{getHeatMapButtonText()}}
                                     </button>
 
+                                    <div style="margin: 10px; font-weight: bold" ng-show="radioHeatmapRSSMode">
+                                        <button id="HMsTimeButton" class="btn btn-success" ng-click="toggleRadioHeatmapRSSTime()" >
+                                            {{getHeatMapTimeButtonText()}}
+                                        </button>
+                                    </div>
+
                                     <button id="APsButton" class="btn btn-success" ng-click="toggleAPs()">
                                         {{getAPsButtonText()}}
                                     </button>
 
-                                    <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsisON()">
+                                    <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsMode">
                                         <option id="defaultOption" selected disabled>Filters:</option>
                                         <option style="margin: 10px; font-weight: bold" value="0">By MAC</option>
                                         <option style="margin: 10px; font-weight: bold" value="1">By manufacturer</option>
@@ -1032,6 +981,17 @@
                             </button>
 
                         </ul>
+                    </div>
+                    <div id="time-bar" ng-show="fingerPrintsTimeMode || radioHeatmapRSSTimeMode" class="" >
+                        <div id="charts">
+                            <div id="date-chart" class="chart">
+                                <div class="title">Date</div>
+                            </div>
+                        </div>
+
+                        <script src="libs/crossfilter.v1.min.js"></script>
+                        <script src="libs/d3.v3.min.js"></script>
+
                     </div>
                 </div>
                 <div class="warning-prereq"
@@ -1137,6 +1097,8 @@
 <script type="text/javascript" src="libs/lodash.min.js"></script>
 
 <script type="text/javascript" src="libs/flurry.js"></script>
+
+
 
 <script>FlurryAgent.startSession("DND8DGH2MT7VZGBMNBPP");</script>
 

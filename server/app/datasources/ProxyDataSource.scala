@@ -205,6 +205,21 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
   }
 
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+  }
+
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
+  }
+
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
+  }
+
   override def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAPsByBuildingFloor(buid, floor)
@@ -220,6 +235,12 @@ class ProxyDataSource private() extends IDatasource {
     _checkActiveDatasource()
     mActiveDatabase.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
   }
+
+  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getFingerPrintsTime(buid,floor)
+  }
+
 
   override def getAllBuildings(): List[JsonObject] = {
     _checkActiveDatasource()
