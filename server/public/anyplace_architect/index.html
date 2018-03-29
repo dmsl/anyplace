@@ -763,6 +763,16 @@
 
                     <div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>
 
+                        <div class="diveder-top-10">
+                            <span title="Time MODE: {{ getFingerPrintsTimeModeText() }}" id="FPs_2"  class="A_0" ng-show="fingerPrintsMode || radioHeatmapRSSMode" >
+                                    <span id="fingerPrints-time-mode">
+                                      <button type="button" class="btn btn-default">
+                                            <i class="fa fa-clock-o"></i>
+                                        </button>
+                                    </span>
+                            </span>
+                        </div>
+
                         <div class="divider-top-10" >
                             <span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >
                                 <span id="fingerPrints-mode">
@@ -772,13 +782,7 @@
                                     </span>
 
                             </span>
-                            <span title="FingerPrints Time MODE: {{ getFingerPrintsTimeModeText() }}" id="FPs_2"  class="A_0" ng-show="fingerPrintsMode" >
-                                    <span id="fingerPrints-time-mode">
-                                      <button type="button" class="btn btn-default">
-                                            <i class="fa fa-clock-o"></i>
-                                        </button>
-                                    </span>
-                            </span>
+
                             <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsMode" >
                                     <span id="delete-mode">
                                       <button type="button" class="btn btn-default">
@@ -797,13 +801,7 @@
                                     </button>
                                 </span>
                             </span>
-                            <span title="WiFi Map Time MODE: {{ getHeatmapTimeModeText() }}" id="HMs_2"  class="A_0" ng-show="radioHeatmapRSSMode" >
-                                    <span id="radioHeatmapRSS-time-mode">
-                                      <button type="button" class="btn btn-default">
-                                            <i class="fa fa-clock-o"></i>
-                                        </button>
-                                    </span>
-                            </span>
+
                         </div>
 
                         <div class="divider-top-10">
@@ -916,12 +914,6 @@
                                     <button id="HMsButton" class="btn btn-success" ng-click="toggleRadioHeatmapRSS()">
                                         {{getHeatMapButtonText()}}
                                     </button>
-
-                                    <div style="margin: 10px; font-weight: bold" ng-show="radioHeatmapRSSMode">
-                                        <button id="HMsTimeButton" class="btn btn-success" ng-click="toggleRadioHeatmapRSSTime()" >
-                                            {{getHeatMapTimeButtonText()}}
-                                        </button>
-                                    </div>
 
                                     <button id="APsButton" class="btn btn-success" ng-click="toggleAPs()">
                                         {{getAPsButtonText()}}

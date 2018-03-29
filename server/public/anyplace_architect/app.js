@@ -56,7 +56,7 @@ app.service('GMapService', function () {
         overviewMapControl: true
 
     };
-    
+
     self.gmap = new google.maps.Map(document.getElementById('map-canvas'),
         mapOptions);
 

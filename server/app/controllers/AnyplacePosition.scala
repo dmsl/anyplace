@@ -36,7 +36,6 @@
 package controllers
 
 import java.io._
-import java.net.URI
 import java.util._
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
@@ -542,7 +541,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       inner(request)
   }
 
-  private def updateFrozenRadioMap(buid: String, floor_number: String) {
+  def updateFrozenRadioMap(buid: String, floor_number: String) {
     if (!Floor.checkFloorNumberFormat(floor_number)) {
       return
     }

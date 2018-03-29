@@ -52,6 +52,7 @@ import org.apache.commons.codec.binary.Base64
 import play.Play
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc._
+import play.libs.F
 import radiomapserver.RadioMap.RadioMap
 import radiomapserver.RadioMapMean
 import utils._
@@ -606,10 +607,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+{
+          //Regenerate the radiomap files
+          val strPromise = F.Promise.pure("10")
+          val intPromise = strPromise.map(new F.Function[String, Integer]() {
+            override def apply(arg0: String): java.lang.Integer = {
+              AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+              0
+            }
+          })
           gzippedJSONOk(res.toString)
           //                }
           //                return AnyResponseHelper.ok(res.toString());
-          catch {
+        } catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
           }
@@ -2549,6 +2559,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
           case e: IOException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           case e: Exception => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case _: Throwable => return AnyResponseHelper.internal_server_error("Server Internal Error [" + "]")
         }
       }
 

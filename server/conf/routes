@@ -36,6 +36,7 @@ POST            /anyplace/mapping/radio/APs_building_floor                   con
 POST            /anyplace/mapping/radio/aps_ids                              controllers.AnyplaceMapping.getAPsIds()
 POST           /anyplace/mapping/radio/delete                               controllers.AnyplaceMapping.FingerPrintsDelete()
 POST           /anyplace/mapping/radio/time                               controllers.AnyplaceMapping.FingerPrintsTime()
+POST           /anyplace/mapping/radio/acces                               controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
 
 
 POST           /anyplace/mapping/radio/radio_buid_floor                   controllers.AnyplaceMapping.getRadioHeatmapBbox()

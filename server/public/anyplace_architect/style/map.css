@@ -362,24 +362,12 @@ contextmenu {
     outline-style: none;
 }
 
-#FPs_2{
-    position:fixed;
-    top:11px;
-    left:50px;
-
-}
 
 #DL_1{
     position:fixed;
-    top:11px;
-    left:100px;
-
-}
-
-#HMs_2{
-    position:fixed;
-    top:58px;
+    top:45px;
     left:50px;
+
 }
 
 #radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
