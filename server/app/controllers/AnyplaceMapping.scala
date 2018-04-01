@@ -47,10 +47,11 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models._
+import location.Algorithms
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
 import play.Play
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import play.libs.F
 import radiomapserver.RadioMap.RadioMap
@@ -673,6 +674,50 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
         }
 
+      }
+
+      inner(request)
+  }
+
+
+
+  def findPosition() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor").as[String]
+        val accessPoints= (json\"APs").as[List[JsValue]]
+        val algorithm_choice = (json\"algorithm_choice").as[Int]
+
+        val rmapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+          floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
+
+        if(!rmapFile.exists()){
+           //Regenerate the radiomap files if not exist
+             AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+        }
+
+        val latestScanList: util.ArrayList[location.LogRecord] = null
+        var i=0
+        for (i <- 0 until accessPoints.size) {
+          val bssid= (accessPoints(i) \ "bssid").as[String]
+          val rss =(accessPoints(i) \ "rss").as[Int]
+          latestScanList.add(new location.LogRecord(bssid,rss))
+
+        }
+
+        val radioMap:location.RadioMap = new location.RadioMap(rmapFile)
+        Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
+        return AnyResponseHelper.ok("Successfully found position.")
       }
 
       inner(request)

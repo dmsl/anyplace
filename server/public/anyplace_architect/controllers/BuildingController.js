@@ -1741,7 +1741,11 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     //set cookies
 
     $('#dismiss').on('click', function() {
-        $cookieStore.put('dismissClicked', 'YES');
+        // set expire date.
+        var expireDate = new Date();
+        expireDate.setDate(expireDate.getDate() + 20*365);
+        $cookieStore.put('dismissClicked', 'YES',{'expires': expireDate});
+
     });
 
     if ($cookieStore.get('dismissClicked') !== 'YES') {

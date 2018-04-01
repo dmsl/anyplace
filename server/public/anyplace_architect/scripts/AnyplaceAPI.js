@@ -79,6 +79,8 @@ AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2 = AnyplaceAPI.FULL_SERVER + 
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/mapping/radio/heatmap_building_floor_timestamp_average_3";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3;
 
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES= "/mapping/radio/acces";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES;
 
 AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_POI;
@@ -88,7 +90,6 @@ AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + 
 
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
-
 
 AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/building/add";
 AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ADD;
@@ -353,7 +354,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
-            url: "http://localhost:9000/anyplace/mapping/radio/acces",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

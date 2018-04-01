@@ -24,7 +24,7 @@ footer{
     margin-right: 20px;
 }
 
-#minimize-btn {
+#minimize-btn,#maximize-btn {
     position: absolute;
     right: 1px;
     top: 2px;
@@ -35,7 +35,7 @@ footer{
     margin-bottom: 10px;
 }
 
-.fa-window-minimize{
+.fa-window-minimize, .fa-window-maximize{
     color:#428bca;
     margin-bottom: 10px;
 }

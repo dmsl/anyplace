@@ -113,6 +113,9 @@ app.factory('AnyplaceService', function () {
     anyService.progress = undefined;
     anyService.allPois = {};
     anyService.allConnections = {};
+    anyService.radioHeatmapRSSMode=false;
+    anyService.fingerPrintsTimeMode=false;
+    anyService.radioHeatmapRSSTimeMode=false;
 
 
     anyService.alerts = [];

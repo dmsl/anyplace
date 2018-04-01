@@ -120,6 +120,7 @@ POST           /anyplace/position/paths_by_floor                            cont
 POST           /anyplace/position/paths_by_buid                             controllers.AnyplacePosition.magneticPathByBuilding()
 POST           /anyplace/position/milestones_add                            controllers.AnyplacePosition.magneticMilestoneUpload()
 POST           /anyplace/position/milestones_by_floor                       controllers.AnyplacePosition.magneticMilestoneByFloor()
+POST           /anyplace/position/estimate_position                         controllers.AnyplaceMapping.findPosition()
 
 ### DEVELOPERS WEBSITE ###
 GET            /developers/*file                                            controllers.Assets.at(path="/public/anyplace_developers", file)
