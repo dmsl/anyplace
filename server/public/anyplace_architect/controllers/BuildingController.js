@@ -1742,13 +1742,13 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
 
     $('#dismiss').on('click', function() {
         // set expire date.
-        var expireDate = new Date();
-        expireDate.setDate(expireDate.getDate() + 20*365);
-        $cookieStore.put('dismissClicked', 'YES',{'expires': expireDate});
+        if (typeof(Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('dismissClicked', 'YES');
+        }
 
     });
 
-    if ($cookieStore.get('dismissClicked') !== 'YES') {
+    if (localStorage.getItem('dismissClicked') !== 'YES') {
         function showWelcomeMessage(){
             $('#myModal_Welcome').modal('show');
         }
