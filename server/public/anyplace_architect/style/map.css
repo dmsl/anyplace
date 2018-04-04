@@ -59,7 +59,7 @@ footer{
     font-size: 15px;
     font-weight: 300;
     text-overflow: ellipsis;
-    left: 325px !important;
+    left: 35% !important;
 }
 
 #pac-input:focus {
@@ -173,32 +173,21 @@ footer{
     z-index: 99;
     border: 1px solid #ddd;
     background-color: white;
-    /*border-top: 10px #428bca solid;*/
 }
 
 #color-bar {
-    /*width: auto;
-    max-width: 0%;
-    min-width: 0px;
-    height: auto;
-    max-height: 100%;*/
     position: fixed;
-    bottom: 0;
+    bottom: -1%;
     left: 50%;
-    /*margin: 0;
-    z-index: 99;
-    border: 1px solid #ddd;
-    background-color: white;*/
     right:50%;
     margin-left:-300px;
-    /*border-top: 10px #428bca solid;*/
 }
 
 #time-bar{
     position:fixed;
-    bottom: 10%;
-    left: 5%;
-    right:95%;
+    bottom: 0;
+    left: 10%;
+    right:90%;
 }
 
 .A_0 {
@@ -415,6 +404,11 @@ contextmenu {
 .divider-top-10 {
     margin-top: 10px;
 }
+
+.divider-top-1 {
+    margin-top: 1px;
+}
+
 
 .divider-top-10-line {
     margin-top: 10px;
@@ -817,4 +811,16 @@ aside {
     left: 740px;
     font-size: smaller;
     width: 220px;
+}
+
+svg {
+    box-shadow: rgba(0,0,0,.65098) 0 1px 5px 0;
+    -webkit-box-shadow: rgba(0,0,0,.65098) 0 1px 5px 0;
+    perspective-origin: 20px 61px;
+    -webkit-perspective-origin: 20px 61px;
+    transform: matrix(1,0,0,1,0,0);
+    -webkit-transform: matrix(1,0,0,1,0,0);
+    transform-origin: 20px 61px;
+    -webkit-transform-origin: 20px 61px;
+    background: white;
 }
