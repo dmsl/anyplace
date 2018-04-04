@@ -1486,7 +1486,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 promise = $scope.anyAPI.getRadioHeatmapRSSByTime_1(jsonReq);
             }
 
-            // promise = $scope.anyAPI.getRadioHeatmapRSSByTime(jsonReq);
 
         }else {
 
@@ -1516,6 +1515,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 if (i <= 0) {
                     _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
                     document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
+                    $scope.radioHeatmapRSSMode=false;
                     return;
                 }
                 if(i==0 && $scope.radioHeatmapRSSTimeMode){
@@ -1625,6 +1625,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 // on error
                 var data = resp.data;
                 _err('Something went wrong while fetching radio heatmap.');
+                $scope.radioHeatmapRSSMode=false;
                 document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
                 if($scope.radioHeatmapRSSTimeMode) {
                     document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
@@ -1702,6 +1703,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 if (i <= 0) {
                     _err("This floor seems not to be Access Point mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    $scope.APsMode=false;
                     document.getElementById("APs-mode").classList.remove('draggable-border-green');
                     return;
                 }
@@ -1782,6 +1784,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             function (resp) {
                 // on error
                 var data = resp.data;
+                $scope.APsMode=false;
                 _err('Something went wrong while fetching Access Points.');
                 document.getElementById("APs-mode").classList.remove('draggable-border-green');
             }
@@ -1864,6 +1867,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
                     document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                     $scope.fingerPrintsTimeMode=false;
+                    $scope.fingerPrintsMode=false;
                     if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
                         localStorage.setItem('fingerPrintsTimeMode', 'NO');
                     }
@@ -1933,17 +1937,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         c++;
                     }
 
-                    // if (heatmap && heatmap.getMap()) {
-                    //     heatmap.setMap(null);
-                    //
-                    //     var i =heatmapFingerprints.length;
-                    //     while(i--){
-                    //         heatmapFingerprints[i]=null;
-                    //     }
-                    //     heatmapFingerprints=[];
-                    //     _HEATMAP_F_IS_ON=false;
-                    // }
-
 
                     heatmap = new google.maps.visualization.HeatmapLayer({
                         data: heatMapData
@@ -1964,6 +1957,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
                 document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                 $scope.fingerPrintsTimeMode=false;
+                $scope.fingerPrintsMode=false;
                 if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
                     localStorage.setItem('fingerPrintsTimeMode', 'NO');
                 }

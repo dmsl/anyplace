@@ -8,7 +8,7 @@
       "description": "You can find your API key (access_token) by signing in Anyplace Architect, in the \"More\" section."
     }
   ],
-  "baseurl": "http://localhost:9000/anyplace",
+  "baseurl": "https://ap-dev.cs.ucy.ac.cy/anyplace",
   "endpoints": [
     {
       "name": "Navigation",
@@ -280,7 +280,7 @@
         },
         {
           "method_name": "Radio Heat-Map in Box",
-          "method_description": "Get all points (latitude, longitude) along with their number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points.",
           "http_method": "POST",
           "uri": "/mapping/radio/radio_heatmap_bbox  ",
           "parameters": [
@@ -1137,8 +1137,8 @@
           ]
         },
         {
-          "method_name": "Estimate Position of a User by the Access Points that hears",
-          "method_description": "Estimate Position given building, floor, Access Points and the chosen algorithm ",
+          "method_name": "Estimate the user's position using APs",
+          "method_description": "Estimate the location of the user. ",
           "http_method": "POST",
           "uri": "/position/estimate_position",
           "parameters": [
@@ -1160,7 +1160,7 @@
               "name": "APs",
               "required": "Y",
               "type": "List[JsValue]",
-              "description": "Access Points as for example [{\"bssid\":,\"rss\": -40},..]"
+              "description": "APs as for example [{\"bssid\":,\"rss\": -40},..]"
             },
             {
               "name": "algorithm_choice",
@@ -1172,7 +1172,7 @@
         },
         {
           "method_name": "Radio Heat-Map by floor High-level Clustering",
-          "method_description": "Get all points (latitude, longitude) along with their average RSSI value, total RSSI value and number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points for High-level Clustering.",
           "http_method": "POST",
           "uri": "/position/radio/heatmap_building_floor_average_1  ",
           "parameters": [
@@ -1201,7 +1201,7 @@
         },
         {
           "method_name": "Radio Heat-Map by floor Medium-level Clustering",
-          "method_description": "Get all points (latitude, longitude) along with their average RSSI value, total RSSI value and number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points for Medium-level Clustering.",
           "http_method": "POST",
           "uri": "/position/radio/heatmap_building_floor_average_2  ",
           "parameters": [
@@ -1230,7 +1230,7 @@
         },
         {
           "method_name": "Radio Heat-Map by floor Low-level Clustering",
-          "method_description": "Get all points (latitude, longitude) along with their average RSSI value, total RSSI value and number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points for Low-level Clustering.",
           "http_method": "POST",
           "uri": "/position/radio/heatmap_building_floor_average_3  ",
           "parameters": [
@@ -1259,7 +1259,7 @@
         },
         {
           "method_name": "Timestamps of Wi-Fi radio measurements by floor ",
-          "method_description": "Get all Timestamps of Wi-Fi radio measurements.",
+          "method_description": "Get the number of Wi-Fi radio measurements based on their timestamp.",
           "http_method": "POST",
           "uri": "/position/radio/time  ",
           "parameters": [
@@ -1288,7 +1288,7 @@
         },
         {
           "method_name": "Radio Heat-Map by timestamp range High-level Clustering",
-          "method_description": "Get all points (latitude, longitude) along with their average RSSI value, total RSSI value and number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points based on timestamps for High-level Clustering.",
           "http_method": "POST",
           "uri": "/position/radio/heatmap_building_floor_timestamp_average_1  ",
           "parameters": [
@@ -1331,7 +1331,7 @@
         },
         {
           "method_name": "Radio Heat-Map by timestamp range Medium-level Clustering",
-          "method_description": "Get all points (latitude, longitude) along with their average RSSI value, total RSSI value and number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points based on timestamps for Medium-level Clustering.",
           "http_method": "POST",
           "uri": "/position/radio/heatmap_building_floor_timestamp_average_2  ",
           "parameters": [
@@ -1374,7 +1374,7 @@
         },
         {
           "method_name": "Radio Heat-Map by timestamp range Low-level Clustering",
-          "method_description": "Get all points (latitude, longitude) along with their average RSSI value, total RSSI value and number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points based on timestamps for Low-level Clustering.",
           "http_method": "POST",
           "uri": "/position/radio/heatmap_building_floor_timestamp_average_3  ",
           "parameters": [
@@ -1417,7 +1417,7 @@
         },
         {
           "method_name": "Access Points by floor",
-          "method_description": "Get all calculated factors of Access Points based on an algorithm recorded to place them on the client side.",
+          "method_description": "Get all estimated AP positions.",
           "http_method": "POST",
           "uri": "/position/radio/APs_building_floor  ",
           "parameters": [
@@ -1446,7 +1446,7 @@
         },
         {
           "method_name": "Access Points Manufacturer by floor",
-          "method_description": "Get all manufacturers of Access Points recorded to filter Access Points on the client side.",
+          "method_description": "Get the manufacturers of the requested APs.",
           "http_method": "POST",
           "uri": "/position/radio/aps_ids  ",
           "parameters": [
@@ -1461,13 +1461,13 @@
               "name": "ids",
               "required": "Y",
               "type": "",
-              "description": "MAC addresses of required Access Points"
+              "description": "MAC addresses of required APs"
             }
           ]
         },
         {
           "method_name": "Delete Wi-Fi radio measurements by range ",
-          "method_description": "Delete required points (latitude, longitude) of Wi-Fi radio measurements.",
+          "method_description": "Delete required points of Wi-Fi radio measurements.",
           "http_method": "POST",
           "uri": "/position/radio/delete  ",
           "parameters": [
@@ -1524,7 +1524,7 @@
         },
         {
           "method_name": "Acces Heat-Map by floor",
-          "method_description": "Get all points (latitude, longitude) along with their calculated localization accuracy value of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get the accuracy of all estimated positions.",
           "http_method": "POST",
           "uri": "/position/radio/acces  ",
           "parameters": [
