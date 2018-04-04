@@ -44,42 +44,42 @@ AnyplaceAPI.Mapping.RADIO_HEATMAP_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Ma
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS = "/mapping/radio/heatmap_building_floor_avarage";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/mapping/radio/heatmap_building_floor_average_1";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/position/radio/heatmap_building_floor_average_1";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2 = "/mapping/radio/heatmap_building_floor_average_2";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2 = "/position/radio/heatmap_building_floor_average_2";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/mapping/radio/heatmap_building_floor_average_3";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/position/radio/heatmap_building_floor_average_3";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3;
 
-AnyplaceAPI.Mapping.APs = "/mapping/radio/APs_building_floor";
+AnyplaceAPI.Mapping.APs = "/position/radio/APs_building_floor";
 AnyplaceAPI.Mapping.APs_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.APs;
 
-AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/mapping/radio/delete";
+AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/position/radio/delete";
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE;
 
-AnyplaceAPI.Mapping.GET_APS_IDS="/mapping/radio/aps_ids";
+AnyplaceAPI.Mapping.GET_APS_IDS="/position/radio/aps_ids";
 AnyplaceAPI.Mapping.GET_APS_IDS_URL=AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.GET_APS_IDS;
 
-AnyplaceAPI.Mapping.FINGERPRINTS_TIME = "/mapping/radio/time";
+AnyplaceAPI.Mapping.FINGERPRINTS_TIME = "/position/radio/time";
 AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FINGERPRINTS_TIME;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME = "/mapping/radio/heatmap_building_floor_timestamp";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME = "/position/radio/heatmap_building_floor_timestamp";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/mapping/radio/heatmap_building_floor_timestamp_average_1";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/position/radio/heatmap_building_floor_timestamp_average_1";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1;
 
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2 = "/mapping/radio/heatmap_building_floor_timestamp_average_2";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2 = "/position/radio/heatmap_building_floor_timestamp_average_2";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2;
 
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/mapping/radio/heatmap_building_floor_timestamp_average_3";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/position/radio/heatmap_building_floor_timestamp_average_3";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES= "/mapping/radio/acces";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES= "/position/radio/acces";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES;
 
 AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";

@@ -127,7 +127,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     if (localStorage.getItem('connectionsMode') !== undefined) {
 
-        if (localStorage.getItem('connectionsMode') == 'YES') {
+        if (localStorage.getItem('connectionsMode') == 'NO') {
             $scope.initializeConnections=true;
 
         }
@@ -135,7 +135,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     if (localStorage.getItem('POIsMode') !== undefined) {
 
-        if (localStorage.getItem('POIsMode') == 'YES') {
+        if (localStorage.getItem('POIsMode') == 'NO') {
             $scope.initializePOIs=true;
         }
     }
@@ -190,22 +190,22 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             initializeFingerPrints();
         }
         if($scope.initializeRadioHeatmapRSS){
-            initializeRadioHeatmapRSS()
+            initializeRadioHeatmapRSS();
         }
         if($scope.initializeAPs){
-            initializeAPs()
+            initializeAPs();
         }
         if($scope.initializeAcces){
-            initializeAcces()
+            initializeAcces();
         }
         if($scope.initializeConnections){
-            initializeConnections()
+            initializeConnections();
         }
         if($scope.initializePOIs){
-            initializePOIs()
+            initializePOIs();
         }
         if($scope.initializeTime){
-            initializeTime()
+            initializeTime();
         }
     }
 
@@ -921,7 +921,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             POIsMap = {};
             _POIS_IS_ON = false;
             if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('POIsMode', 'YES');
+                localStorage.setItem('POIsMode', 'NO');
             }
             return;
         }
@@ -938,7 +938,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $scope.anyService.setAllPois(POIsMap);
         _POIS_IS_ON = true;
         if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('POIsMode', 'NO');
+            localStorage.setItem('POIsMode', 'YES');
         }
         return;
     };
@@ -975,7 +975,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     connectionsMap = {};
                     _CONNECTIONS_IS_ON = false;
                     if (typeof(Storage) !== "undefined" && localStorage) {
-                        localStorage.setItem('connectionsMode', 'YES');
+                        localStorage.setItem('connectionsMode', 'NO');
                     }
                     return;
                 }
@@ -1162,7 +1162,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
         }
 
-        if (!_FINGERPRINTS_IS_ON) {
+        if (!_FINGERPRINTS_IS_ON && (!heatmap || !heatmap.getMap())) {
             _err("You have to press show fingerPrints button first");
             return;
         }
@@ -1196,6 +1196,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             end = bounds.getSouthWest();
 
             var i = fingerPrintsMap.length;
+
             while (i--) {
                 if (fingerPrintsMap[i].getPosition().lat() <= start.lat() && fingerPrintsMap[i].getPosition().lng() <= start.lng() && fingerPrintsMap[i].getPosition().lat() >= end.lat() && fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
 
@@ -1910,7 +1911,9 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         );
 
                     }
+                    _FINGERPRINTS_IS_ON = true;
                 } else {
+
 
                     var heatMapData = [];
                     var c=0;
@@ -1930,15 +1933,17 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         c++;
                     }
 
-                    if (heatmap && heatmap.getMap()) {
-                        heatmap.setMap(null);
-                        var i =heatmapFingerprints.length;
-                        while(i--){
-                            heatmapFingerprints[i]=null;
-                        }
-                        heatmapFingerprints=[];
-                        _HEATMAP_F_IS_ON=false;
-                    }
+                    // if (heatmap && heatmap.getMap()) {
+                    //     heatmap.setMap(null);
+                    //
+                    //     var i =heatmapFingerprints.length;
+                    //     while(i--){
+                    //         heatmapFingerprints[i]=null;
+                    //     }
+                    //     heatmapFingerprints=[];
+                    //     _HEATMAP_F_IS_ON=false;
+                    // }
+
 
                     heatmap = new google.maps.visualization.HeatmapLayer({
                         data: heatMapData
@@ -1948,7 +1953,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     _HEATMAP_F_IS_ON = true;
 
                 }
-                _FINGERPRINTS_IS_ON = true;
+
 
 
             },
@@ -2057,7 +2062,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         _CONNECTIONS_IS_ON = true;
         $scope._CONNECTIONS_IS_ON = true;
         if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('connectionsMode', 'NO');
+            localStorage.setItem('connectionsMode', 'YES');
         }
         $scope.anyService.setAllConnection(connectionsMap);
 
@@ -2081,7 +2086,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 $scope.showRadioHeatmapRSS();
             }
         }
-        if (_FINGERPRINTS_IS_ON && !changedfloor) {
+        if ((_FINGERPRINTS_IS_ON || (heatmap && heatmap.getMap())) && !changedfloor) {
             if (_NOW_ZOOM == _MAX_ZOOM_LEVEL || _PREV_ZOOM == _MAX_ZOOM_LEVEL) {
                 var i = fingerPrintsMap.length;
                 while (i--) {
