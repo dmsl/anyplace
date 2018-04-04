@@ -367,4 +367,10 @@ class ProxyDataSource private() extends IDatasource {
     _checkActiveDatasource()
     mActiveDatabase.getAllBuildingsetsByOwner(owner_id)
   }
+
+  override def deleteNotValidDocuments(): Boolean ={
+    _checkActiveDatasource()
+    mActiveDatabase.deleteNotValidDocuments()
+  }
+
 }

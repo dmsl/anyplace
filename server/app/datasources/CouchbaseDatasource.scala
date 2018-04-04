@@ -1949,4 +1949,32 @@ class CouchbaseDatasource private(hostname: String,
     poistypes
   }
 
+
+  override def deleteNotValidDocuments(): Boolean = {
+    val couchbaseClient = getConnection
+    val viewQuery = ViewQuery.from("test", "test")
+
+    val res = couchbaseClient.query(viewQuery)
+    val result = new ArrayList[String]()
+    var id: String = null
+
+    for (row <- res.allRows()) {
+      try {
+        id = row.key().toString
+        result.add(id)
+      } catch {
+        case e: IOException =>
+      }
+    }
+
+    for (key <- result) {
+      try {
+       deleteFromKey(key)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    true
+  }
+
 }

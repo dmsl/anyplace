@@ -161,4 +161,7 @@ trait IDatasource {
   def getBuildingSet(cuid: String): List[JsonObject]
 
   def getAllBuildingsetsByOwner(owner_id: String) : List[JsonObject]
-}
+
+  def deleteNotValidDocuments(): Boolean
+
+  }

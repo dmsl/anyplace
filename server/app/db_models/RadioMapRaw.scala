@@ -174,7 +174,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     val sb = new StringBuilder()
     var json: JsonObject = null
     try {
-      json = JsonObject.empty()
+      json =  JsonObject.from(this.getFields())
       json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("x")), java.lang.Double.parseDouble(fields.get("y")))
         .toGeoJSON())
     } catch {

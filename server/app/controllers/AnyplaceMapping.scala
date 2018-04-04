@@ -2611,6 +2611,26 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+
+  def maintenance() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::deleteNotValidDocuments(): " + json.toString)
+        try {
+          if (!ProxyDataSource.getIDatasource.deleteNotValidDocuments()) return AnyResponseHelper.bad_request("None valid documents!")
+          return AnyResponseHelper.ok("Success")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+      inner(request)
+  }
+
+
   private def getAccesMap(rm: RadioMapMean,
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
@@ -2726,6 +2746,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
     return Option[RadioMapMean](rm_mean)
   }
+
+
 
 
   //  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {

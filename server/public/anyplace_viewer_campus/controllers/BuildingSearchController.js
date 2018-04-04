@@ -68,6 +68,11 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
         if (query == $scope.mylastquery){
             return $scope.myallPois;
         }
+        if (!$scope.userPosition) {
+            _info("Enabling the location service will improve your search results.");
+            $scope.showUserLocation();
+        }
+
         $scope.anyService.selectedSearchPoi = query;
         setTimeout(
             function(){
@@ -158,6 +163,15 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
     var _suc = function (msg) {
         $scope.anyService.addAlert('success', msg);
+    };
+
+    var _info = function (msg) {
+        $scope.anyService.addAlert('info', msg);
+        window.setTimeout(function() {
+            $(".alert-info").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove();
+            });
+        }, 4000);
     };
 
     var _calcDistance = function (x1, y1, x2, y2) {
