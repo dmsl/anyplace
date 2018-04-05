@@ -59,6 +59,9 @@ AnyplaceAPI.Mapping.APs_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.APs;
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/position/radio/delete";
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE;
 
+AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME = "/position/radio/delete/time";
+AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME;
+
 AnyplaceAPI.Mapping.GET_APS_IDS="/position/radio/aps_ids";
 AnyplaceAPI.Mapping.GET_APS_IDS_URL=AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.GET_APS_IDS;
 
@@ -326,6 +329,20 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+
+    };
+
+    apiService.deleteFingerprintsByTime = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url:  AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

@@ -819,6 +819,43 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = {
+
+    val points = new util.ArrayList[JsonObject]
+
+    val couchbaseClient = getConnection
+
+    val bbox = GeoPoint.getGeoBoundingBoxByRange(lat1.toDouble, lon1.toDouble, lat2.toDouble, lon2.toDouble)
+
+    val viewQuery = SpatialViewQuery.from("radio_spatial", "radio_buid_floor")
+      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+    val res = couchbaseClient.query(viewQuery)
+
+
+    //System.out.println("couchbase results: " + res.size)
+
+    var json: JsonObject = null
+    for (row <- res.allRows()) { // handle each building entry
+      try {
+        val document = row.document()
+        json = document.content()
+        if ((json.getString("buid").compareTo(buid) == 0) && (json.getString("floor").compareTo(floor) == 0)) {
+          if((json.getString("timestamp").compareTo(timestampX)>=0) && (json.getString("timestamp").compareTo(timestampY)<=0))
+            points.add(JsonObject.create().put("id", document.id()))
+
+        }
+      } catch {
+        case e: IOException =>
+
+        // skip this NOT-JSON document
+      }
+    }
+
+    points
+  }
+
+
   override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection

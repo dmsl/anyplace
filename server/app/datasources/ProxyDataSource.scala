@@ -235,6 +235,10 @@ class ProxyDataSource private() extends IDatasource {
     _checkActiveDatasource()
     mActiveDatabase.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
   }
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = {
+    _checkActiveDatasource()
+    mActiveDatabase.getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String)
+  }
 
   override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
     _checkActiveDatasource()

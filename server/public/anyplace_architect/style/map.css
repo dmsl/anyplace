@@ -181,16 +181,17 @@ footer{
     left: 50%;
     right:50%;
     margin-left:-300px;
+    z-index: 99999;
 }
 
 #time-bar{
     position:fixed;
-    bottom: 0;
+    bottom: 1%;
     left:0;
     right:0;
     margin-left:auto;
     margin-right:auto;
-    width:80%
+    width:80%;
     /*left: 10%;*/
     /*right:90%;*/
 }
@@ -762,7 +763,7 @@ contextmenu {
 /*Style for Crossfilter*/
 
 #charts {
-    padding: 10px 0;
+    padding: 0;
 }
 
 .chart {

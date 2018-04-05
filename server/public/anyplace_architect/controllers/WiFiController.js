@@ -351,6 +351,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 if( $scope.radioHeatmapRSSTimeMode ){
                     d3.selectAll("svg > *").remove();
+                    $( "svg" ).remove();
                     $scope.getFingerPrintsTime();
                 }
 
@@ -395,6 +396,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode){
                     d3.selectAll("svg > *").remove();
+                    $( "svg" ).remove();
                     $scope.getFingerPrintsTime();
                 }
 
@@ -502,10 +504,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 $scope.showRadioHeatmapRSS();
 
-                if($scope.radioHeatmapRSSTimeMode) {
-                    $scope.getFingerPrintsTime()
+                if( $scope.radioHeatmapRSSTimeMode ){
+                    d3.selectAll("svg > *").remove();
+                    $( "svg" ).remove();
+                    $scope.getFingerPrintsTime();
                 }
-
 
             }
 
@@ -546,7 +549,10 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 $scope.showFingerPrints();
                 if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
 
+                    d3.selectAll("svg > *").remove();
+                    $( "svg" ).remove();
                     $scope.getFingerPrintsTime();
+
                 }
             }
 
@@ -1259,10 +1265,18 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 reqObj.lon2 = end.lng()+"";
 
+                var promise;
+
+                if($scope.fingerPrintsTimeMode){
+                    reqObj.timestampX = userTimeData[0]+"";
+
+                    reqObj.timestampY = userTimeData[1]+"";
+                    promise= $scope.anyAPI.deleteFingerprintsByTime(reqObj);
+                }else{
+                    promise = $scope.anyAPI.deleteFingerprints(reqObj);
+                }
+
                 var data = [];
-
-                var promise = $scope.anyAPI.deleteFingerprints(reqObj);
-
 
                 if (!_HEATMAP_F_IS_ON && !_HEATMAP_RSS_IS_ON)
                     _suc("The fingerprints are scheduled to be deleted.");
@@ -2215,7 +2229,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
         var dateToString=timestamps[timestamps.length - 1].date.toString();
         var endDate= new Date(dateToString);
-         endDate.setDate(endDate.getDate() + 5);
+         endDate.setDate(endDate.getDate() + 15);
 
         var charts = [
 

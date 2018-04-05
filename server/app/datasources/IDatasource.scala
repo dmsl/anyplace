@@ -122,6 +122,8 @@ trait IDatasource {
 
   def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): List[JsonObject]
 
+  def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsonObject]
+
   def getFingerPrintsTime(buid: String, floor: String): List[JsonObject]
 
   def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject]

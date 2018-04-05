@@ -1417,7 +1417,7 @@
         },
         {
           "method_name": "Access Points by floor",
-          "method_description": "Get all estimated AP positions.",
+          "method_description": "Get all estimated Access Point positions.",
           "http_method": "POST",
           "uri": "/position/radio/APs_building_floor  ",
           "parameters": [
@@ -1461,7 +1461,7 @@
               "name": "ids",
               "required": "Y",
               "type": "",
-              "description": "MAC addresses of required APs"
+              "description": "MAC addresses of required Access Points"
             }
           ]
         },

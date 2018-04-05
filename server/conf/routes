@@ -35,6 +35,7 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3 
 POST        /anyplace/position/radio/APs_building_floor                                controllers.AnyplaceMapping.getAPsByBuildingFloor()
 POST        /anyplace/position/radio/aps_ids                                           controllers.AnyplaceMapping.getAPsIds()
 POST        /anyplace/position/radio/delete                                            controllers.AnyplaceMapping.FingerPrintsDelete()
+POST        /anyplace/position/radio/delete/time                                            controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
 POST        /anyplace/position/radio/time                                              controllers.AnyplaceMapping.FingerPrintsTime()
 POST        /anyplace/position/radio/acces                                             controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
 
