@@ -205,16 +205,6 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
 
     anyService.addAlert = function (type, msg) {
         this.alerts[0] = ({msg: msg, type: type});
-
-        var promise = $q(function(resolve, reject) {
-            setTimeout(function () {
-                resolve();
-            }, 3500);
-        });
-
-        promise.then(function(){
-            anyService.alerts.splice(0, 1);
-        }, function(){});
     };
 
     anyService.closeAlert = function (index) {
@@ -232,7 +222,7 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
         var baseUrl="";
         if (!this.selectedBuilding || !this.selectedBuilding.buid)
             return baseUrl;
-        baseUrl += "&buid=" + this.selectedBuilding.buid;
+        baseUrl += "buid=" + this.selectedBuilding.buid;
 
         if (!this.selectedFloor || !this.selectedFloor.floor_number)
             return baseUrl;

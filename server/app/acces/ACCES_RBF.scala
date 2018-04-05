@@ -1,13 +1,13 @@
 package acces
 
-import breeze.linalg.{*, Transpose, DenseMatrix, DenseVector, sum, min, max, argsort, MatrixSingularException, diag}
-import breeze.linalg.svd
-import breeze.numerics.{exp}
+import breeze.linalg.{*, DenseMatrix, DenseVector, argsort, diag, max, min, sum, svd}
+import breeze.numerics.exp
 import breeze.stats.meanAndVariance
-import util.control.Breaks.{breakable, break}
 import dk.gp.cov.CovSEiso
 import dk.gp.gpr.{GprModel, gpr}
-import scala.math.{pow,log,sqrt}
+
+import scala.math.{log, pow, sqrt}
+import scala.util.control.Breaks.{break, breakable}
 
 /**
   * Calculates CRLB <=> ACCES score for measurement map using RBF kernel
@@ -153,7 +153,7 @@ class AccesRBF(
 
   def fit_gpr(estimate: Boolean = false, use_default_params: Boolean = false) = {
     val X: DenseMatrix[Double] = this._X_normed
-    val Y: DenseMatrix[Double] = (this._Y_normed(::, this._selected_features)).toDenseMatrix
+    val Y: DenseMatrix[Double] = this._Y_normed(::, this._selected_features).toDenseMatrix
     val X_min = this._X_min
     val X_max = this._X_max
     val Y_min = this._Y_min(this._selected_features).toDenseVector

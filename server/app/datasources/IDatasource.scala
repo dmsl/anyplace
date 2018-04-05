@@ -110,11 +110,19 @@ trait IDatasource {
 
   def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsonObject]
 
+  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject]
+
+  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject]
+
+  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject]
+
   def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject]
 
   def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): List[String]
 
   def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): List[JsonObject]
+
+  def getFingerPrintsTime(buid: String, floor: String): List[JsonObject]
 
   def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject]
 
@@ -153,4 +161,7 @@ trait IDatasource {
   def getBuildingSet(cuid: String): List[JsonObject]
 
   def getAllBuildingsetsByOwner(owner_id: String) : List[JsonObject]
-}
+
+  def deleteNotValidDocuments(): Boolean
+
+  }

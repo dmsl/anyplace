@@ -24,7 +24,7 @@ footer{
     margin-right: 20px;
 }
 
-#minimize-btn {
+#minimize-btn,#maximize-btn {
     position: absolute;
     right: 1px;
     top: 2px;
@@ -35,7 +35,7 @@ footer{
     margin-bottom: 10px;
 }
 
-.fa-window-minimize{
+.fa-window-minimize, .fa-window-maximize{
     color:#428bca;
     margin-bottom: 10px;
 }
@@ -59,7 +59,7 @@ footer{
     font-size: 15px;
     font-weight: 300;
     text-overflow: ellipsis;
-    left: 325px !important;
+    left: 35% !important;
 }
 
 #pac-input:focus {
@@ -173,25 +173,26 @@ footer{
     z-index: 99;
     border: 1px solid #ddd;
     background-color: white;
-    /*border-top: 10px #428bca solid;*/
 }
 
 #color-bar {
-    /*width: auto;
-    max-width: 0%;
-    min-width: 0px;
-    height: auto;
-    max-height: 100%;*/
     position: fixed;
-    bottom: 0;
+    bottom: -1%;
     left: 50%;
-    /*margin: 0;
-    z-index: 99;
-    border: 1px solid #ddd;
-    background-color: white;*/
     right:50%;
     margin-left:-300px;
-    /*border-top: 10px #428bca solid;*/
+}
+
+#time-bar{
+    position:fixed;
+    bottom: 0;
+    left:0;
+    right:0;
+    margin-left:auto;
+    margin-right:auto;
+    width:80%
+    /*left: 10%;*/
+    /*right:90%;*/
 }
 
 .A_0 {
@@ -355,14 +356,15 @@ contextmenu {
     outline-style: none;
 }
 
+
 #DL_1{
     position:fixed;
-    top:11px;
+    top:45px;
     left:50px;
 
 }
 
-#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode{
+#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
     padding: 0px;
 }
 
@@ -407,6 +409,11 @@ contextmenu {
 .divider-top-10 {
     margin-top: 10px;
 }
+
+.divider-top-1 {
+    margin-top: 1px;
+}
+
 
 .divider-top-10-line {
     margin-top: 10px;
@@ -750,4 +757,75 @@ contextmenu {
 .infowindow-text-area{
     resize: none;
     border:0px
+}
+
+/*Style for Crossfilter*/
+
+#charts {
+    padding: 10px 0;
+}
+
+.chart {
+    display: inline-block;
+    height: 151px;
+    margin-bottom: 20px;
+}
+
+.reset {
+    padding-left: 1em;
+    font-size: smaller;
+    color: #ccc;
+}
+
+.background.bar {
+    fill: #ccc;
+}
+
+.foreground.bar {
+    fill: steelblue;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font: 10px sans-serif;
+}
+
+.brush rect.extent {
+    fill: steelblue;
+    fill-opacity: .125;
+}
+
+.brush .resize path {
+    fill: #eee;
+    stroke: #666;
+}
+
+
+#date-chart {
+    width: 920px;
+}
+
+
+aside {
+    position: absolute;
+    left: 740px;
+    font-size: smaller;
+    width: 220px;
+}
+
+svg {
+    box-shadow: rgba(0,0,0,.65098) 0 1px 5px 0;
+    -webkit-box-shadow: rgba(0,0,0,.65098) 0 1px 5px 0;
+    perspective-origin: 20px 61px;
+    -webkit-perspective-origin: 20px 61px;
+    transform: matrix(1,0,0,1,0,0);
+    -webkit-transform: matrix(1,0,0,1,0,0);
+    transform-origin: 20px 61px;
+    -webkit-transform-origin: 20px 61px;
+    background: white;
 }

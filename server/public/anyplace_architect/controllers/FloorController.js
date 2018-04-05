@@ -409,7 +409,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
 
         if ($scope.data.floor_plan_groundOverlay) {
-            $scope.data.floor_plan_groundOverlay.setMap($scope.gmapService.gmap);
+            $scope.data.floor_plan_groundOverlay.setMap(null);
         }
 
         var x = $('#input-floor-plan');

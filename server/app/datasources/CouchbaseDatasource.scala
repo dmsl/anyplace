@@ -654,6 +654,82 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey = JsonArray.from(buid, floor,timestampX,"","")
+    val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
+
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(3))
+        json.put("y", array.get(4))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+   override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+     val startkey = JsonArray.from(buid, floor,timestampX,"","")
+    val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
+
+
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(3))
+        json.put("y", array.get(4))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+   override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+     val startkey = JsonArray.from(buid, floor,timestampX,"","")
+    val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
+
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("x", array.get(3))
+        json.put("y", array.get(4))
+        json.put("w", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
   override def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
@@ -742,6 +818,32 @@ class CouchbaseDatasource private(hostname: String,
 
     points
   }
+
+  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey = JsonArray.from(buid, floor,"000000000000000")
+    val endkey = JsonArray.from(buid, floor,"999999999999999")
+    val viewQuery = ViewQuery.from("heatmaps", "timestamp_by_floor_building").startKey(startkey).endKey(endkey).group(true)
+    val res = couchbaseClient.query(viewQuery)
+
+    println("couchbase results: " + res.totalRows())
+    var json: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        json.put("date", array.get(2))
+        json.put("count", row.value().toString)
+        points.add(json)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
+
+
 
 
   override def getAllBuildings(): List[JsonObject] = {
@@ -1845,6 +1947,34 @@ class CouchbaseDatasource private(hostname: String,
       }
     }
     poistypes
+  }
+
+
+  override def deleteNotValidDocuments(): Boolean = {
+    val couchbaseClient = getConnection
+    val viewQuery = ViewQuery.from("test", "test")
+
+    val res = couchbaseClient.query(viewQuery)
+    val result = new ArrayList[String]()
+    var id: String = null
+
+    for (row <- res.allRows()) {
+      try {
+        id = row.key().toString
+        result.add(id)
+      } catch {
+        case e: IOException =>
+      }
+    }
+
+    for (key <- result) {
+      try {
+       deleteFromKey(key)
+      } catch {
+        case e: IOException =>
+      }
+    }
+    true
   }
 
 }

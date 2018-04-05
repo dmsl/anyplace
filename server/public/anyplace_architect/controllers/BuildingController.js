@@ -1741,10 +1741,14 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     //set cookies
 
     $('#dismiss').on('click', function() {
-        $cookieStore.put('dismissClicked', 'YES');
+        // set expire date.
+        if (typeof(Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('dismissClicked', 'YES');
+        }
+
     });
 
-    if ($cookieStore.get('dismissClicked') !== 'YES') {
+    if (localStorage.getItem('dismissClicked') !== 'YES') {
         function showWelcomeMessage(){
             $('#myModal_Welcome').modal('show');
         }

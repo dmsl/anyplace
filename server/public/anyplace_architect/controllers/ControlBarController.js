@@ -142,7 +142,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.owner_id = undefined;
         $scope.person = undefined;
 
-
     };
 
     $scope.getCookie = function (cname) {

@@ -44,7 +44,7 @@ class GeoJSONPoint(var lat: Double, var lon: Double) {
         val ja = JsonArray.empty()
         ja.add(this.lat)
         ja.add(this.lon)
-        jo.put("coordinate",ja)
+        jo.put("coordinates",ja)
         jo.put("type", "Point")
         jo
     }

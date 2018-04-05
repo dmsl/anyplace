@@ -30,6 +30,9 @@ var app = angular.module('anyArchitect', ['ngCookies','angularjs-dropdown-multis
 app.service('GMapService', function () {
 
     this.gmap = {};
+    // this.directionsService = {};
+    // this.directionsDisplay = {};
+
 //    this.searchBox = {};
 
     var self = this;
@@ -51,7 +54,9 @@ app.service('GMapService', function () {
         scaleControl: true,
         streetViewControl: false,
         overviewMapControl: true
+
     };
+
     self.gmap = new google.maps.Map(document.getElementById('map-canvas'),
         mapOptions);
 
@@ -108,6 +113,9 @@ app.factory('AnyplaceService', function () {
     anyService.progress = undefined;
     anyService.allPois = {};
     anyService.allConnections = {};
+    anyService.radioHeatmapRSSMode=false;
+    anyService.fingerPrintsTimeMode=false;
+    anyService.radioHeatmapRSSTimeMode=false;
 
 
     anyService.alerts = [];
@@ -171,7 +179,9 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.addAlert = function (type, msg) {
+        // this.alerts[0] = ({msg: msg, type: type});
         this.alerts[0] = ({msg: msg, type: type});
+
     };
 
     anyService.closeAlert = function (index) {

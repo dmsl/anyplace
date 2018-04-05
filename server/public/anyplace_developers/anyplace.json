@@ -8,7 +8,7 @@
       "description": "You can find your API key (access_token) by signing in Anyplace Architect, in the \"More\" section."
     }
   ],
-  "baseurl": "https://ap.cs.ucy.ac.cy/anyplace",
+  "baseurl": "http://localhost:9000/anyplace",
   "endpoints": [
     {
       "name": "Navigation",
@@ -280,7 +280,7 @@
         },
         {
           "method_name": "Radio Heat-Map in Box",
-          "method_description": "Get all points (latitude, longitude) along with their number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "method_description": "Get all heat-map points.",
           "http_method": "POST",
           "uri": "/mapping/radio/radio_heatmap_bbox  ",
           "parameters": [
@@ -1133,6 +1133,421 @@
               "name": "range",
               "required": "Y",
               "type": "text"
+            }
+          ]
+        },
+        {
+          "method_name": "Estimate the user's position using APs",
+          "method_description": "Estimate the location of the user. ",
+          "http_method": "POST",
+          "uri": "/position/estimate_position",
+          "parameters": [
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "APs",
+              "required": "Y",
+              "type": "List[JsValue]",
+              "description": "APs as for example [{\"bssid\":,\"rss\": -40},..]"
+            },
+            {
+              "name": "algorithm_choice",
+              "required": "Y",
+              "type": "integer",
+              "description": "choices: KNN_WKNN_Algorithm (1 for non weighted, 2 for weighted), MAP_MMSE_Algorithm (3 for non weighted, 4 for weighted) "
+            }
+          ]
+        },
+        {
+          "method_name": "Radio Heat-Map by floor High-level Clustering",
+          "method_description": "Get all heat-map points for High-level Clustering.",
+          "http_method": "POST",
+          "uri": "/position/radio/heatmap_building_floor_average_1  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Radio Heat-Map by floor Medium-level Clustering",
+          "method_description": "Get all heat-map points for Medium-level Clustering.",
+          "http_method": "POST",
+          "uri": "/position/radio/heatmap_building_floor_average_2  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Radio Heat-Map by floor Low-level Clustering",
+          "method_description": "Get all heat-map points for Low-level Clustering.",
+          "http_method": "POST",
+          "uri": "/position/radio/heatmap_building_floor_average_3  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Timestamps of Wi-Fi radio measurements by floor ",
+          "method_description": "Get the number of Wi-Fi radio measurements based on their timestamp.",
+          "http_method": "POST",
+          "uri": "/position/radio/time  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Radio Heat-Map by timestamp range High-level Clustering",
+          "method_description": "Get all heat-map points based on timestamps for High-level Clustering.",
+          "http_method": "POST",
+          "uri": "/position/radio/heatmap_building_floor_timestamp_average_1  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "timestampX",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Start timestamp (non-whitespace)"
+            },
+            {
+              "name": "timestampY",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "End timestamp (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Radio Heat-Map by timestamp range Medium-level Clustering",
+          "method_description": "Get all heat-map points based on timestamps for Medium-level Clustering.",
+          "http_method": "POST",
+          "uri": "/position/radio/heatmap_building_floor_timestamp_average_2  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "timestampX",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Start timestamp (non-whitespace)"
+            },
+            {
+              "name": "timestampY",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "End timestamp (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Radio Heat-Map by timestamp range Low-level Clustering",
+          "method_description": "Get all heat-map points based on timestamps for Low-level Clustering.",
+          "http_method": "POST",
+          "uri": "/position/radio/heatmap_building_floor_timestamp_average_3  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "timestampX",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Start timestamp (non-whitespace)"
+            },
+            {
+              "name": "timestampY",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "End timestamp (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Access Points by floor",
+          "method_description": "Get all estimated AP positions.",
+          "http_method": "POST",
+          "uri": "/position/radio/APs_building_floor  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            }
+          ]
+        },
+        {
+          "method_name": "Access Points Manufacturer by floor",
+          "method_description": "Get the manufacturers of the requested APs.",
+          "http_method": "POST",
+          "uri": "/position/radio/aps_ids  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "ids",
+              "required": "Y",
+              "type": "",
+              "description": "MAC addresses of required APs"
+            }
+          ]
+        },
+        {
+          "method_name": "Delete Wi-Fi radio measurements by range ",
+          "method_description": "Delete required points of Wi-Fi radio measurements.",
+          "http_method": "POST",
+          "uri": "/position/radio/delete  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "lat1",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Start Latitude (y1) "
+            },
+            {
+              "name": "lon1",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Start Longitude (x1)"
+            },
+            {
+              "name": "lat2",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "End Latitude (y2) "
+            },
+            {
+              "name": "lon2",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "End Longitude (x2)"
+            }
+          ]
+        },
+        {
+          "method_name": "Acces Heat-Map by floor",
+          "method_description": "Get the accuracy of all estimated positions.",
+          "http_method": "POST",
+          "uri": "/position/radio/acces  ",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
             }
           ]
         }

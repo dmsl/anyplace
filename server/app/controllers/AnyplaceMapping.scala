@@ -42,23 +42,29 @@ import java.util
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
-import acces.GeoUtils
+import acces.{AccesRBF, GeoUtils}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models._
+import location.Algorithms
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
+import play.Play
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
-import utils._
-import play.api.libs.json.{JsObject, Json}
-import radiomapserver.{RadioMap, RadioMapMean}
-import acces.AccesRBF
+import play.libs.F
 import radiomapserver.RadioMap.RadioMap
+import radiomapserver.RadioMapMean
+import utils._
 
+import scala.util.control.Breaks
+//new marileni 16/3
+import play.api.libs.json.Reads._
+
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
-import collection.JavaConversions._
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -283,6 +289,115 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   //end new marileni
 
+  def getRadioHeatmapByBuildingFloorTimestamp()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+  def getRadioHeatmapByBuildingFloorTimestampAverage1()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX,timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+  def getRadioHeatmapByBuildingFloorTimestampAverage2()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX,timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+
   //new marileni 4/1
 
   def getAPsByBuildingFloor() = Action {
@@ -355,7 +470,108 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+
   //end new marileni
+
+  def getAPsIds() = Action {
+     implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json  = anyReq.getJsonBody
+        var accessPointsOfReq= (json\"ids").as[List[String]]
+
+        try {
+          val reqFile = "public/anyplace_architect/ids.json"
+          val file = Play.application().resourceAsStream(reqFile)
+
+          var accessPointsOfFile: List[JsObject]= null
+          if (file != null) {
+            accessPointsOfFile = Json.parse(file).as[List[JsObject]]
+          }else{
+            return AnyResponseHelper.not_found(reqFile)
+          }
+
+          val APsIDs: util.ArrayList[String]= new util.ArrayList[String]()
+          var found = false
+          var firstBitFound = false
+          var sameBits = 0
+          var sameBitsOfReq = 0
+          var idOfReq : String = ""
+          val loop = new Breaks
+
+          val inner_loop = new Breaks
+
+
+            for (accessPointOfReq : String <- accessPointsOfReq) {
+              idOfReq="N/A"
+              loop.breakable {
+                for (accessPointOfFile: JsObject <- accessPointsOfFile) {
+
+                  val bitsR = accessPointOfReq.split(":")
+                  val bitsA = accessPointOfFile.value("mac").as[String].split(":")
+                  if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
+
+                    firstBitFound=true
+
+                    var i = 0
+                    inner_loop.breakable {
+                      for (i <- 0 until bitsA.length) {
+
+                        if (bitsA(i).equalsIgnoreCase(bitsR(i))) {
+                          sameBits += 1
+                        } else {
+
+                          inner_loop.break
+                        }
+                      }
+                    }
+
+                    if(sameBits >= 3)
+                      found = true
+
+                  } else {
+                    sameBits = 0
+
+                    if (firstBitFound) {
+                      firstBitFound=false
+                      loop.break
+                    }
+                  }
+
+                  if (sameBitsOfReq < sameBits && found) {
+                    sameBitsOfReq = sameBits
+                    idOfReq = accessPointOfFile.value("id").as[String]
+                  }
+                  sameBits = 0
+
+                }
+              }//accessPointOfFile break
+
+              APsIDs.add(idOfReq)
+              sameBitsOfReq = 0
+              found=false
+
+          }
+
+          if (accessPointsOfReq == null) return AnyResponseHelper.bad_request("Access Points does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+
+          res.put("accessPoints", APsIDs)
+
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all id for Access Points!")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
 
   //new marileni 17/1
 
@@ -392,6 +608,60 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+{
+          //Regenerate the radiomap files
+          val strPromise = F.Promise.pure("10")
+          val intPromise = strPromise.map(new F.Function[String, Integer]() {
+            override def apply(arg0: String): java.lang.Integer = {
+              AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+              0
+            }
+          })
+          gzippedJSONOk(res.toString)
+          //                }
+          //                return AnyResponseHelper.ok(res.toString());
+        } catch {
+            case ioe: IOException =>
+              return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+          }
+        } catch {
+          case e: DatasourceException =>
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+
+      }
+
+      inner(request)
+  }
+
+  //end new marileni
+
+  def FingerPrintsTime() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::FingerPrintsTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor").as[String]
+
+
+        try {
+          val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsTime(buid, floor_number)
+          if (radioPoints.isEmpty)
+            return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
+
+
+          val res = JsonObject.empty()
+          res.put("radioPoints", radioPoints)
+
+          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
           gzippedJSONOk(res.toString)
           //                }
           //                return AnyResponseHelper.ok(res.toString());
@@ -409,7 +679,50 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  //end new marileni
+
+
+  def findPosition() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody)
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
+        if (!requiredMissing.isEmpty)
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+
+        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ "floor").as[String]
+        val accessPoints= (json\"APs").as[List[JsValue]]
+        val algorithm_choice = (json\"algorithm_choice").as[Int]
+
+        val rmapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+          floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
+
+        if(!rmapFile.exists()){
+           //Regenerate the radiomap files if not exist
+             AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+        }
+
+        val latestScanList: util.ArrayList[location.LogRecord] = null
+        var i=0
+        for (i <- 0 until accessPoints.size) {
+          val bssid= (accessPoints(i) \ "bssid").as[String]
+          val rss =(accessPoints(i) \ "rss").as[Int]
+          latestScanList.add(new location.LogRecord(bssid,rss))
+
+        }
+
+        val radioMap:location.RadioMap = new location.RadioMap(rmapFile)
+        Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
+        return AnyResponseHelper.ok("Successfully found position.")
+      }
+
+      inner(request)
+  }
+
 
 
   def getRadioHeatmapBbox = Action {
@@ -2291,11 +2604,32 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
           case e: IOException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           case e: Exception => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case _: Throwable => return AnyResponseHelper.internal_server_error("Server Internal Error [" + "]")
         }
       }
 
       inner(request)
   }
+
+
+  def maintenance() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::deleteNotValidDocuments(): " + json.toString)
+        try {
+          if (!ProxyDataSource.getIDatasource.deleteNotValidDocuments()) return AnyResponseHelper.bad_request("None valid documents!")
+          return AnyResponseHelper.ok("Success")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+      inner(request)
+  }
+
 
   private def getAccesMap(rm: RadioMapMean,
                           buid: String, floor_number: String,
@@ -2412,6 +2746,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
     return Option[RadioMapMean](rm_mean)
   }
+
+
 
 
   //  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {
