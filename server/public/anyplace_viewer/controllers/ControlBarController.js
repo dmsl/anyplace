@@ -176,8 +176,9 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                         });
                     }
 
+                    GMapService.gmap.panTo(posLatlng);
+
                     if (!pannedToUserPosOnce) {
-                        GMapService.gmap.panTo(posLatlng);
                         GMapService.gmap.setZoom(19);
                         pannedToUserPosOnce = true;
                     }
@@ -194,6 +195,9 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                             _err("There was an error while retrieving your Geolocation. Please try again.");
                         }
                     });
+                },     {
+                    enableHighAccuracy: false,
+                    maximumAge: Infinity
                 });
         } else {
             _err("The Geolocation feature is not supported by this browser.");
