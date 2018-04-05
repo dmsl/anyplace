@@ -4,8 +4,6 @@
     <script>
 //         if (window.location.protocol != "https:")
 //             window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
-         // if (window.location.protocol != "https:")
-         //     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
     <link rel="icon" type="image/png" href="build/images/logo.png">
 
@@ -768,7 +766,7 @@
 
                     <div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>
 
-                        <div class="diveder-top-10">
+                        <div class="diveder-top-1">
                             <span title="Time MODE: {{ getFingerPrintsTimeModeText() }}" id="FPs_2"  class="A_0" ng-show="fingerPrintsMode || radioHeatmapRSSMode" >
                                     <span id="fingerPrints-time-mode">
                                       <button type="button" class="btn btn-default">
@@ -778,7 +776,7 @@
                             </span>
                         </div>
 
-                        <div class="divider-top-10" >
+                        <div class="divider-top-1" >
                             <span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >
                                 <span id="fingerPrints-mode">
                                         <button type="button" class="btn btn-default">
@@ -798,7 +796,7 @@
 
                         </div>
 
-                        <div class="divider-top-10">
+                        <div class="divider-top-1">
                             <span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">
                                 <span id="radioHeatmapRSS-mode">
                                     <button type="button" class="btn btn-default">
@@ -809,7 +807,7 @@
 
                         </div>
 
-                        <div class="divider-top-10">
+                        <div class="divider-top-1">
                                  <span title="{{ getAPsModeText() }}" id="APs_1"  class="A_0">
                                     <span id="APs-mode">
                                         <button type="button" class="btn btn-default">
@@ -819,7 +817,7 @@
                                  </span>
                         </div>
 
-                        <div class="divider-top-10">
+                        <div class="divider-top-1">
                                  <span title="{{ getLocalizationAccurancyModeText() }}" id="LA_1" class="A_0">
                                     <span id="localizationAccurancy-mode">
                                        <button type="button" class="btn btn-default">
@@ -828,7 +826,7 @@
                                     </span>
                                  </span>
                         </div>
-                        <div class="divider-top-10">
+                        <div class="divider-top-1">
                                  <span title="{{ getPOIsModeText() }}" id="POIs_1"  class="A_0" >
                                     <span id="POIs-mode">
                                          <button type="button" class="btn btn-default">
@@ -838,7 +836,7 @@
                                     </span>
                                  </span>
                         </div>
-                        <div class="divider-top-10">
+                        <div class="divider-top-1">
                                  <span title="{{ getConnectionsModeText() }}" id="CNs_1"  class="A_0" >
                                     <span id="connections-mode">
                                          <button type="button" class="btn btn-default">
@@ -997,6 +995,7 @@
 
                 </ul>
             </div>
+            <div id="wrapper">
             <div id="time-bar" ng-show="anyService.fingerPrintsTimeMode || anyService.radioHeatmapRSSTimeMode" class="" >
                 <div id="charts">
                     <div id="date-chart" class="chart">
@@ -1008,7 +1007,7 @@
                 <script src="libs/d3.v3.min.js"></script>
 
             </div>
-
+            </div>
 
         </div>
 

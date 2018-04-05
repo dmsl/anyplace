@@ -621,7 +621,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     $scope.toggleRadioHeatmapRSS = function () {
 
         var check = 0;
-        if (heatMap[check] !== undefined && heatMap[check] !== null) {
+        if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioHeatmapRSSTimeMode) {
 
             var i = heatMap.length;
             while (i--) {
@@ -1517,21 +1517,18 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 if (i <= 0) {
                     _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-                    $scope.radioHeatmapRSSMode=false;
-                    return;
-                }
-                if(i==0 && $scope.radioHeatmapRSSTimeMode){
-                    _err("No fingerprints at this period.\n Please choose another one.");
-                    document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-                    $scope.radioHeatmapRSSTimeMode=false;
-                    $scope.anyService.radioHeatmapRSSMode=false;
-                    $scope.anyService.radioHeatmapRSSTimeMode=false;
-                    if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
-                        localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                    if(!$scope.radioHeatmapRSSTimeMode) {
+                        document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
+                        $scope.radioHeatmapRSSMode = false;
+                        if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
+                            localStorage.setItem('radioHeatmapRSSMode', 'NO');
+                        }
+                    }else{
+                        _err("No fingerprints at this period.\n Please choose another one.");
                     }
                     return;
                 }
+
                 var j = 0;
 
                 while (i--) {
@@ -1630,17 +1627,14 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 // on error
                 var data = resp.data;
                 _err('Something went wrong while fetching radio heatmap.');
-                $scope.radioHeatmapRSSMode=false;
-                document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-                if($scope.radioHeatmapRSSTimeMode) {
-                    document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-                    $scope.radioHeatmapRSSTimeMode=false;
-                    $scope.anyService.radioHeatmapRSSMode=false;
-                    $scope.anyService.radioHeatmapRSSTimeMode=false;
+                if(!$scope.radioHeatmapRSSTimeMode) {
+                    $scope.radioHeatmapRSSMode = false;
                     if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
-                        localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                        localStorage.setItem('radioHeatmapRSSMode', 'NO');
                     }
+                    document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
                 }
+
             }
         );
     }
@@ -1869,14 +1863,17 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 var i = resp.data.radioPoints.length;
 
-                if (i <= 0) {
-                    _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                    $scope.fingerPrintsTimeMode=false;
-                    $scope.fingerPrintsMode=false;
-                    if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
-                        localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                if (i <= 0 ) {
+                    if(!$scope.fingerPrintsTimeMode) {
+                        _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                                                document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                        $scope.fingerPrintsMode = false;
+                        if (typeof(Storage) !== "undefined" && localStorage) {
+                            localStorage.setItem('fingerprintsMode', 'NO');
+                        }
+
+                    }else{
+                        _err("No fingerprints at this period.\n Please choose another one.");
                     }
                     return;
                 }
@@ -1899,10 +1896,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                     i = fingerPrintsData.length;
 
-                    if(i==0 && $scope.fingerPrintsTimeMode){
-                        _err("No fingerprints at this period.\n Please choose another one.");
-                        return;
-                    }
 
                     while (i--) {
 
@@ -1961,13 +1954,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 // on error
                 var data = resp.data;
                 _err('Something went wrong while fetching fingerPrints.');
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-                document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                $scope.fingerPrintsTimeMode=false;
-                $scope.anyService.fingerPrintsTimeMode=false;
-                $scope.fingerPrintsMode=false;
-                if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
-                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                if(!$scope.fingerPrintsMode) {
+                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                    $scope.fingerPrintsMode = false;
+                    if (typeof(Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('fingerprintsMode', 'NO');
+                    }
                 }
             }
         );
