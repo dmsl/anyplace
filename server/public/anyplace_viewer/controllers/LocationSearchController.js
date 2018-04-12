@@ -57,10 +57,10 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
         if (query == $scope.mylastquery){
             return $scope.myallPois;
         }
-        if (!$scope.userPosition) {
-         _info("Enabling the location service will improve your search results.");
-            $scope.showUserLocation();
-        }
+        // if (!$scope.userPosition) {
+        //  _info("Enabling the location service will improve your search results.");
+        //     $scope.showUserLocation();
+        // }
 
 
         $scope.anyService.selectedSearchPoi = query;

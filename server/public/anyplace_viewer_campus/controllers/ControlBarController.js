@@ -167,8 +167,8 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                         });
                     }
 
-                    GMapService.gmap.panTo(posLatlng);
                     if (!pannedToUserPosOnce) {
+                        GMapService.gmap.panTo(posLatlng);
                         GMapService.gmap.setZoom(19);
                         pannedToUserPosOnce = true;
                     }
