@@ -1,4 +1,4 @@
-# AnyPlace v3.2 (March 2018)
+# AnyPlace v3.3 (April 2018)
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -55,7 +55,7 @@ DEALINGS IN THE SOFTWARE.
 
 Short description of the contents included in this release.
 
-### A. Server v3.2
+### A. Server v3.3
 
 The server entails all components to run the anyplace service on your own server. 
 
@@ -64,7 +64,7 @@ The server entails all components to run the anyplace service on your own server
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Current Leaders: Constantinos Costa, Kyriakos Georgiou
 
-#### > Viewer v3.2
+#### > Viewer v3.3
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer

@@ -53,7 +53,8 @@ app.service('GMapService', function () {
         },
         scaleControl: true,
         streetViewControl: false,
-        overviewMapControl: true
+        overviewMapControl: true,
+        fullscreenControl: false
 
     };
 

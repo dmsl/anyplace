@@ -934,7 +934,6 @@
                                     <div ng-dropdown-multiselect="" events="multiuserevents1" options="example8data" selected-model="example8model" extra-settings="example9settings" ng-show="filterByMAN" ></div>
                                 </div>
 
-                                <!--here-->
 
                             </div>
 
@@ -965,49 +964,48 @@
                     </div>
                 </div>
 
-            </div>
-            <!-- Wi-Fi ends -->
-            <div id="color-bar" ng-show="anyService.radioHeatmapRSSMode" class="">
-                <ul class="spot">
-                                        <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0" >
-                                            <button style="background-color: rgb(78, 212, 25); width: 100px;" id="greenSquares">0 to -60</button>
-                                        </span>
-                    <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0" >
-                                        <button style="background-color: rgb(255, 255, 0); width: 100px;" id="yellowSquares">-60 to -70</button>
-                                        </span>
-                    <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
-                                        <button style="background-color: rgb(255, 165, 0); width: 100px;" id="orangeSquares">-70 to -90</button>
-                                        </span>
-                    <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
-                                        <button style="background-color: rgb(189,6,189); width: 100px;" id="purpleSquares">-90 to -100</button>
-                                        </span>
-                    <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('red')}}" class="A_0" >
-                                        <button style="background-color: rgb(255, 0, 0); width: 100px;" id="redSquares">-100 to -110</button>
-                                        </span>
+                <div id="color-bar" ng-show="anyService.radioHeatmapRSSMode" class="">
+                    <ul class="spot">
+                        <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0" >
+                            <button style="background-color: rgb(78, 212, 25); width: 100px;" id="greenSquares">0 to -60</button>
+                        </span>
+                        <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0" >
+                            <button style="background-color: rgb(255, 255, 0); width: 100px;" id="yellowSquares">-60 to -70</button>
+                        </span>
+                        <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
+                            <button style="background-color: rgb(255, 165, 0); width: 100px;" id="orangeSquares">-70 to -90</button>
+                        </span>
+                        <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
+                            <button style="background-color: rgb(189,6,189); width: 100px;" id="purpleSquares">-90 to -100</button>
+                        </span>
+                        <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('red')}}" class="A_0" >
+                            <button style="background-color: rgb(255, 0, 0); width: 100px;" id="redSquares">-100 to -110</button>
+                        </span>
 
-                    <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
+                        <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
 
-                    <button style="width: 50px;">
-                        <a data-toggle="modal" data-target="#myModal_2">
-                            <i class="fa fa-info-circle"></i>
-                        </a>
-                    </button>
+                        <button style="width: 50px;">
+                            <a data-toggle="modal" data-target="#myModal_2">
+                                <i class="fa fa-info-circle"></i>
+                            </a>
+                        </button>
 
-                </ul>
-            </div>
-            <div id="wrapper">
-            <div id="time-bar" ng-show="anyService.fingerPrintsTimeMode || anyService.radioHeatmapRSSTimeMode" class="" >
-                <div id="charts">
-                    <div id="date-chart" class="chart">
-                        <div class="title">Date</div>
+                    </ul>
+                </div>
+                <div id="time-bar" ng-show="anyService.fingerPrintsTimeMode || anyService.radioHeatmapRSSTimeMode" class="" >
+                    <div id="charts">
+                        <div id="date-chart" class="chart">
+                            <div class="title">Date</div>
+                        </div>
                     </div>
+
+                    <script src="libs/crossfilter.v1.min.js"></script>
+                    <script src="libs/d3.v3.min.js"></script>
+
                 </div>
 
-                <script src="libs/crossfilter.v1.min.js"></script>
-                <script src="libs/d3.v3.min.js"></script>
-
             </div>
-            </div>
+            <!-- Wi-Fi ends -->
 
         </div>
 
