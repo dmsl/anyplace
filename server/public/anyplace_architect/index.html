@@ -875,7 +875,6 @@
                                     This area shows the Wi-Fi fingerprints that have been collected
                                     <a data-toggle="modal" data-target="#myModal_1">read more...</a>
 
-
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
                                     <button id="FPsButton" class="btn btn-success" ng-click="toggleFingerPrints()">
@@ -983,12 +982,11 @@
                         </span>
 
                         <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
-
-                        <button style="width: 50px;">
-                            <a data-toggle="modal" data-target="#myModal_2">
-                                <i class="fa fa-info-circle"></i>
-                            </a>
-                        </button>
+                        <a data-toggle="modal" data-target="#myModal_2">
+                         <button style="width: 50px;">
+                             <i class="fa fa-info-circle"></i>
+                         </button>
+                        </a>
 
                     </ul>
                 </div>
@@ -1015,11 +1013,11 @@
             <div class="divider-top-10">
                 <input class="form-control" value="{{gAuth.access_token}}">
             </div>
-            <button style="width: 50px; float: right; margin:10px;">
-                <a data-toggle="modal" data-target="#myModal_Welcome">
-                    <i class="fa fa-question-circle"></i>
-                </a>
-            </button>
+            <a data-toggle="modal" data-target="#myModal_Welcome">
+                <button style="width: 50px; float: right; margin:10px;">
+                     <i class="fa fa-question-circle"></i>
+                </button>
+            </a>
         </div>
 
         <div id="notification_panel" ng-controller="AlertController as alertCtrl" ng-show="alerts.length">
