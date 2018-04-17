@@ -1512,12 +1512,16 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             jsonReq.password = $scope.creds.password;
 
 
-            if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < MAX_ZOOM_FOR_HEATMAPS)
+            if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < MAX_ZOOM_FOR_HEATMAPS) {
+                levelOfZoom=2;
                 promise = $scope.anyAPI.getRadioHeatmapRSS_2(jsonReq);
-            else if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS)
+            }else if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS) {
+                levelOfZoom=3;
                 promise = $scope.anyAPI.getRadioHeatmapRSS_3(jsonReq);
-            else
+            }else {
+                levelOfZoom=1;
                 promise = $scope.anyAPI.getRadioHeatmapRSS_1(jsonReq);
+            }
         }
 
         promise.then(
@@ -1599,7 +1603,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     var center = heatMapData[j].location;
                     var size;
                     if(levelOfZoom==3) {
-                        size = new google.maps.Size(1, 1);
+                        size = new google.maps.Size(0.75, 0.75);
                     }else if(levelOfZoom==2){
                         size = new google.maps.Size(2, 2);
                     }else{
