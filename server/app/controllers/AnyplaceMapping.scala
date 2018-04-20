@@ -436,7 +436,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               }
               ap = accessPoint
             } else if (ap.getDouble("den") < 0) {
-              if (avg < -40) {
+              if (avg < -60) {
                 var ap_den = ap.getDouble("den")
                 var ap_x = ap.getDouble("x")
                 var ap_y = ap.getDouble("y")

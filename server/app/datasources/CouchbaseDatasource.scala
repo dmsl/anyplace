@@ -1149,14 +1149,40 @@ class CouchbaseDatasource private(hostname: String,
       if (res == null) return totalFetched
       currentFetched = 0
 
+      var threshold = 0
+      var thresholdCounter= 0
+      var thresholdAction = false
+      val results = new util.ArrayList[JsonObject]
       for (row <- res.allRows()) {
-        currentFetched += 1
-        try {
-          rssEntry = row.document().content()
-        } catch {
-          case e: IOException => //continue
+        results.add(row.document().content())
+      }
+
+      if(results.size()>200) {
+        threshold = results.size() / 200
+        thresholdAction=true
+      }
+
+      for (result <- results) {
+        if(thresholdAction) {
+          thresholdCounter += 1
+          if (thresholdCounter % threshold == 0) {
+            currentFetched += 1
+            try {
+              rssEntry = result
+            } catch {
+              case e: IOException => //continue
+            }
+            writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
+          }
+        }else{
+          currentFetched += 1
+            try {
+              rssEntry = result
+            } catch {
+              case e: IOException => //continue
+            }
+            writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
         }
-        writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
       }
       totalFetched += currentFetched
       LPLogger.info("total fetched: " + totalFetched)

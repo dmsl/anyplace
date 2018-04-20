@@ -1555,7 +1555,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     var rss = JSON.parse(rp.w); //count,average,total
                     //set weight based on RSSI
 
-                    var w = parseInt(rss.average);
+                    var w = parseFloat(rss.average);
 
                     if (w <= -30 && w >= -60) {
 
@@ -1565,7 +1565,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                         $scope.radioHeatmapRSSHasGreen=true;
 
-                    } else if (w <= -61 && w >= -70) {
+                    } else if (w < -60 && w >= -70) {
 
                         heatMapData.push(
                             {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ffff00',id:'y'}
@@ -1573,7 +1573,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                         $scope.radioHeatmapRSSHasYellow=true;
 
-                    } else if (w <= -71 && w >= -90) {
+                    } else if (w < -70 && w >= -90) {
 
                         heatMapData.push(
                             {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ffa500',id:'o'}
@@ -1581,7 +1581,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                         $scope.radioHeatmapRSSHasOrange=true;
 
-                    } else if (w <= -91 && w >= -100) {
+                    } else if (w < -90 && w >= -100) {
 
                         heatMapData.push(
                             {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#bd06bd',id:'p'}
@@ -1590,7 +1590,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         $scope.radioHeatmapRSSHasPurple=true;
 
                     } else {
-
                         heatMapData.push(
                             {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ff0000',id:'r'}
                         );
