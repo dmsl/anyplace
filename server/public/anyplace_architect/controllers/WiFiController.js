@@ -2011,10 +2011,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 var heatMapData = [];
 
                 fltr = function(v) { return !isNaN(v) && v != Number.POSITIVE_INFINITY };
+                var crlb_clamp = 5.0*4;
                 console.log('crlbs: ', values);
-                values = values.map(function(v) { return fltr(v) ? Math.min(v, 5) : 5});
+                values = values.map(function(v) { return fltr(v) ? Math.min(v, crlb_clamp) : crlb_clamp});
                 console.log('crlbs clamp: ', values);
-                var crlb_max = 5.0;
+                var crlb_max = crlb_clamp;
                 console.log("crlb_max: ", crlb_max);
                 var weights = values.map(function(v) { return Math.log(1.0 + v / crlb_max) });
                 console.log('weights: ', weights);
