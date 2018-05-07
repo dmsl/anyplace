@@ -57,8 +57,38 @@ app.service('GMapService', function () {
         overviewMapControl: true
     };
 
-    self.gmap = new google.maps.Map(document.getElementById('map-canvas'),
-        mapOptions);
+    // self.gmap = new google.maps.Map(document.getElementById('map-canvas'),
+    //     mapOptions);
+
+    var element = document.getElementById("map-canvas");
+
+    self.gmap = new google.maps.Map(element, {
+        center: new google.maps.LatLng(57, 21),
+        zoom: 3,
+        mapTypeId: "OSM",
+        mapTypeControl: false,
+        streetViewControl: false
+    });
+
+    //Define OSM map type pointing at the OpenStreetMap tile server
+    self.gmap.mapTypes.set("OSM", new google.maps.ImageMapType({
+        getTileUrl: function(coord, zoom) {
+            // "Wrap" x (logitude) at 180th meridian properly
+            // NB: Don't touch coord.x because coord param is by reference, and changing its x property breakes something in Google's lib
+            var tilesPerGlobe = 1 << zoom;
+            var x = coord.x % tilesPerGlobe;
+            if (x < 0) {
+                x = tilesPerGlobe+x;
+            }
+            // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
+
+            return "http://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
+        },
+        tileSize: new google.maps.Size(256, 256),
+        name: "OpenStreetMap",
+        maxZoom: 19
+    }));
+
 
     var directionsService = new google.maps.DirectionsService();
     var directionsDisplay = new google.maps.DirectionsRenderer();
