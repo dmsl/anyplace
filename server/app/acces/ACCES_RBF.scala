@@ -71,9 +71,10 @@ class AccesRBF(
   }
   val _selected_features: IndexedSeq[Int] = select_features(Y=Y, Y_min=_Y_min, Y_max=_Y_max,
     cut_k_features.getOrElse(Y.cols), drop_redundant = drop_redundant_features)
-  val _Y_normed = normalize_Y(
-      Y=(Y(::, _selected_features)).toDenseMatrix,
-      Y_means=(_Y_means(_selected_features)).toDenseVector)
+//  val _Y_normed = normalize_Y(
+  //      Y=(Y(::, _selected_features)).toDenseMatrix,
+  //      Y_means=(_Y_means(_selected_features)).toDenseVector)
+  val _Y_normed = normalize_Y( Y=Y, Y_means=_Y_means)
 
   println("x_min", _X_min)
   println("x_max", _X_max)
@@ -113,7 +114,8 @@ class AccesRBF(
 
 
   def select_features(Y: DenseMatrix[Double], Y_min: DenseVector[Double], Y_max: DenseVector[Double],
-                      k_features: Int, drop_redundant: Boolean = true): IndexedSeq[Int] = {
+                      k_features: Int, drop_redundant: Boolean = true,
+                      rtol: Double = 0.01, atol: Double = 0.00001): IndexedSeq[Int] = {
     if (k_features <= 0) { throw new IllegalArgumentException("k_features must be positive")}
     val k = if (k_features > Y.cols) Y.cols else k_features
 
@@ -122,7 +124,7 @@ class AccesRBF(
     println("select_features: Y_max", Y_max)
     val scores = DenseVector.zeros[Double](k)
     for (i <- 0 to k - 1) {
-      scores(i) = meanAndVariance(Y(::, i)).variance / (Y_max(i) - Y_min(i))
+      scores(i) = sqrt(meanAndVariance(Y(::, i)).variance) / (Y_max(i) - Y_min(i))
     }
     var inds = argsort(scores).reverse
     println("scores", scores)
@@ -134,19 +136,24 @@ class AccesRBF(
         for (i <- 0 to inds.length - 1) {
           val ind = inds(i)
           println("ind", ind, "var", scores(i))
-          if (~=(scores(ind), 0.0, 0.00001)) {
+          if (~=(scores(ind), 0, atol) || scores(ind) / scores(inds(0)) <  rtol) {
             inds = inds.slice(0, i)
             println(inds)
             break
           }
+//          if (~=(scores(ind), 0.0, 0.00001)) {
+//            inds = inds.slice(0, i)
+//            println(inds)
+//            break
+//          }
         }
       }
     }
     inds = inds.slice(0, min(inds.length, k))
     inds = inds.sorted
 
-    println("new inds", inds)
-    println("new scores", scores(inds).toDenseVector)
+//    println("new inds", inds)
+//    println("new scores", scores(inds).toDenseVector)
 
     return inds
   }
@@ -154,8 +161,8 @@ class AccesRBF(
   def fit_gpr(estimate: Boolean = false, use_default_params: Boolean = false) = {
     val X: DenseMatrix[Double] = this._X_normed
     val Y: DenseMatrix[Double] = this._Y_normed(::, this._selected_features).toDenseMatrix
-    val X_min = this._X_min
-    val X_max = this._X_max
+    val X_min = min(X(::, *)).t
+    val X_max = max(X(::, *)).t
     val Y_min = this._Y_min(this._selected_features).toDenseVector
     val Y_max = this._Y_max(this._selected_features).toDenseVector
 
@@ -163,6 +170,7 @@ class AccesRBF(
     val d = X.cols
     val m = Y.cols
 
+    println("X.rows, Y.rows: ", X.rows, Y.rows)
     assert(X.rows == Y.rows)
 
     if(estimate) {
@@ -176,7 +184,7 @@ class AccesRBF(
     println("use default parameters", use_default_params)
 
     val sf_0: DenseVector[Double] = 0.01 * (Y_max - Y_min)
-    val l_0: DenseVector[Double] = 0.1 * DenseVector.ones[Double](m)
+    val l_0: DenseVector[Double] = 0.1 * breeze.linalg.norm(X_max - X_min) * DenseVector.ones[Double](m)
     val noise_0: DenseVector[Double] = sf_0.copy
 
     println("Default parameters")
@@ -264,6 +272,7 @@ class AccesRBF(
   }
 
   def predict_gpr_scalar(X: DenseMatrix[Double], component: Int): (DenseVector[Double],DenseVector[Double])  = {
+    // WRONG INDEXING HERE, component for M and data is not the same, need to fix
     if (!this._selected_features.contains(component)) {
       throw new IllegalArgumentException("Feature %d is ignored".format(component))
     }
@@ -411,7 +420,7 @@ class AccesRBF(
 //    println("x", x)
 //    println("x_normed", x_normed)
     val X_normed = this._X_normed
-    val Y_normed = this._Y_normed
+    val Y_normed = this._Y_normed(::, this._selected_features).toDenseMatrix
     val m = Y_normed.cols
     val n = X_normed.rows
     val d = X_normed.cols
@@ -420,7 +429,7 @@ class AccesRBF(
 //    var FIM = DenseMatrix.zeros[Double](d,d)
     val FIMs: Array[DenseMatrix[Double]] = Array.ofDim[DenseMatrix[Double]](this._selected_features.length)
 
-    for (i <- 0 to this._selected_features.length - 1) {
+    for (i <- 0 until Y_normed.cols) {
       var FIM = DenseMatrix.zeros[Double](d,d)
       val M = this._Ms.get(i)
       val gamma = this._gammas.get(i)

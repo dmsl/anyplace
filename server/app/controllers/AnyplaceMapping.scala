@@ -2749,11 +2749,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       drop_redundant_features = true,
       cut_k_features = cut_k_features
     )
-
+    println("fit_gpr: starting")
     acces.fit_gpr(estimate = true, use_default_params = false)
+    println("fit_gpr: finished")
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
     val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+    println("crlbs", crlbs)
     val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
 
       GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur)

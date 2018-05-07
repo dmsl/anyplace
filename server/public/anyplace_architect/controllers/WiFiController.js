@@ -2010,11 +2010,26 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 var heatMapData = [];
 
+                fltr = function(v) { return !isNaN(v) && v != Number.POSITIVE_INFINITY };
+                console.log('crlbs: ', values);
+                values = values.map(function(v) { return fltr(v) ? Math.min(v, 5) : 5});
+                console.log('crlbs clamp: ', values);
+                var crlb_max = 5.0;
+                console.log("crlb_max: ", crlb_max);
+                var weights = values.map(function(v) { return Math.log(1.0 + v / crlb_max) });
+                console.log('weights: ', weights);
+
                 while (i--) {
                     var rp = data[i];
                     heatMapData.push(
-                        {location: new google.maps.LatLng(rp[0], rp[1]), weight: values[i]}
+                        {
+                            location: new google.maps.LatLng(rp[0], rp[1]),
+                            // weight: values[i]
+                            weight: weights[i]
+                        }
                     );
+                    // console.log("value: ", i , " ", values[i]);
+                    // console.log("weight: ", i , " ", Math.log(1 + values[i] / crlb_max));
 
                     data.splice(i, 1);
                 }
