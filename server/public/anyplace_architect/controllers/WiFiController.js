@@ -2012,13 +2012,14 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 fltr = function(v) { return !isNaN(v) && v != Number.POSITIVE_INFINITY };
                 var crlb_clamp = 5.0*4;
-                console.log('crlbs: ', values);
+                //console.log('crlbs: ', values);
                 values = values.map(function(v) { return fltr(v) ? Math.min(v, crlb_clamp) : crlb_clamp});
-                console.log('crlbs clamp: ', values);
+                //console.log('crlbs clamp: ', values);
                 var crlb_max = crlb_clamp;
-                console.log("crlb_max: ", crlb_max);
-                var weights = values.map(function(v) { return Math.log(1.0 + v / crlb_max) });
-                console.log('weights: ', weights);
+                //console.log("crlb_max: ", crlb_max);
+                var weights = values.map(function(v) { return 1-Math.log(1.0 + v / crlb_max) });
+                //console.log('weights: ', weights);
+
 
                 while (i--) {
                     var rp = data[i];
@@ -2029,8 +2030,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                             weight: weights[i]
                         }
                     );
-                    // console.log("value: ", i , " ", values[i]);
-                    // console.log("weight: ", i , " ", Math.log(1 + values[i] / crlb_max));
+
 
                     data.splice(i, 1);
                 }
@@ -2055,7 +2055,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     'rgba(191, 0, 31, 1)',
                     'rgba(255, 0, 0, 1)'
                 ];
+
+
+
                 heatmapAcc.set('gradient', gradient);
+
+                heatmapAcc.set('radius', 20);
 
                 heatmapAcc.setMap($scope.gmapService.gmap);
 
