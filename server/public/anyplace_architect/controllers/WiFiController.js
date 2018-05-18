@@ -403,6 +403,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             }
 
+
             if (heatmap && heatmap.getMap()) {
                 //hide fingerPrints heatmap
                 heatmap.setMap(null);
@@ -414,6 +415,22 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 _HEATMAP_F_IS_ON=false;
 
                 $scope.showFingerPrints();
+
+                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+
+                    d3.selectAll("svg > *").remove();
+                    $( "svg" ).remove();
+                    $scope.getFingerPrintsTime();
+
+                }
+            }
+
+            if (heatmapAcc && heatmapAcc.getMap()) {
+                //hide acces heatmap
+
+                heatmapAcc.setMap(null);
+                $scope.showLocalizationAccHeatmap();
+
             }
 
             var check = 0;
@@ -466,6 +483,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     }
                 }
             }
+
             changedfloor = false;
 
         }
@@ -556,6 +574,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 }
             }
 
+
             if (heatmap && heatmap.getMap()) {
                 //hide fingerPrints heatmap
                 heatmap.setMap(null);
@@ -567,10 +586,25 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 _HEATMAP_F_IS_ON=false;
 
                 $scope.showFingerPrints();
+                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+
+                    d3.selectAll("svg > *").remove();
+                    $( "svg" ).remove();
+                    $scope.getFingerPrintsTime();
+
+                }
+            }
+
+            if (heatmapAcc && heatmapAcc.getMap()) {
+                //hide acces heatmap
+
+                heatmapAcc.setMap(null);
+                $scope.showLocalizationAccHeatmap();
+
             }
 
             var check = 0;
-            if (!_CONNECTIONS_IS_ON) {
+            if (!_CONNECTIONS_IS_ON ) {
                 connectionsMap = $scope.anyService.getAllConnections();
                 var key = Object.keys(connectionsMap);
                 if (connectionsMap[key[check]] !== undefined) {
