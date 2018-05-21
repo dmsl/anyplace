@@ -39,7 +39,7 @@
 
 <resources>
 
-    <string name="default_server_ip_address">https://ap.cs.ucy.ac.cy</string>
+    <string name="default_server_ip_address">https://anyplace.eastus.cloudapp.azure.com</string>
 
     <string name="app_name">AnyPlace</string>
     <string name="app_name_logger">AnyPlace Logger</string>
