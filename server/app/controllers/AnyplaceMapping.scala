@@ -59,7 +59,6 @@ import radiomapserver.RadioMapMean
 import utils._
 
 import scala.util.control.Breaks
-//new marileni 16/3
 import play.api.libs.json.Reads._
 
 import scala.collection.JavaConversions._
@@ -161,7 +160,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  //new marileni
 
   def getRadioHeatmapByBuildingFloorAverage() = Action {
     implicit request =>
@@ -192,9 +190,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  //end new marileni
-
-  //new marileni 2/2
   def getRadioHeatmapByBuildingFloorAverage1() = Action {
     implicit request =>
 
@@ -285,9 +280,49 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
+//HEREEE
+ def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
+    implicit request =>
 
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val x = (json \ "x").as[Int]
+        val y = (json \ "y").as[Int]
+        val z = (json \ "z").as[Int]
+        try {
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          val radioPointsInXY: util.ArrayList[JsonObject]= new util.ArrayList[JsonObject]()
 
-  //end new marileni
+          for (radioPoint: JsonObject <- radioPoints) {
+            var radioX = radioPoint.getString("x").toDouble
+            var radioY = radioPoint.getString("y").toDouble
+            var xyConverter=convertToxy(radioX,radioY,z)
+            if(xyConverter(0)==x && xyConverter(1)==y)
+              radioPointsInXY.add(radioPoint)
+          }
+          res.put("radioPoints", radioPointsInXY)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
 
   def getRadioHeatmapByBuildingFloorTimestamp()= Action {
     implicit request =>
@@ -326,6 +361,61 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  private def convertToxy(lat: Double, lon: Double, zoom: Int) = {
+    val sxtile = Math.floor((lon + 180.0) / 360.0 * (1 << zoom).toDouble).toInt
+    val sytile = Math.floor((1.0 - Math.log(Math.tan(Math.toRadians(lat)) + 1.0 / Math.cos(Math.toRadians(lat))) / 3.141592653589793) / 2.0 * (1 << zoom).toDouble).toInt
+    Array[Int](sxtile, sytile)
+  }
+//HEREEE
+    def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY","x","y","z")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+        val x = (json \ "x").as[Int]
+        val y = (json \ "y").as[Int]
+        val z = (json \ "z").as[Int]
+
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          val radioPointsInXY: util.ArrayList[JsonObject]= new util.ArrayList[JsonObject]()
+
+          for (radioPoint: JsonObject <- radioPoints) {
+            var radioX = radioPoint.getString("x").toDouble
+            var radioY = radioPoint.getString("y").toDouble
+            var xyConverter=convertToxy(radioX,radioY,z)
+            if(xyConverter(0)==x && xyConverter(1)==y)
+              radioPointsInXY.add(radioPoint)
+          }
+          res.put("radioPoints", radioPointsInXY)
+
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
   def getRadioHeatmapByBuildingFloorTimestampAverage1()= Action {
     implicit request =>
 
@@ -348,6 +438,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
+
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -397,8 +488,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-
-  //new marileni 4/1
 
   def getAPsByBuildingFloor() = Action {
     implicit request =>
@@ -470,8 +559,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-
-  //end new marileni
 
   def getAPsIds() = Action {
      implicit request =>
@@ -572,9 +659,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-
-  //new marileni 17/1
-
 
   def FingerPrintsDelete() = Action {
     implicit request =>
@@ -693,8 +777,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-
-  //end new marileni
 
   def FingerPrintsTime() = Action {
     implicit request =>

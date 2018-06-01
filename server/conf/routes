@@ -27,7 +27,10 @@ POST        /anyplace/mapping/radio/heatmap_building_floor_avarage              
 POST        /anyplace/position/radio/heatmap_building_floor_average_1                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage1()
 POST        /anyplace/position/radio/heatmap_building_floor_average_2                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage2()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
+POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles                 controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
+
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage1()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage2()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
