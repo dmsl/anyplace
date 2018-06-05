@@ -1924,12 +1924,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                             tilePromise.then(
                                 function (resp) {
 
-                                    // on success
-                                    var data = resp.data;
+                                        // on success
+                                        var data = resp.data;
 
-                                    var fingerPrintsData = [];
+                                        var fingerPrintsData = [];
 
-                                    var i = resp.data.radioPoints.length;
+                                        var i = resp.data.radioPoints.length;
 
 
                                         while (i--) {
@@ -1952,21 +1952,22 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
 
                                         while (i--) {
-
-                                            var fingerPrint = new google.maps.Marker({
-                                                position: fingerPrintsData[i].location,
-                                                map: GMapService.gmap,
-                                                icon: new google.maps.MarkerImage(
-                                                    imgType,
-                                                    null, /* size is determined at runtime */
-                                                    null, /* origin is 0,0 */
-                                                    null, /* anchor is bottom center of the scaled image */
-                                                    size
-                                                )
-                                            });
-                                            fingerPrintsMap.push(
-                                                fingerPrint
-                                            );
+                                            if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
+                                                var fingerPrint = new google.maps.Marker({
+                                                    position: fingerPrintsData[i].location,
+                                                    map: GMapService.gmap,
+                                                    icon: new google.maps.MarkerImage(
+                                                        imgType,
+                                                        null, /* size is determined at runtime */
+                                                        null, /* origin is 0,0 */
+                                                        null, /* anchor is bottom center of the scaled image */
+                                                        size
+                                                    )
+                                                });
+                                                fingerPrintsMap.push(
+                                                    fingerPrint
+                                                );
+                                            }
 
                                         }
                                         _FINGERPRINTS_IS_ON = true;
@@ -2057,21 +2058,22 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
 
                                 while (i--) {
-
-                                    var fingerPrint = new google.maps.Marker({
-                                        position: fingerPrintsData[i].location,
-                                        map: GMapService.gmap,
-                                        icon: new google.maps.MarkerImage(
-                                            imgType,
-                                            null, /* size is determined at runtime */
-                                            null, /* origin is 0,0 */
-                                            null, /* anchor is bottom center of the scaled image */
-                                            size
-                                        )
-                                    });
-                                    fingerPrintsMap.push(
-                                        fingerPrint
-                                    );
+                                    if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
+                                        var fingerPrint = new google.maps.Marker({
+                                            position: fingerPrintsData[i].location,
+                                            map: GMapService.gmap,
+                                            icon: new google.maps.MarkerImage(
+                                                imgType,
+                                                null, /* size is determined at runtime */
+                                                null, /* origin is 0,0 */
+                                                null, /* anchor is bottom center of the scaled image */
+                                                size
+                                            )
+                                        });
+                                        fingerPrintsMap.push(
+                                            fingerPrint
+                                        );
+                                    }
 
                                 }
                                 _FINGERPRINTS_IS_ON = true;
@@ -2343,6 +2345,17 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     GMapService.gmap.addListener('zoom_changed', function () {
         _NOW_ZOOM = GMapService.gmap.getZoom();
 
+        if(_NOW_ZOOM!==_MAX_ZOOM_LEVEL){
+
+            var i = fingerPrintsMap.length;
+
+            //hide fingerPrints
+            while (i--) {
+                fingerPrintsMap[i].setMap(null);
+                fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
+        }
 
         if (_HEATMAP_RSS_IS_ON) {
             if ((_PREV_ZOOM == MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM > _PREV_ZOOM) || (_PREV_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _PREV_ZOOM < MAX_ZOOM_FOR_HEATMAPS && (_NOW_ZOOM <= MIN_ZOOM_FOR_HEATMAPS || _NOW_ZOOM >= MAX_ZOOM_FOR_HEATMAPS)) || (_PREV_ZOOM == MAX_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < _PREV_ZOOM)) {
