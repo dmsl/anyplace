@@ -132,4 +132,57 @@ object AnyPlaceTilerHelper {
         }
         true
     }
+
+    def tileImageWithZoom(imageFile: File, lat: String, lng: String, zoom:String): Boolean = {
+        if (!imageFile.isFile || !imageFile.canRead()) {
+            return false
+        }
+        val imageDir = imageFile.getParentFile
+        if (!imageDir.isDirectory || !imageDir.canWrite() || !imageDir.canRead()) {
+            throw new AnyPlaceException("Server do not have the permissions to tile the passed argument[" +
+              imageFile.toString +
+              "]")
+        }
+        val pb = new ProcessBuilder(ANYPLACE_TILER_SCRIPT_START, imageFile.getAbsolutePath.toString, lat,
+            lng,"-DISLOG",zoom)
+        val log = new File(imageDir, "anyplace_tiler_" + imageFile.getName + ".log")
+        pb.redirectErrorStream(true)
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(log))
+        try {
+            val p = pb.start()
+            val is = p.getInputStream
+            val br = new BufferedReader(new InputStreamReader(is))
+            var line = br.readLine()
+            while (line != null) {
+                println(">" + line)
+                line = br.readLine()
+            }
+            p.waitFor()
+            if (p.exitValue() != 0) {
+                val err = "Tiling for image[" + imageFile.toString + "] failed with exit code[" +
+                  p.exitValue() +
+                  "]!"
+                Logger.error(err)
+                throw new AnyPlaceException(err)
+            }
+        } catch {
+            case e: IOException => {
+                val err = "Tiling for image[" + imageFile.toString + "] failed with IOException[" +
+                  e.getMessage +
+                  "]!"
+                Logger.error(err)
+                throw new AnyPlaceException(err)
+            }
+            case e: InterruptedException => {
+                val err = "Tiling for image[" + imageFile.toString + "] failed with InterruptedException[" +
+                  e.getMessage +
+                  "]!"
+                Logger.error(err)
+                throw new AnyPlaceException(err)
+            }
+        }
+        true
+    }
 }
+
+

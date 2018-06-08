@@ -326,6 +326,131 @@ object AnyplacePosition extends play.api.mvc.Controller {
   }
 
 
+  /**
+    * Returns a link to the radio map that needs to be downloaded according to the specified buid and floor
+    *
+    * @return a link to the radio_map file
+    */
+  def radioDownloadByBuildingFloorall() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
+        if (!requiredMissing.isEmpty) {
+          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        }
+        val floor_numbers = (json \ "floor").as[String]
+        val buid = (json \ "buid").as[String]
+
+        val floors = floor_numbers.split(" ")
+
+        val radiomap_mean_filename = JsonArray.empty()
+
+        val rss_log_files = JsonArray.empty()
+
+        for (floor_number <- floors) {
+          val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+            floor_number)
+          val radiomapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+            floor_number +
+            AnyplaceServerAPI.URL_SEPARATOR +
+            "indoor-radiomap.txt")
+          val meanFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+            floor_number +
+            AnyplaceServerAPI.URL_SEPARATOR +
+            "indoor-radiomap-mean.txt")
+          if (rmapDir.exists() && radiomapFile.exists() && meanFile.exists()) {
+            try {
+              val folder = rmapDir.toString
+              val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
+                .getAbsolutePath
+              var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
+              var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
+              var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
+              val api = AnyplaceServerAPI.SERVER_API_ROOT
+              var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
+              radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
+              pos = radiomap_rbf_weights_filename.indexOf("radiomaps_frozen")
+              radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos)
+              pos = radiomap_parameters_filename.indexOf("radiomaps_frozen")
+              radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
+            } catch {
+              case e: Exception => return AnyResponseHelper.internal_server_error("Error serving radiomap : " + e.getMessage)
+            }
+          }
+          if (!rmapDir.exists())
+          if (!rmapDir.mkdirs()) {
+            return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+          }
+          val radio = new File(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
+          var fout: FileOutputStream = null
+          try {
+            fout = new FileOutputStream(radio)
+            println(radio.toPath().getFileName)
+          } catch {
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          }
+          var floorFetched: Long = 0l
+          try {
+            floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            try {
+              fout.close()
+            } catch {
+              case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
+            }
+          } catch {
+            case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          }
+          if (floorFetched != 0) {
+
+            try {
+              val folder = rmapDir.toString
+              val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
+                .getAbsolutePath
+              var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
+              var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
+              var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
+              val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
+              if (!rm.createRadioMap()) {
+                return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+              }
+              val api = AnyplaceServerAPI.SERVER_API_ROOT
+              var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
+              radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
+              pos = radiomap_rbf_weights_filename.indexOf("radiomaps_frozen")
+              radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos)
+              pos = radiomap_parameters_filename.indexOf("radiomaps_frozen")
+              radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
+            } catch {
+              case e: Exception => return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage)
+            }
+
+
+            val source = scala.io.Source.fromFile(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
+            val lines = try source.mkString finally source.close()
+            radiomap_mean_filename.add(floor_number)
+            rss_log_files.add(lines)
+          }
+          else {
+            radiomap_mean_filename.add("")
+          }
+        }
+        // everything is ok
+        val res = JsonObject.empty()
+        res.put("map_url_mean", radiomap_mean_filename)
+        res.put("rss_log_files", rss_log_files)
+        return AnyResponseHelper.ok(res, "Successfully served radio map.")
+      }
+
+      inner(request)
+  }
+
   private def storeRadioMapToDB(infile: File): String = {
     var line: String = null
     var fr: FileReader = null
@@ -335,7 +460,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       fr = new FileReader(infile)
       bf = new BufferedReader(fr)
       while ( {
-        line = bf.readLine;
+        line = bf.readLine
         line != null
       }) {
         if (line.startsWith("# Timestamp")) //continue

@@ -25,41 +25,164 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['ngCookies','angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['ngCookies', 'angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 
     this.gmap = {};
-    // this.directionsService = {};
-    // this.directionsDisplay = {};
-
-//    this.searchBox = {};
 
     var self = this;
 
-    // Initialize Google Maps
-    var mapOptions = {
-        center: {lat: 35.14448545801575, lng: 33.41121554374695},
-        zoom: 8,
-        panControl: true,
+    var element = document.getElementById("map-canvas");
+
+    /**
+     * @constructor
+     * @implements {google.maps.MapType}
+     */
+    function CoordMapType(tileSize) {
+        this.tileSize = tileSize;
+    }
+
+    CoordMapType.prototype.maxZoom = 22;
+    CoordMapType.prototype.name = 'Tile #s';
+    CoordMapType.prototype.alt = 'Tile Coordinate Map Type';
+
+    CoordMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        var div = ownerDocument.createElement('div');
+        div.innerHTML = coord;
+        div.style.width = this.tileSize.width + 'px';
+        div.style.height = this.tileSize.height + 'px';
+        div.style.fontSize = '10';
+        div.style.borderStyle = 'solid';
+        div.style.borderWidth = '1px';
+        div.style.borderColor = '#AAAAAA';
+        div.style.backgroundColor = '#E5E3DF';
+        return div;
+    };
+
+    /**
+     * @constructor
+     * @implements {google.maps.MapType}
+     */
+    function OSMMapType(tileSize) {
+        this.tileSize = tileSize;
+    }
+
+    OSMMapType.prototype.maxZoom = 22;
+    OSMMapType.prototype.name = 'OSM';
+    OSMMapType.prototype.alt = 'Tile OSM Map Type';
+    OSMMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        if (zoom > 19)
+            return null;
+        var tilesPerGlobe = 1 << zoom;
+        var x = coord.x % tilesPerGlobe;
+        if (x < 0) {
+            x = tilesPerGlobe + x;
+        }
+        var tile = ownerDocument.createElement('img');
+        // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
+        tile.src = "http://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
+        ;
+        tile.style.width = this.tileSize.width + 'px';
+        tile.style.height = this.tileSize.height + 'px';
+        return tile;
+    };
+
+    /**
+     * @constructor
+     * @implements {google.maps.MapType}
+     */
+    function CartoLightMapType(tileSize) {
+        this.tileSize = tileSize;
+    }
+
+    CartoLightMapType.prototype.maxZoom = 22;
+    CartoLightMapType.prototype.name = 'Carto Light';
+    CartoLightMapType.prototype.alt = 'Tile Carto Light Map Type';
+    CartoLightMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        var url = "https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
+
+        url = url.replace('{x}', coord.x)
+            .replace('{y}', coord.y)
+            .replace('{z}', zoom);
+        var tile = ownerDocument.createElement('img');
+        // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
+        tile.src = url;
+        tile.style.width = this.tileSize.width + 'px';
+        tile.style.height = this.tileSize.height + 'px';
+        return tile;
+    };
+
+    /**
+     * @constructor
+     * @implements {google.maps.MapType}
+     */
+    function CartoDarkMapType(tileSize) {
+        this.tileSize = tileSize;
+    }
+
+    CartoDarkMapType.prototype.maxZoom = 22;
+    CartoDarkMapType.prototype.name = 'Carto Dark';
+    CartoDarkMapType.prototype.alt = 'Tile Carto Dark Map Type';
+    CartoDarkMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        var url = "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png";
+
+        url = url.replace('{x}', coord.x)
+            .replace('{y}', coord.y)
+            .replace('{z}', zoom);
+        var tile = ownerDocument.createElement('img');
+        // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
+        tile.src = url;
+        tile.style.width = this.tileSize.width + 'px';
+        tile.style.height = this.tileSize.height + 'px';
+        return tile;
+    };
+
+    var mapTypeId = "OSM";
+    if (typeof(Storage) !== "undefined" && localStorage) {
+        if (localStorage.getItem('mapTypeId'))
+            mapTypeId = localStorage.getItem('mapTypeId');
+        else
+            localStorage.setItem("mapTypeId", "OSM");
+    }
+
+
+    self.gmap = new google.maps.Map(element, {
+        center: new google.maps.LatLng(57, 21),
         zoomControl: true,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER
         },
-        mapTypeControl: true,
-        mapTypeControlOptions: {
-            position: google.maps.ControlPosition.LEFT_CENTER
-        },
         scaleControl: true,
         streetViewControl: false,
         overviewMapControl: true,
-        fullscreenControl: false
+        zoom: 3,
+        mapTypeId: mapTypeId,
+        mapTypeControlOptions: {
+            mapTypeIds: ['OSM', /* 'CartoDark',*/ 'CartoLight', /* 'coordinate',*/ 'roadmap', 'satellite'],
+            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+            position: google.maps.ControlPosition.LEFT_CENTER
+        }
+    });
 
-    };
+    self.gmap.addListener('maptypeid_changed', function () {
+        var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
+        localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
+        self.gmap.setOptions({
+            streetViewControl: showStreetViewControl
+        });
+    });
 
-    self.gmap = new google.maps.Map(document.getElementById('map-canvas'),
-        mapOptions);
+
+    //Define OSM map type pointing at the OpenStreetMap tile server
+    self.gmap.mapTypes.set("OSM", new OSMMapType(new google.maps.Size(256, 256)));
+    //Define Carto Dark map type pointing at the OpenStreetMap tile server
+    // self.gmap.mapTypes.set("CartoDark", new CartoDarkMapType(new google.maps.Size(256, 256)));
+    //Define Carto Light map type pointing at the OpenStreetMap tile server
+    self.gmap.mapTypes.set("CartoLight", new CartoLightMapType(new google.maps.Size(256, 256)));
+    // Now attach the coordinate map type to the map's registry.
+    //self.gmap.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
 
     // Initialize search box for places
     var input = (document.getElementById('pac-input'));
@@ -83,22 +206,6 @@ app.service('GMapService', function () {
         var bounds = self.gmap.getBounds();
         self.searchBox.setBounds(bounds);
     });
-
-    // Add click listener on map to add a marker on click
-    //google.maps.event.addListener(self.gmap, 'click', function (event) {
-    //
-    //    if (!self.mainMarker) {
-    //        self.mainMarker = new google.maps.Marker({
-    //            position: event.latLng,
-    //            map: self.gmap,
-    //            title: "Helper marker at (" + event.latLng.lat() + ", " + event.latLng.lng() + ")"
-    //        });
-    //    }
-    //
-    //    self.mainMarker.setPosition(event.latLng);
-    //    self.mainMarker.setTitle("Helper marker at (" + event.latLng.lat() + ", " + event.latLng.lng() + ")");
-    //});
-
 });
 
 
@@ -114,9 +221,9 @@ app.factory('AnyplaceService', function () {
     anyService.progress = undefined;
     anyService.allPois = {};
     anyService.allConnections = {};
-    anyService.radioHeatmapRSSMode=false;
-    anyService.fingerPrintsTimeMode=false;
-    anyService.radioHeatmapRSSTimeMode=false;
+    anyService.radioHeatmapRSSMode = false;
+    anyService.fingerPrintsTimeMode = false;
+    anyService.radioHeatmapRSSTimeMode = false;
 
 
     anyService.alerts = [];
@@ -125,7 +232,7 @@ app.factory('AnyplaceService', function () {
         username: 'username',
         password: 'password'
     };
-    anyService.BASE_URL="https://ap.cs.ucy.ac.cy";
+    anyService.BASE_URL = "https://ap.cs.ucy.ac.cy";
 
     anyService.getBuilding = function () {
         return this.selectedBuilding;
@@ -217,8 +324,8 @@ app.factory('AnyplaceService', function () {
         return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
-    anyService.setAllPois= function (p) {
-        this.allPois={};
+    anyService.setAllPois = function (p) {
+        this.allPois = {};
         this.allPois = p;
     };
 
@@ -247,8 +354,8 @@ app.factory('AnyplaceService', function () {
         anyService.selectedBuilding = undefined;
         anyService.selectedCampus = undefined;
         anyService.ShowShareProp = undefined;
-        anyService.allPois={};
-        anyService.allConnections={};
+        anyService.allPois = {};
+        anyService.allConnections = {};
     };
 
     return anyService;
@@ -316,9 +423,9 @@ app.factory('myInterceptor', [function () {
         request: function (config) {
 
             if (config.url !== undefined)
-            if (config.url.indexOf(AnyplaceAPI.FULL_SERVER) !== 0) {
-                return config;
-            }
+                if (config.url.indexOf(AnyplaceAPI.FULL_SERVER) !== 0) {
+                    return config;
+                }
 
             if (config.data) {
                 config.data.access_token = app.access_token;

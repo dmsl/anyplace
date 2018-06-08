@@ -2419,11 +2419,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   def serveFloorPlanTilesStatic(buid: String, floor_number: String, path: String) = Action {
     def inner(): Result = {
-      LPLogger.info("AnyplaceMapping::serveFloorPlanTilesStatic(): " + buid +
-        ":" +
-        floor_number +
-        ":" +
-        path)
       if (path == null || buid == null || floor_number == null ||
         path.trim().isEmpty ||
         buid.trim().isEmpty ||
@@ -2432,10 +2427,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       filePath = if (path == AnyPlaceTilerHelper.FLOOR_TILES_ZIP_NAME) AnyPlaceTilerHelper.getFloorTilesZipFor(buid,
         floor_number) else AnyPlaceTilerHelper.getFloorTilesDirFor(buid, floor_number) +
         path
-      LPLogger.info("static requested: " + filePath)
       try {
         val file = new File(filePath)
-        if (!file.exists() || !file.canRead()) return AnyResponseHelper.not_found("File requested not found")
+        //send ok message to tiler
+        if (!file.exists() || !file.canRead()) return AnyResponseHelper.ok("File requested not found")
         Ok.sendFile(file)
       } catch {
         case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
@@ -2626,6 +2621,75 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
+
+  def floorPlanUploadWithZoom() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val body = anyReq.getMultipartFormData()
+        if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
+        var floorplan = body.file("floorplan").get
+        if (floorplan == null) return AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!")
+        val urlenc = body.asFormUrlEncoded
+        val json_str = urlenc.get("json").get(0)
+        if (json_str == null) return AnyResponseHelper.bad_request("Cannot find json in the request!")
+        var json: JsonObject = null
+        try {
+          json = JsonObject.fromJson(json_str)
+        } catch {
+          case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
+        }
+        LPLogger.info("Floorplan Request[json]: " + json.toString)
+        LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
+          "bottom_left_lng", "top_right_lat", "top_right_lng","zoom")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = json.getString("buid")
+        val zoom = json.getString("zoom")
+        val zoom_number = json.getString("zoom").toInt
+        if (zoom_number<20)
+          return AnyResponseHelper.bad_request("You have provided zoom level "+zoom+". You have to zoom at least to level 20 to upload the floorplan.")
+
+        val floor_number = json.getString("floor_number")
+        val bottom_left_lat = json.getString("bottom_left_lat")
+        val bottom_left_lng = json.getString("bottom_left_lng")
+        val top_right_lat = json.getString("top_right_lat")
+        val top_right_lng = json.getString("top_right_lng")
+        val fuid = Floor.getId(buid, floor_number)
+        try {
+          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
+          stored_floor.put("zoom", zoom)
+          stored_floor.put("bottom_left_lat", bottom_left_lat)
+          stored_floor.put("bottom_left_lng", bottom_left_lng)
+          stored_floor.put("top_right_lat", top_right_lat)
+          stored_floor.put("top_right_lng", top_right_lng)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
+            return AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
+        }
+        var floor_file: File = null
+        try {
+          floor_file = AnyPlaceTilerHelper.storeFloorPlanToServer(buid, floor_number, floorplan.ref.file)
+        } catch {
+          case e: AnyPlaceException => return AnyResponseHelper.bad_request("Cannot save floor plan on the server!")
+        }
+        val top_left_lat = top_right_lat
+        val top_left_lng = bottom_left_lng
+        try {
+          AnyPlaceTilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng,zoom)
+        } catch {
+          case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
+        }
+        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        return AnyResponseHelper.ok("Successfully updated floor plan!")
+      }
+
+      inner(request)
+  }
+
 
   def addAccount() = Action {
     implicit request =>

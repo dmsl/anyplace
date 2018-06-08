@@ -136,7 +136,10 @@ def convertPaddedImage( filename, newW, newH, outputName ):
 
 
 def resizeImage( srcImage, zoomOriginal, zoomCurrent, destImage ):
-    resRatio = 50#100.0 / (2 ** (zoomOriginal-zoomCurrent) )
+    rasRatio=100
+    if(zoomOriginal!=zoomCurrent):
+        resRatio = 100.0 / (2 ** (zoomOriginal-zoomCurrent) )
+    print(resRatio)
     dim = subprocess.Popen(["convert", srcImage, "-resize", ('%d%%'%(resRatio)), destImage ], stdout=subprocess.PIPE).communicate()[0]
 
 #####################################################################################
@@ -174,7 +177,7 @@ def fixTileStructure( fixTileStructureScript, ImageFileName ):
 def main( argv ):
     print( argv )
     
-    if(7 != len(sys.argv)):
+    if(8 != len(sys.argv)):
         print(usage())
         sys.exit(1)
 
@@ -184,6 +187,7 @@ def main( argv ):
     OriginalZoom = int(sys.argv[4])
     ToZoom = int(sys.argv[5])
     ImageFileName = sys.argv[6]
+    UploadZoom = int(sys.argv[7])
     ImageDirName = os.path.dirname(os.path.realpath(ImageFileName))
 
     fixTileStructureScript = str(ScriptsDir + '/fix-tile-structure.sh')
@@ -195,13 +199,13 @@ def main( argv ):
     
     # we will run the procedure for every zoom level in range [OriginalZoom..ToZoom]
     for currentZoom in range( OriginalZoom, (ToZoom-1), -1 ):
-
+        currentImage=ImageFileName
         # call the command to resize the image according to the zoom level
-        if( currentZoom == OriginalZoom ):
+        if( currentZoom == UploadZoom ):
             currentImage=ImageFileName
         else:
             newName=(('%s-z%d.png') % (CURRENT_ZOOM_IMAGE_NAME, currentZoom))
-            resizeImage(currentImage, OriginalZoom, currentZoom, newName)
+            resizeImage(currentImage, UploadZoom, currentZoom, newName)
             currentImage = newName
 
         # get the Image top left world coords

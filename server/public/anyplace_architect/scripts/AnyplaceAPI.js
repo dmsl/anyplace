@@ -29,7 +29,7 @@ var AnyplaceAPI = {};
 
 AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
-//AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
+// AnyplaceAPI.FULL_SERVER = "https://ap.cs.ucy.ac.cy/anyplace";
 
 //AnyplaceAPI.FULL_SERVER = "https://ap-dev.cs.ucy.ac.cy/anyplace";
 
@@ -138,7 +138,7 @@ AnyplaceAPI.Mapping.FLOOR_DELETE = "/mapping/floor/delete";
 AnyplaceAPI.Mapping.FLOOR_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_DELETE;
 AnyplaceAPI.Mapping.FLOOR_ALL = "/mapping/floor/all";
 AnyplaceAPI.Mapping.FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_ALL;
-AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/upload";
+AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/uploadWithZoom";
 AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD;
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/";
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD;

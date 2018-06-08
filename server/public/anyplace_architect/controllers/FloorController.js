@@ -147,8 +147,8 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 });
 
 
-                $scope.anyService.availableFloors=[];
-                $scope.anyService.availableFloors=$scope.xFloors;
+                $scope.anyService.availableFloors = [];
+                $scope.anyService.availableFloors = $scope.xFloors;
 
                 // give priority to floor in url parameter - if exists
                 if ($scope.urlFloor) {
@@ -273,6 +273,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 if ($scope.data.floor_plan_groundOverlay && $scope.data.floor_plan_groundOverlay.getMap()) {
                     $scope.data.floor_plan_groundOverlay.setMap(null);
                 }
+
             }
 
         };
@@ -283,6 +284,11 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     $scope.setFloorPlan = function () {
         if (!canvasOverlay) {
+            return;
+        }
+
+        if (GMapService.gmap.getZoom() < 20) {
+            _err("You have provided zoom level " + GMapService.gmap.getZoom() + ". You have to zoom at least to level 20 to upload the floorplan.");
             return;
         }
 
@@ -313,6 +319,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
         $scope.data.floor_plan_coords.top_right_lat = tr.lat();
         $scope.data.floor_plan_coords.top_right_lng = tr.lng();
+        $scope.data.floor_plan_coords.zoom = GMapService.gmap.getZoom() + "";
         var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
         $scope.data.floor_plan_base64_data = data;
         var imageBounds = new google.maps.LatLngBounds(

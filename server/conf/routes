@@ -27,7 +27,7 @@ POST        /anyplace/mapping/radio/heatmap_building_floor_avarage              
 POST        /anyplace/position/radio/heatmap_building_floor_average_1                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage1()
 POST        /anyplace/position/radio/heatmap_building_floor_average_2                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage2()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles                 controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
+POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
 
@@ -38,7 +38,7 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3 
 POST        /anyplace/position/radio/APs_building_floor                                controllers.AnyplaceMapping.getAPsByBuildingFloor()
 POST        /anyplace/position/radio/aps_ids                                           controllers.AnyplaceMapping.getAPsIds()
 POST        /anyplace/position/radio/delete                                            controllers.AnyplaceMapping.FingerPrintsDelete()
-POST        /anyplace/position/radio/delete/time                                            controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
+POST        /anyplace/position/radio/delete/time                                       controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
 POST        /anyplace/position/radio/time                                              controllers.AnyplaceMapping.FingerPrintsTime()
 POST        /anyplace/position/radio/acces                                             controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
 
@@ -67,6 +67,7 @@ POST        /anyplace/mapping/floor/update                                      
 POST        /anyplace/mapping/floor/delete                                             controllers.AnyplaceMapping.floorDelete()
 POST        /anyplace/mapping/floor/all                                                controllers.AnyplaceMapping.floorAll()
 POST        /anyplace/mapping/floor/upload                                             controllers.AnyplaceMapping.floorPlanUpload()
+POST        /anyplace/mapping/floor/uploadWithZoom                                     controllers.AnyplaceMapping.floorPlanUploadWithZoom()
 POST        /anyplace/mapping/pois/add                                                 controllers.AnyplaceMapping.poisAdd()
 
 
@@ -113,6 +114,8 @@ POST        /anyplace/floorplans64/:buid/:floor_number                          
 POST        /anyplace/position/radio_upload                                            controllers.AnyplacePosition.radioUpload()
 POST        /anyplace/position/radio_download_floor                                    controllers.AnyplacePosition.radioDownloadFloor()
 POST        /anyplace/position/radio_by_building_floor                                 controllers.AnyplacePosition.radioDownloadByBuildingFloor()
+POST        /anyplace/position/radio_by_building_floor_all                             controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
+
 
 POST        /anyplace/position/radio_by_floor_bbox                                     controllers.AnyplacePosition.radioDownloadFloorBbox()
 
