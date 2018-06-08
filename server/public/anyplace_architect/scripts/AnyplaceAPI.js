@@ -35,6 +35,7 @@ AnyplaceAPI.FULL_SERVER = "http://localhost:9000/anyplace";
 
 
 /**
+ *
  * MAPPING API
  */
 AnyplaceAPI.Mapping = {};
@@ -53,6 +54,10 @@ AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2 = AnyplaceAPI.FULL_SERVER + Anyplace
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/position/radio/heatmap_building_floor_average_3";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3;
 
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES = "/position/radio/heatmap_building_floor_average_3_tiles";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES;
+
+
 AnyplaceAPI.Mapping.APs = "/position/radio/APs_building_floor";
 AnyplaceAPI.Mapping.APs_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.APs;
 
@@ -70,6 +75,11 @@ AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAP
 
 AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME = "/position/radio/heatmap_building_floor_timestamp";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME;
+
+
+AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES = "/position/radio/heatmap_building_floor_timestamp_tiles";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES;
+
 
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/position/radio/heatmap_building_floor_timestamp_average_1";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1;
@@ -128,7 +138,7 @@ AnyplaceAPI.Mapping.FLOOR_DELETE = "/mapping/floor/delete";
 AnyplaceAPI.Mapping.FLOOR_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_DELETE;
 AnyplaceAPI.Mapping.FLOOR_ALL = "/mapping/floor/all";
 AnyplaceAPI.Mapping.FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_ALL;
-AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/upload";
+AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/uploadWithZoom";
 AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD;
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/";
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD;
@@ -197,9 +207,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-
-    //new marileni 2/2
-
     apiService.getRadioHeatmapRSS_1 = function (json_req) {
         //alert( "make the request: " + json_req );
         return $http({
@@ -239,7 +246,20 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    //end new marileni 2/2
+    apiService.getRadioHeatmapRSS_3_Tiles = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+
+
     apiService.getRadioHeatmapRSSByTime_1 = function (json_req) {
         //alert( "make the request: " + json_req );
         return $http({
@@ -292,7 +312,19 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    //new marileni 4/1
+    apiService.getRadioHeatmapRSSByTime_Tiles= function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+
 
     apiService.getAPs= function (json_req) {
         //alert( "make the request: " + json_req );
@@ -306,7 +338,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             return data;
         });
     };
-    //end new marileni
+
 
     apiService.getAPsIds= function (json_req) {
         //alert( "make the request: " + json_req );
@@ -321,8 +353,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-
-    //new marileni 17/1
 
     apiService.deleteFingerprints = function (json_req) {
         //alert( "make the request: " + json_req );
@@ -351,7 +381,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
 
     };
-    //end new marileni
 
     apiService.getFingerprintsTime = function (json_req) {
         //alert( "make the request: " + json_req );

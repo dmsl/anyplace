@@ -381,6 +381,31 @@ CanvasOverlay.prototype.onAdd = function () {
     // We'll add this overlay to the overlayImage pane.
     var panes = this.getPanes();
     panes.overlayImage.appendChild(this.div_);
+////////////////////////////////////////
+    var that=this;
+    var container=div;
+    google.maps.event.addDomListener(this.get('map').getDiv(),
+        'mouseleave',
+        function(){
+            google.maps.event.trigger(container,'mouseup');
+        }
+    );
+
+
+    google.maps.event.addDomListener(container,
+        'mousedown',
+        function(e){
+            this.style.cursor='move';
+            that.map.set('draggable',false);
+            that.set('origin',e);        }
+    );
+
+    google.maps.event.addDomListener(container,'mouseup',function(){
+        that.map.set('draggable',true);
+        this.style.cursor='default';
+        google.maps.event.removeListener(that.moveHandler);
+    });
+
     return this;
 }
 

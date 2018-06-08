@@ -333,6 +333,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.clearPoisOnMap = function () {
+
         for (var i = 0; i < $scope.myPois.length; i++) {
             var p = $scope.myPois[i];
             if (p && $scope.myPoisHashT[p.puid] && $scope.myPoisHashT[p.puid].marker) {
@@ -346,6 +347,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.clearConnectionsOnMap = function () {
         if ($scope.myConnectionsHashT) {
+
             for (var con in $scope.myConnectionsHashT) {
                 if (con && $scope.myConnectionsHashT.hasOwnProperty(con) && $scope.myConnectionsHashT[con] && $scope.myConnectionsHashT[con].polyLine) {
                     $scope.myConnectionsHashT[con].polyLine.setMap(null);
@@ -353,8 +355,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 }
             }
             $scope.myConnectionsHashT={};
+            $scope.anyService.setAllConnection($scope.myConnectionsHashT);
         }
-        $scope.anyService.setAllConnection($scope.myConnectionsHashT);
+
     };
 
     $scope.fetchConnections = function () {
@@ -410,6 +413,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             function (resp) {
                 var data = resp.data;
 
+                $scope.clearConnectionsOnMap();
                 //var connections = JSON.parse( data.connections );
                 var connections = data.connections;
 
@@ -421,7 +425,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 }
                 $scope.myConnectionsHashT = hasht;
                 $scope.anyService.setAllConnection($scope.myConnectionsHashT);
-
                 // draw the markers
                 // $scope.data.MainController.clearConnectionsOnMap();
 
@@ -438,6 +441,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.drawConnectionsOnMap = function () {
+
         for (var cuid in $scope.myConnectionsHashT) {
             if ($scope.myConnectionsHashT.hasOwnProperty(cuid)) {
                 var conn = $scope.myConnectionsHashT[cuid];
@@ -936,7 +940,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 var data = resp.data;
 
                 $scope.clearPoisOnMap();
-                $scope.clearConnectionsOnMap();
 
                 $scope.myPois = data.pois;
 

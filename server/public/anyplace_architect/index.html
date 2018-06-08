@@ -2,8 +2,8 @@
 <html ng-app="anyArchitect">
 <head>
     <script>
-//         if (window.location.protocol != "https:")
-//             window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+        // if (window.location.protocol != "https:")
+        //     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
     <link rel="icon" type="image/png" href="build/images/logo.png">
 
@@ -874,8 +874,6 @@
                                 <div class="subnote">
                                     This area shows the Wi-Fi fingerprints that have been collected
                                     <a data-toggle="modal" data-target="#myModal_1">read more...</a>
-
-
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
                                     <button id="FPsButton" class="btn btn-success" ng-click="toggleFingerPrints()">
@@ -983,12 +981,11 @@
                         </span>
 
                         <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
-
-                        <button style="width: 50px;">
-                            <a data-toggle="modal" data-target="#myModal_2">
-                                <i class="fa fa-info-circle"></i>
-                            </a>
-                        </button>
+                        <a data-toggle="modal" data-target="#myModal_2">
+                         <button style="width: 50px;">
+                             <i class="fa fa-info-circle"></i>
+                         </button>
+                        </a>
 
                     </ul>
                 </div>
@@ -1015,11 +1012,11 @@
             <div class="divider-top-10">
                 <input class="form-control" value="{{gAuth.access_token}}">
             </div>
-            <button style="width: 50px; float: right; margin:10px;">
-                <a data-toggle="modal" data-target="#myModal_Welcome">
-                    <i class="fa fa-question-circle"></i>
-                </a>
-            </button>
+            <a data-toggle="modal" data-target="#myModal_Welcome">
+                <button style="width: 50px; float: right; margin:10px;">
+                     <i class="fa fa-question-circle"></i>
+                </button>
+            </a>
         </div>
 
         <div id="notification_panel" ng-controller="AlertController as alertCtrl" ng-show="alerts.length">
@@ -1117,7 +1114,7 @@
                 <p>This area shows the Wi-Fi fingerprints that have been collected using
                     <a href="//play.google.com/store/apps/details?id=com.dmsl.anyplace"
                        target="_blank">Anyplace Logger</a> on Android as shown in the video below:<br>
-                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/8EvioLZ6hvg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe><br>
+                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/8EvioLZ6hvg?autoplay=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe><br>
                     Collecting the Wi-Fi fingerprints allows our users to localize with greater accuracy but
                     allows you also to observe the coverage of Wi-Fi infrastructure.<br>
                     For greater accuracy on those tasks, please collect as many fingerprints as possible
@@ -1228,7 +1225,7 @@
                     </li>
                 </ul>
                 You can see a demo of ACCES in the video below:<br>
-                <iframe width="100%" height="315" src="https://www.youtube.com/embed/xPZlwKngcGo" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+                <iframe width="100%" height="315" src="https://www.youtube.com/embed/xPZlwKngcGo?autoplay=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -1260,7 +1257,7 @@
                     <a href="{{anyService.BASE_URL}}/developers/" target="_blank">Developers API</a> to link the
                     mapped information to your proprietary application!<br>
                     Live Crowdsourcing tasks, heatmaps and many more!<br>
-                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/dIVxcQ_5Wbg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe></p>
+                    <iframe width="100%" height="315" src="https://www.youtube.com/embed/dIVxcQ_5Wbg?autoplay=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe></p>
             </div>
             <div class="modal-footer">
                 <label class="pull-left"><input type="checkbox" name="dismiss" id="dismiss">Don't show again!</label>

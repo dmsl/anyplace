@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($cookieStore,$scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
+app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($cookieStore, $scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     $scope.myMarkers = {};
     $scope.myMarkerId = 0;
@@ -33,8 +33,6 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     $scope.gmapService = GMapService;
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
-
-
     $scope.example9model = [];
     $scope.example9data = [];
     $scope.example9settings = {enableSearch: true, scrollable: true};
@@ -57,9 +55,40 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     $scope.poisTypes = {};
     $scope.catTypes = {};
 
-    $scope.pageLoad=false;
+    $scope.pageLoad = false;
 
     $scope.crudTabSelected = 1;
+
+
+//     // Replace this with your URL.
+//     var BUILDING_TILE_URL = AnyplaceAPI.FULL_SERVER + '/floortiles/{building}/{floor}/{z}/z{z}x{x}y{y}.png';
+//
+// // Name the layer anything you like.
+//     var layerID = 'building_layer';
+//
+// // Create a new ImageMapType layer. static_tiles/19/z19x310801y207411.png
+//     var maptiler = new google.maps.ImageMapType({
+//         name: layerID,
+//         getTileUrl: function (coord, zoom) {
+//             var buid = $scope.anyService.getBuildingId();
+//
+//             var floor = $scope.anyService.getFloorNumber();
+//             var url = BUILDING_TILE_URL
+//                 .replace('{building}', buid)
+//                 .replace('{floor}', floor)
+//                 .replace('{z}', zoom)
+//                 .replace('{x}', coord.x)
+//                 .replace('{y}', coord.y)
+//                 .replace('{z}', zoom);
+//             return url;
+//         },
+//         tileSize: new google.maps.Size(256, 256),
+//         isPng: true
+//     });
+//
+//     // Register the new layer, then activate it.
+//     $scope.gmapService.gmap.overlayMapTypes.insertAt(0, maptiler);
+
     $scope.setCrudTabSelected = function (n) {
         $scope.crudTabSelected = n;
         if (!$scope.anyService.getBuilding()) {
@@ -149,6 +178,7 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
         $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
         $scope.data.floor_plan_coords.top_right_lat = tr.lat();
         $scope.data.floor_plan_coords.top_right_lng = tr.lng();
+        $scope.data.floor_plan_coords.zoom = GMapService.gmap.getZoom() + "";
         var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
         $scope.data.floor_plan_base64_data = data;
         var imageBounds = new google.maps.LatLngBounds(
@@ -687,7 +717,7 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
 
         reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
 
-        reqObj.buids = buids ;
+        reqObj.buids = buids;
 
 
         var promise = $scope.anyAPI.updateCampus(reqObj);
@@ -1231,7 +1261,7 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
             }
 
             $scope.anyService.progress = (i / (oJS.length - 1)) * 100;
-            if ((oJS.length - 1)==0) $scope.anyService.progress = 100;
+            if ((oJS.length - 1) == 0) $scope.anyService.progress = 100;
 
             if ($scope.pois[oJS[i].name]) {
                 $scope.updatePoifromExcel($scope.pois[oJS[i].name].puid,
@@ -1740,7 +1770,7 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
 
     //set cookies
 
-    $('#dismiss').on('click', function() {
+    $('#dismiss').on('click', function () {
         // set expire date.
         if (typeof(Storage) !== "undefined" && localStorage) {
             localStorage.setItem('dismissClicked', 'YES');
@@ -1749,11 +1779,11 @@ app.controller('BuildingController', ['$cookieStore','$scope', '$compile', 'GMap
     });
 
     if (localStorage.getItem('dismissClicked') !== 'YES') {
-        function showWelcomeMessage(){
+        function showWelcomeMessage() {
             $('#myModal_Welcome').modal('show');
         }
 
-        window.onload=showWelcomeMessage;
+        window.onload = showWelcomeMessage;
     }
 
 }]);

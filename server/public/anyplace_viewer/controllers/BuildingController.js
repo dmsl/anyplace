@@ -45,7 +45,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.myBuildingsHashT = {};
 
     var markerCluster = new MarkerClusterer($scope.gmapService.gmap);
-
+    
     var _setBuildingMarkesVisibility = function (bool) {
         for (var buid in $scope.myBuildingsHashT) {
             if ($scope.myBuildingsHashT.hasOwnProperty(buid)) {

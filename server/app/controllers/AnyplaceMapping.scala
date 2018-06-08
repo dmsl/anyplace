@@ -59,7 +59,6 @@ import radiomapserver.RadioMapMean
 import utils._
 
 import scala.util.control.Breaks
-//new marileni 16/3
 import play.api.libs.json.Reads._
 
 import scala.collection.JavaConversions._
@@ -161,7 +160,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  //new marileni
 
   def getRadioHeatmapByBuildingFloorAverage() = Action {
     implicit request =>
@@ -192,9 +190,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  //end new marileni
-
-  //new marileni 2/2
   def getRadioHeatmapByBuildingFloorAverage1() = Action {
     implicit request =>
 
@@ -285,9 +280,49 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
+//HEREEE
+ def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
+    implicit request =>
 
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val x = (json \ "x").as[Int]
+        val y = (json \ "y").as[Int]
+        val z = (json \ "z").as[Int]
+        try {
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          val radioPointsInXY: util.ArrayList[JsonObject]= new util.ArrayList[JsonObject]()
 
-  //end new marileni
+          for (radioPoint: JsonObject <- radioPoints) {
+            var radioX = radioPoint.getString("x").toDouble
+            var radioY = radioPoint.getString("y").toDouble
+            var xyConverter=convertToxy(radioX,radioY,z)
+            if(xyConverter(0)==x && xyConverter(1)==y)
+              radioPointsInXY.add(radioPoint)
+          }
+          res.put("radioPoints", radioPointsInXY)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
 
   def getRadioHeatmapByBuildingFloorTimestamp()= Action {
     implicit request =>
@@ -326,6 +361,61 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  private def convertToxy(lat: Double, lon: Double, zoom: Int) = {
+    val sxtile = Math.floor((lon + 180.0) / 360.0 * (1 << zoom).toDouble).toInt
+    val sytile = Math.floor((1.0 - Math.log(Math.tan(Math.toRadians(lat)) + 1.0 / Math.cos(Math.toRadians(lat))) / 3.141592653589793) / 2.0 * (1 << zoom).toDouble).toInt
+    Array[Int](sxtile, sytile)
+  }
+//HEREEE
+    def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY","x","y","z")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        val timestampX = (json \ "timestampX").as[String]
+        val timestampY = (json \ "timestampY").as[String]
+        val x = (json \ "x").as[Int]
+        val y = (json \ "y").as[Int]
+        val z = (json \ "z").as[Int]
+
+        try {
+
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
+          val res = JsonObject.empty()
+          val radioPointsInXY: util.ArrayList[JsonObject]= new util.ArrayList[JsonObject]()
+
+          for (radioPoint: JsonObject <- radioPoints) {
+            var radioX = radioPoint.getString("x").toDouble
+            var radioY = radioPoint.getString("y").toDouble
+            var xyConverter=convertToxy(radioX,radioY,z)
+            if(xyConverter(0)==x && xyConverter(1)==y)
+              radioPointsInXY.add(radioPoint)
+          }
+          res.put("radioPoints", radioPointsInXY)
+
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          }
+
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
   def getRadioHeatmapByBuildingFloorTimestampAverage1()= Action {
     implicit request =>
 
@@ -348,6 +438,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
+
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -398,8 +489,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
 
-  //new marileni 4/1
-
   def getAPsByBuildingFloor() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -436,7 +525,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               }
               ap = accessPoint
             } else if (ap.getDouble("den") < 0) {
-              if (avg < -40) {
+              if (avg < -60) {
                 var ap_den = ap.getDouble("den")
                 var ap_x = ap.getDouble("x")
                 var ap_y = ap.getDouble("y")
@@ -470,8 +559,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-
-  //end new marileni
 
   def getAPsIds() = Action {
      implicit request =>
@@ -572,9 +659,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-
-  //new marileni 17/1
-
 
   def FingerPrintsDelete() = Action {
     implicit request =>
@@ -693,8 +777,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-
-  //end new marileni
 
   def FingerPrintsTime() = Action {
     implicit request =>
@@ -2337,11 +2419,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   def serveFloorPlanTilesStatic(buid: String, floor_number: String, path: String) = Action {
     def inner(): Result = {
-      LPLogger.info("AnyplaceMapping::serveFloorPlanTilesStatic(): " + buid +
-        ":" +
-        floor_number +
-        ":" +
-        path)
       if (path == null || buid == null || floor_number == null ||
         path.trim().isEmpty ||
         buid.trim().isEmpty ||
@@ -2350,10 +2427,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       filePath = if (path == AnyPlaceTilerHelper.FLOOR_TILES_ZIP_NAME) AnyPlaceTilerHelper.getFloorTilesZipFor(buid,
         floor_number) else AnyPlaceTilerHelper.getFloorTilesDirFor(buid, floor_number) +
         path
-      LPLogger.info("static requested: " + filePath)
       try {
         val file = new File(filePath)
-        if (!file.exists() || !file.canRead()) return AnyResponseHelper.not_found("File requested not found")
+        //send ok message to tiler
+        if (!file.exists() || !file.canRead()) return AnyResponseHelper.ok("File requested not found")
         Ok.sendFile(file)
       } catch {
         case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
@@ -2544,6 +2621,75 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
+
+  def floorPlanUploadWithZoom() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val body = anyReq.getMultipartFormData()
+        if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
+        var floorplan = body.file("floorplan").get
+        if (floorplan == null) return AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!")
+        val urlenc = body.asFormUrlEncoded
+        val json_str = urlenc.get("json").get(0)
+        if (json_str == null) return AnyResponseHelper.bad_request("Cannot find json in the request!")
+        var json: JsonObject = null
+        try {
+          json = JsonObject.fromJson(json_str)
+        } catch {
+          case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
+        }
+        LPLogger.info("Floorplan Request[json]: " + json.toString)
+        LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
+          "bottom_left_lng", "top_right_lat", "top_right_lng","zoom")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = json.getString("buid")
+        val zoom = json.getString("zoom")
+        val zoom_number = json.getString("zoom").toInt
+        if (zoom_number<20)
+          return AnyResponseHelper.bad_request("You have provided zoom level "+zoom+". You have to zoom at least to level 20 to upload the floorplan.")
+
+        val floor_number = json.getString("floor_number")
+        val bottom_left_lat = json.getString("bottom_left_lat")
+        val bottom_left_lng = json.getString("bottom_left_lng")
+        val top_right_lat = json.getString("top_right_lat")
+        val top_right_lng = json.getString("top_right_lng")
+        val fuid = Floor.getId(buid, floor_number)
+        try {
+          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
+          stored_floor.put("zoom", zoom)
+          stored_floor.put("bottom_left_lat", bottom_left_lat)
+          stored_floor.put("bottom_left_lng", bottom_left_lng)
+          stored_floor.put("top_right_lat", top_right_lat)
+          stored_floor.put("top_right_lng", top_right_lng)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
+            return AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
+        }
+        var floor_file: File = null
+        try {
+          floor_file = AnyPlaceTilerHelper.storeFloorPlanToServer(buid, floor_number, floorplan.ref.file)
+        } catch {
+          case e: AnyPlaceException => return AnyResponseHelper.bad_request("Cannot save floor plan on the server!")
+        }
+        val top_left_lat = top_right_lat
+        val top_left_lng = bottom_left_lng
+        try {
+          AnyPlaceTilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng,zoom)
+        } catch {
+          case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
+        }
+        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        return AnyResponseHelper.ok("Successfully updated floor plan!")
+      }
+
+      inner(request)
+  }
+
 
   def addAccount() = Action {
     implicit request =>
@@ -2749,11 +2895,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       drop_redundant_features = true,
       cut_k_features = cut_k_features
     )
-
+    println("fit_gpr: starting")
     acces.fit_gpr(estimate = true, use_default_params = false)
+    println("fit_gpr: finished")
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
     val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+    println("crlbs", crlbs)
     val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
 
       GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur)

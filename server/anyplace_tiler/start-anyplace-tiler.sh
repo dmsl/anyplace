@@ -62,7 +62,7 @@ check_requirements(){
 
 ##################### MAIN
 
-[[ "$#" != "4" ]] && usage
+[[ "$#" != "5" ]] && usage
 
 [[ "$4" != "-ENLOG" && "$4" != "-DISLOG" ]] && usage
 
@@ -96,16 +96,17 @@ echo "Image: $imagePath"
 
 ImageLatitude="$2"
 ImageLongitude="$3"
-ZoomOriginal=21
+ZoomOriginal=22
 ZoomDestination=19
 ImageFileName="$imagePath"
+UploadZoom="$5"
 
 
 echo
 echo ":: Starting anyplace-tiler ..."
 anyTiler="$scriptsDir/anyplace-tiler.py" 
 
-python "$anyTiler" "$scriptsDir" "$ImageLatitude" "$ImageLongitude" "$ZoomOriginal" "$ZoomDestination" "$ImageFileName"
+python "$anyTiler" "$scriptsDir" "$ImageLatitude" "$ImageLongitude" "$ZoomOriginal" "$ZoomDestination" "$ImageFileName" "$UploadZoom"
 check_for_errors
 
 echo
