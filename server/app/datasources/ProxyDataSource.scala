@@ -276,6 +276,11 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.dumpRssLogEntriesSpatial(outFile, bbox, floor_number)
   }
 
+  override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
+    _checkActiveDatasource()
+    mActiveDatabase.dumpRssLogEntriesByBuildingACCESFloor(outFile, buid, floor_number)
+  }
+
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     _checkActiveDatasource()
     mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
