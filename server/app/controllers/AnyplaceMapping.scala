@@ -2930,7 +2930,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     fout = new FileOutputStream(radio)
     println(radio.toPath().getFileName)
     var floorFetched: Long = 0l
-    floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+    floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floor_number)
     try {
       fout.close()
     } catch {

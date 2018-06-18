@@ -1134,7 +1134,42 @@ class CouchbaseDatasource private(hostname: String,
     floorFetched
   }
 
+
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
+    val writer = new PrintWriter(outFile)
+    val couchbaseClient = getConnection
+    val queryLimit = 10000
+    var totalFetched = 0
+    var currentFetched: Int = 0
+    var rssEntry: JsonObject = null
+
+    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
+
+    do {
+      viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
+
+      val res = couchbaseClient.query(viewQuery)
+      if (!(res.totalRows() > 0)) return totalFetched
+      currentFetched = 0
+
+      for (row <- res.allRows()) {
+        currentFetched += 1
+        try {
+          rssEntry = row.document().content()
+        } catch {
+          case e: IOException => //continue
+        }
+        writer.println(RadioMapRaw.toRawRadioMapRecord(rssEntry))
+      }
+      totalFetched += currentFetched
+      LPLogger.info("total fetched: " + totalFetched)
+    } while (currentFetched >= queryLimit)
+    writer.flush()
+    writer.close()
+    totalFetched
+  }
+
+  override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     val writer = new PrintWriter(outFile)
     val couchbaseClient = getConnection
     val queryLimit = 10000
