@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dmsl.anyplace"
-    android:versionCode="48"
-    android:versionName="2.5.0" >
+    android:versionCode="49"
+    android:versionName="2.5.1" >
 
     <uses-sdk
         android:minSdkVersion="10"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="26" />
 
     <permission
         android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"
