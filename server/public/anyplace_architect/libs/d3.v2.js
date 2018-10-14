@@ -1646,16 +1646,16 @@ function d3_selection_classed(name, value) {
   // If no value is specified, return the first value.
   if (arguments.length < 2) {
     var node = this.node();
-    if (c = node.classList) return c.contains(name);
-    var c = node.className;
+    if (var c = node.classList) return c.contains(name);
+    c = node.className;
     re.lastIndex = 0;
     return re.test(c.baseVal != null ? c.baseVal : c);
   }
 
   function classedAdd() {
-    if (c = this.classList) return c.add(name);
-    var c = this.className,
-        cb = c.baseVal != null,
+    if (var c = this.classList) return c.add(name);
+    c = this.className;
+    var cb = c.baseVal != null,
         cv = cb ? c.baseVal : c;
     re.lastIndex = 0;
     if (!re.test(cv)) {
@@ -1666,9 +1666,9 @@ function d3_selection_classed(name, value) {
   }
 
   function classedRemove() {
-    if (c = this.classList) return c.remove(name);
-    var c = this.className,
-        cb = c.baseVal != null,
+    if (var c = this.classList) return c.remove(name);
+    c = this.className;
+    var cb = c.baseVal != null,
         cv = cb ? c.baseVal : c;
     cv = d3_collapse(cv.replace(re, " "));
     if (cb) c.baseVal = cv;
