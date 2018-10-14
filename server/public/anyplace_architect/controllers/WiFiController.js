@@ -1333,7 +1333,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                         // delete the fingerPrints from the loaded FingerPrints
                         if (data.length > 0) {
-                            i = fingerPrintsMap.length;
+                            var i = fingerPrintsMap.length;
                             while (i--) {
 
                                 if (fingerPrintsMap[i].getPosition().lat() <= start.lat() && fingerPrintsMap[i].getPosition().lng() <= start.lng() && fingerPrintsMap[i].getPosition().lat() >= end.lat() && fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
@@ -1365,7 +1365,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                 heatmap.setMap($scope.gmapService.gmap);
                             }
                             if (_HEATMAP_RSS_IS_ON) {
-                                var i = heatMap.length;
+                                i = heatMap.length;
 
                                 while (i--) {
                                     if (heatMap[i].location.lat() <= start.lat() && heatMap[i].location.lng() <= start.lng() && heatMap[i].location.lat() >= end.lat() && heatMap[i].location.lng() >= end.lng()) {
