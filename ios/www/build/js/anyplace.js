@@ -27,10 +27,10 @@
 
 var app = angular.module('anyViewer', ['ionic', 'ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'angular-loading-bar']);
 
-app.controller('HelloWorldContr', function ($ionicPlatform) { 
+app.controller('HelloWorldContr', function ($ionicPlatform) {
 	/* Custom Plugin */
     /*------------------------------------------------------------*/
-	$ionicPlatform.ready(function() {	
+	$ionicPlatform.ready(function() {
 		var success = function(message) {
 			alert("Hello World");
 		}
@@ -38,7 +38,7 @@ app.controller('HelloWorldContr', function ($ionicPlatform) {
 			alert("Error calling Hello Plugin");
 		}
 
-		hello.greet("World", success, failure);	
+		hello.greet("World", success, failure);
     });
 	/*------------------------------------------------------------*/
 });
@@ -961,7 +961,7 @@ var getPositionData = function (el) {
  * DEALINGS IN THE SOFTWARE.
  *
  */
-    
+
 var LPUtils = {};
 
 LPUtils.isNullOrUndefined = function( t ){
@@ -1157,24 +1157,23 @@ LPUtils.Base64 = {
     _utf8_decode : function (utftext) {
         var string = "";
         var i = 0;
-        var c = c1 = c2 = 0;
 
         while ( i < utftext.length ) {
 
-            c = utftext.charCodeAt(i);
+            var c = utftext.charCodeAt(i);
 
             if (c < 128) {
                 string += String.fromCharCode(c);
                 i++;
             }
             else if((c > 191) && (c < 224)) {
-                c2 = utftext.charCodeAt(i+1);
+                var c2 = utftext.charCodeAt(i+1);
                 string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
                 i += 2;
             }
             else {
-                c2 = utftext.charCodeAt(i+1);
-                c3 = utftext.charCodeAt(i+2);
+                var c2 = utftext.charCodeAt(i+1);
+                var c3 = utftext.charCodeAt(i+2);
                 string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
                 i += 3;
             }
@@ -2204,7 +2203,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
             function (resp) {
 
                 // in case the building was switched too fast, don't load the old building's
-                // floorplan 
+                // floorplan
                 if (buid == $scope.anyService.selectedBuilding.buid && floor_number == $scope.anyService.selectedFloor.floor_number) {
 
                     $scope.data.floor_plan_file = null;
@@ -2622,7 +2621,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 localStorage.removeItem("lastPoi");
         } catch (e) {
         }
-        
+
     };
 
     $scope.clearNavPolylines = function () {
