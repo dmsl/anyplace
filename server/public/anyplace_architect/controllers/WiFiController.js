@@ -140,7 +140,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
         }
     }
-    
+
     function clearFingerPrints(){
 
         // if ($scope.fingerPrintsMode) {
@@ -2416,32 +2416,27 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     $scope.multiuserevents = {
 
         onItemDeselect: function (item) {
-            i = APmap.length;
+            var i = APmap.length;
             while (i--) {
                 if (APmap[i].id == item.id) {
                     APmap[i].setVisible(false);
                     break;
                 }
             }
-
         },
         onItemSelect: function (item) {
-            i = APmap.length;
-
+            var i = APmap.length;
             while (i--) {
                 if (APmap[i].id == item.id) {
                     APmap[i].setVisible(true);
                     break;
                 }
             }
-
         },
         onDeselectAll: function () {
-            i = APmap.length;
+            var i = APmap.length;
             while (i--) {
                 APmap[i].setVisible(false);
-
-
             }
         }
 
@@ -2450,32 +2445,27 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     $scope.multiuserevents1 = {
 
         onItemDeselect: function (item) {
-            i = APmap.length;
+            var i = APmap.length;
             while (i--) {
                 if (APmap[i].mun == item.id) {
                     APmap[i].setVisible(false);
                     break;
                 }
             }
-
         },
         onItemSelect: function (item) {
-            i = APmap.length;
-
+            var i = APmap.length;
             while (i--) {
                 if (APmap[i].mun == item.id) {
                     APmap[i].setVisible(true);
                     break;
                 }
             }
-
         },
         onDeselectAll: function () {
-            i = APmap.length;
+            var i = APmap.length;
             while (i--) {
                 APmap[i].setVisible(false);
-
-
             }
         }
 
