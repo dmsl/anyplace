@@ -247,7 +247,8 @@ d3.transpose = function(matrix) {
   return d3.zip.apply(d3, matrix);
 };
 d3.zip = function() {
-  if (!(var n = arguments.length)) return [];
+  var n = arguments.length;
+  if (!n) return [];
   for (var i = -1, m = d3.min(arguments, d3_zipLength), zips = new Array(m); ++i < m;) {
     for (var j = -1, zip = zips[i] = new Array(n); ++j < n;) {
       zip[j] = arguments[j][i];
