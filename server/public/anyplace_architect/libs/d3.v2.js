@@ -1647,7 +1647,8 @@ function d3_selection_classed(name, value) {
   // If no value is specified, return the first value.
   if (arguments.length < 2) {
     var node = this.node();
-    if (var c = node.classList) return c.contains(name);
+    var c = node.classList;
+    if (c) return c.contains(name);
     c = node.className;
     re.lastIndex = 0;
     return re.test(c.baseVal != null ? c.baseVal : c);
