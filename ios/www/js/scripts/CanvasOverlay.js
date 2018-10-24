@@ -290,7 +290,7 @@ CanvasOverlay.prototype.drawBoundingCanvas = function () {
     $('#canvas_editor').css({
         'top': newTop + 'px',
         'left': newLeft + 'px'
-    })
+    });
 
     this.ctx.canvas.width = w;
     this.ctx.canvas.height = h;
@@ -310,7 +310,7 @@ CanvasOverlay.prototype.drawBoundingCanvas = function () {
         this.top_right_coords = projection.fromContainerPixelToLatLng(new google.maps.Point(this.left + w, this.top), true);
         //console.log( this.bottom_left_coords + ":" + this.top_right_coords );
     }
-}
+};
 
 /***************************************
  * HELPER FUNCTIONS

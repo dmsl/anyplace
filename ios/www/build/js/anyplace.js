@@ -864,7 +864,7 @@ CanvasOverlay.prototype.drawBoundingCanvas = function () {
     $('#canvas_editor').css({
         'top': newTop + 'px',
         'left': newLeft + 'px'
-    })
+    });
 
     this.ctx.canvas.width = w;
     this.ctx.canvas.height = h;
@@ -1715,7 +1715,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             return v.name;
         var c = $scope.gmapService.gmap.getCenter();
         return _calcDistance(parseFloat(v.coordinates_lat), parseFloat(v.coordinates_lon), c.lat(), c.lng());
-    }
+    };
 
 }]);
 /*
@@ -1960,7 +1960,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
 
         $scope.gmapService.gmap.panTo(position);
         $scope.gmapService.gmap.setZoom(20);
-    }
+    };
 
 }
 ])
@@ -3302,7 +3302,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var centre_y = (bllng + trlng) / 2;
 
         var resd = _euclideanDistance(centre_x, centre_y, x, y);
-        return (resd <= radius)
-    }
+        return (resd <= radius);
+    };
 }
 ]);

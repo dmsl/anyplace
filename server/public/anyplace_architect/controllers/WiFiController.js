@@ -336,7 +336,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 if($scope.initializeTime){
                     initializeTime();
                 }
-            }
+            };
 
             if (_HEATMAP_RSS_IS_ON) {
 
@@ -944,7 +944,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         var key = Object.keys(POIsMap);
         var check = 0;
         if (!POIsMap.hasOwnProperty(key[check])) {
-            _err("No POIs yet.")
+            _err("No POIs yet.");
             return;
         }
 
