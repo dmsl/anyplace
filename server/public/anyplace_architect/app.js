@@ -81,7 +81,7 @@ app.service('GMapService', function () {
         }
         var tile = ownerDocument.createElement('img');
         // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
-        tile.src = "http://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
+        tile.src = "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
         ;
         tile.style.width = this.tileSize.width + 'px';
         tile.style.height = this.tileSize.height + 'px';
@@ -138,12 +138,12 @@ app.service('GMapService', function () {
         return tile;
     };
 
-    var mapTypeId = "OSM";
+    var mapTypeId = "roadmap";
     if (typeof(Storage) !== "undefined" && localStorage) {
         if (localStorage.getItem('mapTypeId'))
             mapTypeId = localStorage.getItem('mapTypeId');
         else
-            localStorage.setItem("mapTypeId", "OSM");
+            localStorage.setItem("mapTypeId", "roadmap");
     }
 
 
@@ -169,11 +169,29 @@ app.service('GMapService', function () {
     self.gmap.addListener('maptypeid_changed', function () {
         var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
         localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
+        customMapAttribution(self.gmap);
         self.gmap.setOptions({
             streetViewControl: showStreetViewControl
         });
     });
 
+    function customMapAttribution(map) {
+        var id = "custom-maps-attribution";
+        var attributionElm = document.getElementById(id);
+        if (attributionElm === undefined || attributionElm === null) {
+            attributionElm = document.createElement('div');
+            attributionElm.id = id;
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(attributionElm);
+        }
+        if (self.gmap.getMapTypeId() === "OSM")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        if (self.gmap.getMapTypeId() === "roadmap")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "satellite")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "CartoLight")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
+    }
 
     //Define OSM map type pointing at the OpenStreetMap tile server
     self.gmap.mapTypes.set("OSM", new OSMMapType(new google.maps.Size(256, 256)));
@@ -183,6 +201,7 @@ app.service('GMapService', function () {
     self.gmap.mapTypes.set("CartoLight", new CartoLightMapType(new google.maps.Size(256, 256)));
     // Now attach the coordinate map type to the map's registry.
     //self.gmap.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
+    customMapAttribution(self.gmap);
 
     // Initialize search box for places
     var input = (document.getElementById('pac-input'));
