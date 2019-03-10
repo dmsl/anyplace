@@ -1,14 +1,8 @@
 apply plugin: 'com.android.application'
 
-dependencies {
-    compile fileTree(include: '*.jar', dir: 'libs')
-    compile project(':library')
-}
-
 android {
 
-    compileSdkVersion 23
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 26
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -35,4 +29,18 @@ android {
             debuggable = true
         }
     }
+    lintOptions {
+        abortOnError false
+    }
+    defaultConfig {
+        targetSdkVersion 26
+        minSdkVersion 14
+    }
+}
+
+dependencies {
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation project(':library')
+    implementation project(':actionbarsherlock')
+    implementation 'com.android.support:support-v4:19.1.0'
 }
