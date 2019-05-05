@@ -29,6 +29,12 @@ POST        /anyplace/position/radio/heatmap_building_floor_average_2           
 POST        /anyplace/position/radio/heatmap_building_floor_average_3                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
+
+#radio maps delete crlbs_file and the radiomaps_frozen folder by floor building
+POST        /anyplace/position/radio/heatmap_building_floor_delete                                           controllers.AnyplaceMapping.radiomapDelete()
+
+
+
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
 
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage1()
@@ -49,6 +55,8 @@ POST        /anyplace/mapping/building/coowners                                 
 POST        /anyplace/mapping/building/newowner                                        controllers.AnyplaceMapping.buildingUpdateOwner()
 POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()
 POST        /anyplace/mapping/building/add                                             controllers.AnyplaceMapping.buildingAdd()
+#ship
+POST        /anyplace/mapping/ship/add                                             controllers.AnyplaceMapping.shipAdd()
 POST        /anyplace/mapping/building/update                                          controllers.AnyplaceMapping.buildingUpdate()
 POST        /anyplace/mapping/building/delete                                          controllers.AnyplaceMapping.buildingDelete()
 POST        /anyplace/mapping/building/all                                             controllers.AnyplaceMapping.buildingAll()
