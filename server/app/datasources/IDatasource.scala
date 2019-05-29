@@ -79,7 +79,7 @@ trait IDatasource {
   def poisByBuildingAsJson(buid: String): List[JsonObject]
 
   def poisByBuildingAsMap(buid: String): List[HashMap[String, String]]
-
+ 
   def floorsByBuildingAsJson(buid: String): List[JsonObject]
 
   def connectionsByBuildingAsJson(buid: String): List[JsonObject]

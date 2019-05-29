@@ -108,7 +108,7 @@ object RadioMap {
                  private val radiomap_AP: String,
                  private val defaultNaNValue: Int) {
 
-    private val RadioMap = new HashMap[String, HashMap[String, ArrayList[Integer]]]()
+    private val  RadioMap = new HashMap[String, HashMap[String, ArrayList[Integer]]]()
 
     private var NewRadioMap: HashMap[String, HashMap[Integer, ArrayList[Any]]] = new HashMap[String, HashMap[Integer, ArrayList[Any]]]()
 
@@ -130,11 +130,13 @@ object RadioMap {
 
     def createRadioMap(): Boolean = {
       if (!rss_folder.exists() || !rss_folder.isDirectory) {
+
         return false
       }
       RadioMap.clear()
       createRadioMapFromPath(rss_folder)
       if (!writeRadioMap()) {
+        println("herelsolea01")
         return false
       }
       true

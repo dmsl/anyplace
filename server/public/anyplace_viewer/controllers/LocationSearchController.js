@@ -67,7 +67,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
         setTimeout(
             function(){
                 if (query==$scope.anyService.selectedSearchPoi ){
-                   $scope.fetchAllPoiBasedOnLocation(query, $scope.userPosition);
+                    $scope.fetchAllPoiBasedOnLocation(query, $scope.userPosition);
                 }
             },1000);
         $scope.mylastquery = query;
@@ -119,7 +119,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
             }
 
             // If you choose to hide all the building markers when a building is selected
-            // _setBuildingMarkesVisibility(false);
+            _setBuildingMarkesVisibility(false);
 
             // Show last building's marker
             if (oldVal && oldVal.buid) {

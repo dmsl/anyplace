@@ -13,6 +13,16 @@ body {
     position: relative;
 }
 
+#color-bar {
+    position: fixed;
+    bottom: -1%;
+    left: 60%;
+    right:40%;
+    margin-left:-600px;
+    z-index: 99999;
+}
+
+
 #login-details {
     float: right;
     font-size: 16px;

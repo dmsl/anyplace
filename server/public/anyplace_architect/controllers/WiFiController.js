@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Marileni Angelidou , Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Marileni Angelidou, Loukas Solea , Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -28,16 +28,22 @@
 
 
 var heatMap = [];
+
+
+var heatMap_Location = [];
+
+
 var APmap = [];
 var heatmap;
-var heatmapFingerprints=[];
-var userTimeData=[];
+var heatmapFingerprints = [];
+var userTimeData = [];
 var fingerPrintsMap = [];
 var heatmapAcc;
 var connectionsMap = {};
 var POIsMap = {};
 var drawingManager;
 var _HEATMAP_RSS_IS_ON = false;
+var _HEATMAP_Localization = false; //lsolea01
 var _APs_IS_ON = false;
 var _FINGERPRINTS_IS_ON = false;
 var _DELETE_FINGERPRINTS_IS_ON = false;
@@ -45,455 +51,255 @@ var _HEATMAP_F_IS_ON = false;
 var _CONNECTIONS_IS_ON = false;
 var _POIS_IS_ON = false;
 var changedfloor = false;
-var colorBarGreenClicked=false;
-var colorBarYellowClicked=false;
-var colorBarOrangeClicked=false;
-var colorBarPurpleClicked=false;
-var colorBarRedClicked=false;
-var levelOfZoom=1;
+var colorBarGreenClicked = false;
+var colorBarYellowClicked = false;
+var colorBarOrangeClicked = false;
+var colorBarPurpleClicked = false;
+var colorBarRedClicked = false;
+var levelOfZoom = 1;
 
 
-app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($cookieStore,$scope, AnyplaceService, GMapService, AnyplaceAPIService) {
+app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($cookieStore, $scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
+
+    $scope.myMarkers = {};
+    $scope.myMarkerId = 0;
+    $scope.laship=33.0000;
+    $scope.loship=33.0000;
+    $scope.moveShip=0;
+    $scope.ShipInterval;
+    $scope.gmapService = GMapService;
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
-    $scope.gmapService = GMapService;
     $scope.example9model = [];
     $scope.example9data = [];
     $scope.example9settings = {enableSearch: true, scrollable: true};
-    $scope.example8model = [];
-    $scope.example8data = [];
-    $scope.deleteButtonWarning = false;
-    $scope.radioHeatmapRSSMode = false;
-    $scope.radioHeatmapRSSTimeMode = false;
-    $scope.fingerPrintsMode = false;
-    $scope.fingerPrintsTimeMode = false;
-    $scope.APsMode = false;
-    $scope.filterByMAC = false;
-    $scope.filterByMAN = false;
-    $scope.radioHeatmapRSSHasGreen = false;
-    $scope.radioHeatmapRSSHasYellow = false;
-    $scope.radioHeatmapRSSHasOrange = false;
-    $scope.radioHeatmapRSSHasPurple = false;
-    $scope.radioHeatmapRSSHasRed = false;
-    $scope.localizationAccMode = false;
-    $scope.selected = "Filters:";
-    $scope.initializeTime=false;
-    $scope.initializeFingerPrints=false;
-    $scope.initializeRadioHeatmapRSS=false;
-    $scope.initializeAPs=false;
-    $scope.initializeConnections=false;
-    $scope.initializePOIs=false;
-    $scope.initializeAcces=false;
+
+    $scope.example9modeledit = [];
+    $scope.example9dataedit = [];
+    $scope.example9settingsedit = {enableSearch: true, scrollable: true};
+
+    $scope.myBuildings = [];
+    $scope.myShips = [];
 
 
-    var MAX = 1000;
-    var MIN_ZOOM_FOR_HEATMAPS = 19;
-    var MAX_ZOOM_FOR_HEATMAPS = 21;
-    var _MAX_ZOOM_LEVEL = 22;
-    var _NOW_ZOOM;
-    var _PREV_ZOOM;
 
+    $scope.myBuildingsHashT = {};
+    $scope.myCampus = [];
+    $scope.old_campus = [];
 
     $scope.crudTabSelected = 1;
+
+    $scope.fileToUpload = "";
+    $scope.logfile = "";
+
+    $scope.poisTypes = {};
+    $scope.catTypes = {};
+
+    $scope.pageLoad = false;
+
+    $scope.crudTabSelected = 1;
+
+
+//     // Replace this with your URL.
+//     var BUILDING_TILE_URL = AnyplaceAPI.FULL_SERVER + '/floortiles/{building}/{floor}/{z}/z{z}x{x}y{y}.png';
+//
+// // Name the layer anything you like.
+//     var layerID = 'building_layer';
+//
+// // Create a new ImageMapType layer. static_tiles/19/z19x310801y207411.png
+//     var maptiler = new google.maps.ImageMapType({
+//         name: layerID,
+//         getTileUrl: function (coord, zoom) {
+//             var buid = $scope.anyService.getBuildingId();
+//
+//             var floor = $scope.anyService.getFloorNumber();
+//             var url = BUILDING_TILE_URL
+//                 .replace('{building}', buid)
+//                 .replace('{floor}', floor)
+//                 .replace('{z}', zoom)
+//                 .replace('{x}', coord.x)
+//                 .replace('{y}', coord.y)
+//                 .replace('{z}', zoom);
+//             return url;
+//         },
+//         tileSize: new google.maps.Size(256, 256),
+//         isPng: true
+//     });
+//
+//     // Register the new layer, then activate it.
+//     $scope.gmapService.gmap.overlayMapTypes.insertAt(0, maptiler);
+
     $scope.setCrudTabSelected = function (n) {
+
         $scope.crudTabSelected = n;
+        if (!$scope.anyService.getBuilding()) {
+            _err("No building is selected.");
+            return;
+        }
+
+        var b = $scope.myBuildingsHashT[$scope.anyService.getBuildingId()];
+
+
+
+        if (!b) {
+            return;
+        }
+
+        var m = b.marker;
+        if (!m) {
+            return;
+        }
+        // edit building
+        if (n === 2) {
+            m.setDraggable(true);
+        } else {
+            m.setDraggable(false);
+        }
+
     };
     $scope.isCrudTabSelected = function (n) {
-
         return $scope.crudTabSelected === n;
     };
 
+    $scope.$on("loggedIn", function (event, mass) {
+        //_suc('Successfully logged in.');
+        $scope.fetchAllBuildings();
+        $scope.fetchAllCampus();
+        //$scope.fetchAllPoisTypes();
+    });
 
-    $scope.data = {
-        floor_plan_coords: {},
-        floor_plan_base64_data: {},
-        floor_plan_groundOverlay: null
+    $scope.$on("loggedOff", function (event, mass) {
+        _clearBuildingMarkersAndModels();
+        $scope.myMarkers = {};
+        $scope.myMarkerId = 0;
+        $scope.myBuildings = [];
+        $scope.myBuildingsHashT = {};
+    });
+
+    /**
+     * @return {string}
+     */
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+
+    var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+    var d = new Date();
+    document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
+
+    var logoPlanInputElement = $('#input-logo');
+
+    logoPlanInputElement.change(function handleImage(e) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var imgObj = new Image();
+            imgObj.src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    });
+
+    $scope.setLogoPlan = function (cuid) {
+
+        var newFl = {
+            is_published: 'true',
+            cuid: cuid,
+            logo: String($scope.newFloorNumber),
+            description: String($scope.newFloorNumber),
+            floor_number: String($scope.newFloorNumber)
+        };
+
+        $scope.myFloors[$scope.myFloorId] = newFl;
+        $scope.myFloorId++;
+
+        // create the proper image inside the canvas
+        canvasOverlay.drawBoundingCanvas();
+
+        // create the ground overlay and destroy the canvasOverlay object
+        // and also set the floor_plan_coords in $scope.data
+        var bl = canvasOverlay.bottom_left_coords;
+        var tr = canvasOverlay.top_right_coords;
+        $scope.data.floor_plan_coords.bottom_left_lat = bl.lat();
+        $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
+        $scope.data.floor_plan_coords.top_right_lat = tr.lat();
+        $scope.data.floor_plan_coords.top_right_lng = tr.lng();
+        $scope.data.floor_plan_coords.zoom = GMapService.gmap.getZoom() + "";
+        var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
+        $scope.data.floor_plan_base64_data = data;
+        var imageBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(bl.lat(), bl.lng()),
+            new google.maps.LatLng(tr.lat(), tr.lng()));
+        $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, data, GMapService.gmap);
+
+        canvasOverlay.setMap(null); // remove the canvas overlay since the groundoverlay is placed
+        $('#input-floor-plan').prop('disabled', false);
+        $scope.isCanvasOverlayActive = false;
+
+        if (_floorNoExists($scope.newFloorNumber)) {
+            for (var i = 0; i < $scope.xFloors.length; i++) {
+                var f = $scope.xFloors[i];
+                if (!LPUtils.isNullOrUndefined(f)) {
+                    if (f.floor_number === String($scope.newFloorNumber)) {
+                        $scope.uploadFloorPlanBase64($scope.anyService.selectedBuilding, f, $scope.data);
+                        break;
+                    }
+                }
+            }
+        } else {
+            $scope.addFloorObject(newFl, $scope.anyService.selectedBuilding, $scope.data);
+        }
+
     };
-    function clearRadioHeatmap(){
-        var check = 0;
-        if (heatMap[check] !== undefined && heatMap[check] !== null) {
-
-            var i = heatMap.length;
-            while (i--) {
-                heatMap[i].rectangle.setMap(null);
-                heatMap[i] = null;
-            }
-            heatMap = [];
-            document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-            _HEATMAP_RSS_IS_ON = false;
-            setColorClicked('g',false);
-            setColorClicked('y',false);
-            setColorClicked('o',false);
-            setColorClicked('p',false);
-            setColorClicked('r',false);
-            $scope.radioHeatmapRSSMode = false;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('radioHeatmapRSSMode', 'NO');
-            }
-            $scope.anyService.radioHeatmapRSSMode=false;
-            $scope.radioHeatmapRSSHasGreen=false;
-            $scope.radioHeatmapRSSHasYellow=false;
-            $scope.radioHeatmapRSSHasOrange=false;
-            $scope.radioHeatmapRSSHasPurple=false;
-            $scope.radioHeatmapRSSHasRed=false;
-            $cookieStore.put('RSSClicked', 'NO');
-
-        }
-    }
-    
-    function clearFingerPrints(){
-
-        // if ($scope.fingerPrintsMode) {
-        //     document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-        // } else {
-        //     document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-        // }
-
-        var check = 0;
-
-        if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
-            var i = fingerPrintsMap.length;
-
-            //hide fingerPrints
-            while (i--) {
-                fingerPrintsMap[i].setMap(null);
-                fingerPrintsMap[i] = null;
-            }
-            fingerPrintsMap = [];
-             _FINGERPRINTS_IS_ON = false;
-             document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-
-
-        }
-
-        if (heatmap && heatmap.getMap()) {
-            //hide fingerPrints heatmap
-
-            heatmap.setMap(null);
-             _FINGERPRINTS_IS_ON = false;
-             document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-             _HEATMAP_F_IS_ON = false;
-            var i=heatmapFingerprints.length;
-            while(i--){
-                heatmapFingerprints[i]=null;
-            }
-            heatmapFingerprints=[];
-
-        }
-
-        // document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-
-    }
-
-    function initializeTimeFunction(){
-        if($scope.fingerPrintsMode) {
-
-            $scope.fingerPrintsTimeMode = true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerPrintsTimeMode', 'YES');
-            }
-            $scope.anyService.fingerPrintsTimeMode=true;
-            $scope.fingerPrintsMode = true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'YES');
-            }
-            // document.getElementById("fingerPrints-time-mode").classList.add('draggable-border-green');
-        }
-
-        if($scope.radioHeatmapRSSMode){
-            $scope.radioHeatmapRSSTimeMode = true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerPrintsTimeMode', 'YES');
-            }
-            $scope.radioHeatmapRSSMode = true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('radioHeatmapRSSMode', 'YES');
-            }
-            $scope.anyService.radioHeatmapRSSTimeMode=true;
-            $scope.anyService.radioHeatmapRSSMode=true;
-            // document.getElementById("radioHeatmapRSS-time-mode").classList.add('draggable-border-green');
-        }
-        document.getElementById("fingerPrints-time-mode").classList.add('draggable-border-green');
-
-    }
-
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
-        if (newVal) {
-
-
-            if (localStorage.getItem('fingerprintsMode') !== undefined) {
-
-                if (localStorage.getItem('fingerprintsMode') === 'YES') {
-                    $scope.initializeFingerPrints=true;
-
-                }
+        if (newVal && newVal.coordinates_lat && newVal.coordinates_lon) {
+            // Pan map to selected building
+            $scope.gmapService.gmap.panTo(_latLngFromBuilding(newVal));
+            $scope.gmapService.gmap.setZoom(19);
+            if (typeof(Storage) !== "undefined" && localStorage) {
+                localStorage.setItem("lastBuilding", newVal.buid);
             }
-
-            if (localStorage.getItem('radioHeatmapRSSMode') !== undefined) {
-
-                if (localStorage.getItem('radioHeatmapRSSMode') === 'YES') {
-                    $scope.initializeRadioHeatmapRSS=true;
-
-                }
-            }
-
-            if (localStorage.getItem('APsMode') !== undefined) {
-
-                if (localStorage.getItem('APsMode') === 'YES') {
-                    $scope.initializeAPs=true;
-
-                }
-            }
-
-            if (localStorage.getItem('localizationAccMode') !== undefined) {
-
-                if (localStorage.getItem('localizationAccMode') === 'YES') {
-                    $scope.initializeAcces=true;
-
-                }
-            }
-
-            if (localStorage.getItem('connectionsMode') !== undefined) {
-
-                if (localStorage.getItem('connectionsMode') === 'NO') {
-                    $scope.initializeConnections=true;
-
-                }
-            }
-
-            if (localStorage.getItem('POIsMode') !== undefined) {
-
-                if (localStorage.getItem('POIsMode') === 'NO') {
-                    $scope.initializePOIs=true;
-                }
-            }
-
-            if (localStorage.getItem('fingerPrintsTimeMode') !== undefined) {
-
-                if (localStorage.getItem('fingerPrintsTimeMode') === 'YES') {
-                    $scope.initializeTime=true;
-
-                }
-            }
-
-            function initializeFingerPrints(){
-
-                $('#wifiTab').click();
-                $('#FPs').click();
-                $('#FPsButton').click();
-            }
-            function initializeRadioHeatmapRSS(){
-                $('#wifiTab').click();
-                $('#HMs').click();
-                $('#HMsButton').click();
-            }
-            function initializeAPs(){
-                $('#wifiTab').click();
-                $('#HMs').click();
-                $('#APsButton').click();
-            }
-            function initializeAcces(){
-
-                $('#wifiTab').click();
-                $('#LAs').click();
-                $('#LAButton').click();
-            }
-            function initializeConnections(){
-                $('#FPs').click();
-                $('#connectionsButton').click();
-            }
-            function initializePOIs(){
-                $('#FPs').click();
-                $('#POIsButton').click();
-            }
-            function initializeTime(){
-
-                $('#wifiTab').click();
-                $('#FPs').click();
-                $('#FPsTimeButton').click();
-            }
-
-            window.onload = function(){
-                if($scope.initializeFingerPrints){
-                    initializeFingerPrints();
-                }
-                if($scope.initializeRadioHeatmapRSS){
-                    initializeRadioHeatmapRSS();
-                }
-                if($scope.initializeAPs){
-                    initializeAPs();
-                }
-                if($scope.initializeAcces){
-                    initializeAcces();
-                }
-                if($scope.initializeConnections){
-                    initializeConnections();
-                }
-                if($scope.initializePOIs){
-                    initializePOIs();
-                }
-                if($scope.initializeTime){
-                    initializeTime();
-                }
-            }
-
-            if (_HEATMAP_RSS_IS_ON) {
-
-                var i = heatMap.length;
-                while (i--) {
-                    heatMap[i].rectangle.setMap(null);
-                    heatMap[i] = null;
-                }
-                heatMap = [];
-
-                $scope.showRadioHeatmapRSS();
-
-                if( $scope.radioHeatmapRSSTimeMode ){
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
-                }
-
-            }
-
-            if (_APs_IS_ON) {
-                var i = APmap.length;
-
-                //hide Access Points
-                while (i--) {
-                    APmap[i].setMap(null);
-                    APmap[i] = null;
-                    $scope.example9data[i] = null;
-                    $scope.example9model[i] = null;
-                }
-
-                i = $scope.example8data.length;
-                while(i--){
-                    $scope.example8data[i] = null;
-                    $scope.example8model[i] = null;
-                }
-                APmap = [];
-                $scope.example9data = [];
-                $scope.example9model = [];
-                $scope.example8data = [];
-                $scope.example8model = [];
-                $scope.showAPs();
-
-
-            }
-            if (_FINGERPRINTS_IS_ON) {
-                var i = fingerPrintsMap.length;
-
-                //hide fingerPrints
-                while (i--) {
-                    fingerPrintsMap[i].setMap(null);
-                    fingerPrintsMap[i] = null;
-                }
-                fingerPrintsMap = [];
-
-                $scope.showFingerPrints();
-
-                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode){
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
-                }
-
-
-            }
-
-
-            if (heatmap && heatmap.getMap()) {
-                //hide fingerPrints heatmap
-                heatmap.setMap(null);
-                var i=heatmapFingerprints.length;
-                while(i--){
-                    heatmapFingerprints[i]=null;
-                }
-                heatmapFingerprints=[];
-                _HEATMAP_F_IS_ON=false;
-
-                $scope.showFingerPrints();
-
-                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
-
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
-
-                }
-            }
-
-            if (heatmapAcc && heatmapAcc.getMap()) {
-                //hide acces heatmap
-
-                heatmapAcc.setMap(null);
-                $scope.showLocalizationAccHeatmap();
-
-            }
-
-            var check = 0;
-            if (!_CONNECTIONS_IS_ON) {
-                connectionsMap = $scope.anyService.getAllConnections();
-                var key = Object.keys(connectionsMap);
-                if (connectionsMap[key[check]] !== undefined) {
-                    if(connectionsMap[key[check]].polyLine !== undefined) {
-                        if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                            for (var key in connectionsMap) {
-                                if (connectionsMap.hasOwnProperty(key)) {
-                                    var con = connectionsMap[key];
-                                    if (con && con.polyLine) {
-                                        con.polyLine.setMap(null);
-                                    }
-                                }
-
-                            }
-                            $scope.anyService.setAllConnection(connectionsMap);
-                            connectionsMap = {};
-                        }
-                    }
-                }
-
-            }
-
-            if (!_POIS_IS_ON) {
-                POIsMap = $scope.anyService.getAllPois();
-                if (POIsMap !== undefined) {
-                    var key = Object.keys(POIsMap);
-                    if (POIsMap[key[check]] !== undefined) {
-
-                        if (POIsMap[key[check]].marker.getMap() !== null) {
-
-                            for (var key in POIsMap) {
-                                if (POIsMap.hasOwnProperty(key)) {
-
-                                    var p = POIsMap[key];
-                                    if (p && p.marker) {
-                                        p.marker.setMap(null);
-
-                                    }
-                                }
-                            }
-
-                            $scope.anyService.setAllPois(POIsMap);
-                            POIsMap = {};
-
-                        }
-                    }
-                }
-            }
-
-            changedfloor = false;
-
         }
-    });
-
-    $scope.$watch('newFloorNumber', function (newVal, oldVal) {
-        //if (_floorNoExists(newVal)) {
-        //    _setNextFloor();
+        //if (newVal && newVal.buid && newVal.poistypeid) {
+        // $scope.fetchAllPoisTypes(newVal.poistypeid);
+        // }
+        // else {
+        $scope.poisTypes = [
+            "Disabled Toilets",
+            "Elevator",
+            "Entrance",
+            "Fire Extinguisher",
+            "First Aid/AED",
+            "Kitchen",
+            "Office",
+            "Ramp",
+            "Room",
+            "Security/Guard",
+            "Stair",
+            "Toilets",
+            "Other"
+        ];
         //}
     });
+
+    $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {
+        if (newVal && newVal.cuid) {
+            // Pan map to selected building
+            if (typeof(Storage) !== "undefined" && localStorage) {
+                localStorage.setItem("lastCampus", newVal.cuid);
+            }
+        }
+
+    });
+
+
+    var _clearBuildingMarkersAndModels = function () {
+        for (var b in $scope.myBuildingsHashT) {
+            if ($scope.myBuildingsHashT.hasOwnProperty(b)) {
+                $scope.myBuildingsHashT[b].marker.setMap(null);
+                delete $scope.myBuildingsHashT[b];
+            }
+        }
+    };
 
     var _err = function (msg) {
         $scope.anyService.addAlert('danger', msg);
@@ -503,2312 +309,1838 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $scope.anyService.addAlert('success', msg);
     };
 
-
-    $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
-        if (newVal !== undefined && newVal !== null && !_.isEqual(newVal, oldVal)) {
-
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem("lastFloor", newVal.floor_number);
+    var _latLngFromBuilding = function (b) {
+        if (b && b.coordinates_lat && b.coordinates_lon) {
+            return {
+                lat: parseFloat(b.coordinates_lat),
+                lng: parseFloat(b.coordinates_lon)
             }
+        }
+        return undefined;
+    };
+    $scope.fetchAllPoisTypes = function () {
 
-            if (_HEATMAP_RSS_IS_ON) {
+        var jsonReq = {};
 
-                var i = heatMap.length;
-                while (i--) {
-                    heatMap[i].rectangle.setMap(null);
-                    heatMap[i] = null;
-                }
-                heatMap = [];
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.access_token = $scope.gAuth.access_token;
 
-                $scope.showRadioHeatmapRSS();
+        jsonReq.owner_id = $scope.owner_id;
 
-                if( $scope.radioHeatmapRSSTimeMode ){
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
-                }
-
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.1");
+            return;
+        }
+        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                $scope.catTypes = data.poistypes;
+            },
+            function (resp) {
+                var data = resp.data;
+                _err("Something went wrong while fetching POIs types");
             }
+        );
+    };
 
-            if (_APs_IS_ON) {
-                var i = APmap.length;
 
-                //hide Access Points
-                while (i--) {
-                    APmap[i].setMap(null);
-                    APmap[i] = null;
-                    $scope.example9data[i] = null;
-                    $scope.example9model[i] = null;
-                }
-                i = $scope.example8data.length;
-                while(i--){
-                    $scope.example8data[i] = null;
-                    $scope.example8model[i] = null;
-                }
+    $scope.fetchAllBuildings = function () {
+        var jsonReq = {};
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.owner_id = $scope.owner_id;
 
-                APmap = [];
-                $scope.example9data = [];
-                $scope.example9model = [];
-                $scope.example8data = [];
-                $scope.example8model = [];
-                $scope.showAPs();
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.");
+            return;
+        }
 
-            }
-            if (_FINGERPRINTS_IS_ON) {
-                var i = fingerPrintsMap.length;
+        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
 
-                //hide fingerPrints
-                while (i--) {
-                    fingerPrintsMap[i].setMap(null);
-                    fingerPrintsMap[i] = null;
-                }
-                fingerPrintsMap = [];
+                $scope.myBuildings = [];
+                $scope.myShips = [];
 
-                $scope.showFingerPrints();
-                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+                //var bs = JSON.parse( data.buildings );
+                for(var i in data.buildings){
+                    var bid=data.buildings[i].buid;
+                    var getship=bid.split("_",1);
 
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
+                    if(getship=="ship") {
+                        $scope.myShips.push(data.buildings[i]);
+                    }
+                    else{
+                        $scope.myBuildings.push(data.buildings[i]);
+                    }
 
                 }
-            }
 
 
-            if (heatmap && heatmap.getMap()) {
-                //hide fingerPrints heatmap
-                heatmap.setMap(null);
-                var i=heatmapFingerprints.length;
-                while(i--){
-                    heatmapFingerprints[i]=null;
+
+                var infowindow = new google.maps.InfoWindow({
+                    content: '-',
+                    maxWidth: 500
+                });
+
+                var localStoredBuildingIndex = -1;
+                var localStoredBuildingId = undefined;
+                if (typeof(Storage) !== "undefined" && localStorage && localStorage.getItem('lastBuilding')) {
+                    localStoredBuildingId = localStorage.getItem('lastBuilding');
                 }
-                heatmapFingerprints=[];
-                _HEATMAP_F_IS_ON=false;
 
-                $scope.showFingerPrints();
-                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
 
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
+                //show all buildings and ships on map
+                for (var i = 0; i < data.buildings.length; i++) {
 
-                }
-            }
+                    var b = data.buildings[i];
 
-            if (heatmapAcc && heatmapAcc.getMap()) {
-                //hide acces heatmap
+                    $scope.example9data[i] = {id: b.buid, label: b.name};
+                    $scope.example9dataedit[i] = {id: b.buid, label: b.name};
 
-                heatmapAcc.setMap(null);
-                $scope.showLocalizationAccHeatmap();
+                    if (localStoredBuildingId && localStoredBuildingId === b.buid) {
+                        localStoredBuildingIndex = i;
+                    }
 
-            }
+                    if (b.is_published === 'true' || b.is_published == true) {
+                        b.is_published = true;
+                    } else {
+                        b.is_published = false;
+                    }
+                    var bid=b.buid;
+                    var getship=bid.split("_",1);
 
-            var check = 0;
-            if (!_CONNECTIONS_IS_ON ) {
-                connectionsMap = $scope.anyService.getAllConnections();
-                var key = Object.keys(connectionsMap);
-                if (connectionsMap[key[check]] !== undefined) {
-                    if(connectionsMap[key[check]].polyLine !== undefined) {
-                        if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                            for (var key in connectionsMap) {
-                                if (connectionsMap.hasOwnProperty(key)) {
-                                    var con = connectionsMap[key];
-                                    if (con && con.polyLine) {
-                                        con.polyLine.setMap(null);
-                                    }
-                                }
+                    if(getship=="ship") {
+                        var marker = new google.maps.Marker({
+                            position: _latLngFromBuilding(b),
+                            map: GMapService.gmap,
+                            icon: new google.maps.MarkerImage(
+                                'build/images/ship_icon.png',
+                                null, /* size is determined at runtime */
+                                null, /* origin is 0,0 */
+                                null, /* anchor is bottom center of the scaled image */
+                                new google.maps.Size(54, 54)),
+                            draggable: false
+                        });
+
+
+                        var htmlContent = '<div class="infowindow-scroll-fix">'
+                            + '<h5>Ship:</h5>'
+                            + '<span>' + b.name + '</span>'
+                            + '<h5>Description:</h5>'
+                            + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
+                            + '</div>';
+
+
+
+
+                    }
+                    else {
+                        var marker = new google.maps.Marker({
+                            position: _latLngFromBuilding(b),
+                            map: GMapService.gmap,
+                            icon: new google.maps.MarkerImage(
+                                'build/images/building-icon.png',
+                                null, /* size is determined at runtime */
+                                null, /* origin is 0,0 */
+                                null, /* anchor is bottom center of the scaled image */
+                                new google.maps.Size(54, 54)),
+                            draggable: false
+                        });
+
+
+
+                        var htmlContent = '<div class="infowindow-scroll-fix">'
+                            + '<h5>Building:</h5>'
+                            + '<span>' + b.name + '</span>'
+                            + '<h5>Description:</h5>'
+                            + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
+                            + '</div>';
+
+                    }
+
+
+
+                    marker.infoContent = htmlContent;
+                    marker.building = b;
+
+                    $scope.myBuildingsHashT[b.buid] = {
+                        marker: marker,
+                        model: b
+                    };
+
+                    google.maps.event.addListener(marker, 'click', function () {
+                        infowindow.setContent(this.infoContent);
+                        infowindow.open(GMapService.gmap, this);
+                        var self = this;
+                        // $scope.$apply(function () {
+                        $scope.anyService.selectedBuilding = self.building;
+                        var bid=self.building.buid;
+                        var getship=bid.split("_",1);
+
+
+                        if(getship=="ship") {
+                            if($scope.moveShip==0){
+                                $scope.moveShip=1;
+                                console.log("stop");
+                            }
+                            else {
+                                $scope.moveShip=0;
+                            }
+
+                            //ship here
+
+
+                            function myFunction(){
+                                var b = $scope.myBuildingsHashT[bid];
+
+                                var m = b.marker;
+                                $scope.laship=parseFloat($scope.laship) + 0.0001;
+                                $scope.loship=parseFloat($scope.loship) + 0.0001;
+                                var myLatLng = {lat: parseFloat($scope.laship), lng: parseFloat($scope.loship)};
+
+                                m.setPosition(myLatLng);
+
+                                console.log("its work");
+
+
 
                             }
-                            $scope.anyService.setAllConnection(connectionsMap);
-                            connectionsMap = {};
-                        }
-                    }
-                }
 
-            }
+                            if ($scope.moveShip==0) {
+                                clearInterval($scope.ShipInterval);
+                                var model=$scope.myBuildingsHashT[bid];
+                                console.log($scope.myBuildingsHashT[bid]);
+                                console.log(model.model.coordinates_lat);
 
-            if (!_POIS_IS_ON) {
-                POIsMap = $scope.anyService.getAllPois();
-                if (POIsMap !== undefined) {
-                    var key = Object.keys(POIsMap);
-                    if (POIsMap[key[check]] !== undefined) {
+                                var myLatLng = {lat: parseFloat(model.model.coordinates_lat), lng: parseFloat(model.model.coordinates_lon)};
+                                console.log(myLatLng);
+                                model.marker.setPosition(myLatLng);
+                                // console.log(b);
+                            }
+                            else{
+                                myFunction();
 
-                        if (POIsMap[key[check]].marker.getMap() !== null) {
+                                $scope.ShipInterval=setInterval(function(){
+                                    myFunction()}, 10000);
 
-                            for (var key in POIsMap) {
-                                if (POIsMap.hasOwnProperty(key)) {
-
-                                    var p = POIsMap[key];
-                                    if (p && p.marker) {
-                                        p.marker.setMap(null);
-
-                                    }
-                                }
                             }
 
-                            $scope.anyService.setAllPois(POIsMap);
-                            POIsMap = {};
+
+                            // Open a new connection, using the GET request on the URL endpoint
+                            // request.open('GET', 'ship.json', true);
+                            // request.send(null);
+                            // request.onreadystatechange = function(){
+
+                            //     //check if the status is 200(means everything is okay)
+                            //     if (this.status === 200&& this.readyState==4) {
+                            //         //return server response as an object with JSON.parse
+                            //
+                            //
+                            //          json=JSON.parse(request.responseText);
+                            //         console.log(json[0].LAT);
+
+
+
+                            // var json=JSON.parse(request.responseText);
+                            //
+                            // console.log(request.responseText);
+                            //  var myLatLng = {lat: parseFloat(json[0].LAT), lng:parseFloat( json[0].LON)};
+
+
+
+
+
+
+                            // console.log(JSON.parse(this.request));
+                            // }
+                            // }
+
+                            // Send request
+
+
+
+
+
+
+
+
+
+
+
+                            // }
+
+                            // for (var b in $scope.myBuildingsHashT) {
+                            //         $scope.myBuildingsHashT[b].marker.setMap();
+                            //
+                            // }
 
                         }
-                    }
+
+
+                        // });
+
+
+
+                    });
+
+                    console.log("dfgg ");
                 }
-            }
-            changedfloor = false;
-        }
 
-    });
-
-    $scope.toggleRadioHeatmapRSS = function () {
-
-        var check = 0;
-        if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioHeatmapRSSTimeMode) {
-
-            var i = heatMap.length;
-            while (i--) {
-                heatMap[i].rectangle.setMap(null);
-                heatMap[i] = null;
-            }
-            heatMap = [];
-            document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-            //document.getElementById("radioHeatmapRSS-time-mode").classList.remove('draggable-border-green');
-            _HEATMAP_RSS_IS_ON = false;
-            setColorClicked('g',false);
-            setColorClicked('y',false);
-            setColorClicked('o',false);
-            setColorClicked('p',false);
-            setColorClicked('r',false);
-            $scope.radioHeatmapRSSMode = false;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('radioHeatmapRSSMode', 'NO');
-            }
-            $scope.anyService.radioHeatmapRSSMode=false;
-            $scope.radioHeatmapRSSTimeMode = false;
-            if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
-                localStorage.setItem('fingerPrintsTimeMode', 'NO');
-            }
-            $scope.anyService.radioHeatmapRSSTimeMode=false;
-            $scope.radioHeatmapRSSHasGreen=false;
-            $scope.radioHeatmapRSSHasYellow=false;
-            $scope.radioHeatmapRSSHasOrange=false;
-            $scope.radioHeatmapRSSHasPurple=false;
-            $scope.radioHeatmapRSSHasRed=false;
-            if(!$scope.fingerPrintsMode){
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-            }
-            $cookieStore.put('RSSClicked', 'NO');
-            return;
-        }
-
-        if($scope.fingerPrintsTimeMode){
-            $scope.radioHeatmapRSSTimeMode=true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerPrintsTimeMode', 'YES');
-            }
-            $scope.anyService.radioHeatmapRSSTimeMode=true;
-        }
-
-        document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
-        $scope.radioHeatmapRSSMode = true;
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('radioHeatmapRSSMode', 'YES');
-        }
-        $scope.anyService.radioHeatmapRSSMode=true;
-
-        $scope.showRadioHeatmapRSS();
-        return;
-    };
-
-    $scope.toggleAPs = function () {
-
-        var check = 0;
-
-        if (APmap[check] !== undefined && APmap[check] !== null) {
-            var i = APmap.length;
-
-            //hide Access Points
-            while (i--) {
-                APmap[i].setMap(null);
-                APmap[i] = null;
-                $scope.example9data[i] = null;
-                $scope.example9model[i] = null;
-            }
-            i = $scope.example8data.length;
-            while(i--){
-                $scope.example8data[i] = null;
-                $scope.example8model[i] = null;
-            }
-
-            APmap = [];
-            $scope.example9data = [];
-            $scope.example9model = [];
-            $scope.example8data = [];
-            $scope.example8model = [];
-            _APs_IS_ON = false;
-            $scope.filterByMAC=false;
-            $scope.filterByMAN=false;
-            document.getElementById("APs-mode").classList.remove('draggable-border-green');
-            $scope.APsMode = false;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('APsMode', 'NO');
-            }
-            return;
-
-        }
-        _APs_IS_ON = true;
-
-        $scope.APsMode = true;
-
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('APsMode', 'YES');
-        }
-
-        document.getElementById("APs-mode").classList.add('draggable-border-green');
-
-        $scope.showAPs();
-
-    };
-    $scope.toggleFingerPrints = function () {
-        $scope.fingerPrintsMode = !$scope.fingerPrintsMode;
-
-        if ($scope.fingerPrintsMode) {
-            document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'YES');
-            }
-        } else {
-            document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'NO');
-            }
-        }
-
-        var check = 0;
-
-        if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
-            var i = fingerPrintsMap.length;
-
-            //hide fingerPrints
-            while (i--) {
-                fingerPrintsMap[i].setMap(null);
-                fingerPrintsMap[i] = null;
-            }
-            fingerPrintsMap = [];
-            _FINGERPRINTS_IS_ON = false;
-            document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-            //document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-            $scope.fingerPrintsMode = false;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'NO');
-            }
-            $scope.fingerPrintsTimeMode=false;
-            if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
-                localStorage.setItem('fingerPrintsTimeMode', 'NO');
-            }
-            $scope.anyService.fingerPrintsTimeMode=false;
-            if(!$scope.radioHeatmapRSSMode){
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-            }
-            return;
-
-        }
-
-        if (heatmap && heatmap.getMap()) {
-            //hide fingerPrints heatmap
-
-            heatmap.setMap(null);
-            _FINGERPRINTS_IS_ON = false;
-            document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-            //document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-            $scope.fingerPrintsMode = false;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'NO');
-            }
-            $scope.fingerPrintsTimeMode=false;
-            if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
-                localStorage.setItem('fingerPrintsTimeMode', 'NO');
-            }
-            $scope.anyService.fingerPrintsTimeMode=false;
-            _HEATMAP_F_IS_ON = false;
-            if(!$scope.radioHeatmapRSSMode){
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-            }
-            var i=heatmapFingerprints.length;
-            while(i--){
-                heatmapFingerprints[i]=null;
-            }
-            heatmapFingerprints=[];
-            return;
-        }
-
-        document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-        $scope.fingerPrintsMode = true;
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('fingerprintsMode', 'YES');
-        }
-        if($scope.radioHeatmapRSSTimeMode){
-            $scope.fingerPrintsTimeMode=true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerPrintsTimeMode', 'YES');
-            }
-            $scope.anyService.fingerPrintsTimeMode=true;
-        }
-
-        $scope.showFingerPrints();
-    };
-
-
-    $scope.toggleLocalizationAccurancy = function () {
-        $scope.localizationAccMode = !$scope.localizationAccMode;
-
-        if (heatmapAcc && heatmapAcc.getMap()) {
-            //hide fingerPrints heatmap
-
-            heatmapAcc.setMap(null);
-            document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
-
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('localizationAccMode', 'NO');
-            }
-            return;
-        }
-
-        document.getElementById("localizationAccurancy-mode").classList.add('draggable-border-green');
-
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('localizationAccMode', 'YES');
-        }
-        $scope.showLocalizationAccHeatmap();
-
-    };
-
-
-    $scope.toggleFingerPrintsTime = function () {
-        if($scope.fingerPrintsMode){
-            $scope.fingerPrintsTimeMode=!$scope.fingerPrintsTimeMode;
-            if($scope.fingerPrintsTimeMode){
-                if (typeof(Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('fingerPrintsTimeMode', 'YES');
+                // using the latest building form localStorage
+                if (localStoredBuildingIndex >= 0) {
+                    $scope.anyService.selectedBuilding = $scope.myBuildings[localStoredBuildingIndex];
+                } else if ($scope.myBuildings[0]) {
+                    $scope.anyService.selectedBuilding = $scope.myBuildings[0];
                 }
-            }else{
-                if (typeof(Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
-                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
-                }
+
+                // _suc('Successfully fetched buildings.');
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err('Something went wrong while fetching buildings.');
             }
-            $scope.anyService.fingerPrintsTimeMode=!$scope.anyService.fingerPrintsTimeMode;
-        }
-
-        if($scope.radioHeatmapRSSMode){
-            $scope.radioHeatmapRSSTimeMode=!$scope.radioHeatmapRSSTimeMode;
-            if($scope.radioHeatmapRSSTimeMode){
-                if (typeof(Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('fingerPrintsTimeMode', 'YES');
-                }
-            }else{
-                if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
-                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
-                }
-            }
-            $scope.anyService.radioHeatmapRSSTimeMode=!$scope.anyService.radioHeatmapRSSTimeMode;
-        }
-
-        if(!$scope.fingerPrintsTimeMode && $scope.fingerPrintsMode){
-            clearFingerPrints();
-            $scope.showFingerPrints();
-            document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-            document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-        }
-
-        if(!$scope.radioHeatmapRSSTimeMode && $scope.radioHeatmapRSSMode){
-            clearRadioHeatmap();
-            $scope.showRadioHeatmapRSS();
-            $scope.radioHeatmapRSSMode=true;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('radioHeatmapRSSMode', 'YES');
-            }
-            $scope.anyService.radioHeatmapRSSMode=true;
-            document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
-            document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
-        }
-
-        if($scope.radioHeatmapRSSTimeMode || $scope.fingerPrintsTimeMode) {
-            $scope.getFingerPrintsTime();
-
-        }
-
+        );
     };
 
+    $scope.addNewBuilding = function (id) {
 
-    $scope.togglePOIs = function () {
+        if ($scope.myMarkers[id] && $scope.myMarkers[id].marker) {
 
-        POIsMap = $scope.anyService.getAllPois();
-        var key = Object.keys(POIsMap);
-        var check = 0;
-        if (!POIsMap.hasOwnProperty(key[check])) {
-            _err("No POIs yet.")
-            return;
-        }
+            var building = $scope.myMarkers[id].model;
 
-        if (POIsMap[key[check]].marker.getMap() !== null && POIsMap[key[check]].marker.getMap() !== undefined) {
+            // set owner id
+            building.owner_id = $scope.owner_id;
 
-            for (var key in POIsMap) {
-                if (POIsMap.hasOwnProperty(key)) {
-
-                    var p = POIsMap[key];
-                    if (p && p.marker) {
-                        p.marker.setMap(null);
-                    }
-                }
-            }
-
-            $scope.anyService.setAllPois(POIsMap);
-            POIsMap = {};
-            _POIS_IS_ON = false;
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('POIsMode', 'NO');
-            }
-            return;
-        }
-
-        for (var key in POIsMap) {
-            if (POIsMap.hasOwnProperty(key)) {
-
-                var p = POIsMap[key];
-                if (p && p.marker) {
-                    p.marker.setMap(GMapService.gmap);
-                }
-            }
-        }
-        $scope.anyService.setAllPois(POIsMap);
-        _POIS_IS_ON = true;
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('POIsMode', 'YES');
-        }
-        return;
-    };
-
-
-    $scope.toggleConnections = function () {
-
-        connectionsMap = $scope.anyService.getAllConnections();
-        var key = Object.keys(connectionsMap);
-        var check = 0;
-        if (!connectionsMap.hasOwnProperty(key[check])) {
-            _err("No edges yet.")
-            return;
-        }
-
-        if (connectionsMap[key[check]].polyLine !== undefined) {
-
-            if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
-                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-
-                    for (var key in connectionsMap) {
-                        if (connectionsMap.hasOwnProperty(key)) {
-
-                            var con = connectionsMap[key];
-                            if (con && con.polyLine) {
-
-                                con.polyLine.setMap(null);
-                            }
-                        }
-
-                    }
-
-                    $scope.anyService.setAllConnection(connectionsMap);
-                    connectionsMap = {};
-                    _CONNECTIONS_IS_ON = false;
-                    if (typeof(Storage) !== "undefined" && localStorage) {
-                        localStorage.setItem('connectionsMode', 'NO');
-                    }
-                    return;
-                }
-            }
-        }
-
-        $scope.showConnections();
-    };
-
-
-    $scope.getHeatMapButtonText = function () {
-
-        var check = 0;
-        return heatMap[check] !== undefined && heatMap[check] !== null ? "Hide WiFi Map" : "Show WiFi Map";
-
-    };
-
-    $scope.getAPsButtonText = function () {
-        var check = 0;
-        return APmap[check] !== undefined && APmap[check] !== null ? "Hide Estimated Wi-Fi AP Position" : "Show Estimated Wi-Fi AP Position";
-    };
-
-    $scope.getFingerPrintsButtonText = function () {
-        var check = 0;
-        return (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) || (heatmap && heatmap.getMap()) ? "Hide FingerPrints" : "Show FingerPrints";
-    };
-
-    $scope.getFingerPrintTimeButtonText = function () {
-
-        return $scope.fingerPrintsTimeMode ? "Hide FingerPrints By Time" : "Show FingerPrints By Time";
-    };
-
-    $scope.getHeatMapTimeButtonText = function () {
-
-        return $scope.radioHeatmapRSSTimeMode ? "Hide WiFi Map By Time" : "Show WiFi Map By Time";
-    };
-
-    $scope.getLocalizationAccurancyText = function(){
-        return $scope.localizationAccMode ? "Hide Acces Map" : "Show Acces Map";
-    }
-
-
-    $scope.getPOIsButtonText = function () {
-
-        POIsMap = $scope.anyService.getAllPois();
-        var key = Object.keys(POIsMap);
-        var check = 0;
-        if (POIsMap.hasOwnProperty(key[check])) {
-            if(POIsMap[key[check]].marker.getMap() !== undefined) {
-                if (POIsMap[key[check]].marker.getMap() !== null) {
-                    document.getElementById("POIs-mode").classList.add('draggable-border-green');
-                    $scope.POIsMode = true;
-                    return "Hide POIs";
-                }
-            }
-        }
-        document.getElementById("POIs-mode").classList.remove('draggable-border-green');
-        $scope.POIsMode = false;
-        return "Show POIs";
-
-    };
-
-    $scope.getConnectionsButtonText = function () {
-        connectionsMap = $scope.anyService.getAllConnections();
-        var key = Object.keys(connectionsMap);
-        var check = 0;
-        if (connectionsMap.hasOwnProperty(key[check])) {
-            if(connectionsMap[key[check]].polyLine !== undefined) {
-                if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
-                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                        document.getElementById("connections-mode").classList.add('draggable-border-green');
-                        $scope.connectionsMode = true;
-                        return "Hide Edges";
-                    }
-                }
-            }
-        }
-        document.getElementById("connections-mode").classList.remove('draggable-border-green');
-        $scope.connectionsMode = false;
-        return "Show Edges";
-        //return (connectionsMap!==undefined && connectionsMap!==null)  ? "Hide Edges" : "Show Edges";
-    };
-
-    $('#HMs_1').unbind().click(function () {
-        $('#wifiTab').click();
-        $('#HMs').click();
-        $('#HMsButton').click();
-    });
-
-    $('#APs_1').unbind().click(function () {
-        $('#wifiTab').click();
-        $('#HMs').click();
-        $('#APsButton').click();
-    });
-
-    $('#FPs_1').unbind().click(function () {
-        $('#wifiTab').click();
-        $('#FPs').click();
-        $('#FPsButton').click();
-    });
-
-    $('#DL_1').unbind().click(function () {
-        $('#wifiTab').click();
-        $('#FPs').click();
-        $('#deleteButton').click();
-    });
-
-    $('#FPs_2').unbind().click(function () {
-        $('#wifiTab').click();
-        $('#FPs').click();
-        $('#FPsTimeButton').click();
-
-    });
-
-    $('#LA_1').unbind().click(function () {
-        $('#wifiTab').click();
-        $('#LAs').click();
-        $('#LAButton').click();
-
-        //_err("Not available yet. Please check in the next release.");
-    });
-
-    $('#POIs_1').unbind().click(function () {
-        $('#FPs').click();
-        $('#POIsButton').click();
-    });
-
-    $('#CNs_1').unbind().click(function () {
-        $('#FPs').click();
-        $('#connectionsButton').click();
-    });
-
-
-    $scope.getHeatmapModeText = function () {
-        return $scope.radioHeatmapRSSMode ? "WiFi Map is online" : "WiFi Map is offline";
-
-    };
-
-    $scope.getAPsModeText = function () {
-        return $scope.APsMode ? "Estimated Wi-Fi AP Position is online" : "Estimated Wi-Fi AP Position is offline";
-
-    };
-
-    $scope.getFingerPrintsModeText = function () {
-        return $scope.fingerPrintsMode ? "FingerPrints are online" : "FingerPrints are offline";
-
-    };
-
-    $scope.getDeleteFingerPrintsModeText = function () {
-        return $scope.deleteFingerPrintsMode ? "ON" : "OFF";
-
-    };
-
-    $scope.getFingerPrintsTimeModeText = function () {
-        return $scope.fingerPrintsTimeMode || $scope.radioHeatmapRSSTimeMode  ? "ON" : "OFF";
-
-    };
-
-    $scope.getLocalizationAccurancyModeText = function () {
-        return $scope.localizationAccMode ? "Localization is online" : "Localization is offline";
-
-    };
-
-    $scope.getPOIsModeText = function () {
-        return $scope.POIsMode ? "POIs are online" : "POIs are offline";
-
-    };
-
-    $scope.getConnectionsModeText = function () {
-        return $scope.connectionsMode ? "Edges are online" : "Edges are offline";
-
-    };
-
-    $scope.deleteFingerPrints = function () {
-
-        if (_DELETE_FINGERPRINTS_IS_ON) {
-
-            drawingManager.setMap(null);
-            $scope.deleteButtonWarning = false;
-            document.getElementById("delete-mode").classList.remove('draggable-border-green');
-            _DELETE_FINGERPRINTS_IS_ON = false;
-            $scope.deleteFingerPrintsMode = false;
-            return;
-
-        }
-
-        if (!_FINGERPRINTS_IS_ON && (!heatmap || !heatmap.getMap())) {
-            _err("You have to press show fingerPrints button first");
-            return;
-        }
-
-        $scope.deleteButtonWarning = true;
-        $scope.deleteFingerPrintsMode = true;
-        _DELETE_FINGERPRINTS_IS_ON = true;
-        document.getElementById("delete-mode").classList.add('draggable-border-green');
-        drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
-            drawingControl: false,
-            rectangleOptions: {
-                strokeColor: "#13B3E7",
-                fillColor: "#ADD8E6",
-                fillOpacity: 0.5
-            }
-
-
-        });
-
-        drawingManager.setMap(GMapService.gmap);
-
-        var bounds;
-        var start;
-        var end;
-        var confirmation;
-
-        google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
-            bounds = e.overlay.getBounds();
-            start = bounds.getNorthEast();
-            end = bounds.getSouthWest();
-
-            var i = fingerPrintsMap.length;
-
-            while (i--) {
-                if (fingerPrintsMap[i].getPosition().lat() <= start.lat() && fingerPrintsMap[i].getPosition().lng() <= start.lng() && fingerPrintsMap[i].getPosition().lat() >= end.lat() && fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
-
-                    confirmation = confirm("Confirm:\nAre you sure you want to delete the selected fingerprints?");
-                    break;
-                }
-            }
-            i = heatmapFingerprints.length;
-            while (i--) {
-                if (heatmapFingerprints[i].getPosition().lat() <= start.lat() && heatmapFingerprints[i].getPosition().lng() <= start.lng() && heatmapFingerprints[i].getPosition().lat() >= end.lat() && heatmapFingerprints[i].getPosition().lng() >= end.lng()) {
-
-                    confirmation = confirm("Confirm:\nAre you sure you want to delete the selected fingerprints?");
-                    break;
-                }
-            }
-
-            if(confirmation===undefined){
-                alert("You have to select an area with Fingerprints to delete. ");
-                e.overlay.setMap(null);
-                drawingManager.setMap(null);
-                $scope.deleteButtonWarning = false;
-                _DELETE_FINGERPRINTS_IS_ON = false;
-                $scope.deleteFingerPrintsMode = false;
-                document.getElementById("delete-mode").classList.remove('draggable-border-green');
+            if (!building.owner_id) {
+                _err("Could not authorize user. Please refresh.");
                 return;
             }
 
-            if (confirmation) {
 
-                var b = $scope.anyService.getBuilding();
+            building.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
+            building.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
 
-                var f = $scope.anyService.getFloorNumber();
+            if (building.coordinates_lat === undefined || building.coordinates_lat === null) {
+                _err("Invalid building latitude.");
+                return;
+            }
 
-                var reqObj = $scope.creds;
+            if (building.coordinates_lon === undefined || building.coordinates_lon === null) {
+                _err("Invalid building longitude.");
+                return;
+            }
 
-                if (!$scope.owner_id) {
-                    _err("Could not identify user. Please refresh and sign in again.");
-                    return;
+            if (building.is_published === true) {
+                building.is_published = "true";
+            } else {
+                building.is_published = "false";
+            }
+
+            if (!building.description) {
+                building.description = "-";
+            }
+
+            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address) {
+                var promise ;
+                var shipboolean;
+                if (shipselect==0) {
+                    promise = $scope.anyAPI.addBuilding(building);
+                    shipboolean=1;
                 }
-
-                reqObj.owner_id = $scope.owner_id;
-
-                if (!b || !b.buid) {
-                    _err("No building selected");
-                    return;
+                else{
+                    promise = $scope.anyAPI.addShip(building)
+                    shipboolean=0;
                 }
-
-                reqObj.buid = b.buid;
-
-                reqObj.floor = f;
-
-                reqObj.lat1 = start.lat()+"";
-
-                reqObj.lon1 = start.lng()+"";
-
-                reqObj.lat2 = end.lat()+"";
-
-                reqObj.lon2 = end.lng()+"";
-
-                var promise;
-
-                if($scope.fingerPrintsTimeMode){
-                    reqObj.timestampX = userTimeData[0]+"";
-
-                    reqObj.timestampY = userTimeData[1]+"";
-                    promise= $scope.anyAPI.deleteFingerprintsByTime(reqObj);
-                }else{
-                    promise = $scope.anyAPI.deleteFingerprints(reqObj);
-                }
-
-                var data = [];
-
-                if (!_HEATMAP_F_IS_ON && !_HEATMAP_RSS_IS_ON)
-                    _suc("The fingerprints are scheduled to be deleted.");
-                else if (_HEATMAP_F_IS_ON && !_HEATMAP_RSS_IS_ON)
-                    _suc("The fingerprints are scheduled to be deleted. " +
-                        "A new radiomap for fingerprints will be regenerated shortly after.");
-                else if (!_HEATMAP_F_IS_ON && _HEATMAP_RSS_IS_ON)
-                    _suc("The fingerprints are scheduled to be deleted. " +
-                        "A new radiomap for Wi-Fi coverage will be regenerated shortly after.");
-                else if (_HEATMAP_F_IS_ON && _HEATMAP_RSS_IS_ON)
-                    _suc("The fingerprints are scheduled to be deleted. " +
-                        "New radiomaps for fingerprints and Wi-Fi coverage will be regenerated shortly after.");
-
                 promise.then(
                     function (resp) {
                         // on success
-                        data = resp.data.radioPoints;
+                        var data = resp.data;
+                        console.log("new buid: " + data.buid);
+                        building.buid = data.buid;
 
-                        console.log("fingerPrints deleted ");
-
-                        // delete the fingerPrints from the loaded FingerPrints
-                        if (data.length > 0) {
-                            i = fingerPrintsMap.length;
-                            while (i--) {
-
-                                if (fingerPrintsMap[i].getPosition().lat() <= start.lat() && fingerPrintsMap[i].getPosition().lng() <= start.lng() && fingerPrintsMap[i].getPosition().lat() >= end.lat() && fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
-
-                                    // delete the fingerPrints from the loaded FingerPrints
-                                    fingerPrintsMap[i].setMap(null);
-                                }
-
-                            }
-
-                            if (_HEATMAP_F_IS_ON) {
-                                heatmap.setMap(null);
-                                var heatMapData=[];
-                                i = heatmapFingerprints.length;
-                                while (i--) {
-                                    if(heatmapFingerprints[i]!==null) {
-                                        if (heatmapFingerprints[i].getPosition().lat() > start.lat() || heatmapFingerprints[i].getPosition().lng() > start.lng() || heatmapFingerprints[i].getPosition().lat() < end.lat() || heatmapFingerprints[i].getPosition().lng() < end.lng()) {
-                                            heatMapData.push(
-                                                {location: heatmapFingerprints[i].getPosition(), weight: 1}
-                                            );
-                                        } else {
-                                            heatmapFingerprints[i] = null;
-                                        }
-                                    }
-                                }
-                                heatmap = new google.maps.visualization.HeatmapLayer({
-                                    data: heatMapData
-                                });
-                                heatmap.setMap($scope.gmapService.gmap);
-                            }
-                            if (_HEATMAP_RSS_IS_ON) {
-                                var i = heatMap.length;
-
-                                while (i--) {
-                                    if (heatMap[i].location.lat() <= start.lat() && heatMap[i].location.lng() <= start.lng() && heatMap[i].location.lat() >= end.lat() && heatMap[i].location.lng() >= end.lng()) {
-                                        heatMap[i].rectangle.setMap(null);
-                                    }
-                                }
-
-                            }
+                        if (building.is_published === 'true' || building.is_published == true) {
+                            building.is_published = true;
+                        } else {
+                            building.is_published = false;
                         }
 
-                        _suc("Successfully deleted " + data.length + " fingerPrints.");
+                        // insert the newly created building inside the loadedBuildings
+                        if(shipselect==0) {
+                            $scope.myBuildings.push(building);
+                            $scope.anyService.selectedBuilding = $scope.myBuildings[$scope.myBuildings.length - 1];
+
+                        }
+                        else{
+                            $scope.myShips.push(building);
+                            // $scope.anyService.selectedBuilding = $scope.myBuildings[$scope.myBuildings.length - 1];
+
+
+                        }
+
+                        $scope.myMarkers[id].marker.setDraggable(false);
+
+                        $scope.myBuildingsHashT[building.buid] = {
+                            marker: $scope.myMarkers[id].marker,
+                            model: building
+                        };
+
+                        if ($scope.myMarkers[id].infowindow) {
+                            $scope.myMarkers[id].infowindow.setContent($scope.myMarkers[id].marker.tpl2[0]);
+                            $scope.myMarkers[id].infowindow.close();
+                        }
+                        if(shipboolean){
+
+                            _suc("Building added successfully.");
+                        }
+                        else {
+                            _suc("Ship added successfully.");
+                        }
                     },
                     function (resp) {
                         // on error
-                        var data = resp.data
-                        _err("Something went wrong. It's likely that everything related to the fingerPrints is deleted but please refresh to make sure or try again.");
-                        document.getElementById("delete-mode").classList.remove('draggable-border-green');
+                        var data = resp.data;
+                        _err("Something went wrong while adding the building. " + data.message);
                     }
                 );
 
+
+            } else {
+                _err("Some required fields are missing.");
             }
-
-            e.overlay.setMap(null);
-            drawingManager.setMap(null);
-            $scope.deleteButtonWarning = false;
-            _DELETE_FINGERPRINTS_IS_ON = false;
-            $scope.deleteFingerPrintsMode = false;
-            document.getElementById("delete-mode").classList.remove('draggable-border-green');
-
-        });
-
-    };
-
-    $scope.getColorBarTextFor = function (color) {
-
-        return !getColorClicked(color.charAt(0)) ? "click to hide "+color+" ones" : "click to show "+color+" ones";
-
-    };
-
-    function setColorClicked(color,value){
-
-        if(color==='g') {
-            colorBarGreenClicked = value;
-            if(value){
-                document.getElementById("greenSquares").classList.add('faded');
-            }else{
-                document.getElementById("greenSquares").classList.remove('faded');
-            }
-
-        }else if(color==='y') {
-            colorBarYellowClicked = value;
-            if(value){
-                document.getElementById("yellowSquares").classList.add('faded');
-            }else{
-                document.getElementById("yellowSquares").classList.remove('faded');
-            }
-
-        }else if (color==='o') {
-            colorBarOrangeClicked = value;
-            if(value){
-                document.getElementById("orangeSquares").classList.add('faded');
-            }else{
-                document.getElementById("orangeSquares").classList.remove('faded');
-            }
-
-        }else if (color==='p') {
-            colorBarPurpleClicked = value;
-            if(value){
-                document.getElementById("purpleSquares").classList.add('faded');
-            }else{
-                document.getElementById("purpleSquares").classList.remove('faded');
-            }
-
-        }else {
-            colorBarRedClicked = value;
-            if(value){
-                document.getElementById("redSquares").classList.add('faded');
-            }else{
-                document.getElementById("redSquares").classList.remove('faded');
-            }
-
         }
-
-
     };
 
-    function getColorClicked(color){
+    $scope.deleteBuilding = function () {
 
-        if(color==='g')
-            return colorBarGreenClicked;
-        else if(color==='y')
-            return colorBarYellowClicked;
-        else if (color==='o')
-            return colorBarOrangeClicked;
-        else if (color==='p')
-            return colorBarPurpleClicked;
-        else
-            return colorBarRedClicked;
-    };
+        var b = $scope.anyService.getBuilding();
 
-    $scope.hideRSSExcept=function(color){
+        var reqObj = $scope.creds;
 
-        if( color==='g' && !$scope.radioHeatmapRSSHasGreen){
-            _err("Wi-Fi coverage map has no green squares");
+        if (!$scope.owner_id) {
+            _err("Could not identify user. Please refresh and sign in again.");
             return;
         }
 
-        if( color==='y' && !$scope.radioHeatmapRSSHasYellow){
-            _err("Wi-Fi coverage map has no yellow squares");
+        reqObj.owner_id = $scope.owner_id;
+
+        console.log( reqObj.owner_id);
+
+        if (!b || !b.buid) {
+            _err("No building selected for deletion.");
             return;
         }
 
-        if( color==='o' && !$scope.radioHeatmapRSSHasOrange){
-            _err("Wi-Fi coverage map has no orange squares");
-            return;
-        }
+        reqObj.buid = b.buid;
 
-        if( color==='p' && !$scope.radioHeatmapRSSHasPurple){
-            _err("Wi-Fi coverage map has no purple squares");
-            return;
-        }
-
-        if( color==='r' && !$scope.radioHeatmapRSSHasRed){
-            _err("Wi-Fi coverage map has no red squares");
-            return;
-        }
-        var i=heatMap.length;
-        while(i--) {
-            if (getColorClicked(color)){
-                if (heatMap[i].id === color) {
-                    heatMap[i].rectangle.setMap($scope.gmapService.gmap);
-                    heatMap[i].clicked = true;
-                }
-            }else{
-                if (heatMap[i].id === color) {
-                    heatMap[i].rectangle.setMap(null);
-                    heatMap[i].clicked = false;
-                }
-
-            }
-        }
-        setColorClicked(color,!getColorClicked(color));
-
-    };
-
-    $scope.showRadioHeatmapRSS = function () {
-
-        var jsonReq;
-
-        var promise;
-
-        _NOW_ZOOM = GMapService.gmap.getZoom();
-
-        if(($scope.radioHeatmapRSSTimeMode || $scope.fingerPrintsTimeMode) && userTimeData.length>0){
-            jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber(),"timestampX":userTimeData[0],"timestampY":userTimeData[1]};
-
-            jsonReq.username = $scope.creds.username;
-            jsonReq.password = $scope.creds.password;
-
-            if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < MAX_ZOOM_FOR_HEATMAPS) {
-                levelOfZoom=2;
-                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_2(jsonReq);
-
-            }else if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS) {
-                levelOfZoom=3;
-                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_3(jsonReq);
-
-
-            }else {
-                levelOfZoom=1;
-                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_1(jsonReq);
-            }
-
-
-        }else {
-
-            jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-            jsonReq.username = $scope.creds.username;
-            jsonReq.password = $scope.creds.password;
-
-
-            if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < MAX_ZOOM_FOR_HEATMAPS) {
-                levelOfZoom=2;
-                promise = $scope.anyAPI.getRadioHeatmapRSS_2(jsonReq);
-            }else if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS) {
-                levelOfZoom=3;
-
-                promise = $scope.anyAPI.getRadioHeatmapRSS_3(jsonReq);
-
-            }else {
-                levelOfZoom=1;
-                promise = $scope.anyAPI.getRadioHeatmapRSS_1(jsonReq);
-            }
-        }
-
-        if(promise!==undefined) {
-            promise.then(
-                function (resp) {
-                    // on success
-                    var data = resp.data;
-
-                    var heatMapData = [];
-
-                    var i = resp.data.radioPoints.length;
-
-                    if (i <= 0) {
-                        _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                        if (!$scope.radioHeatmapRSSTimeMode) {
-                            document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-                            $scope.radioHeatmapRSSMode = false;
-                            if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
-                                localStorage.setItem('radioHeatmapRSSMode', 'NO');
-                            }
-                        } else {
-                            _err("No fingerprints at this period.\n Please choose another one.");
-                        }
-                        return;
-                    }
-
-                    var j = 0;
-
-                    while (i--) {
-
-                        var rp = resp.data.radioPoints[i];
-                        var rss = JSON.parse(rp.w); //count,average,total
-                        //set weight based on RSSI
-
-                        var w = parseFloat(rss.average);
-
-                        if (w <= -30 && w >= -60) {
-
-                            heatMapData.push(
-                                {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#4ed419', id: 'g'}
-                            );
-
-                            $scope.radioHeatmapRSSHasGreen = true;
-
-                        } else if (w < -60 && w >= -70) {
-
-                            heatMapData.push(
-                                {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ffff00', id: 'y'}
-                            );
-
-                            $scope.radioHeatmapRSSHasYellow = true;
-
-                        } else if (w < -70 && w >= -90) {
-
-                            heatMapData.push(
-                                {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ffa500', id: 'o'}
-                            );
-
-                            $scope.radioHeatmapRSSHasOrange = true;
-
-                        } else if (w < -90 && w >= -100) {
-
-                            heatMapData.push(
-                                {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#bd06bd', id: 'p'}
-                            );
-
-                            $scope.radioHeatmapRSSHasPurple = true;
-
-                        } else {
-                            heatMapData.push(
-                                {location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ff0000', id: 'r'}
-                            );
-
-                            $scope.radioHeatmapRSSHasRed = true;
-
-                        }
-
-                        //calculate bounds
-                        var center = heatMapData[j].location;
-                        var size;
-                        if (levelOfZoom == 3) {
-                            size = new google.maps.Size(0.75, 0.75);
-                        } else if (levelOfZoom == 2) {
-                            size = new google.maps.Size(2, 2);
-                        } else {
-                            size = new google.maps.Size(5, 5);
-                        }
-                        var n = google.maps.geometry.spherical.computeOffset(center, size.height, 0).lat(),
-                            s = google.maps.geometry.spherical.computeOffset(center, size.height, 180).lat(),
-                            e = google.maps.geometry.spherical.computeOffset(center, size.width, 90).lng(),
-                            w = google.maps.geometry.spherical.computeOffset(center, size.width, 270).lng();
-
-                        var rectangle = new google.maps.Rectangle({
-                            strokeColor: heatMapData[j].color,
-                            strokeOpacity: 1,
-                            strokeWeight: 1,
-                            fillColor: heatMapData[j].color,
-                            fillOpacity: 0.5,
-                            bounds: new google.maps.LatLngBounds(
-                                new google.maps.LatLng(s, w),
-                                new google.maps.LatLng(n, e))
-                        });
-                        if (getColorClicked(heatMapData[j].id)) {
-                            rectangle.setMap(null);
-                        } else {
-                            rectangle.setMap($scope.gmapService.gmap);
-                        }
-
-                        heatMap.push(
-                            {rectangle: rectangle, location: center, id: heatMapData[j].id, clicked: false}
-                        );
-                        j++;
-
-                        resp.data.radioPoints.splice(i, 1);
-                    }
-                    _HEATMAP_RSS_IS_ON = true;
-                    $cookieStore.put('RSSClicked', 'YES');
-
-                },
-                function (resp) {
-                    // on error
-                    var data = resp.data;
-                    _err('Something went wrong while fetching radio heatmap.');
-                    if (!$scope.radioHeatmapRSSTimeMode) {
-                        $scope.radioHeatmapRSSMode = false;
-                        if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
-                            localStorage.setItem('radioHeatmapRSSMode', 'NO');
-                        }
-                        document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-                    }
-
-                }
-            );
-        }
-    }
-
-
-    $scope.getAPsIds=function(jsonInfo){
-
-        var jsonReq={};
-        jsonReq.ids=jsonInfo;
-
-        var promise= $scope.anyAPI.getAPsIds(jsonReq);
+        var promise = $scope.anyAPI.deleteBuilding(reqObj);
         promise.then(
             function (resp) {
                 // on success
-                var data = resp.data.accessPoints;
-
-                var i = data.length;
-
-                if (i <= 0) {
-                    _err("Access Points seems to not have ids");
-                    return;
-                }
-
-                var dataIDs=new Set();
-
-                while(i--){
-                    APmap[i].mun=data[i];
-                    dataIDs.add(data[i]);
-
-                }
-
-                dataIDs.forEach(function (element) {
-                    if(element!=="N/A"){
-                    $scope.example8data.push({id: element, label: element});
-                    $scope.example8model.push({id: element, label: element});
-                }
-            });
-
-
-            },
-            function (resp) {
-                // on error
                 var data = resp.data;
-                _err('Something went wrong while fetching the ids of access points.');
-            }
-        );
 
+                console.log("building deleted: ", b);
 
-    };
+                // delete the building from the loadedBuildings
+                $scope.myBuildingsHashT[b.buid].marker.setMap(null);
+                delete $scope.myBuildingsHashT[b.buid];
 
-
-    $scope.showAPs = function () {
-        //request for access points
-        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
-        var i;
-
-        var promise = $scope.anyAPI.getAPs(jsonReq);
-        promise.then(
-            function (resp) {
-                // on success
-
-                i = resp.data.accessPoints.length;
-
-                if (i <= 0) {
-                    _err("This floor seems not to be Access Point mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    $scope.APsMode=false;
-                    document.getElementById("APs-mode").classList.remove('draggable-border-green');
-                    return;
-                }
-
-
-                //algorithm to find the location of each AP
-                var values = resp.data.accessPoints;
-
-                i = values.length;
-
-
-                //create AccessPoint "map"
-                var _ACCESS_POINT_IMAGE = 'build/images/access-point-icon.png';
-
-                var imgType = _ACCESS_POINT_IMAGE;
-
-                var size = new google.maps.Size(21, 32);
-
-                i = values.length;
-                var c = 0;
-                var x;
-                var y;
-                var jsonInfo=[];
-                while (i--) {
-                    //check for limit
-                    if (c == MAX) {
-                        _err('Access Points have exceeded the maximun limit of 1000');
+                var bs = $scope.myBuildings;
+                var sz = bs.length;
+                for (var i = 0; i < sz; i++) {
+                    if (bs[i].buid == b.buid) {
+                        bs.splice(i, 1);
                         break;
                     }
-                    if( values[i].den!=0) {
-                        x = values[i].x / values[i].den;
-                        y = values[i].y / values[i].den;
-                    }else{
-                        x = values[i].x;
-                        y = values[i].y;
-
-                    }
-                    $scope.example9data.push({id: values[i].AP, label: values[i].AP});
-                    $scope.example9model.push({id: values[i].AP, label: values[i].AP});
-
-                    //alert("x: "+x+" y: "+y);
-
-                    var accessPoint = new google.maps.Marker({
-                        id: values[i].AP,
-                        position: new google.maps.LatLng(x, y),
-                        map: GMapService.gmap,
-                        icon: {
-                            url: imgType,
-                            scaledSize: size
-                        }
-                    });
-
-                    APmap.push(
-                        accessPoint
-                    );
-
-                    jsonInfo.push(accessPoint.id);
-
-                    var infowindow=new google.maps.InfoWindow();
-                    if(!infowindow.getMap()) {
-                        APmap[c].addListener('click', function () {
-
-                            if(this.mun !== "N/A") {
-                                infowindow.setContent(this.id + "<br><center>-</center><br>" + this.mun);
-                            }else{
-                                infowindow.setContent(this.id);
-                            }
-
-                            infowindow.open(this.gmap, this);
-                        });
-                    }
-
-
-                    c++;
                 }
-                $scope.getAPsIds(jsonInfo);
+
+                // update the selected building
+                if ($scope.myBuildings && $scope.myBuildings.length > 0) {
+                    $scope.anyService.selectedBuilding = $scope.myBuildings[0];
+                }
+
+                $scope.setCrudTabSelected(1);
+
+                _suc("Successfully deleted building.");
             },
             function (resp) {
                 // on error
                 var data = resp.data;
-                $scope.APsMode=false;
-                _err('Something went wrong while fetching Access Points.');
-                document.getElementById("APs-mode").classList.remove('draggable-border-green');
+                _err("Something went wrong. It's likely that everything related to the building is deleted but please refresh to make sure or try again.");
             }
         );
 
-    }
+    };
 
-    $scope.getFingerPrintsTime = function (){
 
+    //lsolea01
+
+    $scope.deleteRadiomaps = function () {
 
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise=$scope.anyAPI.getFingerprintsTime(jsonReq);
+        var promise = $scope.anyAPI.deleteRadiomaps(jsonReq);
 
+        promise.then(
+            function (resp) {
+
+                _suc("Successfully Delete floor radiomap")
+
+
+            },
+
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong.The file is not exist ");
+            }
+        );
+
+
+    };
+
+
+    $scope.updateBuilding = function () {
+        var b = $scope.anyService.getBuilding();
+
+        if (LPUtils.isNullOrUndefined(b) || LPUtils.isNullOrUndefined(b.buid)) {
+            _err("No building selected found.");
+            return;
+        }
+
+        var reqObj = {};
+
+        // from controlBarController
+        reqObj = $scope.creds;
+        if (!$scope.owner_id) {
+            _err("Could not identify user. Please refresh and sign in again.");
+            return;
+        }
+
+        reqObj.owner_id = $scope.owner_id;
+
+        reqObj.buid = b.buid;
+
+        if (b.description) {
+            reqObj.description = b.description;
+        }
+
+        if (b.name) {
+            reqObj.name = b.name;
+        }
+
+        if (b.is_published === true || b.is_published == "true") {
+            reqObj.is_published = "true";
+        } else {
+            reqObj.is_published = "false";
+        }
+
+        if (b.bucode) {
+            reqObj.bucode = b.bucode;
+        }
+
+        var marker = $scope.myBuildingsHashT[b.buid].marker;
+        if (marker) {
+            var latLng = marker.position;
+            if (latLng && latLng.lat() && latLng.lng()) {
+                reqObj.coordinates_lat = String(latLng.lat());
+                reqObj.coordinates_lon = String(latLng.lng());
+            }
+        }
+
+        var promise = $scope.anyAPI.updateBuilding(reqObj);
         promise.then(
             function (resp) {
                 // on success
-                var data = resp.data.radioPoints;
+                var data = resp.data;
 
-                var i = data.length;
-
-                if (i <= 0) {
-                    _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    return;
+                if (b.is_published === 'true' || b.is_published == true) {
+                    b.is_published = true;
+                } else {
+                    b.is_published = false;
                 }
 
-                plotGraphs(data);
-
-                initializeTimeFunction();
+                _suc("Successfully updated building.")
             },
             function (resp) {
                 // on error
                 var data = resp.data;
-                _err('Something went wrong while fetching fingerPrints timestamp.');
+                _err("Something went wrong while updating building. " + data.message);
+            }
+        );
+
+    };
+
+    $scope.fetchAllCampus = function () {
+        var jsonReq = {};
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.owner_id = $scope.owner_id;
+        $scope.myCampus = [];
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.");
+            return;
+        }
+
+        var promise = $scope.anyAPI.allCampus(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                //var bs = JSON.parse( data.buildings );
+                $scope.myCampus = data.buildingsets;
+                var localStoredCampusIndex = -1;
+                var localStoredCampusId = undefined;
+                if (typeof(Storage) !== "undefined" && localStorage && localStorage.getItem('lastCampus')) {
+                    localStoredCampusId = localStorage.getItem('lastCampus');
+                }
+
+                for (var i = 0; i < $scope.myCampus.length; i++) {
+
+                    var b = $scope.myCampus[i];
+
+                    if (localStoredCampusId && localStoredCampusId === b.cuid) {
+                        localStoredCampusIndex = i;
+                    }
+                }
+
+                // using the latest building set form localStorage
+                if (localStoredCampusIndex >= 0) {
+                    $scope.anyService.selectedCampus = $scope.myCampus[localStoredCampusIndex];
+                } else if ($scope.myCampus[0]) {
+                    $scope.anyService.selectedCampus = $scope.myCampus[0];
+                }
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err('Something went wrong while fetching buildings.');
+            }
+        );
+    };
+
+    $scope.updateCampus = function () {
+        var b = $scope.anyService.getCampus();
+
+        if (LPUtils.isNullOrUndefined(b) || LPUtils.isNullOrUndefined(b.cuid)) {
+            _err("No campus selected found.");
+            return;
+        }
+
+        var reqObj = {};
+
+        // from controlBarController
+        reqObj = $scope.creds;
+        if (!$scope.owner_id) {
+            _err("Could not identify user. Please refresh and sign in again.");
+            return;
+        }
+
+        reqObj.owner_id = $scope.owner_id;
+
+        reqObj.cuid = b.cuid;
+
+        if (b.description) {
+            reqObj.description = b.description;
+        }
+
+        if (b.name) {
+            reqObj.name = b.name;
+        }
+
+        if (b.newcuid) {
+            reqObj.newcuid = b.newcuid;
+        }
+
+        var sz = $scope.example9modeledit.length;
+
+        if (sz == 0) {
+            _err("No buildings selected.");
+            return;
+        }
+        var buids = "\"buids\":[";
+        for (var i = sz - 1; i > 0; i--) {
+            buids = buids + "\"" + $scope.example9modeledit[i].id + "\",";
+        }
+        buids = buids + "\"" + $scope.example9modeledit[0].id + "\"]";
+
+        reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
+
+        reqObj.buids = buids;
+
+
+        var promise = $scope.anyAPI.updateCampus(reqObj);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                document.getElementById("CampusIDeditnew").value = "";
+                _suc("Successfully updated campus.")
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong while updating campus. " + data.message);
+            }
+        );
+
+    };
+
+    $scope.deleteCampus = function () {
+
+        var b = $scope.anyService.getCampus();
+
+        var reqObj = $scope.creds;
+
+        if (!$scope.owner_id) {
+            _err("Could not identify user. Please refresh and sign in again.");
+            return;
+        }
+
+        reqObj.owner_id = $scope.owner_id;
+
+        if (!b || !b.cuid) {
+            _err("No Campus selected for deletion.");
+            return;
+        }
+
+        reqObj.cuid = b.cuid;
+
+        var promise = $scope.anyAPI.deleteCampus(reqObj);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                console.log("campus deleted: ", b);
+
+
+                var bs = $scope.myCampus;
+                var sz = bs.length;
+                for (var i = 0; i < sz; i++) {
+                    if (bs[i].cuid == b.cuid) {
+                        bs.splice(i, 1);
+                        break;
+                    }
+                }
+
+                // update the selected building
+                if ($scope.myCampus && $scope.myCampus.length > 0) {
+                    $scope.anyService.selectedCampus = $scope.myCampus[0];
+                }
+                else if ($scope.myCampus.length == 0) {
+                    $scope.anyService.selectedCampus = undefined;
+                }
+
+                $scope.setCrudTabSelected(1);
+
+                _suc("Successfully deleted campus.");
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong. It's likely that everything related to the campus is deleted but please refresh to make sure or try again.");
+            }
+        );
+
+    };
+
+    $scope.addCampus = function () {
+
+        var name_element = document.getElementById("CampusName");
+        var name = "\"name\":\"" + name_element.value + "\"";
+
+        if (document.getElementById("CampusDescription").value.localeCompare("") == 0) {
+            document.getElementById("CampusDescription").value = "-";
+        }
+
+        var des = document.getElementById("CampusDescription");
+        var des = "\"description\":\"" + des.value + "\"";
+
+        var mycuid = document.getElementById("CampusID");
+        var mycuid = "\"cuid\":\"" + mycuid.value + "\"";
+
+        var greeklish = document.getElementById("Greeklish-OnOff").checked;
+        greeklish = "\"greeklish\":\"" + greeklish + "\"";
+        var sz = $scope.example9model.length;
+
+        if (sz == 0) {
+            _err("No buildings selected.");
+            return;
+        }
+        var buids = "\"buids\":[";
+        for (var i = sz - 1; i > 0; i--) {
+            buids = buids + "\"" + $scope.example9model[i].id + "\",";
+        }
+        buids = buids + "\"" + $scope.example9model[0].id + "\"]";
+
+        var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
+        //alert(document.getElementById("Greeklish-OnOff").checked);
+        var promise = $scope.anyAPI.addBuildingSet(jreq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                var new_campus = {};
+                new_campus.name = document.getElementById("CampusName").value;
+                new_campus.buids = buids.buids;
+                new_campus.description = document.getElementById("CampusDescription").value;
+                new_campus.cuid = data.cuid;
+                $scope.myCampus.push(new_campus);
+                $scope.anyService.selectedCampus = $scope.myCampus[$scope.myCampus.length - 1];
+                _suc("Successfully added campus.");
+
+                function S4() {
+                    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+                }
+
+                var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+                var d = new Date();
+                document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong while adding the building. " + data.message);
+            }
+        );
+
+    };
+
+    var overlay = new google.maps.OverlayView();
+    overlay.draw = function () {
+    };
+    overlay.setMap(GMapService.gmap);
+
+    $("#draggable-building").draggable({
+        helper: 'clone',
+        stop: function (e) {
+            var point = new google.maps.Point(e.pageX, e.pageY);
+            var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
+            $scope.placeMarker(ll);
+            shipselect=0;
+        }
+    });
+
+// ship drag
+    $("#draggable-ship").draggable({
+
+        helper: 'clone',
+        stop: function (e) {
+            var point = new google.maps.Point(e.pageX, e.pageY);
+            var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
+            $scope.placeMarkership(ll);
+            shipselect=1;
+        }
+    });
+
+    $scope.placeMarkership = function (location) {
+
+        var prevMarker = $scope.myMarkers[$scope.myMarkerId - 1];
+
+        if (prevMarker && prevMarker.marker && prevMarker.marker.getMap() && prevMarker.marker.getDraggable()) {
+            // TODO: alert for already pending building.
+            console.log('there is a building pending, please add 1 at a time');
+            return;
+        }
+
+        var marker = new google.maps.Marker({
+            position: location,
+            map: GMapService.gmap,
+            icon: 'build/images/ship_icon.png',
+            draggable: true
+        });
+
+        var infowindow = new google.maps.InfoWindow({
+            content: '-',
+            maxWidth: 500
+        });
+
+        $scope.$apply(function () {
+            marker.myId = $scope.myMarkerId;
+            $scope.myMarkers[marker.myId] = {};
+            $scope.myMarkers[marker.myId].model = {
+                description: "",
+                name: undefined,
+                is_published: true,
+                address: "-",
+                url: "-",
+                bucode: ""
+            };
+            $scope.myMarkers[marker.myId].marker = marker;
+            $scope.myMarkers[marker.myId].infowindow = infowindow;
+            $scope.myMarkerId++;
+        });
+
+        var htmlContent = '<form name="buildingForm" class="infowindow-scroll-fix">'
+            + '<fieldset class="form-group">'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.bucode" id="building-code" type="text" class="form-control" placeholder="Building Code (Optional)"/>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="building-name" type="text" class="form-control" placeholder="Building Name *"/>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '</fieldset class="form-group">'
+            + '<div style="text-align: center;">'
+            + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
+            + '<button type="submit" class="btn btn-success add-any-button" ng-click="addNewBuilding(' + marker.myId + ')">'
+            + '<span class="glyphicon glyphicon-plus"></span> Add'
+            + '</button>'
+            + '</fieldset>'
+            + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+            + '<button class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempBuilding(' + marker.myId + ')"><span class="glyphicon glyphicon-remove"></span>'
+            + '</button>'
+            + '</fieldset>'
+            + '</div>'
+            + '</form>';
+
+        var htmlContent2 = '<div class="infowindow-scroll-fix">'
+            + '<h5 style="margin: 0">Building:</h5>'
+            + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
+            + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+            + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
+            + '</div>';
+
+        var tpl = $compile(htmlContent)($scope);
+        marker.tpl2 = $compile(htmlContent2)($scope);
+
+        infowindow.setContent(tpl[0]);
+        infowindow.open(GMapService.gmap, marker);
+
+        google.maps.event.addListener(marker, 'click', function () {
+            if (!infowindow.getMap()) {
+                infowindow.open(GMapService.gmap, marker);
+            }
+        });
+    };
+
+
+    $scope.placeMarker = function (location) {
+
+        var prevMarker = $scope.myMarkers[$scope.myMarkerId - 1];
+
+        if (prevMarker && prevMarker.marker && prevMarker.marker.getMap() && prevMarker.marker.getDraggable()) {
+            // TODO: alert for already pending building.
+            console.log('there is a building pending, please add 1 at a time');
+            return;
+        }
+
+        var marker = new google.maps.Marker({
+            position: location,
+            map: GMapService.gmap,
+            icon: 'build/images/building-icon.png',
+            draggable: true
+        });
+
+        var infowindow = new google.maps.InfoWindow({
+            content: '-',
+            maxWidth: 500
+        });
+
+        $scope.$apply(function () {
+            marker.myId = $scope.myMarkerId;
+            $scope.myMarkers[marker.myId] = {};
+            $scope.myMarkers[marker.myId].model = {
+                description: "",
+                name: undefined,
+                is_published: true,
+                address: "-",
+                url: "-",
+                bucode: ""
+            };
+            $scope.myMarkers[marker.myId].marker = marker;
+            $scope.myMarkers[marker.myId].infowindow = infowindow;
+            $scope.myMarkerId++;
+        });
+
+        var htmlContent = '<form name="buildingForm" class="infowindow-scroll-fix">'
+            + '<fieldset class="form-group">'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.bucode" id="building-code" type="text" class="form-control" placeholder="Building Code (Optional)"/>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="building-name" type="text" class="form-control" placeholder="Building Name *"/>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
+            + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '</fieldset class="form-group">'
+            + '<div style="text-align: center;">'
+            + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
+            + '<button type="submit" class="btn btn-success add-any-button" ng-click="addNewBuilding(' + marker.myId + ')">'
+            + '<span class="glyphicon glyphicon-plus"></span> Add'
+            + '</button>'
+            + '</fieldset>'
+            + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+            + '<button class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempBuilding(' + marker.myId + ')"><span class="glyphicon glyphicon-remove"></span>'
+            + '</button>'
+            + '</fieldset>'
+            + '</div>'
+            + '</form>';
+
+        var htmlContent2 = '<div class="infowindow-scroll-fix">'
+            + '<h5 style="margin: 0">Building:</h5>'
+            + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
+            + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+            + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
+            + '</div>';
+
+        var tpl = $compile(htmlContent)($scope);
+        marker.tpl2 = $compile(htmlContent2)($scope);
+
+        infowindow.setContent(tpl[0]);
+        infowindow.open(GMapService.gmap, marker);
+
+        google.maps.event.addListener(marker, 'click', function () {
+            if (!infowindow.getMap()) {
+                infowindow.open(GMapService.gmap, marker);
+            }
+        });
+    };
+
+    $scope.deleteTempBuilding = function (id) {
+        var myMarker = $scope.myMarkers[id];
+        if (myMarker && myMarker.marker) {
+            myMarker.marker.setMap(null);
+        }
+    };
+
+    /**
+     * building {
+     *  name:
+     *  description:
+     *  coordinates_lat:
+     *  coordinates_lon:
+     *  floors: [
+     *      0: {
+     *          pois: [
+     *              name:
+     *              description:
+     *              pois_type:
+     *              is_building_entrance:
+     *              coordinates_lat:
+     *              coordinates_lon:
+     *          ]
+     *      }
+     *  ];
+     * }
+     */
+    $scope.exportBuildingToJson = function () {
+        var result = {
+            building: {
+                floors: []
+            }
+        };
+
+        var building = $scope.anyService.selectedBuilding;
+        if (LPUtils.isNullOrUndefined(building)) {
+            _err('No building selected');
+            return;
+        }
+        result.building.buid = building.buid;
+        result.building.name = building.name;
+        result.building.description = building.description;
+        result.building.coordinates_lat = building.coordinates_lat;
+        result.building.coordinates_lon = building.coordinates_lon;
+
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building.buid;
+
+        var count = 0;
+
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                var floors = resp.data.floors;
+
+                var resFloors = [];
+
+                if (floors) {
+                    for (var i = 0; i < floors.length; i++) {
+
+                        (function (jreq) {
+                            var promise = AnyplaceAPIService.retrievePoisByBuildingFloor(jreq);
+                            promise.then(
+                                function (resp) {
+                                    var data = resp.data;
+
+                                    var poisArray = data.pois;
+
+                                    if (poisArray) {
+
+                                        var flPois = [];
+
+                                        var fNo = poisArray[0].floor_number;
+
+                                        for (var j = 0; j < poisArray.length; j++) {
+                                            var sPoi = poisArray[j];
+
+                                            if (sPoi.pois_type == "None") {
+                                                continue;
+                                            }
+                                            if (sPoi.overwrite) {
+                                                var tmp = {
+                                                    name: sPoi.name,
+                                                    description: sPoi.description,
+                                                    puid: sPoi.puid,
+                                                    pois_type: sPoi.pois_type,
+                                                    coordinates_lat: sPoi.coordinates_lat,
+                                                    coordinates_lon: sPoi.coordinates_lon,
+                                                    overwrite: sPoi.overwrite
+                                                };
+                                            }
+                                            else {
+                                                var tmp = {
+                                                    name: sPoi.name,
+                                                    description: sPoi.description,
+                                                    puid: sPoi.puid,
+                                                    pois_type: sPoi.pois_type,
+                                                    coordinates_lat: sPoi.coordinates_lat,
+                                                    coordinates_lon: sPoi.coordinates_lon,
+                                                    overwrite: "false"
+                                                };
+                                            }
+                                            flPois.push(tmp);
+                                        }
+
+                                        resFloors.push(
+                                            {
+                                                floor_number: fNo,
+                                                pois: flPois
+                                            }
+                                        );
+
+                                        count++;
+                                        if (count === floors.length) {
+                                            result.building.floors = resFloors;
+                                            _suc('Successfully exported ' + building.name + ' to JSON.');
+                                            var blob = new Blob([JSON.stringify(result, null, 4)], {type: "text/plain;charset=utf-8"});
+                                            saveAs(blob, building.name.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                                        }
+
+                                    }
+                                },
+                                function (resp) {
+                                    var data = resp.data;
+                                    console.log(data.message);
+                                });
+                        }({
+                            buid: building.buid,
+                            floor_number: floors[i].floor_number
+                        }));
+                    }
+                }
+            },
+            function (resp) {
+                // TODO: alert failure
+                console.log(resp.data.message);
+            }
+        );
+    };
+
+    /**
+     * campus {
+   "buids": [
+   ],
+   "description": "",
+   "name": "",
+   "owner_id": "",
+   "access_token": "",
+   "cuid": ""
+    }
+     * }
+     */
+    $scope.exportCampusToJson = function () {
+        var result = {
+            campus: {
+                buids: []
+            }
+        };
+
+        var campus = $scope.anyService.selectedCampus;
+        if (LPUtils.isNullOrUndefined(campus)) {
+            _err('No campus selected');
+            return;
+        }
+
+        result.campus.name = campus.name;
+        result.campus.description = campus.description;
+        result.campus.buids = campus.buids;
+
+        _suc('Successfully exported ' + campus.name + ' to JSON.');
+
+        var blob = new Blob([JSON.stringify(result, null, 4)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, campus.name.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+    };
+
+    function readSingleFile(e) {
+        var file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var contents = e.target.result;
+            $scope.fileToUpload = contents;
+        };
+        reader.readAsText(file);
+    }
+
+    document.getElementById('file-input')
+        .addEventListener('change', readSingleFile, false);
+
+    $scope.anyService.downloadlogfile = false;
+
+    $scope.importBuildingFromJson = function () {
+
+        $scope.anyService.progress = 0;
+        var i, j, count = 0, countok = 0;
+        if ($scope.fileToUpload == "") {
+            _err("Something went wrong no file selected");
+        }
+        var obj = JSON.parse($scope.fileToUpload);
+        for (i = 0; i < obj.building.floors.length; i++) {
+            for (j = 0; j < obj.building.floors[i].pois.length; j++) {
+                if (obj.building.floors[i].pois[j].overwrite == "true") {
+                    count++;
+                }
+            }
+        }
+        if (count == 0) {
+            _err("Something went wrong no pois to update");
+        }
+
+        for (i = 0; i < obj.building.floors.length; i++) {
+            for (j = 0; j < obj.building.floors[i].pois.length; j++) {
+                if (obj.building.floors[i].pois[j].overwrite == "true") {
+                    countok++;
+                    $scope.updatePoifromFile(obj.building.floors[i].pois[j].puid,
+                        obj.building.floors[i].pois[j].coordinates_lat,
+                        obj.building.floors[i].pois[j].coordinates_lon,
+                        obj.building.floors[i].pois[j].name,
+                        obj.building.floors[i].pois[j].description,
+                        obj.building.floors[i].pois[j].pois_type,
+                        obj.building.floors[i].pois[j].overwrite,
+                        obj.building.buid, i, j, count, countok,
+                        obj.building.name
+                    );
+                }
+            }
+        }
+    }
+
+    $scope.allpois = {};
+    $scope.pois = {};
+
+    $scope.importBuildingFromExcel = function (oEvent) {
+        $scope.anyService.progress = 0;
+        // Get The File From The Input
+        var oFile = document.getElementById('my_file_input').files[0];
+        $scope.fileToUpload = oFile.name;
+        // Create A File Reader HTML5
+        var reader = new FileReader();
+        // Ready The Event For When A File Gets Selected
+        reader.onload = function (e) {
+            var data = e.target.result;
+            var cfb = XLS.CFB.read(data, {type: 'binary'});
+            var wb = XLS.parse_xlscfb(cfb);
+            // Loop Over Each Sheet
+            wb.SheetNames.forEach(function (sheetName) {
+                // Obtain The Current Row As CSV
+                var oJS = XLS.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+                var last_buid = "";
+                $scope.uploadloop(0, oJS, last_buid);
+            });
+        };
+
+        // Tell JS To Start Reading The File.. You could delay this if desired
+        reader.readAsBinaryString(oFile);
+    }
+
+    $scope.uploadloop = function (potition, oJS, last_buid) {
+
+        for (var i = potition; i < oJS.length; i++) {
+            if (last_buid != oJS[i].buid && oJS[i].buid != undefined) {
+                $scope.pois = {};
+                last_buid = oJS[i].buid;
+                $scope.fetchAllPoisForBuilding(oJS[i].buid, oJS, i, last_buid);
+                return;
+            }
+            var description = "";
+
+            if (oJS[i].des3 != undefined && oJS[i].des3 != "" && oJS[i].des3 != null) {
+                if (oJS[i].des4 != undefined && oJS[i].des4 != "" && oJS[i].des4 != null) {
+                    description = description + oJS[i].des3 + " " + oJS[i].des4;
+                }
+                else {
+                    description = description + oJS[i].des3;
+                }
+            }
+            else {
+                if (oJS[i].des4 != undefined && oJS[i].des4 != "" && oJS[i].des4 != null) {
+                    description = description + oJS[i].des4;
+                }
+            }
+
+            if (oJS[i].des1 != undefined && oJS[i].des1 != "" && oJS[i].des1 != null) {
+                if (description != "") {
+                    description = description + "\n" + oJS[i].des1;
+                }
+                else {
+                    description = description + oJS[i].des1;
+                }
+            }
+
+            if (oJS[i].des2 != undefined && oJS[i].des2 != "" && oJS[i].des2 != null) {
+                if (description != "") {
+                    description = description + "\n" + oJS[i].des2;
+                }
+                else {
+                    description = description + oJS[i].des2;
+                }
+            }
+
+            $scope.anyService.progress = (i / (oJS.length - 1)) * 100;
+            if ((oJS.length - 1) == 0) $scope.anyService.progress = 100;
+
+            if ($scope.pois[oJS[i].name]) {
+                $scope.updatePoifromExcel($scope.pois[oJS[i].name].puid,
+                    $scope.pois[oJS[i].name].coordinates_lat,
+                    $scope.pois[oJS[i].name].coordinates_lon,
+                    $scope.pois[oJS[i].name].is_building_entrance,
+                    oJS[i].name,
+                    description,
+                    $scope.pois[oJS[i].name].pois_type,
+                    $scope.pois[oJS[i].name].overwrite,
+                    $scope.pois[oJS[i].name].buid,
+                    ""
+                );
+            }
+            else {
+                $scope.updatePoifromExcel("",
+                    "",
+                    "",
+                    "",
+                    oJS[i].name,
+                    description,
+                    "",
+                    "",
+                    "",
+                    ""
+                );
+            }
+
+        }
+    };
+
+    $scope.fetchAllPoisForBuilding = function (building, oJS, position, last_buid) {
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building;
+
+        var promise = AnyplaceAPIService.retrievePoisByBuilding(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+
+                $scope.myPois = data.pois;
+
+                var sz = $scope.myPois.length;
+                for (var i = sz - 1; i >= 0; i--) {
+                    var name = $scope.myPois[i].name;
+                    $scope.pois[name] = $scope.myPois[i];
+                }
+                $scope.uploadloop(position, oJS, last_buid);
+            },
+            function (resp) {
+                var data = resp.data;
+                _err("Something went wrong while fetching POIs");
+            }
+        );
+    };
+    $scope.logfile = {
+        pois: []
+    };
+    $scope.updatePoifromExcel = function (id, lat, lng, building_entrance, nm, des, ptype, ovwrite, bid, buildingname) {
+
+        var obj = {};
+
+        obj.username = $scope.creds.username;
+        obj.password = $scope.creds.password;
+        obj.owner_id = $scope.owner_id;
+
+        obj.coordinates_lat = lat;
+        obj.coordinates_lon = lng;
+
+        obj.is_building_entrance = building_entrance;
+        obj.name = nm;
+        obj.puid = id;
+        obj.description = des;
+        obj.pois_type = ptype;
+        obj.overwrite = "false";
+        obj.buid = bid;
+        // make the request at AnyplaceAPI
+        var promise = $scope.anyAPI.updatePois(obj);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                if ($scope.anyService.progress == 100) {
+
+                    if ($scope.anyService.downloadlogfile) {
+                        $scope.anyService.downloadlogfile = false;
+                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                        }, 2500);
+                    }
+                    else {
+                        _suc("Successfully updated POIs.");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                            location.reload();
+                        }, 2500);
+                    }
+                }
+            },
+            function (resp) {
+                var data = resp.data;
+                $scope.logfile.pois.push({
+                    "name": nm,
+                    "puid": id,
+                    "description": des,
+                    "status": "Something went wrong while updating POI."
+                });
+                $scope.anyService.downloadlogfile = true;
+                if ($scope.anyService.progress == 100) {
+                    $scope.anyService.downloadlogfile = false;
+                    _suc("Successfully updated POIs.A log file will be downloaded");
+                    var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                    saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                    $scope.logfile.pois = [];
+
+                    setTimeout(function () {
+                        $scope.anyService.progress = undefined;
+                    }, 2500);
+                }
+            }
+        );
+    };
+
+
+    $scope.updatePoifromFile = function (id, lat, lng, nm, des, ptype, ovwrite, bid, i, j, count, countok, buildingname) {
+
+        var obj = {};
+
+        obj.username = $scope.creds.username;
+        obj.password = $scope.creds.password;
+        obj.owner_id = $scope.owner_id;
+
+        obj.coordinates_lat = lat;
+        obj.coordinates_lon = lng;
+
+        obj.name = nm;
+        obj.puid = id;
+        obj.description = des;
+        obj.pois_type = ptype;
+        obj.overwrite = "false";
+        obj.buid = bid;
+        // make the request at AnyplaceAPI
+        var promise = $scope.anyAPI.updatePois(obj);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                $scope.anyService.progress = countok / count * 100;
+                if ($scope.anyService.progress == 100) {
+                    if ($scope.anyService.downloadlogfile) {
+                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                        }, 2500);
+                    }
+                    else {
+                        _suc("Successfully updated POIs.");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                            location.reload();
+                        }, 2500);
+                    }
+                }
+            },
+            function (resp) {
+                var data = resp.data;
+
+                $scope.logfile.pois.push({
+                    "name": nm,
+                    "puid": id,
+                    "description": des,
+                    "status": "Something went wrong while updating POI."
+                });
+
+                $scope.anyService.downloadlogfile = true;
+                $scope.anyService.progress = countok / count * 100;
+                if ($scope.anyService.progress == 100) {
+
+                    if ($scope.anyService.downloadlogfile) {
+                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        $scope.logfile.pois = [];
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                        }, 2500);
+                    }
+                    else {
+                        _suc("Successfully updated POIs.");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                            location.reload();
+                        }, 2500);
+                    }
+                }
+            }
+        );
+    };
+
+    $scope.Poisresult = {
+        building: {
+            floors: []
+        }
+    };
+
+    $scope.Connectionsresult = {
+        building: {}
+    };
+
+    $scope.zip = new JSZip();
+    $scope.DownloadBackup = function () {
+
+        var b = $scope.anyService.selectedBuilding;
+        var xFloors = [];
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = b.buid;
+        $scope.anyService.progress = 0;
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                xFloors = resp.data.floors;
+                var floor = 0;
+                var floor_number = "";
+                for (var i = 0; i < xFloors.length; i++) {
+                    if (i == 0) {
+                        floor_number = xFloors[i].floor_number;
+                    }
+                    else {
+                        floor_number = floor_number + " " + xFloors[i].floor_number;
+                    }
+                }
+                $scope.anyService.progress = 10;
+                var buid = b.buid;
+                var jsonReq2 = AnyplaceService.jsonReq;
+                var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floor_number);
+                promise2.then(
+                    function (resp) {
+                        // on success
+                        var data = resp.data;
+                        var img = $scope.zip.folder("floor_plans");
+                        for (var si = 0; si < data.all_floors.length; si++) {
+                            if (data.all_floors[si] != "") {
+                                img.file(xFloors[si].floor_number + ".png", data.all_floors[si], {base64: true});
+                            }
+                        }
+                        $scope.anyService.progress = 25;
+                        var jsonReq3 = AnyplaceService.jsonReq;
+                        jsonReq3.buid = buid;
+                        jsonReq3.floor = floor_number;
+                        var promise3 = AnyplaceAPIService.getRadioByBuildingFloorAll(jsonReq3);
+                        promise3.then(
+                            function (resp) {
+                                var data2 = resp.data;
+                                var logs = $scope.zip.folder("radiomaps");
+                                if (data2.rss_log_files) {
+                                    var urls = "";
+                                    for (var si2 = 0; si2 < data2.rss_log_files.length; si2++) {
+                                        logs.file(xFloors[si2].floor_number + "-radiomap.txt", data2.rss_log_files[si2]);
+                                    }
+                                }
+                                $scope.anyService.progress = 70;
+                                $scope.exportPoisBuildingToJson();
+                            },
+                            function (resp) {
+
+                            }
+                        );
+                    },
+                    function (resp) {
+                    }
+                );
+            },
+            function (resp) {
+                console.log(resp.data.message);
+                _err("Something went wrong while fetching all floors");
             }
         );
 
 
-
-    };
-
-
-
-    $scope.showFingerPrints = function () {
-
-        var jsonReq;
-        var promise;
-
-        if(($scope.fingerPrintsTimeMode || $scope.radioHeatmapRSSTimeMode) && userTimeData.length>0){
-            jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber(),"timestampX":userTimeData[0],"timestampY":userTimeData[1]};
-
-            jsonReq.username = $scope.creds.username;
-            jsonReq.password = $scope.creds.password;
-
-            if(_NOW_ZOOM !== _MAX_ZOOM_LEVEL) {
-
-
-                promise = $scope.anyAPI.getRadioHeatmapRSSByTime(jsonReq);
-            }else{
-
-                var layerID = 'my_custom_layer';
-                var layer = new google.maps.ImageMapType({
-                    name: layerID,
-                    getTileUrl: function(coord, zoom) {
-                        if(_NOW_ZOOM !== _MAX_ZOOM_LEVEL || !$scope.fingerPrintsTimeMode)
-                            return null;
-                        var jsonReqTiles = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber(),"timestampX":userTimeData[0],"timestampY":userTimeData[1]};
-
-                        jsonReqTiles.username = $scope.creds.username;
-                        jsonReqTiles.password = $scope.creds.password;
-                            jsonReqTiles.x = coord.x;
-                            jsonReqTiles.y = coord.y;
-                            jsonReqTiles.z = zoom;
-                            var tilePromise = $scope.anyAPI.getRadioHeatmapRSSByTime_Tiles(jsonReqTiles);
-
-                            tilePromise.then(
-                                function (resp) {
-
-                                        // on success
-                                        var data = resp.data;
-
-                                        var fingerPrintsData = [];
-
-                                        var i = resp.data.radioPoints.length;
-
-
-                                        while (i--) {
-                                            var rp = resp.data.radioPoints[i];
-
-                                            fingerPrintsData.push(
-                                                {location: new google.maps.LatLng(rp.x, rp.y)}
-                                            );
-                                            resp.data.radioPoints.splice(i, 1);
-                                        }
-
-                                        //create fringerPrint "map"
-                                        var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
-
-                                        var imgType = _FINGERPRINT_IMAGE;
-
-                                        var size = new google.maps.Size(21, 32);
-
-                                        i = fingerPrintsData.length;
-
-
-                                        while (i--) {
-                                            if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
-                                                var fingerPrint = new google.maps.Marker({
-                                                    position: fingerPrintsData[i].location,
-                                                    map: GMapService.gmap,
-                                                    icon: new google.maps.MarkerImage(
-                                                        imgType,
-                                                        null, /* size is determined at runtime */
-                                                        null, /* origin is 0,0 */
-                                                        null, /* anchor is bottom center of the scaled image */
-                                                        size
-                                                    )
-                                                });
-                                                fingerPrintsMap.push(
-                                                    fingerPrint
-                                                );
-                                            }
-
-                                        }
-                                        _FINGERPRINTS_IS_ON = true;
-
-
-
-                                },
-                                function (resp) {
-                                    // on error
-                                    var data = resp.data;
-                                    _err('Something went wrong while fetching fingerPrints.');
-                                    if (!$scope.fingerPrintsMode) {
-                                        document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                                        $scope.fingerPrintsMode = false;
-                                        if (typeof(Storage) !== "undefined" && localStorage) {
-                                            localStorage.setItem('fingerprintsMode', 'NO');
-                                        }
-                                    }
-                                }
-                            );
-
-                        return null;
-                    },
-                    tileSize: new google.maps.Size(256, 256),
-                    minZoom: 1,
-                    maxZoom: 22
-                });
-
-                GMapService.gmap.mapTypes.set(layerID, layer);
-                GMapService.gmap.setMapTypeId(layerID);
-            }
-
-        }else {
-
-            jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-            jsonReq.username = $scope.creds.username;
-            jsonReq.password = $scope.creds.password;
-
-
-            if(_NOW_ZOOM !== _MAX_ZOOM_LEVEL) {
-                promise = $scope.anyAPI.getRadioHeatmapRSS_3(jsonReq);
-            }else{
-
-                var layerID = 'my_custom_layer1';
-                var layer = new google.maps.ImageMapType({
-                    name: layerID,
-                    getTileUrl: function(coord, zoom) {
-                        if(_NOW_ZOOM !== _MAX_ZOOM_LEVEL || !$scope.fingerPrintsMode)
-                            return null;
-                        var jsonReqTiles = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-                        jsonReqTiles.username = $scope.creds.username;
-                        jsonReqTiles.password = $scope.creds.password;
-                        jsonReqTiles.x = coord.x;
-                        jsonReqTiles.y = coord.y;
-                        jsonReqTiles.z = zoom;
-                        var tilePromise = $scope.anyAPI.getRadioHeatmapRSS_3_Tiles(jsonReqTiles);
-
-                        tilePromise.then(
-                            function (resp) {
-
-                                // on success
-                                var data = resp.data;
-
-                                var fingerPrintsData = [];
-
-                                var i = resp.data.radioPoints.length;
-
-
-                                while (i--) {
-                                    var rp = resp.data.radioPoints[i];
-
-                                    fingerPrintsData.push(
-                                        {location: new google.maps.LatLng(rp.x, rp.y)}
-                                    );
-                                    resp.data.radioPoints.splice(i, 1);
-                                }
-
-                                //create fringerPrint "map"
-                                var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
-
-                                var imgType = _FINGERPRINT_IMAGE;
-
-                                var size = new google.maps.Size(21, 32);
-
-                                i = fingerPrintsData.length;
-
-
-                                while (i--) {
-                                    if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
-                                        var fingerPrint = new google.maps.Marker({
-                                            position: fingerPrintsData[i].location,
-                                            map: GMapService.gmap,
-                                            icon: new google.maps.MarkerImage(
-                                                imgType,
-                                                null, /* size is determined at runtime */
-                                                null, /* origin is 0,0 */
-                                                null, /* anchor is bottom center of the scaled image */
-                                                size
-                                            )
-                                        });
-                                        fingerPrintsMap.push(
-                                            fingerPrint
-                                        );
-                                    }
-
-                                }
-                                _FINGERPRINTS_IS_ON = true;
-
-
-
-                            },
-                            function (resp) {
-                                // on error
-                                var data = resp.data;
-                                _err('Something went wrong while fetching fingerPrints.');
-                                if (!$scope.fingerPrintsMode) {
-                                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                                    $scope.fingerPrintsMode = false;
-                                    if (typeof(Storage) !== "undefined" && localStorage) {
-                                        localStorage.setItem('fingerprintsMode', 'NO');
-                                    }
-                                }
-                            }
-                        );
-
-                        return null;
-                    },
-                    tileSize: new google.maps.Size(256, 256),
-                    minZoom: 1,
-                    maxZoom: 22
-                });
-
-                GMapService.gmap.mapTypes.set(layerID, layer);
-                GMapService.gmap.setMapTypeId(layerID);
-
-            }
-
-        }
-
-    if(promise!==undefined) {
-        promise.then(
-            function (resp) {
-
-            // on success
-            var data = resp.data;
-
-            var fingerPrintsData = [];
-
-            var i = resp.data.radioPoints.length;
-
-            if (i <= 0) {
-                if (!$scope.fingerPrintsTimeMode) {
-                    _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                    $scope.fingerPrintsMode = false;
-                    if (typeof(Storage) !== "undefined" && localStorage) {
-                        localStorage.setItem('fingerprintsMode', 'NO');
-                    }
-
-                } else {
-                    _err("No fingerprints at this period.\n Please choose another one.");
-                }
-                return;
-            }
-            if (_NOW_ZOOM == _MAX_ZOOM_LEVEL) {
-                while (i--) {
-                    var rp = resp.data.radioPoints[i];
-
-                    fingerPrintsData.push(
-                        {location: new google.maps.LatLng(rp.x, rp.y)}
-                    );
-                    resp.data.radioPoints.splice(i, 1);
-                }
-
-                //create fringerPrint "map"
-                var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
-
-                var imgType = _FINGERPRINT_IMAGE;
-
-                var size = new google.maps.Size(21, 32);
-
-                i = fingerPrintsData.length;
-
-
-                while (i--) {
-
-                    var fingerPrint = new google.maps.Marker({
-                        position: fingerPrintsData[i].location,
-                        map: GMapService.gmap,
-                        icon: new google.maps.MarkerImage(
-                            imgType,
-                            null, /* size is determined at runtime */
-                            null, /* origin is 0,0 */
-                            null, /* anchor is bottom center of the scaled image */
-                            size
-                        )
-                    });
-                    fingerPrintsMap.push(
-                        fingerPrint
-                    );
-
-                }
-                _FINGERPRINTS_IS_ON = true;
-            } else {
-
-
-                var heatMapData = [];
-                var c = 0;
-                while (i--) {
-                    var rp = resp.data.radioPoints[i];
-                    var rss = JSON.parse(rp.w); //count,average,total
-                    heatMapData.push(
-                        {location: new google.maps.LatLng(rp.x, rp.y), weight: 1}
-                    );
-                    var fingerPrint = new google.maps.Marker({
-                        position: heatMapData[c].location,
-                    });
-                    heatmapFingerprints.push(
-                        fingerPrint
-                    );
-                    resp.data.radioPoints.splice(i, 1);
-                    c++;
-                }
-
-
-                heatmap = new google.maps.visualization.HeatmapLayer({
-                    data: heatMapData
-                });
-                heatmap.setMap($scope.gmapService.gmap);
-
-                _HEATMAP_F_IS_ON = true;
-
-            }
-
-
-        },
-            function (resp) {
-            // on error
-            var data = resp.data;
-            _err('Something went wrong while fetching fingerPrints.');
-            if (!$scope.fingerPrintsMode) {
-                document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                $scope.fingerPrintsMode = false;
-                if (typeof(Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('fingerprintsMode', 'NO');
-                }
-            }
-        }
-    );
-}
-    };
-
-    $scope.showLocalizationAccHeatmap = function (){
-        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
-        var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);
-
-        promise.then(
-            function (resp) {
-
-                var values=  resp.data.crlb;
-                var data = resp.data.geojson.coordinates;
-
-                var i = data.length;
-
-                if (i <= 0) {
-                    _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
-                    $scope.localizationAccMode=false;
-                    if (typeof(Storage) !== "undefined" && localStorage) {
-                        localStorage.setItem('localizationAccMode', 'NO');
-                    }
-                    return;
-                }
-
-                var heatMapData = [];
-
-                fltr = function(v) { return !isNaN(v) && v != Number.POSITIVE_INFINITY };
-                var crlb_clamp = 5.0*4;
-                //console.log('crlbs: ', values);
-                values = values.map(function(v) { return fltr(v) ? Math.min(v, crlb_clamp) : crlb_clamp});
-                //console.log('crlbs clamp: ', values);
-                var crlb_max = crlb_clamp;
-                //console.log("crlb_max: ", crlb_max);
-                var weights = values.map(function(v) { return 1-Math.log(1.0 + v / crlb_max) });
-                //console.log('weights: ', weights);
-
-
-                while (i--) {
-                    var rp = data[i];
-                    heatMapData.push(
-                        {
-                            location: new google.maps.LatLng(rp[0], rp[1]),
-                            // weight: values[i]
-                            weight: weights[i]
-                        }
-                    );
-
-
-                    data.splice(i, 1);
-                }
-
-                heatmapAcc = new google.maps.visualization.HeatmapLayer({
-                    data: heatMapData
-                });
-
-                var gradient = [
-                    'rgba(0, 255, 255, 0)',
-                    'rgba(0, 255, 255, 1)',
-                    'rgba(0, 191, 255, 1)',
-                    'rgba(0, 127, 255, 1)',
-                    'rgba(0, 63, 255, 1)',
-                    'rgba(0, 0, 255, 1)',
-                    'rgba(0, 0, 223, 1)',
-                    'rgba(0, 0, 191, 1)',
-                    'rgba(0, 0, 159, 1)',
-                    'rgba(0, 0, 127, 1)',
-                    'rgba(63, 0, 91, 1)',
-                    'rgba(127, 0, 63, 1)',
-                    'rgba(191, 0, 31, 1)',
-                    'rgba(255, 0, 0, 1)'
-                ];
-
-
-
-                heatmapAcc.set('gradient', gradient);
-
-                heatmapAcc.set('radius', 20);
-
-                heatmapAcc.setMap($scope.gmapService.gmap);
-
-
-            }, function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching fingerPrints.');
-                document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
-                $scope.localizationAccMode=false;
-                if (typeof(Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('localizationAccMode', 'NO');
-                }
-            }
-    );
-
-
-    };
-
-    $scope.showConnections = function () {
-
-        for (var key in connectionsMap) {
-            if (connectionsMap.hasOwnProperty(key)) {
-                var con = connectionsMap[key];
-                if (con && con.polyLine) {
-                    con.polyLine.setMap(GMapService.gmap);
-                }
-            }
-        }
-
-        _CONNECTIONS_IS_ON = true;
-        $scope._CONNECTIONS_IS_ON = true;
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('connectionsMode', 'YES');
-        }
-        $scope.anyService.setAllConnection(connectionsMap);
-
-    };
-
-    //zoom handler for clustering
-
-    GMapService.gmap.addListener('zoom_changed', function () {
-        _NOW_ZOOM = GMapService.gmap.getZoom();
-
-        if(_NOW_ZOOM!==_MAX_ZOOM_LEVEL){
-
-            var i = fingerPrintsMap.length;
-
-            //hide fingerPrints
-            while (i--) {
-                fingerPrintsMap[i].setMap(null);
-                fingerPrintsMap[i] = null;
-            }
-            fingerPrintsMap = [];
-        }
-
-        if (_HEATMAP_RSS_IS_ON) {
-            if ((_PREV_ZOOM == MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM > _PREV_ZOOM) || (_PREV_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _PREV_ZOOM < MAX_ZOOM_FOR_HEATMAPS && (_NOW_ZOOM <= MIN_ZOOM_FOR_HEATMAPS || _NOW_ZOOM >= MAX_ZOOM_FOR_HEATMAPS)) || (_PREV_ZOOM == MAX_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < _PREV_ZOOM)) {
-                var i = heatMap.length;
-                while (i--) {
-                    heatMap[i].rectangle.setMap(null);
-                    heatMap[i] = null;
-                }
-                heatMap = [];
-
-                $scope.showRadioHeatmapRSS();
-            }
-        }
-        if ((_FINGERPRINTS_IS_ON || (heatmap && heatmap.getMap())) && !changedfloor) {
-            if (_NOW_ZOOM == _MAX_ZOOM_LEVEL || _PREV_ZOOM == _MAX_ZOOM_LEVEL) {
-                var i = fingerPrintsMap.length;
-                while (i--) {
-                    fingerPrintsMap[i].setMap(null);
-                    fingerPrintsMap[i] = null;
-                }
-                fingerPrintsMap = [];
-
-                if (heatmap && heatmap.getMap()) {
-                    heatmap.setMap(null);
-                    var i=heatmapFingerprints.length;
-                    while(i--){
-                        heatmapFingerprints[i]=null;
-                    }
-                    heatmapFingerprints=[];
-                    _HEATMAP_F_IS_ON=false;
-                }
-
-                $scope.showFingerPrints();
-            }
-        }
-        _PREV_ZOOM = _NOW_ZOOM;
-    });
-
-
-    $scope.selectFilterForAPs=function() {
-
-        var option = $scope.selected;
-        switch (option) {
-            case '0': {
-                $scope.filterByMAC = true;
-                $scope.filterByMAN = false;
-                break;
-            }
-            default: {
-                $scope.filterByMAC = false;
-                $scope.filterByMAN = true;
-                break;
-            }
-
-         }
-
-    };
-    $scope.multiuserevents = {
-
-        onItemDeselect: function (item) {
-            i = APmap.length;
-            while (i--) {
-                if (APmap[i].id == item.id) {
-                    APmap[i].setVisible(false);
-                    break;
-                }
-            }
-
-        },
-        onItemSelect: function (item) {
-            i = APmap.length;
-
-            while (i--) {
-                if (APmap[i].id == item.id) {
-                    APmap[i].setVisible(true);
-                    break;
-                }
-            }
-
-        },
-        onDeselectAll: function () {
-            i = APmap.length;
-            while (i--) {
-                APmap[i].setVisible(false);
-
-
-            }
-        }
-
-    };
-
-    $scope.multiuserevents1 = {
-
-        onItemDeselect: function (item) {
-            i = APmap.length;
-            while (i--) {
-                if (APmap[i].mun == item.id) {
-                    APmap[i].setVisible(false);
-                    break;
-                }
-            }
-
-        },
-        onItemSelect: function (item) {
-            i = APmap.length;
-
-            while (i--) {
-                if (APmap[i].mun == item.id) {
-                    APmap[i].setVisible(true);
-                    break;
-                }
-            }
-
-        },
-        onDeselectAll: function () {
-            i = APmap.length;
-            while (i--) {
-                APmap[i].setVisible(false);
-
-
-            }
-        }
-
-    };
-
-    function plotGraphs(timestamps) {
-        // Various formatters.
-        var formatNumber = d3.format(",d");
-
-        // A little coercion, since the CSV is untyped.
-        timestamps.forEach(function (d, i) {
-            d.index = i;
-            d.date = parseDate(d.date);
-
-        });
-
-        // Create the crossfilter for the relevant dimensions and groups.
-        var timestamp = crossfilter(timestamps),
-            all = timestamp.groupAll(),
-            date = timestamp.dimension(function (d) {
-                return d.date;
-            }),
-            dates = date.group(d3.time.day).reduceSum(function (d) {
-                return d.count;
-            });
-
-        var dateToString=timestamps[timestamps.length - 1].date.toString();
-        var endDate= new Date(dateToString);
-         endDate.setDate(endDate.getDate() + 15);
-
-        var charts = [
-
-            barChart()
-                .dimension(date)
-                .group(dates)
-                .round(d3.time.day.round)
-                .x(d3.time.scale()
-                    .domain([timestamps[0].date, endDate])
-                    .rangeRound([0, 10 * 100])) //90
-                .filter([timestamps[0].date, endDate])
-
-        ];
-
-        // Given our array of charts, which we assume are in the same order as the
-        // .chart elements in the DOM, bind the charts to the DOM and render them.
-        // We also listen to the chart's brush events to update the display.
-        var chart = d3.selectAll(".chart")
-            .data(charts)
-            .each(function (chart) {
-                chart.on("brush", renderAll).on("brushend", renderAll);
-            });
-
-
-        // Render the total.
-        d3.selectAll("#total")
-            .text(formatNumber(timestamp.size()));
-
-        renderAll();
-
-        // Renders the specified chart or list.
-        function render(method) {
-            d3.select(this).call(method);
-        }
-
-        // Whenever the brush moves, re-rendering everything.
-        function renderAll() {
-            chart.each(render);
-            d3.select("#active").text(formatNumber(all.value()));
-        }
-
-        //parse to date
-        function parseDate(d) {
-
-            return new Date((d / 1000) * 1000);
-
-        }
-
-        window.filter = function (filters) {
-            filters.forEach(function (d, i) {
-                charts[i].filter(d);
-            });
-            renderAll();
-        };
-
-        window.reset = function (i) {
-            charts[i].filter(null);
-            renderAll();
-        };
-
-        function barChart() {
-            if (!barChart.id) barChart.id = 0;
-
-            var margin = {top: 10, right: 10, bottom: 20, left: 10},
-                x,
-                y = d3.scale.linear().range([100, 0]),
-                id = barChart.id++,
-                axis = d3.svg.axis().orient("bottom"),
-                brush = d3.svg.brush(),
-                brushDirty,
-                dimension,
-                group,
-                round;
-
-
-            function chart(div) {
-                var width = x.range()[1],
-                    height = y.range()[0];
-
-                y.domain([0, group.top(1)[0].value]);
-
-                div.each(function () {
-                    var div = d3.select(this),
-                        g = div.select("g");
-
-                    // Create the skeletal chart.
-                    if (g.empty()) {
-                        div.select(".title").append("a")
-                            .attr("href", "javascript:reset(" + id + ")")
-                            .attr("class", "reset")
-                            .text("reset")
-                            .style("display", "none");
-
-                        g = div.append("svg")
-                            .attr("width", width + margin.left + margin.right)
-                            .attr("height", height + margin.top + margin.bottom)
-                            .append("g")
-                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-                        g.append("clipPath")
-                            .attr("id", "clip-" + id)
-                            .append("rect")
-                            .attr("width", width)
-                            .attr("height", height);
-
-                        g.selectAll(".bar")
-                            .data(["background", "foreground"])
-                            .enter().append("path")
-                            .attr("class", function (d) {
-                                return d + " bar";
-                            })
-                            .datum(group.all());
-
-                        g.selectAll(".foreground.bar")
-                            .attr("clip-path", "url(#clip-" + id + ")");
-
-                        g.append("g")
-                            .attr("class", "axis")
-                            .attr("transform", "translate(0," + height + ")")
-                            .call(axis);
-
-                        // Initialize the brush component with pretty resize handles.
-                        var gBrush = g.append("g").attr("class", "brush").call(brush);
-                        gBrush.selectAll("rect").attr("height", height);
-                        gBrush.selectAll(".resize").append("path").attr("d", resizePath);
-                    }
-
-                    // Only redraw the brush if set externally.
-                    if (brushDirty) {
-                        brushDirty = false;
-                        g.selectAll(".brush").call(brush);
-                        div.select(".title a").style("display", brush.empty() ? "none" : null);
-                        if (brush.empty()) {
-                            g.selectAll("#clip-" + id + " rect")
-                                .attr("x", 0)
-                                .attr("width", width);
-                        } else {
-                            var extent = brush.extent();
-                            g.selectAll("#clip-" + id + " rect")
-                                .attr("x", x(extent[0]))
-                                .attr("width", x(extent[1]) - x(extent[0]));
-                        }
-                    }
-
-                    g.selectAll(".bar").attr("d", barPath);
-
-                });
-
-                function barPath(groups) {
-                    var path = [],
-                        i = -1,
-                        n = groups.length,
-                        d;
-                    while (++i < n) {
-                        d = groups[i];
-                        path.push("M", x(d.key), ",", height, "V", y(d.value), "h9V", height);
-                    }
-                    return path.join("");
-                }
-
-                function resizePath(d) {
-                    var e = +(d == "e"),
-                        x = e ? 1 : -1,
-                        y = height / 3;
-                    return "M" + (.5 * x) + "," + y
-                        + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
-                        + "V" + (2 * y - 6)
-                        + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
-                        + "Z"
-                        + "M" + (2.5 * x) + "," + (y + 8)
-                        + "V" + (2 * y - 8)
-                        + "M" + (4.5 * x) + "," + (y + 8)
-                        + "V" + (2 * y - 8);
-                }
-            }
-
-
-            brush.on("brushstart.chart", function () {
-                var div = d3.select(this.parentNode.parentNode.parentNode);
-                div.select(".title a").style("display", null);
-            });
-
-            brush.on("brush.chart", function () {
-                var g = d3.select(this.parentNode),
-                    extent = brush.extent();
-                if (round) g.select(".brush")
-                    .call(brush.on('brushend',bindSelect))
-                    .selectAll(".resize")
-                    .style("display", null);
-                g.select("#clip-" + id + " rect")
-                    .attr("x", x(extent[0]))
-                    .attr("width", x(extent[1]) - x(extent[0]));
-                dimension.filterRange(extent);
-
-
-                //handler for user's selection
-                function bindSelect(){
-
-                    initializeTimeFunction();
-
-                    extent = brush.extent(); //data of selection
-
-                    userTimeData=[];
-
-                    extent.forEach(function (element) {
-                        var t = String(element.getTime() / 1000 * 1000);
-                        userTimeData.push(t);
-                    });
-
-                    if($scope.fingerPrintsMode) {
-                        clearFingerPrints();
-
-                        $scope.showFingerPrints();
-
-                        document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-
-                    }
-
-                    if($scope.radioHeatmapRSSMode) {
-                        clearRadioHeatmap();
-
-                        $scope.showRadioHeatmapRSS();
-                        $scope.radioHeatmapRSSMode = true;
-                        if (typeof(Storage) !== "undefined" && localStorage) {
-                            localStorage.setItem('radioHeatmapRSSMode', 'YES');
-                        }
-                        $scope.anyService.radioHeatmapRSSMode = true;
-                        document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
-
-                    }
-
-                }
-            });
-
-            brush.on("brushend.chart", function () {
-                if (brush.empty()) {
-                    var div = d3.select(this.parentNode.parentNode.parentNode);
-                    div.select(".title a").style("display", "none");
-                    div.select("#clip-" + id + " rect").attr("x", null).attr("width", "100%");
-                    dimension.filterAll();
-                }
-            });
-
-            chart.margin = function (_) {
-                if (!arguments.length) return margin;
-                margin = _;
-                return chart;
-            };
-
-            chart.x = function (_) {
-                if (!arguments.length) return x;
-                x = _;
-                axis.scale(x);
-                brush.x(x);
-                return chart;
-            };
-
-            chart.y = function (_) {
-                if (!arguments.length) return y;
-                y = _;
-                return chart;
-            };
-
-            chart.dimension = function (_) {
-                if (!arguments.length) return dimension;
-                dimension = _;
-                return chart;
-            };
-
-            chart.filter = function (_) {
-                if (_) {
-                    brush.extent(_);
-                    dimension.filterRange(_);
-                } else {
-                    brush.clear();
-                    dimension.filterAll();
-                }
-                brushDirty = true;
-                return chart;
-            };
-
-            chart.group = function (_) {
-                if (!arguments.length) return group;
-                group = _;
-                return chart;
-            };
-
-            chart.round = function (_) {
-                if (!arguments.length) return round;
-                round = _;
-                return chart;
-            };
-
-            return d3.rebind(chart, brush, "on");
-        }
-
     }
 
-    //set localstorage
+    $scope.exportPoisBuildingToJson = function () {
 
+        var building = $scope.anyService.selectedBuilding;
+        if (LPUtils.isNullOrUndefined(building)) {
+            _err('No building selected');
+            return;
+        }
+        $scope.Poisresult.building.buid = building.buid;
+        $scope.Poisresult.building.name = building.name;
+        $scope.Poisresult.building.description = building.description;
+        $scope.Poisresult.building.coordinates_lat = building.coordinates_lat;
+        $scope.Poisresult.building.coordinates_lon = building.coordinates_lon;
 
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building.buid;
 
+        var count = 0;
 
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                var floors = resp.data.floors;
 
+                var resFloors = [];
+                $scope.anyService.progress = 80;
+                if (floors) {
+                    for (var i = 0; i < floors.length; i++) {
 
+                        (function (jreq) {
+                            var promise = AnyplaceAPIService.retrievePoisByBuildingFloor(jreq);
+                            promise.then(
+                                function (resp) {
+                                    var data = resp.data;
+
+                                    var poisArray = data.pois;
+
+                                    if (poisArray) {
+
+                                        var flPois = [];
+
+                                        if (poisArray[0] != undefined) {
+                                            var fNo = poisArray[0].floor_number;
+
+                                            for (var j = 0; j < poisArray.length; j++) {
+                                                var sPoi = poisArray[j];
+
+                                                if (sPoi.pois_type == "None") {
+                                                    continue;
+                                                }
+                                                if (sPoi.overwrite) {
+                                                    var tmp = {
+                                                        name: sPoi.name,
+                                                        description: sPoi.description,
+                                                        puid: sPoi.puid,
+                                                        pois_type: sPoi.pois_type,
+                                                        coordinates_lat: sPoi.coordinates_lat,
+                                                        coordinates_lon: sPoi.coordinates_lon,
+                                                        overwrite: sPoi.overwrite
+                                                    };
+                                                }
+                                                else {
+                                                    var tmp = {
+                                                        name: sPoi.name,
+                                                        description: sPoi.description,
+                                                        puid: sPoi.puid,
+                                                        pois_type: sPoi.pois_type,
+                                                        coordinates_lat: sPoi.coordinates_lat,
+                                                        coordinates_lon: sPoi.coordinates_lon,
+                                                        overwrite: "false"
+                                                    };
+                                                }
+
+                                                if (sPoi.is_building_entrance == 'true') {
+                                                    tmp.is_building_entrance = 'true';
+                                                }
+                                                else {
+                                                    tmp.is_building_entrance = 'false';
+                                                }
+
+                                                flPois.push(tmp);
+                                            }
+
+                                            resFloors.push(
+                                                {
+                                                    floor_number: fNo,
+                                                    pois: flPois
+                                                }
+                                            );
+                                        }
+                                        count++;
+                                        if (count === floors.length) {
+                                            $scope.Poisresult.building.floors = resFloors;
+                                            $scope.zip.file("allpois.json", JSON.stringify($scope.Poisresult, null, 4));
+                                            $scope.anyService.progress = 90;
+                                            $scope.exportConnectionBuildingToJson();
+                                        }
+
+                                    }
+                                },
+                                function (resp) {
+                                    var data = resp.data;
+                                    console.log(data.message);
+                                });
+                        }({
+                            buid: building.buid,
+                            floor_number: floors[i].floor_number
+                        }));
+                    }
+                }
+            },
+            function (resp) {
+                // TODO: alert failure
+                console.log(resp.data.message);
+            }
+        );
+    };
+
+    $scope.exportConnectionBuildingToJson = function () {
+
+        var building = $scope.anyService.selectedBuilding;
+        if (LPUtils.isNullOrUndefined(building)) {
+            _err('No building selected');
+            return;
+        }
+        $scope.Connectionsresult.building.buid = building.buid;
+        $scope.Connectionsresult.building.name = building.name;
+        $scope.Connectionsresult.building.description = building.description;
+        $scope.Connectionsresult.building.coordinates_lat = building.coordinates_lat;
+        $scope.Connectionsresult.building.coordinates_lon = building.coordinates_lon;
+
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building.buid;
+
+        var count = 0;
+
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                var floors = resp.data.floors;
+
+                var resFloors = [];
+
+                if (floors) {
+                    for (var i = 0; i < floors.length; i++) {
+
+                        (function (jreq) {
+                            var promise = AnyplaceAPIService.retrieveConnectionsByBuildingFloor(jreq);
+                            promise.then(
+                                function (resp) {
+                                    $scope.anyService.progress = 100;
+                                    var data = resp.data;
+
+                                    var connArray = data.connections;
+
+                                    if (connArray) {
+
+                                        var flConnections = [];
+
+                                        if (connArray[0] != undefined) {
+
+                                            var fNo = connArray[0].floor_a;
+
+                                            for (var j = 0; j < connArray.length; j++) {
+                                                var sConnection = connArray[j];
+
+                                                var tmp = {
+                                                    name: sConnection.name,
+                                                    description: sConnection.description,
+                                                    cuid: sConnection.puid,
+                                                    weight: sConnection.weight,
+                                                    pois_a: sConnection.pois_a,
+                                                    pois_b: sConnection.pois_b,
+                                                    floor_a: sConnection.floor_a,
+                                                    floor_b: sConnection.floor_b,
+                                                    is_published: sConnection.is_published,
+                                                    buid_a: sConnection.buid_a,
+                                                    buid_b: sConnection.buid_b
+                                                };
+
+                                                flConnections.push(tmp);
+                                            }
+
+                                            resFloors.push(
+                                                {
+                                                    floor_number: fNo,
+                                                    connections: flConnections
+                                                }
+                                            );
+                                        }
+                                        count++;
+
+                                        if (count === floors.length) {
+
+                                            $scope.Connectionsresult.building.floors = resFloors;
+                                            $scope.zip.file("allconnections.json", JSON.stringify($scope.Connectionsresult, null, 4));
+
+                                            $scope.zip.generateAsync({type: "blob"})
+                                                .then(function (content) {
+                                                    // see FileSaver.js
+                                                    saveAs(content, building.buid + ".zip");
+                                                });
+                                            $scope.anyService.progress = undefined;
+                                        }
+                                    }
+                                },
+                                function (resp) {
+                                    var data = resp.data;
+                                    console.log(data.message);
+                                });
+                        }({
+                            buid: building.buid,
+                            floor_number: floors[i].floor_number
+                        }));
+                    }
+                }
+            },
+            function (resp) {
+                console.log(resp.data.message);
+            }
+        );
+    };
+
+    //set cookies
+
+    $('#dismiss').on('click', function () {
+        // set expire date.
+        if (typeof(Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('dismissClicked', 'YES');
+        }
+
+    });
+
+    if (localStorage.getItem('dismissClicked') !== 'YES') {
+        function showWelcomeMessage() {
+            $('#myModal_Welcome').modal('show');
+        }
+
+        window.onload = showWelcomeMessage;
+    }
 
 }]);

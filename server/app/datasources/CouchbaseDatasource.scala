@@ -327,6 +327,7 @@ class CouchbaseDatasource private(hostname: String,
     pois
   }
 
+
   override def floorsByBuildingAsJson(buid: String): List[JsonObject] = {
     val floors = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
@@ -1035,7 +1036,8 @@ class CouchbaseDatasource private(hostname: String,
       }
     }
     //allPoisSide.put(cuid2,);
-    if (allPoisbycuid.get(cuid2) == null) {
+    if (allPoisbycuid.get(cuid2) == null)
+    {
       System.out.println("LOAD CUID:" + cuid2)
       var i = 0
       for (i <- 0 until buildingSet.get(0).getArray("buids").size) {

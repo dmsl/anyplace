@@ -1,5 +1,7 @@
 package acces
 
+import java.io.PrintWriter
+
 import breeze.linalg.{*, DenseMatrix, DenseVector, argsort, diag, max, min, sum, svd}
 import breeze.numerics.exp
 import breeze.stats.meanAndVariance
@@ -71,7 +73,7 @@ class AccesRBF(
   }
   val _selected_features: IndexedSeq[Int] = select_features(Y=Y, Y_min=_Y_min, Y_max=_Y_max,
     cut_k_features.getOrElse(Y.cols), drop_redundant = drop_redundant_features)
-//  val _Y_normed = normalize_Y(
+  //  val _Y_normed = normalize_Y(
   //      Y=(Y(::, _selected_features)).toDenseMatrix,
   //      Y_means=(_Y_means(_selected_features)).toDenseVector)
   val _Y_normed = normalize_Y( Y=Y, Y_means=_Y_means)
@@ -141,19 +143,19 @@ class AccesRBF(
             println(inds)
             break
           }
-//          if (~=(scores(ind), 0.0, 0.00001)) {
-//            inds = inds.slice(0, i)
-//            println(inds)
-//            break
-//          }
+          //          if (~=(scores(ind), 0.0, 0.00001)) {
+          //            inds = inds.slice(0, i)
+          //            println(inds)
+          //            break
+          //          }
         }
       }
     }
     inds = inds.slice(0, min(inds.length, k))
     inds = inds.sorted
 
-//    println("new inds", inds)
-//    println("new scores", scores(inds).toDenseVector)
+    //    println("new inds", inds)
+    //    println("new scores", scores(inds).toDenseVector)
 
     return inds
   }
@@ -194,7 +196,7 @@ class AccesRBF(
     println("noise_0", noise_0)
 
     val sfs: DenseVector[Double] = this._sfs.getOrElse(sf_0)
-//    var gammas = sfs
+    //    var gammas = sfs
     val gammas: DenseVector[Double] = this._gammas.getOrElse(0.5 / (l_0 :* l_0))
     val noises: DenseVector[Double] = this._noises.getOrElse(noise_0)
 
@@ -215,22 +217,22 @@ class AccesRBF(
       var noiseLogStdDev: Double = log(noises(i))
 
       val model = if (estimate) {
-//        println("estimate")
-//        println("estimate: X", X.toDenseVector)
-//        println("estimate: Y", (Y(::, i)).toDenseVector)
+        //        println("estimate")
+        //        println("estimate: X", X.toDenseVector)
+        //        println("estimate: Y", (Y(::, i)).toDenseVector)
         var model_est = gpr(X, (Y(::, i)).toDenseVector, covFunc, covFuncParams, noiseLogStdDev)
-//        println("estimate: covFuncParams", model_est.covFuncParams)
-//        println("estimate: noiseLogStdDev", model_est.noiseLogStdDev)
-//        println("estimate: sf", exp(model_est.covFuncParams(0)))
+        //        println("estimate: covFuncParams", model_est.covFuncParams)
+        //        println("estimate: noiseLogStdDev", model_est.noiseLogStdDev)
+        //        println("estimate: sf", exp(model_est.covFuncParams(0)))
         model_est
       } else {
-//        println("no estimate")
+        //        println("no estimate")
         GprModel(X, (Y(::, i)).toDenseVector, covFunc, covFuncParams, noiseLogStdDev)
       }
 
       val v = DenseVector.zeros[Double](1)
       v(0) = 10
-//      println("v", v)
+      //      println("v", v)
 
 
       sfs(i) = exp(model.covFuncParams(0))
@@ -241,26 +243,26 @@ class AccesRBF(
 
       Ms(i) = {
         val kXX = model.calcKXX()
-//        println("kXX", kXX.toDenseVector)
-//        try{
-          val kXXInv = model.calcKXXInv(kXX)
-          kXXInv
-//        } catch {
-//          case _ : breeze.linalg.MatrixSingularException => {
-//            println("Singular kXX matrix!")
-//            diag(DenseVector.ones[Double](n)*Double.PositiveInfinity)
-//          }
-//        }
+        //        println("kXX", kXX.toDenseVector)
+        //        try{
+        val kXXInv = model.calcKXXInv(kXX)
+        kXXInv
+        //        } catch {
+        //          case _ : breeze.linalg.MatrixSingularException => {
+        //            println("Singular kXX matrix!")
+        //            diag(DenseVector.ones[Double](n)*Double.PositiveInfinity)
+        //          }
+        //        }
       }
 
     }
 
-//    println("new parameters for col 0")
-//    println("new Ms", Ms(0).toDenseVector)
-//    println("new sfs", sfs(0))
-//    println("new gammas", gammas(0))
-//    println("new ls", sqrt(0.5 / gammas(0)))
-//    println("new noises", noises(0))
+    //    println("new parameters for col 0")
+    //    println("new Ms", Ms(0).toDenseVector)
+    //    println("new sfs", sfs(0))
+    //    println("new gammas", gammas(0))
+    //    println("new ls", sqrt(0.5 / gammas(0)))
+    //    println("new noises", noises(0))
 
 
     this._Ms = Option(Ms)
@@ -335,11 +337,11 @@ class AccesRBF(
   }
 
   def get_u(M: DenseMatrix[Double], y: DenseVector[Double], k: DenseVector[Double]) : Double = {
-      return (k.t * M) * y
+    return (k.t * M) * y
   }
 
   def get_grad_u(M: DenseMatrix[Double], y: DenseVector[Double], grad_k: DenseMatrix[Double]): DenseVector[Double] = {
-      return grad_k.t * (M * y)
+    return grad_k.t * (M * y)
   }
 
   def get_H_u(M: DenseMatrix[Double], y: DenseVector[Double], H_ks: Array[DenseMatrix[Double]]): DenseMatrix[Double] = {
@@ -364,12 +366,12 @@ class AccesRBF(
     tmp *= 2.0
     return tmp
 
-//    return - grad_k.t * (M * k) - ((k.t * M) * grad_k).t
+    //    return - grad_k.t * (M * k) - ((k.t * M) * grad_k).t
   }
 
   def get_H_s(M: DenseMatrix[Double], k: DenseVector[Double],
-               s: Double, grad_s: DenseVector[Double],
-               grad_k: DenseMatrix[Double], H_ks: Array[DenseMatrix[Double]]): DenseMatrix[Double] = {
+              s: Double, grad_s: DenseVector[Double],
+              grad_k: DenseMatrix[Double], H_ks: Array[DenseMatrix[Double]]): DenseMatrix[Double] = {
     val n = M.rows
     val d = H_ks(0).rows
     assert(H_ks(0).rows == H_ks(0).cols)
@@ -391,8 +393,8 @@ class AccesRBF(
   }
 
   def get_H_u_1_s2(u: Double, s: Double,
-                    grad_u: DenseVector[Double], grad_s: DenseVector[Double],
-                    H_u: DenseMatrix[Double], H_1_s2: DenseMatrix[Double]): DenseMatrix[Double] = {
+                   grad_u: DenseVector[Double], grad_s: DenseVector[Double],
+                   H_u: DenseMatrix[Double], H_1_s2: DenseMatrix[Double]): DenseMatrix[Double] = {
     var ret = H_u / scala.math.pow(s, 2.0)
     ret += - 2.0 / scala.math.pow(s, 3.0) * (grad_s * grad_u.t + grad_u * grad_s.t)
     ret += u * H_1_s2
@@ -400,8 +402,8 @@ class AccesRBF(
   }
 
   def get_H_u2_1_s2(u: Double, s: Double,
-                          grad_u: DenseVector[Double], grad_s: DenseVector[Double],
-                          H_1_s2: DenseMatrix[Double], H_u_1_s2: DenseMatrix[Double]): DenseMatrix[Double] = {
+                    grad_u: DenseVector[Double], grad_s: DenseVector[Double],
+                    H_1_s2: DenseMatrix[Double], H_u_1_s2: DenseMatrix[Double]): DenseMatrix[Double] = {
 
     var ret = 2.0 * u * H_u_1_s2
     ret += 2.0 / scala.math.pow(s, 2.0) * grad_u * grad_u.t
@@ -417,8 +419,8 @@ class AccesRBF(
     val x_normed = if (normalize_x) {
       normalize_X(x.toDenseMatrix, this._X_min, this._X_max).toDenseVector
     } else x
-//    println("x", x)
-//    println("x_normed", x_normed)
+    //    println("x", x)
+    //    println("x_normed", x_normed)
     val X_normed = this._X_normed
     val Y_normed = this._Y_normed(::, this._selected_features).toDenseMatrix
     val m = Y_normed.cols
@@ -426,7 +428,7 @@ class AccesRBF(
     val d = X_normed.cols
     val d2 = eucl_sqr(X=X_normed, x=x_normed)
 
-//    var FIM = DenseMatrix.zeros[Double](d,d)
+    //    var FIM = DenseMatrix.zeros[Double](d,d)
     val FIMs: Array[DenseMatrix[Double]] = Array.ofDim[DenseMatrix[Double]](this._selected_features.length)
 
     for (i <- 0 until Y_normed.cols) {
@@ -436,10 +438,10 @@ class AccesRBF(
       val sf = this._sfs.get(i)
       val mean = this._Y_means(i)
 
-//      println("gamma", gamma)
-//      println("sf", sf)
-//      println("mean", mean)
-//      println("M", M)
+      //      println("gamma", gamma)
+      //      println("sf", sf)
+      //      println("mean", mean)
+      //      println("M", M)
 
       val k = get_k(d2=d2, gamma=gamma, sf=sf)
       val y = Y_normed(::,i)
@@ -468,7 +470,7 @@ class AccesRBF(
       FIM += 2.0 * H_logs
       FIM *= 0.5
       FIMs(i) = FIM
-//      println("Feature %d: FIM: %d x %d:\n".format(this._selected_features(i), FIM.rows, FIM.cols), FIM)
+      //      println("Feature %d: FIM: %d x %d:\n".format(this._selected_features(i), FIM.rows, FIM.cols), FIM)
     }
     var FIM_total = DenseMatrix.zeros[Double](d,d)
     for (i <- 0 to FIMs.length - 1) {
@@ -486,14 +488,14 @@ class AccesRBF(
     * @return
     */
   def get_CRLB(x: DenseVector[Double], pinv_cond: Double = 1e-15): Double = {
-//    return try {
-//      val svd = breeze.linalg.svd()
-//      sqrt(breeze.linalg.trace(breeze.linalg.inv(get_FIM(x=x))))
-//    } catch {
-//      case _ : breeze.linalg.MatrixSingularException => {
-//        Double.PositiveInfinity
-//      }
-//    }
+    //    return try {
+    //      val svd = breeze.linalg.svd()
+    //      sqrt(breeze.linalg.trace(breeze.linalg.inv(get_FIM(x=x))))
+    //    } catch {
+    //      case _ : breeze.linalg.MatrixSingularException => {
+    //        Double.PositiveInfinity
+    //      }
+    //    }
     return {
       val FIM = get_FIM(x=x)
       val breeze.linalg.svd.SVD(u, s, vt) = svd(FIM)
@@ -515,10 +517,24 @@ class AccesRBF(
     */
   def get_CRLB(X: DenseMatrix[Double], pinv_cond: Double): DenseVector[Double] = {
     val crlbs = DenseVector.zeros[Double](X.rows)
+    println("lsolea01Acces",X.rows)
     for (i <- 0 until X.rows) {
       crlbs(i) = get_CRLB(X(i, ::).t, pinv_cond)
     }
+
+  //  lsolea01 x write to file
+    //    val file_io = new PrintWriter("X_floor_2.txt")
+//    for (i <- 0 until X.rows) {
+//
+//
+//      file_io.println(X(i,::))
+//    }
+//
+//
+//    file_io.close()
+
     crlbs
+
   }
 
   def ~=(x: Double, y: Double, precision: Double) = {
@@ -535,4 +551,3 @@ class AccesRBF(
   }
 
 }
-
