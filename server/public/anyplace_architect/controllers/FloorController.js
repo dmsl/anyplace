@@ -41,7 +41,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     $scope.newFloorNumber = 0;
     var heatmap;
-
+    var shipselect=0;
 
     $scope.crudTabSelected = 1;
     $scope.setCrudTabSelected = function (n) {
