@@ -64,14 +64,12 @@ class Global extends GlobalSettings {
   def log(): Unit = {
     /**
       * Log the entry point from server installation
-      */
+      
     JGoogleAnalyticsTracker.setProxy(System.getenv("http_proxy"))
     val config = new AnalyticsConfigData("UA-61313158-2")
     val tracker = new JGoogleAnalyticsTracker(config, GoogleAnalyticsVersion.V_4_7_2)
     tracker.trackEvent("Anyplace Installation", "Anyplace Server start", "Anyplace logging")
-    /**
-      * End
-      */
+    */
 
   }
 

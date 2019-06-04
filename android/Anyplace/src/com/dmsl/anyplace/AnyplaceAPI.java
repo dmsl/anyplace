@@ -88,6 +88,8 @@ public class AnyplaceAPI {
 	private final static String FLOOR_PLAN_DOWNLOAD = "/anyplace/floorplans";
 	private final static String FLOOR_TILES_ZIP_DOWNLOAD = "/anyplace/floortiles/zip";
 
+	private final static String FEEDBACK_ENDPOINT = "/anyplace/feedback/add_location_feeback";
+
 	public static String predictFloorAlgo1() throws MalformedURLException {
 		return new URL(getServerIPAddress(), PREDICT_FLOOR_ALGO1).toString();
 	}
@@ -161,5 +163,8 @@ public class AnyplaceAPI {
 	}
 
 	// ------------------------------------------------
+	public static String getFeedbackEndpoint() throws MalformedURLException {
+		return new URL(getServerIPAddress(), FEEDBACK_ENDPOINT).toString();
+	}
 
 }

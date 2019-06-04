@@ -40,6 +40,7 @@ public class LogRecord {
 
 	private String bssid;
 	private int rss;
+	private String ssid;
 
 	public LogRecord(String bssid, int rss) {
 		super();
@@ -47,6 +48,12 @@ public class LogRecord {
 		this.rss = rss;
 	}
 
+	public  LogRecord(String bssid, int rss, String ssid){
+		super();
+		this.bssid = bssid;
+		this.rss = rss;
+		this.ssid = ssid;
+	}
 	public String getBssid() {
 		return bssid;
 	}
@@ -54,10 +61,18 @@ public class LogRecord {
 	public int getRss() {
 		return rss;
 	}
+
+	public String getSsid() {
+		return ssid;
+	}
 	
 	public String toString() {
 		String str = new String();
-		str = String.valueOf(bssid) + " " + String.valueOf(rss) + "\n";
+		if(ssid.isEmpty()) {
+			str = String.valueOf(bssid) + " " + String.valueOf(rss) + "\n";
+		} else {
+			str = String.valueOf(bssid) + " " + String.valueOf(rss) + " " + String.valueOf(ssid) + "\n";
+		}
 		return str;
 	}
 

@@ -1,7 +1,7 @@
 #!/bin/bash
-USERNAME=""
-PASSWORD=""
-BUCKET=""
+USERNAME="anyplace"
+PASSWORD="anyplace"
+BUCKET="anyplace"
 curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_accounts -d @accounts.json -u $USERNAME:$PASSWORD
 
 curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_admin -d @admin.json -u $USERNAME:$PASSWORD

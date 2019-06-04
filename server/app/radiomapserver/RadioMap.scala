@@ -40,6 +40,7 @@ import java.io._
 import java.text.DecimalFormat
 import java.util
 import java.util.{ArrayList, HashMap, LinkedList}
+import utils.LPLogger
 
 //remove if not needed
 import scala.collection.JavaConversions._
@@ -63,7 +64,7 @@ object RadioMap {
         if (!(line.startsWith("#") || line.trim().isEmpty)) {
           line = line.replace(", ", " ")
           val temp = line.split(" ")
-          if (temp.length != 8) {
+          if (temp.length < 8) {
             throw new Exception("Line " + line_num + " length is not equal to 8.")
           }
           java.lang.Float.parseFloat(temp(1))
@@ -85,7 +86,7 @@ object RadioMap {
       reader.close()
     } catch {
       case nfe: NumberFormatException => {
-        System.err.println("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+        System.err.println("RM Error while authenticating RSS log file " + inFile.getAbsolutePath +
           ": Line " +
           line_num +
           " " +
@@ -93,7 +94,7 @@ object RadioMap {
         return null
       }
       case e: Exception => {
-        System.err.println("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+        System.err.println("RM Error while authenticating RSS log file " + inFile.getAbsolutePath +
           ": " +
           e.getMessage)
         return null
@@ -278,7 +279,7 @@ object RadioMap {
         reader.close()
       } catch {
         case nfe: NumberFormatException => {
-          System.err.println("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+          System.err.println("RM 2 Error while authenticating RSS log file " + inFile.getAbsolutePath +
             ": Line " +
             line_num +
             " " +
@@ -286,7 +287,7 @@ object RadioMap {
           return false
         }
         case e: Exception => {
-          System.err.println("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+          System.err.println("RM 2Error while authenticating RSS log file " + inFile.getAbsolutePath +
             ": " +
             e.getMessage)
           return false
@@ -629,8 +630,7 @@ object RadioMap {
         if (MatrixU == null) {
           return false
         }
-        println("created U matrix! time[ " + (System.currentTimeMillis() - start) +
-          "] ms")
+        LPLogger.debug("created U matrix! time[ " + (System.currentTimeMillis() - start) +"] ms")
         val Matrixd = create_d_matrix(MatrixU.getRowDimension, group)
         if (Matrixd == null) {
           return false
@@ -641,13 +641,13 @@ object RadioMap {
         if (UPlus == null) {
           return false
         }
-        println("computed Plus matrix! time[ " + (System.currentTimeMillis() - start) +
+        LPLogger.debug("computed Plus matrix! time[ " + (System.currentTimeMillis() - start) +
           "] ms")
         val w = computeWMatrix(UPlus, Matrixd)
         if (w == null) {
           return false
         }
-        println("computed W matrix! time[ " + (System.currentTimeMillis() - start) +
+        LPLogger.debug("computed W matrix! time[ " + (System.currentTimeMillis() - start) +
           "] ms")
         val dec = new DecimalFormat("###.########")
         var fos: FileOutputStream = null
@@ -683,7 +683,7 @@ object RadioMap {
           }
         }
       }
-      println("Written RBF weights! time[ " + (System.currentTimeMillis() - start) +
+      LPLogger.debug("Written RBF weights! time[ " + (System.currentTimeMillis() - start) +
         "] ms")
       true
     }

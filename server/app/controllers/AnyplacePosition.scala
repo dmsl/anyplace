@@ -37,6 +37,7 @@ package controllers
 
 import java.io._
 import java.util._
+import play.Play
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import datasources.{DatasourceException, ProxyDataSource}
@@ -49,6 +50,11 @@ import play.libs.F
 import radiomapserver.RadioMap
 import radiomapserver.RadioMap.RadioMap
 import utils._
+
+import db_models._
+
+import play.api.libs.json.Json
+import play.api.libs.json._
 
 import scala.collection.JavaConversions._
 
@@ -102,9 +108,25 @@ object AnyplacePosition extends play.api.mvc.Controller {
         } else {
           return AnyResponseHelper.forbidden("Invalid username or password")
         }
-        val newBuildingsFloors = RadioMap.authenticateRSSlogFileAndReturnBuildingsFloors(radioFile.get.ref.file)
+        val (ssid_mac_mapping, mac_attrib_mapping): 
+          (HashMap[String, LinkedList[String]], HashMap[String, List[String]]) =
+            fetchSSID_MACMapping(radioFile.get.ref.file)
+
+
+        LPLogger.info("ssid_mac_mapping " + ssid_mac_mapping)
+        LPLogger.info("mac_attrib_mapping " + mac_attrib_mapping)
+
+        val newBuildingsFloors: HashMap[String, LinkedList[String]] = RadioMap.authenticateRSSlogFileAndReturnBuildingsFloors(radioFile.get.ref.file)
+
+        LPLogger.info("newBuildingsFloors" + newBuildingsFloors)
+        if (ssid_mac_mapping!= null && newBuildingsFloors != null) {
+          val buid = newBuildingsFloors.keySet.head
+          val floor = newBuildingsFloors.get(buid).head
+          add_ssid_mac_accessPoints(ssid_mac_mapping,buid, floor, mac_attrib_mapping)
+        }
+
         if (newBuildingsFloors == null) {
-          return AnyResponseHelper.bad_request("Corrupted radio file uploaded!")
+          return AnyResponseHelper.bad_request("TEMP Corrupted radio file uploaded!")
         } else {
           HelperMethods.storeRadioMapToServer(radioFile.get.ref.file)
           val errorMsg: String = null
@@ -119,11 +141,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
                   updateFrozenRadioMap(nBuilding, bFloor)
                 }
               }
-              0
+              0;
             }
           })
         }
-        return AnyResponseHelper.ok("Successfully uploaded rss log.")
+        return AnyResponseHelper.ok("Successfully uploaded rss log. : Wait for some time before radio maps regenerate.")
       }
 
       inner(request)
@@ -153,17 +175,17 @@ object AnyplacePosition extends play.api.mvc.Controller {
           val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
             500)
           LPLogger.info("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
-          val dir = new File("radiomaps" + AnyplaceServerAPI.URL_SEPARATOR + LPUtils.generateRandomToken() +
-            "_" +
-            System.currentTimeMillis())
-          if (!dir.mkdirs()) {
+            val dir = new File("radiomaps" + AnyplaceServerAPI.URL_SEPARATOR + LPUtils.generateRandomToken() +
+              "_" +
+              System.currentTimeMillis())
+            if (!dir.mkdirs()) {
             null
           }
           val radio = new File(dir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.info("radioDownloadFloor file " + radio.toPath().getFileName)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           }
@@ -275,13 +297,17 @@ object AnyplacePosition extends play.api.mvc.Controller {
         var fout: FileOutputStream = null
         try {
           fout = new FileOutputStream(radio)
-          println(radio.toPath().getFileName)
+          LPLogger.info("radioDownloadByBuildingFloor file " +radio.toPath().getFileName)
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
         }
         var floorFetched: Long = 0l
         try {
-          floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+          if (Play.application().configuration().getBoolean("filterAccessPoints")) {
+            floorFetched = ProxyDataSource.getIDatasource.dumpAuthorizedRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+          } else {
+            floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+          }
           try {
             fout.close()
           } catch {
@@ -392,13 +418,17 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.info("radioDownloadByBuildingFloorall file" +radio.toPath().getFileName)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           }
           var floorFetched: Long = 0l
           try {
-            floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            if (Play.application().configuration().getBoolean("filterAccessPoints")) {
+              floorFetched = ProxyDataSource.getIDatasource.dumpAuthorizedRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            } else {
+              floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            }
             try {
               fout.close()
             } catch {
@@ -408,7 +438,6 @@ object AnyplacePosition extends play.api.mvc.Controller {
             case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
           }
           if (floorFetched != 0) {
-
             try {
               val folder = rmapDir.toString
               val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
@@ -522,7 +551,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
   def serveFrozenRadioMap(building: String, floor: String, fileName: String) = Action {
 
     def inner(): Result = {
-      val filePath = "radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + building + AnyplaceServerAPI.URL_SEPARATOR +
+      val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+      val filePath = radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + building + AnyplaceServerAPI.URL_SEPARATOR +
         floor +
         AnyplaceServerAPI.URL_SEPARATOR +
         fileName
@@ -670,7 +701,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
     if (!Floor.checkFloorNumberFormat(floor_number)) {
       return
     }
-    val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+    val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+    val rmapDir = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
       floor_number)
     if (!rmapDir.exists() && !rmapDir.mkdirs()) {
       return
@@ -679,13 +712,17 @@ object AnyplacePosition extends play.api.mvc.Controller {
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(radio)
-      println(radio.toPath().getFileName)
+      LPLogger.info("updateFrozenRadioMap" + radio.toPath().getFileName.toString)
     } catch {
       case e: FileNotFoundException => return
     }
     var floorFetched: Long = 0l
     try {
-      floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+      if (Play.application().configuration().getBoolean("filterAccessPoints")) {
+        floorFetched = ProxyDataSource.getIDatasource.dumpAuthorizedRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+      } else {
+        floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+      }
       try {
         fout.close()
       } catch {
@@ -760,7 +797,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.info("radioDownloadFloorBbox file "+radio.toPath().getFileName.toString)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           }
@@ -992,5 +1029,286 @@ object AnyplacePosition extends play.api.mvc.Controller {
       }
 
       inner(request)
+  }
+
+  def getLocHistoryByBuidFloor() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        val buid = (json \ "buid").as[String]
+        val floor = (json \ "floor").as[String]
+        LPLogger.info("AnyplaceMapping::getLocHistoryByBuidFloor(): " + buid +"  : " + floor)
+        try {
+          val lHistory = ProxyDataSource.getIDatasource.getLocationHistoryByBuidFloor(buid, floor)
+          val locHistory = new HashMap[String, LinkedList[JsonObject]]()
+          lHistory.map { historyObj =>
+            val key = historyObj.getString("obid")
+            if(locHistory.containsKey(key)) {
+              val tempList = locHistory.get(key)
+              tempList.add(historyObj)
+              locHistory.put(key, tempList)
+            } else { 
+              val tempList = new LinkedList[JsonObject]()
+              tempList.add(historyObj)
+              locHistory.put(key, tempList)
+            }
+          }
+          
+          val resArray = JsonArray.empty()
+          locHistory.map { historyObj =>
+            val tempObj = JsonObject.empty()
+            tempObj.put(historyObj._1, historyObj._2)
+            resArray.add(tempObj)
+          }
+
+          val res = JsonObject.empty()
+          res.put("lHistory", resArray)
+          return AnyResponseHelper.ok(res, "")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+    inner(request)
+  }
+
+  def getLocHistoryByObjId() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        val objID = (json \ "obid").as[String]
+        LPLogger.info("AnyplaceMapping::getLocHistoryByObjId(): " + objID.toString)
+
+        val buid = (json\"buid").validate[String] match {
+          case s: JsSuccess[String] =>
+            if (s.get.isEmpty || s.get.trim.isEmpty)
+              None
+            else
+              Some(s.get)
+          case e: JsError => None
+        }
+
+        val floor = (json\"floor").validate[String] match {
+          case s: JsSuccess[String] =>
+            if (s.get.isEmpty || s.get.trim.isEmpty)
+              None
+            else
+              Some(s.get)
+          case e: JsError => None
+        }
+
+
+        try {
+
+          var lHistory: List[JsonObject] = null
+
+          if (buid.isEmpty || floor.isEmpty) {
+            lHistory = ProxyDataSource.getIDatasource.getLocationHistoryByObjId(objID)
+          } else {
+            lHistory = ProxyDataSource.getIDatasource.getLocationHistoryByObjIdBuidFloor(objID, buid.get, floor.get)
+          }
+          //println("Sorting")
+          // val sortedList = lHistory.sort(o => o.)
+          // val srtres = sort(lHistory.toString)
+          val res = JsonObject.empty()
+          res.put("lHistory", JsonArray.from(lHistory))
+          return AnyResponseHelper.ok(res, "")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+    inner(request)
+  }
+
+  def getLocHistorySummaryByObjId() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        val objID = (json \ "obid").as[String]
+        LPLogger.info("AnyplaceMapping::getLocHistorySummaryByObjId(): " + objID.toString)
+        try {
+          val lHistory = ProxyDataSource.getIDatasource.getLocationHistoryByObjId(objID)
+          val buildings = ProxyDataSource.getIDatasource.getAllBuildings
+
+          val locHistorySummary = new HashMap[(String, String), JsonObject]()
+          lHistory.map { loc =>
+            val name = buildings.filter(_.getString("buid").equals(loc.getString("buid"))).head.getString("name")
+            val key = (name, loc.getString("floor"))
+            LPLogger.info("Key for Summarized Loc History " + key)
+            if (!locHistorySummary.containsKey(key)) {
+              locHistorySummary.put(key, loc)
+            }
+          }
+
+          val summList = new ArrayList[JsonObject]()
+          locHistorySummary.map { history =>
+            val item = JsonObject.empty()
+            item.put("building_name", history._1._1)
+            item.put("buid", history._2.getString("buid"))
+            item.put("floor", history._1._2)
+            item.put("timestamp", history._2.getString("timestamp"))
+            summList.add(item)
+          }
+          val res = JsonObject.empty()
+          res.put("lHistorySummary", JsonArray.from(summList))
+          return AnyResponseHelper.ok(res, "")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+    inner(request)
+  }
+
+  def getLocHistoryObjCat() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        LPLogger.info("AnyplaceMapping::getLocHistoryObjCat")
+        try {
+          val objcatList = ProxyDataSource.getIDatasource.getLocHistoryObjCat()
+          val res = JsonObject.empty()
+          res.put("categories", JsonArray.from(objcatList))
+          return AnyResponseHelper.ok(res, "")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+    inner(request)
+  }
+
+  def add_ssid_mac_accessPoints(ssid_mac: HashMap[String, LinkedList[String]] , buid: String, floor: String, mac_attrib_mappings: HashMap[String, List[String]]) = {
+    LPLogger.info("AnyplacePosition::add_ssid_mac_accessPoints")
+    LPLogger.info("buid :" + buid +" :: floor " + floor)
+    val ssid_list = ssid_mac.keySet
+    ssid_list.map { ssid =>
+      val mac_id_list = ssid_mac.get(ssid)
+      mac_id_list.map {mac =>
+        val accesspoints = ProxyDataSource.getIDatasource.getAutAccessPointsByMAC(mac)
+        if (accesspoints == null || accesspoints.size < 1) {
+          var accessPoint = new AccessPoint(ssid, mac, buid, floor, false)
+          if (mac_attrib_mappings.containsKey(mac)) {
+            val additional_attibs = mac_attrib_mappings.get(mac)
+            val objectid = additional_attibs(0)
+            val frequency = additional_attibs(1)
+            val channelWidth = getChannelWidthNofromCode(additional_attibs(2).toInt)
+            val capability = additional_attibs(3)
+            LPLogger.info("Additional Attributes:: " + mac + " :: " + objectid + "::" + frequency + "::" + channelWidth+ "::" + capability)         
+            accessPoint.updateAdditionalAttributes(frequency, channelWidth, capability)     
+          }
+         ProxyDataSource.getIDatasource.addJsonDocument(accessPoint.getId, 0, accessPoint.toValidCouchJson().toString)
+        }
+      }
+    }
+  }
+
+  def fetchSSID_MACMapping(inFile: File): (HashMap[String, LinkedList[String]], HashMap[String, List[String]]) = {
+    var line_num = 0
+    var reader: BufferedReader = null
+    val ssid_mac = new HashMap[String, LinkedList[String]]()
+    val mac_attribs = new HashMap[String, List[String]]
+
+    try {
+      var line: String = null
+      val fr = new FileReader(inFile)
+      reader = new BufferedReader(fr)
+      while ( {
+        line = reader.readLine
+        line != null
+      }) {
+        line_num += 1
+        if (!(line.startsWith("#") || line.trim().isEmpty)) {
+          line = line.replace(", ", " ")
+          println("##::"+line)
+          val temp = line.split(" ")
+          if (temp.length < 9) {
+            throw new Exception("Line " + line_num + " length is not equal to 8.")
+          }
+
+          //# 4 : mac getId
+          //#8 :  ssid
+          if (!temp(4).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
+            throw new Exception("Line " + line_num + " MAC Address is not valid.")
+          }
+          if (!ssid_mac.containsKey(temp(8))) {
+            val tempList = new LinkedList[String]()
+            tempList.add(temp(4))
+            ssid_mac.put(temp(8), tempList)
+          } else {
+             val tempList = ssid_mac.get(temp(8))
+             if(!tempList.contains(temp(4))) {
+              tempList.add(temp(4))
+              ssid_mac.put(temp(8), tempList)
+            }
+          }
+
+          //Fetching Additional attributes
+          if (!mac_attribs.containsKey(temp(4))) {
+            val macAttribs = new ArrayList[String](4)
+            //9 :: objectId
+            
+            for (i <- 9 to 12) {
+              println("Processing " + i)
+              if (temp(i) != null)
+                macAttribs.add(temp(i))
+              else 
+                macAttribs.add("NA")
+            }
+            //10: frequency
+            //11: channeWidth
+            //12: capability
+            mac_attribs.put(temp(4), macAttribs)
+          }
+        }
+      }
+      fr.close()
+      reader.close()
+      return (ssid_mac, mac_attribs)
+    } catch {
+      case nfe: NumberFormatException => {
+        System.err.println("AP Error while authenticating RSS log file " + inFile.getAbsolutePath +
+          ": Line " +
+          line_num +
+          " " +
+          nfe.getMessage)
+        return null
+      }
+      case e: Exception => {
+        System.err.println("AP Error while authenticating RSS log file " + inFile.getAbsolutePath +
+          ": " +
+          e.getMessage)
+        return null
+      }
+    }
+    (ssid_mac, mac_attribs)
+  }
+
+
+  private def getChannelWidthNofromCode(channelWidthCode: Int): String = {
+    if (channelWidthCode == 0)
+      return "20MHZ"
+    else if (channelWidthCode == 1)
+      return "40MHZ"
+    else if (channelWidthCode == 2)
+      return "80MHZ" 
+    else if (channelWidthCode == 3)
+      return "160MHZ" 
+    else if (channelWidthCode == 4)
+      return "80MHZ+80MHZ"
+    else return "NA"
   }
 }

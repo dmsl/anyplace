@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html ng-app="anyArchitect">
+
 <head>
     <script>
         // if (window.location.protocol != "https:")
@@ -9,11 +10,12 @@
 
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
-
-    <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id" content="587500723971-si8s4qqat9v5efgemnebihpi3qe9onlp.apps.googleusercontent.com">
+    
+    <!-- <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="27495094074-mrl63ubqnk90hhl4jkp7ii2nnh0q3hti.apps.googleusercontent.com"> -->
 
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+
 
     <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet" type="text/css"/>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -82,7 +84,7 @@
                 <i class="fa fa-window-minimize" ></i>
             </button>
             <div id="div-logo" class="pull-left"></div>
-            <span id="login-details" ng-show="isAuthenticated">
+            <span id="login-details" ng-hide="bypassAuth" ng-show="isAuthenticated">
                 <span class="subnote">
                     {{person.displayName}}
                 </span>
@@ -1094,11 +1096,11 @@
 
 <script type="text/javascript" src="libs/lodash.min.js"></script>
 
-<script type="text/javascript" src="libs/flurry.js"></script>
+<!-- <script type="text/javascript" src="libs/flurry.js"></script> -->
 
 
 
-<script>FlurryAgent.startSession("DND8DGH2MT7VZGBMNBPP");</script>
+<!-- <script><FlurryAgent class="startSession"></FlurryAgent>                                                                                                                                                                                                                                                                                                                                           ("DND8DGH2MT7VZGBMNBPP");</script> -->
 
 <!-- Modals -->
 <div class="modal fade" id="myModal_1" role="dialog">
@@ -1128,7 +1130,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="myModal_2" role="dialog">
+<div class="modal fade" id="myModal_2" role="dialog">                                                                                               
     <div class="modal-dialog modal-lg">
 
         <!-- Modal content-->

@@ -1,0 +1,16 @@
+{
+  "views": {
+    "auth_ap_by_ssid": {
+        "map": "function (doc, meta) {if( doc.apid) emit([doc.ssid],{\"apid\":doc.apid,\"ssid\":doc.ssid, \"mac\":doc.mac, \"building\": doc.buid,\"floor\":doc.floor, \"whitelisted\":doc.whitelisted}); }"
+     },
+    "auth_ap_by_mac": {
+        "map": "function (doc, meta) {if( doc.apid) emit([doc.mac], {\"apid\":doc.apid,\"ssid\":doc.ssid, \"mac\":doc.mac, \"building\": doc.buid,\"floor\":doc.floor, \"whitelisted\":doc.whitelisted}); }"
+     },
+    "auth_ap_by_buid_floor": {
+    	"map": "function (doc, meta) {if( doc.apid) emit([doc.buid, doc.floor], {\"apid\":doc.apid,\"ssid\":doc.ssid, \"mac\":doc.mac, \"building\": doc.buid,\"floor\":doc.floor, \"whitelisted\":doc.whitelisted}); }"
+    },
+    "auth_ap_all": {
+    	"map": "function (doc, meta) {if( doc.apid) emit(doc.apid, {\"apid\":doc.apid,\"ssid\":doc.ssid, \"mac\":doc.mac, \"building\": doc.buid,\"floor\":doc.floor, \"whitelisted\":doc.whitelisted}); }"
+    }
+  }
+}

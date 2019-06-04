@@ -138,6 +138,24 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.dmsl.anyplace.feedback.AnyplaceFeedbackLoggerActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+            android:label="Anyplace Feedback"
+            android:screenOrientation="nosensor"
+            android:theme="@style/Theme.Sherlock">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.feedback.FeedbackPrefs"
+            android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+            android:label="Feedback Preferences"
+            android:screenOrientation="nosensor"></activity>
+        <activity
             android:name="com.dmsl.anyplace.AnyplacePrefs"
             android:icon="@drawable/anyplace_logo_icon_actionbar_white"
             android:label="@string/prefs_name_anyplace"
@@ -158,11 +176,11 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="insert_api_key" />
+            android:value="" />
 
         <meta-data
             android:name="google.directions.API_KEY"
-            android:value="insert_api_key" />
+            android:value="" />
     </application>
 
 </manifest>
