@@ -209,6 +209,7 @@ app.service('GMapService', function () {
     self.gmap.mapTypes.set("CartoLight", new CartoLightMapType(new google.maps.Size(256, 256)));
     // Now attach the coordinate map type to the map's registry.
     //self.gmap.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
+    customMapAttribution(self.gmap);
 
     customMapAttribution(self.gmap);
 
