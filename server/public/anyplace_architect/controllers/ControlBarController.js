@@ -25,7 +25,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
     //Bypass the google authentication
-    $scope.bypassAuth = true;
+    $scope.bypassAuth = false;
     $scope.isAuthenticated = false;
 
     $scope.signInType = "google";

@@ -1,0 +1,80 @@
+<div id="container" class="container-fluid">
+  <div class="row header" style="background:gray">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="row" >
+          <div class="col-md-2 col-sm-12 col-xs-12">
+            
+            <input type="text" id="ssid_filter" placeholder="Search By SSID" (input)="filterItem($event, 'SSID')" [(ngModel)]="ssid_model" class="form-control form">
+          </div>
+          <div class="col-md-2 col-sm-12 col-xs-12" >
+            <input type="text" id="ssid_filter" placeholder="Search By Building" (input)="filterItem($event, 'BUILDING')" [(ngModel)]="building_model" class="form-control form">
+          </div>
+          <div class="col-md-2 col-sm-12 col-xs-12 pull-right" >
+              <button class="btn btn-danger" (click)="reset()">RESET</button>&nbsp;
+              <button class="btn btn-success" [disabled]="!canSubmit" (click)="process()">SUBMIT</button>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div class="row bg-gray header" style="margin-top:15px !important;">  
+    <div *ngFor="let item of filteredItems"  class="col-md-6 col-sm-12 col-xs-12">
+      <div class="panel panel-default" >
+        <div class="panel-heading">
+          <b>SSID : {{item.ssid}}</b>
+        </div>
+        <div class="panel-body">
+          <table class="table table-bordered">
+            <tr>
+              <th></th>
+              <th>MAC Address</th>
+              <th>Building Name</th>
+              <th>Floor</th>
+            </tr>
+            <tr *ngFor="let ap of item.accessPointList" (click)="clickedRow(ap)" 
+            [ngStyle]="{'background-color': ap.whitelisted ? 'rgba(0,255,0,0.25)': 'rgba(255,0,0,0.25)'}">
+              <td>
+                  <input type="checkbox" [checked]="ap.whitelisted" value=""/>
+              </td>
+              <td >
+                {{ap.mac}}
+              </td>
+              <td>
+                {{ap.building_name}}
+              </td>
+              <td>
+                {{ap.floor}}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  
+  
+  <button id="successModel" type="button" [hidden]="true" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+  
+    <div class="loaderClass" [hidden]="!isLoading">
+        <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Successfully Submitted</h4>
+        </div>
+        <div class="modal-body">
+          <p>Access Points has been successfully updated. It will take few minutes to generate heat maps.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+  
+    </div>
+  </div>

@@ -931,23 +931,29 @@ object AnyplaceMapping extends play.api.mvc.Controller {
          * Add location history to DB 
          */
         val currentTimeinMillis = DateTime.now(DateTimeZone.UTC).getMillis()
-        if (deviceId == "" && objectId == None) {
-          LPLogger.info("Both device Id and Object Id are not available, so skipping adding location history")
-        } else {
-          try{
-            var locHistory: LocHistory = null
-            locHistory = new LocHistory(objectId.getOrElse(""), objectCat.getOrElse(""), deviceId, 
-              buid, floor_number, lat_long(0), lat_long(1), currentTimeinMillis.toString,  (json\"APs").as[String])
-            val locID =  locHistory.getId()
-            if (!ProxyDataSource.getIDatasource().addJsonDocument(
-                locID, 0, locHistory.toValidCouchJson().toString())) {
-              LPLogger.error("Location history couldn't be added")
-            }
-          } catch {
-            case e: Exception => {
-               LPLogger.error("Error persisting location history [" + e.getMessage + "]")
+
+        if(Play.application().configuration().getBoolean("persistLocationHistory")){
+          if (deviceId == "" && objectId == None) {
+            LPLogger.info("Both device Id and Object Id are not available so skipping adding location history")
+          } else {
+            try{
+              var locHistory: LocHistory = null
+              locHistory = new LocHistory(objectId.getOrElse(""), objectCat.getOrElse(""), deviceId, 
+                buid, floor_number, lat_long(0), lat_long(1), currentTimeinMillis.toString,  (json\"APs").as[String])
+              val locID =  locHistory.getId()
+              if (!ProxyDataSource.getIDatasource().addJsonDocument(
+                  locID, 0, locHistory.toValidCouchJson().toString())) {
+                LPLogger.error("Location history couldn't be added")
+              }
+            } catch {
+              case e: Exception => {
+                 LPLogger.error("Error persisting location history [" + e.getMessage + "]")
+              }
             }
           }
+        }
+        else {
+          LPLogger.info("persisting location history is disabled")
         }
         
         val res = JsonObject.empty()
