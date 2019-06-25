@@ -89,7 +89,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
         try {
           json = JsonObject.fromJson(json_str)
         } catch {
-          case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json request!")
+          case e: IOException => {
+            LPLogger.error(s"Error parsing json ${json} with error ${e.getMessage}")
+            return AnyResponseHelper.bad_request("Cannot parse json request!")
+          }
         }
         if (json.get("username") == null || json.get("password") == null) {
           return AnyResponseHelper.bad_request("Cannot parse json request!")
@@ -108,21 +111,31 @@ object AnyplacePosition extends play.api.mvc.Controller {
         } else {
           return AnyResponseHelper.forbidden("Invalid username or password")
         }
-        val (ssid_mac_mapping, mac_attrib_mapping): 
-          (HashMap[String, LinkedList[String]], HashMap[String, List[String]]) =
-            fetchSSID_MACMapping(radioFile.get.ref.file)
+
+        val _ssid_mac = new HashMap[String, LinkedList[String]]
+        val _mac_attribs = new HashMap[String, List[String]]
+        var ssid_mac_mapping_tuple =  (_ssid_mac, _mac_attribs)
+
+        try {
+          val res = fetchSSID_MACMapping(radioFile.get.ref.file)
+          if (res != null) {
+            ssid_mac_mapping_tuple = res
+          }
+        } catch {
+          case e: Exception => LPLogger.error(s"Error fetching SSID MAC Mpping :: ${e.getMessage}")
+        }
 
 
-        LPLogger.info("ssid_mac_mapping " + ssid_mac_mapping)
-        LPLogger.info("mac_attrib_mapping " + mac_attrib_mapping)
+        LPLogger.info("ssid_mac_mapping " + ssid_mac_mapping_tuple._1)
+        LPLogger.info("mac_attrib_mapping " + ssid_mac_mapping_tuple._2)
 
         val newBuildingsFloors: HashMap[String, LinkedList[String]] = RadioMap.authenticateRSSlogFileAndReturnBuildingsFloors(radioFile.get.ref.file)
 
         LPLogger.info("newBuildingsFloors" + newBuildingsFloors)
-        if (ssid_mac_mapping!= null && newBuildingsFloors != null) {
+        if (ssid_mac_mapping_tuple._1!= null && newBuildingsFloors != null) {
           val buid = newBuildingsFloors.keySet.head
           val floor = newBuildingsFloors.get(buid).head
-          add_ssid_mac_accessPoints(ssid_mac_mapping,buid, floor, mac_attrib_mapping)
+          add_ssid_mac_accessPoints(ssid_mac_mapping_tuple._1,buid, floor, ssid_mac_mapping_tuple._2)
         }
 
         if (newBuildingsFloors == null) {
@@ -168,7 +181,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val lat = (json \ "coordinates_lat").as[String]
         val lon = (json \ "coordinates_lon").as[String]
         val floor_number = (json \ "floor_number").as[String]
-        val mode = (json \ "mode").as[String]
+        //val mode = (json \ "mode").as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) {
           return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         } else {
@@ -1217,6 +1230,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
   }
 
   def fetchSSID_MACMapping(inFile: File): (HashMap[String, LinkedList[String]], HashMap[String, List[String]]) = {
+    LPLogger.info("fetchSSID_MACMapping")
     var line_num = 0
     var reader: BufferedReader = null
     val ssid_mac = new HashMap[String, LinkedList[String]]()
@@ -1236,7 +1250,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           println("##::"+line)
           val temp = line.split(" ")
           if (temp.length < 9) {
-            throw new Exception("Line " + line_num + " length is not equal to 8.")
+            throw new Exception("fetchSSID_MACMapping:: Line " + line_num + " length is not equal to 8.")
           }
 
           //# 4 : mac getId

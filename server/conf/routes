@@ -44,7 +44,7 @@ POST        /anyplace/position/radio/acces                                      
 
 
 POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
-#POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
+#POST       /anyplace/mapping/radio/heatmap                                            controllers.AnyplaceMapping.getRadioHeatmap()
 POST        /anyplace/mapping/building/coowners                                        controllers.AnyplaceMapping.buildingUpdateCoOwners()
 POST        /anyplace/mapping/building/newowner                                        controllers.AnyplaceMapping.buildingUpdateOwner()
 POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()

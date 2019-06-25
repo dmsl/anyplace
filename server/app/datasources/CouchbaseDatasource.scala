@@ -970,10 +970,11 @@ class CouchbaseDatasource private(hostname: String,
       .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
-    LPLogger.info("getAllBuildingsNearMe couchbase results: " + res.size)
     var json: JsonObject = null
-    if (res.nonEmpty)
-      for (row <- res) {
+    val allRows = res.allRows()
+    LPLogger.info("getAllBuildingsNearMe couchbase results: " + allRows.size)
+    if (allRows.nonEmpty)
+      for (row <- allRows) {
         try {
           json = row.document().content()
           val pub = json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
@@ -1114,17 +1115,18 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
 
     do {
-      val viewQuery = SpatialViewQuery.from("nav_spatial", "building_coordinates")
+      //val viewQuery = SpatialViewQuery.from("nav_spatial", "building_coordinates")
+      val viewQuery = SpatialViewQuery.from("radio_spatial","raw_radio")
         .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
         .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).limit(queryLimit).skip(totalFetched)
       val res = couchbaseClient.query(viewQuery)
       currentFetched = 0
-      for (row <- res) {
+      for (row <- res.allRows()) {
         currentFetched += 1
         try {
           rssEntry = row.document().content()
         } catch {
-          case e: IOException => //continue
+          case e: IOException => println("ERROR " + e.getMessage)
         }
         if (rssEntry.getString("floor") == floor_number) {
           floorFetched += 1
