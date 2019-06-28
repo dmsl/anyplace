@@ -138,17 +138,17 @@ app.service('GMapService', function () {
         return tile;
     };
 
-    var mapTypeId = "roadmap";
+    var mapTypeId = "CartoLight";
     if (typeof(Storage) !== "undefined" && localStorage) {
         if (localStorage.getItem('mapTypeId'))
             mapTypeId = localStorage.getItem('mapTypeId');
         else
-            localStorage.setItem("mapTypeId", "roadmap");
+            localStorage.setItem("mapTypeId", "CartoLight");
     }
 
 
     self.gmap = new google.maps.Map(element, {
-        center: new google.maps.LatLng(57, 21),
+        center: new google.maps.LatLng(12.3591448, 76.597144),
         zoomControl: true,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
@@ -157,16 +157,24 @@ app.service('GMapService', function () {
         scaleControl: true,
         streetViewControl: false,
         overviewMapControl: true,
-        zoom: 3,
+        zoom: 17,
         mapTypeId: mapTypeId,
         mapTypeControlOptions: {
             mapTypeIds: ['OSM', /* 'CartoDark',*/ 'CartoLight', /* 'coordinate',*/ 'roadmap', 'satellite'],
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             position: google.maps.ControlPosition.LEFT_CENTER
-        }
+        }                                   
     });
 
     self.gmap.addListener('maptypeid_changed', function () {
+        console.log("Changed map Type to  " + self.gmap.getMapTypeId() + " at level " + self.gmap.zoom)
+        if (self.gmap.getMapTypeId() === 'my_custom_layer1' && self.gmap.zoom < 22) {
+            GMapService.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ;
+        } 
+        else if (self.gmap.getMapTypeId() !== 'my_custom_layer1' && self.gmap.zoom === 22){
+            localStorage.setItem("previousMapTypeId",self.gmap.getMapTypeId());
+        }
+
         var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
         localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
         customMapAttribution(self.gmap);
@@ -201,6 +209,8 @@ app.service('GMapService', function () {
     self.gmap.mapTypes.set("CartoLight", new CartoLightMapType(new google.maps.Size(256, 256)));
     // Now attach the coordinate map type to the map's registry.
     //self.gmap.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
+    customMapAttribution(self.gmap);
+
     customMapAttribution(self.gmap);
 
     // Initialize search box for places
@@ -251,7 +261,7 @@ app.factory('AnyplaceService', function () {
         username: 'username',
         password: 'password'
     };
-    anyService.BASE_URL = "https://ap.cs.ucy.ac.cy";
+    anyService.BASE_URL = "http://UPDATE_URL_ap.cs.ucy.ac.cy";
 
     anyService.getBuilding = function () {
         return this.selectedBuilding;
@@ -326,21 +336,21 @@ app.factory('AnyplaceService', function () {
         if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
+        return encodeURIComponent(anyService.BASE_URL+"/viewer/?buid=" + this.selectedBuilding.buid);
     };
 
     anyService.getCampusViewerUrl = function () {
         if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
-        return "https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
+        return anyService.BASE_URL+"/viewer/?cuid=" + this.selectedCampus.cuid;
     };
 
     anyService.getCampusViewerUrlEncoded = function () {
         if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
-        return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
+        return encodeURIComponent(anyService.BASE_URL+"/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
     anyService.setAllPois = function (p) {

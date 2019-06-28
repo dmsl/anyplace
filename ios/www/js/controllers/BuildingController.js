@@ -308,6 +308,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             return v.name;
         var c = $scope.gmapService.gmap.getCenter();
         return _calcDistance(parseFloat(v.coordinates_lat), parseFloat(v.coordinates_lon), c.lat(), c.lng());
-    }
+    };
 
 }]);

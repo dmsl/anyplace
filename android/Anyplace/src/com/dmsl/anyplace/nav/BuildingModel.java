@@ -50,7 +50,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 @SuppressWarnings("serial")
-public class BuildingModel implements Comparable<BuildingModel>, ClusterItem, Serializable {
+public class BuildingModel implements Comparable<BuildingModel>, ClusterItem, Serializable, IPoisClass{
 
 	public interface FetchBuildingTaskListener {
 		void onErrorOrCancel(String result);
@@ -195,5 +195,34 @@ public class BuildingModel implements Comparable<BuildingModel>, ClusterItem, Se
 	public int compareTo(BuildingModel arg0) {
 		// ascending order
 		return name.compareTo(arg0.name);
+	}
+
+	public String id() {
+		return buid;
+	}
+
+	@Override
+	public double lat() {
+		return latitude;
+	}
+
+	@Override
+	public double lng() {
+		return longitude;
+	}
+
+	@Override
+	public String name() {
+		return name;
+	}
+
+	@Override
+	public String description() {
+		return "";
+	}
+
+	@Override
+	public Type type() {
+		return Type.AnyPlaceBuilding;
 	}
 }

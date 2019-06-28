@@ -69,10 +69,6 @@ class Global extends GlobalSettings {
     val config = new AnalyticsConfigData("UA-61313158-2")
     val tracker = new JGoogleAnalyticsTracker(config, GoogleAnalyticsVersion.V_4_7_2)
     tracker.trackEvent("Anyplace Installation", "Anyplace Server start", "Anyplace logging")
-    /**
-      * End
-      */
-
   }
 
 }

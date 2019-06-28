@@ -1,0 +1,59 @@
+<div id="container" class="container-fluid">
+  <div class="row bg-gray header">  
+    <div class="col-md-2 col-sm-4 col-xs-4">
+      <div class="item-row">
+        <select class="form-control" required [(ngModel)]="resetProps" required>
+          <option disabled selected>Select Building and Floor</option>
+          <optgroup *ngFor="let build of buildingFloorObj" label="{{build.building_name}}">
+            <option *ngFor="let floor of build.floor_obj" value="{{floor.buid + ',' + floor.floor_number}}">
+               Floor - {{floor.floor_number}} 
+            </option> 
+          </optgroup>
+        </select>
+      </div>
+    </div>
+
+    <div class="col-md-2 col-sm-4 col-xs-4">
+      <div class="item-row">
+        <fieldset class="group1">
+            <label class="radio-inline"><input type="radio" (click)="resetPropsO()" [(ngModel)]="serviceType" value="Whitelist" name="optradio" checked>Whitelist</label>
+            <label class="radio-inline"><input type="radio" (click)="resetPropsO()" [(ngModel)]="serviceType" value="SSID" name="optradio" checked>SSID</label>
+          </fieldset>
+      </div>
+    </div>
+
+    <div class="col-md-2 col-sm-4 col-xs-4" *ngIf="serviceType=='SSID'">
+      <div class="item-row">
+        <select class="form-control" required [(ngModel)]="ssidVal" required >
+          <option disabled selected>Select SSID</option>
+          <option *ngFor="let ssid of ssidList" value="{{ssid}}">
+              {{ssid}} 
+            </option> 
+        </select>
+      </div>
+    </div>
+    <div class="col-md-1 col-sm-4 col-xs-4 pull-right">
+      <div class="item-row">
+        <input type="button" class="btn btn-success" (click)="floorSelected()" value="Submit">
+      </div>
+    </div>
+    <div *ngIf="showSlider" class="col-md-2 col-sm-4 col-xs-4 pull-right">
+      <div class="item-row group1">
+        <label class='value_visual'>{{sliderMaxVal - 110}} TO {{sliderMaxVal2-110}}</label>
+      </div>
+    </div>
+    <div *ngIf="showSlider" class="col-md-2 col-sm-4 col-xs-4 pull-right">
+      <div class="item-row" style="padding-top: 18px;">
+          <ng5-slider style="margin-top: 0 !important;" [(value)]="sliderMaxVal" [(highValue)]="sliderMaxVal2" [options]="options" (click)="sliderRange()"></ng5-slider>
+          <!-- <input class="form-control slider-style" style="display:inline;" type="range" min="0" max="110" value="110" [(ngModel)]="sliderMaxVal" > -->
+      </div>
+    </div>    
+  </div>
+
+  <div id="map_container" class="row">
+    <div id="map" leaflet [leafletOptions]="options" [(leafletZoom)]="defaultZoom" [(leafletCenter)]="mapCenter" [leafletLayers]="markerLayers"
+      (leafletMapReady)="mapReady($event)">
+      <div *ngIf="showFloorLayer" [leafletLayer]="floorLayer"></div>
+    </div>
+  </div>
+</div>
