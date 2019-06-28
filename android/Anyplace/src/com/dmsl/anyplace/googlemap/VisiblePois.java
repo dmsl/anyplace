@@ -45,9 +45,6 @@ public class VisiblePois extends VisibleObject<PoisModel> {
 	private Marker mFromMarker = null;
 	private Marker mToMarker = null;
 
-	private Marker mGooglePlaceMarker = null;
-	private IPoisClass mGooglePlace = null;
-
 	public VisiblePois() {
 	}
 
@@ -130,32 +127,4 @@ public class VisiblePois extends VisibleObject<PoisModel> {
 	}
 
 	// </From/To Marker>
-
-	// <Google Poi>
-	public void setGooglePlaceMarker(Marker m, IPoisClass place) {
-		clearGooglePlaceMarker();
-		mGooglePlace = place;
-		mGooglePlaceMarker = m;
-	}
-
-	public Marker getGooglePlaceMarker() {
-		return mGooglePlaceMarker;
-	}
-
-	public IPoisClass getGooglePlace() {
-		return mGooglePlace;
-	}
-
-	public void clearGooglePlaceMarker() {
-		if (mGooglePlaceMarker != null) {
-			mGooglePlaceMarker.remove();
-			mGooglePlaceMarker = null;
-			mGooglePlace = null;
-		}
-	}
-
-	public boolean isGooglePlaceMarker(Marker other) {
-		return mGooglePlaceMarker != null ? mGooglePlaceMarker.equals(other) : false;
-	}
-	// </Google Poi>
 }

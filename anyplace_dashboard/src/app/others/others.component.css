@@ -1,0 +1,131 @@
+.container-fluid{
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+#container{
+    height: auto;
+    /* min-height: 80%; */
+    overflow: hidden;
+}
+.bg-gray{
+    background-color: gray;
+    /* background-color:#2c3e50; */
+}
+.header{
+    width: 100%;
+    height: 15%;
+    min-height: 15%;
+    position: relative;
+    padding: 5px;
+    z-index: 99;
+    top: 0;
+    right: 0;
+    margin: 0;
+}
+.logo{
+    width: 90%; 
+    height: auto;
+    margin-top: 20%
+}
+.row{
+    margin: 0px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+.item-row{
+    padding: 2px;
+}
+.row-text{
+    vertical-align: middle; 
+    color: white; 
+    float:right; 
+    padding-top:4%;
+}
+
+#map_container {
+    position: absolute;
+    /* top: 44px; */
+    min-height: 85%;
+    height: 85.4%;
+    width: 100%;
+    overflow-y: hidden;
+    z-index: 1;
+}
+#map {
+    height: 100%;
+    width: 100%;
+    /* position: absolute; */   
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.slider-style{
+    width:100%;
+}
+
+.slider-style:after{
+    content: '0';
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    border-radius: 50%;
+    background: #337ab7;
+    z-index: 99999;
+    right: 0;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    top: 3px;
+    padding-top: 5px;
+    font-size: 12px;
+}
+
+.slider-style:before{
+    content: '-110';
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    border-radius: 50%;
+    background: #337ab7;
+    z-index: 99999;
+    left: 0;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    top: 3px;
+    padding-top: 5px;
+    font-size: 12px;
+}
+.group1{
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    /* background-color: #fff; */
+    background-image: none;
+    /* border: 1px solid #ccc; */
+    border-radius: 4px;
+}
+.value_visual{background: white;
+    padding: 5px;
+    border-radius: 6px;
+    padding-top: 4px;}
+
+    
+/* :ngcontent-c3 ::ng-deep {
+    .ng5-slider-model-value{
+        display:none !important;
+    }
+    .custom-slider .ng5-slider .ng5-slider-pointer {
+        width: 8px;
+        height: 16px;
+        top: auto; /* to remove the default positioning */
+        /* bottom: 0;
+        background-color: #333;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+      }
+} */ 

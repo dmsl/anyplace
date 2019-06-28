@@ -121,6 +121,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         //_suc('Successfully logged in.');
         $scope.fetchAllBuildings();
         $scope.fetchAllCampus();
+        console.log("Logged in");
         //$scope.fetchAllPoisTypes();
     });
 
@@ -155,7 +156,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     });
 
     $scope.setLogoPlan = function (cuid) {
-
         var newFl = {
             is_published: 'true',
             cuid: cuid,
@@ -411,7 +411,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
             // set owner id
             building.owner_id = $scope.owner_id;
-
+            
             if (!building.owner_id) {
                 _err("Could not authorize user. Please refresh.");
                 return;
@@ -826,6 +826,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         buids = buids + "\"" + $scope.example9model[0].id + "\"]";
 
         var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
+        
         //alert(document.getElementById("Greeklish-OnOff").checked);
         var promise = $scope.anyAPI.addBuildingSet(jreq);
         promise.then(
@@ -898,6 +899,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             marker.myId = $scope.myMarkerId;
             $scope.myMarkers[marker.myId] = {};
             $scope.myMarkers[marker.myId].model = {
+                access_token:"afdjasfljasdlfjadsf",
                 description: "",
                 name: undefined,
                 is_published: true,
@@ -1785,5 +1787,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         window.onload = showWelcomeMessage;
     }
-
+    if($scope.bypassAuth){
+        $scope.$broadcast('loggedIn', []);
+    }
 }]);

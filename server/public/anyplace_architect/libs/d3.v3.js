@@ -153,9 +153,10 @@ d3 = function() {
     return pairs;
   };
   d3.zip = function() {
-    if (!(n = arguments.length)) return [];
+    var n = arguments.length;
+    if (!n) return [];
     for (var i = -1, m = d3.min(arguments, d3_zipLength), zips = new Array(m); ++i < m; ) {
-      for (var j = -1, n, zip = zips[i] = new Array(n); ++j < n; ) {
+      for (var j = -1, zip = zips[i] = new Array(n); ++j < n; ) {
         zip[j] = arguments[j][i];
       }
     }
@@ -629,8 +630,9 @@ d3 = function() {
   function d3_selection_classedName(name) {
     var re = d3_selection_classedRe(name);
     return function(node, value) {
-      if (c = node.classList) return value ? c.add(name) : c.remove(name);
-      var c = node.getAttribute("class") || "";
+      var c = node.classList;
+      if (c) return value ? c.add(name) : c.remove(name);
+      c = node.getAttribute("class") || "";
       if (value) {
         re.lastIndex = 0;
         if (!re.test(c)) node.setAttribute("class", d3_collapse(c + " " + name));
@@ -1089,7 +1091,7 @@ d3 = function() {
         d3_mouse_bug44083 = !(ctm.f || ctm.e);
         svg.remove();
       }
-      if (d3_mouse_bug44083) point.x = e.pageX, point.y = e.pageY; else point.x = e.clientX, 
+      if (d3_mouse_bug44083) point.x = e.pageX, point.y = e.pageY; else point.x = e.clientX,
       point.y = e.clientY;
       point = point.matrixTransform(container.getScreenCTM().inverse());
       return [ point.x, point.y ];
@@ -1420,7 +1422,7 @@ d3 = function() {
     }
     function mousewheeled() {
       var event_ = event.of(this, arguments);
-      if (mousewheelTimer) clearTimeout(mousewheelTimer); else d3_selection_interrupt.call(this), 
+      if (mousewheelTimer) clearTimeout(mousewheelTimer); else d3_selection_interrupt.call(this),
       zoomstarted(event_);
       mousewheelTimer = setTimeout(function() {
         mousewheelTimer = null;
@@ -1835,7 +1837,7 @@ d3 = function() {
   d3.xhr = d3_xhrType(d3_identity);
   function d3_xhrType(response) {
     return function(url, mimeType, callback) {
-      if (arguments.length === 2 && typeof mimeType === "function") callback = mimeType, 
+      if (arguments.length === 2 && typeof mimeType === "function") callback = mimeType,
       mimeType = null;
       return d3_xhr(url, mimeType, response, callback);
     };
@@ -2347,7 +2349,7 @@ d3 = function() {
     var λ00, φ00, λ0, cosφ0, sinφ0;
     d3_geo_area.point = function(λ, φ) {
       d3_geo_area.point = nextPoint;
-      λ0 = (λ00 = λ) * d3_radians, cosφ0 = Math.cos(φ = (φ00 = φ) * d3_radians / 2 + π / 4), 
+      λ0 = (λ00 = λ) * d3_radians, cosφ0 = Math.cos(φ = (φ00 = φ) * d3_radians / 2 + π / 4),
       sinφ0 = Math.sin(φ);
     };
     function nextPoint(λ, φ) {
@@ -2615,8 +2617,9 @@ d3 = function() {
   function d3_geo_clipPolygon(segments, compare, inside, interpolate, listener) {
     var subject = [], clip = [];
     segments.forEach(function(segment) {
-      if ((n = segment.length - 1) <= 0) return;
-      var n, p0 = segment[0], p1 = segment[n];
+      var n = segment.length - 1;
+      if (n <= 0) return;
+      var p0 = segment[0], p1 = segment[n];
       if (d3_geo_sphericalEqual(p0, p1)) {
         listener.lineStart();
         for (var i = 0; i < n; ++i) listener.point((p0 = segment[i])[0], p0[1]);
@@ -2699,8 +2702,9 @@ d3 = function() {
     }
   }
   function d3_geo_clipPolygonLinkCircular(array) {
-    if (!(n = array.length)) return;
-    var n, i = 0, a = array[0], b;
+    var n = array.length;
+    if (!n) return;
+    var i = 0, a = array[0], b;
     while (++i < n) {
       a.next = b = array[i];
       b.prev = a;
@@ -4228,7 +4232,7 @@ d3 = function() {
     return points.length < 4 ? d3_svg_lineLinear(points) : points[1] + d3_svg_lineHermite(points.slice(1, points.length - 1), d3_svg_lineCardinalTangents(points, tension));
   }
   function d3_svg_lineCardinalClosed(points, tension) {
-    return points.length < 3 ? d3_svg_lineLinear(points) : points[0] + d3_svg_lineHermite((points.push(points[0]), 
+    return points.length < 3 ? d3_svg_lineLinear(points) : points[0] + d3_svg_lineHermite((points.push(points[0]),
     points), d3_svg_lineCardinalTangents([ points[points.length - 2] ].concat(points, [ points[1] ]), tension));
   }
   function d3_svg_lineCardinal(points, tension) {
@@ -4390,7 +4394,7 @@ d3 = function() {
     function hull(data) {
       if (data.length < 3) return [];
       var fx = d3_functor(x), fy = d3_functor(y), n = data.length, vertices, plen = n - 1, points = [], stack = [], d, i, j, h = 0, x1, y1, x2, y2, u, v, a, sp;
-      if (fx === d3_svg_lineX && y === d3_svg_lineY) vertices = data; else for (i = 0, 
+      if (fx === d3_svg_lineX && y === d3_svg_lineY) vertices = data; else for (i = 0,
       vertices = []; i < n; ++i) {
         vertices.push([ +fx.call(this, d = data[i], i), +fy.call(this, d, i) ]);
       }
@@ -4560,7 +4564,7 @@ d3 = function() {
       var points, polygons = data.map(function() {
         return [];
       }), fx = d3_functor(x), fy = d3_functor(y), d, i, n = data.length, Z = 1e6;
-      if (fx === d3_svg_lineX && fy === d3_svg_lineY) points = data; else for (points = new Array(n), 
+      if (fx === d3_svg_lineX && fy === d3_svg_lineY) points = data; else for (points = new Array(n),
       i = 0; i < n; ++i) {
         points[i] = [ +fx.call(this, d = data[i], i), +fy.call(this, d, i) ];
       }
@@ -4647,7 +4651,7 @@ d3 = function() {
       var points, graph = data.map(function() {
         return [];
       }), links = [], fx = d3_functor(x), fy = d3_functor(y), d, i, n = data.length;
-      if (fx === d3_svg_lineX && fy === d3_svg_lineY) points = data; else for (points = new Array(n), 
+      if (fx === d3_svg_lineX && fy === d3_svg_lineY) points = data; else for (points = new Array(n),
       i = 0; i < n; ++i) {
         points[i] = [ +fx.call(this, d = data[i], i), +fy.call(this, d, i) ];
       }
@@ -4664,7 +4668,8 @@ d3 = function() {
     };
     voronoi.triangles = function(data) {
       if (x === d3_svg_lineX && y === d3_svg_lineY) return d3.geom.delaunay(data);
-      var points = new Array(n), fx = d3_functor(x), fy = d3_functor(y), d, i = -1, n = data.length;
+      var n = data.length;
+      var points = new Array(n), fx = d3_functor(x), fy = d3_functor(y), d, i = -1;
       while (++i < n) {
         (points[i] = [ +fx.call(this, d = data[i], i), +fy.call(this, d, i) ]).data = d;
       }
@@ -5043,7 +5048,7 @@ d3 = function() {
     };
     quadtree.extent = function(_) {
       if (!arguments.length) return x1 == null ? null : [ [ x1, y1 ], [ x2, y2 ] ];
-      if (_ == null) x1 = y1 = x2 = y2 = null; else x1 = +_[0][0], y1 = +_[0][1], x2 = +_[1][0], 
+      if (_ == null) x1 = y1 = x2 = y2 = null; else x1 = +_[0][0], y1 = +_[0][1], x2 = +_[1][0],
       y2 = +_[1][1];
       return quadtree;
     };
@@ -5858,10 +5863,11 @@ d3 = function() {
     var sort = d3_layout_hierarchySort, children = d3_layout_hierarchyChildren, value = d3_layout_hierarchyValue;
     function recurse(node, depth, nodes) {
       var childs = children.call(hierarchy, node, depth);
+      var n;
       node.depth = depth;
       nodes.push(node);
       if (childs && (n = childs.length)) {
-        var i = -1, n, c = node.children = [], v = 0, j = depth + 1, d;
+        var i = -1, c = node.children = [], v = 0, j = depth + 1, d;
         while (++i < n) {
           d = recurse(childs[i], j, nodes);
           d.parent = node;
@@ -5877,8 +5883,9 @@ d3 = function() {
     }
     function revalue(node, depth) {
       var children = node.children, v = 0;
+      var n;
       if (children && (n = children.length)) {
-        var i = -1, n, j = depth + 1;
+        var i = -1, j = depth + 1;
         while (++i < n) v += revalue(children[i], j);
       } else if (value) {
         v = +value.call(hierarchy, node, depth) || 0;
@@ -5941,12 +5948,13 @@ d3 = function() {
     var hierarchy = d3.layout.hierarchy(), size = [ 1, 1 ];
     function position(node, x, dx, dy) {
       var children = node.children;
+      var n;
       node.x = x;
       node.y = node.depth * dy;
       node.dx = dx;
       node.dy = dy;
       if (children && (n = children.length)) {
-        var i = -1, n, c, d;
+        var i = -1, c, d;
         dx = node.value ? dx / node.value : 0;
         while (++i < n) {
           position(c = children[i], x, d = c.value * dx, dy);
@@ -6239,8 +6247,9 @@ d3 = function() {
       var nodes = hierarchy.call(this, d, i), root = nodes[0];
       function firstWalk(node, previousSibling) {
         var children = node.children, layout = node._tree;
+        var n;
         if (children && (n = children.length)) {
-          var n, firstChild = children[0], previousChild, ancestor = firstChild, child, i = -1;
+          var firstChild = children[0], previousChild, ancestor = firstChild, child, i = -1;
           while (++i < n) {
             child = children[i];
             firstWalk(child, previousChild);
@@ -6264,8 +6273,9 @@ d3 = function() {
       function secondWalk(node, x) {
         node.x = node._tree.prelim + x;
         var children = node.children;
+        var n;
         if (children && (n = children.length)) {
-          var i = -1, n;
+          var i = -1;
           x += node._tree.mod;
           while (++i < n) {
             secondWalk(children[i], x);
@@ -6351,13 +6361,15 @@ d3 = function() {
     return children && children.length ? children[0] : node._tree.thread;
   }
   function d3_layout_treeRight(node) {
-    var children = node.children, n;
+    var children = node.children
+    var n;
     return children && (n = children.length) ? children[n - 1] : node._tree.thread;
   }
   function d3_layout_treeSearch(node, compare) {
     var children = node.children;
+    var n;
     if (children && (n = children.length)) {
-      var child, n, i = -1;
+      var child, i = -1;
       while (++i < n) {
         if (compare(child = d3_layout_treeSearch(children[i], compare), node) > 0) {
           node = child;
@@ -6378,8 +6390,9 @@ d3 = function() {
   function d3_layout_treeVisitAfter(node, callback) {
     function visit(node, previousSibling) {
       var children = node.children;
+      var n;
       if (children && (n = children.length)) {
-        var child, previousChild = null, i = -1, n;
+        var child, previousChild = null, i = -1;
         while (++i < n) {
           child = children[i];
           visit(child, previousChild);
@@ -6472,8 +6485,11 @@ d3 = function() {
     return .999 * dr * dr > dx * dx + dy * dy;
   }
   function d3_layout_packSiblings(node) {
+    var nodes;
+    var n;
     if (!(nodes = node.children) || !(n = nodes.length)) return;
-    var nodes, xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity, a, b, c, i, j, k, n;
+    var xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
+    var a, b, c, i, j, k;
     function bound(node) {
       xMin = Math.min(node.x - node.r, xMin);
       xMax = Math.max(node.x + node.r, xMax);
@@ -6747,7 +6763,7 @@ d3 = function() {
         return d3_layout_treemapPad(node, x);
       }
       var type;
-      pad = (padding = x) == null ? d3_layout_treemapPadNull : (type = typeof x) === "function" ? padFunction : type === "number" ? (x = [ x, x, x, x ], 
+      pad = (padding = x) == null ? d3_layout_treemapPadNull : (type = typeof x) === "function" ? padFunction : type === "number" ? (x = [ x, x, x, x ],
       padConstant) : padConstant;
       return treemap;
     };
@@ -7012,8 +7028,9 @@ d3 = function() {
     scale.tickFormat = function(n, format) {
       if (!arguments.length) return d3_scale_logFormat;
       if (arguments.length < 2) format = d3_scale_logFormat; else if (typeof format !== "function") format = d3.format(format);
-      var k = Math.max(.1, n / scale.ticks().length), f = positive ? (e = 1e-12, Math.ceil) : (e = -1e-12, 
-      Math.floor), e;
+      var e;
+      var k = Math.max(.1, n / scale.ticks().length), f = positive ? (e = 1e-12, Math.ceil) : (e = -1e-12,
+      Math.floor);
       return function(d) {
         return d / pow(f(log(d) + e)) <= k ? format(d) : "";
       };
@@ -7299,7 +7316,7 @@ d3 = function() {
   d3.svg.arc = function() {
     var innerRadius = d3_svg_arcInnerRadius, outerRadius = d3_svg_arcOuterRadius, startAngle = d3_svg_arcStartAngle, endAngle = d3_svg_arcEndAngle;
     function arc() {
-      var r0 = innerRadius.apply(this, arguments), r1 = outerRadius.apply(this, arguments), a0 = startAngle.apply(this, arguments) + d3_svg_arcOffset, a1 = endAngle.apply(this, arguments) + d3_svg_arcOffset, da = (a1 < a0 && (da = a0, 
+      var r0 = innerRadius.apply(this, arguments), r1 = outerRadius.apply(this, arguments), a0 = startAngle.apply(this, arguments) + d3_svg_arcOffset, a1 = endAngle.apply(this, arguments) + d3_svg_arcOffset, da = (a1 < a0 && (da = a0,
       a0 = a1, a1 = da), a1 - a0), df = da < π ? "0" : "1", c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
       return da >= d3_svg_arcMax ? r0 ? "M0," + r1 + "A" + r1 + "," + r1 + " 0 1,1 0," + -r1 + "A" + r1 + "," + r1 + " 0 1,1 0," + r1 + "M0," + r0 + "A" + r0 + "," + r0 + " 0 1,0 0," + -r0 + "A" + r0 + "," + r0 + " 0 1,0 0," + r0 + "Z" : "M0," + r1 + "A" + r1 + "," + r1 + " 0 1,1 0," + -r1 + "A" + r1 + "," + r1 + " 0 1,1 0," + r1 + "Z" : r0 ? "M" + r1 * c0 + "," + r1 * s0 + "A" + r1 + "," + r1 + " 0 " + df + ",1 " + r1 * c1 + "," + r1 * s1 + "L" + r0 * c1 + "," + r0 * s1 + "A" + r0 + "," + r0 + " 0 " + df + ",0 " + r0 * c0 + "," + r0 * s0 + "Z" : "M" + r1 * c0 + "," + r1 * s0 + "A" + r1 + "," + r1 + " 0 " + df + ",1 " + r1 * c1 + "," + r1 * s1 + "L0,0" + "Z";
     }
@@ -7886,7 +7903,7 @@ d3 = function() {
       g.each(function() {
         var g = d3.select(this);
         var ticks = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments_) : scale.domain() : tickValues, tickFormat = tickFormat_ == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments_) : d3_identity : tickFormat_, tick = g.selectAll(".tick").data(ticks, d3_identity), tickEnter = tick.enter().insert("g", ".domain").attr("class", "tick").style("opacity", 1e-6), tickExit = d3.transition(tick.exit()).style("opacity", 1e-6).remove(), tickUpdate = d3.transition(tick).style("opacity", 1), tickTransform;
-        var range = d3_scaleRange(scale), path = g.selectAll(".domain").data([ 0 ]), pathUpdate = (path.enter().append("path").attr("class", "domain"), 
+        var range = d3_scaleRange(scale), path = g.selectAll(".domain").data([ 0 ]), pathUpdate = (path.enter().append("path").attr("class", "domain"),
         d3.transition(path));
         var scale1 = scale.copy(), scale0 = this.__chart__ || scale1;
         this.__chart__ = scale1;
@@ -8714,7 +8731,7 @@ d3 = function() {
     return n ? (date.y = d3_time_expandYear(+n[0]), i + n[0].length) : -1;
   }
   function d3_time_parseZone(date, string, i) {
-    return /^[+-]\d{4}$/.test(string = string.substring(i, i + 5)) ? (date.Z = +string, 
+    return /^[+-]\d{4}$/.test(string = string.substring(i, i + 5)) ? (date.Z = +string,
     i + 5) : -1;
   }
   function d3_time_expandYear(d) {

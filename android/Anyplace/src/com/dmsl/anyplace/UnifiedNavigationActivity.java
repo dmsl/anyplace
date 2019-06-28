@@ -5,7 +5,7 @@
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
  * Author(s): Timotheos Constambeys, Lambros Petrou
- * 
+ *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: http://anyplace.cs.ucy.ac.cy
@@ -36,6 +36,8 @@
 
 package com.dmsl.anyplace;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -47,6 +49,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
@@ -54,9 +57,12 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -80,6 +86,7 @@ import com.circlegate.tt.cg.an.lib.map.OnInfoWindowElemTouchListener;
 import com.dmsl.anyplace.AnyplacePrefs.Action;
 import com.dmsl.anyplace.cache.AnyplaceCache;
 import com.dmsl.anyplace.cache.BackgroundFetchListener;
+import com.dmsl.anyplace.feedback.AnyplaceFeedbackLoggerActivity;
 import com.dmsl.anyplace.floor.Algo1Radiomap;
 import com.dmsl.anyplace.floor.Algo1Server;
 import com.dmsl.anyplace.floor.FloorSelector;
@@ -138,6 +145,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     private static final float mInitialZoomLevel = 19.0f;
     public static final String SHARED_PREFS_ANYPLACE = "Anyplace_Preferences";
 
+    private static final int PERMISSION_LOCATION_READ = 100;
+
     // Define a request code to send to Google Play services This code is
     // returned in Activity.onActivityResult
     private final static int LOCATION_CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -185,7 +194,6 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     private Polyline pathLineOutdoor = null;
 
     private AnyplaceCache mAnyplaceCache = null;
-    // holds the PoisModels and Markers on map
     private VisiblePois visiblePois = null;
     private ClusterManager<BuildingModel> mClusterManager;
 
@@ -416,9 +424,9 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
         });
 
-		/*
+        /*
          * Create a new location client, using the enclosing class to handle callbacks.
-		 */
+         */
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create();
         // Use high accuracy
@@ -427,7 +435,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         mLocationRequest.setInterval(2000);
         // Set the fastest update interval to 1 second
         mLocationRequest.setFastestInterval(1000);
-        mLocationClient = new LocationClient(this, this, this);
+
         // declare that this is the first time this Activity launched so make
         // the automatic building selection
         mAutomaticGPSBuildingSelection = true;
@@ -440,6 +448,40 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
         // handle the search intent
         handleIntent(getIntent());
+        requestForPermissions();
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void requestForPermissions() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String permissionString = Manifest.permission.ACCESS_FINE_LOCATION;
+
+            if (this.checkSelfPermission(permissionString)
+                    != PackageManager.PERMISSION_GRANTED) {
+                this.requestPermissions(
+                        new String[]{permissionString},
+                        PERMISSION_LOCATION_READ);
+            } else {
+                mLocationClient = new LocationClient(this, this, this);
+                mLocationClient.connect();
+            }
+        }else{
+            mLocationClient = new LocationClient(this, this, this);
+            mLocationClient.connect();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_LOCATION_READ: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mLocationClient = new LocationClient(this, this, this);
+                    mLocationClient.connect();
+                }
+            }
+        }
     }
 
     private void focusUserLocation() {
@@ -481,7 +523,6 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     @Override
     protected void onStart() {
         super.onStart();
-        mLocationClient.connect();
 
         // Flurry Analytics
         if (AnyplaceAPI.FLURRY_ENABLE) {
@@ -504,12 +545,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         boolean isOnline = NetworkUtils.isOnline(UnifiedNavigationActivity.this);
 
         if (!isOnline) {
-            AndroidUtils.showWifiSettings(this,"No Internet Connection", null, checkGPS);
-        }
-        else if (!isWifiOn){
-            AndroidUtils.showWifiSettings(this,"WiFi is disabled", null, checkGPS);
-        }
-        else {
+            AndroidUtils.showWifiSettings(this, "No Internet Connection", null, checkGPS);
+        } else if (!isWifiOn) {
+            AndroidUtils.showWifiSettings(this, "WiFi is disabled", null, checkGPS);
+        } else {
             checkGPS.run();
         }
 
@@ -542,7 +581,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     protected void onStop() {
         super.onStop();
         // Disconnecting the client invalidates it.
-        mLocationClient.disconnect();
+        if(mLocationClient!= null)
+            mLocationClient.disconnect();
 
         // Flurry Analytics
         if (AnyplaceAPI.FLURRY_ENABLE) {
@@ -681,6 +721,22 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
             }
         });
 
+        /*
+            * Load Anyplace Feedback Module
+        */
+        final SubMenu subMenuFeedbackLogger = menu.addSubMenu("Feedback");
+        final MenuItem LoadFeedbackLogger = subMenuFeedbackLogger.getItem();
+        LoadFeedbackLogger.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        LoadFeedbackLogger.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(getApplicationContext(), AnyplaceFeedbackLoggerActivity.class);
+                startActivity(intent);
+                Log.d("UnifiedNavActivity", "feedback activity started");
+                return true;
+            }
+        });
+
         // ****************************************** preferences
         // ********************************************** /
         final SubMenu subMenuPreferences = menu.addSubMenu("Preferences");
@@ -729,9 +785,9 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        /*
-         * case android.R.id.home: // finish(); break;
-		 */
+            /*
+             * case android.R.id.home: // finish(); break;
+             */
             default:
                 break;
         }
@@ -758,8 +814,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         adapter.notifyDataSetChanged();
     }
 
-
-    // </ GOOGLE MAP FUNCTIONS
+    // <GOOGLE MAP FUNCTIONS>
 
     // Called from onCreate or onResume
     private void setUpMapIfNeeded() {
@@ -1040,8 +1095,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
     }
 
-    // /> GOOGLE MAP FUNCTIONS
-
+    // </GOOGLE MAP FUNCTIONS>
 
     // Select Building Activity based on gps location
     private void loadSelectBuildingActivity(GeoPoint loc, boolean invisibleSelection) {
@@ -1361,7 +1415,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                     poisMap.put(pm.puid, pm);
                 }
 
-                handlePoisOnMap(poisMap.values());
+                displayPoisOnMap(poisMap.values());
                 startNavigationTask(pm.puid);
                 selectPlaceActivityResult_HELP2(b, f);
             }
@@ -1371,7 +1425,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
                 Collection<PoisModel> l = mAnyplaceCache.getPois();
                 l.add(pm);
-                handlePoisOnMap(l);
+                displayPoisOnMap(l);
                 startNavigationTask(pm.puid);
 
                 selectPlaceActivityResult_HELP2(b, f);
@@ -1387,7 +1441,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
             @Override
             public void onSuccess(String result, Map<String, PoisModel> poisMap) {
-                handlePoisOnMap(poisMap.values());
+                displayPoisOnMap(poisMap.values());
                 loadIndoorOutdoorPath();
                 selectPlaceActivityResult_HELP2(b, f);
             }
@@ -1459,10 +1513,12 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
             @Override
             public void onSuccess(String result) {
+
                 if (disableSuccess) {
                     onErrorOrCancel("");
                     return;
                 }
+                Log.d("UnifiedNavActivity", "selectPlaceActivityResult_HELP2 Success");
                 // start the tracker
                 enableAnyplaceTracker();
 
@@ -1543,8 +1599,8 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         }
     }
 
+    // <Play Services Functions>
 
-    // </ Play Services Functions
     private boolean checkPlayServices() {
         // Check that Google Play services is available
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -1599,6 +1655,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     public void onConnected(Bundle dataBundle) {
         // Called after onResume by system
         // Log.d("Google Play services", "Connected");
+
         if (checkPlayServices()) {
             initCamera();
             // Get Wifi + GPS Fused Location
@@ -1614,16 +1671,18 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                     Toast.makeText(getBaseContext(), "No location available at the moment.", Toast.LENGTH_LONG).show();
             }
         }
+
     }
 
     @Override
     public void onDisconnected() {
         Log.d("Google Play services", "Disconnected. Please re-connect!");
     }
-    // /> Play Services Functions
 
+    // </Play Services Functions>
 
-    // </ NAVIGATION FUNCTIONS
+    // <NAVIGATION FUNCTIONS>
+
     private void startNavigationTask(String id) {
 
         if (!NetworkUtils.isOnline(this)) {
@@ -1887,11 +1946,12 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
 
         }, this, forceReload);
     }
-    // /> NAVIGATION FUNCTIONS
 
+    // </NAVIGATION FUNCTIONS>
 
-    // </POIS
-    private void handlePoisOnMap(Collection<PoisModel> collection) {
+    // <POIS>
+
+    private void displayPoisOnMap(Collection<PoisModel> collection) {
 
         visiblePois.clearAll();
         String currentFloor = userData.getSelectedFloorNumber();
@@ -1938,10 +1998,11 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
             fetchPoisByBuidFloorTask.execute();
         }
     }
-    // />POIS
 
+    // </POIS>
 
-    // </ Activity Listeners
+    // <Activity Listeners>
+
     @Override
     public void onNewWifiResults(int aps) {
         // Log.d( "Anyplace Tracker", "wifi res: " + list.size() );
@@ -1952,6 +2013,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
+            Log.d("UnifiedNavActivity", "OnLocationChanged Called");
             userData.setLocationGPS(location);
             updateLocation();
 
@@ -1966,6 +2028,7 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     @Override
     public void onNewLocation(final LatLng pos) {
         userData.setPositionWifi(pos.latitude, pos.longitude);
+        Log.d("UnifiedNavActivity", "OnNewLocation Called");
         this.runOnUiThread(new Runnable() {
 
             @Override
@@ -2078,10 +2141,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
         }
     }
 
-    // /> Activity Listeners
+    // </Activity Listeners>
 
+    // <HELPER FUNCTIONS>
 
-    // </ HELPER FUNCTIONS
     private void enableAnyplaceTracker() {
         // Do not change file wile enabling tracker
         if (lpTracker.trackOn()) {
@@ -2124,10 +2187,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     private void hideProgressBar() {
         progressBar.setVisibility(View.GONE);
     }
-    // /> HELPER FUNCTIONS
 
+    // </HELPER FUNCTIONS>
 
-    // </ SEARCHING FUNCTIONS
+    // <SEARCHING FUNCTIONS>
     @Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);
@@ -2235,14 +2298,12 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                 // PoisModel or Place Class
                 IPoisClass place_selected = AnyPlaceSeachingHelper.getClassfromJson(data);
 
-                if (place_selected.id() != null) {
-                    // hide the search view when a navigation route is drawn
-                    if (searchView != null) {
-                        searchView.setIconified(true);
-                        searchView.clearFocus();
-                    }
-                    handleSearchPlaceSelection(place_selected);
+                // hide the search view when a navigation route is drawn
+                if (searchView != null) {
+                    searchView.setIconified(true);
+                    searchView.clearFocus();
                 }
+                handleSearchPlaceSelection(place_selected);
 
             }
 
@@ -2250,44 +2311,23 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
     } // end of handle intent
 
     // handle the selected place from the TextBox or search activity
-    // either Anyplace POI or a Google Place
     private void handleSearchPlaceSelection(final IPoisClass place) {
         if (place == null)
             return;
         switch (place.type()) {
+            case AnyPlaceBuilding:
+                showPoiOnMap(place);
             case AnyPlacePOI:
-                startNavigationTask(place.id());
-                break;
-            case GooglePlace:
-
-                mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
-
-                    @Override
-                    public void onSuccess(String result, List<BuildingModel> allBuildings) {
-                        FetchNearBuildingsTask nearBuildings = new FetchNearBuildingsTask();
-                        nearBuildings.run(allBuildings.iterator(), place.lat(), place.lng(), 200);
-
-                        if (nearBuildings.buildings.size() > 0) {
-                            final BuildingModel b = nearBuildings.buildings.get(0);
-
-                            bypassSelectBuildingActivity(b, "0", false);
-                        } else {
-                            showGooglePoi(place);
-                        }
-                    }
-
-                    @Override
-                    public void onErrorOrCancel(String result) {
-                        showGooglePoi(place);
-                    }
-                }, UnifiedNavigationActivity.this, false);
-
+                if (place.id() != null) {
+                    startNavigationTask(place.id());
+                }
                 break;
         }
     }
 
-    private void showGooglePoi(IPoisClass place) {
+    private void showPoiOnMap(IPoisClass place) {
         cameraUpdate = true;
+
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(place.lat(), place.lng()), mInitialZoomLevel), new CancelableCallback() {
 
             @Override
@@ -2300,10 +2340,10 @@ public class UnifiedNavigationActivity extends SherlockFragmentActivity implemen
                 cameraUpdate = false;
             }
         });
-        // add the marker for this Google Place
-        Marker mGooglePlaceMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(place.lat(), place.lng())).icon(BitmapDescriptorFactory.fromResource(R.drawable.pin2)));
-        visiblePois.setGooglePlaceMarker(mGooglePlaceMarker, place);
+
     }
+
+    // </SEARCHING FUNCTIONS>
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

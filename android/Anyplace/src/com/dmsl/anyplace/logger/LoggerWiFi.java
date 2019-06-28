@@ -46,6 +46,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.net.wifi.ScanResult;
+import android.util.Log;
 
 public class LoggerWiFi {
 
@@ -60,7 +61,8 @@ public class LoggerWiFi {
 	public ArrayList<ArrayList<LogRecordMap>> mSamples = new ArrayList<ArrayList<LogRecordMap>>();
 	public boolean exceptionOccured = false;
 	public String msg;
-
+	public static boolean sample_ssid = false;
+	private String unknownSsid = "HIDDEN";
 	private Callback callback;
 	ExecutorService executorService;
 
@@ -89,7 +91,25 @@ public class LoggerWiFi {
 				long timestamp = System.currentTimeMillis();
 
 				for (int i = 0; i < wifiList.size(); i++) {
-					LogRecordMap lr = new LogRecordMap(timestamp, lat, lng, raw_heading, isWalking, wifiList.get(i).BSSID, wifiList.get(i).level);
+					Log.d("wifi_capabilities: ", wifiList.get(i).capabilities + "\nfrequency: " + Integer.toString(wifiList.get(i).frequency)
+							+ "\nchannel_width: " + Integer.toString(wifiList.get(i).channelWidth)
+							+ "\ncenter_freq0: " + Integer.toString(wifiList.get(i).centerFreq0) + "\ncenter_freq1: " + Integer.toString(wifiList.get(i).centerFreq1));
+					//todo add a condition to use ssid or not
+					LogRecordMap lr;
+					String objectid = android.os.Build.MANUFACTURER  + android.os.Build.MODEL;
+					if(LoggerWiFi.sample_ssid){
+						String ssid = wifiList.get(i).SSID;
+						if(ssid == null || wifiList.get(i).SSID.isEmpty()){
+							lr = new LogRecordMap(timestamp, lat, lng, raw_heading, isWalking, wifiList.get(i).BSSID, wifiList.get(i).level, unknownSsid, objectid, wifiList.get(i).frequency, wifiList.get(i).capabilities, wifiList.get(i).channelWidth);
+						} else {
+							lr = new LogRecordMap(timestamp, lat, lng, raw_heading, isWalking, wifiList.get(i).BSSID, wifiList.get(i).level, ssid, objectid, wifiList.get(i).frequency, wifiList.get(i).capabilities, wifiList.get(i).channelWidth);
+						}
+
+					} else {
+						lr = new LogRecordMap(timestamp, lat, lng, raw_heading, isWalking, wifiList.get(i).BSSID, wifiList.get(i).level);
+					}
+
+					Log.d("LoggerWifi", lr.toString());
 					records.add(lr);
 				}
 				mSamples.add(records);
@@ -121,7 +141,8 @@ public class LoggerWiFi {
 	/**
 	 * it distributes the samples on the line's points.
 	 * 
-	 * @param end
+	 * @param lat
+	 * @param lng
 	 *            Ending point of the line
 	 */
 
@@ -187,7 +208,13 @@ public class LoggerWiFi {
 	 * */
 	private void write_to_log(String folder_path, String filename_rss, String currentFloor, String currentBuilding) {
 
-		String header = "# Timestamp, X, Y, HEADING, MAC Address of AP, RSS, Floor, BUID\n";
+		String header;
+		if (!LoggerWiFi.sample_ssid){
+			header = "# Timestamp, X, Y, HEADING, MAC Address of AP, RSS, Floor, BUID\n";
+		} else {
+			header = "# Timestamp, X, Y, HEADING, MAC Address of AP, RSS, SSID, ObjectID, Frequency, Capabilities, Floor, BUID\n";
+		}
+
 		LogRecordMap writeLR;
 
 		try {
@@ -202,7 +229,17 @@ public class LoggerWiFi {
 					fos.write(header.getBytes());
 					for (int j = 0; j < writeRecords.size(); ++j) {
 						writeLR = writeRecords.get(j);
-						fos.write((writeLR.toString() + " " + String.valueOf(currentFloor) + " " + String.valueOf(currentBuilding) + "\n").getBytes());
+
+						String log_record = writeLR.toString() + " " + String.valueOf(currentFloor) + " " + String.valueOf(currentBuilding);
+						if (writeLR.getSsid() != null) {
+							log_record = log_record + " " + String.valueOf(writeLR.getSsid()).trim().replace(' ', '_') +
+									" " + String.valueOf(writeLR.getObjectid()).trim().replace(' ', '_') +
+									" " + String.valueOf(writeLR.getFrequency()).trim() +
+									" " + String.valueOf(writeLR.getChannelWidth()).trim() +
+									" " + String.valueOf(writeLR.getCapabilities()).trim().replace(' ', '_');
+						}
+						Log.d("LoggerWifi log_record ", log_record);
+						fos.write((log_record+ "\n").getBytes());
 					}
 				}
 

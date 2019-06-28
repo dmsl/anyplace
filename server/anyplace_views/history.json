@@ -1,0 +1,17 @@
+{
+  "views": {
+    "location_history": {
+         "map": "function (doc, meta) {if( doc.lhistid && doc.obid) emit([doc.obid], {\"id\":doc.lhistid, \"obid\":doc.obid, \"dvid\":doc.dvid,\"building\": doc.buid,\"floor\":doc.floor, \"lat\":doc.coordinates_lat, \"long\":doc.coordinates_lon,\"timestamp\":doc.timestamp}); }"
+     },
+    "location_history_by_buid": {
+         "map": "function (doc, meta) {if( doc.lhistid && doc.obid) emit([doc.buid, doc.floor], {\"id\":doc.lhistid, \"obid\":doc.obid, \"dvid\":doc.dvid,\"building\": doc.buid,\"floor\":doc.floor, \"lat\":doc.coordinates_lat, \"long\":doc.coordinates_lon,\"timestamp\":doc.timestamp}); }"
+     },
+    "location_history_by_obid_buid_floor": {
+         "map": "function (doc, meta) {if( doc.lhistid && doc.obid) emit([doc.obid, doc.buid, doc.floor], {\"id\":doc.lhistid, \"obid\":doc.obid, \"dvid\":doc.dvid,\"building\": doc.buid,\"floor\":doc.floor, \"lat\":doc.coordinates_lat, \"long\":doc.coordinates_lon,\"timestamp\":doc.timestamp}); }"
+     },
+     "location_history_obj_cat": {
+      "map": "function (doc, meta) {if( doc.lhistid && doc.objcat) emit(doc.objcat, doc.obid); }",
+      "reduce": "function reduce(keys, values, rereduce){ if(rereduce){ var result=[];for(var i=0;i<values.length;i++){       var distinct=values[i];for(var j=0;j<distinct.length;j++){result.push(distinct[j]);}}return result.filter(function(e,i, arr){return arr.lastIndexOf(e)===i; });} return values.filter(function(e, i, arr){return arr.lastIndexOf(e)===i; }); }"
+    }
+  }
+}
