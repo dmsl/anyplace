@@ -29,8 +29,15 @@ Enjoy Anyplace!
 
 The Anyplace Team 
 	 
-Copyright (c) 2018, Data Management Systems Lab (DMSL), Department of Computer Science
+Copyright (c) 2019, Data Management Systems Lab (DMSL), Department of Computer Science
 University of Cyprus.
+
+Contributors: 
+- University of Cyprus (Cyprus)
+- Alstom (France)
+- Infosys (India)
+- University of Pittsburgh (USA)
+- University of Mannheim (Germany)
 
 All rights reserved.
 
