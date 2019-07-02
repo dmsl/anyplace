@@ -37,8 +37,6 @@
 package com.dmsl.anyplace.logger;
 
 import java.io.Serializable;
-import android.util.Log;
-
 
 public class LogRecordMap implements Serializable {
 
@@ -49,11 +47,6 @@ public class LogRecordMap implements Serializable {
 	public boolean walking;
 	public String bssid;
 	public int rss;
-	public String ssid;
-	public String objectid;
-	public int frequency;
-	public String capabilities;
-	public int channelWidth;
 
 	public LogRecordMap(long ts, double lat, double lng, float heading, boolean walking, String bssid, int rss) {
 		super();
@@ -66,50 +59,11 @@ public class LogRecordMap implements Serializable {
 		this.rss = rss;
 	}
 
-	public LogRecordMap(long ts, double lat, double lng, float heading, boolean walking, String bssid, int rss, String ssid, String objectid, int frequency, String capabilities, int channelWidth) {
-		super();
-		this.ts = ts;
-		this.lng = lng;
-		this.lat = lat;
-		this.heading = heading;
-		this.walking = walking;
-		this.bssid = bssid;
-		this.rss = rss;
-		this.ssid = ssid;
-		this.objectid = objectid;
-		this.frequency = frequency;
-		this.capabilities = capabilities;
-		this.channelWidth = channelWidth;
-	}
-
 	public String toString() {
 
-		String str = String.valueOf(ts) + " " + String.valueOf(lat) + " " + String.valueOf(lng) + " " + String.valueOf(heading) + " " + String.valueOf(bssid) + " " + String.valueOf(rss);
+		String str;
+		str = String.valueOf(ts) + " " + String.valueOf(lat) + " " + String.valueOf(lng) + " " + String.valueOf(heading) + " " + String.valueOf(bssid) + " " + String.valueOf(rss);
 		return str;
 	}
 
-	public String getSsid() {
-		return this.ssid;
-	}
-	public String getObjectid() {
-		if (this.objectid == null || this.objectid.trim().isEmpty()) {
-			return "NA";
-		} else {
-			return this.objectid;
-		}
-	}
-	public String getCapabilities() {
-		if (this.capabilities == null || this.capabilities.trim().isEmpty()) {
-			return "NA";
-		} else {
-			return this.capabilities;
-		}
-	}
-	public int getFrequency() {
-		return this.frequency;
-	}
-
-	public int getChannelWidth() {
-		return this.channelWidth;
-	}
 }

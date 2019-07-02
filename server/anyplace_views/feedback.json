@@ -1,7 +1,0 @@
-{
-	"views": {
-		"feedback_all": {
-			"map": "function (doc, meta) {\n  if (doc.fid) {\n   emit(doc.fid, {\n   \"floor\": doc.floor,\n   \"building\": doc.buid,\n   \"deviceId\": doc.dvid,\n   \"gps_lat\": doc.gps_lat,\n   \"gps_lon\": doc.gps_lon,\n   \"gps_acc\": doc.gps_acc,\n   \"wifi_lat\": doc.wifi_lat,\n   \"wifi_lon\": doc.wifi_lon,\n   \"usr_lat\": doc.usr_lat,\n   \"usr_lon\": doc.usr_lon,\n   \"timestamp\": doc.timestamp});\n  }\n}"
-		}
-	}
-}

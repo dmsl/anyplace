@@ -65,14 +65,6 @@
             android:key="walk_bar"
             android:max="@string/walk_bar_max"
             android:title="Walking Sensitivity" />
-
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="sample_ssid"
-            android:title="Additional Parameters"
-            android:summaryOff="Enable Sampling of parameters Like Object ID, Frequency and Capabilities" />
-            android:summaryOn="Disable Sampling of parameters Like Object ID, Frequency and Capabilities" />
-
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/logger_storing_title" >
         <Preference

@@ -12,9 +12,6 @@
 						},
 						"tempview": {
 							"map": "function (doc, meta) {\n  if (doc.rss && doc.MAC && doc.x >= 40.44159232134214 && doc.y >= -80.00603422522545 & doc.x <= 40.44192454900267 && doc.y <= -80.00557959079742)\n  \temit(meta.id, null);\n}"
-						},
-						"raw_radio_MAC" : {
-						  "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) { \n  emit(doc.MAC, doc.rss); \n }\n }"
 						}
 					}
 				}

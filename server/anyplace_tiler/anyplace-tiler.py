@@ -45,7 +45,7 @@ def fromWorldToPixelCoordinates( point, zoom ):
     y = int( math.floor(point.y * tiles) )
     return Point(x, y)
 
-# Given the Pixel coordinates we get the Google Maps Tile Coordinates that this
+# Given the Pixel coordinates we get the Google Maps Tile Coordinates that this 
 # location belongs to
 def fromPixelCoordsToTileCoordinates( pixelCoords ):
     tileX = math.floor(pixelCoords.x / GoogleMaps.TILE_SIZE)
@@ -67,7 +67,7 @@ def fromTileCoordsToLatLng(tileCoords, zoom):
     tiles = 2 ** zoom
     tile_lng = tileCoords.x / tiles * 360.0 - 180.0
     tile_lat = math.degrees(math.radians(math.atan(math.sinh(math.pi*(1-2*tileCoords.y/tiles)))))
-    return LatLng(tile_lat,tile_lng)
+    return LatLng(tile_lat,tile_lng)   
 
 # Given the Google Maps Tile coordinates we get the Pixel Coordinates
 def fromTileCoordsToPixelCoordinates(tileCoords):
@@ -81,7 +81,7 @@ def fromTileCoordsToPixelCoordinates(tileCoords):
 # Image Processing Functionality
 #####################################################################################
 
-# Returns the content type and dimensions of an image.
+# Returns the content type and dimensions of an image. 
 # Currently works only with PNG images.
 def getImageInfo(data):
 
@@ -136,7 +136,7 @@ def convertPaddedImage( filename, newW, newH, outputName ):
 
 
 def resizeImage( srcImage, zoomOriginal, zoomCurrent, destImage ):
-    resRatio=100
+    rasRatio=100
     if(zoomOriginal!=zoomCurrent):
         resRatio = 100.0 / (2 ** (zoomOriginal-zoomCurrent) )
     print(resRatio)
@@ -173,10 +173,10 @@ def fixTileStructure( fixTileStructureScript, ImageFileName ):
 # args:
 #  1: TopLeft Latitude
 #  2: TopLeft Longitude
-#  3:
+#  3: 
 def main( argv ):
     print( argv )
-
+    
     if(8 != len(sys.argv)):
         print(usage())
         sys.exit(1)
@@ -196,7 +196,7 @@ def main( argv ):
     CURRENT_ZOOM_IMAGE_NAME = ImageDirName + '/zoom-sized-image'
 
     # initializations
-
+    
     # we will run the procedure for every zoom level in range [OriginalZoom..ToZoom]
     for currentZoom in range( OriginalZoom, (ToZoom-1), -1 ):
         currentImage=ImageFileName
@@ -210,16 +210,16 @@ def main( argv ):
 
         # get the Image top left world coords
         topLeftWorldCoords = fromLatLngToWorldCoordinates(LatLng(ImageLatitude, ImageLongitude))
-        print('Top Left World Coords: %.16f, %.16f' % (topLeftWorldCoords.x, topLeftWorldCoords.y))
+        print('Top Left World Coords: %.16f, %.16f' % (topLeftWorldCoords.x, topLeftWorldCoords.y)) 
         # get the image top left Pixel coords
         topLeftPixelCoords = fromWorldToPixelCoordinates(topLeftWorldCoords, currentZoom)
-        print('Top Left Pixel Coords: %d, %d' % (topLeftPixelCoords.x, topLeftPixelCoords.y))
+        print('Top Left Pixel Coords: %d, %d' % (topLeftPixelCoords.x, topLeftPixelCoords.y)) 
         # get the tile coordinates for the image
         tileCoords = fromPixelCoordsToTileCoordinates(topLeftPixelCoords)
-        print('Tile Coords: %d, %d' % (tileCoords.x, tileCoords.y))
+        print('Tile Coords: %d, %d' % (tileCoords.x, tileCoords.y)) 
         # get the Pixel coords for the tile coordinates
         tilePixelCoords = fromTileCoordsToPixelCoordinates(tileCoords)
-        print('Tile Pixel Coords: %d, %d' % (tilePixelCoords.x, tilePixelCoords.y))
+        print('Tile Pixel Coords: %d, %d' % (tilePixelCoords.x, tilePixelCoords.y)) 
 
         # calculate the adjustments that need to happen to the original image
         padW = topLeftPixelCoords.x - tilePixelCoords.x
@@ -236,7 +236,7 @@ def main( argv ):
 
         # NOW WE SHOULD CALL THE GOOGLETILER with the padded image as parameter
         googleTileCutter(googleTilerScript, currentZoom, tileCoords, CURRENT_PADDED_IMAGE_NAME)
-
+        
     # NOW WE SHOULD CALL ANOTHER SCRIPT THAT WILL MOVE FILES INTO STRUCTURED FOLDERS
     fixTileStructure( fixTileStructureScript, ImageFileName )
 

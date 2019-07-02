@@ -1,8 +1,0 @@
-{
-  "views": {
-    "heatmap_by_floor_building_timestamp": {
-      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.timestamp], doc.rss);\n  }\n}",
-      "reduce": "_count"
-    }
-  }
-}

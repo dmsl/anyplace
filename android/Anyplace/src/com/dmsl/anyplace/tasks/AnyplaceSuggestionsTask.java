@@ -36,24 +36,28 @@
 
 package com.dmsl.anyplace.tasks;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.os.AsyncTask;
-
-import com.dmsl.anyplace.cache.AnyplaceCache;
-import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper.SearchTypes;
-import com.dmsl.anyplace.nav.BuildingModel;
-import com.dmsl.anyplace.nav.IPoisClass;
-import com.dmsl.anyplace.nav.PoisModel;
-import com.dmsl.anyplace.utils.GeoPoint;
-
-import org.apache.http.conn.ConnectTimeoutException;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+
+import org.apache.http.conn.ConnectTimeoutException;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.Handler;
+
+import com.dmsl.anyplace.cache.AnyplaceCache;
+import com.dmsl.anyplace.googleapi.GooglePlaces;
+import com.dmsl.anyplace.googleapi.PlacesList;
+import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper;
+import com.dmsl.anyplace.nav.IPoisClass;
+import com.dmsl.anyplace.nav.PoisModel;
+import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper.SearchTypes;
+import com.dmsl.anyplace.utils.GeoPoint;
 
 /**
  * The task that provides the Suggestions according to the zoom level and the position.
@@ -90,7 +94,7 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 		mAnyplaceCache = AnyplaceCache.getInstance(ctx);
 	}
 
-	public static boolean isMatching(String query, String poi) {
+	public static boolean matchQueryPoi(String query, String poi) {
 		query = query.toLowerCase(Locale.ENGLISH);
 		poi = poi.toLowerCase(Locale.ENGLISH);
 		String[] segs = poi.split(" ");
@@ -104,24 +108,15 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 		return false;
 	}
 
-	public List<IPoisClass> queryAnyPlacePOI(String query) throws IOException {
-		List<IPoisClass> results = new ArrayList<IPoisClass>();
-		for (PoisModel pm : mAnyplaceCache.getPois()) {
-			if (isMatching(query, pm.name) || isMatching(query, pm.description)) {
-				results.add(pm);
+	public List<PoisModel> queryStaticAnyPlacePOI(String query) throws IOException {
+		Collection<PoisModel> pois = mAnyplaceCache.getPois();
+		List<PoisModel> ianyplace = new ArrayList<PoisModel>();
+		for (PoisModel pm : pois) {
+			if (matchQueryPoi(query, pm.name) || matchQueryPoi(query, pm.description)) {
+				ianyplace.add(pm);
 			}
 		}
-		return results;
-	}
-
-	public List<IPoisClass> queryAnyPlaceBuilding(String query) throws IOException {
-		List<IPoisClass> results = new ArrayList<IPoisClass>();
-		for (BuildingModel b : mAnyplaceCache.mWorldBuildings) {
-			if (isMatching(query, b.name)) {
-				results.add(b);
-			}
-		}
-		return results;
+		return ianyplace;
 	}
 
 	@Override
@@ -141,11 +136,13 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 
 				// use the 2-step method to get out quickly if this task is
 				// cancelled
-				List<IPoisClass> places = queryAnyPlacePOI(query);
+				List<PoisModel> places = queryStaticAnyPlacePOI(query);
 				if (isCancelled()) {
 					return "Cancelled!";
 				}
 
+				// create the cursor for the results
+				// cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places);
 				pois = places;
 
 			} else if (searchType == SearchTypes.OUTDOOR_MODE) {
@@ -160,14 +157,47 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 					return "Cancelled!";
 				}
 
-				// use the 2-step method to get out quickly if this task is
-				// cancelled
-				List<IPoisClass> places = queryAnyPlaceBuilding(query);
-				if (isCancelled()) {
+				// Get a handler that can be used to post to the main thread
+				Handler mainHandler = new Handler(ctx.getMainLooper());
+
+				Runnable myRunnable = new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							List<IPoisClass> places = new ArrayList<IPoisClass>(1);
+							PoisModel pm = new PoisModel();
+							pm.name = "Searching through Google ...";
+							places.add(pm);
+							Cursor cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places);
+							mListener.onUpdateStatus("Dummy Result", cursor);
+						} finally {
+							synchronized (sync) {
+								run = true;
+								sync.notifyAll();
+							}
+						}
+					}
+				};
+
+				mainHandler.post(myRunnable);
+
+				// cursor = AnyplacePOIProvider.queryStatic(query,
+				// AnyplacePOIProvider.POI_GOOGLE_PLACES, position);
+				PlacesList places = GooglePlaces.queryStaticGoogle(query, position);
+				if (isCancelled())
 					return "Cancelled!";
+
+				// create the cursor for the results
+				// cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places.results);
+				pois = places.results;
+
+				synchronized (sync) {
+					while (run == false) {
+						sync.wait();
+					}
 				}
 
-				pois = places;
 			}
 
 			if (isCancelled()) {

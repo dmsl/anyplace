@@ -36,7 +36,6 @@ function getVersion() {
 function getBrowserInfo(getModel) {
     var userAgent = navigator.userAgent;
     var returnVal = '';
-    var offset;
 
     if ((offset = userAgent.indexOf('Chrome')) !== -1) {
         returnVal = (getModel) ? 'Chrome' : userAgent.substring(offset + 7);
