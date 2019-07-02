@@ -8,7 +8,7 @@
       "description": "You can find your API key (access_token) by signing in Anyplace Architect, in the \"More\" section."
     }
   ],
-  "baseurl": "http://<SERVER_IP:PORT>/anyplace",
+  "baseurl": "https://ap.cs.ucy.ac.cy/anyplace",
   "endpoints": [
     {
       "name": "Navigation",
@@ -127,9 +127,9 @@
           "http_method": "POST",
           "uri": "/mapping/building/all",
           "parameters": [
-            
           ]
         },
+
         {
           "method_name": "Buildings By Campus Code",
           "method_description": "Get all buildings for a campus",
@@ -151,14 +151,6 @@
           "http_method": "POST",
           "uri": "/mapping/building/all_bucode",
           "parameters": [
-            {
-              "name":"bucode",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building code"
-
-            }
           ]
         },
         {
@@ -203,15 +195,6 @@
               "default": "",
               "description": "Building ID (buid)"
             }
-          ]
-        },
-        {
-          "method_name": "All floors",
-          "method_description": "Get all floors",
-          "http_method": "GET",
-          "uri": "/mapping/all_floors ",
-          "parameters": [
-            
           ]
         },
         {
@@ -345,35 +328,6 @@
       "name": "Blueprints",
       "description": "Download the blueprints of a building floor",
       "methods": [
-        {
-          "method_name": "Download Base64 as Json",
-          "method_description": "Downloads the floor plan in a base64 png format (w/o prefix)",
-          "http_method": "POST",
-          "uri": "/floorplans64asJson/:buid/:floor_number ",
-          "parameters": [
-            {
-              "name": "access_token",
-              "required": "Y",
-              "type": "text",
-              "default": "api_tester",
-              "description": "OAuth2 Access Token"
-            },
-            {
-              "name": "buid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building ID (buid)"
-            },
-            {
-              "name": "floor_number",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building floor number"
-            }
-          ]
-        },
         {
           "method_name": "Download Base64",
           "method_description": "Downloads the floor plan in a base64 png format (w/o prefix)",
@@ -1189,36 +1143,15 @@
           "uri": "/position/estimate_position",
           "parameters": [
             {
-              "name": "obid",
-              "required": "N",
-              "type": "text",
-              "default": "",
-              "description": "Object ID (obid)"
-            },
-            {
-              "name": "objcat",
-              "required": "N",
-              "type": "text",
-              "default": "",
-              "description": "Object Category (objcat)"
-            },
-            {
-              "name": "dvid",
-              "required": "N",
-              "type": "text",
-              "default": "",
-              "description": "Device ID (dvid)"
-            },
-            {
               "name": "buid",
-              "required": "N",
+              "required": "Y",
               "type": "text",
               "default": "",
               "description": "Building ID (buid)"
             },
             {
               "name": "floor",
-              "required": "N",
+              "required": "Y",
               "type": "text",
               "default": "",
               "description": "Floor number (non-whitespace)"
@@ -1231,7 +1164,7 @@
             },
             {
               "name": "algorithm_choice",
-              "required": "N",
+              "required": "Y",
               "type": "integer",
               "description": "choices: KNN_WKNN_Algorithm (1 for non weighted, 2 for weighted), MAP_MMSE_Algorithm (3 for non weighted, 4 for weighted) "
             }
@@ -1618,241 +1551,6 @@
             }
           ]
         }
-      ]
-    },
-    {
-      "name": "custom",
-      "description": "",
-      "methods": [
-        {
-          "method_name": "Radio Heat-Map by floor -SSID ",
-          "method_description": " ",
-          "http_method": "POST",
-          "uri": "/mapping/radio/heatmap_building_floor_ssid ",
-          "parameters": [
-            {
-              "name": "buid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building ID (buid)"
-            },
-            {
-              "name": "floor",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Floor number (non-whitespace)"
-            },
-            {
-              "name": "ssid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "SSID"
-            }
-          ]
-        },
-        {
-          "method_name": "Radio Heat-Map by floor - Whitelisted ",
-          "method_description": "Get count of Whitelisted radio AP.",
-          "http_method": "POST",
-          "uri": "/mapping/radio/heatmap_building_floor_whitelisted ",
-          "parameters": [
-            {
-              "name": "buid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building ID (buid)"
-            },
-            {
-              "name": "floor",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Floor number (non-whitespace)"
-            },
-            {
-              "name": "rss",
-              "required": "N",
-              "type": "integer",
-              "default": "-110",
-              "description": "RSS { default is -110 }"
-            }
-          ]
-        },
-          {
-          "method_name": "Get tracking objects with Categories.",
-          "method_description": "Get tracking objects with Categories.",
-          "http_method": "GET",
-          "uri": "/objcategories",
-          "parameters": [
-            
-          ]
-        },
-        {
-          "method_name": "Get Location History Summary using Object ID",
-          "method_description": "Get Location History Summary using Object ID. ",
-          "http_method": "POST",
-          "uri": "/history_summary",
-          "parameters": [
-            {
-              "name": "obid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Object ID (obid)"
-            }
-          ]
-        },
-        {
-          "method_name": "Get Location History using Object ID",
-          "method_description": "Get Location History  Object ID. ",
-          "http_method": "POST",
-          "uri": "/history",
-          "parameters": [
-            {
-              "name": "obid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Object ID (obid)"
-            },
-            {
-              "name": "buid",
-              "required": "N",
-              "type": "text",
-              "default": "",
-              "description": "Building ID (optional)"
-            },
-            {
-              "name": "floor",
-              "required": "N",
-              "type": "text",
-              "default": "",
-              "description": "Floor number (optional)"
-            }
-          ]
-        },
-        {
-          "method_name": "Get Location History using Building/Floor",
-          "method_description": "Get Location History using Building/Floor",
-          "http_method": "POST",
-          "uri": "/history_by_buid_floor",
-          "parameters": [
-            {
-              "name": "buid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building  ID (buid)"
-            },
-            {
-              "name": "floor",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Floor no (floor)"
-            }
-          ]
-        },
-        {
-          "method_name": "Get Location Feedback",
-          "method_description": "Get Location Feedback",
-          "http_method": "GET",
-          "uri": "/feedback/get_location_feeback",
-          "parameters": []
-
-        },
-        {
-          "method_name": "Add Location Feedback",
-          "method_description": "Add Location Feedback",
-          "http_method": "POST",
-          "uri": "/feedback/add_location_feeback",
-          "parameters": [
-            {
-              "name": "buid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Building  ID (buid)"
-            },
-            {
-              "name": "floor",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Floor no (floor)"
-            },
-            {
-              "name": "dvid",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Unique Device ID"
-            },
-            {
-              "name": "raw_radio",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Raw radio"
-            },
-            {
-              "name": "gps",
-              "required": "N",
-              "type": "json",
-              "default": "",
-              "description": "GPS derived lat and lon : {\"lat\":\"1234\", \"lon\":\"2345\", \"acc\":\"12.5686\"}"
-            },
-            {
-              "name": "wifi",
-              "required": "N",
-              "type": "json",
-              "default": "",
-              "description": "WiFi localized lat and lon"
-            },
-            {
-              "name": "usr",
-              "required": "N",
-              "type": "json",
-              "default": "",
-              "description": "User  pointed lat and lon"
-            }
-          ]
-        },
-        {
-          "method_name": "Toggle Whitelisted access points",
-          "method_description": "Toggle Whitelisted access points",
-          "http_method": "POST",
-          "uri": "/mapping/accesspoints_toggle",
-          "parameters": [
-            {
-              "name": "aplist",
-              "required": "Y",
-              "type": "text",
-              "default": "",
-              "description": "Access Point List [\"apid1\",\"apid2\"...]"
-            }
-          ]
-        },
-        {
-          "method_name": "Get access points [all]",
-          "method_description": "Get access points [all]",
-          "http_method": "GET",
-          "uri": "/mapping/accesspoints_all",
-          "parameters": [
-            
-          ]
-        },
-         {
-          "method_name": "Purge all access points",
-          "method_description": "This will delete all access points captured",
-          "http_method": "POST",
-          "uri": "/mapping/purge_accesspoints",
-          "parameters": [ ]
-        }   
       ]
     }
   ]

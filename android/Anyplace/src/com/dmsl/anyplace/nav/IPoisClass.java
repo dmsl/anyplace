@@ -52,7 +52,7 @@ import com.google.gson.JsonSerializer;
 public interface IPoisClass extends Serializable {
 
 	enum Type {
-		AnyPlaceBuilding, AnyPlacePOI, GooglePlace;
+		AnyPlacePOI, GooglePlace;
 	}
 
 	public final class MyInterfaceAdapter implements JsonDeserializer<IPoisClass>, JsonSerializer<IPoisClass> {

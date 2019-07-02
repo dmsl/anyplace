@@ -773,7 +773,7 @@ body {
 
 
 .infowindow-scroll-fix.h5, .infowindow-scroll-fix h5:before{
-    margin: 0 !important;
+    margin: 0;!important;
 }
 
 .infowindow-text-area{

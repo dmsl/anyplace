@@ -240,7 +240,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
 
         $scope.gmapService.gmap.panTo(position);
         $scope.gmapService.gmap.setZoom(20);
-    };
+    }
 
 }
 ])

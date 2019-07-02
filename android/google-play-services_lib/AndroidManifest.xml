@@ -20,6 +20,7 @@
     android:versionName="4.4.52-000" >
 
     <!-- Version 4.4 was released on May 7, 2014 -->
+    <uses-sdk android:minSdkVersion="9" />
 
     <application />
 

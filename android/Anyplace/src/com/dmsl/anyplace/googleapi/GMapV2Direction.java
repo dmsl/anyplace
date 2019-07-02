@@ -58,15 +58,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.dmsl.anyplace.MyApplication;
 import com.dmsl.anyplace.utils.GeoPoint;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.PolyUtil;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.util.Log;
 
 public class GMapV2Direction {
@@ -78,13 +73,8 @@ public class GMapV2Direction {
 	}
 
 	public Document getDocument(double fromLatitude, double fromLongitude, GeoPoint toPosition, String mode) throws Exception {
-		Context context = MyApplication.getAppContext();
-		ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-		Bundle bundle = ai.metaData;
-		String apiKey = bundle.getString("google.directions.API_KEY");
-
-		String url = "https://maps.googleapis.com/maps/api/directions/xml?" + "origin=" + fromLatitude + "," + fromLongitude + "&destination=" + toPosition.lat + "," + toPosition.lng
-				+ "&units=metric&mode=" + mode + "&key=" + apiKey;
+		String url = "http://maps.googleapis.com/maps/api/directions/xml?" + "origin=" + fromLatitude + "," + fromLongitude + "&destination=" + toPosition.lat + "," + toPosition.lng
+				+ "&sensor=false&units=metric&mode=" + mode;
 
 		HttpParams httpParameters = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParameters, 20000); // 20seconds

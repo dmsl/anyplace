@@ -22,9 +22,6 @@ In case you have any publications resulting from the Anyplace platform, please c
 
 - “Anyplace: A Crowdsourced Indoor Information Service”, Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti, Proceedings of the 16th IEEE International Conference on Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015. Download: http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf
 
-If you install Anyplace on your own servers, please record your URL in the following form:
-https://docs.google.com/spreadsheets/d/1GQySk4omlEcTPWoAt_Vt3WUmVbqFko4xoFKQ2N222RI/edit?usp=sharing
-
 Enjoy Anyplace!
 
 The Anyplace Team 
@@ -119,7 +116,6 @@ The Source code of the Anyplace iOS Phone Client (Magnetic/IMU/IP localization).
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the DEVELOP branch: 
 - DEV Code: https://github.com/dmsl/anyplace/tree/develop
-- DEV Testing: https://ap-dev.cs.ucy.ac.cy *** Important: On the given service, you can observe the latest bug fixes and additions. The given service uses the SAME database as the live service so please don't accidentally delete anything **** 
 
 ## TEAM
 - https://anyplace.cs.ucy.ac.cy/#about

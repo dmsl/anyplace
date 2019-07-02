@@ -34,10 +34,6 @@ public class Algorithms {
 		int i, j;
 
 		ArrayList<String> MacAdressList = RM.getMacAdressList();
-
-		// System.out.println("getMacAdressList" + MacAdressList);
-		// System.out.println("latestScanList" + latestScanList);
-
 		ArrayList<String> Observed_RSS_Values = new ArrayList<String>();
 		LogRecord temp_LR;
 		int notFoundCounter = 0;
@@ -52,7 +48,7 @@ public class Algorithms {
 				temp_LR = latestScanList.get(j);
 
 				// MAC Address Matched
-				if (MacAdressList.get(i).compareToIgnoreCase(temp_LR.getBssid()) == 0) {
+				if (MacAdressList.get(i).compareTo(temp_LR.getBssid()) == 0) {
 					Observed_RSS_Values.add(String.valueOf(temp_LR.getRss()));
 					break;
 				}
@@ -63,14 +59,13 @@ public class Algorithms {
 				++notFoundCounter;
 			}
 		}
-		System.out.println("Algo notFoundCounter : " + notFoundCounter);
 
 		if (notFoundCounter == MacAdressList.size())
 			return null;
 
 		// Read parameter of algorithm
 		String parameter = readParameter(RM, algorithm_choice);
-		System.out.println("Algo parameter : " + parameter);
+
 		if (parameter == null)
 			return null;
 
@@ -90,7 +85,7 @@ public class Algorithms {
 	}
 	
 	private static String MAP_MMSE_Algorithm(RadioMap RM, ArrayList<String> Observed_RSS_Values, String parameter, boolean isWeighted) {
-        System.out.println("MAP_MMSE_Algorithm "+isWeighted);
+
 		ArrayList<String> RSS_Values;
 		double curResult = 0.0d;
 		String myLocation = null;
@@ -224,9 +219,9 @@ public class Algorithms {
 
 	private static String KNN_WKNN_Algorithm(RadioMap RM, ArrayList<String> Observed_RSS_Values, String parameter,
 			boolean isWeighted) {
-        System.out.println("KNN_WKNN_Algorithm "+isWeighted);
+
 		ArrayList<String> RSS_Values;
-		double curResult = 0;
+		float curResult = 0;
 		ArrayList<LocDistance> LocDistance_Results_List = new ArrayList<LocDistance>();
 		String myLocation = null;
 		int K;
@@ -239,11 +234,11 @@ public class Algorithms {
 
 		// Construct a list with locations-distances pairs for currently
 		// observed RSS values
-
 		for (String location : RM.getLocationRSS_HashMap().keySet()) {
 			RSS_Values = RM.getLocationRSS_HashMap().get(location);
 			curResult = calculateEuclideanDistance(RSS_Values, Observed_RSS_Values);
-			if (curResult == Double.NEGATIVE_INFINITY)
+
+			if (curResult == Float.NEGATIVE_INFINITY)
 				return null;
 
 			LocDistance_Results_List.add(0, new LocDistance(curResult, location));
@@ -276,7 +271,7 @@ public class Algorithms {
 		double WeightedSumY = 0.0f;
 
 		String[] LocationArray = new String[2];
-		double x, y;
+		float x, y;
 
 		int K_Min = K < LocDistance_Results_List.size() ? K : LocDistance_Results_List.size();
 
@@ -290,8 +285,8 @@ public class Algorithms {
 			LocationArray = LocDistance_Results_List.get(i).getLocation().split(" ");
 
 			try {
-				x = Double.valueOf(LocationArray[0].trim());
-				y = Double.valueOf(LocationArray[1].trim());
+				x = Float.valueOf(LocationArray[0].trim()).floatValue();
+				y = Float.valueOf(LocationArray[1].trim()).floatValue();
 			} catch (Exception e) {
 				return null;
 			}
@@ -310,11 +305,11 @@ public class Algorithms {
 
 	private static String calculateAverageKDistanceLocations(ArrayList<LocDistance> LocDistance_Results_List, int K) {
 
-		double sumX = 0.0f;
-		double sumY = 0.0f;
+		float sumX = 0.0f;
+		float sumY = 0.0f;
 
 		String[] LocationArray = new String[2];
-		double x, y;
+		float x, y;
 
 		int K_Min = K < LocDistance_Results_List.size() ? K : LocDistance_Results_List.size();
 
@@ -323,8 +318,8 @@ public class Algorithms {
 			LocationArray = LocDistance_Results_List.get(i).getLocation().split(" ");
 
 			try {
-				x = Double.valueOf(LocationArray[0].trim());
-				y = Double.valueOf(LocationArray[1].trim());
+				x = Float.valueOf(LocationArray[0].trim()).floatValue();
+				y = Float.valueOf(LocationArray[1].trim()).floatValue();
 			} catch (Exception e) {
 				return null;
 			}
@@ -336,29 +331,28 @@ public class Algorithms {
 		// Calculate the average
 		sumX /= K_Min;
 		sumY /= K_Min;
+
 		return sumX + " " + sumY;
 
 	}
 
-	private static double calculateEuclideanDistance(ArrayList<String> l1, ArrayList<String> l2) {
+	private static float calculateEuclideanDistance(ArrayList<String> l1, ArrayList<String> l2) {
 
-		// System.out.println("Calculating Distance between " + l1 + "\n" + l2);
-
-		double finalResult = 0;
-		double v1;
-		double v2;
-		double temp;
+		float finalResult = 0;
+		float v1;
+		float v2;
+		float temp;
 		String str;
 
 		for (int i = 0; i < l1.size(); ++i) {
 
 			try {
 				str = l1.get(i);
-				v1 = Double.valueOf(str.trim()).doubleValue();
+				v1 = Float.valueOf(str.trim()).floatValue();
 				str = l2.get(i);
-				v2 = Double.valueOf(str.trim()).doubleValue();
+				v2 = Float.valueOf(str.trim()).floatValue();
 			} catch (Exception e) {
-				return Double.NEGATIVE_INFINITY;
+				return Float.NEGATIVE_INFINITY;
 			}
 
 			// do the procedure
@@ -368,8 +362,6 @@ public class Algorithms {
 			// do the procedure
 			finalResult += temp;
 		}
-		double res = (double) Math.sqrt(finalResult);
-		//float res = ((float) Math.sqrt(finalResult));
-		return res;
+		return ((float) Math.sqrt(finalResult));
 	}
 }

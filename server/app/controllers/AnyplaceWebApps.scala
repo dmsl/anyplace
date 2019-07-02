@@ -50,11 +50,6 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
     serveFile(archiDir, file)
   }
 
-  def serveDashboard(file: String) = Action {
-    val archiDir = "public/anyplace_dashboard"
-    serveFile(archiDir, file) 
-  }
-
   def servePortal(file: String) = Action {
     val viewerDir = "web_apps/anyplace_portal"
     serveFile(viewerDir, file)

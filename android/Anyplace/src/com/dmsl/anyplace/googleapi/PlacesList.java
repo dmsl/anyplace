@@ -4,7 +4,7 @@
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
 *
-* Authors: C. Laoudias, G.Larkou, G. Constantinou, M. Constantinides, S. Nicolaou
+* Author(s): Lambros Petrou
 * 
 * Supervisor: Demetrios Zeinalipour-Yazti
 *
@@ -34,31 +34,23 @@
 *
 */
 
-package com.dmsl.airplace.algorithms;
+package com.dmsl.anyplace.googleapi;
 
-public class LogRecord {
-
-	private String bssid;
-	private int rss;
-
-	public LogRecord(String bssid, int rss) {
-		super();
-		this.bssid = bssid;
-		this.rss = rss;
-	}
-
-	public String getBssid() {
-		return bssid;
-	}
-
-	public int getRss() {
-		return rss;
-	}
-	
-	public String toString() {
-		String str = new String();
-		str = String.valueOf(bssid) + " " + String.valueOf(rss) + "\n";
-		return str;
-	}
-
+import java.io.Serializable;
+import java.util.List;
+ 
+import com.google.api.client.util.Key;
+ 
+/** Implement this class from "Serializable"
+* So that you can pass this class Object to another using Intents
+* Otherwise you can't pass to another actitivy
+* */
+public class PlacesList implements Serializable {
+ 
+	@Key
+    public String status;
+ 
+    @Key
+    public List<Place> results;
+ 
 }

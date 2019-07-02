@@ -76,7 +76,6 @@ import com.dmsl.anyplace.googlemap.AnyPlaceMapTileProvider;
 import com.dmsl.anyplace.googlemap.MyBuildingsRenderer;
 import com.dmsl.anyplace.logger.LoggerPrefs.Action;
 import com.dmsl.anyplace.logger.LoggerWiFi.Function;
-import com.dmsl.anyplace.logger.LoggerWiFi;
 import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper;
 import com.dmsl.anyplace.nav.AnyUserData;
 import com.dmsl.anyplace.nav.BuildingModel;
@@ -99,9 +98,6 @@ import com.dmsl.anyplace.utils.NetworkUtils;
 import com.dmsl.anyplace.wifi.SimpleWifiManager;
 import com.dmsl.anyplace.wifi.WifiReceiver;
 
-
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 
@@ -125,7 +121,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -149,8 +144,6 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, OnMapClickListener {
 	private static final String TAG = "AnyplaceLoggerActivity";
 	public static final String SHARED_PREFS_LOGGER = "LoggerPreferences";
-
-	private static final int PERMISSION_STORAGE_WRITE = 100;
 
 	// Define a request code to send to Google Play services This code is
 	// returned in Activity.onActivityResult
@@ -383,25 +376,7 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		AnyPlaceLoggerReceiver mSamplingAnyplaceLoggerReceiver = new AnyPlaceLoggerReceiver();
 		logger = new LoggerWiFi(mSamplingAnyplaceLoggerReceiver);
 
-		requestForPermissions();
-	}
-
-	@TargetApi(Build.VERSION_CODES.M)
-	private void requestForPermissions() {
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			String permissionString = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
-			if (this.checkSelfPermission(permissionString)
-					!= PackageManager.PERMISSION_GRANTED) {
-				this.requestPermissions(
-						new String[]{permissionString},
-						PERMISSION_STORAGE_WRITE);
-			} else {
-				setUpMapIfNeeded();
-			}
-		}else{
-			setUpMapIfNeeded();
-		}
+		setUpMapIfNeeded();
 	}
 
 	/*
@@ -411,7 +386,7 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 	/**
 	 * Sets up the map if it is possible to do so (i.e., the Google Play
 	 * services APK is correctly installed) and the map has not already been
-	 * instantiated.. This will ensure that we only ever call {@link # setUpMap()} once when {@link #mMap} is not null.
+	 * instantiated.. This will ensure that we only ever call {@link #setUpMap()} once when {@link #mMap} is not null.
 	 * <p>
 	 * If it isn't installed {@link SupportMapFragment} (and {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to install/update the Google Play services APK on
 	 * their device.
@@ -1581,17 +1556,6 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 			MovementDetector.setSensitivity(max - sensitivity);
 		} else if (key.equals("samples_interval")) {
 			wifi.startScan(sharedPreferences.getString("samples_interval", "1000"));
-		} else if (key.equals("sample_ssid")) {
-			Boolean sample_ssid = preferences.getBoolean(key.toString(),false);
-			LoggerWiFi.sample_ssid = sample_ssid;
-			if(sample_ssid){
-				Toast.makeText(getBaseContext(), "Additional Parameters recording Enabled", Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(getBaseContext(), "Additional Parameters recording Disabled", Toast.LENGTH_SHORT).show();
-			}
-
-			Log.d("AnyplaceLoggerActivity", sample_ssid.toString());
-
 		}
 
 	}

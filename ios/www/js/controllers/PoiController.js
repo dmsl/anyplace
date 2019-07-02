@@ -283,7 +283,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 localStorage.removeItem("lastPoi");
         } catch (e) {
         }
-
+        
     };
 
     $scope.clearNavPolylines = function () {
@@ -964,7 +964,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var centre_y = (bllng + trlng) / 2;
 
         var resd = _euclideanDistance(centre_x, centre_y, x, y);
-        return (resd <= radius);
-    };
+        return (resd <= radius)
+    }
 }
 ]);
