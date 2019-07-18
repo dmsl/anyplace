@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -843,8 +843,14 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor").as[String]
-        val accessPoints= (json\"APs").as[List[JsValue]]
-        val algorithm_choice = (json\"algorithm_choice").as[Int]
+        println("lsolea01"+json)
+        val jsonstr=(json\"APs").as[String]
+        val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
+
+        println("lsolea01:"+(json\"algorithm_choice").as[String])
+
+
+        val algorithm_choice = (json\"algorithm_choice").as[String].toInt
 
         val rmapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
@@ -854,18 +860,31 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
         }
 
-        val latestScanList: util.ArrayList[location.LogRecord] = null
+//        val latestScanList: util.ArrayList[location.LogRecord] =null
+        val latestScanList = new  util.ArrayList[location.LogRecord]
+
         var i=0
+
+        println("lsolea01"+accessPoints.size)
+
         for (i <- 0 until accessPoints.size) {
           val bssid= (accessPoints(i) \ "bssid").as[String]
+          println("lsolea01:"+bssid)
           val rss =(accessPoints(i) \ "rss").as[Int]
-          latestScanList.add(new location.LogRecord(bssid,rss))
+          println("lsolea01:"+rss)
+          val LogRecord=new location.LogRecord(bssid,rss)
+          if(LogRecord==null){
+            println("ob is null")
+
+          }
+          latestScanList.add(LogRecord)
 
         }
 
         val radioMap:location.RadioMap = new location.RadioMap(rmapFile)
         Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
-        return AnyResponseHelper.ok("Successfully found position.")
+//        return AnyResponseHelper.ok("Successfully found position."+Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice))
+        return AnyResponseHelper.ok( Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice))
       }
 
       inner(request)
