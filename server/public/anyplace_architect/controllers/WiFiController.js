@@ -1774,7 +1774,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
 
                 //create AccessPoint "map"
-                var _ACCESS_POINT_IMAGE = 'build/images/access-point-icon.png';
+                var _ACCESS_POINT_IMAGE = 'build/images/access-point-icon.svg';
 
                 var imgType = _ACCESS_POINT_IMAGE;
 
@@ -1808,10 +1808,14 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         id: values[i].AP,
                         position: new google.maps.LatLng(x, y),
                         map: GMapService.gmap,
-                        icon: {
-                            url: imgType,
-                            scaledSize: size
-                        }
+                        zIndex: 9999,
+                        icon: new google.maps.MarkerImage(
+                            imgType,
+                            null, /* size is determined at runtime */
+                            null, /* origin is 0,0 */
+                            null, /* anchor is bottom center of the scaled image */
+                            size
+                        )
                     });
 
                     APmap.push(
@@ -2094,14 +2098,23 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                 }
                             }
                         );
+                        var url = null;
+                        if ( GMapService.gmap.getMapTypeId() === 'CartoLight') {
+                            url = "https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
 
+                            url = url.replace('{x}', coord.x)
+                                .replace('{y}', coord.y)
+                                .replace('{z}', zoom);
+                        } else if (GMapService.gmap.getMapTypeId() === 'roadmap' ||  GMapService.gmap.getMapTypeId() === 'satellite') {
+                            //TODO: Add GOOGLE TILES URL with api key
+                        }
                         return null;
                     },
                     tileSize: new google.maps.Size(256, 256),
                     minZoom: 1,
                     maxZoom: 22
                 });
-
+                localStorage.setItem("previousMapTypeId",GMapService.gmap.getMapTypeId());
                 GMapService.gmap.mapTypes.set(layerID, layer);
                 GMapService.gmap.setMapTypeId(layerID);
 
@@ -2355,6 +2368,9 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 fingerPrintsMap[i] = null;
             }
             fingerPrintsMap = [];
+            if (GMapService.gmap.getMapTypeId() === 'my_custom_layer1' ) {
+                GMapService.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ;
+            } 
         }
 
         if (_HEATMAP_RSS_IS_ON) {
