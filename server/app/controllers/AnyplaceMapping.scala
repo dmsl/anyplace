@@ -61,6 +61,8 @@ import utils._
 import scala.util.control.Breaks
 import play.api.libs.json.Reads._
 
+import play.api.libs.json._ 
+
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
@@ -837,9 +839,34 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor").as[String]
-        val accessPoints= (json\"APs").as[List[JsValue]]
-        val algorithm_choice = (json\"algorithm_choice").as[Int]
+        /*
+         * BuxFix : Server side localization API
+         * Fixing JSON Parse error
+         */
+        val accessOpt = Json.parse((json\"APs").as[String]).validate[List[JsValue]] match {
+          case s: JsSuccess[List[JsValue]] => {
+            Some(s.get)
+          }
+          case e: JsError => 
+            LPLogger.error("accessOpt Errors: " + JsError.toJson(e).toString())
+            None
+        }
+        val accessPoints = accessOpt.get
 
+        /*
+         * BuxFix : Server side localization API
+         * Fixing JSON Parse error [String vs Int]
+         */
+        val algorithm_choice : Int =  (json\"algorithm_choice").validate[String] match {
+          case s: JsSuccess[String] => {
+            if (s.get != null && s.get.trim != "")
+              Integer.parseInt(s.get)
+            else
+              Play.application().configuration().getInt("defaultPositionAlgorithm")
+          }
+          case e: JsError =>
+            Play.application().configuration().getInt("defaultPositionAlgorithm")
+        }
         val rmapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
 
@@ -847,19 +874,34 @@ object AnyplaceMapping extends play.api.mvc.Controller {
            //Regenerate the radiomap files if not exist
              AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
         }
-
-        val latestScanList: util.ArrayList[location.LogRecord] = null
+        /*
+         * BuxFix : Server side localization API
+         * Fixing null pointer error for latestScanList
+         */
+        val latestScanList: util.ArrayList[location.LogRecord] = new util.ArrayList[location.LogRecord]()
         var i=0
         for (i <- 0 until accessPoints.size) {
           val bssid= (accessPoints(i) \ "bssid").as[String]
           val rss =(accessPoints(i) \ "rss").as[Int]
           latestScanList.add(new location.LogRecord(bssid,rss))
-
         }
 
         val radioMap:location.RadioMap = new location.RadioMap(rmapFile)
-        Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
-        return AnyResponseHelper.ok("Successfully found position.")
+        var response = Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
+
+        /*
+         * BuxFix : Server side localization API
+         * Fixing response error
+         */
+        if (response == null) {
+          response = "0 0"
+        }
+        val lat_long = response.split(" ")
+
+        val res = JsonObject.empty()
+        res.put("lat", lat_long(0))
+        res.put("long", lat_long(1))
+        return AnyResponseHelper.ok(res, "Successfully found position.")
       }
 
       inner(request)

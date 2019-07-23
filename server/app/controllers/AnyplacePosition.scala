@@ -85,6 +85,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         } catch {
           case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json request!")
         }
+
         if (json.get("username") == null || json.get("password") == null) {
           return AnyResponseHelper.bad_request("Cannot parse json request!")
         }
