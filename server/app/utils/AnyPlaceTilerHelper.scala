@@ -5,6 +5,7 @@ import java.io._
 import java.nio.file.Files
 //remove if not needed
 import scala.collection.JavaConversions._
+import play.Play
 
 object AnyPlaceTilerHelper {
 
@@ -18,7 +19,15 @@ object AnyPlaceTilerHelper {
 
     val FLOOR_TILES_ZIP_NAME = "tiles_archive.zip"
 
-    def getRootFloorPlansDir(): String = FLOOR_PLANS_ROOT_DIR
+    /*
+     * FeatureAdd : Configuring location for server generated files
+     */
+
+    //def getRootFloorPlansDir(): String = FLOOR_PLANS_ROOT_DIR
+    def getRootFloorPlansDir(): String = {
+        Play.application().configuration().getString("floorPlansRootDir") + File.separatorChar
+    }
+
 
     def getRootFloorPlansDirFor(buid: String): String = {
         getRootFloorPlansDir + buid + File.separatorChar

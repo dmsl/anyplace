@@ -867,7 +867,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: JsError =>
             Play.application().configuration().getInt("defaultPositionAlgorithm")
         }
-        val rmapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+        
+        //FeatureAdd : Configuring location for server generated files
+        val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+        val rmapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
 
         if(!rmapFile.exists()){
@@ -2403,6 +2407,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         try {
           val file = new File(filePath)
+          println("filePath " + file.getAbsolutePath)
           if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
             floor_number +
             ")")
@@ -2958,7 +2963,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String): Option[RadioMapMean] = {
-    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floor_number)
+    //FeatureAdd : Configuring location for server generated files
+    val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+    val rmapDir = new File(radioMapsFrozenDir + File.separatorChar + buid + File.separatorChar + floor_number)
     val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
     if (rmapDir.exists() && meanFile.exists()) {
       val folder = rmapDir.toString
