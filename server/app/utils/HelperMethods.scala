@@ -103,17 +103,24 @@ object HelperMethods {
         true
     }
 
-    def recDeleteDirFile(f: File) {
+     /*
+     * DELETE FLOOR : BuxFix
+     * Fixing function as parent level floor plan files and directory 
+     * was not getting removed during floor delete
+     */
+    def recDeleteDirFile(f: File, root: Boolean =true) {
         if (f.isFile) {
             Files.delete(f.toPath())
         } else if (f.isDirectory) {
             for (file <- f.listFiles()) {
                 if (file.isDirectory) {
-                    recDeleteDirFile(file)
+                    recDeleteDirFile(file, false)
                 }
                 Files.delete(file.toPath())
             }
-            Files.delete(f.toPath())
+            if (root) {
+                Files.delete(f.toPath)
+            }
         }
     }
 }

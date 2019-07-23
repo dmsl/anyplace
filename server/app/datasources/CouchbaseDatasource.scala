@@ -460,7 +460,11 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key((buid))
+    /*
+     * DELETE FLOOR : BuxFix
+     * Fixing query keys as db entry was not getting removed
+     */
+    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
     val res = couchbaseClient.query(viewQuery)
 
     for (row <- res.allRows()) {

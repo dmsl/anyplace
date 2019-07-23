@@ -1671,7 +1671,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
         try {
           val floorfile = new File(filePath)
-          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile)
+          /*
+           * DELETE FLOOR : BuxFix
+           * Fixing floor plan files and directory removal during floor delete
+           */
+          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile())
         } catch {
           case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plan." +
             "\nAll related information is deleted from the database!")
