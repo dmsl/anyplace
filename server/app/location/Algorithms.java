@@ -221,7 +221,7 @@ public class Algorithms {
 			boolean isWeighted) {
 
 		ArrayList<String> RSS_Values;
-		float curResult = 0;
+		double curResult = 0;
 		ArrayList<LocDistance> LocDistance_Results_List = new ArrayList<LocDistance>();
 		String myLocation = null;
 		int K;
@@ -305,11 +305,11 @@ public class Algorithms {
 
 	private static String calculateAverageKDistanceLocations(ArrayList<LocDistance> LocDistance_Results_List, int K) {
 
-		float sumX = 0.0f;
-		float sumY = 0.0f;
+		double sumX = 0.0d;
+		double sumY = 0.0d;
 
 		String[] LocationArray = new String[2];
-		float x, y;
+		double x, y;
 
 		int K_Min = K < LocDistance_Results_List.size() ? K : LocDistance_Results_List.size();
 
@@ -318,8 +318,8 @@ public class Algorithms {
 			LocationArray = LocDistance_Results_List.get(i).getLocation().split(" ");
 
 			try {
-				x = Float.valueOf(LocationArray[0].trim()).floatValue();
-				y = Float.valueOf(LocationArray[1].trim()).floatValue();
+				x = Double.valueOf(LocationArray[0].trim()).doubleValue();
+				y = Double.valueOf(LocationArray[1].trim()).doubleValue();
 			} catch (Exception e) {
 				return null;
 			}
@@ -336,23 +336,25 @@ public class Algorithms {
 
 	}
 
-	private static float calculateEuclideanDistance(ArrayList<String> l1, ArrayList<String> l2) {
+	private static double calculateEuclideanDistance(ArrayList<String> l1, ArrayList<String> l2) {
 
-		float finalResult = 0;
-		float v1;
-		float v2;
-		float temp;
+		// System.out.println("Calculating Distance between " + l1 + "\n" + l2);
+
+		double finalResult = 0;
+		double v1;
+		double v2;
+		double temp;
 		String str;
 
 		for (int i = 0; i < l1.size(); ++i) {
 
 			try {
 				str = l1.get(i);
-				v1 = Float.valueOf(str.trim()).floatValue();
+				v1 = Double.valueOf(str.trim()).doubleValue();
 				str = l2.get(i);
-				v2 = Float.valueOf(str.trim()).floatValue();
+				v2 = Double.valueOf(str.trim()).doubleValue();
 			} catch (Exception e) {
-				return Float.NEGATIVE_INFINITY;
+				return Double.NEGATIVE_INFINITY;
 			}
 
 			// do the procedure
@@ -362,6 +364,8 @@ public class Algorithms {
 			// do the procedure
 			finalResult += temp;
 		}
-		return ((float) Math.sqrt(finalResult));
+		double res = (double) Math.sqrt(finalResult);
+		//float res = ((float) Math.sqrt(finalResult));
+		return res;
 	}
 }

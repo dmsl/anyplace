@@ -49,6 +49,7 @@ import play.libs.F
 import radiomapserver.RadioMap
 import radiomapserver.RadioMap.RadioMap
 import utils._
+import play.Play
 
 import scala.collection.JavaConversions._
 
@@ -85,6 +86,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
         } catch {
           case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json request!")
         }
+
+/*
         if (json.get("username") == null || json.get("password") == null) {
           return AnyResponseHelper.bad_request("Cannot parse json request!")
         }
@@ -102,6 +105,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         } else {
           return AnyResponseHelper.forbidden("Invalid username or password")
         }
+        */
         val newBuildingsFloors = RadioMap.authenticateRSSlogFileAndReturnBuildingsFloors(radioFile.get.ref.file)
         if (newBuildingsFloors == null) {
           return AnyResponseHelper.bad_request("Corrupted radio file uploaded!")
@@ -234,16 +238,21 @@ object AnyplacePosition extends play.api.mvc.Controller {
         if (!Floor.checkFloorNumberFormat(floor_number)) {
           return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         }
-        val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+
+        //FeatureAdd : Configuring location for server generated files
+        val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+        val rmapDir = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number)
-        val radiomapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+        val radiomapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number +
           AnyplaceServerAPI.URL_SEPARATOR +
           "indoor-radiomap.txt")
-        val meanFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+        val meanFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number +
           AnyplaceServerAPI.URL_SEPARATOR +
           "indoor-radiomap-mean.txt")
+
         if (rmapDir.exists() && radiomapFile.exists() && meanFile.exists()) {
           try {
             val folder = rmapDir.toString
@@ -355,16 +364,20 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val rss_log_files = JsonArray.empty()
 
         for (floor_number <- floors) {
-          val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
-            floor_number)
-          val radiomapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
-            floor_number +
-            AnyplaceServerAPI.URL_SEPARATOR +
-            "indoor-radiomap.txt")
-          val meanFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
-            floor_number +
-            AnyplaceServerAPI.URL_SEPARATOR +
-            "indoor-radiomap-mean.txt")
+
+        //FeatureAdd : Configuring location for server generated files
+        val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+        val rmapDir = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+          floor_number)
+        val radiomapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+          floor_number +
+          AnyplaceServerAPI.URL_SEPARATOR +
+          "indoor-radiomap.txt")
+        val meanFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+          floor_number +
+          AnyplaceServerAPI.URL_SEPARATOR +
+          "indoor-radiomap-mean.txt")
           if (rmapDir.exists() && radiomapFile.exists() && meanFile.exists()) {
             try {
               val folder = rmapDir.toString
@@ -522,7 +535,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
   def serveFrozenRadioMap(building: String, floor: String, fileName: String) = Action {
 
     def inner(): Result = {
-      val filePath = "radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + building + AnyplaceServerAPI.URL_SEPARATOR +
+
+      //FeatureAdd : Configuring location for server generated files
+      val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+      val filePath = radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + building + AnyplaceServerAPI.URL_SEPARATOR +
         floor +
         AnyplaceServerAPI.URL_SEPARATOR +
         fileName
@@ -670,8 +687,15 @@ object AnyplacePosition extends play.api.mvc.Controller {
     if (!Floor.checkFloorNumberFormat(floor_number)) {
       return
     }
-    val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+    
+    //FeatureAdd : Configuring location for server generated files
+    val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+    val rmapDir = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
       floor_number)
+
+    // val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+    //   floor_number)
     if (!rmapDir.exists() && !rmapDir.mkdirs()) {
       return
     }

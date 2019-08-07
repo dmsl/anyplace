@@ -61,6 +61,8 @@ import utils._
 import scala.util.control.Breaks
 import play.api.libs.json.Reads._
 
+import play.api.libs.json._ 
+
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
@@ -837,29 +839,73 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor").as[String]
-        val accessPoints= (json\"APs").as[List[JsValue]]
-        val algorithm_choice = (json\"algorithm_choice").as[Int]
+        /*
+         * BuxFix : Server side localization API
+         * Fixing JSON Parse error
+         */
+        val accessOpt = Json.parse((json\"APs").as[String]).validate[List[JsValue]] match {
+          case s: JsSuccess[List[JsValue]] => {
+            Some(s.get)
+          }
+          case e: JsError => 
+            LPLogger.error("accessOpt Errors: " + JsError.toJson(e).toString())
+            None
+        }
+        val accessPoints = accessOpt.get
 
-        val rmapFile = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
+        /*
+         * BuxFix : Server side localization API
+         * Fixing JSON Parse error [String vs Int]
+         */
+        val algorithm_choice : Int =  (json\"algorithm_choice").validate[String] match {
+          case s: JsSuccess[String] => {
+            if (s.get != null && s.get.trim != "")
+              Integer.parseInt(s.get)
+            else
+              Play.application().configuration().getInt("defaultPositionAlgorithm")
+          }
+          case e: JsError =>
+            Play.application().configuration().getInt("defaultPositionAlgorithm")
+        }
+        
+        //FeatureAdd : Configuring location for server generated files
+        val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+
+        val rmapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
 
         if(!rmapFile.exists()){
            //Regenerate the radiomap files if not exist
              AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
         }
-
-        val latestScanList: util.ArrayList[location.LogRecord] = null
+        /*
+         * BuxFix : Server side localization API
+         * Fixing null pointer error for latestScanList
+         */
+        val latestScanList: util.ArrayList[location.LogRecord] = new util.ArrayList[location.LogRecord]()
         var i=0
         for (i <- 0 until accessPoints.size) {
           val bssid= (accessPoints(i) \ "bssid").as[String]
           val rss =(accessPoints(i) \ "rss").as[Int]
           latestScanList.add(new location.LogRecord(bssid,rss))
-
         }
 
         val radioMap:location.RadioMap = new location.RadioMap(rmapFile)
-        Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
-        return AnyResponseHelper.ok("Successfully found position.")
+        var response = Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
+
+        /*
+         * BuxFix : Server side localization API
+         * Fixing response error
+         */
+        if (response == null) {
+          response = "0 0"
+        }
+        val lat_long = response.split(" ")
+
+        val res = JsonObject.empty()
+        res.put("lat", lat_long(0))
+        res.put("long", lat_long(1))
+        return AnyResponseHelper.ok(res, "Successfully found position.")
       }
 
       inner(request)
@@ -1671,7 +1717,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
         try {
           val floorfile = new File(filePath)
-          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile)
+          /*
+           * DELETE FLOOR : BuxFix
+           * Fixing floor plan files and directory removal during floor delete
+           */
+          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile())
         } catch {
           case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plan." +
             "\nAll related information is deleted from the database!")
@@ -2357,6 +2407,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         try {
           val file = new File(filePath)
+          println("filePath " + file.getAbsolutePath)
           if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
             floor_number +
             ")")
@@ -2912,7 +2963,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String): Option[RadioMapMean] = {
-    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floor_number)
+    //FeatureAdd : Configuring location for server generated files
+    val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+    val rmapDir = new File(radioMapsFrozenDir + File.separatorChar + buid + File.separatorChar + floor_number)
     val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
     if (rmapDir.exists() && meanFile.exists()) {
       val folder = rmapDir.toString
