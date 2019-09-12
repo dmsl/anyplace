@@ -65,11 +65,10 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
 
-//lsolea01 import
 import scala.io.Source
 import java.nio.file.{Paths, Files}
 
-
+import controllers.AnyplacePosition
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -838,16 +837,18 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
+        println("json"+json)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
         val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor").as[String]
-        println("lsolea01"+json)
+         val floor_number = (json \ "floor").as[String]
+
         val jsonstr=(json\"APs").as[String]
         val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
 
-        println("lsolea01:"+(json\"algorithm_choice").as[String])
+        val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
+//        val floor = floors.filter((js: JsonObject) => js.getString("floor_number") == floor_number)(0)
 
 
         val algorithm_choice = (json\"algorithm_choice").as[String].toInt
@@ -865,18 +866,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         var i=0
 
-        println("lsolea01"+accessPoints.size)
 
         for (i <- 0 until accessPoints.size) {
           val bssid= (accessPoints(i) \ "bssid").as[String]
-          println("lsolea01:"+bssid)
-          val rss =(accessPoints(i) \ "rss").as[Int]
-          println("lsolea01:"+rss)
-          val LogRecord=new location.LogRecord(bssid,rss)
-          if(LogRecord==null){
-            println("ob is null")
+           val rss =(accessPoints(i) \ "rss").as[Int]
+           val LogRecord=new location.LogRecord(bssid,rss)
 
-          }
           latestScanList.add(LogRecord)
 
         }
@@ -1707,7 +1702,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
          if (file_path.exists()){
 
-        println("lsolea01delete")
 
               if(file_path.delete){
                 return AnyResponseHelper.ok("Successfully Delete floor radiomap" + floor_number + "!")
@@ -2890,12 +2884,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
-            //lsolea01
 
-            //            for (i<-0 until  (crlbs.length) ){
-            //
-            //              println(i,crlbs(i))
-            //            }
             val res = JsonObject.empty()
             res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
             res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.toList)))
@@ -2937,7 +2926,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
-    //lsolea01
     val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
     val folder=     new File("crlbs_files"+ File.separatorChar +buid)
     if (!folder.exists()) {
@@ -2987,20 +2975,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       Y(i, ::) := list_rss.get(i).t
     }
 
-    // lsolea01 Y write to file
-    //    val file_io = new PrintWriter("Y_floor_2.txt")
-    //    for (i <- 0 until Y.rows) {
-    //
-    //
-    //      file_io.println(Y(i,::))
-    //    }
-    //
-    //
-    //    file_io.close()
-    //
 
 
-    println("lsolea01n",n,m)
+
+
 
     val X_min = GeoUtils.latlng2xy(point = bl, bl = bl, ur = ur)
     val X_max = GeoUtils.latlng2xy(point = ur, bl = bl, ur = ur)
@@ -3030,8 +3008,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
 
-    println("lsolea01",X.rows)
-    //lsolea01
+
     if (file_path.exists()) {
       val crl= Source.fromFile(file_path).getLines.toArray
       var crlbs = DenseVector.zeros[Double](crl.length)
@@ -3081,18 +3058,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
 
-
-
-    //    val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
-    //    println("crlbs", crlbs)
-
-    //
-    //    for (i <- 0 until X.rows) {
-    //
-    //
-    //     println(crlbs(i))
-    //      println("lsolea01",crlbs(i))
-    //    }
 
 
 
