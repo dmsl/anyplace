@@ -141,7 +141,7 @@ Provides two classes that gather RSS logs from Couchbase and compiles the Radiom
 ##### [Anyplace Tiler](anyplace_tiler)  
 A set of scripts that cut the floor plans into tiles that can fit on Google Maps, for different zoom levels.
 
-##### [Floor Module](app/floor_module)
+##### [Floor Module](app/floor_module)..
 This class provides floor detection functionality for detecting when a user has changed floors, using the Navigator Android app.
 
 ##### Web Apps
