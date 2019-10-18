@@ -28,7 +28,7 @@ If not, see [http://www.gnu.org/licenses/]([http://www.gnu.org/licenses/)
 
 Installation
 ----
-Make sure you have [maven](https://maven.apache.org/) tool installed in your system. 
+Make sure you have [maven](https://maven.apache.org/) tool installed in your system. Also use jdk1.8.0_181.
 The following commands, clone the repository and build the simulator project
 ```bash
 git clone https://github.com/dmsl/anyplace.git && cd simulator
