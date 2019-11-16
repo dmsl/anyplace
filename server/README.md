@@ -17,21 +17,20 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 
   3. **Link Couchbase to Anyplace**
     Now you have to change the default configurations. Please follow the below instructions before running Anyplace
-  
-    + Fill in the paremeters in `conf/application.conf` according to the development or production environment.
+    Fill in the paremeters in `conf/application.conf` according to the development or production environment.
         * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
         * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
         * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
         * `couchbase.port` - Couchbase's port. The default is `8091`.
         * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.
         * `couchbase.password` - The password to access the DB instance.
-    + Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
+    Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
     You can use the automated script (`create-views.sh`) in order to create the views under the [`anyplace_views`](anyplace_views) directory.
     You need to set the username and the password for your couchbase instance.  
         * `USERNAME=""` - This is the administrator's username for the couchbase instance.
         * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
         * `BUCKET=""` - This is the bucket for the couchbase instance.
-    + Important: As with all passwords, this should be kept a secret. 
+    Important: As with all passwords, this should be kept a secret. 
   
 ## Launching 
 
@@ -71,7 +70,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     
 # Anyplace v3.x for developers
 
-## How to setup Anyplace v3.x in you IDE?
+## How to setup Anyplace v3.x in your IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 + Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free but if you are a student we recommend taking advantage of the Ultimate Edition which is free for 1 year - this has built-in integration for Play Framework debugging)
 + Install the Scala plugin during the installation process
