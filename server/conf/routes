@@ -132,9 +132,9 @@ POST        /anyplace/position/milestones_by_floor                              
 POST        /anyplace/position/estimate_position                                       controllers.AnyplaceMapping.findPosition()
 
 # Anyplace API - InfluxDB
-POST        /anyplace/influxdb/insert                                                  controllers.AnyplaceInfluxdb.insertInfluxdb()
-POST        /anyplace/influxdb/query_2_points                                          controllers.AnyplaceInfluxdb.query2PointsInfluxdb()
-POST        /anyplace/influxdb/query_1_point_distance                                  controllers.AnyplaceInfluxdb.query2PointsInfluxdb()
+POST        /anyplace/geolocation/insert                                               controllers.AnyplaceInfluxdb.insertInfluxdb()
+POST        /anyplace/geolocation/range_lookup                                         controllers.AnyplaceInfluxdb.locationLookup()
+POST        /anyplace/geolocation/distance_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
 
 ### DEVELOPERS WEBSITE ###
 GET         /developers/*file                                                          controllers.Assets.at(path="/public/anyplace_developers", file)
