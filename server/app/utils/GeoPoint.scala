@@ -61,6 +61,8 @@ object GeoPoint {
 		(__ \ "latitude").write[String] and
 			(__ \ "longitude").write[String]
 		)(unlift(GeoPoint.unapply))
+
+	def getGeoBoundingBoxByRange(latitude1: Double, longitude1: Double, latitude2: Double, longitude2: Double): Array[GeoPoint] = {
         val lat1 = Math.toRadians(latitude1)
         val lon1 = Math.toRadians(longitude1)
         val lat2 = Math.toRadians(latitude2)
