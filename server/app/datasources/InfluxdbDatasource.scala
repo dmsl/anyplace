@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Stefanos Kyriakou, Panayiotis Leontiou, Stelios Tymvios
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -44,9 +44,6 @@ import utils.{GeoPoint, LPLogger}
 import play.api.libs.json._
 
 import scala.concurrent.Future
-//remove if not needed
-
-//**************************InfluxDB**************************
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
