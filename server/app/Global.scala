@@ -43,10 +43,13 @@ import play.{Application, GlobalSettings, Logger}
 import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
 import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
 
+import datasources.InfluxdbDatasource
+
 class Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     Logger.info("Global::onStart():: AnyPlace Application started")
+    InfluxdbDatasource.getStaticInstance
     CouchbaseDatasource.getStaticInstance
     log()
   }
@@ -54,6 +57,7 @@ class Global extends GlobalSettings {
   override def onStop(app: Application) {
     Logger.info("Global::onStop():: AnyPlace Application stopped")
     try {
+      InfluxdbDatasource.getStaticInstance.disconnect()
       CouchbaseDatasource.getStaticInstance.disconnect()
     } catch {
       case e: DatasourceException => Logger.error("Global::onStop():: Exception while disconnecting from the couchbase server: " +
