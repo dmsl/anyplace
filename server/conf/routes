@@ -123,7 +123,6 @@ POST        /anyplace/position/predictFloorAlgo1                                
 POST        /anyplace/radiomaps_frozen/:building/:floor/:filename                      controllers.AnyplacePosition.serveFrozenRadioMap(building: String, floor: String, filename: String)
 POST        /anyplace/radiomaps/:radio_folder/:filename                                controllers.AnyplacePosition.serveRadioMap( radio_folder: String, filename: String )
 
-
 POST        /anyplace/position/path_add                                                controllers.AnyplacePosition.magneticPathAdd()
 POST        /anyplace/position/path_delete                                             controllers.AnyplacePosition.magneticPathDelete()
 POST        /anyplace/position/paths_by_floor                                          controllers.AnyplacePosition.magneticPathByFloor()
@@ -131,6 +130,11 @@ POST        /anyplace/position/paths_by_buid                                    
 POST        /anyplace/position/milestones_add                                          controllers.AnyplacePosition.magneticMilestoneUpload()
 POST        /anyplace/position/milestones_by_floor                                     controllers.AnyplacePosition.magneticMilestoneByFloor()
 POST        /anyplace/position/estimate_position                                       controllers.AnyplaceMapping.findPosition()
+
+# Anyplace API - InfluxDB
+POST        /anyplace/influxdb/insert                                                  controllers.AnyplaceInfluxdb.insertInfluxdb()
+POST        /anyplace/influxdb/query_2_points                                          controllers.AnyplaceInfluxdb.query2PointsInfluxdb()
+POST        /anyplace/influxdb/query_1_point_distance                                  controllers.AnyplaceInfluxdb.query2PointsInfluxdb()
 
 ### DEVELOPERS WEBSITE ###
 GET         /developers/*file                                                          controllers.Assets.at(path="/public/anyplace_developers", file)

@@ -37,6 +37,11 @@ unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/
 
 javaOptions += "-Dfile.encoding=UTF-8"
 
+//Required for InfluxDB
+libraryDependencies += "io.razem" %% "scala-influxdb-client" % "0.6.2"
+
+// libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
+
 //Required for ACCES
 libraryDependencies += "com.github.danielkorzekwa" % "bayes-scala-gp_2.11" % "0.1-SNAPSHOT"
 
