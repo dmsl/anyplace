@@ -35,6 +35,10 @@
  */
 package utils
 
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Writes._
+
 object GeoPoint {
 
     def getGeoBoundingBox(latitude: Double, longitude: Double, distance_in_meters: Double): Array[GeoPoint] = {
