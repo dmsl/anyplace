@@ -35,6 +35,10 @@
  */
 package utils
 
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Writes._
+
 object GeoPoint {
 
     def getGeoBoundingBox(latitude: Double, longitude: Double, distance_in_meters: Double): Array[GeoPoint] = {
@@ -52,7 +56,17 @@ object GeoPoint {
         bbox
     }
 
-    def getGeoBoundingBoxByRange(latitude1: Double, longitude1: Double,latitude2: Double, longitude2: Double): Array[GeoPoint] = {
+	implicit val geoPointReads = (
+		(__ \ "latitude").read[String] and
+			(__ \ "longitude").read[String]
+		)(GeoPoint.apply _)
+
+	implicit val geoPointWrites = (
+		(__ \ "latitude").write[String] and
+			(__ \ "longitude").write[String]
+		)(unlift(GeoPoint.unapply))
+
+	def getGeoBoundingBoxByRange(latitude1: Double, longitude1: Double, latitude2: Double, longitude2: Double): Array[GeoPoint] = {
         val lat1 = Math.toRadians(latitude1)
         val lon1 = Math.toRadians(longitude1)
         val lat2 = Math.toRadians(latitude2)
