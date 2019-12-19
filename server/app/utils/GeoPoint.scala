@@ -134,7 +134,7 @@ class GeoPoint {
         this.lon = lon
     }
 
-    override def toString(): String = "lat[" + lat + "] lon[" + lon + "]"
+	override def toString: String = s"lat[$lat] lon[$lon]"
 
     def getNewPointFromDistanceBearing(distance: Double, bearing: Double): GeoPoint = {
         val R = 6378.14
