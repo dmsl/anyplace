@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Stefanos Kyriakou, Panayiotis Leontiou, Stelios Tymvios
+ * Author(s): Stelios Tymvios, Stefanos Kyriakou, Panayiotis Leontiou
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -58,15 +58,19 @@ object InfluxdbDatasource {
 				val hostname = Play.application().configuration().getString("influxdb.hostname", "localhost")
 				val port = Play.application().configuration().getString("influxdb.port", "8086")
 				val database = Play.application().configuration().getString("influxdb.database", "anyplace")
-				sInstance = InfluxdbDatasource.createNewInstance(hostname, port, database)
+				val precision = Play.application().configuration().getInt("influxdb.precision", 6)
+				sInstance = InfluxdbDatasource.createNewInstance(hostname, port, database, precision)
 			}
 			sInstance
 		}
 	}
 
-	def createNewInstance(hostname_in: String,
-	                      port_in: String,
-	                      database_in: String): InfluxdbDatasource = {
+	def createNewInstance(
+			hostname_in: String,
+			port_in: String,
+			database_in: String,
+			precision: Int
+		) : InfluxdbDatasource = {
 		if (hostname_in == null || port_in == null || database_in == null) {
 			throw new IllegalArgumentException("[null] parameters are not allowed to create a InfluxdbDatasource")
 		}
@@ -77,7 +81,7 @@ object InfluxdbDatasource {
 			throw new IllegalArgumentException("Empty string configuration are not allowed to create a InfluxdbDatasource")
 		}
 		try {
-			new InfluxdbDatasource("localhost", 8086, "anyplace")
+			new InfluxdbDatasource(hostname_in, port_in.toShort, database_in, precision)
 		} catch {
 			case e: java.net.SocketTimeoutException =>
 				LPLogger.error("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
@@ -95,8 +99,9 @@ object InfluxdbDatasource {
 	}
 }
 
-class InfluxdbDatasource(host: String, port: Short, database: String) {
+class InfluxdbDatasource(host: String, port: Short, database: String, precision: Int) {
 	val influxdb: Database = InfluxDB.connect(host = host, port = port).selectDatabase(database)
+	val stored_precision = precision
 
 	def disconnect(): Unit = {
 		influxdb.close()
@@ -108,11 +113,26 @@ class InfluxdbDatasource(host: String, port: Short, database: String) {
 
 	override def toString: String = s"[$influxdb]"
 
+
+	/**
+	 * Lookup query for two points.
+	 * The two points are used to find a geohash that encompasses the surrounding area
+	 * Then the latitude and longitude are filtered by the query itself.
+	 * The geohash is used to reduce the datapoints that will be filtered by the database
+	 * before filtering the latitude and longitude
+	 * 
+	 * deviceIDs: The deviceIDs to look through
+	 */
 	private def pointsInBoundingBox(point1: GeoPoint, point2: GeoPoint, deviceIDs: List[String], begin: Long, end: Long): Future[List[DevicePoint]] = {
 
-		val geohashRange = point1.asGeohash(12).zip(point2.asGeohash(12)) takeWhile Function.tupled(_ == _) map (_._1) mkString
+		// Get the prefix of the geohash of the two points
+		// The prefix allows us to limit the database query
+		val geohashRange = point1.asGeohash(stored_precision).zip(point2.asGeohash(stored_precision)) takeWhile Function.tupled(_ == _) map (_._1) mkString
+		// Join deviceIDs by OR
 		val deviceQuery = deviceIDs map { device: String => s"deviceID='$device'" } mkString "or"
+		// Limit the query to the bounding box
 		val rangeQuery = s"latitude>=${point1.dlat} and longitude>=${point1.dlon} and latitude<=${point2.dlat} and longitude<=${point2.dlon}"
+		// Limit the query in time
 		val timeQuery = s"timestamp<=${end} and timestamp>=${begin}"
 		val query = s"select * from location where geohash =~ /${geohashRange}/ and ($deviceQuery) and ($rangeQuery) and ($timeQuery)"
 		influxdb.query(

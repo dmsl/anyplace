@@ -146,3 +146,88 @@ This class provides floor detection functionality for detecting when a user has 
 ##### Web Apps
 * **Anyplace Viewer & Architect** - We serve Anyplace Viewer & Architect through the [`public/`](public) folder of Play, where the [static assets](https://www.playframework.com/documentation/2.2.x/Assets) of the project reside. Play Framework provides out of the box perfomance features like compression (gzip) and caching for static assets.
 * **Anyplace Developers** - This is the page for Anyplace API's interactive documentation, built with [Dart](https://www.dartlang.org/). It resides in the [`public`](public) directory and served through the [`AnyplaceWebApps`](app/controllers/AnyplaceWebApps.java) controller.
+
+
+## Geolocation
+
+Anyplace provides endpoints dedicated to storing and retrieving geo-points:
+
+|path|kind|description|
+|:-|:-:|-:|
+/anyplace/geolocation/insert| POST | insert a point in the database
+/anyplace/geolocation/range_lookup| POST | retrieve all points in a timespan in a square of two points
+/anyplace/geolocation/distance_lookup | POST | retrieve all points in a timespan within some distance in KM from the point
+
+### Storing Geopoints
+
+__path__: /anyplace/geolocation/insert  
+__input kind__: json  
+__parameters__:   
+```
+{
+    point: {
+        latitude: string,
+        longitude: string,
+    },
+    deviceID: string,
+    timestamp: long
+}
+```
+__Example__:
+```bash
+$ curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"deviceID":"myDevicePoint", "point":{"latitude":"22.2931","longitude":"17.12911"}, "timestamp":900000333}'  http://10.16.30.47:9000/anyplace/influxdb/insert
+```
+
+### Retrieving Geopoints
+
+#### Using two points
+__path__: /anyplace/geolocation/range_lookup  
+__input kind__: json  
+__parameters__:   
+```
+{
+    point1: {
+        latitude: string,
+        longitude: string,
+    },
+    point2: {
+        latitude: string,
+        longitude: string,
+    },
+    deviceID: string,
+    beginTime: long,
+    endTime: long
+}
+```
+__Example__:
+```bash
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"deviceID":"5","point1":{"latitude":"37.350101","longitude":"37.3501"},"point2":{"latitude":"37.35012","longitude":"37.3502"}, "beginTime":1, "endTime":10}' \
+  http://10.16.30.47:9000/anyplace/influxdb/range_lookup
+```
+#### Using distance
+__path__: /anyplace/geolocation/distance_lookup  
+__input kind__: json  
+__parameters__:   
+```
+{
+    point: {
+        latitude: string,
+        longitude: string,
+    },
+    distance: double,
+    deviceID: string,
+    beginTime: long,
+    endTime: long
+}
+```
+__Example__:
+```bash
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"deviceID":"5","point":{"latitude":"37.350101","longitude":"37.3501"},"distance":10, "beginTime":1, "endTime":10}' \
+  http://10.16.30.47:9000/anyplace/influxdb/distance_lookup
+```

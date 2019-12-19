@@ -76,16 +76,24 @@ object AnyplaceInfluxdb extends play.api.mvc.Controller {
 					base isEmpty,
 					twoPoints isEmpty,
 					onePoint isEmpty) match {
-					case (false, _, _) => // when base input validation failed
+					// when base input validation failed
+					case (false, _, _) => 
 						notFound = base
 						throw new NoSuchFieldException()
-					case (true, false, false) => // when none of two apis validate
+					
+					// when none of two apis validate raise error
+					case (true, false, false) => 
 						notFound = twoPoints
 						throw new NoSuchFieldException()
-					case (true, true, _) => // BoxByRange is preferred over BoundingBox due to better fp behavior
+					
+					// BoxByRange, i.e. two points is preferred over bounding box with distance
+					// due to better floating point behavior as the distance is a floating point in KM
+					// eg. "0.13".toFloat is not exactly 0.13 due to floating point precision
+					case (true, true, _) =>
 						val bb = GeoPoint.getGeoBoundingBoxByRange((json \ "point1").as[GeoPoint], (json \ "point2").as[GeoPoint])
 						gp1 = bb(1)
 						gp2 = bb(0)
+					
 					case (true, false, true) =>
 						val bb = GeoPoint.getGeoBoundingBox((json \ "point").as[GeoPoint], (json \ "distance").as[String].toDouble)
 						gp1 = bb(0)
@@ -98,8 +106,7 @@ object AnyplaceInfluxdb extends play.api.mvc.Controller {
 
 				val infdb = InfluxdbDatasource.getStaticInstance
 				infdb.devicePointsInBoundingBox(gp1, gp2, List(deviceID), beginTime, endTime)
-  				.map { m=> Ok(Json.toJson(m))
-				  }
+  				.map { m=> Ok(Json.toJson(m)) }
 
 			}
 			catch {
@@ -133,7 +140,8 @@ object AnyplaceInfluxdb extends play.api.mvc.Controller {
 
 				val point = Point("location")
 					.addTag("deviceID", deviceID)
-					.addTag("geohash", gp asGeohash 8)
+					// using config defined (or default) precision
+					.addTag("geohash", gp asGeohash infdb.stored_precision)
 					.addField("timestamp", timestamp)
 					.addField("latitude", gp dlat)
 					.addField("longitude", gp dlon)
