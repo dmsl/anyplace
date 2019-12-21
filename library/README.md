@@ -29,7 +29,7 @@ Installation
 Make sure you have [java](https://www.java.com/en/download/) tool installed in your system. 
 The following command clone the repository.
 ```bash
-git clone https://github.com/constandinos/anyplace-lib.git && cd anyplace-lib
+git clone https://github.com/dmsl/anyplace.git && cd library
 ```
 
 Usage
