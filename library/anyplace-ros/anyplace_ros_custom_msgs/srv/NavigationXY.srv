@@ -1,0 +1,8 @@
+string buid
+string floor
+string pois_to
+string coordinates_la
+string coordinates_lo
+---
+bool success
+string response
