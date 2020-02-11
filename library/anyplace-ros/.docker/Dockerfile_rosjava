@@ -15,7 +15,9 @@ RUN apt-get update && apt-get install -y \
     git \
     ros-kinetic-catkin \
     ros-kinetic-rospack \
-    ros-kinetic-dynamic-reconfigure
+    ros-kinetic-dynamic-reconfigure \
+    net-tools \
+    wireless-tools
     # ros-melodic-ros-tutorials \
     # ros-melodic-common-tutorials \
 
