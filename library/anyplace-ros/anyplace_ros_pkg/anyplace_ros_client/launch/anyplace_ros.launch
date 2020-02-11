@@ -1,5 +1,5 @@
 <launch>
 <rosparam ns="anyplace_ros" file="$(find anyplace_ros_pkg)/anyplace_ros_client/params/params.yaml" command="load"/>
-<node pkg="anyplace_ros_pkg" type="anyplace_ros_client" name="anyplace_ros" args="org.ros.anyplace_ros_client.Server" output="screen">
+<node pkg="anyplace_ros_pkg" type="anyplace_ros_client" name="anyplace_ros" args="cy.ac.ucy.cs.anyplace.ros.Client" output="screen">
  </node>
 </launch>

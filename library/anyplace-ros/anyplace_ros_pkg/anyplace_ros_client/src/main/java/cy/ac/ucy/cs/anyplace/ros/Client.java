@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.anyplace_ros_client;
+package cy.ac.ucy.cs.anyplace.ros;
 
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;
@@ -42,7 +42,7 @@ import anyplace_ros_custom_msgs.*;
  * The custom implementation is created by: 
  * mickaram@hotmail.com (Mike Karamousadakis)
  */
-public class Server extends AbstractNodeMain {
+public class Client extends AbstractNodeMain {
 
 	private String root_namespace = "/anyplace_ros/";
 
@@ -51,6 +51,8 @@ public class Server extends AbstractNodeMain {
 	private String port;
 
 	private String cache;
+
+	private Boolean debug;
 
 	private Anyplace client;
 
@@ -70,12 +72,17 @@ public class Server extends AbstractNodeMain {
 		port = parameterTree.getString(root_namespace + "port", "443");
 		cache = parameterTree.getString(root_namespace + "cache", "/res");
 		access_token = parameterTree.getString(root_namespace + "access_token");
+		debug = parameterTree.getBoolean(root_namespace + "anyplace_ros_debug", false);
 
 		if(access_token.isEmpty() || access_token == null){
 			connectedNode.getLog().error("Access token is empty. Could not initialize correctly the anyplace-ros client. Check that the file params.yaml can be accessed.\n");
 			System.exit(-1);
 		}
 		client = new Anyplace(host, port, cache);
+
+		if (client != null && debug == true){
+			connectedNode.getLog().debug("Client info: \n host: " + host + "\n port: " + port + "\n cache: " + cache + "\n access_token: " + access_token + "\n debug: " + debug.toString() + " \n");
+		}
 
 		/***************************************************
 		 * PoiDetails Service 
@@ -488,14 +495,15 @@ public class Server extends AbstractNodeMain {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
 					cmd[2] = "sudo iwlist wlo1 scan | awk  '/Address/ {print $5}; /level/ {print $3}' |  cut -d\"=\" -f2 ";
+					connectedNode.getLog().debug("Cmd on Linux is: " + cmd +  "\n");
 				} else if (operating_system.equals("mac")) {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
 					cmd[2] = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -s | grep ':' | tr -s ' ' | cut -d' ' -f3 -f4| tr ' ' '\n'";
-
+					connectedNode.getLog().debug("Cmd on Mac is: " + cmd +  "\n");
 				} else {
 					response.setSuccess(false);
-					response.setResponse("Only linux and mac are the available operating systems\n Returning...");
+					response.setResponse("Only linux and Mac are the available operating systems\n Returning...");
 					return;
 				}
 
@@ -561,6 +569,7 @@ public class Server extends AbstractNodeMain {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
 					cmd[2] = "sudo iwlist wlo1 scan | awk  '/Address/ {print $5}; /level/ {print $3}' |  cut -d\"=\" -f2 ";
+					
 				} else if (operating_system.equals("mac")) {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
