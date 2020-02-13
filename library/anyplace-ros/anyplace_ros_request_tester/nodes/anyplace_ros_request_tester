@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+
+import sys
+import rospy
+from anyplace_ros_custom_msgs.srv import *
+
+root_namespace = "/anyplace_ros/"
+
+def estimate_position_client(operating_system, buid, floor, algorithm):
+    rospy.wait_for_service(root_namespace + "estimate_position")
+    try:
+
+        estimate_position = rospy.ServiceProxy(root_namespace + "estimate_position", EstimatePosition)
+        response = estimate_position(operating_system=operating_system, buid=buid,floor=floor, algorithm=algorithm)
+        rospy.loginfo("Success: {} and response: {}\n".format(response.success, response.response))
+    except rospy.ServiceException, e:
+        rospy.logerr("Service call failed: {}".format(e))
+
+
+if __name__ == "__main__":
+
+    try:
+        rospy.init_node('anyplace_ros_request_tester')
+        rospy.loginfo("Creating request for estimate_position\n")
+        operating_system = "linux"
+        buid = "abla"
+        floor = "ubla"
+        algorithm = "1"
+        rospy.loginfo("Data to be sent:\n os: {},\n buid: {},\n floor: {},\n algorithm: {}\n".format(operating_system, buid, floor, algorithm))
+        estimate_position_client(operating_system, buid, floor, algorithm)
+    except rospy.ROSInterruptException:
+        rospy.logerr("program interrupted before completion")
+        exit(1)
