@@ -38,9 +38,8 @@ import anyplace_ros_custom_msgs.*;
 
 /**
  * A simple {@link ServiceServer} {@link NodeMain}. The original code is created
- * by: @author damonkohler@google.com (Damon Kohler) 
- * The custom implementation is created by: 
- * mickaram@hotmail.com (Mike Karamousadakis)
+ * by: @author damonkohler@google.com (Damon Kohler) The custom implementation
+ * is created by: mickaram@hotmail.com (Mike Karamousadakis)
  */
 public class Client extends AbstractNodeMain {
 
@@ -74,24 +73,25 @@ public class Client extends AbstractNodeMain {
 		access_token = parameterTree.getString(root_namespace + "access_token");
 		debug = parameterTree.getBoolean(root_namespace + "anyplace_ros_debug", false);
 
-		if(access_token.isEmpty() || access_token == null){
-			connectedNode.getLog().error("Access token is empty. Could not initialize correctly the anyplace-ros client. Check that the file params.yaml can be accessed.\n");
+		if (access_token.isEmpty() || access_token == null) {
+			connectedNode.getLog().error(
+					"Access token is empty. Could not initialize correctly the anyplace-ros client. Check that the file params.yaml can be accessed.\n");
 			System.exit(-1);
 		}
 		client = new Anyplace(host, port, cache);
 
-		if (client != null && debug == true){
-			connectedNode.getLog().debug("Client info: \n host: " + host + "\n port: " + port + "\n cache: " + cache + "\n access_token: " + access_token + "\n debug: " + debug.toString() + " \n");
+		if (client != null && debug == true) {
+			connectedNode.getLog().info("Client info: \n host: " + host + "\n port: " + port + "\n cache: " + cache
+					+ "\n access_token: " + access_token + "\n debug: " + debug.toString() + " \n");
 		}
 
 		/***************************************************
-		 * PoiDetails Service 
-		 * Define PoiDetails and it's callback
+		 * PoiDetails Service Define PoiDetails and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<PoiDetailsRequest, PoiDetailsResponse> PoiDetailsService = new ServiceResponseBuilder<PoiDetailsRequest, PoiDetailsResponse>() {
 			@Override
 			public void build(PoiDetailsRequest request, PoiDetailsResponse response) {
-				String pois =request.getPois();
+				String pois = request.getPois();
 				if (pois.isEmpty()) {
 					response.setSuccess(false);
 					response.setResponse("Service parameters cannot be empty!\n Returning...");
@@ -103,12 +103,10 @@ public class Client extends AbstractNodeMain {
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "poi_details", PoiDetails._TYPE,
-		PoiDetailsService);
+		connectedNode.newServiceServer(root_namespace + "poi_details", PoiDetails._TYPE, PoiDetailsService);
 
 		/***************************************************
-		 * NavigationXY Service 
-		 * Define NavigationXY and it's callback
+		 * NavigationXY Service Define NavigationXY and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<NavigationXYRequest, NavigationXYResponse> NavigationXYService = new ServiceResponseBuilder<NavigationXYRequest, NavigationXYResponse>() {
 			@Override
@@ -118,23 +116,23 @@ public class Client extends AbstractNodeMain {
 				String pois_to = request.getPoisTo();
 				String coordinates_la = request.getCoordinatesLa();
 				String coordinates_lo = request.getCoordinatesLo();
-				if (buid.isEmpty() || floor.isEmpty() || pois_to.isEmpty() || coordinates_la.isEmpty() || coordinates_lo.isEmpty()) {
+				if (buid.isEmpty() || floor.isEmpty() || pois_to.isEmpty() || coordinates_la.isEmpty()
+						|| coordinates_lo.isEmpty()) {
 					response.setSuccess(false);
 					response.setResponse("Service parameters cannot be empty!\n Returning...");
 					return;
 				}
-				String anyplace_response = client.navigationXY(access_token, pois_to, buid, floor, coordinates_la, coordinates_lo);
+				String anyplace_response = client.navigationXY(access_token, pois_to, buid, floor, coordinates_la,
+						coordinates_lo);
 				connectedNode.getLog().info(anyplace_response + "\n");
 				response.setSuccess(true);
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "navigation_xy", NavigationXY._TYPE,
-		NavigationXYService);
+		connectedNode.newServiceServer(root_namespace + "navigation_xy", NavigationXY._TYPE, NavigationXYService);
 
 		/***************************************************
-		 * NavPoiToPoi Service 
-		 * Define NavPoiToPoi and it's callback
+		 * NavPoiToPoi Service Define NavPoiToPoi and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<NavPoiToPoiRequest, NavPoiToPoiResponse> NavPoiToPoiService = new ServiceResponseBuilder<NavPoiToPoiRequest, NavPoiToPoiResponse>() {
 			@Override
@@ -152,12 +150,10 @@ public class Client extends AbstractNodeMain {
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "nav_poi_to_poi", NavPoiToPoi._TYPE,
-		NavPoiToPoiService);
+		connectedNode.newServiceServer(root_namespace + "nav_poi_to_poi", NavPoiToPoi._TYPE, NavPoiToPoiService);
 
 		/***************************************************
-		 * BuildingAll Service 
-		 * Define BuildingAll and it's callback
+		 * BuildingAll Service Define BuildingAll and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<BuildingAllRequest, BuildingAllResponse> BuildingAllService = new ServiceResponseBuilder<BuildingAllRequest, BuildingAllResponse>() {
 			@Override
@@ -168,12 +164,10 @@ public class Client extends AbstractNodeMain {
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "building_all", BuildingAll._TYPE,
-		BuildingAllService);
+		connectedNode.newServiceServer(root_namespace + "building_all", BuildingAll._TYPE, BuildingAllService);
 
 		/***************************************************
-		 * BuildingsByCampus Service 
-		 * Define BuildingsByCampus and it's callback
+		 * BuildingsByCampus Service Define BuildingsByCampus and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<BuildingsByCampusRequest, BuildingsByCampusResponse> BuildingsByCampusService = new ServiceResponseBuilder<BuildingsByCampusRequest, BuildingsByCampusResponse>() {
 			@Override
@@ -191,11 +185,11 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "buildings_by_campus", BuildingsByCampus._TYPE,
-		BuildingsByCampusService);
+				BuildingsByCampusService);
 
 		/***************************************************
-		 * BuildingsByBuildingCode Service 
-		 * Define BuildingsByBuildingCode and it's callback
+		 * BuildingsByBuildingCode Service Define BuildingsByBuildingCode and it's
+		 * callback
 		 ****************************************************/
 		ServiceResponseBuilder<BuildingsByBuildingCodeRequest, BuildingsByBuildingCodeResponse> BuildingsByBuildingCodeService = new ServiceResponseBuilder<BuildingsByBuildingCodeRequest, BuildingsByBuildingCodeResponse>() {
 			@Override
@@ -213,11 +207,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "buildings_by_building_code", BuildingsByBuildingCode._TYPE,
-		BuildingsByBuildingCodeService);
+				BuildingsByBuildingCodeService);
 
 		/***************************************************
-		 * NearbyBuildings Service 
-		 * Define NearbyBuildings and it's callback
+		 * NearbyBuildings Service Define NearbyBuildings and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<NearbyBuildingsRequest, NearbyBuildingsResponse> NearbyBuildingsService = new ServiceResponseBuilder<NearbyBuildingsRequest, NearbyBuildingsResponse>() {
 			@Override
@@ -236,11 +229,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "nearby_buildings", NearbyBuildings._TYPE,
-		NearbyBuildingsService);
+				NearbyBuildingsService);
 
 		/***************************************************
-		 * AllBuildingFloors Service 
-		 * Define AllBuildingFloors and it's callback
+		 * AllBuildingFloors Service Define AllBuildingFloors and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<BuildingServiceRequest, BuildingServiceResponse> AllBuildingFloorsService = new ServiceResponseBuilder<BuildingServiceRequest, BuildingServiceResponse>() {
 			@Override
@@ -258,11 +250,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "all_building_floors", BuildingService._TYPE,
-		AllBuildingFloorsService);		
+				AllBuildingFloorsService);
 
 		/***************************************************
-		 * AllBuildingPOIs Service 
-		 * Define AllBuildingPOIs and it's callback
+		 * AllBuildingPOIs Service Define AllBuildingPOIs and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<BuildingServiceRequest, BuildingServiceResponse> AllBuildingPOIsService = new ServiceResponseBuilder<BuildingServiceRequest, BuildingServiceResponse>() {
 			@Override
@@ -280,11 +271,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "all_building_pois", BuildingService._TYPE,
-		AllBuildingPOIsService);
+				AllBuildingPOIsService);
 
 		/***************************************************
-		 * AllBuildingFloorPOIs Service 
-		 * Define AllBuildingFloorPOIs and it's callback
+		 * AllBuildingFloorPOIs Service Define AllBuildingFloorPOIs and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> AllBuildingFloorPOIsService = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
 			@Override
@@ -303,11 +293,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "all_building_floor_pois", FloorService._TYPE,
-		AllBuildingFloorPOIsService);
+				AllBuildingFloorPOIsService);
 
 		/***************************************************
-		 * ConnectionsByFloor Service 
-		 * Define ConnectionsByFloor and it's callback
+		 * ConnectionsByFloor Service Define ConnectionsByFloor and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> ConnectionsByFloorService = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
 			@Override
@@ -326,12 +315,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "connections_by_floor", FloorService._TYPE,
-		ConnectionsByFloorService);
-
+				ConnectionsByFloorService);
 
 		/***************************************************
-		 * HeatmapBuidFloor Service 
-		 * Define HeatmapBuidFloor and it's callback
+		 * HeatmapBuidFloor Service Define HeatmapBuidFloor and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> HeatmapBuidFloorService = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
 			@Override
@@ -350,11 +337,10 @@ public class Client extends AbstractNodeMain {
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "heatmap_buid_floor", FloorService._TYPE,
-		HeatmapBuidFloorService);
+				HeatmapBuidFloorService);
 
 		/***************************************************
-		 * Floor64 Service 
-		 * Define Floor64 and it's callback
+		 * Floor64 Service Define Floor64 and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> Floor64Service = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
 			@Override
@@ -372,12 +358,10 @@ public class Client extends AbstractNodeMain {
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "floor_64", FloorService._TYPE,
-		Floor64Service);
+		connectedNode.newServiceServer(root_namespace + "floor_64", FloorService._TYPE, Floor64Service);
 
 		/***************************************************
-		 * Floortiles Service 
-		 * Define Floortiles and it's callback
+		 * Floortiles Service Define Floortiles and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> FloortilesService = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
 			@Override
@@ -395,36 +379,35 @@ public class Client extends AbstractNodeMain {
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "floortiles", FloorService._TYPE,
-		FloortilesService);
+		connectedNode.newServiceServer(root_namespace + "floortiles", FloorService._TYPE, FloortilesService);
 
 		/***************************************************
-		 * RadioByCoordinatesFloor Service 
-		 * Define RadioByCoordinatesFloor and it's callback
+		 * RadioByCoordinatesFloor Service Define RadioByCoordinatesFloor and it's
+		 * callback
 		 ****************************************************/
 		ServiceResponseBuilder<RadioByCoordinatesFloorRequest, RadioByCoordinatesFloorResponse> RadioByCoordinatesFloorService = new ServiceResponseBuilder<RadioByCoordinatesFloorRequest, RadioByCoordinatesFloorResponse>() {
 			@Override
 			public void build(RadioByCoordinatesFloorRequest request, RadioByCoordinatesFloorResponse response) {
 				String coordinates_lat = request.getCoordinatesLat();
 				String coordinates_lon = request.getCoordinatesLon();
-				String floor = request.getFloor();				
+				String floor = request.getFloor();
 				if (coordinates_lat.isEmpty() || coordinates_lon.isEmpty() || floor.isEmpty()) {
 					response.setSuccess(false);
 					response.setResponse("Service parameters cannot be empty!\n Returning...");
 					return;
 				}
-				String anyplace_response = client.radioByCoordinatesFloor(access_token, coordinates_lat, coordinates_lon, floor);
+				String anyplace_response = client.radioByCoordinatesFloor(access_token, coordinates_lat,
+						coordinates_lon, floor);
 				connectedNode.getLog().info(anyplace_response + "\n");
 				response.setSuccess(true);
 				response.setResponse(anyplace_response);
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "radio_by_coordinates_floor", RadioByCoordinatesFloor._TYPE,
-		RadioByCoordinatesFloorService);
+				RadioByCoordinatesFloorService);
 
 		/***************************************************
-		 * RadioBuidFloor Service 
-		 * Define RadioBuidFloor and it's callback
+		 * RadioBuidFloor Service Define RadioBuidFloor and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> RadioBuidFloorService = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
 			@Override
@@ -442,12 +425,10 @@ public class Client extends AbstractNodeMain {
 				response.setResponse(anyplace_response);
 			}
 		};
-		connectedNode.newServiceServer(root_namespace + "radio_buid_floor", FloorService._TYPE,
-		RadioBuidFloorService);
+		connectedNode.newServiceServer(root_namespace + "radio_buid_floor", FloorService._TYPE, RadioBuidFloorService);
 
 		/***************************************************
-		 * RadioBuidFloorRange Service 
-		 * Define RadioBuidFloorRange and it's callback
+		 * RadioBuidFloorRange Service Define RadioBuidFloorRange and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<RadioBuidFloorRangeRequest, RadioBuidFloorRangeResponse> RadioBuidFloorRangeService = new ServiceResponseBuilder<RadioBuidFloorRangeRequest, RadioBuidFloorRangeResponse>() {
 			@Override
@@ -457,23 +438,24 @@ public class Client extends AbstractNodeMain {
 				String coordinates_lat = request.getCoordinatesLat();
 				String coordinates_lon = request.getCoordinatesLon();
 				String range = request.getRange();
-				if (buid.isEmpty() || floor.isEmpty() || coordinates_lat.isEmpty() || coordinates_lon.isEmpty() || range.isEmpty()) {
+				if (buid.isEmpty() || floor.isEmpty() || coordinates_lat.isEmpty() || coordinates_lon.isEmpty()
+						|| range.isEmpty()) {
 					response.setSuccess(false);
 					response.setResponse("Service parameters cannot be empty!\n Returning...");
 					return;
 				}
-				String anyplace_response = client.radioByBuildingFloorRange(buid, floor, coordinates_lat, coordinates_lon, range);
+				String anyplace_response = client.radioByBuildingFloorRange(buid, floor, coordinates_lat,
+						coordinates_lon, range);
 				connectedNode.getLog().info(anyplace_response + "\n");
 				response.setSuccess(true);
 				response.setResponse(anyplace_response);
 			}
 		};
 		connectedNode.newServiceServer(root_namespace + "radio_buid_floor_range", RadioBuidFloorRange._TYPE,
-		RadioBuidFloorRangeService);
+				RadioBuidFloorRangeService);
 
 		/***************************************************
-		 * EstimatePosition Service 
-		 * Define EstimatePositionService and it's callback
+		 * EstimatePosition Service Define EstimatePositionService and it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<EstimatePositionRequest, EstimatePositionResponse> EstimatePositionService = new ServiceResponseBuilder<EstimatePositionRequest, EstimatePositionResponse>() {
 			@Override
@@ -489,18 +471,21 @@ public class Client extends AbstractNodeMain {
 					response.setResponse("Service parameters cannot be empty!\n Returning...");
 					return;
 				}
-
+				if (debug == true) {
+					connectedNode.getLog().info("Got request, with info:\n os: " + operating_system + ",\n buid: "
+							+ buid + ",\n floor: " + floor + ",\n algorithm: " + algorithm + "\n");
+				}
 				String cmd[] = new String[3];
 				if (operating_system.equals("linux")) {
-					cmd[0] = "/bin/sh";
+					cmd[0] = "/bin/bash";
 					cmd[1] = "-c";
-					cmd[2] = "sudo iwlist wlo1 scan | awk  '/Address/ {print $5}; /level/ {print $3}' |  cut -d\"=\" -f2 ";
-					connectedNode.getLog().debug("Cmd on Linux is: " + cmd +  "\n");
+					cmd[2] = "iwlist wlo1 scan | awk  '/Address/ {print $5}; /level/ {print $3}' |  cut -d\"=\" -f2 ";
+					connectedNode.getLog().info("Cmd on Linux is: " + cmd[0] +" "+ cmd[1] +" "+ cmd[2] + "\n");
 				} else if (operating_system.equals("mac")) {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
 					cmd[2] = "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -s | grep ':' | tr -s ' ' | cut -d' ' -f3 -f4| tr ' ' '\n'";
-					connectedNode.getLog().debug("Cmd on Mac is: " + cmd +  "\n");
+					connectedNode.getLog().info("Cmd on Mac is: " + cmd[0] +" "+ cmd[1] +" "+ cmd[2] + "\n");
 				} else {
 					response.setSuccess(false);
 					response.setResponse("Only linux and Mac are the available operating systems\n Returning...");
@@ -532,7 +517,7 @@ public class Client extends AbstractNodeMain {
 				}
 				aps = Arrays.copyOf(aps, counter);
 				for (int j = 0; j < counter; j++) {
-					connectedNode.getLog().info(aps[j]);
+					connectedNode.getLog().info(aps[j] + "\n");
 				}
 				String anyplace_response = client.estimatePosition(buid, floor, aps, algorithm);
 				connectedNode.getLog().info(anyplace_response + "\n"); /* .substring(0, 100) */
@@ -545,8 +530,7 @@ public class Client extends AbstractNodeMain {
 				EstimatePositionService);
 
 		/***************************************************
-		 * EstimatePositionOffline Service 
-		 * Define EstimatePositionOfflineService and
+		 * EstimatePositionOffline Service Define EstimatePositionOfflineService and
 		 * it's callback
 		 ****************************************************/
 		ServiceResponseBuilder<EstimatePositionRequest, EstimatePositionResponse> EstimatePositionOfflineService = new ServiceResponseBuilder<EstimatePositionRequest, EstimatePositionResponse>() {
@@ -563,13 +547,16 @@ public class Client extends AbstractNodeMain {
 					response.setResponse("Service parameters cannot be empty!\n Returning...");
 					return;
 				}
-
+				if (debug == true) {
+					connectedNode.getLog().info("Got request, with info:\n os: " + operating_system + ",\n buid: "
+							+ buid + ",\n floor: " + floor + ",\n algorithm: " + algorithm + "\n");
+				}
 				String cmd[] = new String[3];
 				if (operating_system.equals("linux")) {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
 					cmd[2] = "sudo iwlist wlo1 scan | awk  '/Address/ {print $5}; /level/ {print $3}' |  cut -d\"=\" -f2 ";
-					
+
 				} else if (operating_system.equals("mac")) {
 					cmd[0] = "/bin/sh";
 					cmd[1] = "-c";
