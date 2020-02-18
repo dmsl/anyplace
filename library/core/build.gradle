@@ -7,17 +7,6 @@ version '0.1'
 
 sourceCompatibility = 1.8
 
-apply plugin : "java"
-
-ext {
-    javaMainClass = "cy.ac.ucy.cs.anyplace.CLI"
-}
-
-// INFO: this might be removed once we ship as a gradle lib
-application {
-    mainClassName = javaMainClass
-}
-
 repositories {
     mavenCentral()
 }
@@ -29,4 +18,22 @@ dependencies {
 
     // testing
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+// JAR library generation
+jar { manifest {
+    attributes 'Main-Class': 'cy.ac.ucy.cs.anyplace.CLI'
+}
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    tasks.withType(Jar) {
+        destinationDirectory = file("$rootDir/../bin/")
+        archiveFileName = "anyplace.jar"
+    }
+}
+
+// Run cli task
+task run_cli(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = "cy.ac.ucy.cs.anyplace.CLI"
+    args "arg1", "arg2"
 }

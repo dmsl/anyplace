@@ -49,7 +49,7 @@ import java.util.Scanner;
 
 public class CLI {
 
-	public final static String parametersFile = "debug/parameters.txt";
+	public final static String parametersFilename = ".anyplace";
 	public static String access_token, host, port, cache;
 
 	/**
@@ -75,20 +75,25 @@ public class CLI {
 	 */
 	public static void read_paramenters() {
 		try {
-			Scanner sc = new Scanner(new File(parametersFile));
+		    // TODO CA: check that this work on Windows!
+            String home = System.getProperty("user.home");
+            File parametersFile = new File(home + "/" + parametersFilename);
+			Scanner sc = new Scanner(parametersFile);
 			while (sc.hasNext()) {
 				initialize_parameters(sc.nextLine());
 			}
 			sc.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("Error: File " + parametersFile + " not found!");
-			System.out.println("Make sure that file " + parametersFile + " is in the correct format!");
+			System.out.println("Error: File " + parametersFilename + " not found!");
+			System.out.println("Make sure that file " + parametersFilename + " is in the correct format!");
 			System.out.println("The format of the file is:");
 			System.out.println("host ap-dev.cs.ucy.ac.cy");
 			System.out.println("port 43");
 			System.out.println("cache res/");
-			System.out.println(
-					"access_token <api_key> [The API key has be generated based on your google account through the anyplace architect]");
+			System.out.println("access_token <api_key> " +
+                "[The API key has be generated based on your google account through the anyplace architect]");
+			// TODO CA: when this error is shown, prompt, with Y or N to initialize that file with defaults
+            // if yes, then read parameters again
 			System.exit(-1);
 		}
 	}
@@ -101,6 +106,7 @@ public class CLI {
 	 */
 	public static void main(String[] args) throws JSONException {
 		/*
+		 TODO CA the following is a test case! make it one, with some desc!
 		 * String buid = "username_1373876832005"; String pois_to =
 		 * "poi_064f4a01-07bd-45fa-9579-63fa197d3d90"; String coordinates_la =
 		 * "35.14414934169342"; String coordinates_lo = "33.41130472719669"; String
@@ -112,7 +118,7 @@ public class CLI {
 		read_paramenters();
 		if (access_token == null || host == null || port == null || cache == null || access_token.isEmpty()
 				|| host.isEmpty() || port.isEmpty() || cache.isEmpty()) {
-			System.out.println("Make sure that file " + parametersFile + " is in the correct format!");
+			System.out.println("Make sure that file " + parametersFilename + " is in the correct format!");
 			System.out.println("The format of the file is:");
 			System.out.println("host ap-dev.cs.ucy.ac.cy");
 			System.out.println("port 43");
@@ -418,7 +424,7 @@ public class CLI {
 				response = client.estimatePositionOffline(buid, floor, aps, algorithm);
 				System.out.println(response + "\n"); /* .substring(0, 100) */
 			} else {
-				System.out.println("The option given is not valid.");
+				System.out.println("Unknown argument: " + args[0]);
 			}
 
 		}

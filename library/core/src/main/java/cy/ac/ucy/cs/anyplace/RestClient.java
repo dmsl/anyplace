@@ -41,6 +41,7 @@ package cy.ac.ucy.cs.anyplace;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -67,7 +68,10 @@ public class RestClient {
 		String query = makeRequestBody(map);
 
 		OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder().addInterceptor(new UnzippingInterceptor());
-		OkHttpClient client = clientBuilder.build();
+		OkHttpClient client = clientBuilder.
+            readTimeout(Preferences.READ_TIMEOUT_SECS, TimeUnit.SECONDS).
+            connectTimeout(Preferences.CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS).
+            build();
 
 		MediaType mediaType = MediaType.parse("application/json");
 		RequestBody body = RequestBody.create(mediaType, query);
@@ -96,8 +100,12 @@ public class RestClient {
 	 */
 	public byte[] getFileWithGet(String host, String url) {
 
+
 		OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder().addInterceptor(new UnzippingInterceptor());
-		OkHttpClient client = clientBuilder.build();
+		OkHttpClient client = clientBuilder.
+            readTimeout(Preferences.READ_TIMEOUT_SECS, TimeUnit.SECONDS).
+            connectTimeout(Preferences.CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS).
+            build();
 
 		Request request = new Request.Builder().url(url).get().addHeader("Accept", "*/*")
 				.addHeader("Cache-Control", "no-cache").addHeader("Host", host)
@@ -122,11 +130,13 @@ public class RestClient {
 	 * @return Returns a byte[] of the file
 	 */
 	public byte[] getFileWithPost(String host, String url) {
-
 		String query = makeRequestBody(null);
 
 		OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder().addInterceptor(new UnzippingInterceptor());
-		OkHttpClient client = clientBuilder.build();
+        OkHttpClient client = clientBuilder.
+            connectTimeout(Preferences.CONNECT_TIMEOUT_SECS, TimeUnit.SECONDS).
+            readTimeout(Preferences.READ_TIMEOUT_SECS, TimeUnit.SECONDS).
+            build();
 
 		MediaType mediaType = MediaType.parse("application/json");
 		RequestBody body = RequestBody.create(mediaType, query);
