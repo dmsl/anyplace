@@ -21,7 +21,11 @@ This command will create a docker image which includes the rosjava packages whic
 ./docker_run_publisher.sh
 ```
 
-This command will run a bash terminal inside a docker container based on the image you created on step 0. The ROS nodes running in this container know the presence of the ROS master and can communicate with it. From this container you should go to the *~/rosjava* directory and run *catkin_make*. This will build the package once again (hopefully with no errors). After you have built successfully the code, you can deploy the anyplace_ros package by running in the terminal:
+This command will run a bash terminal inside a docker container based on the image you created on step 0. The ROS nodes running in this container know the presence of the ROS master and can communicate with it. From this container you should go to the *~/rosjava* directory and run:
+```
+catkin_make
+```
+This will build the package once again (hopefully with no errors). After you have built successfully the code, you can deploy the anyplace_ros package by running in the terminal:
 
 ```
 roslaunch anyplace_ros_pkg anyplace_ros_client.launch
