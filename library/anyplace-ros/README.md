@@ -40,7 +40,11 @@ This command will initiate a ROS master and then start the anyplace-ros client. 
 ./docker_run_tester_1.sh
 ```
 
-This command will run a bash terminal inside a docker container based on the image you created on step 0. The ROS nodes running in this container know the presence of the ROS master and can communicate with it. In this step we try to test the anyplace_ros with a package created in ROS. From this container you should go to the *~/rosjava* directory and run *catkin_make*. This will build the package once again (hopefully with no errors). After you have built successfully the code, you can deploy the anyplace_ros_request_tester package by running in the terminal:
+This command will run a bash terminal inside a docker container based on the image you created on step 0. The ROS nodes running in this container know the presence of the ROS master and can communicate with it. In this step we try to test the anyplace_ros with a package created in ROS. From this container you should go to the *~/rosjava* directory and run:
+```
+catkin_make
+```
+This will build the package once again (hopefully with no errors). After you have built successfully the code, you can deploy the anyplace_ros_request_tester package by running in the terminal:
 
 ```bash
 roslaunch anyplace_ros_request_tester anyplace_ros_request_tester.launch
