@@ -17,10 +17,8 @@ RUN apt-get update && apt-get install -y \
     ros-kinetic-rospack \
     ros-kinetic-dynamic-reconfigure \
     net-tools \
-    wireless-tools
-    # ros-melodic-ros-tutorials \
-    # ros-melodic-common-tutorials \
-
+    wireless-tools \
+    ros-kinetic-rospy-message-converter
 
 RUN mkdir -p /root/rosjava/src
 
