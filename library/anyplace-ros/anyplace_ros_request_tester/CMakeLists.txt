@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_runtime
   std_msgs
   anyplace_ros_custom_msgs
+  rospy_message_converter
 )
 
 ## System dependencies are found with CMake's conventions

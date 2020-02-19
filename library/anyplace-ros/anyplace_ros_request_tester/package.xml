@@ -55,7 +55,8 @@
   <build_export_depend>std_msgs</build_export_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>anyplace_ros_custom_msgs</exec_depend>
-
+  <exec_depend>rospy_message_converter</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
