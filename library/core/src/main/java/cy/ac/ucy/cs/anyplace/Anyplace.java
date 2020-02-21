@@ -54,6 +54,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import static com.sun.deploy.registration.InstallCommands.STATUS_OK;
+
 public class Anyplace {
 
 	private String host;
@@ -272,6 +274,9 @@ public class Anyplace {
 		params.put("buid", buid);
 
 		String response = client.doPost(params, getHost(), getPath());
+
+		// TODO CA: must return json object by default (IN ALL CASES)
+        // must also have AllBuildingPOI wrappers that will return objects
 
 		return response;
 	}
@@ -598,6 +603,7 @@ public class Anyplace {
 	 * @return String with the lat and lon
 	 */
 	public String estimatePositionOffline(String buid, String floor, String aps[], String algorithm) throws JSONException {
+	    // CA: TODO handle exceptions (remove throws)
 
 		ArrayList<LogRecord> list = new ArrayList<LogRecord>();
 
@@ -614,15 +620,34 @@ public class Anyplace {
 		RadioMap radio = null;
 		try {
 			radio = new RadioMap(file);
+        } catch (IOException e1) {
+            JsonHelper.printError(e1);
 		} catch (Exception e) {
+		    // CA: TODO make this class
+		    JsonHelper.printError(e);
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			JSONObject r = new JSONObject();
+			r.put("status", STATUS_ERR);
+            r.put("msg", e.getCause());
+            return r.toString();
 		}
 
 		String response = Algorithms.ProcessingAlgorithms(list, radio, al);
+        JSONObject r = new JSONObject();
+        r.put("status", STATUS_OK);
 
-		return response;
+        return response;
 	}
+
+    public Location EstimatePositionOffline(String buid, String floor, String aps[], String algorithm) {
+	    JSONObject res = estimatePositionOffline(buid, floor, aps, algorithm);
+	    Location l = new Location();
+	    l.lat = res.get("lat");
+        l.lon = res.get("lon");
+        return l;
+    }
+
 
 	public String getHost() {
 		return host;

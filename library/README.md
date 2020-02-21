@@ -53,7 +53,6 @@ Get all floors of a building:
 java -jar anyplace.jar -allBuildingFloors <buid>
 java -jar anyplace.jar -allBuildingFloors username_1373876832005
 ```
-
 Get all POI connections inside a floor:
 ```bash
 java -jar anyplace.jar -connectionsByFloor <buid> <floor>
@@ -83,7 +82,7 @@ Estimate the location of the user offline. Needs the radiomap file:
 ```bash
 java -jar anyplace.jar -estimatePosOffline <operating_system> <buid> <floor> <algorithm>
 java -jar anyplace.jar -estimatePosOffline linux username_1373876832005 1 1
-java -jar bin/anyplace-lib.jar -estimatePosOffline mac username_1373876832005 1 1
+java -jar anyplace.jar -estimatePosOffline mac username_1373876832005 1 1
 ```
 
 Implemented Endpoints

@@ -52,6 +52,9 @@ public class CLI {
 	public final static String parametersFilename = ".anyplace";
 	public static String access_token, host, port, cache;
 
+	// CA: USE apache tool for arguments (FUTURE)
+    // -estimatePosition --debug -buid=XXX
+
 	/**
 	 * This function initializes the parameters.
 	 * 
@@ -422,6 +425,9 @@ public class CLI {
 				aps = Arrays.copyOf(aps, counter);
 
 				response = client.estimatePositionOffline(buid, floor, aps, algorithm);
+
+				Location location = client.EstimatePositionOffline(..);
+
 				System.out.println(response + "\n"); /* .substring(0, 100) */
 			} else {
 				System.out.println("Unknown argument: " + args[0]);
