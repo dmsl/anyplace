@@ -426,7 +426,7 @@ public class CLI {
 
 				response = client.estimatePositionOffline(buid, floor, aps, algorithm);
 
-				Location location = client.EstimatePositionOffline(..);
+				//Location location = client.EstimatePositionOffline(..);
 
 				System.out.println(response + "\n"); /* .substring(0, 100) */
 			} else {

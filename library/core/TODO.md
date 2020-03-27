@@ -36,6 +36,7 @@
     - I've written some code for the settings, in the case that the code is executed as a tool
     - in my code it uses .anyplace file.
     - change this to:
+        + api_key separate file since key is large
         + .anyplace/config for the settings,
         + .anyplace/cache/ for any offline caching
         + so you will need to create a .anyplace folder in home directory (and equivalent on Windows)

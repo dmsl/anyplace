@@ -1,6 +1,9 @@
 package cy.ac.ucy.cs.anyplace;
 
 public class Preferences {
+
+    // Private variable and through a static method i change the values.
+
     // CA: all preference related operations should come from here.
     // make them private, setting, getting, reading from the file, etc.
 

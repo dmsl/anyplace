@@ -18,6 +18,8 @@ dependencies {
 
     // testing
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation('junit:junit:4.13')
+
 }
 
 // JAR library generation
@@ -26,8 +28,9 @@ jar { manifest {
 }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     tasks.withType(Jar) {
+        //        destinationDirectory = file("$rootDir/../bin/")
         destinationDirectory = file("$rootDir/../bin/")
-        archiveFileName = "anyplace.jar"
+        archiveFileName = "Anyplace.jar"
     }
 }
 
@@ -36,4 +39,7 @@ task run_cli(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = "cy.ac.ucy.cs.anyplace.CLI"
     args "arg1", "arg2"
+}
+test {
+    useJUnit()
 }

@@ -44,7 +44,6 @@ import org.json.JSONObject;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,10 +53,9 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import static com.sun.deploy.registration.InstallCommands.STATUS_OK;
-
 public class Anyplace {
 
+	public static final int STATUS_OK = 0;
 	private String host;
 	private String path;
 	private String port;
@@ -96,12 +94,11 @@ public class Anyplace {
 	public String poiDetails(String access_token, String pois) {
 		RestClient client = new RestClient();
 		setPath("/anyplace/navigation/pois/id");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("pois", pois);
 
-		String response = client.doPost(params, getHost(), getPath());
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()) );
 	}
 
 	/**
@@ -113,14 +110,14 @@ public class Anyplace {
 	 * @param floor          The floor number
 	 * @param coordinates_lat The latitude of position
 	 * @param coordinates_lon The longitude of position
-	 * @return
+	 * @return A JSON in String form
 	 */
 	public String navigationXY(String access_token, String pois_to, String buid, String floor, String coordinates_lat,
-			String coordinates_lon) throws JSONException {
+			String coordinates_lon)  {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/navigation/route_xy");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("pois_to", pois_to);
 		params.put("buid", buid);
@@ -130,17 +127,19 @@ public class Anyplace {
 
 		String response = client.doPost(params, getHost(), getPath());
 
-		JSONObject obj = new JSONObject(response);
-		int statusCode = obj.getInt("status_code");
-
-		if (statusCode == 200) {
-		    // CHECK CA
+		JSONObject obj;
+		int statusCode;
+		try {
+			obj = new JSONObject(response);
+			statusCode = obj.getInt("status_code");
+			if (statusCode != 200) {
+				return JsonHelper.printError(new Exception(), "navigationXY");
+			}
+		} catch (JSONException e) {
+			return JsonHelper.printError(e, "navigationXY");
 		}
-		else {
-			System.out.println("Bad response");
-		}
 
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, response);
 
 	}
 
@@ -153,28 +152,31 @@ public class Anyplace {
 	 * @return The navigation path in the form of a JSON string as sent by the
 	 *         server
 	 */
-	public String navigationPoiToPoi(String access_token, String pois_to, String pois_from) throws JSONException {
+	public String navigationPoiToPoi(String access_token, String pois_to, String pois_from)  {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/navigation/route");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("pois_from", pois_from);
 		params.put("pois_to", pois_to);
 
 		String response = client.doPost(params, getHost(), getPath());
 
-		JSONObject obj = new JSONObject(response);
-		int statusCode = obj.getInt("status_code");
-
-		if (statusCode == 200) {
-
+		JSONObject obj ;
+		int statusCode ;
+		try {
+			obj = new JSONObject(response);
+			statusCode = obj.getInt("status_code");
+		} catch (JSONException e) {
+			return JsonHelper.printError(e, "navigationPoiToPoi");
 		}
 
-		else {
-			System.out.println("Bad response");
+		if (statusCode != 200) {
+			return JsonHelper.printError(new Exception(), "navigationPoiToPoi");
 		}
-		return response;
+
+		return JsonHelper.jsonResponse(STATUS_OK, response);
 	}
 
 	/**
@@ -186,7 +188,7 @@ public class Anyplace {
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/building/all");
 
-		return client.doPost(null, getHost(), getPath());
+		return JsonHelper.jsonResponse(STATUS_OK,client.doPost(null, getHost(), getPath()));
 	}
 
 	/**
@@ -199,11 +201,10 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/campus/all_cucode");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("cuid", cuid);
 
-		String response = client.doPost(params, getHost(), getPath());
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -215,10 +216,9 @@ public class Anyplace {
 	public String buildingsByBuildingCode(String bucode) {
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/building/all_bucode");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("bucode", bucode);
-
-		return client.doPost(params, getHost(), getPath());
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -233,13 +233,13 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/building/coordinates");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("coordinates_lat", coordinates_lat);
 		params.put("coordinates_lon", coordinates_lon);
 
-		String response = client.doPost(params, getHost(), getPath());
-		return response;
+
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -252,12 +252,11 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/floor/all");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK,client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -270,15 +269,11 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/pois/all_building");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		// TODO CA: must return json object by default (IN ALL CASES)
-        // must also have AllBuildingPOI wrappers that will return objects
-
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -292,13 +287,13 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/pois/all_floor");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 		params.put("floor_number", floor);
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		return response;
+
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -312,13 +307,12 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/connection/all_floor");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 		params.put("floor_number", floor);
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -331,14 +325,14 @@ public class Anyplace {
 	public String radioheatMapBuildingFloor(String buid, String floor) {
 
 		RestClient client = new RestClient();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 		params.put("floor", floor);
 		setPath("/anyplace/mapping/radio/heatmap_building_floor");
 
-		String response = client.doPost(params, getHost(), getPath());
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 
-		return response;
+
 
 	}
 
@@ -355,7 +349,7 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/floorplans64/" + buid + "/" + floor);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("buid", buid);
 		params.put("floor", floor);
@@ -367,15 +361,11 @@ public class Anyplace {
 		try {
 			File outputfile = new File(filename);
 			ImageIO.write(decodeToImage(response), "png", outputfile);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			return JsonHelper.printError(e, "floorplan64");
 		}
 
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, response);
 	}
 
 	/**
@@ -386,22 +376,33 @@ public class Anyplace {
 	 * @param floor        The floor number
 	 * @return JSON String containing the floor tile zip download url
 	 */
-	public String floortiles(String access_token, String buid, String floor) throws JSONException {
+	public String floortiles(String access_token, String buid, String floor) {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/floortiles/" + buid + "/" + floor);
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("buid", buid);
 		params.put("floor", floor);
 
 		String response = client.doPost(params, getHost(), getPath());
 
-		JSONObject obj = new JSONObject(response);
-		int statusCode = obj.getInt("status_code");
+		JSONObject obj;
+		int statusCode;
+		try {
+			obj = new JSONObject(response);
+			statusCode = obj.getInt("status_code");
+		} catch (JSONException e) {
+			return JsonHelper.printError(e, "floortiles");
+		}
 
 		if (statusCode == 200) {
-			String tiles_archive = obj.getString("tiles_archive");
+			String tiles_archive;
+			try {
+				tiles_archive = obj.getString("tiles_archive");
+			} catch (JSONException e) {
+				return JsonHelper.printError(e, "floortiles");
+			}
 			byte[] zip = client.getFileWithGet(getHost(), tiles_archive);
 			String filename = "res/" + buid + "/" + floor + "/" + "floorPlanTiles.zip";
 
@@ -411,15 +412,14 @@ public class Anyplace {
 				outputStream.write(zip);
 				outputStream.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return JsonHelper.printError(e, "floortiles");
 			}
 
 		} else {
 			System.out.println("Bad response");
 		}
 
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, response);
 	}
 
 	/**
@@ -436,16 +436,16 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/position/radio_download_floor");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("coordinates_lat", coordinates_lat);
 		params.put("coordinates_lon", coordinates_lon);
 		params.put("floor_number", floor);
 		params.put("mode", "foo");
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		return response;
+
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 
 	}
 
@@ -464,16 +464,16 @@ public class Anyplace {
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/position/radio_by_floor_bbox");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 		params.put("floor_number", floor);
 		params.put("coordinates_lat", coordinates_lat);
 		params.put("coordinates_lon", coordinates_lon);
 		params.put("range", range);
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		return response;
+
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -485,32 +485,55 @@ public class Anyplace {
 	 * @param floor        The floor number
 	 * @return JSON String with the radio measurement of the floor
 	 */
-	public String radioByBuildingFloor(String access_token, String buid, String floor) throws JSONException {
+	public String radioByBuildingFloor(String access_token, String buid, String floor){
 
 		RestClient client = new RestClient();
 		setPath("/anyplace/position/radio_by_building_floor");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("access_token", access_token);
 		params.put("buid", buid);
 		params.put("floor", floor);
 
 		String response = client.doPost(params, getHost(), getPath());
 
-		JSONObject obj = new JSONObject(response);
-		int statusCode = obj.getInt("status_code");
+		JSONObject obj;
+		int statusCode;
+		try {
+			obj = new JSONObject(response);
+			statusCode = obj.getInt("status_code");
+		} catch (JSONException e) {
+			return JsonHelper.printError(e, "radioByBuildingFloor");
+		}
 
 		if (statusCode == 200) {
-			String map_url_parameters = obj.getString("map_url_parameters");
+			String map_url_parameters;
+			try {
+				map_url_parameters = obj.getString("map_url_parameters");
+			} catch (JSONException e) {
+				return JsonHelper.printError(e, "radioByBuildingFloor");
+			}
 			byte[] parameters = client.getFileWithPost(getHost(), map_url_parameters);
-			String map_url_mean = obj.getString("map_url_mean");
+			String map_url_mean ;
+			try {
+				map_url_mean = obj.getString("map_url_mean");
+			} catch (JSONException e) {
+				return JsonHelper.printError(e, "radioByBuildingFloor");
+			}
 			byte[] mean = client.getFileWithPost(getHost(), map_url_mean);
-			String map_url_weights = obj.getString("map_url_weights");
+			String map_url_weights ;
+			try {
+				map_url_weights = obj.getString("map_url_weights");
+			} catch (JSONException e) {
+				return JsonHelper.printError(e, "radioByBuildingFloor");
+			}
 			byte[] weights = client.getFileWithPost(getHost(), map_url_weights);
 
 			String temp = cache + buid + "/" + floor;
 			File dir = new File(temp);
-			dir.mkdirs();
-
+			boolean t = dir.mkdirs();
+			if (!t){
+				return JsonHelper.printError(new AnyplaceException("Couldn't create directory.", new Exception()), "radioByBuildingFloor");
+			}
 			String indoor_radiomap_parameters = cache + buid + "/" + floor + "/indoor_radiomap_parameters.txt";
 			String indoor_radiomap_mean = cache + buid + "/" + floor + "/indoor_radiomap_mean.txt";
 			String indoor_radiomap_weights = cache + buid + "/" + floor + "/indoor_radiomap_weights.txt";
@@ -520,13 +543,15 @@ public class Anyplace {
 			File f3 = new File(indoor_radiomap_weights);
 
 			try {
-				f1.createNewFile();
-				f2.createNewFile();
-				f3.createNewFile();
+				boolean t1 =f1.createNewFile();
+				boolean t2 =f2.createNewFile();
+				boolean t3 =f3.createNewFile();
 
+				if ( !t1 || !t2 || !t3){
+					return JsonHelper.printError(new AnyplaceException("Couldn't create file.", new Exception()), "radioByBuildingFloor");
+				}
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				return JsonHelper.printError(e1, "radioByBuildingFloor");
 			}
 
 			try {
@@ -542,7 +567,7 @@ public class Anyplace {
 				outputStream.write(weights);
 				outputStream.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				return JsonHelper.printError(e, "radioByBuildingFloor");
 			}
 
 		}
@@ -551,7 +576,7 @@ public class Anyplace {
 			System.out.println("Bad response");
 		}
 
-		return response;
+		return JsonHelper.jsonResponse(STATUS_OK, response);
 
 	}
 
@@ -564,32 +589,42 @@ public class Anyplace {
 	 * @param algorithm The number of the desired algorithm
 	 * @return JSON String containing the lat and lon
 	 */
-	public String estimatePosition(String buid, String floor, String aps[], String algorithm) throws JSONException {
+	public String estimatePosition(String buid, String floor, String[] aps, String algorithm)  {
 		RestClient client = new RestClient();
 		setPath("/anyplace/position/estimate_position");
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
 		params.put("floor", floor);
 		String addb = "\\\"bssid\\\"";
 		String addr = "\\\"rss\\\"";
 		String addq = "\\\"";
-		String ap = "[";
-		for (int i = 0; i < aps.length; i++) {
+		StringBuilder apBuilder = new StringBuilder("[");
+		for (String s : aps) {
 
-			JSONObject obj = new JSONObject(aps[i]);
-			String bssid = obj.getString("bssid");
-			int rss = obj.getInt("rss");
-			ap += "{" + addb + ":" + addq + bssid + addq + "," + addr + ":" + rss + "},";
+
+			JSONObject obj;
+			String bssid;
+			int rss;
+			try {
+				obj = new JSONObject(s);
+				bssid = obj.getString("bssid");
+				rss = obj.getInt("rss");
+			} catch (JSONException e) {
+				return JsonHelper.printError(e, "estimatePosition");
+			}
+
+			apBuilder.append("{").append(addb).append(":").append(addq).append(bssid).append(addq).append(",").append(addr).append(":").append(rss).append("},");
 
 		}
+		String ap = apBuilder.toString();
 		ap = ap.substring(0, ap.length() - 1) + "]";
 
 		params.put("APs", ap);
 		params.put("algorithm_choice", algorithm);
 
-		String response = client.doPost(params, getHost(), getPath());
 
-		return response;
+
+		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
 	/**
@@ -602,51 +637,59 @@ public class Anyplace {
 	 * @param algorithm The number of the desired algorithm
 	 * @return String with the lat and lon
 	 */
-	public String estimatePositionOffline(String buid, String floor, String aps[], String algorithm) throws JSONException {
-	    // CA: TODO handle exceptions (remove throws)
+	public String estimatePositionOffline(String buid, String floor, String[] aps, String algorithm)   {
 
-		ArrayList<LogRecord> list = new ArrayList<LogRecord>();
+		ArrayList<LogRecord> list = new ArrayList<>();
 
-		for (int i = 0; i < aps.length; i++) {
 
-			JSONObject obj = new JSONObject(aps[i]);
-			String bssid = obj.getString("bssid");
-			int rss = obj.getInt("rss");
+		for (String ap : aps) {
+
+			JSONObject obj;
+			String bssid;
+			int rss;
+			try {
+				obj = new JSONObject(ap);
+				bssid = obj.getString("bssid");
+				rss = obj.getInt("rss");
+			} catch (JSONException e) {
+				return JsonHelper.printError(e, "estimatePositionOffline");
+			}
+
 			list.add(new LogRecord(bssid, rss));
 		}
 
 		int al = Integer.parseInt(algorithm);
 		File file = new File(cache + buid + "/" + floor + "/indoor_radiomap_mean.txt");
-		RadioMap radio = null;
+		RadioMap radio;
 		try {
 			radio = new RadioMap(file);
-        } catch (IOException e1) {
-            JsonHelper.printError(e1);
+
 		} catch (Exception e) {
-		    // CA: TODO make this class
-		    JsonHelper.printError(e);
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-			JSONObject r = new JSONObject();
-			r.put("status", STATUS_ERR);
-            r.put("msg", e.getCause());
-            return r.toString();
+
+		     return JsonHelper.printError(e, "estimatePositionOffline");
+
+
 		}
 
+
 		String response = Algorithms.ProcessingAlgorithms(list, radio, al);
-        JSONObject r = new JSONObject();
-        r.put("status", STATUS_OK);
+		System.out.println(response);
+		String[] coords = new String[0];
+		if (response != null) {
+			coords = response.split(" ");
+		}
+		JSONObject r = new JSONObject();
+		try {
+			r.put("status", STATUS_OK);
+			r.put("lon", coords[0]);
+			r.put("lat", coords[1]);
+		} catch (JSONException e) {
+			return JsonHelper.printError(e, "estimatePositionOffline");
+		}
 
-        return response;
+		return r.toString();
+
 	}
-
-    public Location EstimatePositionOffline(String buid, String floor, String aps[], String algorithm) {
-	    JSONObject res = estimatePositionOffline(buid, floor, aps, algorithm);
-	    Location l = new Location();
-	    l.lat = res.get("lat");
-        l.lon = res.get("lon");
-        return l;
-    }
 
 
 	public String getHost() {
