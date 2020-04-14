@@ -27,4 +27,4 @@ test/
 crlbs_files/
 /conf/ap.application.conf
 conf/public/
-
+node_modules/
