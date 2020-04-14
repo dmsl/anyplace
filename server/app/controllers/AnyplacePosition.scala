@@ -58,6 +58,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
   def radioUpload() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
+        // println("lsole01:radioUpload")
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) {

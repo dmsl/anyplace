@@ -36,6 +36,8 @@
 
 app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', '$location', '$compile', 'GMapService', 'AnyplaceService', function ($scope, $rootScope, $routeParams, $location, $compile, GMapService, AnyplaceService) {
 
+
+
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
 
@@ -83,6 +85,8 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     $scope.getIsUserLocVisible = function () {
         return $scope.isUserLocVisible;
     };
+
+
 
     $scope.panToUserLocation = function () {
         if (!$scope.userPosition)

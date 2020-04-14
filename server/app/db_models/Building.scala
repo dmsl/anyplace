@@ -106,6 +106,19 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     buid
   }
 
+  // lsolea01: adding ships
+  def getshipId(): String = {
+    var buid: String = fields.get("buid")
+    if (buid == null || buid.isEmpty || buid == "") {
+      val finalId = LPUtils.getRandomUUID + "_" + System.currentTimeMillis()
+
+      fields.put("buid", "ship_" + finalId)
+      buid = fields.get("buid")
+      this.json.put("buid", buid)
+    }
+    buid
+  }
+
   def toValidCouchJson(): JsonObject = {
     // initialize id if not initialized
     getId()

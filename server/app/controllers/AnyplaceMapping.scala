@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -66,6 +66,11 @@ import play.api.libs.json._
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
+
+import scala.io.Source
+import java.nio.file.{Paths, Files}
+
+import controllers.AnyplacePosition
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -282,8 +287,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-//HEREEE
- def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
+
+  def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -368,8 +373,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val sytile = Math.floor((1.0 - Math.log(Math.tan(Math.toRadians(lat)) + 1.0 / Math.cos(Math.toRadians(lat))) / 3.141592653589793) / 2.0 * (1 << zoom).toDouble).toInt
     Array[Int](sxtile, sytile)
   }
-//HEREEE
-    def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
+
+  def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -563,7 +568,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   def getAPsIds() = Action {
-     implicit request =>
+    implicit request =>
       def inner(request: Request[AnyContent]): Result = {
 
         val anyReq = new OAuth2Request(request)
@@ -593,54 +598,54 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val inner_loop = new Breaks
 
 
-            for (accessPointOfReq : String <- accessPointsOfReq) {
-              idOfReq="N/A"
-              loop.breakable {
-                for (accessPointOfFile: JsObject <- accessPointsOfFile) {
+          for (accessPointOfReq : String <- accessPointsOfReq) {
+            idOfReq="N/A"
+            loop.breakable {
+              for (accessPointOfFile: JsObject <- accessPointsOfFile) {
 
-                  val bitsR = accessPointOfReq.split(":")
-                  val bitsA = accessPointOfFile.value("mac").as[String].split(":")
-                  if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
+                val bitsR = accessPointOfReq.split(":")
+                val bitsA = accessPointOfFile.value("mac").as[String].split(":")
+                if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
 
-                    firstBitFound=true
+                  firstBitFound=true
 
-                    var i = 0
-                    inner_loop.breakable {
-                      for (i <- 0 until bitsA.length) {
+                  var i = 0
+                  inner_loop.breakable {
+                    for (i <- 0 until bitsA.length) {
 
-                        if (bitsA(i).equalsIgnoreCase(bitsR(i))) {
-                          sameBits += 1
-                        } else {
+                      if (bitsA(i).equalsIgnoreCase(bitsR(i))) {
+                        sameBits += 1
+                      } else {
 
-                          inner_loop.break
-                        }
+                        inner_loop.break
                       }
                     }
-
-                    if(sameBits >= 3)
-                      found = true
-
-                  } else {
-                    sameBits = 0
-
-                    if (firstBitFound) {
-                      firstBitFound=false
-                      loop.break
-                    }
                   }
 
-                  if (sameBitsOfReq < sameBits && found) {
-                    sameBitsOfReq = sameBits
-                    idOfReq = accessPointOfFile.value("id").as[String]
-                  }
+                  if(sameBits >= 3)
+                    found = true
+
+                } else {
                   sameBits = 0
 
+                  if (firstBitFound) {
+                    firstBitFound=false
+                    loop.break
+                  }
                 }
-              }//accessPointOfFile break
 
-              APsIDs.add(idOfReq)
-              sameBitsOfReq = 0
-              found=false
+                if (sameBitsOfReq < sameBits && found) {
+                  sameBitsOfReq = sameBits
+                  idOfReq = accessPointOfFile.value("id").as[String]
+                }
+                sameBits = 0
+
+              }
+            }//accessPointOfFile break
+
+            APsIDs.add(idOfReq)
+            sameBitsOfReq = 0
+            found=false
 
           }
 
@@ -694,7 +699,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-{
+          {
           //Regenerate the radiomap files
           val strPromise = F.Promise.pure("10")
           val intPromise = strPromise.map(new F.Function[String, Integer]() {
@@ -706,7 +711,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           gzippedJSONOk(res.toString)
           //                }
           //                return AnyResponseHelper.ok(res.toString());
-        } catch {
+          } catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
           }
@@ -720,7 +725,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-   def FingerPrintsTimestampDelete() = Action {
+  def FingerPrintsTimestampDelete() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -754,7 +759,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-{
+          {
           //Regenerate the radiomap files
           val strPromise = F.Promise.pure("10")
           val intPromise = strPromise.map(new F.Function[String, Integer]() {
@@ -766,7 +771,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           gzippedJSONOk(res.toString)
           //                }
           //                return AnyResponseHelper.ok(res.toString());
-        } catch {
+          } catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
           }
@@ -834,11 +839,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
+        println("json"+json)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor").as[String]
+
         /*
          * BuxFix : Server side localization API
          * Fixing JSON Parse error
@@ -870,20 +877,35 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         
         //FeatureAdd : Configuring location for server generated files
         val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+    /*
+     * REVIEW lsolea code. Leaving bugfix from develop
+        val floor_number = (json \ "floor").as[String]
+        val jsonstr=(json\"APs").as[String]
+        val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
+        val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
+        val algorithm_choice = (json\"algorithm_choice").as[String].toInt
+        */
 
         val rmapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
 
         if(!rmapFile.exists()){
-           //Regenerate the radiomap files if not exist
-             AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+          //Regenerate the radiomap files if not exist
+          AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
         }
         /*
          * BuxFix : Server side localization API
          * Fixing null pointer error for latestScanList
          */
         val latestScanList: util.ArrayList[location.LogRecord] = new util.ArrayList[location.LogRecord]()
+
+        /*
+         * REVIEW lsolea code. Leaving bugfix from develop
+        val latestScanList = new  util.ArrayList[location.LogRecord]
+        */
         var i=0
+
+
         for (i <- 0 until accessPoints.size) {
           val bssid= (accessPoints(i) \ "bssid").as[String]
           val rss =(accessPoints(i) \ "rss").as[Int]
@@ -906,6 +928,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         res.put("lat", lat_long(0))
         res.put("long", lat_long(1))
         return AnyResponseHelper.ok(res, "Successfully found position.")
+
+        // REVIEW accepted develop code. lsolea01 code must have been
+        // based on a previous commit of the develop branch
       }
 
       inner(request)
@@ -1000,6 +1025,40 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case e: NumberFormatException => return AnyResponseHelper.bad_request("Building coordinates are invalid!")
           }
           if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
+          val res = JsonObject.empty()
+          res.put("buid", building.getId)
+          return AnyResponseHelper.ok(res, "Successfully added building!")
+        } catch {
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        }
+      }
+
+      inner(request)
+  }
+
+  def shipAdd() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAdd(): " + json.toString)
+        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "name", "description",
+          "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        if ((json \ "access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+        owner_id = appendToOwnerId(owner_id.toString)
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        try {
+          var building: Building = null
+          try {
+            building = new Building(JsonObject.fromJson(json.toString()))
+          } catch {
+            case e: NumberFormatException => return AnyResponseHelper.bad_request("Building coordinates are invalid!")
+          }
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getshipId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
           val res = JsonObject.empty()
           res.put("buid", building.getId)
           return AnyResponseHelper.ok(res, "Successfully added building!")
@@ -1678,6 +1737,34 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
+
+
+  def radiomapDelete()= Action {
+      implicit request =>
+        def inner(request: Request[AnyContent]): Result = {
+          val anyReq = new OAuth2Request(request)
+          if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          var json = anyReq.getJsonBody
+
+          val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+          if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+          val buid = (json \ "buid").as[String]
+          val floor_number=(json \ "floor").as[String]
+          val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+         if (file_path.exists()){
+
+
+              if(file_path.delete){
+                return AnyResponseHelper.ok("Successfully Delete floor radiomap" + floor_number + "!")
+
+              }
+
+         }
+          return AnyResponseHelper.bad_request("Radiomap is not Delete")
+        }
+
+        inner(request)
+    }
 
   def floorDelete() = Action {
     implicit request =>
@@ -2849,8 +2936,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (rm.isEmpty) {
             return AnyResponseHelper.bad_request("Area not supported yet!")
           } else {
+
+
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
+
             val res = JsonObject.empty()
             res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
             res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.toList)))
@@ -2892,6 +2982,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
+    val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+    val folder=new File("crlbs_files"+ File.separatorChar+buid)
+    if (!folder.exists()) {
+      folder.mkdir()
+    }
+
     val hm = rm.getGroupLocationRSS_HashMap()
     val keys = hm.keySet()
 
@@ -2899,6 +2995,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val list_rss = ListBuffer[DenseVector[Double]]()
 
     val m = rm.getMacAdressList().size()
+
+
     for (key <- keys) {
       val lrhm = hm.get(key)
       for (loc: String <- lrhm.keySet()) {
@@ -2946,19 +3044,52 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       drop_redundant_features = true,
       cut_k_features = cut_k_features
     )
+
+    /* CLR this block:
+    if (!Files.exists(Paths.get(file_path))) {
+        acces.fit_gpr(estimate = true, use_default_params = false)
+    }
     println("fit_gpr: starting")
     acces.fit_gpr(estimate = true, use_default_params = false)
     println("fit_gpr: finished")
+    */
+
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
-    val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
-    println("crlbs", crlbs)
-    val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
 
-      GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur)
-    )
 
-    return (latlon_predict, crlbs)
+
+
+    if (file_path.exists()) {
+      val crl= Source.fromFile(file_path).getLines.toArray
+      var crlbs = DenseVector.zeros[Double](crl.length)
+
+      // acces.fit_gpr(estimate = true, use_default_params = false)
+      // println("crl",crl.length);
+
+      for (k<-0 until crlbs.length){
+          crlbs(k)=crl(k).toDouble
+      }
+      val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+          GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+
+      return (latlon_predict, crlbs)
+    } else {
+      acces.fit_gpr(estimate = true, use_default_params = false)
+
+      val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+
+      val file_io = new PrintWriter(file_path)
+      for (i <- 0 until crlbs.length) {
+        file_io.println(crlbs(i))
+      }
+
+      file_io.close()
+      val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+        GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+
+      return (latlon_predict, crlbs)
+    }
   }
 
 
@@ -3059,6 +3190,3 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   //    return Option[RadioMapMean](rm)
   //  }
 }
-
-
-

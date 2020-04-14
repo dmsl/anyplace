@@ -2,8 +2,8 @@
 <html ng-app="anyViewer" ng-controller="AppCtrl">
 <head>
     <script>
-        // if (window.location.protocol != "https:")
-        //     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+        if (window.location.protocol != "https:")
+            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
     <link rel="icon" type="image/png" href="build/images/logo.png">
 
@@ -121,9 +121,9 @@
 
     <script type="text/javascript" src="bower_components/angular-loading-bar/src/loading-bar.js"></script>
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css">
-    <script type="text/javascript" src="build/js/anyplace.js?campus"></script>
+    <script type="text/javascript" src="build/js/anyplace.js"></script>
     <script type="text/javascript" src="libs/svg-assets-cache.js"></script>
-    <link rel="stylesheet" type="text/css" href="build/css/anyplace.css?campus"/>
+    <link rel="stylesheet" type="text/css" href="build/css/anyplace.css"/>
 
     <script type="text/javascript" src="bower_components/add-to-homescreen/src/addtohomescreen.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bower_components/add-to-homescreen/style/addtohomescreen.css"/>
