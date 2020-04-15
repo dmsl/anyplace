@@ -380,152 +380,158 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             }
 
             if (_HEATMAP_RSS_IS_ON) {
-
                 var i = heatMap.length;
                 while (i--) {
                     heatMap[i].rectangle.setMap(null);
                     heatMap[i] = null;
                 }
                 heatMap = [];
-
                 $scope.showRadioHeatmapRSS();
-
                 if( $scope.radioHeatmapRSSTimeMode ){
                     d3.selectAll("svg > *").remove();
                     $( "svg" ).remove();
                     $scope.getFingerPrintsTime();
                 }
-
             }
 
-            if (_APs_IS_ON) {
-                var i = APmap.length;
-
-                //hide Access Points
-                while (i--) {
-                    APmap[i].setMap(null);
-                    APmap[i] = null;
-                    $scope.example9data[i] = null;
-                    $scope.example9model[i] = null;
-                }
-
-                i = $scope.example8data.length;
-                while(i--){
-                    $scope.example8data[i] = null;
-                    $scope.example8model[i] = null;
-                }
-                APmap = [];
-                $scope.example9data = [];
-                $scope.example9model = [];
-                $scope.example8data = [];
-                $scope.example8model = [];
-                $scope.showAPs();
-
-
+          if (_HEATMAP_Localization) {
+            var i = heatMap_Location.length;
+            while (i--) {
+              heatMap_Location[i].setMap(null);
+              heatMap_Location[i] = null;
             }
-            if (_FINGERPRINTS_IS_ON) {
-                var i = fingerPrintsMap.length;
+            heatMap_Location = [];
+            $scope.showLocalizationAccHeatmap();
+          }
 
-                //hide fingerPrints
-                while (i--) {
-                    fingerPrintsMap[i].setMap(null);
-                    fingerPrintsMap[i] = null;
-                }
-                fingerPrintsMap = [];
+          if (_APs_IS_ON) {
+            var i = APmap.length;
 
-                $scope.showFingerPrints();
-
-                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode){
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
-                }
-
-
+            //hide Access Points
+            while (i--) {
+              APmap[i].setMap(null);
+              APmap[i] = null;
+              $scope.example9data[i] = null;
+              $scope.example9model[i] = null;
             }
 
+            i = $scope.example8data.length;
+            while(i--){
+              $scope.example8data[i] = null;
+              $scope.example8model[i] = null;
+            }
+            APmap = [];
+            $scope.example9data = [];
+            $scope.example9model = [];
+            $scope.example8data = [];
+            $scope.example8model = [];
+            $scope.showAPs();
 
-            if (heatmap && heatmap.getMap()) {
-                //hide fingerPrints heatmap
-                heatmap.setMap(null);
-                var i=heatmapFingerprints.length;
-                while(i--){
-                    heatmapFingerprints[i]=null;
-                }
-                heatmapFingerprints=[];
-                _HEATMAP_F_IS_ON=false;
 
-                $scope.showFingerPrints();
+          }
+          if (_FINGERPRINTS_IS_ON) {
+            var i = fingerPrintsMap.length;
 
-                if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+            //hide fingerPrints
+            while (i--) {
+              fingerPrintsMap[i].setMap(null);
+              fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
 
-                    d3.selectAll("svg > *").remove();
-                    $( "svg" ).remove();
-                    $scope.getFingerPrintsTime();
+            $scope.showFingerPrints();
 
-                }
+            if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode){
+              d3.selectAll("svg > *").remove();
+              $( "svg" ).remove();
+              $scope.getFingerPrintsTime();
             }
 
-            if (heatmapAcc && heatmapAcc.getMap()) {
-                //hide acces heatmap
 
-                heatmapAcc.setMap(null);
-                $scope.showLocalizationAccHeatmap();
+          }
+
+
+          if (heatmap && heatmap.getMap()) {
+            //hide fingerPrints heatmap
+            heatmap.setMap(null);
+            var i=heatmapFingerprints.length;
+            while(i--){
+              heatmapFingerprints[i]=null;
+            }
+            heatmapFingerprints=[];
+            _HEATMAP_F_IS_ON=false;
+
+            $scope.showFingerPrints();
+
+            if($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+
+              d3.selectAll("svg > *").remove();
+              $( "svg" ).remove();
+              $scope.getFingerPrintsTime();
 
             }
+          }
 
-            var check = 0;
-            if (!_CONNECTIONS_IS_ON) {
-                connectionsMap = $scope.anyService.getAllConnections();
-                var key = Object.keys(connectionsMap);
-                if (connectionsMap[key[check]] !== undefined) {
-                    if(connectionsMap[key[check]].polyLine !== undefined) {
-                        if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                            for (var key in connectionsMap) {
-                                if (connectionsMap.hasOwnProperty(key)) {
-                                    var con = connectionsMap[key];
-                                    if (con && con.polyLine) {
-                                        con.polyLine.setMap(null);
-                                    }
-                                }
+          if (heatmapAcc && heatmapAcc.getMap()) {
+            //hide acces heatmap
 
-                            }
-                            $scope.anyService.setAllConnection(connectionsMap);
-                            connectionsMap = {};
-                        }
+            heatmapAcc.setMap(null);
+            $scope.showLocalizationAccHeatmap();
+
+          }
+
+          var check = 0;
+          if (!_CONNECTIONS_IS_ON) {
+            connectionsMap = $scope.anyService.getAllConnections();
+            var key = Object.keys(connectionsMap);
+            if (connectionsMap[key[check]] !== undefined) {
+              if(connectionsMap[key[check]].polyLine !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                  for (var key in connectionsMap) {
+                    if (connectionsMap.hasOwnProperty(key)) {
+                      var con = connectionsMap[key];
+                      if (con && con.polyLine) {
+                        con.polyLine.setMap(null);
+                      }
                     }
-                }
 
+                  }
+                  $scope.anyService.setAllConnection(connectionsMap);
+                  connectionsMap = {};
+                }
+              }
             }
 
-            if (!_POIS_IS_ON) {
-                POIsMap = $scope.anyService.getAllPois();
-                if (POIsMap !== undefined) {
-                    var key = Object.keys(POIsMap);
-                    if (POIsMap[key[check]] !== undefined) {
+          }
 
-                        if (POIsMap[key[check]].marker.getMap() !== null) {
+          if (!_POIS_IS_ON) {
+            POIsMap = $scope.anyService.getAllPois();
+            if (POIsMap !== undefined) {
+              var key = Object.keys(POIsMap);
+              if (POIsMap[key[check]] !== undefined) {
 
-                            for (var key in POIsMap) {
-                                if (POIsMap.hasOwnProperty(key)) {
+                if (POIsMap[key[check]].marker.getMap() !== null) {
 
-                                    var p = POIsMap[key];
-                                    if (p && p.marker) {
-                                        p.marker.setMap(null);
+                  for (var key in POIsMap) {
+                    if (POIsMap.hasOwnProperty(key)) {
 
-                                    }
-                                }
-                            }
+                      var p = POIsMap[key];
+                      if (p && p.marker) {
+                        p.marker.setMap(null);
 
-                            $scope.anyService.setAllPois(POIsMap);
-                            POIsMap = {};
-
-                        }
+                      }
                     }
-                }
-            }
+                  }
 
-            changedfloor = false;
+                  $scope.anyService.setAllPois(POIsMap);
+                  POIsMap = {};
+
+                }
+              }
+            }
+          }
+
+          changedfloor = false;
 
         }
     });

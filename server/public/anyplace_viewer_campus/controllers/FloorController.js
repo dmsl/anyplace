@@ -60,166 +60,21 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         }
     });
 
+    $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
+        if (newVal !== undefined && newVal !== null) {
+            $scope.fetchFloorPlanOverlay(newVal);
+            GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
+            GMapService.gmap.setZoom(20);
 
-  $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
-    if (newVal !== undefined && newVal !== null && !_.isEqual(newVal, oldVal)) {
-      if (typeof(Storage) !== "undefined" && localStorage) {
-        localStorage.setItem("lastFloor", newVal.floor_number);
-      }
-
-      if (_HEATMAP_RSS_IS_ON) {
-        var i = heatMap.length;
-        while (i--) {
-          heatMap[i].rectangle.setMap(null);
-          heatMap[i] = null;
-        }
-
-        heatMap = [];
-        $scope.showRadioHeatmapRSS();
-        if ($scope.radioHeatmapRSSTimeMode) {
-          d3.selectAll("svg > *").remove();
-          $("svg").remove();
-          $scope.getFingerPrintsTime();
-        }
-      }
-      if (_HEATMAP_Localization) {
-        var i = heatMap_Location.length;
-        while (i--) {
-          heatMap_Location[i].setMap(null);
-          heatMap_Location[i] = null;
-        }
-        heatMap_Location = [];
-        $scope.showLocalizationAccHeatmap();
-      }
-
-      if (_APs_IS_ON) {
-        var i = APmap.length;
-        //hide Access Points
-        while (i--) {
-          APmap[i].setMap(null);
-          APmap[i] = null;
-          $scope.example9data[i] = null;
-          $scope.example9model[i] = null;
-        }
-        i = $scope.example8data.length;
-        while (i--) {
-          $scope.example8data[i] = null;
-          $scope.example8model[i] = null;
-        }
-
-        APmap = [];
-        $scope.example9data = [];
-        $scope.example9model = [];
-        $scope.example8data = [];
-        $scope.example8model = [];
-        $scope.showAPs();
-
-      }
-      if (_FINGERPRINTS_IS_ON) {
-        var i = fingerPrintsMap.length;
-        //hide fingerPrints
-        while (i--) {
-          fingerPrintsMap[i].setMap(null);
-          fingerPrintsMap[i] = null;
-        }
-
-        fingerPrintsMap = [];
-        $scope.showFingerPrints();
-        if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
-          d3.selectAll("svg > *").remove();
-          $("svg").remove();
-          $scope.getFingerPrintsTime();
-        }
-      }
-
-      if (heatmap && heatmap.getMap()) {
-        //hide fingerPrints heatmap
-        heatmap.setMap(null);
-        var i = heatmapFingerprints.length;
-        while (i--) {
-          heatmapFingerprints[i] = null;
-        }
-        heatmapFingerprints = [];
-        _HEATMAP_F_IS_ON = false;
-
-        $scope.showFingerPrints();
-        if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
-          d3.selectAll("svg > *").remove();
-          $("svg").remove();
-          $scope.getFingerPrintsTime();
-        }
-      }
-
-      // CLRLS
-      // if (heatmapAcc && heatmapAcc.getMap()) { lsolea01
-      //     //hide acces heatmap
-      //
-      //     heatmapAcc.setMap(null);
-      //     $scope.showLocalizationAccHeatmap();
-      //
-      // }
-
-      var check = 0;
-      if (!_CONNECTIONS_IS_ON) {
-        connectionsMap = $scope.anyService.getAllConnections();
-        var key = Object.keys(connectionsMap);
-        if (connectionsMap[key[check]] !== undefined) {
-          if (connectionsMap[key[check]].polyLine !== undefined) {
-            if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-              for (var key in connectionsMap) {
-                if (connectionsMap.hasOwnProperty(key)) {
-                  var con = connectionsMap[key];
-                  if (con && con.polyLine) {
-                    con.polyLine.setMap(null);
-                  }
+            try {
+                if (typeof(Storage) !== "undefined" && localStorage) {
+                    localStorage.setItem("lastFloor", newVal.floor_number);
                 }
-              }
-              $scope.anyService.setAllConnection(connectionsMap);
-              connectionsMap = {};
+            } catch (e) {
+
             }
-          }
         }
-      }
-
-      if (!_POIS_IS_ON) {
-        POIsMap = $scope.anyService.getAllPois();
-        if (POIsMap !== undefined) {
-          var key = Object.keys(POIsMap);
-          if (POIsMap[key[check]] !== undefined) {
-            if (POIsMap[key[check]].marker.getMap() !== null) {
-              for (var key in POIsMap) {
-                if (POIsMap.hasOwnProperty(key)) {
-                  var p = POIsMap[key];
-                  if (p && p.marker) {
-                    p.marker.setMap(null);
-                  }
-                }
-              }
-
-              $scope.anyService.setAllPois(POIsMap);
-              POIsMap = {};
-            }
-          }
-        }
-      }
-      changedfloor = false;
-    }
-  });
-    // $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
-    //     if (newVal !== undefined && newVal !== null) {
-    //         $scope.fetchFloorPlanOverlay(newVal);
-    //         GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
-    //         GMapService.gmap.setZoom(20);
-
-    //         try {
-    //             if (typeof(Storage) !== "undefined" && localStorage) {
-    //                 localStorage.setItem("lastFloor", newVal.floor_number);
-    //             }
-    //         } catch (e) {
-
-    //         }
-    //     }
-    // });
+    });
 
     $scope.removeFloorPlanOverlay = function () {
         if ($scope.data.floor_plan_groundOverlay) {
