@@ -69,8 +69,7 @@ import scala.collection.mutable.ListBuffer
 
 import scala.io.Source
 import java.nio.file.{Paths, Files}
-
-import controllers.AnyplacePosition
+// import controllers.AnyplacePosition CLRLS
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -624,10 +623,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
                   if(sameBits >= 3)
                     found = true
-
                 } else {
                   sameBits = 0
-
                   if (firstBitFound) {
                     firstBitFound=false
                     loop.break
@@ -639,14 +636,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                   idOfReq = accessPointOfFile.value("id").as[String]
                 }
                 sameBits = 0
-
               }
-            }//accessPointOfFile break
+            } //accessPointOfFile break
 
             APsIDs.add(idOfReq)
             sameBitsOfReq = 0
             found=false
-
           }
 
           if (accessPointsOfReq == null) return AnyResponseHelper.bad_request("Access Points does not exist or could not be retrieved!")
@@ -839,7 +834,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
-        println("json"+json)
+        // println("json: "+json)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
@@ -878,7 +873,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         //FeatureAdd : Configuring location for server generated files
         val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
     /*
-     * REVIEW lsolea code. Leaving bugfix from develop
+     * REVIEWLS . Leaving bugfix from develop
         val floor_number = (json \ "floor").as[String]
         val jsonstr=(json\"APs").as[String]
         val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
@@ -900,8 +895,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val latestScanList: util.ArrayList[location.LogRecord] = new util.ArrayList[location.LogRecord]()
 
         /*
-         * REVIEW lsolea code. Leaving bugfix from develop
-        val latestScanList = new  util.ArrayList[location.LogRecord]
+         * REVIEWLS Leaving bugfix from develop
+           val latestScanList = new  util.ArrayList[location.LogRecord]
         */
         var i=0
 
@@ -929,14 +924,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         res.put("long", lat_long(1))
         return AnyResponseHelper.ok(res, "Successfully found position.")
 
-        // REVIEW accepted develop code. lsolea01 code must have been
+        // REVIEWLS accepted develop code. lsolea01 code must have been
         // based on a previous commit of the develop branch
       }
-
       inner(request)
   }
-
-
 
   def getRadioHeatmapBbox = Action {
     implicit request =>
@@ -1025,40 +1017,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case e: NumberFormatException => return AnyResponseHelper.bad_request("Building coordinates are invalid!")
           }
           if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
-          val res = JsonObject.empty()
-          res.put("buid", building.getId)
-          return AnyResponseHelper.ok(res, "Successfully added building!")
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-        }
-      }
-
-      inner(request)
-  }
-
-  def shipAdd() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAdd(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "name", "description",
-          "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if ((json \ "access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
-        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id.toString)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        try {
-          var building: Building = null
-          try {
-            building = new Building(JsonObject.fromJson(json.toString()))
-          } catch {
-            case e: NumberFormatException => return AnyResponseHelper.bad_request("Building coordinates are invalid!")
-          }
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getshipId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
           val res = JsonObject.empty()
           res.put("buid", building.getId)
           return AnyResponseHelper.ok(res, "Successfully added building!")
@@ -1738,7 +1696,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-
+  // REVIEWLS I think this deletes crlbs file (not radiomaps)
+  // also rename the log messages
   def radiomapDelete()= Action {
       implicit request =>
         def inner(request: Request[AnyContent]): Result = {
@@ -1752,17 +1711,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val floor_number=(json \ "floor").as[String]
           val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
          if (file_path.exists()){
-
-
               if(file_path.delete){
-                return AnyResponseHelper.ok("Successfully Delete floor radiomap" + floor_number + "!")
-
+                return AnyResponseHelper.ok("Deleted floor :" + floor_number)
               }
-
          }
-          return AnyResponseHelper.bad_request("Radiomap is not Delete")
+          return AnyResponseHelper.bad_request("ERROR: while deleting: " + floor_number)
         }
-
         inner(request)
     }
 
@@ -2936,8 +2890,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (rm.isEmpty) {
             return AnyResponseHelper.bad_request("Area not supported yet!")
           } else {
-
-
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
 
@@ -2954,10 +2906,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case _: Throwable => return AnyResponseHelper.internal_server_error("Server Internal Error [" + "]")
         }
       }
-
       inner(request)
   }
-
 
   def maintenance() = Action {
     implicit request =>
@@ -2982,6 +2932,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
+    // REVIEWLS use option for this
     val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
     val folder=new File("crlbs_files"+ File.separatorChar+buid)
     if (!folder.exists()) {
@@ -2995,8 +2946,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val list_rss = ListBuffer[DenseVector[Double]]()
 
     val m = rm.getMacAdressList().size()
-
-
     for (key <- keys) {
       val lrhm = hm.get(key)
       for (loc: String <- lrhm.keySet()) {
@@ -3045,25 +2994,23 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       cut_k_features = cut_k_features
     )
 
-    /* CLR this block:
-    if (!Files.exists(Paths.get(file_path))) {
-        acces.fit_gpr(estimate = true, use_default_params = false)
-    }
-    println("fit_gpr: starting")
-    acces.fit_gpr(estimate = true, use_default_params = false)
-    println("fit_gpr: finished")
-    */
+    // CLRLS
+    //    if (!Files.exists(Paths.get(file_path))) {
+    //   acces.fit_gpr(estimate = true, use_default_params = false)
+    //    }
+    //    println("fit_gpr: starting")
+    //  acces.fit_gpr(estimate = true, use_default_params = false)
+    //    println("fit_gpr: finished")
 
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
-
-
 
 
     if (file_path.exists()) {
       val crl= Source.fromFile(file_path).getLines.toArray
       var crlbs = DenseVector.zeros[Double](crl.length)
 
+      // CLRLS
       // acces.fit_gpr(estimate = true, use_default_params = false)
       // println("crl",crl.length);
 
@@ -3138,8 +3085,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
     return Option[RadioMapMean](rm_mean)
   }
-
-
 
 
   //  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {

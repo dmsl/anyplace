@@ -30,7 +30,7 @@
     <script type="text/javascript" src="bower_components/angular/angular.min.js"></script>
     <script type="text/javascript"  type="text/javascript" src="bower_components/angular-route/angular-route.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
+    <link rel="stylesheet" type="text/css" href="build/css/anyplace.css"/>
 
 
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
@@ -58,8 +58,8 @@
     <script type="text/javascript" src="bower_components/angular-loading-bar/src/loading-bar.js"></script>
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css">
 
-    <script type="text/javascript" src="build/js/anyplace.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="build/css/anyplace.css"/>
+    <script type="text/javascript" src="build/js/anyplace.js"></script>
+    <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -111,12 +111,6 @@
                 <li role="presentation" ng-class="{ active:isTabSet(1) }">
                     <a href="" ng-click="setTab(1)">Buildings</a>
                 </li>
-                <!--add ship-->
-                <li role="presentation" ng-class="{ active:isTabSet(7) }">
-                    <a href="" ng-click="setTab(7)">Ships</a>
-                </li>
-                <!--add ship-->
-
                 <li role="presentation" ng-class="{ active:isTabSet(2) }">
                     <a href="" ng-click="setTab(2)">Floors</a>
                 </li>
@@ -171,9 +165,7 @@
                             <!-- Tab 1-->
                             <div class="divider-top-10" ng-show="isCrudTabSelected(1)">
                                 <div class="draggable-border">
-                                    <img id="draggable-building" src='build/images/building-icon.png' class="ui-draggable ui-draggable-handle"/>
-
-
+                                    <img id="draggable-building" src='build/images/building-icon.png'/>
                                 </div>
                                 <span class="subnote">drag to add new building</span>
                             </div>
@@ -199,196 +191,6 @@
                                     </fieldset>
                                     <fieldset class="form-group">
                                         <input ng-model="anyService.selectedBuilding.is_published" type="checkbox"><span> Make building public to view.</span>
-                                    </fieldset>
-                                    <fieldset>
-                                        <button type="submit" class="btn btn-success pull-right add-any-button"
-                                                ng-click="updateBuilding()"><span class="glyphicon glyphicon-pencil"></span>
-                                            click to update
-                                        </button>
-                                    </fieldset>
-                                </form>
-                            </div>
-
-                            <!-- Tab 3-->
-                            <div class="divider-top-10 center-delete-div"
-                                 ng-show="isCrudTabSelected(3) && anyService.selectedBuilding">
-
-                                <div><b>WARNING</b>: Once you click the delete button below, every floor, POI and connection
-                                    that is attached to the building <i>{{anyService.getBuildingName()}}</i> will be lost
-                                    <b>PERMANENTLY.</b></div>
-                                <button class="btn btn-danger divider-top-10" ng-click="deleteBuilding()">Confirm Deletion
-                                </button>
-
-                            </div>
-
-                            <!-- Tab 4 -->
-                            <div class="divider-top-10" ng-show="isCrudTabSelected(4) && anyService.selectedBuilding">
-                                <div>
-                                    <div class="divider-top-10">
-                                        <div class="midnote">Backup</div>
-                                        <div class="subnote">You can backup all elements related to a building</div>
-                                        <div class="subnote">(floormaps, radiomaps, pois and connectors)</div>
-                                        <div>
-                                            <button class="btn btn-success" ng-click="DownloadBackup()">Download
-                                            </button>
-                                        </div>
-                                        <div ng-hide="!anyService.progress" ng-show="anyService.progress" class="progress" style="margin: 3px;">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{anyService.progress}}%">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tab 5 -->
-                            <div class="divider-top-10" ng-show="isCrudTabSelected(5) && anyService.selectedBuilding">
-                                <div>
-                                    <div class="subnote">Share your building through the following URL.</div>
-                                    <div>
-                                        <input class="form-control" value="{{anyService.BASE_URL}}/viewer/?buid={{anyService.getBuildingViewerUrl()}}">
-                                    </div>
-                                    <script>
-                                        ;(function($){
-
-                                            $.fn.customerPopup = function (e, intWidth, intHeight, blnResize) {
-
-                                                // Prevent default anchor event
-                                                e.preventDefault();
-
-                                                // Set values for window
-                                                intWidth = intWidth || '500';
-                                                intHeight = intHeight || '400';
-                                                strResize = (blnResize ? 'yes' : 'no');
-
-                                                // Set title and open popup with focus on it
-                                                var strTitle = ((typeof this.attr('title') !== 'undefined') ? this.attr('title') : 'Social Share'),
-                                                    strParam = 'width=' + intWidth + ',height=' + intHeight + ',resizable=' + strResize,
-                                                    objWindow = window.open(this.attr('href'), strTitle, strParam).focus();
-                                            }
-
-                                            /* ================================================== */
-
-                                            $(document).ready(function ($) {
-                                                $('.customer.share').on("click", function(e) {
-                                                    $(this).customerPopup(e);
-                                                });
-                                            });
-
-                                        }(jQuery));
-                                    </script>
-                                    <!-- Buttons start here. Copy this ul to your document. -->
-                                    <ul class="rrssb-buttons rrssb-1">
-                                        <li data-initwidth="25" style="width: 25%;" data-size="0" class="rrssb-facebook">
-                                            <!--  Replace with your URL. For best results, make sure you page has the proper FB Open Graph tags in header: https://developers.facebook.com/docs/opengraph/howtos/maximizing-distribution-media-content/ -->
-                                            <a class="facebook customer share" href="https://www.facebook.com/sharer/sharer.php?u={{anyService.BASE_URL}}/viewer/?buid={{anyService.getBuildingViewerUrl()}}">
-                                            <span class="rrssb-icon">
-                                                <svg viewBox="0 0 29 29" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M26.4 0H2.6C1.714 0 0 1.715 0 2.6v23.8c0 .884 1.715 2.6 2.6 2.6h12.393V17.988h-3.996v-3.98h3.997v-3.062c0-3.746 2.835-5.97 6.177-5.97 1.6 0 2.444.173 2.845.226v3.792H21.18c-1.817 0-2.156.9-2.156 2.168v2.847h5.045l-.66 3.978h-4.386V29H26.4c.884 0 2.6-1.716 2.6-2.6V2.6c0-.885-1.716-2.6-2.6-2.6z"/>
-                                                </svg>
-                                            </span>
-                                                <span class="rrssb-text">facebook</span>
-                                            </a>
-                                        </li>
-                                        <li class="rrssb-twitter" data-size="0" style="width: 25%;" data-initwidth="25">
-                                            <!-- Replace href with your Meta and URL information  -->
-                                            <a class="facebook customer share" href="https://twitter.com/intent/tweet?text={{anyService.BASE_URL}}%2Fviewer%2F%3Fbuid%3D{{anyService.getBuildingViewerUrl()}}">
-                                            <span class="rrssb-icon">
-                                                <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M24.253 8.756C24.69 17.08 18.297 24.182 9.97 24.62a15.093 15.093 0 0 1-8.86-2.32c2.702.18 5.375-.648 7.507-2.32a5.417 5.417 0 0 1-4.49-3.64c.802.13 1.62.077 2.4-.154a5.416 5.416 0 0 1-4.412-5.11 5.43 5.43 0 0 0 2.168.387A5.416 5.416 0 0 1 2.89 4.498a15.09 15.09 0 0 0 10.913 5.573 5.185 5.185 0 0 1 3.434-6.48 5.18 5.18 0 0 1 5.546 1.682 9.076 9.076 0 0 0 3.33-1.317 5.038 5.038 0 0 1-2.4 2.942 9.068 9.068 0 0 0 3.02-.85 5.05 5.05 0 0 1-2.48 2.71z"/>
-                                                </svg>
-                                            </span>
-                                                <span class="rrssb-text">twitter</span>
-                                            </a>
-                                        </li>
-                                        <li class="rrssb-email" data-size="0" style="width: 25%;" data-initwidth="25">
-                                            <!-- Replace subject with your message using URL Endocding: http://meyerweb.com/eric/tools/dencoder/ -->
-                                            <a href="mailto:?&amp;body={{anyService.BASE_URL}}%2Fviewer%2F%3Fbuid%3D{{anyService.getBuildingViewerUrl()}}">
-                                            <span class="rrssb-icon">
-                                                <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M20.11 26.147c-2.335 1.05-4.36 1.4-7.124 1.4C6.524 27.548.84 22.916.84 15.284.84 7.343 6.602.45 15.4.45c6.854 0 11.8 4.7 11.8 11.252 0 5.684-3.193 9.265-7.398 9.3-1.83 0-3.153-.934-3.347-2.997h-.077c-1.208 1.986-2.96 2.997-5.023 2.997-2.532 0-4.36-1.868-4.36-5.062 0-4.75 3.503-9.07 9.11-9.07 1.713 0 3.7.4 4.6.972l-1.17 7.203c-.387 2.298-.115 3.3 1 3.4 1.674 0 3.774-2.102 3.774-6.58 0-5.06-3.27-8.994-9.304-8.994C9.05 2.87 3.83 7.545 3.83 14.97c0 6.5 4.2 10.2 10 10.202 1.987 0 4.09-.43 5.647-1.245l.634 2.22zM16.647 10.1c-.31-.078-.7-.155-1.207-.155-2.572 0-4.596 2.53-4.596 5.53 0 1.5.7 2.4 1.9 2.4 1.44 0 2.96-1.83 3.31-4.088l.592-3.72z"/>
-                                                </svg>
-                                            </span>
-                                                <span class="rrssb-text">email</span>
-                                            </a>
-                                        </li>
-                                        <li class="rrssb-googleplus" data-size="0" style="width: 25%;" data-initwidth="25">
-                                            <!-- Replace href with your meta and URL information.  -->
-                                            <a class="facebook customer share" href="https://plus.google.com/share?url={{anyService.BASE_URL}}%2Fviewer%2F%3Fbuid%3D{{anyService.getBuildingViewerUrl()}}">
-                                            <span class="rrssb-icon">
-                                                <svg viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M21 8.29h-1.95v2.6h-2.6v1.82h2.6v2.6H21v-2.6h2.6v-1.885H21V8.29zM7.614 10.306v2.925h3.9c-.26 1.69-1.755 2.925-3.9 2.925-2.34 0-4.29-2.016-4.29-4.354s1.885-4.353 4.29-4.353c1.104 0 2.014.326 2.794 1.105l2.08-2.08c-1.3-1.17-2.924-1.883-4.874-1.883C3.65 4.586.4 7.835.4 11.8s3.25 7.212 7.214 7.212c4.224 0 6.953-2.988 6.953-7.082 0-.52-.065-1.104-.13-1.624H7.614z"/></svg>            </span>
-                                                <span class="rrssb-text">google+</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <!-- Buttons end here -->
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--ship tab  start -->
-                <div  ng-show="isTabSet(7)" >
-
-                    <ui-select ng-model="anyService.selectedBuilding" theme="bootstrap" ng-disabled="disabled">
-                        <ui-select-match placeholder="Select a Ship...">{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices
-                                repeat="b in myShips | orderBy : 'name' | propsFilter: { name: $select.search, description: $select.search }">
-                            <div ng-bind-html="b.name | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-
-                    <div class="divider-top-15-line">
-                        <div class="subnote">Ship Toolbox</div>
-
-                        <div class="divider-top-10">
-                            <ul class="nav nav-pills" role="tablist">
-                                <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
-                                    <a href="" ng-click="setCrudTabSelected(1)">Add</a>
-                                </li>
-                                <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
-                                    <a href="" ng-click="setCrudTabSelected(2)">Edit</a>
-                                </li>
-                                <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
-                                    <a href="" ng-click="setCrudTabSelected(3)">Delete</a>
-                                </li>
-                                <li role="presentation" ng-class="{ active:isCrudTabSelected(4) }">
-                                    <a href="" ng-click="setCrudTabSelected(4)">Backup</a>
-                                </li>
-                                <li role="presentation" ng-class="{ active:isCrudTabSelected(5) }">
-                                    <a href="" ng-click="setCrudTabSelected(5)">Share</a>
-                                </li>
-                            </ul>
-
-                            <!-- Tab 1-->
-                            <div class="divider-top-10" ng-show="isCrudTabSelected(1)">
-                                <div class="draggable-border">
-                                    <img id="draggable-ship" src='build/images/ship_icon.png' />
-                                </div>
-                                <span class="subnote">drag to add new ship</span>
-                            </div>
-
-                            <!-- Tab 2 -->
-                            <div class="divider-top-10" ng-show="isCrudTabSelected(2) && anyService.selectedBuilding">
-                                <div class="form-group">Drag the ships marker to change its position.</div>
-                                <form name="buildingEditForm">
-                                    <fieldset class="form-group">
-                                        <input ng-model="anyService.selectedBuilding.bucode"
-                                               class="form-control" type="text"
-                                               placeholder="Ship Code">
-                                    </fieldset>
-                                    <fieldset class="form-group">
-                                        <input ng-model="anyService.selectedBuilding.name"
-                                               class="form-control" type="text"
-                                               placeholder="Ship Name">
-                                    </fieldset>
-                                    <fieldset class="form-group">
-                                    <textarea ng-model="anyService.selectedBuilding.description"
-                                              class="form-control" type="text"
-                                              placeholder="Ship Description"></textarea>
-                                    </fieldset>
-                                    <fieldset class="form-group">
-                                        <input ng-model="anyService.selectedBuilding.is_published" type="checkbox"><span> Make ship public to view.</span>
                                     </fieldset>
                                     <fieldset>
                                         <button type="submit" class="btn btn-success pull-right add-any-button"
@@ -1048,109 +850,107 @@
                     </div>
 
                     <div ng-show="showFullControls &&  isTabSet(6)">
-                        <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
+                    <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
 
-                        <div class="divider-top-15-line">
+                    <div class="divider-top-15-line">
 
 
-                            <div class="divider-top-10">
+                        <div class="divider-top-10">
 
-                                <ul class="nav nav-pills" role="tablist">
-                                    <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
-                                        <a href="" ng-click="setCrudTabSelected(1)" id="FPs">FingerPrints</a>
-                                    </li>
-                                    <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
-                                        <a href="" ng-click="setCrudTabSelected(2)" id="HMs">Wi-Fi Coverage</a>
-                                    </li>
-                                    <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
-                                        <a href="" ng-click="setCrudTabSelected(3)" id="LAs">Localization</a>
-                                    </li>
+                            <ul class="nav nav-pills" role="tablist">
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
+                                    <a href="" ng-click="setCrudTabSelected(1)" id="FPs">FingerPrints</a>
+                                </li>
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
+                                    <a href="" ng-click="setCrudTabSelected(2)" id="HMs">Wi-Fi Coverage</a>
+                                </li>
+                                <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
+                                    <a href="" ng-click="setCrudTabSelected(3)" id="LAs">Localization</a>
+                                </li>
 
-                                </ul>
+                            </ul>
 
-                                <div ng-show="isCrudTabSelected(1)" class="divider-top-10 center-wifi-div">
-                                    <div class="subnote">
-                                        This area shows the Wi-Fi fingerprints that have been collected
-                                        <a data-toggle="modal" data-target="#myModal_1">read more...</a>
-                                    </div>
-                                    <div style="margin: 10px; font-weight: bold">
-                                        <button id="FPsButton" class="btn btn-success" ng-click="toggleFingerPrints()">
-                                            {{getFingerPrintsButtonText()}}
-                                        </button>
-                                        <button id="deleteButton" class="btn btn-success" ng-click="deleteFingerPrints()">
-                                            Delete FingerPrints
-                                        </button>
-                                    </div>
-                                    <div style="margin: 10px; font-weight: bold" ng-show="fingerPrintsMode">
-                                        <button id="FPsTimeButton" class="btn btn-success" ng-click="toggleFingerPrintsTime()" >
-                                            {{getFingerPrintTimeButtonText()}}
-                                        </button>
-                                    </div>
-                                    <div style="margin: 10px; font-weight: bold">
-                                        <button id="POIsButton" class="btn btn-success" ng-click="togglePOIs()">
-                                            {{getPOIsButtonText()}}
-                                        </button>
-                                        <button id="connectionsButton" class="btn btn-success" ng-click="toggleConnections()">
-                                            {{getConnectionsButtonText()}}
-                                        </button>
-
-                                    </div>
-
-                                    <div ng-show="deleteButtonWarning" class="subnote">
-                                        <b>Please <u>select</u> with your <u>mouse</u> the area where
-                                            fingerprints should be deleted.</b>
-                                    </div>
+                            <div ng-show="isCrudTabSelected(1)" class="divider-top-10 center-wifi-div">
+                                <div class="subnote">
+                                    This area shows the Wi-Fi fingerprints that have been collected
+                                    <a data-toggle="modal" data-target="#myModal_1">read more...</a>
                                 </div>
-
-                                <div ng-show="isCrudTabSelected(2)" class="divider-top-10 center-wifi-div">
-                                    <div class="subnote">
-                                        This area allows you to observe the network coverage
-
-                                        <a data-toggle="modal" data-target="#myModal_2">read more...</a>
-                                    </div>
-
-                                    <div style="margin: 10px; font-weight: bold">
-                                        <button id="HMsButton" class="btn btn-success" ng-click="toggleRadioHeatmapRSS()">
-                                            {{getHeatMapButtonText()}}
-                                        </button>
-
-                                        <button id="APsButton" class="btn btn-success" ng-click="toggleAPs()">
-                                            {{getAPsButtonText()}}
-                                        </button>
-
-                                        <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsMode">
-                                            <option id="defaultOption" selected disabled>Filters:</option>
-                                            <option style="margin: 10px; font-weight: bold" value="0">By MAC</option>
-                                            <option style="margin: 10px; font-weight: bold" value="1">By manufacturer</option>
-
-                                        </select>
-
-                                        <div ng-dropdown-multiselect="" events="multiuserevents" options="example9data" selected-model="example9model" extra-settings="example9settings" ng-show="filterByMAC" ></div>
-
-                                        <div ng-dropdown-multiselect="" events="multiuserevents1" options="example8data" selected-model="example8model" extra-settings="example9settings" ng-show="filterByMAN" ></div>
-                                    </div>
-
+                                <div style="margin: 10px; font-weight: bold">
+                                    <button id="FPsButton" class="btn btn-success" ng-click="toggleFingerPrints()">
+                                        {{getFingerPrintsButtonText()}}
+                                    </button>
+                                    <button id="deleteButton" class="btn btn-success" ng-click="deleteFingerPrints()">
+                                        Delete FingerPrints
+                                    </button>
+                                </div>
+                                <div style="margin: 10px; font-weight: bold" ng-show="fingerPrintsMode">
+                                    <button id="FPsTimeButton" class="btn btn-success" ng-click="toggleFingerPrintsTime()" >
+                                        {{getFingerPrintTimeButtonText()}}
+                                    </button>
+                                </div>
+                                <div style="margin: 10px; font-weight: bold">
+                                    <button id="POIsButton" class="btn btn-success" ng-click="togglePOIs()">
+                                        {{getPOIsButtonText()}}
+                                    </button>
+                                    <button id="connectionsButton" class="btn btn-success" ng-click="toggleConnections()">
+                                        {{getConnectionsButtonText()}}
+                                    </button>
 
                                 </div>
 
-                                <div  ng-show="isCrudTabSelected(3)" class="divider-top-10 center-wifi-div">
-                                    <div class="subnote scroll">
-                                        This area allows you to observe the expected localization accuracy
+                                <div ng-show="deleteButtonWarning" class="subnote">
+                                    <b>Please <u>select</u> with your <u>mouse</u> the area where
+                                        fingerprints should be deleted.</b>
+                                </div>
+                            </div>
 
-                                        <a data-toggle="modal" data-target="#myModal_3">read more...</a>
-                                    </div>
-                                    <div style="margin: 10px; font-weight: bold">
-                                        <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccurancy()" >
-                                            {{getLocalizationAccurancyText()}}
-                                        </button>
+                            <div ng-show="isCrudTabSelected(2)" class="divider-top-10 center-wifi-div">
+                                <div class="subnote">
+                                    This area allows you to observe the network coverage
+
+                                    <a data-toggle="modal" data-target="#myModal_2">read more...</a>
+                                </div>
+
+                                <div style="margin: 10px; font-weight: bold">
+                                    <button id="HMsButton" class="btn btn-success" ng-click="toggleRadioHeatmapRSS()">
+                                        {{getHeatMapButtonText()}}
+                                    </button>
+
+                                    <button id="APsButton" class="btn btn-success" ng-click="toggleAPs()">
+                                        {{getAPsButtonText()}}
+                                    </button>
+
+                                    <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsMode">
+                                        <option id="defaultOption" selected disabled>Filters:</option>
+                                        <option style="margin: 10px; font-weight: bold" value="0">By MAC</option>
+                                        <option style="margin: 10px; font-weight: bold" value="1">By manufacturer</option>
+
+                                    </select>
+
+                                    <div ng-dropdown-multiselect="" events="multiuserevents" options="example9data" selected-model="example9model" extra-settings="example9settings" ng-show="filterByMAC" ></div>
+
+                                    <div ng-dropdown-multiselect="" events="multiuserevents1" options="example8data" selected-model="example8model" extra-settings="example9settings" ng-show="filterByMAN" ></div>
+                                </div>
+
+
+                            </div>
+
+                            <div  ng-show="isCrudTabSelected(3)" class="divider-top-10 center-wifi-div">
+                                <div class="subnote scroll">
+                                    This area allows you to observe the expected localization accuracy
+
+                                    <a data-toggle="modal" data-target="#myModal_3">read more...</a>
+                                </div>
+                                <div style="margin: 10px; font-weight: bold">
+                                    <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccurancy()" >
+                                        {{getLocalizationAccurancyText()}}
+                                    </button>
                                         <button id="LAButton1" class="btn btn-success" ng-click="deleteRadiomaps()" >
                                             Delete Radiomap
                                         </button>
-
-                                    </div>
-
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -1184,9 +984,9 @@
 
                         <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
                         <a data-toggle="modal" data-target="#myModal_2">
-                            <button style="width: 50px;">
-                                <i class="fa fa-info-circle"></i>
-                            </button>
+                         <button style="width: 50px;">
+                             <i class="fa fa-info-circle"></i>
+                         </button>
                         </a>
 
                     </ul>
@@ -1209,7 +1009,6 @@
         </div>
 
 
-
         <div id="ctrl-bar-more" ng-show="isTabSet(5) && showFullControls">
             <div class="subnote">Your API Key</div>
             <div class="divider-top-10">
@@ -1217,7 +1016,7 @@
             </div>
             <a data-toggle="modal" data-target="#myModal_Welcome">
                 <button style="width: 50px; float: right; margin:10px;">
-                    <i class="fa fa-question-circle"></i>
+                     <i class="fa fa-question-circle"></i>
                 </button>
             </a>
         </div>
@@ -1484,3 +1283,4 @@
 </footer>
 
 </html>
+

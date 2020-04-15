@@ -514,7 +514,7 @@ class AccesRBF(
     */
   def get_CRLB(X: DenseMatrix[Double], pinv_cond: Double): DenseVector[Double] = {
     val crlbs = DenseVector.zeros[Double](X.rows)
-    println("lsolea01Acces",X.rows)
+    // println("lsolea01: ACCES",X.rows)
     for (i <- 0 until X.rows) {
       crlbs(i) = get_CRLB(X(i, ::).t, pinv_cond)
     }
@@ -540,5 +540,4 @@ class AccesRBF(
     }
     return means
   }
-
 }

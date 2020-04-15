@@ -253,8 +253,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         var imageBounds = new google.maps.LatLngBounds(
             new google.maps.LatLng(bl.lat(), bl.lng()),
             new google.maps.LatLng(tr.lat(), tr.lng()));
-
-
         $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, data, GMapService.gmap);
 
         canvasOverlay.setMap(null); // remove the canvas overlay since the groundoverlay is placed
@@ -296,7 +294,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
 
         _err("Floor not found.");
     };
-
 
     $scope.floorDown = function () {
         for (var i = 0; i < $scope.xFloors.length; i++) {

@@ -40,21 +40,12 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
 
-    $scope.ShipInterval;
-    $scope.refreshtime;
-    $scope.laship=33.0000;
-    $scope.loship=33.0000;
-
-
-    $scope.anyService.shiptools=false;
-
     $scope.myBuildings = [];
 
     $scope.myBuildingsHashT = {};
 
-
     var markerCluster = new MarkerClusterer($scope.gmapService.gmap);
-
+    
     var _setBuildingMarkesVisibility = function (bool) {
         for (var buid in $scope.myBuildingsHashT) {
             if ($scope.myBuildingsHashT.hasOwnProperty(buid)) {
@@ -177,7 +168,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     };
 
     $scope.fetchAllBuildings = function () {
-
         var jsonReq = {};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
@@ -231,74 +221,24 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                     if ($scope.isFirefox)
                         s = new google.maps.Size(110, 160);
 
-
-                    //add ship marker code
-
-                    var bid=b.buid;
-                    var getship=bid.split("_",1);
-
-                    if(getship=="ship") {
-
-                        var marker = new google.maps.Marker({
-                            position: _latLngFromBuilding(b),
-                            map: GMapService.gmap,
-                            icon: new google.maps.MarkerImage(
-                                'build/images/ship_icon.png',
-                                null, /* size is determined at runtime */
-                                null, /* origin is 0,0 */
-                                null, /* anchor is bottom center of the scaled image */
-                                new google.maps.Size(54, 54)),
-                            draggable: false
-                        });
-
-
-                        var htmlContent = '<div class="infowindow-scroll-fix">'
-                            + '<h5>Ship:</h5>'
-                            + '<span>' + b.name + '</span>'
-                            + '<h5>Description:</h5>'
-                            + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
-                            + '</div>';
-
-
-
-
-                    }
-                    else {
-
-                        var marker = new google.maps.Marker({
-                            position: _latLngFromBuilding(b),
-                            map: GMapService.gmap,
-                            icon: new google.maps.MarkerImage(
-                                'build/images/building-icon.png',
-                                null, /* size is determined at runtime */
-                                null, /* origin is 0,0 */
-                                null, /* anchor is bottom center of the scaled image */
-                                new google.maps.Size(54, 54)),
-                            draggable: false
-                        });
-                        // var marker = new google.maps.Marker({
-                        //     position: _latLngFromBuilding(b),
-                        //     icon: {
-                        //         url: 'build/images/building-icon.png',
-                        //         size: s,
-                        //         scaledSize: new google.maps.Size(55, 80)
-                        //     },
-                        //     draggable: false
-                        // });
-
-                        var htmlContent = '<div class="infowindow-scroll-fix">'
-                            + '<h5 style="margin: 0">Building:</h5>'
-                            + '<span>' + b.name + '</span>'
-                            + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
-                            + '<span>' + b.description + '</span>'
-                            + '</div>';
-
-                    }
-
+                    var marker = new google.maps.Marker({
+                        position: _latLngFromBuilding(b),
+                        icon: {
+                            url: 'build/images/building-icon.png',
+                            size: s,
+                            scaledSize: new google.maps.Size(55, 80)
+                        },
+                        draggable: false
+                    });
 
                     markerCluster.addMarker(marker);
 
-
+                    var htmlContent = '<div class="infowindow-scroll-fix">'
+                        + '<h5 style="margin: 0">Building:</h5>'
+                        + '<span>' + b.name + '</span>'
+                        + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+                        + '<span>' + b.description + '</span>'
+                        + '</div>';
 
                     marker.infoContent = htmlContent;
                     marker.building = b;
@@ -308,38 +248,9 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                         model: b
                     };
 
-                    $scope.anyService.allbuil[b.buid] = {
-                        marker: marker,
-                        model: b
-                    };
-
                     google.maps.event.addListener(marker, 'click', function () {
-
-
                         infowindow.setContent(this.infoContent);
                         infowindow.open(GMapService.gmap, this);
-                        var self = this;
-                        $scope.anyService.selectedBuilding = self.building;
-                        var bid=self.building.buid;
-                        var getship=bid.split("_",1);
-
-                        if(getship=="ship") {
-
-                            $scope.$apply(function () {
-
-                                $scope.anyService.shiptools=true;
-                                // console.log(  $scope.anyService.shiptools);
-                            });
-
-
-                        }
-                        else{
-                            $scope.$apply(function () {
-
-                                $scope.anyService.shiptools = false;
-                            });
-                        }
-
 
                         setTimeout(function () {
                             infowindow.setMap(null);
@@ -347,9 +258,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
                         var self = this;
                         $scope.$apply(function () {
-
                             $scope.anyService.selectedBuilding = self.building;
-
                         });
                     });
                 }
@@ -404,8 +313,5 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         var c = $scope.gmapService.gmap.getCenter();
         return _calcDistance(parseFloat(v.coordinates_lat), parseFloat(v.coordinates_lon), c.lat(), c.lng());
     }
-
-
-
 
 }]);

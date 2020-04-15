@@ -31,6 +31,8 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
         * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
         * `BUCKET=""` - This is the bucket for the couchbase instance.
     Important: As with all passwords, this should be kept a secret. 
+
+    4. Install [tiler dependencies] (anyplace_tiler/README.md)
   
 ## Launching 
 

@@ -25,16 +25,11 @@
  THE SOFTWARE.
  */
 
-
-
 app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($cookieStore, $scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     $scope.myMarkers = {};
     $scope.myMarkerId = 0;
-    $scope.laship=33.0000;
-    $scope.loship=33.0000;
-    $scope.moveShip=0;
-    $scope.ShipInterval;
+
     $scope.gmapService = GMapService;
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
@@ -47,7 +42,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     $scope.example9settingsedit = {enableSearch: true, scrollable: true};
 
     $scope.myBuildings = [];
-    $scope.myShips = [];
+
     $scope.myBuildingsHashT = {};
     $scope.myCampus = [];
     $scope.old_campus = [];
@@ -323,22 +318,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             function (resp) {
                 // on success
                 var data = resp.data;
-
-                $scope.myBuildings = [];
-                $scope.myShips = [];
-
                 //var bs = JSON.parse( data.buildings );
-                for(var i in data.buildings){
-                    var bid=data.buildings[i].buid;
-                    var getship=bid.split("_",1);
-
-                    if(getship=="ship") {
-                        $scope.myShips.push(data.buildings[i]);
-                    }
-                    else{
-                        $scope.myBuildings.push(data.buildings[i]);
-                    }
-                }
+                $scope.myBuildings = data.buildings;
 
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',
@@ -351,9 +332,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                     localStoredBuildingId = localStorage.getItem('lastBuilding');
                 }
 
-                //show all buildings and ships on map
-                for (var i = 0; i < data.buildings.length; i++) {
-                    var b = data.buildings[i];
+                for (var i = 0; i < $scope.myBuildings.length; i++) {
+
+                    var b = $scope.myBuildings[i];
 
                     $scope.example9data[i] = {id: b.buid, label: b.name};
                     $scope.example9dataedit[i] = {id: b.buid, label: b.name};
@@ -367,51 +348,25 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                     } else {
                         b.is_published = false;
                     }
-                    var bid=b.buid;
-                    var getship=bid.split("_",1);
 
-                    if(getship=="ship") {
-                        var marker = new google.maps.Marker({
-                            position: _latLngFromBuilding(b),
-                            map: GMapService.gmap,
-                            icon: new google.maps.MarkerImage(
-                                'build/images/ship_icon.png',
-                                null, /* size is determined at runtime */
-                                null, /* origin is 0,0 */
-                                null, /* anchor is bottom center of the scaled image */
-                                new google.maps.Size(54, 54)),
-                            draggable: false
-                        });
+                    var marker = new google.maps.Marker({
+                        position: _latLngFromBuilding(b),
+                        map: GMapService.gmap,
+                        icon: new google.maps.MarkerImage(
+                            'build/images/building-icon.png',
+                            null, /* size is determined at runtime */
+                            null, /* origin is 0,0 */
+                            null, /* anchor is bottom center of the scaled image */
+                            new google.maps.Size(54, 54)),
+                        draggable: false
+                    });
 
-                        var htmlContent = '<div class="infowindow-scroll-fix">'
-                            + '<h5>Ship:</h5>'
-                            + '<span>' + b.name + '</span>'
-                            + '<h5>Description:</h5>'
-                            + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
-                            + '</div>';
-                    }
-                    else {
-                        var marker = new google.maps.Marker({
-                            position: _latLngFromBuilding(b),
-                            map: GMapService.gmap,
-                            icon: new google.maps.MarkerImage(
-                                'build/images/building-icon.png',
-                                null, /* size is determined at runtime */
-                                null, /* origin is 0,0 */
-                                null, /* anchor is bottom center of the scaled image */
-                                new google.maps.Size(54, 54)),
-                            draggable: false
-                        });
-
-                        var htmlContent = '<div class="infowindow-scroll-fix">'
-                            + '<h5>Building:</h5>'
-                            + '<span>' + b.name + '</span>'
-                            + '<h5>Description:</h5>'
-                            + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
-                            + '</div>';
-                    }
-
-
+                    var htmlContent = '<div class="infowindow-scroll-fix">'
+                        + '<h5>Building:</h5>'
+                        + '<span>' + b.name + '</span>'
+                        + '<h5>Description:</h5>'
+                        + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
+                        + '</div>';
 
                     marker.infoContent = htmlContent;
                     marker.building = b;
@@ -425,78 +380,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         infowindow.setContent(this.infoContent);
                         infowindow.open(GMapService.gmap, this);
                         var self = this;
-                        // $scope.$apply(function () {
-                        $scope.anyService.selectedBuilding = self.building;
-                        var bid=self.building.buid;
-                        var getship=bid.split("_",1);
-
-                        if(getship=="ship") {
-                            if($scope.moveShip==0){
-                                $scope.moveShip=1;
-                                console.log("stop");
-                            }
-                            else {
-                                $scope.moveShip=0;
-                            }
-
-                            //ship here
-                            function myFunction(){
-                                var b = $scope.myBuildingsHashT[bid];
-
-                                var m = b.marker;
-                                $scope.laship=parseFloat($scope.laship) + 0.0001;
-                                $scope.loship=parseFloat($scope.loship) + 0.0001;
-                                var myLatLng = {lat: parseFloat($scope.laship), lng: parseFloat($scope.loship)};
-
-                                m.setPosition(myLatLng);
-                                console.log("its work");
-                            }
-
-                            if ($scope.moveShip==0) {
-                                clearInterval($scope.ShipInterval);
-                                var model=$scope.myBuildingsHashT[bid];
-                                console.log($scope.myBuildingsHashT[bid]);
-                                console.log(model.model.coordinates_lat);
-
-                                var myLatLng = {lat: parseFloat(model.model.coordinates_lat), lng: parseFloat(model.model.coordinates_lon)};
-                                console.log(myLatLng);
-                                model.marker.setPosition(myLatLng);
-                                // console.log(b);
-                            }
-                            else{
-                                myFunction();
-
-                                $scope.ShipInterval=setInterval(function(){
-                                    myFunction()}, 10000);
-                            }
-
-                            // Open a new connection, using the GET request on the URL endpoint
-                            // request.open('GET', 'ship.json', true);
-                            // request.send(null);
-                            // request.onreadystatechange = function(){
-                            //     //check if the status is 200(means everything is okay)
-                            //     if (this.status === 200&& this.readyState==4) {
-                            //         //return server response as an object with JSON.parse
-                            //
-                            //
-                            //          json=JSON.parse(request.responseText);
-                            //         console.log(json[0].LAT);
-                            // var json=JSON.parse(request.responseText);
-                            //
-                            // console.log(request.responseText);
-                            //  var myLatLng = {lat: parseFloat(json[0].LAT), lng:parseFloat( json[0].LON)};
-                            // console.log(JSON.parse(this.request));
-                            // }
-                            // }
-                            // Send request
-                            // }
-                            // for (var b in $scope.myBuildingsHashT) {
-                            //         $scope.myBuildingsHashT[b].marker.setMap();
-                            //
-                            // }
-                        }
-                        // });
-
+                        $scope.$apply(function () {
+                            $scope.anyService.selectedBuilding = self.building;
+                        });
                     });
                 }
 
@@ -512,6 +398,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             function (resp) {
                 // on error
                 var data = resp.data;
+                // TODO provide here more info, if on develop
                 _err('Something went wrong while fetching buildings.');
             }
         );
@@ -556,15 +443,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             }
 
             if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address) {
-                var promise ;
-                var shipboolean;
-                if (shipselect==0) {
-                    promise = $scope.anyAPI.addBuilding(building);
-                    shipboolean=1;
-                } else {
-                    promise = $scope.anyAPI.addShip(building)
-                    shipboolean=0;
-                }
+
+                var promise = $scope.anyAPI.addBuilding(building);
+
                 promise.then(
                     function (resp) {
                         // on success
@@ -579,13 +460,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         }
 
                         // insert the newly created building inside the loadedBuildings
-                        if(shipselect==0) {
-                            $scope.myBuildings.push(building);
-                            $scope.anyService.selectedBuilding = $scope.myBuildings[$scope.myBuildings.length - 1];
-                        } else{
-                            $scope.myShips.push(building);
-                            // $scope.anyService.selectedBuilding = $scope.myBuildings[$scope.myBuildings.length - 1];
-                        }
+                        $scope.myBuildings.push(building);
+
+                        $scope.anyService.selectedBuilding = $scope.myBuildings[$scope.myBuildings.length - 1];
 
                         $scope.myMarkers[id].marker.setDraggable(false);
 
@@ -598,11 +475,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                             $scope.myMarkers[id].infowindow.setContent($scope.myMarkers[id].marker.tpl2[0]);
                             $scope.myMarkers[id].infowindow.close();
                         }
-                        if(shipboolean){
-                            _suc("Building added successfully.");
-                        } else {
-                            _suc("Ship added successfully.");
-                        }
+
+                        _suc("Building added successfully.");
+
                     },
                     function (resp) {
                         // on error
@@ -630,7 +505,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         }
 
         reqObj.owner_id = $scope.owner_id;
-        // console.log(reqObj.owner_id);
 
         if (!b || !b.buid) {
             _err("No building selected for deletion.");
@@ -679,7 +553,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
 
-    //lsolea01
+    // REVIEWLS what does this actually delete?
     $scope.deleteRadiomaps = function () {
 
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
@@ -689,13 +563,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         promise.then(
             function (resp) {
-                _suc("Successfully Delete floor radiomap")
+                _suc("Deleted radiomap floor")
             },
 
-            function (resp) {
-                // on error
+            function (resp) {  // on error
                 var data = resp.data;
-                _err("Something went wrong.The file is not exist ");
+                _err("ERROR: deleteRadiomaps: file does not exist.");
             }
         );
     };
@@ -1018,104 +891,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             var point = new google.maps.Point(e.pageX, e.pageY);
             var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
             $scope.placeMarker(ll);
-            shipselect=0;
         }
     });
-
-    // ship drag
-    $("#draggable-ship").draggable({
-        helper: 'clone',
-        stop: function (e) {
-            var point = new google.maps.Point(e.pageX, e.pageY);
-            var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
-            $scope.placeMarkership(ll);
-            shipselect=1;
-        }
-    });
-
-    $scope.placeMarkership = function (location) {
-        var prevMarker = $scope.myMarkers[$scope.myMarkerId - 1];
-        if (prevMarker && prevMarker.marker && prevMarker.marker.getMap() && prevMarker.marker.getDraggable()) {
-            // TODO: alert for already pending building.
-            console.log('there is a building pending, please add 1 at a time');
-            return;
-        }
-
-        var marker = new google.maps.Marker({
-            position: location,
-            map: GMapService.gmap,
-            icon: 'build/images/ship_icon.png',
-            draggable: true
-        });
-
-        var infowindow = new google.maps.InfoWindow({
-            content: '-',
-            maxWidth: 500
-        });
-
-        $scope.$apply(function () {
-            marker.myId = $scope.myMarkerId;
-            $scope.myMarkers[marker.myId] = {};
-            $scope.myMarkers[marker.myId].model = {
-                description: "",
-                name: undefined,
-                is_published: true,
-                address: "-",
-                url: "-",
-                bucode: ""
-            };
-            $scope.myMarkers[marker.myId].marker = marker;
-            $scope.myMarkers[marker.myId].infowindow = infowindow;
-            $scope.myMarkerId++;
-        });
-
-        var htmlContent = '<form name="buildingForm" class="infowindow-scroll-fix">'
-            + '<fieldset class="form-group">'
-            + '<input ng-model="myMarkers[' + marker.myId + '].model.bucode" id="building-code" type="text" class="form-control" placeholder="Building Code (Optional)"/>'
-            + '</fieldset>'
-            + '<fieldset class="form-group">'
-            + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="building-name" type="text" class="form-control" placeholder="Building Name *"/>'
-            + '</fieldset>'
-            + '<fieldset class="form-group">'
-            + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
-            + '</fieldset>'
-            + '<fieldset class="form-group">'
-            + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
-            + '</fieldset>'
-            + '<fieldset class="form-group">'
-            + '</fieldset class="form-group">'
-            + '<div style="text-align: center;">'
-            + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
-            + '<button type="submit" class="btn btn-success add-any-button" ng-click="addNewBuilding(' + marker.myId + ')">'
-            + '<span class="glyphicon glyphicon-plus"></span> Add'
-            + '</button>'
-            + '</fieldset>'
-            + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
-            + '<button class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempBuilding(' + marker.myId + ')"><span class="glyphicon glyphicon-remove"></span>'
-            + '</button>'
-            + '</fieldset>'
-            + '</div>'
-            + '</form>';
-
-        var htmlContent2 = '<div class="infowindow-scroll-fix">'
-            + '<h5 style="margin: 0">Building:</h5>'
-            + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
-            + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
-            + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
-            + '</div>';
-
-        var tpl = $compile(htmlContent)($scope);
-        marker.tpl2 = $compile(htmlContent2)($scope);
-
-        infowindow.setContent(tpl[0]);
-        infowindow.open(GMapService.gmap, marker);
-
-        google.maps.event.addListener(marker, 'click', function () {
-            if (!infowindow.getMap()) {
-                infowindow.open(GMapService.gmap, marker);
-            }
-        });
-    };
 
     $scope.placeMarker = function (location) {
 

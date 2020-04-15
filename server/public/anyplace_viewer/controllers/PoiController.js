@@ -50,9 +50,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
     $scope.gmapService = GMapService;
-    $scope.myshipmarker={};
-    $scope.shiphistory=[];
-    $scope.shiphistorycount=0;
 
     $scope.myPois = [];
     $scope.myPoisHashT = {};
@@ -330,136 +327,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             localStorage.removeItem("lastPoi");
         } catch (e) {
         }
-
-    };
-    //ship position update
-
-    $scope.updateshipposition = function () {
-
-        $scope.refreshtime =parseInt(document.getElementById("refreshtime").value);
-        console.log("fff");
-        $scope.shiphistory=[];
-
-        if(!Number.isInteger($scope.refreshtime)){
-            $scope.refreshtime=parseInt(1000);
-        }
-        var ship =$scope.anyService.getBuilding();
-        var buid=ship.buid;
-        var b = $scope.anyService.allbuil[buid];
-
-        var markerlan = {lat: parseFloat(b.model.coordinates_lat), lng: parseFloat(b.model.coordinates_lon)};
-
-        var marker = new google.maps.Marker({
-            position:markerlan ,
-            map: GMapService.gmap,
-            icon: new google.maps.MarkerImage(
-                'build/images/ship-icon_34102.png',
-                null, /* size is determined at runtime */
-                null, /* origin is 0,0 */
-                null, /* anchor is bottom center of the scaled image */
-                new google.maps.Size(54, 54)),
-            draggable: false
-        });
-
-
-        $scope.myshipmarker[buid] = {
-            marker: marker,
-            model: b.model
-        };
-
-        $scope.laship=parseFloat(b.model.coordinates_lat);
-        $scope.loship=parseFloat(b.model.coordinates_lon);
-
-        $scope.ShipInterval=setInterval(function(){
-            moveship()}, $scope.refreshtime);
-
-        function moveship(){
-            $scope.$apply(function () {
-
-
-                var ship =$scope.anyService.getBuilding();
-                var buid=ship.buid;
-                var shipmarker= $scope.myshipmarker[buid];
-
-                $scope.laship=parseFloat($scope.laship) + 0.0001;
-                $scope.loship=parseFloat($scope.loship) + 0.0001;
-
-                var myLatLng = {lat: parseFloat($scope.laship), lng: parseFloat($scope.loship)};
-
-                $scope.shiphistory.push({lat: parseFloat($scope.laship), lng: parseFloat($scope.loship)});
-                $scope.shiphistorycount=$scope.shiphistorycount+1;
-
-                shipmarker.marker.setPosition(myLatLng);
-                GMapService.gmap.panTo(myLatLng);
-                GMapService.gmap.setZoom(20);
-                // });
-            });
-
-
-
-        }
-
-
-    };
-
-    $scope.stopShip = function () {
-        clearInterval($scope.ShipInterval);
-        var ship =$scope.anyService.getBuilding();
-        var buid=ship.buid;
-        var b = $scope.anyService.allbuil[buid];
-        var shipmarker= $scope.myshipmarker[buid];
-
-        var markerlan = {lat: parseFloat(b.model.coordinates_lat), lng: parseFloat(b.model.coordinates_lon)};
-        shipmarker.marker.setPosition(markerlan);
-        GMapService.gmap.panTo(markerlan);
-        GMapService.gmap.setZoom(20);
-        shipmarker.marker.setMap(null);
-    };
-    $scope.historyShip = function () {
-        clearInterval($scope.ShipInterval);
-        var ship =$scope.anyService.getBuilding();
-        var buid=ship.buid;
-        var b = $scope.anyService.allbuil[buid];
-        var shipmarker= $scope.myshipmarker[buid];
-
-        var markerlan = {lat: parseFloat(b.model.coordinates_lat), lng: parseFloat(b.model.coordinates_lon)};
-        shipmarker.marker.setPosition(markerlan);
-        GMapService.gmap.panTo(markerlan);
-        GMapService.gmap.setZoom(20);
-        shipmarker.marker.setMap(null);
-
-
-        var flightPath = new google.maps.Polyline({
-            path: $scope.shiphistory,
-            geodesic: true,
-            strokeColor: '#FF0000',
-            strokeOpacity: 1.0,
-            strokeWeight: 2
-        });
-        flightPath.setMap(GMapService.gmap);
-        // var markerlan = $scope.shiphistory.pop();
-        var mymarkerlan = {lat: parseFloat($scope.shiphistory.pop().lat), lng: parseFloat($scope.shiphistory.pop().lng)};
-
-        // console.log($scope.shiphistory);
-        // console.log($scope.shiphistory.pop().lat);
-
-        var marker1 = new google.maps.Marker({
-            position:mymarkerlan,
-            map: GMapService.gmap,
-            icon: new google.maps.MarkerImage(
-                'build/images/ship-icon_34102.png',
-                null, /* size is determined at runtime */
-                null, /* origin is 0,0 */
-                null, /* anchor is bottom center of the scaled image */
-                new google.maps.Size(54, 54)),
-            draggable: false
-        });
-
-
-
-
-
-
 
     };
 
@@ -812,9 +679,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     if (!p || p.floor_number != targetPoi.floor_number)
                         continue;
                     if ((d = _euclideanDistance(
-                            parseFloat(p.coordinates_lat), parseFloat(p.coordinates_lon),
-                            lat, lng)
-                    ) <= minD) {
+                                parseFloat(p.coordinates_lat), parseFloat(p.coordinates_lon),
+                                lat, lng)
+                        ) <= minD) {
                         minD = d;
                         minP = p;
                     }

@@ -110,10 +110,6 @@ AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.FULL_SERVE
 AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/building/add";
 AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ADD;
 
-// ship add
-AnyplaceAPI.Mapping.SHIP_ADD = "/mapping/ship/add";
-AnyplaceAPI.Mapping.SHIP_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SHIP_ADD;
-
 AnyplaceAPI.Mapping.CAMPUS_ALL = "/mapping/campus/all_owner";
 AnyplaceAPI.Mapping.CAMPUS_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_ALL;
 
@@ -133,11 +129,11 @@ AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI
 AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/building/update";
 AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_UPDATE;
 
+AnyplaceAPI.Mapping.BUILDING_DELETE = "/mapping/building/delete";
+AnyplaceAPI.Mapping.BUILDING_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_DELETE;
 
-//lsolea01
 AnyplaceAPI.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
 AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIOMAP_DELETE;
-
 
 AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/building/all_owner";
 AnyplaceAPI.Mapping.BUILDING_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ALL;
@@ -423,6 +419,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
 
+
 //retrievePoisTypes
 
     apiService.retrievePoisTypes = function (json_req) {
@@ -495,19 +492,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_ADD_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-
-    apiService.addShip = function (json_req) {
-        //alert( "make the request: " + json_req );
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.SHIP_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -598,7 +582,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
 
     };
-
 
     apiService.deleteCampus = function (json_req) {
         //alert( "make the request: " + json_req );
@@ -773,21 +756,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
 
-  /* TODO fetch from another provider
-    apiService.getShipPosition = function () {
-        //alert( "make the request: " + json_req );
-        return $http({
-            method: "GET",
-            url: "services.marinetraffic.com/api/exportvessel/v:5/78e2e7fd31c8707894aca549b06823598368d250/timespan:20/protocol:jsono/mmsi:310627000",
-            // data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-  */
-
     /******************************************************
      * POIS FUNCTIONS
      */
@@ -913,6 +881,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             return data;
         });
     };
+
 
 
     // we return apiService controller in order to be able to use it in ng-click

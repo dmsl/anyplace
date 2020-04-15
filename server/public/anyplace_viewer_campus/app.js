@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyViewer', ['ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'ngMaterial','angular-loading-bar']);
+var app = angular.module('anyViewer', ['ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'ngMaterial', 'angular-loading-bar']);
 
 
 app.service('GMapService', function () {
@@ -51,7 +51,7 @@ app.service('GMapService', function () {
     CoordMapType.prototype.name = 'Tile #s';
     CoordMapType.prototype.alt = 'Tile Coordinate Map Type';
 
-    CoordMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
+    CoordMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
         var div = ownerDocument.createElement('div');
         div.innerHTML = coord;
         div.style.width = this.tileSize.width + 'px';
@@ -75,17 +75,18 @@ app.service('GMapService', function () {
     OSMMapType.prototype.maxZoom = 22;
     OSMMapType.prototype.name = 'OSM';
     OSMMapType.prototype.alt = 'Tile OSM Map Type';
-    OSMMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        if (zoom>19)
+    OSMMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        if (zoom > 19)
             return null;
         var tilesPerGlobe = 1 << zoom;
         var x = coord.x % tilesPerGlobe;
         if (x < 0) {
-            x = tilesPerGlobe+x;
+            x = tilesPerGlobe + x;
         }
         var tile = ownerDocument.createElement('img');
         // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
-        tile.src =  "http://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";;
+        tile.src = "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
+        ;
         tile.style.width = this.tileSize.width + 'px';
         tile.style.height = this.tileSize.height + 'px';
         return tile;
@@ -102,10 +103,10 @@ app.service('GMapService', function () {
     CartoLightMapType.prototype.maxZoom = 22;
     CartoLightMapType.prototype.name = 'Carto Light';
     CartoLightMapType.prototype.alt = 'Tile Carto Light Map Type';
-    CartoLightMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        var url="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
+    CartoLightMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        var url = "https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
 
-        url=url.replace('{x}', coord.x)
+        url = url.replace('{x}', coord.x)
             .replace('{y}', coord.y)
             .replace('{z}', zoom);
         var tile = ownerDocument.createElement('img');
@@ -127,10 +128,10 @@ app.service('GMapService', function () {
     CartoDarkMapType.prototype.maxZoom = 22;
     CartoDarkMapType.prototype.name = 'Carto Dark';
     CartoDarkMapType.prototype.alt = 'Tile Carto Dark Map Type';
-    CartoDarkMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        var url="https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png";
+    CartoDarkMapType.prototype.getTile = function (coord, zoom, ownerDocument) {
+        var url = "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png";
 
-        url=url.replace('{x}', coord.x)
+        url = url.replace('{x}', coord.x)
             .replace('{y}', coord.y)
             .replace('{z}', zoom);
         var tile = ownerDocument.createElement('img');
@@ -142,12 +143,12 @@ app.service('GMapService', function () {
     };
 
 
-    var mapTypeId = "OSM";
+    var mapTypeId = "roadmap";
     if (typeof(Storage) !== "undefined" && localStorage) {
         if (localStorage.getItem('mapTypeId'))
             mapTypeId = localStorage.getItem('mapTypeId');
         else
-            localStorage.setItem("mapTypeId", "OSM");
+            localStorage.setItem("mapTypeId", "roadmap");
     }
 
 
@@ -172,11 +173,30 @@ app.service('GMapService', function () {
 
     self.gmap.addListener('maptypeid_changed', function () {
         var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
-        localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
+        localStorage.setItem("mapTypeId", self.gmap.getMapTypeId());
+        customMapAttribution(self.gmap);
         self.gmap.setOptions({
-            streetViewControl: showStreetViewControl
+            streetViewControl: showStreetViewControl,
         });
     });
+
+    function customMapAttribution(map) {
+        var id = "custom-maps-attribution";
+        var attributionElm = document.getElementById(id);
+        if (attributionElm === undefined || attributionElm === null) {
+            attributionElm = document.createElement('div');
+            attributionElm.id = id;
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(attributionElm);
+        }
+        if (self.gmap.getMapTypeId() === "OSM")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        if (self.gmap.getMapTypeId() === "roadmap")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "satellite")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "CartoLight")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
+    }
 
 
     //Define OSM map type pointing at the OpenStreetMap tile server
@@ -187,13 +207,14 @@ app.service('GMapService', function () {
     self.gmap.mapTypes.set("CartoLight", new CartoLightMapType(new google.maps.Size(256, 256)));
     // Now attach the coordinate map type to the map's registry.
     //self.gmap.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
+    customMapAttribution(self.gmap);
 
     var directionsService = new google.maps.DirectionsService();
     var directionsDisplay = new google.maps.DirectionsRenderer();
 
     self.calcRoute = function (start, end, callback) {
 
-        if (self.gmap.getMapTypeId()!== 'roadmap' && self.gmap.getMapTypeId()!== 'satellite'){
+        if (self.gmap.getMapTypeId() !== 'roadmap' && self.gmap.getMapTypeId() !== 'satellite') {
             console.log("Google API deprecated.");
             return;
         }
@@ -341,15 +362,16 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
     anyService.addAlert = function (type, msg) {
         this.alerts[0] = ({msg: msg, type: type});
 
-        var promise = $q(function(resolve, reject) {
+        var promise = $q(function (resolve, reject) {
             setTimeout(function () {
                 resolve();
             }, 3500);
         });
 
-        promise.then(function(){
+        promise.then(function () {
             anyService.alerts.splice(0, 1);
-        }, function(){});
+        }, function () {
+        });
     };
 
     anyService.closeAlert = function (index) {
@@ -364,7 +386,7 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
     };
 
     anyService.getViewerUrl = function () {
-        var baseUrl="";
+        var baseUrl = "";
         if (!this.selectedBuilding || !this.selectedBuilding.buid)
             return baseUrl;
         baseUrl += "&buid=" + this.selectedBuilding.buid;
@@ -428,7 +450,7 @@ app.config(['$routeProvider', function ($routeProvider) {
         .otherwise({redirectTo: '/', caseInsensitiveMatch: true});
 }]);
 
-app.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+app.config(['cfpLoadingBarProvider', function (cfpLoadingBarProvider) {
     cfpLoadingBarProvider.includeSpinner = false;
 }]);
 

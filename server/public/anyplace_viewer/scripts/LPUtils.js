@@ -33,7 +33,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-
+    
 var LPUtils = {};
 
 LPUtils.isNullOrUndefined = function( t ){
@@ -229,23 +229,24 @@ LPUtils.Base64 = {
     _utf8_decode : function (utftext) {
         var string = "";
         var i = 0;
+        var c = c1 = c2 = 0;
 
         while ( i < utftext.length ) {
 
-            var c = utftext.charCodeAt(i);
+            c = utftext.charCodeAt(i);
 
             if (c < 128) {
                 string += String.fromCharCode(c);
                 i++;
             }
             else if((c > 191) && (c < 224)) {
-                var c2 = utftext.charCodeAt(i+1);
+                c2 = utftext.charCodeAt(i+1);
                 string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
                 i += 2;
             }
             else {
-                var c2 = utftext.charCodeAt(i+1);
-                var c3 = utftext.charCodeAt(i+2);
+                c2 = utftext.charCodeAt(i+1);
+                c3 = utftext.charCodeAt(i+2);
                 string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
                 i += 3;
             }
