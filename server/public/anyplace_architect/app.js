@@ -251,6 +251,7 @@ app.factory('AnyplaceService', function () {
     anyService.allPois = {};
     anyService.allConnections = {};
     anyService.radioHeatmapRSSMode = false;
+    anyService.radioHeatmapLocalization = false; //lsolea01
     anyService.fingerPrintsTimeMode = false;
     anyService.radioHeatmapRSSTimeMode = false;
 

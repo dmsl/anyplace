@@ -2448,7 +2448,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         try {
           val file = new File(filePath)
-          println("filePath " + file.getAbsolutePath)
+          // println("filePath " + file.getAbsolutePath)
           if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
             floor_number +
             ")")
