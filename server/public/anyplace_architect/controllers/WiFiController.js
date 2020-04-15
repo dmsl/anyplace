@@ -995,30 +995,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         return;
     };
 
-    $scope.toggleLocalizationAccurancy = function () {
-        $scope.localizationAccMode = !$scope.localizationAccMode;
-
-        if (heatmapAcc && heatmapAcc.getMap()) {
-            //hide fingerPrints heatmap
-
-            heatmapAcc.setMap(null);
-            document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
-
-            if (typeof(Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('localizationAccMode', 'NO');
-            }
-            return;
-        }
-
-        document.getElementById("localizationAccurancy-mode").classList.add('draggable-border-green');
-
-        if (typeof(Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('localizationAccMode', 'YES');
-        }
-        $scope.showLocalizationAccHeatmap();
-
-    };
-
 
     $scope.toggleFingerPrintsTime = function () {
         if($scope.fingerPrintsMode){
@@ -2134,7 +2110,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
 
                 //create AccessPoint "map"
-                var _ACCESS_POINT_IMAGE = 'build/images/access-point-icon.svg';
+                var _ACCESS_POINT_IMAGE = 'images/access-point-icon.svg';
 
                 var imgType = _ACCESS_POINT_IMAGE;
 
