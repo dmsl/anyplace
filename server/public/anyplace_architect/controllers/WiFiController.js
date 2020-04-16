@@ -2314,12 +2314,16 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     // REVIEWLS lsolea code
     $scope.showLocalizationAccHeatmap = function () {
+        console.log("showLocalizationAccHeatmap");
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
+        console.log("islah: 1");
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
+        console.log("islah: 2");
 
         var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);
+        console.log("islah: 3");
 
         //zoom
         _NOW_ZOOM = GMapService.gmap.getZoom();
@@ -2334,6 +2338,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             levelOfZoom = 1;
         }
 
+        console.log("islah: 4");
+
         promise.then(
             function (resp) {
 
@@ -2344,6 +2350,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 var i = data.length;
 
+              console.log("islah: 5");
 
                 if (i <= 0) {
                     _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
@@ -2436,12 +2443,14 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         radius: ra
                     });
 
+                    console.log("islah: x");
                     heatMap_Location.push(circle);
                     data.splice(i, 1);
                     j++;
                 }
 
 
+                console.log("islah: x");
                 document.getElementById("localizationAccurancy-mode").classList.add('draggable-border-green');
                 $scope.localizationAccMode = true;
                 if (typeof(Storage) !== "undefined" && localStorage) {
@@ -2450,9 +2459,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     localStorage.setItem('localizationAccMode', 'YES');
                 }
 
+                console.log("islah: x");
                 _HEATMAP_Localization = true;
                 $scope.radioHeatmapLocalization = true;
             }, function (resp) {
+                console.log("islah: x");
                 // on error
                 var data = resp.data;
                 _err('Something went wrong while fetching fingerPrints.');
@@ -2461,10 +2472,10 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 if (typeof(Storage) !== "undefined" && localStorage) {
                     localStorage.setItem('localizationAccMode', 'NO');
                 }
+                console.log("islah: x");
             }
         );
     };
-
 
     $scope.showConnections = function () {
 
