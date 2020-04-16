@@ -142,10 +142,10 @@ class CouchbaseDatasource private(hostname: String,
 
       // Connects to a cluster on hostname
       // if the other one does not respond during bootstrap.
-//      mCluster = CouchbaseCluster.create(env, mHostname)
+      mCluster = CouchbaseCluster.create(env, mHostname)
 
-        var connectionString = "couchbase://ap1.in.cs.ucy.ac.cy,ap2.in.cs.ucy.ac.cy,ap3.in.cs.ucy.ac.cy";
-        mCluster = CouchbaseCluster.fromConnectionString(connectionString);
+//        var connectionString = "couchbase://ap1.in.cs.ucy.ac.cy,ap2.in.cs.ucy.ac.cy,ap3.in.cs.ucy.ac.cy";
+//        mCluster = CouchbaseCluster.fromConnectionString(connectionString);
 
       mSecureBucket = mCluster.openBucket(mBucket, mPassword)
     } catch {
