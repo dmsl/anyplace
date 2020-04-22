@@ -167,7 +167,7 @@ app.service('GMapService', function () {
     });
 
     self.gmap.addListener('maptypeid_changed', function () {
-        //BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
+        // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
         //Issue happens due to setting of custom maptype Id
         if (self.gmap.getMapTypeId() === 'my_custom_layer1' && self.gmap.zoom < 22) {
             self.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
@@ -201,15 +201,6 @@ app.service('GMapService', function () {
         if (self.gmap.getMapTypeId() === "CartoLight")
             attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
     }
-    if (self.gmap.getMapTypeId() === "OSM")
-      attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-    if (self.gmap.getMapTypeId() === "roadmap")
-      attributionElm.innerHTML = '';
-    if (self.gmap.getMapTypeId() === "satellite")
-      attributionElm.innerHTML = '';
-    if (self.gmap.getMapTypeId() === "CartoLight")
-      attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
-  }
 
     //Define OSM map type pointing at the OpenStreetMap tile server
     self.gmap.mapTypes.set("OSM", new OSMMapType(new google.maps.Size(256, 256)));
