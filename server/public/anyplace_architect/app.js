@@ -184,13 +184,22 @@ app.service('GMapService', function () {
         });
     });
 
-  function customMapAttribution(map) {
-    var id = "custom-maps-attribution";
-    var attributionElm = document.getElementById(id);
-    if (attributionElm === undefined || attributionElm === null) {
-      attributionElm = document.createElement('div');
-      attributionElm.id = id;
-      map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(attributionElm);
+    function customMapAttribution(map) {
+        var id = "custom-maps-attribution";
+        var attributionElm = document.getElementById(id);
+        if (attributionElm === undefined || attributionElm === null) {
+            attributionElm = document.createElement('div');
+            attributionElm.id = id;
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(attributionElm);
+        }
+        if (self.gmap.getMapTypeId() === "OSM")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        if (self.gmap.getMapTypeId() === "roadmap")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "satellite")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "CartoLight")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
     }
     if (self.gmap.getMapTypeId() === "OSM")
       attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
