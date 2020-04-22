@@ -39,8 +39,8 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
     $ cd anyplace_v3/bin
-    $ chmod +x anyplace_v3
-    $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
+    $ chmod +x anyplace
+    $ ./anyplace  (alternatively use: $ nohup ./anyplace > anyplace.log 2>&1 )
     # To stop press Ctrl-C or kill the respective process
 
     # WINDOWS
@@ -49,7 +49,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     # To stop press Ctrl-C or kill the respective process through the task manager
     
 ## Testing
-    Just open a browser and test the following URLs.
+    Just open a browser and test the following URLs:
 
     $ http://localhost:9000/viewer
     $ http://localhost:9000/architect
@@ -89,11 +89,19 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     * Choose `SBT Task` and then write "run" in the `tasks` fields
 + (Tentatively) Refresh Viewer Packages: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
 + (Tentatively) Refresh Architect Packages:  https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
++ Ignore the directories which are generated with grunt. These essentially put all JavaScript into a single file,
+  along with other artifacts like CSS and images. They should never be edited, and this excludes them from IDE's search.
+    - Exclude using:
+        -> `right click` on the sidebar folder
+        -> `Mark Directory as`
+        -> `Excluded`
+    - Directories to exclude:
+        + public/anyplace_architect/build
+        + public/anyplace_viewer/build
+        + public/anyplace_viewer_campus/build
 + Done!
 
 **Important**: In order to fully support the Play project you need download and install the Ultimate edition.
-
-
 **Important**: You need to have installed the JAVA enviroment.
 
 ## Build
