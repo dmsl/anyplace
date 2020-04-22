@@ -22,7 +22,7 @@ public/anyplace_viewer_campus/build/
 radiomaps_frozen/
 radio_test/
 test/
-crlbs_files/
+crlbs_data/
 /conf/ap.application.conf
 conf/public/
 node_modules/

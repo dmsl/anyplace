@@ -1709,7 +1709,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
           val buid = (json \ "buid").as[String]
           val floor_number=(json \ "floor").as[String]
-          val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+          val file_path=new File(
+              Play.application().configuration().getString("crlbsDir") +
+              File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
          if (file_path.exists()){
               if(file_path.delete){
                 return AnyResponseHelper.ok("Deleted floor :" + floor_number)
@@ -2868,9 +2870,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
+            LPLogger.info("getAccesHeatmapByBuildingFloor: assert json anyreq")
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody
+        LPLogger.info("getAccesHeatmapByBuildingFloor:x: ")
         LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): " + json.toString)
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
         if (!requiredMissing.isEmpty) {
@@ -2933,10 +2937,18 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
     // REVIEWLS use option for this
-    val file_path=new File("crlbs_files"+File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
-    val folder=new File("crlbs_files"+ File.separatorChar+buid)
+    LPLogger.info("getAccesMap:" + 
+        Play.application().configuration().getString("crlbsDir") +
+        File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+    val file_path=new File(
+        Play.application().configuration().getString("crlbsDir") +
+        File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+    val folder=new File(
+        Play.application().configuration().getString("crlbsDir") +
+    File.separatorChar+buid)
     if (!folder.exists()) {
-      folder.mkdir()
+        LPLogger.info("getAccesMap: mkdir: " + folder.getCanonicalPath)
+      folder.mkdirs()
     }
 
     val hm = rm.getGroupLocationRSS_HashMap()
