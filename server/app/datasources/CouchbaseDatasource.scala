@@ -159,7 +159,7 @@ class CouchbaseDatasource private(hostname: String,
       } else if (!mClusterNodes.isEmpty) {
           Logger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
               mBucket + "] password: " + mPassword)
-          mCluster = CouchbaseCluster.fromConnectionString(mClusterNodes);
+          mCluster = CouchbaseCluster.fromConnectionString(env, mClusterNodes);
       } else {
           throw new DatasourceException("Both single-node and multi-node couchbase configuration was empty!")
       }
