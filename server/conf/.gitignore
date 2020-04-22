@@ -1,4 +1,5 @@
 # any updates to application.conf must be forced
-# removed from tracking using: git update-index --assume-unchanged 
-# readd using: git update-index --no-assume-unchanged 
+# removed from tracking using: git update-index --assume-unchanged application.conf
+# readd using: git update-index --no-assume-unchanged application.conf
 application.conf
+application.conf.*

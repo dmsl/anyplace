@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -66,12 +66,13 @@ object CouchbaseDatasource {
   def getStaticInstance: CouchbaseDatasource = {
     sLockInstance.synchronized {
       if (sInstance == null) {
+        val clusterNodes = Play.application().configuration().getString("couchbase.clusterNodes")
         val hostname = Play.application().configuration().getString("couchbase.hostname")
         val port = Play.application().configuration().getString("couchbase.port")
         val username = Play.application().configuration().getString("couchbase.username")
         val bucket = Play.application().configuration().getString("couchbase.bucket")
         val password = Play.application().configuration().getString("couchbase.password")
-        sInstance = CouchbaseDatasource.createNewInstance(hostname, port, bucket, username, password)
+        sInstance = CouchbaseDatasource.createNewInstance(hostname, clusterNodes, port, bucket, username, password)
         try {
           sInstance.init()
         } catch {
@@ -85,53 +86,63 @@ object CouchbaseDatasource {
   }
 
   def createNewInstance(hostname_in: String,
+                        clusterNodes_in: String,
                         port_in: String,
                         bucket_in: String,
                         username_in: String,
                         password_in: String): CouchbaseDatasource = {
-    if (hostname_in == null || port_in == null || bucket_in == null || password_in == null) {
+    if ((hostname_in == null && clusterNodes_in == null) || port_in == null || bucket_in == null || password_in == null) {
       throw new IllegalArgumentException("[null] parameters are not allowed to create a CouchbaseDatasource")
     }
+
+    if(hostname_in == null) {
+        hostname_in = ""
+    }
+
+    if(clusterNodes_in == null) {
+        clusterNodes_in = ""
+    }
+
+    val clusterNodes = clusterNodes_in.trim()
     val hostname = hostname_in.trim()
     val port = port_in.trim()
     val bucket = bucket_in.trim()
     val password = password_in.trim()
     val username = username_in.trim()
-    if (hostname.isEmpty || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
-      throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource")
+    
+    if ((hostname.isEmpty && clusterNodes.isEmpty) || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
+      throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource.")
     }
-    new CouchbaseDatasource(hostname, port, bucket, username, password)
+    if (!hostname.isEmpty && !clusterNodes.isEmpty) {
+      throw new IllegalArgumentException("Please use either single-node (couchbase.hostname) or multi-node (couchbase.clusterNodes) couchbase configuration.")
+    }
+
+    new CouchbaseDatasource(hostname, clusterNodes, port, bucket, username, password)
   }
 }
 
 class CouchbaseDatasource private(hostname: String,
+                                  clusterNodes: String,
                                   port: String,
                                   bucket: String,
                                   username: String,
                                   password: String) extends IDatasource with IAccountService {
-
   private var mHostname: String = hostname
-
+  private var mClusterNodes: String = clusterNodes
   private var mPort: String = port
-
   private var mBucket: String = bucket
-
-
   private var mUsername: String = username
-
   private var mPassword: String = password
-
   private var mCluster: CouchbaseCluster = _
-
   private var mSecureBucket: Bucket = _
 
   private def connect(): Boolean = {
-    Logger.info("Trying to connect to: " + mHostname + ":" + mPort + " bucket[" +
-      mBucket +
-      "] password: " +
-      mPassword)
-    val uris = new LinkedList[URI]()
-    uris.add(URI.create(mHostname + ":" + mPort + "/pools"))
+    // TODO this was probably written for sleeping until couchbase is app (checking on the pools).
+    // It's a nice functionality to be added, as it will avoid many unnecessary crashes when booting up.
+    // if it gets implemented make it also work with mClusterNodes (similarly with connect).
+    //
+    // val uris = new LinkedList[URI]()
+    // uris.add(URI.create(mHostname + ":" + mPort + "/pools"))
     try {
       val env = DefaultCouchbaseEnvironment
         .builder()
@@ -140,12 +151,18 @@ class CouchbaseDatasource private(hostname: String,
         .socketConnectTimeout(100000) //100000ms = 100s, default is 5s
         .build()
 
-      // Connects to a cluster on hostname
-      // if the other one does not respond during bootstrap.
-      mCluster = CouchbaseCluster.create(env, mHostname)
-
-//        var connectionString = "couchbase://ap1.in.cs.ucy.ac.cy,ap2.in.cs.ucy.ac.cy,ap3.in.cs.ucy.ac.cy";
-//        mCluster = CouchbaseCluster.fromConnectionString(connectionString);
+      // Connects to a cluster on hostname if the other one does not respond during bootstrap.
+      if (!mHostname.isEmpty) {
+          Logger.info("Couchbase: connecting to: " + mHostname + ":" + mPort + " bucket[" +
+              mBucket + "] password: " + mPassword)
+          mCluster = CouchbaseCluster.create(env, mHostname)
+      } else if (!mClusterNodes.isEmpty) {
+          Logger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
+              mBucket + "] password: " + mPassword)
+          mCluster = CouchbaseCluster.fromConnectionString(connectionString);
+      } else {
+          throw new DatasourceException("Both single-node and multi-node couchbase configuration was empty!")
+      }
 
       mSecureBucket = mCluster.openBucket(mBucket, mPassword)
     } catch {
@@ -188,7 +205,7 @@ class CouchbaseDatasource private(hostname: String,
     } catch {
       case e: DatasourceException => {
         LPLogger.error("CouchbaseDatasource::init():: " + e.getMessage)
-        throw new DatasourceException("Cannot establish connection to Anyplace database!")
+        throw new DatasourceException("Cannot connect to couchbase.")
       }
     }
     true
