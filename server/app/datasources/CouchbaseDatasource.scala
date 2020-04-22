@@ -95,16 +95,15 @@ object CouchbaseDatasource {
       throw new IllegalArgumentException("[null] parameters are not allowed to create a CouchbaseDatasource")
     }
 
-    if(hostname_in == null) {
-        hostname_in = ""
+    var hostname = ""
+    var clusterNodes = ""
+    if(hostname_in != null) {
+        hostname = hostname_in.trim()
     }
-
-    if(clusterNodes_in == null) {
-        clusterNodes_in = ""
+    if(clusterNodes_in != null) {
+        clusterNodes=clusterNodes_in.trim()
     }
-
-    val clusterNodes = clusterNodes_in.trim()
-    val hostname = hostname_in.trim()
+    
     val port = port_in.trim()
     val bucket = bucket_in.trim()
     val password = password_in.trim()
@@ -137,7 +136,8 @@ class CouchbaseDatasource private(hostname: String,
   private var mSecureBucket: Bucket = _
 
   private def connect(): Boolean = {
-    // TODO this was probably written for sleeping until couchbase is app (checking on the pools).
+    // TODO FEATURE: sleep until couchbase is ready:
+    // This was probably written for sleeping until couchbase is app (checking on the pools).
     // It's a nice functionality to be added, as it will avoid many unnecessary crashes when booting up.
     // if it gets implemented make it also work with mClusterNodes (similarly with connect).
     //
@@ -159,7 +159,7 @@ class CouchbaseDatasource private(hostname: String,
       } else if (!mClusterNodes.isEmpty) {
           Logger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
               mBucket + "] password: " + mPassword)
-          mCluster = CouchbaseCluster.fromConnectionString(connectionString);
+          mCluster = CouchbaseCluster.fromConnectionString(mClusterNodes);
       } else {
           throw new DatasourceException("Both single-node and multi-node couchbase configuration was empty!")
       }
