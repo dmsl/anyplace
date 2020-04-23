@@ -1711,7 +1711,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val floor_number=(json \ "floor").as[String]
           val file_path=new File(
               Play.application().configuration().getString("crlbsDir") +
-              File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+              File.separatorChar+buid+File.separator+"fl_"+floor_number+".txt")
          if (file_path.exists()){
               if(file_path.delete){
                 return AnyResponseHelper.ok("Deleted floor :" + floor_number)
@@ -2942,13 +2942,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     File.separatorChar+buid)
     if (!folder.exists()) {
         LPLogger.info("getAccesMap: mkdir: " + folder.getCanonicalPath)
-      folder.mkdirs()
+        folder.mkdirs()
+        folder.setWritable(true, false)
+        folder.setReadable(true, false)
     }
 
     // REVIEWLS use option for this
     
     var crlb_filename=Play.application().configuration().getString("crlbsDir") +
-        File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt"
+        File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
     LPLogger.info("getAccesMap:" + crlb_filename)
 
 
@@ -3040,6 +3042,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
 
+        LPLogger.info("length:" + crlbs.length)
+
       //
       val file_io = new PrintWriter(file_path)
       for (i <- 0 until crlbs.length) {
@@ -3047,6 +3051,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       }
 
       file_io.close()
+
+        LPLogger.info("creating:" + crlb_filename + "DONE!")
       val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
         GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 
