@@ -476,10 +476,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             if (heatmapAcc && heatmapAcc.getMap()) {
                 //hide acces heatmap
-
                 heatmapAcc.setMap(null);
                 $scope.showLocalizationAccHeatmap();
-
             }
           }
 
@@ -646,10 +644,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             if (heatmapAcc && heatmapAcc.getMap()) {
                 //hide acces heatmap
-
                 heatmapAcc.setMap(null);
                 $scope.showLocalizationAccHeatmap();
-
             }
 
             var check = 0;
@@ -907,10 +903,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
 
   // REVIEWLS different than develop
-    $scope.toggleLocalizationAccurancy = function () {
-      console.log("toggleLocalizationAccurancy");
+    $scope.toggleLocalizationAccuracy = function () {
+      $scope.isDisabled = true;
+      console.log("toggleLocalizationAccuracy");
+        $('#LAButton').addClass('disabled');
         var check = 0;
         if ((heatMap_Location[check] !== undefined && heatMap_Location[check] !== null) || $scope.radioHeatmapLocalization) {
+          console.log("toggleLocalizationAccuracy: inside loop")
             var i = heatMap_Location.length;
             while (i--) {
                 heatMap_Location[i].setMap(null);
@@ -924,7 +923,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             setColorClicked('o', false);
             setColorClicked('p', false);
             setColorClicked('r', false);
-            document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
+            document.getElementById("localizationAccuracy-mode").classList.remove('draggable-border-green');
             $scope.radioHeatmapLocalization = false;
 
             $scope.localizationAccMode = false;
@@ -932,12 +931,19 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 localStorage.setItem('localizationAccMode', 'NO');
             }
 
-            return;
+          console.log("toggleLocalizationAccuracy: inside loop: ret")
+          $('#LAButton').removeClass('disabled');
+          $scope.isDisabled = false;
+          return;
         }
 
-        $scope.showLocalizationAccHeatmap();
+      $scope.showLocalizationAccHeatmap();
+      console.log("toggleLocalizationAccuracy: ret")
 
-        document.getElementById("localizationAccurancy-mode").classList.add('draggable-border-green');
+      $('#LAButton').removeClass('disabled');
+      $scope.isDisabled = false;
+
+      document.getElementById("localizationAccuracy-mode").classList.add('draggable-border-green');
         return;
     };
 
@@ -1129,7 +1135,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         return $scope.radioHeatmapRSSTimeMode ? "Hide WiFi Map By Time" : "Show WiFi Map By Time";
     };
 
-    $scope.getLocalizationAccurancyText = function(){
+    $scope.getLocalizationAccuracyText = function(){
         return $scope.localizationAccMode ? "Hide Acces Map" : "Show Acces Map";
     }
 
@@ -1250,7 +1256,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     };
 
-    $scope.getLocalizationAccurancyModeText = function () {
+    $scope.getLocalizationAccuracyModeText = function () {
         return $scope.localizationAccMode ? "Localization is online" : "Localization is offline";
 
     };
@@ -2317,13 +2323,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         console.log("showLocalizationAccHeatmap");
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
-        console.log("islah: 1");
+      console.log("showLocalizationAccHeatmap: disabled button:1");
+      $('#LAButton').addClass('disabled');
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
-        console.log("islah: 2");
 
         var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);
-        console.log("islah: 3");
+      console.log("showLocalizationAccHeatmap: got access map?");
 
         //zoom
         _NOW_ZOOM = GMapService.gmap.getZoom();
@@ -2338,37 +2344,29 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             levelOfZoom = 1;
         }
 
-        console.log("islah: 4");
-
         promise.then(
             function (resp) {
-
                 var values = resp.data.crlb;
                 var k = values.length;
-
                 var data = resp.data.geojson.coordinates;
-
                 var i = data.length;
-
-              console.log("islah: 5");
 
                 if (i <= 0) {
                     _err("This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
+                    document.getElementById("localizationAccuracy-mode").classList.remove('draggable-border-green');
                     $scope.localizationAccMode = false;
                     if (typeof(Storage) !== "undefined" && localStorage) {
                         localStorage.setItem('localizationAccMode', 'NO');
                     }
+
+                    console.log("enabling button: ret1");
+                  $('#LAButton').removeClass('disabled');
                     return;
                 }
 
-                var heatMapData = [];
-
-
+                // var heatMapData = [];
                 var j = 0;
-
-
-                while (i--) {
+                while (i--) { // pushing elements to map
                     var rp = data[i];
                     var color = '#ffffff';
                     if (isNaN(values[i]) || values[i] < 0) {
@@ -2380,7 +2378,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     else if (values[i] > 5 && values[i] < 10) {
                         color = '#99ff33';
                     }
-
                     else if (values[i] > 10 && values[i] < 15) {
                         color = '#fdff76';
                     }
@@ -2394,44 +2391,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         color = '#ff391e';
                     }
 
-                    // CLRLS this must be experiment code
-                    //cs bounding
-                    // var removeCoords = [
-                    //     {lat: 35.14465, lng: 33.41081},
-                    //     {lat: 35.14489, lng: 33.41115},
-                    //     {lat: 35.14432, lng: 33.41168},
-                    //     {lat: 35.14410, lng: 33.41136},
-                    //     {lat: 35.14465, lng: 33.41081}
-                    // ];
-                    //mall bounding
-                    // var removeCoords = [
-                    //     {lat: 35.13052, lng: 33.37040},
-                    //     {lat: 35.13020, lng: 33.37246},
-                    //     {lat: 35.12936, lng: 33.37228},
-                    //     {lat: 35.12969, lng: 33.37020},
-                    //     {lat: 35.13052, lng: 33.37040}
-                    // ];
-                    //
-                    //
-                    //
-                    // var polygon = new google.maps.Polygon({
-                    //     paths: removeCoords,
-                    //     strokeColor: '#FF0000',
-                    //     strokeOpacity: 0.8,
-                    //     strokeWeight: 2,
-                    //     fillColor: '#FF0000',
-                    //     fillOpacity: 0.35
-                    // });
-                    //
-                    //
-                    // var coordinate = new google.maps.LatLng(rp[0], rp[1]);
-                    //
                     var ra=1.5;
-                    // if (!google.maps.geometry.poly.containsLocation(coordinate, polygon)) {
-                    //     ra= 0;
-                    // }
-
-                    //here
                     var circle = new google.maps.Circle({
                         //  path: google.maps.SymbolPath.CIRCLE,
                         strokeWeight: 0.5,
@@ -2443,15 +2403,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         radius: ra
                     });
 
-                    console.log("islah: x");
                     heatMap_Location.push(circle);
                     data.splice(i, 1);
                     j++;
                 }
 
-
-                console.log("islah: x");
-                document.getElementById("localizationAccurancy-mode").classList.add('draggable-border-green');
+                document.getElementById("localizationAccuracy-mode").classList.add('draggable-border-green');
                 $scope.localizationAccMode = true;
                 if (typeof(Storage) !== "undefined" && localStorage) {
                     localStorage.setItem('localizationAccMode', 'NO');
@@ -2459,20 +2416,22 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     localStorage.setItem('localizationAccMode', 'YES');
                 }
 
-                console.log("islah: x");
                 _HEATMAP_Localization = true;
                 $scope.radioHeatmapLocalization = true;
+              $('#LAButton').removeClass('disabled');
+              console.log("enabling button: :2");
             }, function (resp) {
-                console.log("islah: x");
                 // on error
                 var data = resp.data;
                 _err('Something went wrong while fetching fingerPrints.');
-                document.getElementById("localizationAccurancy-mode").classList.remove('draggable-border-green');
+                document.getElementById("localizationAccuracy-mode").classList.remove('draggable-border-green');
                 $scope.localizationAccMode = false;
                 if (typeof(Storage) !== "undefined" && localStorage) {
                     localStorage.setItem('localizationAccMode', 'NO');
                 }
-                console.log("islah: x");
+
+            console.log("enabling button: err:3");
+            $('#LAButton').removeClass('disabled');
             }
         );
     };
@@ -2504,7 +2463,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         _NOW_ZOOM = GMapService.gmap.getZoom();
 
         if(_NOW_ZOOM!==_MAX_ZOOM_LEVEL){
-
             var i = fingerPrintsMap.length;
 
             //hide fingerPrints
@@ -2514,7 +2472,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             }
             fingerPrintsMap = [];
             if (GMapService.gmap.getMapTypeId() === 'my_custom_layer1' ) {
-                GMapService.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ;
+                GMapService.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
             } 
         }
 

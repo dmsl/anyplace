@@ -365,11 +365,11 @@ contextmenu {
 
 }
 
-#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
+#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccuracy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
     padding: 0px;
 }
 
-#radioHeatmapRSS-mode-btn, #APs-mode-btn, #fingerPrints-mode-btn, #localizationAccurancy-mode-btn,#connections-mode-btn,#delete-mode-btn{
+#radioHeatmapRSS-mode-btn, #APs-mode-btn, #fingerPrints-mode-btn, #localizationAccuracy-mode-btn,#connections-mode-btn,#delete-mode-btn{
     height: 30px;
     width: 30px;
     outline-style: none;
