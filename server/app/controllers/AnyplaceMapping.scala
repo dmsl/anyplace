@@ -2936,13 +2936,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
-    // REVIEWLS use option for this
-    LPLogger.info("getAccesMap:" + 
-        Play.application().configuration().getString("crlbsDir") +
-        File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
-    val file_path=new File(
-        Play.application().configuration().getString("crlbsDir") +
-        File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt")
+    
     val folder=new File(
         Play.application().configuration().getString("crlbsDir") +
     File.separatorChar+buid)
@@ -2950,6 +2944,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("getAccesMap: mkdir: " + folder.getCanonicalPath)
       folder.mkdirs()
     }
+
+    // REVIEWLS use option for this
+    
+    var crlb_filename=Play.application().configuration().getString("crlbsDir") +
+        File.separatorChar+buid+File.separator+buid+"_"+floor_number+".txt"
+    LPLogger.info("getAccesMap:" + crlb_filename)
+
 
     val hm = rm.getGroupLocationRSS_HashMap()
     val keys = hm.keySet()
@@ -2980,7 +2981,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): fingerprints, APs: "
       + n.toString + ", " + m.toString)
 
-    LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): multipoint: " + multipoint.toGeoJSON().toString)
+    //LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): multipoint: " + multipoint.toGeoJSON().toString)
 
     val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
     val floor = floors.filter((js: JsonObject) => js.getString("floor_number") == floor_number)(0)
@@ -3006,6 +3007,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       cut_k_features = cut_k_features
     )
 
+    val file_path=new File(crlb_filename)
     // CLRLS
     //    if (!Files.exists(Paths.get(file_path))) {
     //   acces.fit_gpr(estimate = true, use_default_params = false)
@@ -3016,7 +3018,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
-
 
     if (file_path.exists()) {
       val crl= Source.fromFile(file_path).getLines.toArray
@@ -3034,10 +3035,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       return (latlon_predict, crlbs)
     } else {
+        LPLogger.info("creating:" + crlb_filename)
       acces.fit_gpr(estimate = true, use_default_params = false)
 
       val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
 
+      //
       val file_io = new PrintWriter(file_path)
       for (i <- 0 until crlbs.length) {
         file_io.println(crlbs(i))
