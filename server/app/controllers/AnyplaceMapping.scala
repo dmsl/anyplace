@@ -2896,6 +2896,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           } else {
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
+            if (latlon_predict.isEmpty) {
+                return AnyResponseHelper.bad_request("Generating ACCES map!")
+            }
 
             val res = JsonObject.empty()
             res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
@@ -2943,8 +2946,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     if (!folder.exists()) {
         LPLogger.info("getAccesMap: mkdir: " + folder.getCanonicalPath)
         folder.mkdirs()
-        folder.setWritable(true, false)
-        folder.setReadable(true, false)
+        // folder.setWritable(true, false) CLR check without permissions
+        // folder.setReadable(true, false)
     }
 
     // REVIEWLS use option for this
@@ -2953,6 +2956,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
     LPLogger.info("getAccesMap:" + crlb_filename)
 
+    val file_path=new File(crlb_filename)
+    val file_lock =new File(crlb_filename+".lock")
+
+    if (file_lock.exists()) {
+        LPLogger.info("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
+         // CHECK throw exception?
+         // throw new Exception("Error while creating Radio Map on-the-fly!")
+         return
+    }
 
     val hm = rm.getGroupLocationRSS_HashMap()
     val keys = hm.keySet()
@@ -2962,11 +2974,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
     val m = rm.getMacAdressList().size()
     for (key <- keys) {
-      val lrhm = hm.get(key)
       for (loc: String <- lrhm.keySet()) {
         val rss: util.List[String] = lrhm.get(loc)
         val rss_vec = DenseVector.zeros[Double](m)
         for (i <- 0 until rss.size()) {
+      val lrhm = hm.get(key)
           rss_vec(i) = rss.get(i).toDouble
         }
         val slat_slon = loc.split(" ")
@@ -3009,7 +3021,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       cut_k_features = cut_k_features
     )
 
-    val file_path=new File(crlb_filename)
+    
     // CLRLS
     //    if (!Files.exists(Paths.get(file_path))) {
     //   acces.fit_gpr(estimate = true, use_default_params = false)
@@ -3022,41 +3034,43 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
 
     if (file_path.exists()) {
-      val crl= Source.fromFile(file_path).getLines.toArray
-      var crlbs = DenseVector.zeros[Double](crl.length)
+        val crl= Source.fromFile(file_path).getLines.toArray
+        var crlbs = DenseVector.zeros[Double](crl.length)
 
-      // CLRLS
-      // acces.fit_gpr(estimate = true, use_default_params = false)
-      // println("crl",crl.length);
+        // CLRLS
+        // acces.fit_gpr(estimate = true, use_default_params = false)
+        // println("crl",crl.length);
 
-      for (k<-0 until crlbs.length){
-          crlbs(k)=crl(k).toDouble
-      }
-      val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
-          GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+        for (k<-0 until crlbs.length){
+            crlbs(k)=crl(k).toDouble
+        }
+        val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+            GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 
-      return (latlon_predict, crlbs)
+        return (latlon_predict, crlbs)
     } else {
+        file_lock.createNewFile();
         LPLogger.info("creating:" + crlb_filename)
-      acces.fit_gpr(estimate = true, use_default_params = false)
+        acces.fit_gpr(estimate = true, use_default_params = false)
 
-      val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+        val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
 
         LPLogger.info("length:" + crlbs.length)
 
-      //
-      val file_io = new PrintWriter(file_path)
-      for (i <- 0 until crlbs.length) {
-        file_io.println(crlbs(i))
-      }
+        //
+        val file_io = new PrintWriter(file_path)
+        for (i <- 0 until crlbs.length) {
+            file_io.println(crlbs(i))
+        }
 
-      file_io.close()
+        file_io.close()
+        file_lock.delete()
 
-        LPLogger.info("creating:" + crlb_filename + "DONE!")
-      val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
-        GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+        LPLogger.info("Created ACCES:" + crlb_filename + "DONE!")
+        val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+            GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 
-      return (latlon_predict, crlbs)
+        return (latlon_predict, crlbs)
     }
   }
 
