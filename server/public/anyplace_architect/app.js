@@ -426,10 +426,16 @@ app.filter('propsFilter', function () {
 
                 var keys = Object.keys(props);
                 for (var i = 0; i < keys.length; i++) {
-                    var prop = keys[i];
+                  var prop = keys[i];
+                  if(prop == null || item[prop] == null) {
+                    // BUG
+                    console.log("BUG: item[prop]==null;");
+                    // console.log("prop:" + prop);
+                    // console.log("item:" + item);
+                    // console.log("keys:" + keys);
+                    continue;
+                  }
                     var text = props[prop].toLowerCase();
-                    console.log("PROP: ");
-                    console.log("PROP: " + prop);
                     if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
                         itemMatches = true;
                         break;

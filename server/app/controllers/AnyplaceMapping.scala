@@ -2896,8 +2896,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           } else {
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
-            if (latlon_predict.isEmpty) {
-                return AnyResponseHelper.bad_request("Generating ACCES map!")
+            if (latlon_predict == null) {
+                return AnyResponseHelper.bad_request("Generating ACCES map in another background thread!")
             }
 
             val res = JsonObject.empty()
@@ -2963,7 +2963,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
          // CHECK throw exception?
          // throw new Exception("Error while creating Radio Map on-the-fly!")
-         return
+        return (null, null)
     }
 
     val hm = rm.getGroupLocationRSS_HashMap()
@@ -2974,11 +2974,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
     val m = rm.getMacAdressList().size()
     for (key <- keys) {
+      val lrhm = hm.get(key)
       for (loc: String <- lrhm.keySet()) {
         val rss: util.List[String] = lrhm.get(loc)
         val rss_vec = DenseVector.zeros[Double](m)
         for (i <- 0 until rss.size()) {
-      val lrhm = hm.get(key)
           rss_vec(i) = rss.get(i).toDouble
         }
         val slat_slon = loc.split(" ")

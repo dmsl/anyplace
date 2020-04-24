@@ -8,7 +8,8 @@
         "grunt-contrib-cssmin": "~3.0.0",
         "grunt-contrib-imagemin": "^3.1.0",
         "grunt-contrib-uglify": "~4.0.1",
-        "grunt-contrib-watch": "~1.1.0"
+        "grunt-contrib-watch": "~1.1.0",
+        "gulp-uglify-es": "^2.0.0"
     },
     "dependencies": {
         "bower": "^1.8.8"

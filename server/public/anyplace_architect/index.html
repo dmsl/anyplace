@@ -942,9 +942,10 @@
                                     <a data-toggle="modal" data-target="#myModal_3">read more...</a>
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
-                                    <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccuracy()" >
-                                        {{getLocalizationAccuracyText()}}
-                                    </button>
+                                  <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccuracy()" >
+                                    {{getLocalizationAccuracyText()}}
+                                    <i id="LAButtonProgress" class="fa fa-circle-o-notch fa-spin hidden"></i>
+                                  </button>
                                         <button id="LAButton1" class="btn btn-success" ng-click="deleteRadiomaps()" >
                                             Delete Radiomap
                                         </button>

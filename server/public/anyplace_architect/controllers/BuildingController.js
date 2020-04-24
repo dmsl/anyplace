@@ -395,12 +395,18 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                 // _suc('Successfully fetched buildings.');
             },
-            function (resp) {
-                // on error
-                var data = resp.data;
-                // TODO provide here more info, if on develop
-                _err('Something went wrong while fetching buildings.');
+          function (resp) {
+            // on error
+            var data = resp.data;
+            var msg = "Something went wrong while fetching buildings.";
+            if (data["message"] != null) {
+              // custom message from server
+              msg = data["message"];
+              console.log("ERROR: " + msg);
             }
+            // TODO provide here more info, if on develop
+            _err(msg);
+          }
         );
     };
 

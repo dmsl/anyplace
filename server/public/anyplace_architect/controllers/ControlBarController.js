@@ -104,6 +104,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     window.onSignInFailure = $scope.onSignInFailure;
 
     $scope.personLookUp = function (resp) {
+        // BUG: resp.getBasicProfile is not a function
         $scope.person = resp.getBasicProfile();
         $scope.person.image = $scope.person.getImageUrl();
         $scope.person.id = $scope.person.getId();
