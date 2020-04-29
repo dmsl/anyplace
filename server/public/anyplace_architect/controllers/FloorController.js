@@ -179,12 +179,11 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
                 _setNextFloor();
 
-//                _suc("Successfully fetched all floors.");
+//                _suc($scope, "Successfully fetched all floors.");
 
             },
             function (resp) {
-                console.log(resp.data.message);
-                _err("Something went wrong while fetching all floors");
+              ShowError($scope, resp, ERR_FETCH_ALL_FLOORS, true);
             }
         );
 
@@ -244,13 +243,9 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                     new google.maps.LatLng(fl.top_right_lat, fl.top_right_lng));
 
                 $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, "data:image/png;base64," + data, GMapService.gmap);
-
-                // TODO: alert success
             },
             function (resp) {
-                // on error
-                console.log('error downloading floor plan');
-                // TODO: alert failure
+              ShowWarningAutohide($scope, resp, "Error downloading floor plan");
             }
         );
     };
@@ -288,13 +283,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         }
 
         if (GMapService.gmap.getZoom() < 20) {
-            _err("You have provided zoom level " + GMapService.gmap.getZoom() + ". You have to zoom at least to level 20 to upload the floorplan.");
+            _err($scope, "You have provided zoom level " + GMapService.gmap.getZoom() + ". You have to zoom at least to level 20 to upload the floorplan.");
             return;
         }
 
         if (AnyplaceService.getBuildingId() === null || AnyplaceService.getBuildingId() === undefined) {
             console.log('building is undefined');
-            _err("Something went wrong. It seems like there is no building selected");
+            _err($scope, "Something went wrong. It seems like there is no building selected");
         }
 
         var newFl = {
@@ -377,7 +372,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         obj.owner_id = $scope.owner_id;
 
         if (!obj.owner_id) {
-            _err("Could not authorize user. Please refresh.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
 
@@ -392,15 +387,14 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
                 $scope.anyService.selectedFloor = $scope.xFloors[$scope.xFloors.length - 1];
 
-                _suc("Successfully added new floor");
+                _suc($scope, "Successfully added new floor");
 
                 $scope.uploadFloorPlanBase64(selectedBuilding, obj, flData);
 
             },
             function (resp) {
-                var data = resp.data;
-                console.log(data.message);
-                _err("Something went wrong while adding a new floor.");
+              ShowError($scope, resp,
+                "Something went wrong while adding a new floor.", true);
             }
         );
 
@@ -432,7 +426,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         var bobj = $scope.anyService.getFloor();
 
         if (LPUtils.isNullOrUndefined(bobj) || LPUtils.isStringBlankNullUndefined(bobj.floor_number) || LPUtils.isStringBlankNullUndefined(bobj.buid)) {
-            _err("No floor seems to be selected.");
+            _err($scope, "No floor seems to be selected.");
             return;
         }
 
@@ -471,12 +465,10 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                     $scope.anyService.selectedFloor = undefined;
                 }
 
-                _suc("Successfully deleted floor.");
+                _suc($scope, "Successfully deleted floor.");
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong while deleting the floor.");
+              ShowError($scope, resp, "Something went wrong while deleting the floor.", true);
             }
         );
     };
@@ -516,7 +508,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             || LPUtils.isStringBlankNullUndefined(bobj.top_right_lng)) {
 
             console.log('error with floor coords');
-            _err("Something went wrong. It seems like no valid coordinates have been set up for this floor plan.");
+            _err($scope, "Something went wrong. It seems like no valid coordinates have been set up for this floor plan.");
             return;
         }
 
@@ -534,12 +526,12 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             if (!LPUtils.isNullOrUndefined(sb.buid)) {
                 bobj.buid = sb.buid;
             } else {
-                _err("Something went wrong with the selected building's id.");
+                _err($scope, "Something went wrong with the selected building's id.");
                 return;
             }
         } else {
             // no building selected
-            _err("Something went wrong. It seems like there is no building selected.");
+            _err($scope, "Something went wrong. It seems like there is no building selected.");
             return;
         }
 
@@ -547,12 +539,12 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             if (!LPUtils.isNullOrUndefined(sf.floor_number)) {
                 bobj.floor_number = sf.floor_number;
             } else {
-                _err("Something went wrong. It seems there is no floor number associated with the selected floor.");
+                _err($scope, "Something went wrong. It seems there is no floor number associated with the selected floor.");
                 return;
             }
         } else {
             // no floor selected
-            _err("Something went wrong. It seems there is no floor selected.");
+            _err($scope, "Something went wrong. It seems there is no floor selected.");
             return;
         }
 
@@ -573,13 +565,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             function (resp) {
                 // on success
                 var data = resp.data;
-                _suc("Successfully uploaded new floor plan.");
+                _suc($scope, "Successfully uploaded new floor plan.");
             },
             function (resp) {
                 // on error
                 var data = resp.data;
                 //TODO: alert error
-                _suc("Successfully uploaded new floor plan.");
+                _suc($scope, "Successfully uploaded new floor plan.");
             });
 
     };
@@ -617,7 +609,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 var i = resp.data.radioPoints.length;
 
                 if (i <= 0) {
-                    _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
                     return;
                 }
 
@@ -639,9 +631,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 heatmap.setMap($scope.gmapService.gmap);
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching radio heatmap.');
+                ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
             }
         );
     }
@@ -663,7 +653,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 var i = resp.data.radioPoints.length;
 
                 if (i <= 0) {
-                    _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
                     return;
                 }
 
@@ -687,7 +677,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             function (resp) {
                 // on error
                 var data = resp.data;
-                _err('Something went wrong while fetching radio heatmap.');
+                ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
             }
         );
     }

@@ -7,9 +7,10 @@ module.exports = function (grunt) {
         concat: {
             js: {
                 src: [
-                    'app.js',
-                    'scripts/*.js',
-                    'controllers/*.js'
+                  'app.js',
+                  '../js/shared.js',
+                  'scripts/*.js',
+                  'controllers/*.js'
                 ],
                 dest: 'build/js/anyplace.js'
             },
@@ -53,7 +54,7 @@ module.exports = function (grunt) {
 
         watch: {
             js: {
-                files: ['app.js', 'scripts/*.js', 'controllers/*.js'],
+                files: ['app.js', '../js/shared.js', 'scripts/*.js', 'controllers/*.js'],
                 tasks: ['concat:js', 'uglify'],
                 options: {
                     spawn: false

@@ -73,7 +73,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         AnyResponseHelper.ok(doc, "Successfully fetched building information!")
       } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
       }
   }
 
@@ -99,7 +99,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         doc.removeKey("owner_id")
         AnyResponseHelper.ok(doc, "Successfully fetched Poi information!")
       } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
       }
   }
 
@@ -148,7 +148,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         res.put("pois", points)
         AnyResponseHelper.ok(res, "Successfully plotted navigation.")
       } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
       }
   }
 
@@ -214,7 +214,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         result.put("pois", points)
         AnyResponseHelper.ok(result, "Successfully plotted navigation.")
       } catch {
-        case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
       }
   }
 

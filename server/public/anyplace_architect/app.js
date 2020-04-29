@@ -416,43 +416,48 @@ app.config(['$locationProvider', function ($location) {
     $location.html5Mode(true);
 }]);
 
-app.filter('propsFilter', function () {
-    return function (items, props) {
-        var out = [];
+//from: https://stackoverflow.com/a/57713216/776345
+app.filter('propsFilter', function() {
+  return function(items, props) {
+    var out = [];
 
-        if (angular.isArray(items)) {
-            items.forEach(function (item) {
-                var itemMatches = false;
+    if (angular.isArray(items)) {
+      var keys = Object.keys(props);
+      var propCache = {};
 
-                var keys = Object.keys(props);
-                for (var i = 0; i < keys.length; i++) {
-                  var prop = keys[i];
-                  if(prop == null || item[prop] == null) {
-                    // BUG
-                    console.log("BUG: item[prop]==null;");
-                    // console.log("prop:" + prop);
-                    // console.log("item:" + item);
-                    // console.log("keys:" + keys);
-                    continue;
-                  }
-                    var text = props[prop].toLowerCase();
-                    if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-                        itemMatches = true;
-                        break;
-                    }
-                }
+      for (var i = 0; i < keys.length; i++) {
+        var prop = keys[i];
+        var text = props[prop].toLowerCase();
+        propCache[props[prop]] = text;
+      }
 
-                if (itemMatches) {
-                    out.push(item);
-                }
-            });
-        } else {
-            // Let the output be the input untouched
-            out = items;
+      items.forEach(function(item) {
+        var itemMatches = false;
+
+        for (var i = 0; i < keys.length; i++) {
+          var prop = keys[i];
+          var text = propCache[props[prop]];
+          // BUG: not sure what is this for. It doesn't work.
+          if(prop == null || item[prop] == null) {
+            continue;
+          }
+          if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+            itemMatches = true;
+            break;
+          }
         }
 
-        return out;
+        if (itemMatches) {
+          out.push(item);
+        }
+      });
+    } else {
+      // Let the output be the input untouched
+      out = items;
     }
+
+    return out;
+  };
 });
 
 app.factory('myInterceptor', [function () {

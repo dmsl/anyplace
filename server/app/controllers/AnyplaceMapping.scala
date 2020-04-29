@@ -127,9 +127,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           val res = JsonObject.empty()
           res.put("radioPoints", (radioPoints))
-          return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          return AnyResponseHelper.ok(res, "Successfully retrieved all radio points.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -159,7 +159,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -189,7 +189,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -219,7 +219,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -250,7 +250,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -280,7 +280,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -322,7 +322,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -360,7 +360,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
         }
       }
 
@@ -415,7 +415,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -452,7 +452,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -487,7 +487,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -558,7 +558,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -655,7 +655,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all id for Access Points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -712,7 +712,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -772,7 +772,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -815,7 +815,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -968,7 +968,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -987,7 +987,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.deleteRadiosInBox()) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
           return AnyResponseHelper.ok("Success")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1021,7 +1021,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           res.put("buid", building.getId)
           return AnyResponseHelper.ok(res, "Successfully added building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1052,7 +1052,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.appendCoOwners(json))) return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1084,7 +1084,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.changeOwner(newOwner))) return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1126,7 +1126,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1154,7 +1154,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
@@ -1166,14 +1166,14 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               " items.")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val filePath = AnyPlaceTilerHelper.getRootFloorPlansDirFor(buid)
         try {
           val buidfile = new File(filePath)
           if (buidfile.exists()) HelperMethods.recDeleteDirFile(buidfile)
         } catch {
-          case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plans." +
+          case e: IOException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "] while deleting floor plans." +
             "\nAll related information is deleted from the database!")
         }
         return AnyResponseHelper.ok("Successfully deleted everything related to building!")
@@ -1203,7 +1203,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1211,7 +1211,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   def echo = Action { implicit request =>
-    var response = Ok("Got request [" + request + "]")
+    var response = Ok("Got request [" + request)
     response
   }
 
@@ -1247,7 +1247,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
           return AnyResponseHelper.not_found("Building not found.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1279,7 +1279,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1310,7 +1310,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1345,7 +1345,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings near your position!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1407,7 +1407,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1460,7 +1460,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1509,7 +1509,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.ok("Successfully updated campus!")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1558,7 +1558,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1597,10 +1597,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!isCampusOwner(stored_campus, owner_id))
             return AnyResponseHelper.unauthorized("Unauthorized")
           if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid))
-            return AnyResponseHelper.internal_server_error("Server Internal Error while trying to delete Campus")
+            return AnyResponseHelper.internal_server_error("500: Failed to delete Campus")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         return AnyResponseHelper.ok("Successfully deleted everything related to building!")
       }
@@ -1638,7 +1638,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val floor_number = (json \ "floor_number").as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
@@ -1647,7 +1647,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.addJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor already exists or could not be added!")
           return AnyResponseHelper.ok("Successfully added floor " + floor_number + "!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1674,7 +1674,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val floor_number = (json \ "fllor_number").as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
@@ -1689,7 +1689,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor could not be updated!")
           return AnyResponseHelper.ok("Successfully updated floor!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1743,7 +1743,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
@@ -1755,7 +1755,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               " items.")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
         try {
@@ -1766,7 +1766,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
            */
           if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile())
         } catch {
-          case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plan." +
+          case e: IOException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "] while deleting floor plan." +
             "\nAll related information is deleted from the database!")
         }
         return AnyResponseHelper.ok("Successfully deleted everything related to the floor!")
@@ -1795,7 +1795,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all floors!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1824,7 +1824,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val poi = new Poi(JsonObject.fromJson(json.toString()))
@@ -1833,7 +1833,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           res.put("puid", poi.getId)
           return AnyResponseHelper.ok(res, "Successfully added poi!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1879,7 +1879,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.ok(res, "Successfully added Pois Category!")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1907,7 +1907,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val stored_poi = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid)
@@ -1935,7 +1935,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Poi could not be updated!")
           return AnyResponseHelper.ok("Successfully updated poi!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1963,7 +1963,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByPoi(puid)
@@ -1976,7 +1976,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
           return AnyResponseHelper.ok("Successfully deleted everything related to the poi!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -2006,7 +2006,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               "!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2034,7 +2034,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2077,7 +2077,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2116,7 +2116,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2163,7 +2163,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2196,7 +2196,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val edge_type = (json \ "edge_type").as[String]
         if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
@@ -2216,7 +2216,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           res.put("cuid", conn.getId)
           return AnyResponseHelper.ok(res, "Successfully added new connection!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2249,7 +2249,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val pois_a = (json \ "pois_a").as[String]
@@ -2273,7 +2273,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Connection could not be updated!")
           return AnyResponseHelper.ok("Successfully updated connection!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2306,7 +2306,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val pois_a = (json \ "pois_a").as[String]
         val pois_b = (json \ "pois_b").as[String]
@@ -2326,7 +2326,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
           return AnyResponseHelper.ok("Successfully deleted everything related to the connection!")
         } catch {
-          case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2357,7 +2357,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               "!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2402,7 +2402,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2709,7 +2709,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
-        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        LPLogger.info("Successfully tiled: " + floor_file.toString)
         return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
 
@@ -2777,7 +2777,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
-        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        LPLogger.info("Successfully tiled: " + floor_file.toString)
         return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
 
@@ -2807,7 +2807,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           return AnyResponseHelper.ok("New user.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2907,10 +2907,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           case e: IOException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
-          case e: Exception => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-          case _: Throwable => return AnyResponseHelper.internal_server_error("Server Internal Error [" + "]")
+          case e: Exception => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case _: Throwable => return AnyResponseHelper.internal_server_error("500: ")
         }
       }
       inner(request)
@@ -2928,7 +2928,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.deleteNotValidDocuments()) return AnyResponseHelper.bad_request("None valid documents!")
           return AnyResponseHelper.ok("Success")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
       inner(request)

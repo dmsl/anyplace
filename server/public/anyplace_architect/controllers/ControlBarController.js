@@ -302,24 +302,24 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
                 function (err) {
                     $scope.$apply(function () {
                         if (err.code == 1) {
-                            _err("Permission denied. Anyplace was not able to retrieve your Geolocation.")
+                            _err($scope, "Permission denied. Anyplace was not able to retrieve your Geolocation.")
                         } else if (err.code == 2) {
-                            _err("Position unavailable. The network is down or the positioning satellites couldn't be contacted.")
+                            _err($scope, "Position unavailable. The network is down or the positioning satellites couldn't be contacted.")
                         } else if (err.code == 3) {
-                            _err("Timeout. The request for retrieving your Geolocation was timed out.")
+                            _err($scope, "Timeout. The request for retrieving your Geolocation was timed out.")
                         } else {
-                            _err("There was an error while retrieving your Geolocation. Please try again.");
+                            _err($scope, "There was an error while retrieving your Geolocation. Please try again.");
                         }
                     });
                 });
         } else {
-            _err("The Geolocation feature is not supported by this browser.");
+            _err($scope, "The Geolocation feature is not supported by this browser.");
         }
     };
 
     $scope.centerViewToSelectedItem = function () {
         if ($scope.anyService.selectedBuilding == null || $scope.anyService.selectedBuilding == undefined) {
-            _err("You have to select a building first");
+            _err($scope, "You have to select a building first");
             return;
 
         }
@@ -331,7 +331,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             var b = $scope.anyService.selectedBuilding;
             position = {lat: parseFloat(b.coordinates_lat), lng: parseFloat(b.coordinates_lon)};
         } else {
-            _err("No building is selected.");
+            _err($scope, "No building is selected.");
             return;
         }
 

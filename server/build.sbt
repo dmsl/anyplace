@@ -33,7 +33,7 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
+// unmanagedResourceDirectories in Test +=  baseDirectory ( _ /"target/web/public/test" )
 
 javaOptions += "-Dfile.encoding=UTF-8"
 
@@ -41,11 +41,6 @@ javaOptions += "-Dfile.encoding=UTF-8"
 libraryDependencies += "io.razem" %% "scala-influxdb-client" % "0.6.2"
 
 // libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
-
-//Required for ACCES
-libraryDependencies += "com.github.danielkorzekwa" % "bayes-scala-gp_2.11" % "0.1-SNAPSHOT"
-
-resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies  ++= Seq(
   // other dependencies here
@@ -67,6 +62,4 @@ resolvers ++= Seq(
   "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
 )
 
-
 lazy val `anyplace` = (project in file(".")).enablePlugins(PlayScala)
-

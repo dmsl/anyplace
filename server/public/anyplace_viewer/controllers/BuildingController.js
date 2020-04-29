@@ -34,7 +34,9 @@
  *
  */
 
-app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
+app.controller('BuildingController',
+  ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService',
+  function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     $scope.gmapService = GMapService;
     $scope.anyService = AnyplaceService;
@@ -59,7 +61,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
             // Hide the building's marker for less clutter
             if (!newVal.buid) {
-                _err('Some information is missing from the building and it could not be loaded.');
+                _err($scope, "Some information is missing from the building and it could not be loaded.");
                 return;
             }
 
@@ -161,7 +163,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 $scope.anyService.selectedBuilding = b;
             },
             function (resp) {
-                _err("No matching building found");
+                _err($scope, "No matching building found");
             }
         )
 
@@ -273,9 +275,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 }
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching buildings.');
+              ShowError($scope, resp, ERR_FETCH_BUILDINGS);
             }
         );
     };
@@ -289,14 +289,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 delete $scope.myBuildingsHashT[b];
             }
         }
-    };
-
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
     };
 
     var _calcDistance = function (x1, y1, x2, y2) {

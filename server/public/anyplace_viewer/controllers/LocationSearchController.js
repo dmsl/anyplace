@@ -58,7 +58,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
             return $scope.myallPois;
         }
         // if (!$scope.userPosition) {
-        //  _info("Enabling the location service will improve your search results.");
+        //  _info($scope, "Enabling the location service will improve your search results.");
         //     $scope.showUserLocation();
         // }
 
@@ -91,9 +91,10 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
 
             },
             function (resp) {
-                var data = resp.data;
-                if (letters=="")
-                    _err("Something went wrong while fetching POIs");
+                if (letters=="") {
+                    ShowError($scope, resp,
+                      "Something went wrong while fetching POIs", true);
+                }
             }
         );
     };
@@ -114,7 +115,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
 
             // Hide the building's marker for less clutter
             if (!newVal.buid) {
-                _err('Some information is missing from the building and it could not be loaded.');
+                _err($scope, "Some information is missing from the building and it could not be loaded.");
                 return;
             }
 
@@ -216,7 +217,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
                 $scope.anyService.selectedBuilding = b;
             },
             function (resp) {
-                _err("No matching building found");
+                _err($scope, "No matching building found");
             }
         )
 
@@ -328,9 +329,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
                 }
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching buildings.');
+              ShowError($scope, resp, ERR_FETCH_BUILDINGS);
             }
         );
     };
@@ -346,22 +345,6 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
         }
     };
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
-    var _info = function (msg) {
-        $scope.anyService.addAlert('info', msg);
-        window.setTimeout(function() {
-            $(".alert-info").fadeTo(500, 0).slideUp(500, function(){
-                $(this).remove();
-            });
-        }, 4000);
-    };
 
     var _calcDistance = function (x1, y1, x2, y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));

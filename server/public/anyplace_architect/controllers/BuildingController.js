@@ -92,7 +92,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     $scope.setCrudTabSelected = function (n) {
         $scope.crudTabSelected = n;
         if (!$scope.anyService.getBuilding()) {
-            _err("No building is selected.");
+            _err($scope, "No building selected.");
             return;
         }
 
@@ -257,14 +257,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         }
     };
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
     var _latLngFromBuilding = function (b) {
         if (b && b.coordinates_lat && b.coordinates_lon) {
             return {
@@ -285,7 +277,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         jsonReq.owner_id = $scope.owner_id;
 
         if (!jsonReq.owner_id) {
-            _err("Could nor authorize user. Please refresh.1");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
         var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
@@ -295,8 +287,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.catTypes = data.poistypes;
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while fetching POIs types");
+              ShowError($scope, resp, "Something went wrong while fetching POIs types", true);
             }
         );
     };
@@ -309,7 +300,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         jsonReq.owner_id = $scope.owner_id;
 
         if (!jsonReq.owner_id) {
-            _err("Could nor authorize user. Please refresh.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
 
@@ -396,16 +387,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 // _suc('Successfully fetched buildings.');
             },
           function (resp) {
-            // on error
-            var data = resp.data;
-            var msg = "Something went wrong while fetching buildings.";
-            if (data["message"] != null) {
-              // custom message from server
-              msg = data["message"];
-              console.log("ERROR: " + msg);
-            }
-            // TODO provide here more info, if on develop
-            _err(msg);
+            ShowError($scope, resp, ERR_FETCH_BUILDINGS);
           }
         );
     };
@@ -420,7 +402,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             building.owner_id = $scope.owner_id;
 
             if (!building.owner_id) {
-                _err("Could not authorize user. Please refresh.");
+                _err($scope, ERR_USER_AUTH);
                 return;
             }
 
@@ -429,12 +411,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             building.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
 
             if (building.coordinates_lat === undefined || building.coordinates_lat === null) {
-                _err("Invalid building latitude.");
+                _err($scope, "Invalid building latitude.");
                 return;
             }
 
             if (building.coordinates_lon === undefined || building.coordinates_lon === null) {
-                _err("Invalid building longitude.");
+                _err($scope, "Invalid building longitude.");
                 return;
             }
 
@@ -482,19 +464,15 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                             $scope.myMarkers[id].infowindow.close();
                         }
 
-                        _suc("Building added successfully.");
+                        _suc($scope, "Building added successfully.");
 
                     },
                     function (resp) {
-                        // on error
-                        var data = resp.data;
-                        _err("Something went wrong while adding the building. " + data.message);
+                      ShowError($scope, resp, "Something went wrong while adding the building.", true);
                     }
                 );
-
-
             } else {
-                _err("Some required fields are missing.");
+                _err($scope, "Some required fields are missing.");
             }
         }
     };
@@ -506,14 +484,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var reqObj = $scope.creds;
 
         if (!$scope.owner_id) {
-            _err("Could not identify user. Please refresh and sign in again.");
+            _err($scope, "Could not identify user. Please refresh and sign in again.");
             return;
         }
 
         reqObj.owner_id = $scope.owner_id;
 
         if (!b || !b.buid) {
-            _err("No building selected for deletion.");
+            _err($scope, "No building selected for deletion.");
             return;
         }
 
@@ -547,12 +525,13 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                 $scope.setCrudTabSelected(1);
 
-                _suc("Successfully deleted building.");
+                _suc($scope, "Successfully deleted building.");
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong. It's likely that everything related to the building is deleted but please refresh to make sure or try again.");
+              ShowError($scope, resp,
+                "Something went wrong." +"" +
+                "It's likely that everything related to the building is deleted " +
+                "but please refresh to make sure or try again.", true)
             }
         );
 
@@ -569,12 +548,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         promise.then(
             function (resp) {
-                _suc("Deleted radiomap floor")
+                _suc($scope, "Deleted radiomap floor")
             },
 
-            function (resp) {  // on error
-                var data = resp.data;
-                _err("ERROR: deleteRadiomaps: file does not exist.");
+            function (resp) {
+              ShowError($scope, resp, "deleteRadiomaps: file does not exist.", true);
             }
         );
     };
@@ -583,7 +561,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var b = $scope.anyService.getBuilding();
 
         if (LPUtils.isNullOrUndefined(b) || LPUtils.isNullOrUndefined(b.buid)) {
-            _err("No building selected found.");
+            _err($scope, "No selected building found.");
             return;
         }
 
@@ -592,7 +570,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         // from controlBarController
         reqObj = $scope.creds;
         if (!$scope.owner_id) {
-            _err("Could not identify user. Please refresh and sign in again.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
 
@@ -639,12 +617,10 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                     b.is_published = false;
                 }
 
-                _suc("Successfully updated building.")
+                _suc($scope, "Successfully updated building.")
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong while updating building. " + data.message);
+              ShowError($scope, resp, "Something went wrong while updating building.", true);
             }
         );
 
@@ -657,7 +633,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         jsonReq.owner_id = $scope.owner_id;
         $scope.myCampus = [];
         if (!jsonReq.owner_id) {
-            _err("Could nor authorize user. Please refresh.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
 
@@ -691,9 +667,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 }
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching buildings.');
+              ShowError($scope, resp, ERR_FETCH_BUILDINGS);
             }
         );
     };
@@ -702,7 +676,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var b = $scope.anyService.getCampus();
 
         if (LPUtils.isNullOrUndefined(b) || LPUtils.isNullOrUndefined(b.cuid)) {
-            _err("No campus selected found.");
+            _err($scope, "No selected campus found.");
             return;
         }
 
@@ -711,7 +685,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         // from controlBarController
         reqObj = $scope.creds;
         if (!$scope.owner_id) {
-            _err("Could not identify user. Please refresh and sign in again.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
 
@@ -734,7 +708,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var sz = $scope.example9modeledit.length;
 
         if (sz == 0) {
-            _err("No buildings selected.");
+            _err($scope, "No buildings selected.");
             return;
         }
         var buids = "\"buids\":[";
@@ -754,12 +728,10 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 // on success
                 var data = resp.data;
                 document.getElementById("CampusIDeditnew").value = "";
-                _suc("Successfully updated campus.")
+                _suc($scope, "Successfully updated campus.")
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong while updating campus. " + data.message);
+              ShowError($scope, resp, "Something went wrong while updating campus.", true);
             }
         );
 
@@ -772,14 +744,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var reqObj = $scope.creds;
 
         if (!$scope.owner_id) {
-            _err("Could not identify user. Please refresh and sign in again.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
 
         reqObj.owner_id = $scope.owner_id;
 
         if (!b || !b.cuid) {
-            _err("No Campus selected for deletion.");
+            _err($scope, "No Campus selected for deletion.");
             return;
         }
 
@@ -813,12 +785,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                 $scope.setCrudTabSelected(1);
 
-                _suc("Successfully deleted campus.");
+                _suc($scope, "Successfully deleted campus.");
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong. It's likely that everything related to the campus is deleted but please refresh to make sure or try again.");
+              ShowError($scope, resp,
+                "Something went wrong. It's likely that everything related to " +
+                "the campus is deleted but please refresh to make sure or try again.", true)
             }
         );
 
@@ -844,7 +816,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var sz = $scope.example9model.length;
 
         if (sz == 0) {
-            _err("No buildings selected.");
+            _err($scope, "No buildings selected.");
             return;
         }
         var buids = "\"buids\":[";
@@ -867,7 +839,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 new_campus.cuid = data.cuid;
                 $scope.myCampus.push(new_campus);
                 $scope.anyService.selectedCampus = $scope.myCampus[$scope.myCampus.length - 1];
-                _suc("Successfully added campus.");
+                _suc($scope, "Successfully added campus.");
 
                 function S4() {
                     return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -878,9 +850,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong while adding the building. " + data.message);
+              ShowError($scope, resp, "Something went wrong while adding the building.", true);
             }
         );
 
@@ -1101,7 +1071,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                         count++;
                                         if (count === floors.length) {
                                             result.building.floors = resFloors;
-                                            _suc('Successfully exported ' + building.name + ' to JSON.');
+                                            _suc($scope, 'Successfully exported ' + building.name + ' to JSON.');
                                             var blob = new Blob([JSON.stringify(result, null, 4)], {type: "text/plain;charset=utf-8"});
                                             saveAs(blob, building.name.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                                         }
@@ -1155,7 +1125,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         result.campus.description = campus.description;
         result.campus.buids = campus.buids;
 
-        _suc('Successfully exported ' + campus.name + ' to JSON.');
+        _suc($scope, 'Successfully exported ' + campus.name + ' to JSON.');
 
         var blob = new Blob([JSON.stringify(result, null, 4)], {type: "text/plain;charset=utf-8"});
         saveAs(blob, campus.name.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
@@ -1184,7 +1154,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         $scope.anyService.progress = 0;
         var i, j, count = 0, countok = 0;
         if ($scope.fileToUpload == "") {
-            _err("Something went wrong no file selected");
+            _err($scope, "Something went wrong no file selected");
         }
         var obj = JSON.parse($scope.fileToUpload);
         for (i = 0; i < obj.building.floors.length; i++) {
@@ -1195,7 +1165,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             }
         }
         if (count == 0) {
-            _err("Something went wrong no pois to update");
+            _err($scope, "Something went wrong no pois to update");
         }
 
         for (i = 0; i < obj.building.floors.length; i++) {
@@ -1340,8 +1310,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.uploadloop(position, oJS, last_buid);
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while fetching POIs");
+              ShowError($scope, resp, "Something went wrong while fetching POIs", true);
             }
         );
     };
@@ -1375,7 +1344,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                     if ($scope.anyService.downloadlogfile) {
                         $scope.anyService.downloadlogfile = false;
-                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        _suc($scope, "Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                         saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                         setTimeout(function () {
@@ -1383,7 +1352,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         }, 2500);
                     }
                     else {
-                        _suc("Successfully updated POIs.");
+                        _suc($scope, "Successfully updated POIs.");
                         setTimeout(function () {
                             $scope.anyService.progress = undefined;
                             location.reload();
@@ -1402,7 +1371,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.anyService.downloadlogfile = true;
                 if ($scope.anyService.progress == 100) {
                     $scope.anyService.downloadlogfile = false;
-                    _suc("Successfully updated POIs.A log file will be downloaded");
+                    _suc($scope, "Successfully updated POIs.A log file will be downloaded");
                     var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                     saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                     $scope.logfile.pois = [];
@@ -1441,7 +1410,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.anyService.progress = countok / count * 100;
                 if ($scope.anyService.progress == 100) {
                     if ($scope.anyService.downloadlogfile) {
-                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        _suc($scope, "Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                         saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                         setTimeout(function () {
@@ -1449,7 +1418,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         }, 2500);
                     }
                     else {
-                        _suc("Successfully updated POIs.");
+                        _suc($scope, "Successfully updated POIs.");
                         setTimeout(function () {
                             $scope.anyService.progress = undefined;
                             location.reload();
@@ -1472,7 +1441,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 if ($scope.anyService.progress == 100) {
 
                     if ($scope.anyService.downloadlogfile) {
-                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        _suc($scope, "Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                         saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                         $scope.logfile.pois = [];
@@ -1481,7 +1450,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         }, 2500);
                     }
                     else {
-                        _suc("Successfully updated POIs.");
+                        _suc($scope, "Successfully updated POIs.");
                         setTimeout(function () {
                             $scope.anyService.progress = undefined;
                             location.reload();
@@ -1566,12 +1535,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 );
             },
             function (resp) {
-                console.log(resp.data.message);
-                _err("Something went wrong while fetching all floors");
+              ShowError($scope, resp, ERR_FETCH_ALL_FLOORS, true);
             }
         );
-
-
     }
 
     $scope.exportPoisBuildingToJson = function () {

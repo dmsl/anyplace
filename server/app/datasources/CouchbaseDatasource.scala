@@ -143,6 +143,7 @@ class CouchbaseDatasource private(hostname: String,
     //
     // val uris = new LinkedList[URI]()
     // uris.add(URI.create(mHostname + ":" + mPort + "/pools"))
+    val errMsg="Cannot connect to Couchbase"
     try {
       val env = DefaultCouchbaseEnvironment
         .builder()
@@ -153,12 +154,12 @@ class CouchbaseDatasource private(hostname: String,
 
       // Connects to a cluster on hostname if the other one does not respond during bootstrap.
       if (!mHostname.isEmpty) {
-          Logger.info("Couchbase: connecting to: " + mHostname + ":" + mPort + " bucket[" +
-              mBucket + "] password: " + mPassword)
+          LPLogger.info("Couchbase: connecting to: " + mHostname + ":" + mPort + " bucket[" +
+              mBucket + "]")
           mCluster = CouchbaseCluster.create(env, mHostname)
       } else if (!mClusterNodes.isEmpty) {
-          Logger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
-              mBucket + "] password: " + mPassword)
+          LPLogger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
+              mBucket + "]")
           mCluster = CouchbaseCluster.fromConnectionString(env, mClusterNodes);
       } else {
           throw new DatasourceException("Both single-node and multi-node couchbase configuration was empty!")
@@ -167,17 +168,14 @@ class CouchbaseDatasource private(hostname: String,
       mSecureBucket = mCluster.openBucket(mBucket, mPassword)
     } catch {
       case e: java.net.SocketTimeoutException =>
-        LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
-          e.getMessage)
-        throw new DatasourceException("Cannot connect to Anyplace Database [SocketTimeout]!")
+        LPLogger.error(errMsg + ": " +  e.getMessage)
+        throw new DatasourceException(errMsg + ": SocketTimeout")
       case e: IOException =>
-        LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
-          e.getMessage)
-        throw new DatasourceException("Cannot connect to Anyplace Database [IO]!")
+        LPLogger.error(errMsg + ": " + e.getMessage)
+        throw new DatasourceException(errMsg + ": IO")
       case e: Exception =>
-        LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
-          e.getMessage)
-        throw new DatasourceException("Cannot connect to Anyplace Database! [Unknown]")
+        LPLogger.error(errMsg + ": " + e.getMessage)
+        throw new DatasourceException(errMsg + ": " + e.getMessage)
     }
     true
   }

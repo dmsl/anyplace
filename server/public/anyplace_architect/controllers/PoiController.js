@@ -210,7 +210,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             });
         }
         else {
-            _err("Complete the last input to continue!");
+            _err($scope, "Complete the last input to continue!");
         }
     };
 
@@ -244,7 +244,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var sz = $scope.poicategories.length;
 
         if (sz == 0) {
-            _err("No categories added.");
+            _err($scope, "No categories added.");
             return;
         }
 
@@ -263,12 +263,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             function (resp) {
                 // on success
                 var data = resp.data;
-                _suc("Successfully added category.");
+                _suc($scope, "Successfully added category.");
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err("Something went wrong while adding the category. " + data.message);
+                ShowError($scope, resp, "Something went wrong while adding the category.", true);
             }
         );
 
@@ -288,7 +286,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         jsonReq.poistypeid = poistypeid;
 
         if (!jsonReq.owner_id) {
-            _err("Could nor authorize user. Please refresh.");
+            _err($scope, ERR_USER_AUTH);
             return;
         }
         var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
@@ -312,8 +310,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 }
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while fetching POIs types");
+                ShowError($scope, resp,"Something went wrong while fetching POIs types", true);
             }
         );
     };
@@ -371,12 +368,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             if (!LPUtils.isNullOrUndefined(sb.buid)) {
                 buid = $scope.anyService.getBuildingId();
             } else {
-                _err("No valid building has been selected!");
+                _err($scope, "No valid building has been selected!");
                 return;
             }
         } else {
             // no building selected
-            _err("No building has been selected!");
+            _err($scope, "No building has been selected!");
             return;
         }
 
@@ -385,11 +382,11 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             if (!LPUtils.isNullOrUndefined(sf.floor_number)) {
                 floor_number = $scope.anyService.getFloorNumber()
             } else {
-                _err("No valid floor has been selected!");
+                _err($scope, "No valid floor has been selected!");
                 return;
             }
         } else {
-            _err("No floor has been selected!");
+            _err($scope, "No floor has been selected!");
             return;
         }
 
@@ -397,11 +394,11 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         tobj.floor_number = floor_number;
 
         if (LPUtils.isNullOrUndefined($scope.myPois) || LPUtils.isNullOrUndefined($scope.myPoisHashT)) {
-            _err("Please load the POIs of this floor first.");
+            _err($scope, "Please load the POIs of this floor first.");
         }
 
         if ($scope.myPois.length == 0) {
-            // _err("This floor is empty.");
+            // _err($scope, "This floor is empty.");
             return;
         }
 
@@ -430,11 +427,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                 $scope.drawConnectionsOnMap();
 
-                //_suc("Connections were loaded successfully.");
+                //_suc($scope, "Connections were loaded successfully.");
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while loading the POI connections");
+                ShowError($scope, resp, "Something went wrong while loading the POI connections", true);
             }
         );
 
@@ -489,17 +485,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         return undefined;
     };
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
 
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
-    var _warn = function (msg) {
-        $scope.anyService.addAlert('warning', msg);
-    };
 
     var _isPoiNearFloor = function (coords) {
         var D = 0.001;
@@ -511,7 +497,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var floor = $scope.anyService.getFloor();
 
         if (LPUtils.isNullOrUndefined(floor)) {
-            _err("No selected floor found.");
+            _err($scope, "No selected floor found.");
             return false;
         }
 
@@ -523,7 +509,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var bottomLeftLng = floor.bottom_left_lng;
 
         if (!topRightLat || !topRightLng || !bottomLeftLat || !bottomLeftLng) {
-            _err("Floor coordinates not found.");
+            _err($scope, "Floor coordinates not found.");
             return false;
         }
 
@@ -695,7 +681,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                             var poiB = this.model;
 
                             if (!poiA || !poiB || !poiA.puid || !poiB.puid || !poiA.buid || !poiB.buid || LPUtils.isNullOrUndefined(poiA.floor_number) || LPUtils.isNullOrUndefined(poiB.floor_number)) {
-                                _err("One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
+                                _err($scope, "One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
                                 return;
                             }
 
@@ -747,8 +733,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                                 },
                                 function (resp) {
-                                    var data = resp.data;
-                                    _err("Something went wrong while attempting to connect the two POIs.");
+                                    ShowError($scope, resp,
+                                      "Something went wrong while attempting to connect the two POIs.",
+                                      true);
                                     flightPath.setMap(null);
                                 }
                             );
@@ -869,12 +856,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _deleteConnection = function (fp) {
 
         if (!$scope.edgeMode) {
-            _err("Enable \"Edge Mode\" so you can delete connections by clicking on them.");
+            _err($scope, "Enable \"Edge Mode\" so you can delete connections by clicking on them.");
             return;
         }
 
         if (!fp || !fp.model || !fp.model.cuid) {
-            _err("No valid connection selected.");
+            _err($scope, "No valid connection selected.");
             return;
         }
 
@@ -882,7 +869,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var cuid = fp.model.cuid;
 
         if (!$scope.myConnectionsHashT[cuid]) {
-            _err("The connection attempted to delete does not exist in the system.");
+            _err($scope, "The connection attempted to delete does not exist in the system.");
             return;
         }
 
@@ -893,10 +880,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         obj.owner_id = $scope.owner_id;
 
         if (LPUtils.isNullOrUndefined(obj.pois_a) || LPUtils.isStringBlankNullUndefined(obj.pois_a)) {
-            _err("No valid connection has been selected. Missing POI A.");
+            _err($scope, "No valid connection has been selected. Missing POI A.");
             return;
         } else if (LPUtils.isNullOrUndefined(obj.pois_b) || LPUtils.isStringBlankNullUndefined(obj.pois_b)) {
-            _err("No valid connection has been selected. Missing POI B.");
+            _err($scope, "No valid connection has been selected. Missing POI B.");
             return;
         }
 
@@ -918,10 +905,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 $scope.anyService.setAllConnection($scope.myConnectionsHashT);
             },
             function (resp) {
-                var data = resp.data;
                 fp.setMap(GMapService.gmap);
                 fp.model.polyLine = temp;
-                _err("Something went wrong. Connection could not be deleted.");
+                ShowError($scope, resp,
+                  "Something went wrong. Connection could not be deleted.", true);
             }
         );
 
@@ -965,11 +952,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 // draw the markers
                 $scope.drawPoisOnMap();
 
-                //_suc("Successfully fetched all POIs.");
+                //_suc($scope, "Successfully fetched all POIs.");
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while fetching POIs");
+                ShowError($scope, resp, "Something went wrong while fetching POIs", true);
             }
         );
     };
@@ -997,12 +983,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             poi.is_building_entrance = String(poi.is_building_entrance);
 
             if (poi.coordinates_lat === undefined || poi.coordinates_lat === null) {
-                _err("POI has invalid latitude format");
+                _err($scope, "POI has invalid latitude format");
                 return;
             }
 
             if (poi.coordinates_lon === undefined || poi.coordinates_lon === null) {
-                _err("POI has invalid longitude format");
+                _err($scope, "POI has invalid longitude format");
                 return;
             }
 
@@ -1103,7 +1089,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                     var poiB = this.model;
 
                                     if (!poiA || !poiB || !poiA.puid || !poiB.puid || !poiA.buid || !poiB.buid || LPUtils.isNullOrUndefined(poiA.floor_number) || LPUtils.isNullOrUndefined(poiB.floor_number)) {
-                                        _err("One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
+                                        _err($scope, "One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
                                         return;
                                     }
 
@@ -1155,8 +1141,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                                         },
                                         function (resp) {
-                                            var data = resp.data;
-                                            _err("Something went wrong while attempting to connect the two POIs.");
+                                            ShowError($scope, resp,
+                                              "Something went wrong while attempting to connect the two POIs.", true);
                                             flightPath.setMap(null);
                                         }
                                     );
@@ -1191,16 +1177,15 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         });
 
                         // Too spammy.
-                        //_suc("Successfully added new POI.");
+                        //_suc($scope, "Successfully added new POI.");
 
                     },
                     function (resp) {
-                        var data = resp.data;
-                        _err("Something went wrong while adding the new POI.");
+                        ShowError($scope, resp, "Something went wrong while adding the new POI.", true);
                     }
                 );
             } else {
-                _err("Cannot add new POI. Some required fields are missing.");
+                _err($scope, "Cannot add new POI. Some required fields are missing.");
             }
         }
     };
@@ -1215,12 +1200,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 bobj = $scope.myPoisHashT[$scope.myMarkers[id].model.puid];
 
                 if (!bobj || !bobj.model || !bobj.model.puid) {
-                    _err("No valid POI selected to be deleted.");
+                    _err($scope, "No valid POI selected to be deleted.");
                     return;
                 }
 
             } else {
-                _err("No valid POI selected to be deleted.");
+                _err($scope, "No valid POI selected to be deleted.");
                 return;
             }
         }
@@ -1233,7 +1218,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 cf = lf[cuid];
                 if (cf.pois_a == bobj.model.puid || cf.pois_b == bobj.model.puid) {
                     // abort deletion since there are connections to the pois
-                    _err("Please delete all the connections attached to this POI first.");
+                    _err($scope, "Please delete all the connections attached to this POI first.");
                     return;
                 }
             }
@@ -1282,7 +1267,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         break;
                     }
                 }
-                _suc("Successfully deleted POI.");
+                _suc($scope, "Successfully deleted POI.");
             },
             function (resp) {
                 // on error
@@ -1303,7 +1288,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     }
                 }
 
-                _err("Something went wrong while deleting POI.");
+                _err($scope, "Something went wrong while deleting POI.");
             });
 
     };
@@ -1317,12 +1302,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 bobj = $scope.myPoisHashT[$scope.myMarkers[id].model.puid];
 
                 if (!bobj || !bobj.model || !bobj.model.puid) {
-                    _err("No valid POI selected to be updated.");
+                    _err($scope, "No valid POI selected to be updated.");
                     return;
                 }
 
             } else {
-                _err("No valid POI selected to be updated.");
+                _err($scope, "No valid POI selected to be updated.");
                 return;
             }
         }
@@ -1388,12 +1373,11 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     }
                 }
 
-                //_suc("Successfully updated POI.");
+                //_suc($scope, "Successfully updated POI.");
             },
             function (resp) {
-                // error
-                var data = resp.data;
-                _err("Something went wrong while updating POI. Please refresh and try again.");
+                ShowError($scope, resp,
+                  "Something went wrong while updating POI. Please refresh and try again.", true);
             }
         );
     };
@@ -1457,9 +1441,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
             },
             function (resp) {
-                // error
-                var data = resp.data;
-                _err("Something went wrong while moving POI.");
+                ShowError($scope, resp, "Something went wrong while moving POI.", true);
             }
         );
     };
@@ -1469,7 +1451,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             $scope.myMarkers[id].marker.setMap(null);
             delete $scope.myMarkers[id];
         } else {
-            _err("It seems that the marker to be deleted does not exist.");
+            _err($scope, "It seems that the marker to be deleted does not exist.");
         }
     };
 
@@ -1489,7 +1471,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         });
 
         if (AnyplaceService.getBuildingId() === null || AnyplaceService.getBuildingId() === undefined) {
-            _err("It seems there is no building selected. Please refresh.");
+            _err($scope, "It seems there is no building selected. Please refresh.");
             return;
         }
 
@@ -1632,7 +1614,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
         google.maps.event.addListener(marker, 'click', function () {
             if ($scope.edgeMode) {
-                $scope.$apply(_warn("Only submitted objects can be connected together."));
+                $scope.$apply(_warn($scope, "Only submitted objects can be connected together."));
             }
             infowindow.open(GMapService.gmap, marker);
         });
@@ -1642,7 +1624,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.deleteTempPoi = function (i) {
         if (!$scope.myMarkers || !$scope.myMarkers[i].marker) {
-            _err("No valid POI marker to delete found.");
+            _err($scope, "No valid POI marker to delete found.");
             return;
         }
         $scope.myMarkers[i].marker.setMap(null);
@@ -1661,7 +1643,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             var point = new google.maps.Point(e.pageX, e.pageY);
             var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
             if (!_isPoiNearFloor(ll)) {
-                $scope.$apply(_warn("The marker was placed too far away from the selected building."));
+                $scope.$apply(_warn($scope, "The marker was placed too far away from the selected building."));
                 return;
             }
             $scope.placeMarker(ll, _POI_NEW_IMG, new google.maps.Size(21, 32), 'poi');
@@ -1674,7 +1656,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             var point = new google.maps.Point(e.pageX, e.pageY);
             var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
             if (!_isPoiNearFloor(ll)) {
-                $scope.$apply(_warn("The marker was placed too far away from the selected building."));
+                $scope.$apply(_warn($scope, "The marker was placed too far away from the selected building."));
                 return;
             }
             $scope.placeMarker(ll, _POI_CONNECTOR_IMG, new google.maps.Size(21, 21), 'connector');
