@@ -1,5 +1,7 @@
 root = true
 
+# Scala sources mostly have 2-space identation, but it was not consistent.
+# This will eventually enforce it to the whole project.
 [*.scala]
 charset = utf-8
 end_of_line = lf
