@@ -36,9 +36,7 @@ We hope that you find our Anyplace Indoor Information Service useful for your re
 - University of Pittsburgh (USA)
 - University of Mannheim (Germany)
 
-All rights reserved.
-	
-## Components 
+# Components 
 
 ### A. Server:
 
