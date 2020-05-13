@@ -46,6 +46,7 @@
 ERR_FETCH_BUILDINGS="Something went wrong while fetching buildings.";
 ERR_FETCH_ALL_FLOORS="Something went wrong while fetching all floors.";
 ERR_USER_AUTH="Could not authorize user. Please refresh.";
+ERR_FETCH_FINGERPRINTS="Something went wrong while fetching fingerPrints.";
 WARN_NO_FINGERPRINTS="This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.";
 WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
 

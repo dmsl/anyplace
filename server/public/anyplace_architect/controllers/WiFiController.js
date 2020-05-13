@@ -1719,7 +1719,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                 localStorage.setItem('radioHeatmapRSSMode', 'NO');
                             }
                         } else {
-                            _err($scope, "No fingerprints at this period.\n Please choose another one.");
+                            _warn_autohide($scope, "No fingerprints at this period.\n Please choose another one.");
                         }
                         return;
                     }
@@ -2013,7 +2013,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 initializeTimeFunction();
             },
             function (resp) {
-                ShowError($scope, resp, "Something went wrong while fetching fingerPrints timestamp.", true);
+                ShowError($scope, resp, ERR_FETCH_FINGERPRINTS + ": timestamp.", true);
             }
         );
 
@@ -2110,8 +2110,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                                 },
                                 function (resp) {
-                                    ShowError($scope, resp,
-                                      "Something went wrong while fetching fingerPrints.", true);
+                                    ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                                     if (!$scope.fingerPrintsMode) {
                                         document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                                         $scope.fingerPrintsMode = false;
@@ -2215,8 +2214,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                             },
                             function (resp) {
-                                ShowError($scope, resp,
-                                  "Something went wrong while fetching fingerPrints.", true);
+                                ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                                 if (!$scope.fingerPrintsMode) {
                                     document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                                     $scope.fingerPrintsMode = false;
@@ -2271,7 +2269,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     }
 
                 } else {
-                    _err($scope, "No fingerprints at this period.\n Please choose another one.");
+                    _warn_autohide($scope, "No fingerprints at this period.\n Please choose another one.");
                 }
                 return;
             }
@@ -2348,8 +2346,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
         },
             function (resp) {
-            ShowError($scope, resp,
-              "Something went wrong while fetching fingerPrints.", true);
+            ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
             if (!$scope.fingerPrintsMode) {
                 document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                 $scope.fingerPrintsMode = false;
