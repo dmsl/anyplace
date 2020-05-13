@@ -43,32 +43,27 @@ import play.Logger
 // TODO rename to APLogger
 object LPLogger {
 
-    def _date () = {
-        val date_format = "dd/MM/YY HH:mm:ss";
-        new SimpleDateFormat(date_format).format(new Date)
-    }
-
     def error(tag: String, message: String, e: Exception) {
-        Logger.error(String.format(_date + " | %s: %s [%s]", tag, message, e.getMessage), e)
+        Logger.error(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
     }
 
     def error(message: String) {
-        Logger.error(String.format(_date + " | %s", message))
+        Logger.error(String.format("%s", message))
     }
 
     def info(tag: String, message: String, e: Exception) {
-        Logger.info(String.format(_date + " | %s: %s [%s]", tag, message, e.getMessage), e)
+        Logger.info(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
     }
 
     def info(message: String) {
-        Logger.info(String.format(_date + " | %s", message))
+        Logger.info(String.format("%s", message))
     }
 
     def debug(tag: String, message: String, e: Exception) {
-        Logger.debug(String.format(_date + " | %s: %s [%s]", tag, message, e.getMessage), e)
+        Logger.debug(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
     }
 
     def debug(message: String) {
-        Logger.debug(String.format(_date + " | %s", message))
+        Logger.debug(String.format("%s", message))
     }
 }

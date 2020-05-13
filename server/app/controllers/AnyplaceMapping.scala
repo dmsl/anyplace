@@ -37,6 +37,7 @@ package controllers
 
 import java.io._
 import java.net.{HttpURLConnection, URL}
+import java.nio.file.attribute.FileTime
 import java.text.{NumberFormat, ParseException}
 import java.util
 import java.util.Locale
@@ -60,20 +61,23 @@ import utils._
 
 import scala.util.control.Breaks
 import play.api.libs.json.Reads._
-
-import play.api.libs.json._ 
+import play.api.libs.json._
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
-
 import scala.io.Source
-import java.nio.file.{Paths, Files}
-// import controllers.AnyplacePosition CLRLS
+import java.nio.file.{Files, Paths}
+import java.time.Instant
+import java.nio.file._
+import java.time._
+import java.time.temporal.{ChronoUnit, TemporalUnit}
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
   private val ADMIN_ID = "112997031510415584062_google"
+  val ACCES_RETRY_AMOUNT = 10
+  val ACCES_RETRY_UNIT: TemporalUnit = ChronoUnit.SECONDS
 
   private def verifyOwnerId(authToken: String): String = {
     //remove the double string qoutes due to json processing
@@ -2897,7 +2901,27 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
             if (latlon_predict == null) {
-                return AnyResponseHelper.bad_request("Generating ACCES map in another background thread!")
+
+                val crlb_filename=Play.application().configuration().getString("crlbsDir") +
+                    File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
+                val crlb_filename_lock=crlb_filename+".lock"
+
+                val lockInstant =
+                    Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
+                val requestExpired = lockInstant.
+                    plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
+                var msg=""
+                if(requestExpired) {
+                    // TODO if ACCES generation happens asynchronously we can skip the extra step
+                    // This is just to show a warning message to the user.
+                    val file_lock =new File(crlb_filename_lock)
+                    file_lock.delete()
+                    msg = "Generating ACCES has previously failed. Please retry."
+                } else {
+                    msg = "Generating ACCES map in another background thread!"
+                }
+
+                return AnyResponseHelper.bad_request(msg)
             }
 
             val res = JsonObject.empty()
@@ -2906,9 +2930,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             return AnyResponseHelper.ok(res, "Successfully served ACCES map.")
           }
         } catch {
-          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+              "Cannot create radiomap:mapping:FNFE:" + e.getMessage)
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-          case e: IOException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          case e: IOException => return AnyResponseHelper.internal_server_error(
+              "Cannot create radiomap:IOE:" + e.getMessage)
           case e: Exception => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           case _: Throwable => return AnyResponseHelper.internal_server_error("500: ")
         }
@@ -2939,30 +2965,41 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
+      // TODO this should be asynchronous. and display warning that it will take time
+      // Especially if it runs on radiomap upload
     
     val folder=new File(
         Play.application().configuration().getString("crlbsDir") +
     File.separatorChar+buid)
     if (!folder.exists()) {
-        LPLogger.info("getAccesMap: mkdir: " + folder.getCanonicalPath)
+        LPLogger.debug("getAccesMap: mkdir: " + folder.getCanonicalPath)
         folder.mkdirs()
-        // folder.setWritable(true, false) CLR check without permissions
-        // folder.setReadable(true, false)
     }
 
     // REVIEWLS use option for this
-    
-    var crlb_filename=Play.application().configuration().getString("crlbsDir") +
+    val crlb_filename=Play.application().configuration().getString("crlbsDir") +
         File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
-    LPLogger.info("getAccesMap:" + crlb_filename)
+
+    val crlb_filename_lock=crlb_filename+".lock"
+    LPLogger.debug("getAccesMap:" + crlb_filename)
 
     val file_path=new File(crlb_filename)
-    val file_lock =new File(crlb_filename+".lock")
+    val file_lock =new File(crlb_filename_lock)
 
-    if (file_lock.exists()) {
-        LPLogger.info("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
-         // CHECK throw exception?
-         // throw new Exception("Error while creating Radio Map on-the-fly!")
+      if (file_lock.exists()) {
+        val lockInstant =
+            Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
+        val requestExpired = lockInstant.
+            plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
+        if(requestExpired) {
+            // This is to give user some feedback too..
+            LPLogger.info("getAccesMap: Previous request failed and expired." +
+                "Will retry on next request. File: " + crlb_filename)
+            // lock will be deleted at the callsite of this method
+        } else {
+            LPLogger.debug("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
+        }
+
         return (null, null)
     }
 
@@ -3035,7 +3072,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
     if (file_path.exists()) {
         val crl= Source.fromFile(file_path).getLines.toArray
-        var crlbs = DenseVector.zeros[Double](crl.length)
+        val crlbs = DenseVector.zeros[Double](crl.length)
 
         // CLRLS
         // acces.fit_gpr(estimate = true, use_default_params = false)
@@ -3050,23 +3087,21 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         return (latlon_predict, crlbs)
     } else {
         file_lock.createNewFile();
-        LPLogger.info("creating:" + crlb_filename)
+        // TODO this should happen in the background.
+        LPLogger.info("Generating ACCES: " + crlb_filename)
         acces.fit_gpr(estimate = true, use_default_params = false)
 
         val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
 
-        LPLogger.info("length:" + crlbs.length)
-
-        //
-        val file_io = new PrintWriter(file_path)
+        LPLogger.debug("length:" + crlbs.length)
+        val acces_file = new PrintWriter(file_path)
         for (i <- 0 until crlbs.length) {
-            file_io.println(crlbs(i))
+            acces_file.println(crlbs(i))
         }
-
-        file_io.close()
+        acces_file.close()
         file_lock.delete()
 
-        LPLogger.info("Created ACCES map:" + crlb_filename)
+        LPLogger.debug("Generated ACCES:" + crlb_filename)
         val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
             GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 

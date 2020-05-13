@@ -50,20 +50,27 @@ ERR_FETCH_FINGERPRINTS="Something went wrong while fetching fingerPrints.";
 WARN_NO_FINGERPRINTS="This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.";
 WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
 
+function __addAlert(scope, level, msg) {
+  // INFO new lines are not displayed.
+  // See more here: https://stackoverflow.com/a/14963641/776345
+  msg = msg.replace(/(?:\r\n|\r|\n)/g, '\n');
+  scope.anyService.addAlert(level, msg);
+};
+
 function _err(scope, msg) {
-  scope.anyService.addAlert('danger', msg);
+  __addAlert(scope, 'danger', msg);
 };
 
 var _suc = function (scope, msg) {
-  scope.anyService.addAlert('success', msg);
+  __addAlert(scope, 'success', msg);
 };
 
 var _warn = function (scope, msg) {
-  scope.anyService.addAlert('warning', msg);
+  __addAlert('warning', msg);
 };
 
 var _warn_autohide = function (scope, msg) {
-  scope.anyService.addAlert('warning', msg);
+  __addAlert(scope, 'warning', msg)
   window.setTimeout(function() {
     $(".alert-warning").fadeTo(500, 0).slideUp(500, function(){
       $(this).remove();
@@ -72,12 +79,12 @@ var _warn_autohide = function (scope, msg) {
 };
 
 var _info = function (scope, msg) {
-  scope.anyService.addAlert('info', msg);
+  __addAlert('info', msg);
   window.setTimeout(function() {
     $(".alert-info").fadeTo(500, 0).slideUp(500, function(){
       $(this).remove();
     });
-  }, 5000);
+  }, 10000);
 };
 
 function _ShowAlert(scope, func, response, defaultMsg, showDefaultMessage) {
@@ -118,4 +125,3 @@ function ShowWarningAutohide(scope, response, defaultMsg, showDefaultMessage) {
   showDefaultMessage = showDefaultMessage || false;
   _ShowAlert(scope, _warn_autohide, response, defaultMsg, showDefaultMessage)
 }
-

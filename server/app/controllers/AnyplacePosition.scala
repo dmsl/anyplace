@@ -169,7 +169,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
             fout = new FileOutputStream(radio)
             LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+                "Cannot create radiomap:1: " + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {
@@ -287,7 +288,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
           fout = new FileOutputStream(radio)
           LPLogger.debug(radio.toPath().getFileName.toString)
         } catch {
-          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+              "Cannot create radiomap:2: " + e.getMessage)
         }
         var floorFetched: Long = 0l
         try {
@@ -408,7 +410,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
             fout = new FileOutputStream(radio)
             LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+                "Cannot create radiomap:3:" + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {
@@ -787,7 +790,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
             fout = new FileOutputStream(radio)
             LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+                "Cannot create radiomap:4:" + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {

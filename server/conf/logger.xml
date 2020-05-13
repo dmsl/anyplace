@@ -1,0 +1,37 @@
+<configuration>
+  <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel" />
+  
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+     <file>${application.home}/logs/application.log</file>
+     <encoder>
+       <pattern>%%d{HH:mm:ss.SS} | %-5level | %logger | %n%message%n%xException%n</pattern>
+     </encoder>
+   </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+        <!-- FORMAT: APP | DATE | [LEVEL] LOG_MESSAGE -->
+        <pattern>%20.-20logger{20} | %d{"dd/MM/YY HH:mm:ss"} | %7coloredLevel %message%n%xException{5}</pattern>
+    </encoder>
+  </appender>
+  
+  <logger name="play" level="INFO" />
+  <logger name="application" level="DEBUG" />
+  
+  <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
+  <logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" />
+  <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
+  <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
+  <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
+  <root level="ERROR">
+    <!-- INFO: Not logging errors in a file. Instead everything is in stdout.
+               This is because the std out redirected in a file anyway, during a docker invocation,
+               which can be trimmed periodically to curb it's size.
+
+               One may enable writing ERROR logs to file as well, but 2 files will need to be
+               managed then. To do so, uncomment the following:
+    -->
+    <!-- <appender-ref ref="FILE" /> -->
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
