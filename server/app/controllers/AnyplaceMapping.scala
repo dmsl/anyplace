@@ -834,7 +834,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
-        // println("json: "+json)
+        // LPLogger.debug("json: "+json)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
@@ -1394,7 +1394,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("buildings", result)
           res.put("name", cuname)
-          System.out.println(greeklish)
+          LPLogger.debug(greeklish)
           if (greeklish == null) greeklish = "false"
           res.put("greeklish", greeklish)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
@@ -2450,7 +2450,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         try {
           val file = new File(filePath)
-          // println("filePath " + file.getAbsolutePath)
+          // LPLogger.debug("filePath " + file.getAbsolutePath.toString)
           if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
             floor_number +
             ")")
@@ -3026,9 +3026,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     //    if (!Files.exists(Paths.get(file_path))) {
     //   acces.fit_gpr(estimate = true, use_default_params = false)
     //    }
-    //    println("fit_gpr: starting")
+    //    LPLogger.debug("fit_gpr: starting")
     //  acces.fit_gpr(estimate = true, use_default_params = false)
-    //    println("fit_gpr: finished")
+    //    LPLogger.debug("fit_gpr: finished")
 
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
@@ -3039,7 +3039,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         // CLRLS
         // acces.fit_gpr(estimate = true, use_default_params = false)
-        // println("crl",crl.length);
+        // LPLogger.debug("crl",crl.length);
 
         for (k<-0 until crlbs.length){
             crlbs(k)=crl(k).toDouble
@@ -3066,7 +3066,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         file_io.close()
         file_lock.delete()
 
-        LPLogger.info("Created ACCES:" + crlb_filename + "DONE!")
+        LPLogger.info("Created ACCES map:" + crlb_filename)
         val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
             GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 
@@ -3094,7 +3094,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
     var fout: FileOutputStream = null
     fout = new FileOutputStream(radio)
-    println(radio.toPath().getFileName)
+    LPLogger.debug(radio.toPath().getFileName.toString)
     var floorFetched: Long = 0l
     floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floor_number)
     try {
@@ -3145,7 +3145,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   //    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
   //    var fout: FileOutputStream = null
   //    fout = new FileOutputStream(radio)
-  //    println(radio.toPath().getFileName)
+  //    LPLogger.debug(radio.toPath().getFileName.toString)
   //
   //    var floorFetched: Long = 0l
   //    floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)

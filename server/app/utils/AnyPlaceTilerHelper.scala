@@ -112,7 +112,7 @@ object AnyPlaceTilerHelper {
             val br = new BufferedReader(new InputStreamReader(is))
             var line = br.readLine()
             while (line != null) {
-                println(">" + line)
+                LPLogger.debug(">" + line)
                 line = br.readLine()
             }
             p.waitFor()
@@ -163,7 +163,7 @@ object AnyPlaceTilerHelper {
             val br = new BufferedReader(new InputStreamReader(is))
             var line = br.readLine()
             while (line != null) {
-                println(">" + line)
+                LPLogger.debug(">" + line)
                 line = br.readLine()
             }
             p.waitFor()

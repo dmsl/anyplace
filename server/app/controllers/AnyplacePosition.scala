@@ -167,7 +167,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           }
@@ -285,7 +285,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         var fout: FileOutputStream = null
         try {
           fout = new FileOutputStream(radio)
-          println(radio.toPath().getFileName)
+          LPLogger.debug(radio.toPath().getFileName.toString)
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
         }
@@ -406,7 +406,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           }
@@ -704,7 +704,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(radio)
-      println(radio.toPath().getFileName)
+      LPLogger.debug(radio.toPath().getFileName.toString)
     } catch {
       case e: FileNotFoundException => return
     }
@@ -785,7 +785,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
           }
