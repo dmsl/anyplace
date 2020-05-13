@@ -1,5 +1,12 @@
-# any updates to application.conf must be forced
-# removed from tracking using: git update-index --assume-unchanged application.conf
-# readd using: git update-index --no-assume-unchanged application.conf
+##############################################
+# NOTES on updating application.conf contents:
+##############################################
+# Any updates to application.conf must be done by enabling tracking to the file, and
+# subsequently disabling itit.
+#   - Disable tracking:
+#       git update-index --assume-unchanged application.conf
+#   - Enable tracking:
+#       git update-index --no-assume-unchanged application.conf
+##############################################
 application.conf
 application.conf.*
