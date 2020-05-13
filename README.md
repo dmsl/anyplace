@@ -1,4 +1,4 @@
-# AnyPlace v3.5 (June 2019)
+# AnyPlace v4 (May 2020)
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -25,9 +25,6 @@ In case you have any publications resulting from the Anyplace platform, please c
 Enjoy Anyplace!
 
 The Anyplace Team 
-	 
-Copyright (c) 2019, Data Management Systems Lab (DMSL), Department of Computer Science
-University of Cyprus.
 
 Contributors: 
 - University of Cyprus (Cyprus)
@@ -37,61 +34,42 @@ Contributors:
 - University of Mannheim (Germany)
 
 All rights reserved.
-
-## MIT Open Source Licence
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the “Software”), to deal in the
-Software without restriction, including without limitation the rights to use, copy,
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-and to permit persons to whom the Software is furnished to do so, subject to the
-following conditions:
-	 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-	 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
 	
 ## Components 
 
 Short description of the contents included in this release.
 
-### A. Server v3.5
+### A. Server v4.0
 
 The server entails all components to run the anyplace service on your own server. 
 
-- Executable (Binary): https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip
+- Executable (Binary): Visit our Github releases page or visit the link:
+    https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v4.zip
 - Source Code (including IntelliJ IDE SBT file) : https://github.com/dmsl/anyplace/archive/master.zip
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Current Leaders: Constantinos Costa, Kyriakos Georgiou
 
-#### > Viewer v3.5
+#### > Viewer v4
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: https://anyplace.cs.ucy.ac.cy/viewer/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
 
-#### > API v3.5
+#### > API v4
 The source code of Anyplace JSON API.  
 - Try: https://anyplace.cs.ucy.ac.cy/developers/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_developers
 
-#### > Architect v3.5
+#### > Architect v4
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: https://anyplace.cs.ucy.ac.cy/architect/
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
 
-#### > *** NEW: Admin Dashboard v3.5 ***
+#### > *** NEW: Admin Dashboard v4 ***
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: only for administrative purpose. 
 - Documentation/Source: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_dashboard
 
-#### > Data Store v3.5
+#### > Data Store v4
 To setup Anyplace with Couchbase follow the general server instructions here:
 - Instructions: https://github.com/dmsl/anyplace/tree/master/server
 - Couch Views: https://github.com/dmsl/anyplace/tree/master/server/anyplace_views 
