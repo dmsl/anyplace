@@ -14,7 +14,7 @@ It is recommended to watch the video tutorials of the Anyplace system on http://
 
 We hope that you find our Anyplace Indoor Information Service useful for your research and innovation activities.  We would like to have feedback, comments, remarks, and, of course, any experience or test results from your own experimental setups. Currently, we can offer only limited support and assistance on the code, due to lack of resources, but we will try to get back to you as soon as possible. Questions and feedback may be sent to anyplace@cs.ucy.ac.cy
 
-In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
+#### In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
 - [The Anatomy of the Anyplace Indoor Navigation Service**](http://www.sigspatial.org/sigspatial-special-issues/sigspatial-special-volume-9-number-2-july-2017/04-Paper01_Anatomy.pdf)  
   **Demetrios Zeinalipour-Yazti and Christos Laoudias**  
@@ -28,11 +28,8 @@ In case you have any publications resulting from the Anyplace platform, please c
   **Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti**  
   _IEEE Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015_
 
-Enjoy Anyplace!
 
-The Anyplace Team 
-
-Contributors: 
+## Contributors: 
 - University of Cyprus (Cyprus)
 - Alstom (France)
 - Infosys (India)
