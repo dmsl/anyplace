@@ -4,14 +4,14 @@
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
      <file>${application.home}/logs/application.log</file>
      <encoder>
-       <pattern>%%d{HH:mm:ss.SS} | %-5level | %logger | %n%message%n%xException%n</pattern>
+         <pattern>%20.-20logger{20}  | %d{"dd/MM/YY HH:mm:ss"} | %5Level | %message%n%xException{5}</pattern>
      </encoder>
    </appender>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
         <!-- FORMAT: APP | DATE | [LEVEL] LOG_MESSAGE -->
-        <pattern>%20.-20logger{20} | %d{"dd/MM/YY HH:mm:ss"} | %7coloredLevel %message%n%xException{5}</pattern>
+        <pattern>%cyan(%20.-20logger{20}) | %d{"dd/MM/YY HH:mm:ss"} | %highlight(%-5level) | %message%n%xException{5}</pattern>
     </encoder>
   </appender>
   

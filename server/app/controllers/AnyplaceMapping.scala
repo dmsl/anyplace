@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -37,7 +37,6 @@ package controllers
 
 import java.io._
 import java.net.{HttpURLConnection, URL}
-import java.nio.file.attribute.FileTime
 import java.text.{NumberFormat, ParseException}
 import java.util
 import java.util.Locale
@@ -69,30 +68,24 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source
 import java.nio.file.{Files, Paths}
 import java.time.Instant
-import java.nio.file._
-import java.time._
 import java.time.temporal.{ChronoUnit, TemporalUnit}
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
+  // CHECK Why is this hardcoded here?
   private val ADMIN_ID = "112997031510415584062_google"
-  val ACCES_RETRY_AMOUNT = 10
-  val ACCES_RETRY_UNIT: TemporalUnit = ChronoUnit.SECONDS
+  val ACCES_RETRY_AMOUNT = 2
+  val ACCES_RETRY_UNIT: TemporalUnit = ChronoUnit.HOURS
 
     // returns a json in a string format, and strips out unnecessary fields for logging, like:
     // access_token (which is huge), username, and password
     def stripJson(jsVal: JsValue) = {
-        // This replaces:
-        // val json = jsVal.as[JsObject] ++ Json.obj("access_token" -> "")
-//        val date_format = "dd/MM/YY HH:mm:ss";
-//        new SimpleDateFormat(date_format).format(new Date)
-        (jsVal.as[JsObject] - "access_token" - "password").toString()
+        // if username is needed, then restore it
+        (jsVal.as[JsObject] - "access_token" - "password" - "username").toString()
     }
 
-
-
     private def verifyOwnerId(authToken: String): String = {
-    //remove the double string qoutes due to json processing
+    //remove the double string quotes due to json processing
     val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
     var res = ""
     try
@@ -2997,7 +2990,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if(requestExpired) {
             // This is to give user some feedback too..
             LPLogger.info("getAccesMap: Previous request failed and expired." +
-                "Will retry on next request. File: " + crlb_filename)
+                "Will retry on next request.\nFile: " + crlb_filename)
             // lock will be deleted at the callsite of this method
         } else {
             LPLogger.debug("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)

@@ -11,6 +11,11 @@ insert_final_newline = true
 max_line_length = 100
 trim_trailing_whitespace = true
 
+[*.js]
+charset = utf-8
+indent_style = space
+indent_size = 2
+
 [*.py]
 indent_style = space
 indent_size = 4
