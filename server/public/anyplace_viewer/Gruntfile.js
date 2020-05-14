@@ -93,7 +93,9 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-watch');
 
-    // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
+    // 4. Tasks:
+    // default: keep recompiling the code on each change (watch)
+    //  deploy: compile the code
     grunt.registerTask('default', ['concat', 'uglify', 'cssmin', 'imagemin', 'watch']);
-
+    grunt.registerTask('deploy', ['concat', 'uglify', 'cssmin', 'imagemin']);
 };
