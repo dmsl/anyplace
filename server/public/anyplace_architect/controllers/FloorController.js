@@ -98,14 +98,6 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         //}
     });
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
     var _latLngFromBuilding = function (b) {
         if (b && b.coordinates_lat && b.coordinates_lon) {
             return {
@@ -178,7 +170,6 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
                 }
 
                 _setNextFloor();
-
 //                _suc($scope, "Successfully fetched all floors.");
 
             },
@@ -215,7 +206,8 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
         if (!_isValidFloorNumber(this.anyService.selectedFloor)) {
             // TODO: alert
-            console.log('something is wrong with the floor');
+          _warn_autohide($scope, 'Something is wrong with the floor');
+          console.log('Something is wrong with the floor');
             return;
         }
 
@@ -278,18 +270,19 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     });
 
     $scope.setFloorPlan = function () {
-        if (!canvasOverlay) {
+      if (!canvasOverlay) {
             return;
         }
 
-        if (GMapService.gmap.getZoom() < 20) {
-            _err($scope, "You have provided zoom level " + GMapService.gmap.getZoom() + ". You have to zoom at least to level 20 to upload the floorplan.");
+      if (GMapService.gmap.getZoom() < 20) {
+        _err($scope, "Minimum zoom level required: 20. Current: " + GMapService.gmap.getZoom());
             return;
         }
 
         if (AnyplaceService.getBuildingId() === null || AnyplaceService.getBuildingId() === undefined) {
             console.log('building is undefined');
-            _err($scope, "Something went wrong. It seems like there is no building selected");
+            _err($scope, "Something went wrong. Have you selected a building?");
+            return
         }
 
         var newFl = {
@@ -339,7 +332,6 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         } else {
             $scope.addFloorObject(newFl, $scope.anyService.selectedBuilding, $scope.data);
         }
-
     };
 
     var _checkFloorFormat = function (bobj) {

@@ -53,7 +53,7 @@ WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
 function __addAlert(scope, level, msg) {
   // INFO new lines are not displayed.
   // See more here: https://stackoverflow.com/a/14963641/776345
-  msg = msg.replace(/(?:\r\n|\r|\n)/g, '\n');
+  // msg = msg.replace(/(?:\r\n|\r|\n)/g, '\n');
   scope.anyService.addAlert(level, msg);
 };
 

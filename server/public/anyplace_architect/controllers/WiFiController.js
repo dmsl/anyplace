@@ -1922,7 +1922,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 while (i--) {
                     //check for limit
                     if (c == MAX) {
-                        _err('Access Points have exceeded the maximun limit of 1000');
+                        _err($scope, 'Access Points have exceeded the maximun limit of 1000');
                         break;
                     }
                     if( values[i].den!=0) {

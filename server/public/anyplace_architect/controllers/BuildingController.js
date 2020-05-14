@@ -992,7 +992,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         var building = $scope.anyService.selectedBuilding;
         if (LPUtils.isNullOrUndefined(building)) {
-            _err('No building selected');
+            _err($scope, 'No building selected');
             return;
         }
         result.building.buid = building.buid;
@@ -1544,7 +1544,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         var building = $scope.anyService.selectedBuilding;
         if (LPUtils.isNullOrUndefined(building)) {
-            _err('No building selected');
+            _err($scope, 'No building selected');
             return;
         }
         $scope.Poisresult.building.buid = building.buid;
