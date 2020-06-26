@@ -113,7 +113,10 @@ object CouchbaseDatasource {
       throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource.")
     }
     if (!hostname.isEmpty && !clusterNodes.isEmpty) {
-      throw new IllegalArgumentException("Please use either single-node (couchbase.hostname) or multi-node (couchbase.clusterNodes) couchbase configuration.")
+        // prefer clusterNodes
+        hostname="" 
+        // CLR
+        //throw new IllegalArgumentException("Please use either single-node (couchbase.hostname) or multi-node (couchbase.clusterNodes) couchbase configuration.")
     }
 
     new CouchbaseDatasource(hostname, clusterNodes, port, bucket, username, password)
@@ -162,7 +165,7 @@ class CouchbaseDatasource private(hostname: String,
               mBucket + "]")
           mCluster = CouchbaseCluster.fromConnectionString(env, mClusterNodes);
       } else {
-          throw new DatasourceException("Both single-node and multi-node couchbase configuration was empty!")
+          throw new DatasourceException("Both single-node and multi-node couchbase configuration were empty!")
       }
 
       mSecureBucket = mCluster.openBucket(mBucket, mPassword)
