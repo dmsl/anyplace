@@ -5,7 +5,7 @@ src="https://gist.githubusercontent.com/Paschalis/09af7e45f069582a3e97a7021be2a7
 width="250">
 </p>
 
-[![Watch the video]()](https://www.youtube.com/embed/dRDnF2wCoUo)
+[![Watch the video]](https://www.youtube.com/embed/dRDnF2wCoUo)
 
 <a href="https://www.cs.ucy.ac.cy/~dzeina/papers/mdm20-a4iot.pdf" class="publications-title" target="_blank">The Anyplace 4.0 IoT Localization Architecture</a>"</strong>,  Paschalis Mpeis, Thierry Roussel, Manish Kumar, Constantinos Costa, Christos Laoudias, Denis Capot-Ray  Demetrios Zeinalipour-Yazti <b>"Proceedings of the 21st IEEE International Conference on Mobile Data Management"</b> (<strong>MDM '20</strong>), IEEE Computer Society, ISBN:,  Pages: 8, June 30 - July 3, 2020, Versailles, France, <strong>2020</strong>.&nbsp;
 
