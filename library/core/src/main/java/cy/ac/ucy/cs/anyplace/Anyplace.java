@@ -56,11 +56,19 @@ import javax.imageio.ImageIO;
 public class Anyplace {
 
 	public static final int STATUS_OK = 0;
+	public static final int STATUS_ERR = 1;
 	private String host;
 	private String path;
 	private String port;
 	private String cache;
+	private String token = null;
 
+	public Anyplace(Preferences p){
+		setCache(p.getCache());
+		setHost(p.getHost());
+		setPort(p.getPort());
+		setToken(p.getApi_key());
+	}
 	public Anyplace(String host, String port, String cache) {
 		setCache(cache);
 		setHost(host);
@@ -99,6 +107,14 @@ public class Anyplace {
 		params.put("pois", pois);
 
 		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()) );
+	}
+
+	public String poiDetails(String pois){
+		if(token.isEmpty() || token == null){
+			return JsonHelper.jsonResponse(STATUS_ERR,"{}");
+		}
+		return poiDetails(token, pois);
+
 	}
 
 	/**
@@ -144,6 +160,21 @@ public class Anyplace {
 	}
 
 	/**
+	 * Navigation instructions given from a given location to a POI
+	 *
+	 * @param pois_to        The target POI
+	 * @param buid           The building ID
+	 * @param floor          The floor number
+	 * @param coordinates_lat The latitude of position
+	 * @param coordinates_lon The longitude of position
+	 * @return A JSON in String form
+	 */
+	public String navigationXY(String pois_to, String buid, String floor, String coordinates_lat, String coordinates_lon){
+
+		return navigationXY(token, pois_to, buid, floor, coordinates_lat, coordinates_lon);
+	}
+
+	/**
 	 * Navigation instructions between 2 POIs.
 	 * 
 	 * @param access_token The users access token (api key)
@@ -180,10 +211,22 @@ public class Anyplace {
 	}
 
 	/**
-	 * Get all annotated buildings
-	 * 
-	 * @return The response JSON as a String
+	 * Navigation instructions between 2 POIs.
+	 *
+	 * @param pois_to      The target POI
+	 * @param pois_from    The starting POI
+	 * @return The navigation path in the form of a JSON string as sent by the
+	 *         server
 	 */
+	public String navigationPoiToPoi(String pois_to, String pois_from) {
+		return navigationPoiToPoi(token, pois_to, pois_from);
+	}
+
+		/**
+         * Get all annotated buildings
+         *
+         * @return The response JSON as a String
+         */
 	public String buildingAll() {
 		RestClient client = new RestClient();
 		setPath("/anyplace/mapping/building/all");
@@ -243,6 +286,17 @@ public class Anyplace {
 	}
 
 	/**
+	 * Get all nearby buildings - 50 meter radius
+	 *
+	 * @param coordinates_lat The latitude
+	 * @param coordinates_lon The longitude
+	 * @return Gives the JSON String response of the server
+	 */
+	public String nearbyBuildings(String coordinates_lat, String coordinates_lon){
+		return nearbyBuildings(token, coordinates_lat, coordinates_lon);
+	}
+
+	/**
 	 * Get all floors of a building
 	 * 
 	 * @param buid Building ID
@@ -271,8 +325,6 @@ public class Anyplace {
 		setPath("/anyplace/mapping/pois/all_building");
 		Map<String, String> params = new HashMap<>();
 		params.put("buid", buid);
-
-
 		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
 
@@ -337,7 +389,7 @@ public class Anyplace {
 	}
 
 	/**
-	 * Download the floor plan in base64 png format. It also stores the file localy
+	 * Download the floor plan in base64 png format. It also stores the file locally
 	 * as a png file
 	 * 
 	 * @param access_token The access token(api key)
@@ -366,6 +418,18 @@ public class Anyplace {
 		}
 
 		return JsonHelper.jsonResponse(STATUS_OK, response);
+	}
+
+	/**
+	 * Download the floor plan in base64 png format. It also stores the file locally
+	 * as a png file
+	 *
+	 * @param buid         The building ID
+	 * @param floor        The floor number
+	 * @return JSON String containing the floor plan in a base64 format
+	 */
+	public String floorplans64( String buid, String floor) {
+		return floorplans64(token, buid, floor);
 	}
 
 	/**
@@ -423,6 +487,17 @@ public class Anyplace {
 	}
 
 	/**
+	 * Download the floor plan tiles in a zip file
+	 *
+	 * @param buid         The building ID
+	 * @param floor        The floor number
+	 * @return JSON String containing the floor tile zip download url
+	 */
+	public String floortiles( String buid, String floor){
+		return floortiles(token, buid, floor);
+	}
+
+	/**
 	 * Radio map using all entries near the location
 	 * 
 	 * @param access_token    The access token(api key)
@@ -442,10 +517,21 @@ public class Anyplace {
 		params.put("coordinates_lon", coordinates_lon);
 		params.put("floor_number", floor);
 		params.put("mode", "foo");
-
-
-
 		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
+
+	}
+
+	/**
+	 * Radio map using all entries near the location
+	 *
+	 * @param coordinates_lat Latitude
+	 * @param coordinates_lon Longitude
+	 * @param floor           The floor number
+	 * @return JSON String with all the radio measurements of a floor
+	 */
+	public String radioByCoordinatesFloor(String coordinates_lat, String coordinates_lon,
+										  String floor){
+		return radioByCoordinatesFloor(token, coordinates_lat, coordinates_lon, floor);
 
 	}
 
@@ -470,8 +556,6 @@ public class Anyplace {
 		params.put("coordinates_lat", coordinates_lat);
 		params.put("coordinates_lon", coordinates_lon);
 		params.put("range", range);
-
-
 
 		return JsonHelper.jsonResponse(STATUS_OK, client.doPost(params, getHost(), getPath()));
 	}
@@ -578,6 +662,19 @@ public class Anyplace {
 
 		return JsonHelper.jsonResponse(STATUS_OK, response);
 
+	}
+
+	/**
+	 * Radiomap using all the entries of an entire floor of a building. The
+	 * measurements are also stored locally for use by estimatePositionOffline
+	 *
+	 * @param buid         The building ID
+	 * @param floor        The floor number
+	 * @return JSON String with the radio measurement of the floor
+	 */
+	public String radioByBuildingFloor( String buid, String floor) {
+
+		return radioByBuildingFloor(token, buid, floor);
 	}
 
 	/**
@@ -724,4 +821,11 @@ public class Anyplace {
 		this.cache = cache;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 }

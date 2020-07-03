@@ -71,3 +71,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/linux,macos,windows
+*.png
+*.zip
+*.zip
+library/core/res/username_1373876832005/-1/floorPlanTiles.zip

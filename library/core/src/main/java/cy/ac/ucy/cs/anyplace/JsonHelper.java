@@ -26,6 +26,9 @@ public class JsonHelper {
     }
 
     public static String jsonResponse(int status, String message){
+        if (message == null){
+            return "Error in message response!!";
+        }
         return "{" + "\""+"status" + "\"" + ":" + status +","+message.substring(1);
     }
 

@@ -4,9 +4,9 @@
     android:versionCode="47"
     android:versionName="2.4.0" >
 
-    <uses-sdk
+    <!--uses-sdk
         android:minSdkVersion="10"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19" -->
 
     <permission
         android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"

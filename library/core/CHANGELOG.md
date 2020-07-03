@@ -10,3 +10,7 @@
    
 *CODE CLEANUP
     - Cleanup of Anyplace.java
+    
+*SETTINGS FILES FOR SERVER SETTINGS AND API KEY
+    - Can be read from ~/.anyplace/ or from a specified file
+    - Added the necessary methods to Anyplace.java to support calls with the loaded settings.
