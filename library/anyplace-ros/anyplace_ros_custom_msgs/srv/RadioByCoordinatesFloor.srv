@@ -1,0 +1,6 @@
+string coordinates_lat
+string coordinates_lon
+string floor
+---
+bool success
+string response
