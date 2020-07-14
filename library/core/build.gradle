@@ -15,6 +15,7 @@ dependencies {
     // core dependencies
     compile group: 'org.json', name: 'json', version: '20090211'
     compile 'com.squareup.okhttp3:okhttp:4.3.1'
+    compile 'com.squareup.okio:okio:1.13.0'
 
     // testing
     testCompile group: 'junit', name: 'junit', version: '4.12'

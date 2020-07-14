@@ -13,8 +13,13 @@ public class Preferences {
     private String cache = null;
     public String status = null;
 
+    public static String getAnyplaceDir(){
+       return getHome()+"/.anyplace/client/";
+    }
+
+
     public Preferences(){
-            this(openFile(getHome()+"/.anyplace/settings.txt"), openFile(getHome()+"/.anyplace/api_key.txt"));
+            this(openFile(getAnyplaceDir() + "config"), openFile(getAnyplaceDir() + "api_key"));
     }
 
     public Preferences(File settings, File apikey){
@@ -34,7 +39,7 @@ public class Preferences {
            reader = new BufferedReader(new FileReader(settings));
            setHost(reader.readLine());
            setPort(reader.readLine());
-           setCache(reader.readLine());
+           setCache(getHome() + "/"+ reader.readLine() +"/");
 
 
        }
@@ -67,7 +72,7 @@ public class Preferences {
         return new File(path);
     }
     private static String getHome(){
-        return System.getProperty("user.home");
+        return System.getProperty("user.home") ;
     }
     // CA: all preference related operations should come from here.  ????
     // make them private, setting, getting, reading from the file, etc.

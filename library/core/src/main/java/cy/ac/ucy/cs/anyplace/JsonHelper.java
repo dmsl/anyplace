@@ -19,7 +19,7 @@ public class JsonHelper {
             r.put("cause", exception.getCause());
             r.put("trace", exception.getStackTrace());
         } catch (JSONException ex) {
-            return "The JsonHelper Failed. Should not happen.";
+            return "{" + "\"" + "status" + "\"" +":0"+","+"\"" + "message" +"\""+":The JsonHelper Failed. Should not happen}";
         }
 
         return r.toString();

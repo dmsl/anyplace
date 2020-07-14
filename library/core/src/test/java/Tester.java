@@ -160,7 +160,7 @@ public class Tester {
 
     @Test
     public void testRadioByBuildingFloor() {
-        Anyplace client = new Anyplace("ap.cs.ucy.ac.cy", "443", "res/");
+        Anyplace client = new Anyplace(preferences);
 
         response = client.radioByBuildingFloor(access_token, buid, floor);
         //System.out.println(response/* .substring(0, 100) */ + "\n");
