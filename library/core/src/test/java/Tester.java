@@ -201,7 +201,7 @@ public class Tester {
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-        // Code executed after the last test method
+        //TODO: remove used res file
     }
 
 }
