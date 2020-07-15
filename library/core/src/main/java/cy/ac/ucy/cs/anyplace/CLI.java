@@ -150,7 +150,7 @@ public class CLI {
 			System.out.println("-allBuildingPOIs: Get all POIs inside a building.");
 			System.out.println("-allBuildingFloorPOIs: Get all POIs inside a floor.");
 			System.out.println("-connectionsByFloor: Get all POI connections inside a floor.");
-			System.out.println("-heatmapBuidFloor: Get all positions with their respective Wi-Fi radio measurements.");
+			System.out.println("-heatmapByBuildingFloor: Get all positions with their respective Wi-Fi radio measurements.");
 
 			System.out.println("\nBlueprints");
 			System.out.println("----------");

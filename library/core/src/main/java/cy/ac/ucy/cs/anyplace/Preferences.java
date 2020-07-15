@@ -39,7 +39,14 @@ public class Preferences {
            reader = new BufferedReader(new FileReader(settings));
            setHost(reader.readLine());
            setPort(reader.readLine());
-           setCache(getHome() + "/"+ reader.readLine() +"/");
+           String temp = reader.readLine();
+           if (temp.charAt(temp.length()-1) !='/'){
+               setCache(getHome() + "/"+ temp+ "/" );
+           }
+           else{
+               setCache(getHome() + "/"+ temp );
+           }
+
 
 
        }
@@ -69,7 +76,12 @@ public class Preferences {
     }
 
     private static File openFile(String path){
-        return new File(path);
+        File f = new File(path);
+        if (f.exists() && f.canRead()){
+            return f;
+        }
+        throw new RuntimeException("Config file missing on: "+ path);
+
     }
     private static String getHome(){
         return System.getProperty("user.home") ;

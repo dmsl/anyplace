@@ -44,3 +44,6 @@ task run_cli(type: JavaExec) {
 test {
     useJUnit()
 }
+task testMac{
+
+}
