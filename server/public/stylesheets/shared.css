@@ -1,0 +1,9 @@
+
+.infowindow-scroll-fix {
+  line-height: 1.35;
+  overflow: auto;
+  white-space: nowrap;
+  border-radius: 2px;
+}
+
+

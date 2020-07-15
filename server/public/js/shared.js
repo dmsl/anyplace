@@ -47,8 +47,16 @@ ERR_FETCH_BUILDINGS="Something went wrong while fetching buildings.";
 ERR_FETCH_ALL_FLOORS="Something went wrong while fetching all floors.";
 ERR_USER_AUTH="Could not authorize user. Please refresh.";
 ERR_FETCH_FINGERPRINTS="Something went wrong while fetching fingerPrints.";
+// TODO Permission denined
+ERR_GEOLOC_DEVICE_SETTINGS="Please check your device's geolocation settings.";
+ERR_GEOLOC_NET_OR_SATELLITES="Position unavailable. The network is down or the positioning satellites couldn't be contacted.";
+ERR_GEOLOC_TIMEOUT="Timeout. The request for retrieving your Geolocation was timed out.";
+ERR_GEOLOC_UNKNOWN="There was an error while retrieving your Geolocation. Please try again.";
+ERR_GEOLOC_NOT_SUPPORTED="The Geolocation feature is not supported by this browser.";
+
 WARN_NO_FINGERPRINTS="This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.";
 WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
+
 
 function __addAlert(scope, level, msg) {
   // INFO new lines are not displayed.
@@ -124,4 +132,22 @@ function ShowError(scope, response, defaultMsg, showDefaultMessage) {
 function ShowWarningAutohide(scope, response, defaultMsg, showDefaultMessage) {
   showDefaultMessage = showDefaultMessage || false;
   _ShowAlert(scope, _warn_autohide, response, defaultMsg, showDefaultMessage)
+}
+
+function HandleGeolocationError(errorCode) {
+  if (err.code == 1) {
+    _err($scope, ERR_GEOLOC_DEVICE_SETTINGS)
+  } else if (err.code == 2) {
+    _err($scope, ERR_GEOLOC_NET_OR_SATELLITES)
+  } else if (err.code == 3) {
+    _err($scope, ERR_GEOLOC_TIMEOUT)
+  } else {
+    _err($scope, ERR_GEOLOC_UNKNOWN);
+  }
+}
+
+function selectAllInputText(element) {
+  console.log("Runned!");
+  // Safari fix
+  element.setSelectionRange(0, element.value.length)
 }

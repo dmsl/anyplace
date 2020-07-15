@@ -153,6 +153,7 @@ app.service('GMapService', function () {
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
         zoomControl: true,
+        fullscreenControl: false,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER

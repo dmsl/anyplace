@@ -445,7 +445,8 @@ body {
 }
 
 @media (max-width: 768px) {
-    #div-logo {
+    /*Hide just the image*/
+    #div-logo img {
         display: none;
     }
 }

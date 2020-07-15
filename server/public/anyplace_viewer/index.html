@@ -5,7 +5,7 @@
          // if (window.location.protocol != "https:")
          //    window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
-    <link rel="icon" type="image/png" href="build/images/logo.png">
+    <link rel="icon" type="image/png" href="build/images/favicon.png">
 
     <link rel="apple-touch-icon-precomposed" href="build/images/ios-icons/touch-icon-ipad.png"/>
     <link rel="apple-touch-icon" href="build/images/ios-icons/touch-icon-iphone.png">
@@ -137,13 +137,13 @@
 <div id="control-bar" class="box-shadow-1 ng-cloak" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
 
     <div class="container-fluid" id="gray-bg">
-
-        <div class="col-md-1 col-sm-2 col-xs-2 " id="div-logo">
-            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white3_4.png"/>
+        <!-- LOGO: hidden at sm, xs -->
+        <div class="col-md-2 col-sm-1" id="div-logo">
+            <img style="width: 130px; height: auto" src="build/images/logo4.0-white-full-wide.png"/>
         </div>
 
         <!-- BUILDINGS -->
-        <div ng-hide="anyService.selectedBuilding" class="col-md-8 col-sm-7 col-xs-10" id="ctrl-bar-buildings"
+        <div ng-hide="anyService.selectedBuilding" class="col-md-8 col-sm-9 col-xs-10" id="ctrl-bar-buildings"
              ng-controller="BuildingController as buildingCtrl">
             <div class="bold-f" style="color:transparent; pointer-events:none;">_</div>
             <!--<select id="building-select-list" ng-model="anyService.selectedBuilding" class="form-control"-->
@@ -163,7 +163,6 @@
                     </small>
                 </ui-select-choices>
             </ui-select>
-
         </div>
 
         <!-- FLOORS -->
@@ -176,7 +175,7 @@
         </div>
 
         <!-- POIS -->
-        <div ng-show="anyService.selectedBuilding" class="col-md-8 col-sm-7 col-xs-10" id="ctrl-bar-pois"
+        <div ng-show="anyService.selectedBuilding" class="col-md-8 col-sm-9 col-xs-10" id="ctrl-bar-pois"
              ng-controller="PoiController as poiCtrl"
              ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null && anyService.selectedFloor !== undefined && anyService.selectedFloor !== null">
             <div class="bold-f one-line-wrap-div">
@@ -213,7 +212,7 @@
 
         </div>
 
-        <div class="col-md-2 col-sm-1 col-xs-2" id="more-menu">
+        <div class="col-md-1 col-sm-1 col-xs-2" id="more-menu">
             <div class="bold-f" style="color:transparent; pointer-events:none;"
                  ng-style="{ 'height' : (anyService.selectedBuilding?'2em':null)}">_
             </div>
@@ -236,7 +235,7 @@
                         <li style="text-align: center;">
                             <a href="https://anyplace.cs.ucy.ac.cy" target="_blank">
                                 <div class="div-logo-menu">
-                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text3_4.png"/>
+                                    <img style="width: 120px; height: auto" src="build/images/logo4.0-blue-full-wide.png"/>
                                 </div>
                             </a>
                         </li>
@@ -247,10 +246,9 @@
                 </div>
             </div>
         </div>
+    </div> <!-- TOP MENU -->
 
-    </div>
-
-    <div id="notification_panel" ng-controller="AlertController as alertCtrl"
+  <div id="notification_panel" ng-controller="AlertController as alertCtrl"
          ng-show="alerts.length || anyService.isLoading">
 
         <!--<progressbar ng-show="anyService.isLoading" class="progress-striped active"-->
