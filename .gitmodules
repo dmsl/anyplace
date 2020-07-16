@@ -1,3 +1,0 @@
-[submodule "docker"]
-	path = docker
-	url = git@github.com:dmsl/anyplace-docker.git
