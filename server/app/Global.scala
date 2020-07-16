@@ -43,7 +43,9 @@ import play.{Application, GlobalSettings, Logger}
 import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
 import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
 import datasources.InfluxdbDatasource
+import utils.LPLogger
 
+// TODO Should be deprecated once we update.
 class Global extends GlobalSettings {
     def _date () = {
         val date_format = "dd/MM/YY HH:mm:ss";
@@ -51,12 +53,13 @@ class Global extends GlobalSettings {
     }
 
   override def onStart(app: Application) {
-    Logger.info(_date + " | Global::onStart():: AnyPlace Application started: ")
+    LPLogger.info(_date + " | Global::onStart():: AnyPlace Application started: ")
     InfluxdbDatasource.getStaticInstance
     CouchbaseDatasource.getStaticInstance
     logAnalyticsInstallation()
   }
 
+    // TPDP this
   override def onStop(app: Application) {
     Logger.info(_date + " | Global::onStop():: AnyPlace Application stopped ")
     try {
@@ -79,7 +82,5 @@ class Global extends GlobalSettings {
     /**
       * End
       */
-
   }
-
 }

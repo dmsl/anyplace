@@ -1,8 +1,6 @@
 @(throwable: Throwable)
 
-@main("onError Happened") {
-
-<h1>onError Happened</h1>
-<p>@throwable.getMessage</p>
-
+@main(title="500: Internal Server Error") {
+  <h1>500: Internal Server Error:</h1>
+  <p>@throwable.getMessage</p>
 }

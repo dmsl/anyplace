@@ -2,6 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+GET          /favicon.ico    controllers.Assets.at(path="/public/images", file="favicon.png")
 
 # Routes
 # This file defines all application routes (Higher priority routes first)
@@ -148,14 +149,16 @@ GET         /developers                                                         
 ### ARCHITECT WEBSITE ###
 GET         /architect/*file                                                           controllers.Assets.at(path="/public/anyplace_architect", file)
 GET         /architect/                                                                controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+
 GET         /architect                                                                 controllers.AnyplaceWebApps.AddTrailingSlash()
+
+POST        /anyplace/version                                                                   controllers.ApplicationAnyplace.Version
 
 ### VIEWER WEBSITE ###
 GET         /viewer/index.html                                                         controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET         /viewer/*file                                                              controllers.AnyplaceAssets.at(path="/public", file)
 GET         /viewer/                                                                   controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET         /viewer                                                                    controllers.AnyplaceWebApps.AddTrailingSlash()
-
 
 # Map static resources
 GET         /floortiles/zip/*file                                                      controllers.ExternalAssets.at(path="/floor_plans", file)

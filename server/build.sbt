@@ -1,4 +1,5 @@
 import com.typesafe.sbt.packager.MappingsHelper._
+
 mappings in Universal ++= directory(baseDirectory.value / "floor_plans")
 
 name := "anyplace"
@@ -7,24 +8,30 @@ version := "4.0"
 
 scalaVersion := "2.11.7"
 
-libraryDependencies ++= Seq( jdbc , cache , ws   , specs2 % Test )
+libraryDependencies ++= Seq( jdbc, cache , ws, specs2 % Test )
+//scalaVersion := "2.12.11"
+//scalaVersion := "2.13.2" // Cant be updated due to ACCES
+//libraryDependencies ++= Seq(jdbc, cacheApi, ws, specs2 % Test )
+// Needed by StartModule to @Inject EagerSingletons for mounting
+// callbacks on startup and termination of the app
+// libraryDependencies += "com.google.inject" % "guice" % "3.0"
 
+// TODO ACCES: all these should be updated to 1.0 version, once bayes-scala-gp is replaced.
 libraryDependencies ++= Seq(
   // Add here the specific dependencies for this module:
   filters,
-  // other dependencies here
-  "org.scalanlp" %% "breeze" % "0.12",
-  // native libraries are not included by default. add this if you want them (as of 0.7)
-  // native libraries greatly improve performance, but increase jar sizes.
-  // It also packages various blas implementations, which have licenses that may or may not
-  // be compatible with the Apache License. No GPL code, as best I know.
-  "org.scalanlp" %% "breeze-natives" % "0.12",
-  // the visualization library is distributed separately as well.
-  // It depends on LGPL code.
-  "org.scalanlp" %% "breeze-viz" % "0.12"
+    // TODO ACCESS: with % (single percentage) and by appending _VERSION to lib-name,
+    //  we force it to use an earlier version
+    // The should instead become:
+    // "package" %% "lib-name" % "1.0", e.g.:
+    // (adding another % between package and lib-name concatenation, and removing _VERSOIN suffix from libname)
+    // "org.scalanlp" %% "breeze" % "1.0",
+  "org.scalanlp" % "breeze_2.11" % "0.12",
+  "org.scalanlp" % "breeze-natives_2.11" % "0.12",
+  "org.scalanlp" % "breeze-viz_2.11" % "0.12"
 )
 
-//Required for ACCES
+// TODO ACCES Deprecate this library
 libraryDependencies += "com.github.danielkorzekwa" % "bayes-scala-gp_2.11" % "0.1-SNAPSHOT"
 
 libraryDependencies += "com.couchbase.client" % "java-client" % "2.4.5"
@@ -41,19 +48,6 @@ javaOptions += "-Dfile.encoding=UTF-8"
 libraryDependencies += "io.razem" %% "scala-influxdb-client" % "0.6.2"
 
 // libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
-
-libraryDependencies  ++= Seq(
-  // other dependencies here
-  "org.scalanlp" %% "breeze" % "0.12",
-  // native libraries are not included by default. add this if you want them (as of 0.7)
-  // native libraries greatly improve performance, but increase jar sizes.
-  // It also packages various blas implementations, which have licenses that may or may not
-  // be compatible with the Apache License. No GPL code, as best I know.
-  "org.scalanlp" %% "breeze-natives" % "0.12",
-  // the visualization library is distributed separately as well.
-  // It depends on LGPL code.
-  "org.scalanlp" %% "breeze-viz" % "0.12"
-)
 
 resolvers ++= Seq(
   // other resolvers here
