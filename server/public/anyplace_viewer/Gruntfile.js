@@ -16,7 +16,8 @@ module.exports = function (grunt) {
       },
       css: {
         src: [
-          'style/*.css'
+          'style/*.css',
+          '../style/*.css'
         ],
         dest: 'build/css/anyplace.css'
       }
@@ -80,7 +81,7 @@ module.exports = function (grunt) {
         }
       },
       css: {
-        files: ['style/*.css'],
+        files: ['style/*.css', '../style/*.css'],
         tasks: ['concat:css', 'cssmin'],
         options: {
           spawn: false

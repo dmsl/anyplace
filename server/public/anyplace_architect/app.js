@@ -150,7 +150,8 @@ app.service('GMapService', function () {
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
         zoomControl: true,
-        zoomControlOptions: {
+      fullscreenControl: false,
+      zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER
         },
@@ -216,6 +217,10 @@ app.service('GMapService', function () {
     var input = (document.getElementById('pac-input'));
     self.gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
     self.searchBox = new google.maps.places.SearchBox((input));
+
+  setTimeout(function(){
+    $("#pac-input").fadeIn(500);
+  }, 1500);
 
     google.maps.event.addListener(self.searchBox, 'places_changed', function () {
         var places = self.searchBox.getPlaces();

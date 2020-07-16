@@ -214,7 +214,7 @@ body {
 }
 
 #div-logo {
-    margin: 8px 8px 8px 8px;
+    /*margin: 8px 8px 8px 8px;*/
     /*display: inline-block;*/
 }
 
@@ -410,6 +410,12 @@ body {
     z-index: 10000;
     cursor: pointer;
 }
+
+
+/*.logo-header {*/
+/*    margin-top: -4px;*/
+/*}*/
+
 
 #info-window-zoomin:hover {
     opacity: 1;

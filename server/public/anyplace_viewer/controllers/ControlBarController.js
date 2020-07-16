@@ -182,22 +182,14 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                 },
                 function (err) {
                     $scope.$apply(function () {
-                        if (err.code == 1) {
-                            _err($scope, "Permission denied. Anyplace was not able to retrieve your Geolocation.")
-                        } else if (err.code == 2) {
-                            _err($scope, "Position unavailable. The network is down or the positioning satellites couldn't be contacted.")
-                        } else if (err.code == 3) {
-                            _err($scope, "Timeout. The request for retrieving your Geolocation was timed out.")
-                        } else {
-                            _err($scope, "There was an error while retrieving your Geolocation. Please try again.");
-                        }
+                      HandleGeolocationError(err.code);
                     });
                 },     {
                     enableHighAccuracy: false,
                     maximumAge: Infinity
                 });
         } else {
-            _err($scope, "The Geolocation feature is not supported by this browser.");
+            _err($scope, ERR_GEOLOC_NOT_SUPPORTED);
         }
     };
 

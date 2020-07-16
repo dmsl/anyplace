@@ -148,6 +148,11 @@ function HandleGeolocationError(errorCode) {
 
 function selectAllInputText(element) {
   console.log("Runned!");
-  // Safari fix
   element.setSelectionRange(0, element.value.length)
 }
+
+function setAnyplaceVersion(scope) {
+
+}
+
+

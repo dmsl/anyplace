@@ -27,6 +27,7 @@
 
 var AnyplaceAPI = {};
 AnyplaceAPI.FULL_SERVER ="../anyplace";
+AnyplaceAPI.VERSION = AnyplaceAPI.FULL_SERVER + "/version";
 
 /**
  * MAPPING API
@@ -177,6 +178,21 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     delete $http.defaults.headers.common['X-Requested-With'];
 
     var apiService = {};
+
+    apiService.version = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.VERSION,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+
+    };
 
     apiService.getRadioHeatmap = function (json_req) {
         //alert( "make the request: " + json_req );

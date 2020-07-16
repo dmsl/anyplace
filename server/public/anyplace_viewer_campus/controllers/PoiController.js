@@ -779,15 +779,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 },
                 function (err) {
                     $scope.$apply(function () {
-                        if (err.code == 1) {
-                            _err($scope, "Permission denied. Anyplace was not able to retrieve your Geolocation.")
-                        } else if (err.code == 2) {
-                            _err($scope, "Position unavailable. The network is down or the positioning satellites couldn't be contacted.")
-                        } else if (err.code == 3) {
-                            _err($scope, "Timeout. The request for retrieving your Geolocation was timed out.")
-                        } else {
-                            _err($scope, "There was an error while retrieving your Geolocation. Please try again.");
-                        }
+                      HandleGeolocationError(err.code);
                     });
                 }
             );
@@ -880,7 +872,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 + '</div>'
                 + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
                 + '<div>Share URL:</div>'
-                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}"/>'
+                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)"/>'
                 + /**
                  +'<ul class="rrssb-buttons">'
                  +'<li class="rrssb-facebook">'
@@ -925,7 +917,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                  +'</ul>'
                  */
                 '<div>Embed:</div>'
-                + '<input class="form-control" value="{{poiShareUrl.embed}}"/>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)"/>'
                 + '</div>'
                 + '</div>';
 

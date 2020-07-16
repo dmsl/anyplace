@@ -2013,7 +2013,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 initializeTimeFunction();
             },
             function (resp) {
-                ShowError($scope, resp, ERR_FETCH_FINGERPRINTS + ": timestamp.", true);
+                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
+                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS + ": timestamp.", true);
             }
         );
 
@@ -2110,7 +2111,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                                 },
                                 function (resp) {
-                                    ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
+                                    console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
+                                    // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                                     if (!$scope.fingerPrintsMode) {
                                         document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                                         $scope.fingerPrintsMode = false;
@@ -2214,7 +2216,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                             },
                             function (resp) {
-                                ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
+                                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
+                                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                                 if (!$scope.fingerPrintsMode) {
                                     document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
                                     $scope.fingerPrintsMode = false;
@@ -2346,15 +2349,16 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
         },
             function (resp) {
-            ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-            if (!$scope.fingerPrintsMode) {
-                document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-                $scope.fingerPrintsMode = false;
-                if (typeof(Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('fingerprintsMode', 'NO');
+                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
+                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
+                if (!$scope.fingerPrintsMode) {
+                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                    $scope.fingerPrintsMode = false;
+                    if (typeof(Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('fingerprintsMode', 'NO');
+                    }
                 }
             }
-        }
     );
 }
     };

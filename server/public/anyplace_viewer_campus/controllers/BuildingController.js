@@ -52,6 +52,20 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.myallPoisHashT = {};
     $scope.myallEntrances = [];
 
+    $scope.fetchVersion = function () {
+        var jsonReq = {};
+        var promise = $scope.anyAPI.version(jsonReq);
+        promise.then(
+            function (resp) { // on success
+                var data = resp.data;
+                // console.log("VERSION: " + data);
+                var element = document.getElementById("anyplace-version");
+                element.textContent = "v"+data;
+            },
+            function (resp) { console.log("Failed to get version: " + resp.data); }
+        );
+    };
+    $scope.fetchVersion();
 
     var markerCluster = new MarkerClusterer($scope.gmapService.gmap);
 
