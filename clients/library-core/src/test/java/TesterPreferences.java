@@ -61,7 +61,7 @@ public class TesterPreferences {
     public void testRadioByBuildingFloorRange() {
         Anyplace client = new Anyplace(preferences);
 
-        //response = client.radioByBuildingFloorRange( buid, floor, coordinates_la, coordinates_lo, range);
+        response = client.radioByBuildingFloorRange( buid, floor, coordinates_la, coordinates_lo, range);
         //System.out.println(response + "\n");
     }
 
@@ -110,7 +110,7 @@ public class TesterPreferences {
     public void testRadioByCoordinatesFloor() {
         Anyplace client = new Anyplace(preferences);
 
-       // response = client.radioByCoordinatesFloor(coordinates_la, coordinates_lo, floor);
+        response = client.radioByCoordinatesFloor(coordinates_la, coordinates_lo, floor);
 
     }
 
