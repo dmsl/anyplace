@@ -1,0 +1,121 @@
+version: "3.7"
+services:
+    # base image for anyplace. All services dependencies are installed here
+    # It was separated from anyplace to ease docker image development
+    # and maintenance
+    #anyplace-base:
+    #    image: anyplace-base:${ANYPLACE_IMG_VERSION}
+    #    container_name: anyplace-base
+    #    build:
+    #        context: ./
+    #        dockerfile: ./anyplace-base/Dockerfile
+    anyplace:
+        image: anyplace:${ANYPLACE_IMG_VERSION}
+        container_name: anyplace
+        build:
+            context: ./
+            dockerfile: ./anyplace/Dockerfile
+            args:
+                DIR: anyplace/
+                TIMEZONE: ${TIMEZONE}
+                VERSION: ${ANYPLACE_VERSION}
+                APP_ENV: ${APP_ENV}
+                SUPPORTED_VERSIONS: ${ANYPLACE_SUPPORTED_VERSIONS}
+                DOCKER_TILER: ${ANYPLACE_DOCKER_TILER}
+                CERT_HOSTNAME: ${CERT_HOSTNAME}
+                CERT_DOMAIN: ${CERT_DOMAIN}
+                CERT_OrganizationalUnit: ${CERT_OrganizationalUnit}
+                CERT_Organization: ${CERT_Organization}
+                CERT_Locality: ${CERT_Locality}
+                CERT_StateOrProvinceName: ${CERT_StateOrProvinceName}
+                CERT_CountryName: ${CERT_CountryName}
+        # No need (so we can start anyplace w/ external couchbase)
+        #depends_on:
+        #   - couchbase
+        environment:
+                PORT_HTTPS: ${ANYPLACE_PORT_HTTPS}
+                PORT_HTTP: ${ANYPLACE_PORT_HTTP}
+                PLAY_SECRET: ${PLAY_SECRET}
+                PLAY_SERVER_ADDRESS: ${PLAY_SERVER_PROTOCOL}${CERT_HOSTNAME}.${CERT_DOMAIN}
+                DOCKER_TILER: ${ANYPLACE_DOCKER_TILER}
+
+                # linked to play:application.conf
+                # Account chosen for the bucket authentication
+                COUCHBASE_BUCKET: ${COUCHBASE_BUCKET}
+                COUCHBASE_HOSTNAME: ${COUCHBASE_HOSTNAME}
+                COUCHBASE_CLUSTER: ${COUCHBASE_CLUSTER_HOSTNAMES}
+                COUCHBASE_PORT: ${COUCHBASE_PORT}
+                COUCHBASE_ROOT_USER: ${COUCHBASE_ROOT_USER}
+                COUCHBASE_ROOT_PASS: ${COUCHBASE_ROOT_PASS}
+                # INFO using rbac
+                COUCHBASE_BUCKET_USER: ${COUCHBASE_USER}
+                COUCHBASE_BUCKET_PASS: ${COUCHBASE_PASS}               
+                DOCKER_FS: ${ANYPLACE_DOCKER_FS}
+                F_RMAP_RAW: ${F_RMAP_RAW}
+                F_RMAP_FROZEN: ${F_RMAP_FROZEN}
+                F_FLOOR_PLANS: ${F_FLOOR_PLANS}
+                F_ACCES: ${F_ACCES}
+
+        volumes:
+            # CHECK we are having issues with volumes, so we will use mounts
+            #- ap_conf:/opt/app/conf
+            #- ap_cert:/opt/cert
+            - ${ANYPLACE_DATA_PLAY}/cert:/opt/cp/cert
+            - ${ANYPLACE_DATA_PLAY}/log:/opt/log
+            # Mount the FS as a single point
+            - ${ANYPLACE_HOST_FS}/:/opt/fs/
+        ports:
+            - 80:80
+            - 443:443
+        #network_mode: host
+        networks:
+            - apnet
+    couchbase:
+        image: anyplace-couchbase:${ANYPLACE_IMG_VERSION}
+        #container_name: anyplace-couchbase
+        container_name: ${CONTAINER_COUCHBASE:?Couchbase container name empty}
+        build:
+            context: ./
+            dockerfile: ./couchbase/Dockerfile
+            args:
+                DIR: couchbase/
+                ROOT_USER: ${COUCHBASE_ROOT_USER}
+                ROOT_PASS: ${COUCHBASE_ROOT_PASS}
+                USER: ${COUCHBASE_USER}
+                PASS: ${COUCHBASE_PASS}
+                CLUSTER: ${COUCHBASE_CLUSTER}
+                BUCKET: ${COUCHBASE_BUCKET}
+                RAM: ${COUCHBASE_RAM}
+                RAM_INDEX: ${COUCHBASE_RAM_INDEX}
+                RAM_BUCKET: ${COUCHBASE_RAM_BUCKET}
+        volumes:
+            - ${ANYPLACE_DATA_COUCHBASE}/data:/opt/couchbase/var/lib/couchbase/data
+            - ${ANYPLACE_DATA_COUCHBASE}/logs:/opt/couchbase/var/lib/couchbase/logs
+        environment:
+            CLUSTER_USERNAME: ${COUCHBASE_USER}
+            CLUSTER_PASSWORD: ${COUCHBASE_PASS}
+            CLUSTER_NAME: ${COUCHBASE_CLUSTER}
+            CLUSTER_RAMSIZE:  ${COUCHBASE_RAM}
+            BUCKET: ${COUCHBASE_BUCKET}
+            RBAC_USERNAME: ${COUCHBASE_USER}
+            RBAC_PASSWORD: ${COUCHBASE_PASS}
+        #restart: always
+        ports:
+            #- 8091-8094:8091-8094
+            #- 11210-11210:11210-11210
+             - 8091:8091
+             - 8092:8092
+             - 8093:8093
+             - 8094:8094
+             - 11207:11207
+             - 11210:11210
+             - 11211:11211
+             - 18091:18091
+             - 18092:18092
+             - 18093:1809
+        #network_mode: host
+        networks:
+            - apnet
+# network issue: if apnet pseudo-network we cannot access ap1. if not, we cannot access ap-dev.cs... (local)
+networks:
+    apnet:

@@ -1,29 +1,42 @@
-# Anyplace v3.x Installation Notes
-This is a latest version of the Anyplace backend, which has been ported to tha scala language and that also supports all the latest versions of its underlying software layers (i.e., it has been tested with couchbase 4.5 and play framework 2.5).
+# Anyplace v4.x Installation Notes
+This is a latest version of the Anyplace backend, which has been ported to tha scala language and
+that also supports all the latest versions of its underlying software layers
+(i.e., it has been tested with couchbase 4.5 and play framework 2.8).
 
-# Anyplace v3.x for administrators
+# Anyplace v4.x for administrators
 
 ## Setup/Configuration
 
-  1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads). Anyplace v3 has been tested with Couchbase 4.5, but compatibility with later versions is expected.
+1. **Install & Configure Couchbase** Download the latest Couchbase Server Community Edition from
+     [https://www.couchbase.com/downloads](https://www.couchbase.com/downloads).
+     Anyplace v4.x has been tested with Couchbase 4.5 and 6.0.0. Version 6.5 breaks compatibility.
   
-  2. **Download Anyplace v3.x:**
- 
-    $ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v3.zip  
-    #if you don't have wget, just download the file with a browser)
+2. **Download Anyplace:**
+For the latest binaries visit our Github releases.
+Alternatively you can grab a copy using:
+```
+$ wget https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v4.zip  
+```
     
-    $ unzip anyplace_v3.zip
-    #if you don't have unzip, just use any unzip tool (winzip, etc.)
+```
+$ unzip anyplace_<version>.zip
+```
+If you don't have unzip, just use any unzip tool (winzip, etc.)
 
   3. **Link Couchbase to Anyplace**
     Now you have to change the default configurations. Please follow the below instructions before running Anyplace
     Fill in the paremeters in `conf/application.conf` according to the development or production environment.
         * `application.secret` - This is a Play Framework parameter. You can see its purpose and how to generate one in Play Framework's [documentation](https://www.playframework.com/documentation/2.5.x/ApplicationSecret).
         * `server.address` - The URL the server is running on. (e.g. `http://anyplace.cs.ucy.ac.cy`)
-        * `couchbase.hostname` - The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
         * `couchbase.port` - Couchbase's port. The default is `8091`.
         * `couchbase.bucket` - The name of the Couchbase bucket where the Anyplace documents reside.
         * `couchbase.password` - The password to access the DB instance.
+        * `couchbase.hostname`:
+            * The URL where the Couchbase instance is running. (e.g. `http://db.<<domain>>.com`)
+        * `couchbase.clusterNodes`:
+            * This may be used in place of `couchbase.hostname`, for clusters
+            * Use multiple hostnames, separated with comma without spaces
+                - e.g., `couchbase.clusterNodes="couchbase://hostname1,hostname2"`
     Make sure a Couchbase instance is running, with the [Production Views](https://developer.couchbase.com/documentation/server/4.6/introduction/whats-new.html) the server invokes.
     You can use the automated script (`create-views.sh`) in order to create the views under the [`anyplace_views`](anyplace_views) directory.
     You need to set the username and the password for your couchbase instance.  
@@ -31,14 +44,30 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
         * `PASSWORD=""` - This is the administrator's password for the couchbase instance.
         * `BUCKET=""` - This is the bucket for the couchbase instance.
     Important: As with all passwords, this should be kept a secret. 
+
+    4. Install [tiler dependencies] (anyplace_tiler/README.md)
+
+    5. Optionally modify other parameters in `conf/application.conf`:
+        + `floorPlansRootDir`: directory of the floopr plans
+        + `radioMapRawDir`: directory for the raw radiomap data
+        + `radioMapFrozenDir`: directory for the frozen radiomaps
+        + `tilerRootDir`: directory of the tiler
+        + `crlbsDir`: directory for the ACCES map data, generated using the  Cramer-Rao lower bound (CRLBS) algorithm.
+
+    6. `InfluxDB`
+    Setup the following parameters in `conf/application.conf`:
+        + `influxdb.hostname`: usually localhost
+        + `influxdb.port`: default port
+        + `influxdb.database`: name of the database
+        + `influxdb.precision`: accuracy for GeoHashing.
   
 ## Launching 
 
     You can now launch the Anyplace service:
     # LINUX / MACOSX 
     $ cd anyplace_v3/bin
-    $ chmod +x anyplace_v3
-    $ ./anyplace_v3  (alternatively use: $ nohup ./anyplace_v3 > anyplace.log 2>&1 )
+    $ chmod +x anyplace
+    $ ./anyplace  (alternatively use: $ nohup ./anyplace > anyplace.log 2>&1 )
     # To stop press Ctrl-C or kill the respective process
 
     # WINDOWS
@@ -47,7 +76,7 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     # To stop press Ctrl-C or kill the respective process through the task manager
     
 ## Testing
-    Just open a browser and test the following URLs.
+    Just open a browser and test the following URLs:
 
     $ http://localhost:9000/viewer
     $ http://localhost:9000/architect
@@ -65,12 +94,10 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
 + Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection. SSL is only optional for web functionality. For Android, SSL is a prerequisite!
 
 + (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
-  
 
-    
-# Anyplace v3.x for developers
+# Anyplace v4.x for developers
 
-## How to setup Anyplace v3.x in your IDE?
+## How to setup Anyplace v4.x in your IDE?
 1. You can run the project locally on your personal computer using the [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 + Download the  [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (The Community Edition is free but if you are a student we recommend taking advantage of the Ultimate Edition which is free for 1 year - this has built-in integration for Play Framework debugging)
 + Install the Scala plugin during the installation process
@@ -87,11 +114,19 @@ This is a latest version of the Anyplace backend, which has been ported to tha s
     * Choose `SBT Task` and then write "run" in the `tasks` fields
 + (Tentatively) Refresh Viewer Packages: https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_viewer
 + (Tentatively) Refresh Architect Packages:  https://github.com/dmsl/anyplace/tree/master/server/public/anyplace_architect
++ Ignore the directories which are generated with grunt. These essentially put all JavaScript into a single file,
+  along with other artifacts like CSS and images. They should never be edited, and this excludes them from IDE's search.
+    - Exclude using:
+        -> `right click` on the sidebar folder
+        -> `Mark Directory as`
+        -> `Excluded`
+    - Directories to exclude:
+        + public/anyplace_architect/build
+        + public/anyplace_viewer/build
+        + public/anyplace_viewer_campus/build
 + Done!
 
 **Important**: In order to fully support the Play project you need download and install the Ultimate edition.
-
-
 **Important**: You need to have installed the JAVA enviroment.
 
 ## Build
@@ -148,7 +183,7 @@ This class provides floor detection functionality for detecting when a user has 
 * **Anyplace Developers** - This is the page for Anyplace API's interactive documentation, built with [Dart](https://www.dartlang.org/). It resides in the [`public`](public) directory and served through the [`AnyplaceWebApps`](app/controllers/AnyplaceWebApps.java) controller.
 
 
-## Geolocation
+## Geolocation using `InfluxDB`:
 
 Anyplace provides endpoints dedicated to storing and retrieving geo-points:
 

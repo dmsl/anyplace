@@ -76,7 +76,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -126,7 +126,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -170,7 +170,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -236,7 +236,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -289,7 +289,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -351,7 +351,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -401,7 +401,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }
@@ -458,7 +458,7 @@ object AnyplaceAccounts extends Controller {
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error(
-              "Server Internal Error [" + e.getMessage + "]")
+              "500: " + e.getMessage)
 
         }
       }

@@ -153,6 +153,7 @@ app.service('GMapService', function () {
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
         zoomControl: true,
+        fullscreenControl: false,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER
@@ -169,14 +170,23 @@ app.service('GMapService', function () {
         }
     });
 
-    self.gmap.addListener('maptypeid_changed', function () {
-        var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
-        localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
-        customMapAttribution(self.gmap);
-        self.gmap.setOptions({
-            streetViewControl: showStreetViewControl
-        });
+  self.gmap.addListener('maptypeid_changed', function () {
+    // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
+    //Issue happens due to setting of custom maptype Id
+    if (self.gmap.getMapTypeId() === 'my_custom_layer1' && self.gmap.zoom < 22) {
+      self.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
+    } 
+    else if (self.gmap.getMapTypeId() !== 'my_custom_layer1' && self.gmap.zoom === 22){
+      localStorage.setItem("previousMapTypeId",self.gmap.getMapTypeId());
+    }
+
+    var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
+    localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
+    customMapAttribution(self.gmap);
+    self.gmap.setOptions({
+      streetViewControl: showStreetViewControl
     });
+  });
 
     function customMapAttribution(map) {
         var id = "custom-maps-attribution";

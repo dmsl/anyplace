@@ -2,6 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+GET          /favicon.ico    controllers.Assets.at(path="/public/images", file="favicon.png")
 
 # Routes
 # This file defines all application routes (Higher priority routes first)
@@ -29,6 +30,10 @@ POST        /anyplace/position/radio/heatmap_building_floor_average_2           
 POST        /anyplace/position/radio/heatmap_building_floor_average_3                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
+
+# REVIEWLS lsolea01: radio maps delete crlbs_file and the radiomaps_frozen folder by floor building
+POST        /anyplace/position/radio/heatmap_building_floor_delete                                           controllers.AnyplaceMapping.radiomapDelete()
+
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles            controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
 
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage1()
@@ -144,14 +149,16 @@ GET         /developers                                                         
 ### ARCHITECT WEBSITE ###
 GET         /architect/*file                                                           controllers.Assets.at(path="/public/anyplace_architect", file)
 GET         /architect/                                                                controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+
 GET         /architect                                                                 controllers.AnyplaceWebApps.AddTrailingSlash()
+
+POST        /anyplace/version                                                                   controllers.ApplicationAnyplace.Version
 
 ### VIEWER WEBSITE ###
 GET         /viewer/index.html                                                         controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET         /viewer/*file                                                              controllers.AnyplaceAssets.at(path="/public", file)
 GET         /viewer/                                                                   controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET         /viewer                                                                    controllers.AnyplaceWebApps.AddTrailingSlash()
-
 
 # Map static resources
 GET         /floortiles/zip/*file                                                      controllers.ExternalAssets.at(path="/floor_plans", file)

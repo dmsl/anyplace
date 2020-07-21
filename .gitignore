@@ -1,5 +1,5 @@
 # Created by https://www.gitignore.io/api/linux,macos,windows
-# Edit at https://www.gitignore.io/?templates=linux,macos,windows
+
 
 ### Linux ###
 *~
@@ -69,9 +69,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-# End of https://www.gitignore.io/api/linux,macos,windows
-*.png
-*.zip
-*.zip
-library/core/res/username_1373876832005/-1/floorPlanTiles.zip

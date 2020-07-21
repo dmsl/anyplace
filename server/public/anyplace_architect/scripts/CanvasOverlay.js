@@ -202,9 +202,9 @@ CanvasOverlay.prototype.onAdd = function () {
         var _cos = Math.cos(angle_rad);
         var _sin = Math.sin(angle_rad);
 
-        //patch: calculate the corect mouse offset for a more natural feel
-        ndx = dx * _cos + dy * _sin;
-        ndy = dy * _cos - dx * _sin;
+        //patch: calculate the correct mouse offset for a more natural feel
+        var ndx = dx * _cos + dy * _sin;
+        var ndy = dy * _cos - dx * _sin;
         dx = ndx;
         dy = ndy;
 
@@ -383,6 +383,7 @@ CanvasOverlay.prototype.onAdd = function () {
     panes.overlayImage.appendChild(this.div_);
 ////////////////////////////////////////
     var that=this;
+    // CHECK why that?
     var container=div;
     google.maps.event.addDomListener(this.get('map').getDiv(),
         'mouseleave',
@@ -396,12 +397,13 @@ CanvasOverlay.prototype.onAdd = function () {
         'mousedown',
         function(e){
             this.style.cursor='move';
-            that.map.set('draggable',false);
+            that.map_.set('draggable',false);
             that.set('origin',e);        }
     );
 
     google.maps.event.addDomListener(container,'mouseup',function(){
-        that.map.set('draggable',true);
+        // BUG
+        that.map_.set('draggable',true);
         this.style.cursor='default';
         google.maps.event.removeListener(that.moveHandler);
     });

@@ -338,7 +338,7 @@ public class Algorithms {
 
 	private static double calculateEuclideanDistance(ArrayList<String> l1, ArrayList<String> l2) {
 
-		// System.out.println("Calculating Distance between " + l1 + "\n" + l2);
+		// LPLogger.debug("Calculating Distance between " + l1 + "\n" + l2);
 
 		double finalResult = 0;
 		double v1;

@@ -13,6 +13,16 @@ body {
     position: relative;
 }
 
+#color-bar {
+    position: fixed;
+    bottom: -1%;
+    left: 60%;
+    right:40%;
+    margin-left:-600px;
+    z-index: 99999;
+}
+
+
 #login-details {
     float: right;
     font-size: 16px;
@@ -204,7 +214,7 @@ body {
 }
 
 #div-logo {
-    margin: 8px 8px 8px 8px;
+    /*margin: 8px 8px 8px 8px;*/
     /*display: inline-block;*/
 }
 
@@ -401,6 +411,12 @@ body {
     cursor: pointer;
 }
 
+
+/*.logo-header {*/
+/*    margin-top: -4px;*/
+/*}*/
+
+
 #info-window-zoomin:hover {
     opacity: 1;
 }
@@ -435,7 +451,8 @@ body {
 }
 
 @media (max-width: 768px) {
-    #div-logo {
+    /*Hide just the image*/
+    #div-logo img {
         display: none;
     }
 }

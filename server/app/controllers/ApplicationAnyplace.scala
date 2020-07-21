@@ -35,10 +35,13 @@
  */
 package controllers
 
+import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import play.Play
 import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc.{Action, Result}
 import security.User
+import utils.AnyResponseHelper
 
 object ApplicationAnyplace extends play.api.mvc.Controller {
 
@@ -46,8 +49,24 @@ object ApplicationAnyplace extends play.api.mvc.Controller {
     Redirect("/viewer")
   }
 
-  def indexAny() = index()
+  def Version= Action {
+    val version = Play.application().configuration().getString("application.version")
+    Ok(version)
+  }
 
+  //  def Architect = Action {
+  //    Ok(views.html.architect())
+  //  }
+  //
+  //  def Viewer= Action {
+  //    Ok(views.html.viewer())
+  //  }
+  //
+  //    def ViewerCampus(any: String) = Action {
+  //    Ok(views.html.viewer_campus())
+  //  }
+
+  def indexAny() = index()
 
   def indexAny(any: String) = Action {
     Redirect(routes.Assets.at("/public/anyplace_viewer", "index.html"))

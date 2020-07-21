@@ -1,0 +1,28 @@
+{
+  "views": {
+    "heatmap_by_floor_building_level_1": {
+      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x.slice(0,doc.x.length-5), doc.y.slice(0,doc.y.length-5)], doc.rss);\n  }\n}",
+      "reduce": "function (keys, values, rereduce) {\n if(!rereduce) {\n   var total = 0,\n       count = 0;\n   for (v in values) {\n     total+= parseInt(values[v]);\n     count++;\n   }\n } else {\n   var count = 0;\n       total = 0;\n   for (v in values) {\n     total += values[v]['total'];\n     count += values[v]['count'];\n   }    \n }\n var average = total / count;\n return {count: count,\n           total: total,\n           average: average};\n}"
+    },
+    "heatmap_by_floor_building_level_2": {
+      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x.slice(0,doc.x.length-4), doc.y.slice(0,doc.y.length-4)], doc.rss);\n  }\n}",
+      "reduce": "function (keys, values, rereduce) {\n if(!rereduce) {\n   var total = 0,\n       count = 0;\n   for (v in values) {\n     total+= parseInt(values[v]);\n     count++;\n   }\n } else {\n   var count = 0;\n       total = 0;\n   for (v in values) {\n     total += values[v]['total'];\n     count += values[v]['count'];\n   }    \n }\n var average = total / count;\n return {count: count,\n           total: total,\n           average: average};\n}"
+    },
+    "heatmap_by_floor_building_level_3": {
+      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], doc.rss);\n  }\n}",
+      "reduce": "function (keys, values, rereduce) {\n if(!rereduce) {\n   var total = 0,\n       count = 0;\n   for (v in values) {\n     total+= parseInt(values[v]);\n     count++;\n   }\n } else {\n   var count = 0;\n       total = 0;\n   for (v in values) {\n     total += values[v]['total'];\n     count += values[v]['count'];\n   }    \n }\n var average = total / count;\n return {count: count,\n           total: total,\n           average: average};\n}"
+    },
+    "accessPoint_by_floor_building": {
+      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss  && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y,doc.MAC],doc.rss);\n  }\n}",
+      "reduce": "function (keys, values, rereduce) {\n if(!rereduce) {\n   var total = 0,\n       count = 0;\n   for (v in values) {\n     total+= parseInt(values[v]);\n     count++;\n   }\n } else {\n   var count = 0;\n       total = 0;\n   for (v in values) {\n     total += values[v]['total'];\n     count += values[v]['count'];\n   }    \n }\n var average = total / count;\n return {count: count,\n           total: total,\n           average: average};\n}"
+    },
+    "heatmap_by_floor_building": {
+      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], doc.rss);\n  }\n}",
+      "reduce": "function (keys, values, rereduce) {\n if(!rereduce) {\n   var total = 0,\n       count = 0;\n   for (v in values) {\n     total+= parseInt(values[v]);\n     count++;\n   }\n } else {\n   var count = 0;\n       total = 0;\n   for (v in values) {\n     total += values[v]['total'];\n     count += values[v]['count'];\n   }    \n }\n var average = total / count;\n return {count: count,\n           total: total,\n           average: average};\n}"
+    },
+    "heatmap_by_floor_building_timestamp": {
+      "map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.timestamp], doc.rss);\n  }\n}",
+      "reduce": "_count"
+    }
+  }
+}

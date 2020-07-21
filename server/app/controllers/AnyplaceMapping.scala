@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -60,19 +60,32 @@ import utils._
 
 import scala.util.control.Breaks
 import play.api.libs.json.Reads._
-
-import play.api.libs.json._ 
+import play.api.libs.json._
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
+import scala.io.Source
+import java.nio.file.{Files, Paths}
+import java.time.Instant
+import java.time.temporal.{ChronoUnit, TemporalUnit}
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
+  // CHECK Why is this hardcoded here?
   private val ADMIN_ID = "112997031510415584062_google"
+  val ACCES_RETRY_AMOUNT = 2
+  val ACCES_RETRY_UNIT: TemporalUnit = ChronoUnit.HOURS
 
-  private def verifyOwnerId(authToken: String): String = {
-    //remove the double string qoutes due to json processing
+    // returns a json in a string format, and strips out unnecessary fields for logging, like:
+    // access_token (which is huge), username, and password
+    def stripJson(jsVal: JsValue) = {
+        // if username is needed, then restore it
+        (jsVal.as[JsObject] - "access_token" - "password" - "username").toString()
+    }
+
+    private def verifyOwnerId(authToken: String): String = {
+    //remove the double string quotes due to json processing
     val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
     var res = ""
     try
@@ -85,7 +98,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     }
     if (res != null)
       try {
-        var json = JsonObject.fromJson(res)
+        val json = JsonObject.fromJson(res)
         if (json.get("user_id") != null)
           return json.get("user_id").toString
         else if (json.get("sub") != null)
@@ -116,16 +129,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + stripJson(anyReq.getJsonBody))
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmap
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           val res = JsonObject.empty()
           res.put("radioPoints", (radioPoints))
-          return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+          return AnyResponseHelper.ok(res, "Successfully retrieved all radio points.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -138,8 +150,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + json.toString)
+        val json = anyReq.getJsonBody()
+        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -155,7 +167,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -168,8 +180,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -185,7 +197,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -198,8 +210,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -215,7 +227,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -229,8 +241,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -246,7 +258,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -259,8 +271,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -276,21 +288,21 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
       inner(request)
   }
-//HEREEE
- def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
+
+  def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -318,7 +330,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -332,9 +344,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -356,7 +367,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
         }
       }
 
@@ -368,16 +379,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val sytile = Math.floor((1.0 - Math.log(Math.tan(Math.toRadians(lat)) + 1.0 / Math.cos(Math.toRadians(lat))) / 3.141592653589793) / 2.0 * (1 << zoom).toDouble).toInt
     Array[Int](sxtile, sytile)
   }
-//HEREEE
-    def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
+
+  def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY","x","y","z")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -411,7 +421,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -424,9 +434,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -448,7 +457,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -461,9 +470,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -483,7 +491,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -497,8 +505,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getAPs(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::getAPs(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -554,7 +562,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -563,14 +571,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   def getAPsIds() = Action {
-     implicit request =>
+    implicit request =>
       def inner(request: Request[AnyContent]): Result = {
 
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json  = anyReq.getJsonBody
-        var accessPointsOfReq= (json\"ids").as[List[String]]
-
+        val json = anyReq.getJsonBody
+        val accessPointsOfReq= (json\"ids").as[List[String]]
         try {
           val reqFile = "public/anyplace_architect/ids.json"
           val file = Play.application().resourceAsStream(reqFile)
@@ -593,55 +600,51 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val inner_loop = new Breaks
 
 
-            for (accessPointOfReq : String <- accessPointsOfReq) {
-              idOfReq="N/A"
-              loop.breakable {
-                for (accessPointOfFile: JsObject <- accessPointsOfFile) {
+          for (accessPointOfReq : String <- accessPointsOfReq) {
+            idOfReq="N/A"
+            loop.breakable {
+              for (accessPointOfFile: JsObject <- accessPointsOfFile) {
 
-                  val bitsR = accessPointOfReq.split(":")
-                  val bitsA = accessPointOfFile.value("mac").as[String].split(":")
-                  if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
+                val bitsR = accessPointOfReq.split(":")
+                val bitsA = accessPointOfFile.value("mac").as[String].split(":")
+                if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
 
-                    firstBitFound=true
+                  firstBitFound=true
 
-                    var i = 0
-                    inner_loop.breakable {
-                      for (i <- 0 until bitsA.length) {
+                  var i = 0
+                  inner_loop.breakable {
+                    for (i <- 0 until bitsA.length) {
 
-                        if (bitsA(i).equalsIgnoreCase(bitsR(i))) {
-                          sameBits += 1
-                        } else {
+                      if (bitsA(i).equalsIgnoreCase(bitsR(i))) {
+                        sameBits += 1
+                      } else {
 
-                          inner_loop.break
-                        }
+                        inner_loop.break
                       }
                     }
-
-                    if(sameBits >= 3)
-                      found = true
-
-                  } else {
-                    sameBits = 0
-
-                    if (firstBitFound) {
-                      firstBitFound=false
-                      loop.break
-                    }
                   }
 
-                  if (sameBitsOfReq < sameBits && found) {
-                    sameBitsOfReq = sameBits
-                    idOfReq = accessPointOfFile.value("id").as[String]
-                  }
+                  if(sameBits >= 3)
+                    found = true
+                } else {
                   sameBits = 0
-
+                  if (firstBitFound) {
+                    firstBitFound=false
+                    loop.break
+                  }
                 }
-              }//accessPointOfFile break
 
-              APsIDs.add(idOfReq)
-              sameBitsOfReq = 0
-              found=false
+                if (sameBitsOfReq < sameBits && found) {
+                  sameBitsOfReq = sameBits
+                  idOfReq = accessPointOfFile.value("id").as[String]
+                }
+                sameBits = 0
+              }
+            } //accessPointOfFile break
 
+            APsIDs.add(idOfReq)
+            sameBitsOfReq = 0
+            found=false
           }
 
           if (accessPointsOfReq == null) return AnyResponseHelper.bad_request("Access Points does not exist or could not be retrieved!")
@@ -655,7 +658,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all id for Access Points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -668,8 +671,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor", "lat1", "lon1", "lat2", "lon2")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -694,7 +697,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-{
+          {
           //Regenerate the radiomap files
           val strPromise = F.Promise.pure("10")
           val intPromise = strPromise.map(new F.Function[String, Integer]() {
@@ -706,13 +709,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           gzippedJSONOk(res.toString)
           //                }
           //                return AnyResponseHelper.ok(res.toString());
-        } catch {
+          } catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -720,14 +723,14 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-   def FingerPrintsTimestampDelete() = Action {
+  def FingerPrintsTimestampDelete() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsTimestampDelete(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::FingerPrintsTimestampDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor", "lat1", "lon1", "lat2", "lon2","timestampX","timestampY")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -754,7 +757,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-{
+          {
           //Regenerate the radiomap files
           val strPromise = F.Promise.pure("10")
           val intPromise = strPromise.map(new F.Function[String, Integer]() {
@@ -766,13 +769,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           gzippedJSONOk(res.toString)
           //                }
           //                return AnyResponseHelper.ok(res.toString());
-        } catch {
+          } catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -786,8 +789,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsTime(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::FingerPrintsTime(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -815,7 +818,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -831,14 +834,16 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::findPosition(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::findPosition(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
+        // LPLogger.debug("json: "+json)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor").as[String]
+
         /*
          * BuxFix : Server side localization API
          * Fixing JSON Parse error
@@ -870,20 +875,35 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         
         //FeatureAdd : Configuring location for server generated files
         val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
+    /*
+     * REVIEWLS . Leaving bugfix from develop
+        val floor_number = (json \ "floor").as[String]
+        val jsonstr=(json\"APs").as[String]
+        val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
+        val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
+        val algorithm_choice = (json\"algorithm_choice").as[String].toInt
+        */
 
         val rmapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
           floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
 
         if(!rmapFile.exists()){
-           //Regenerate the radiomap files if not exist
-             AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+          //Regenerate the radiomap files if not exist
+          AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
         }
         /*
          * BuxFix : Server side localization API
          * Fixing null pointer error for latestScanList
          */
         val latestScanList: util.ArrayList[location.LogRecord] = new util.ArrayList[location.LogRecord]()
+
+        /*
+         * REVIEWLS Leaving bugfix from develop
+           val latestScanList = new  util.ArrayList[location.LogRecord]
+        */
         var i=0
+
+
         for (i <- 0 until accessPoints.size) {
           val bssid= (accessPoints(i) \ "bssid").as[String]
           val rss =(accessPoints(i) \ "rss").as[Int]
@@ -906,12 +926,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         res.put("lat", lat_long(0))
         res.put("long", lat_long(1))
         return AnyResponseHelper.ok(res, "Successfully found position.")
-      }
 
+        // REVIEWLS accepted develop code. lsolea01 code must have been
+        // based on a previous commit of the develop branch
+      }
       inner(request)
   }
-
-
 
   def getRadioHeatmapBbox = Action {
     implicit request =>
@@ -920,8 +940,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon", "floor", "buid", "range")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -951,7 +971,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -964,13 +984,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::deleteRadiosInBox(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::deleteRadiosInBox(): " + stripJson(json))
         try {
           if (!ProxyDataSource.getIDatasource.deleteRadiosInBox()) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
           return AnyResponseHelper.ok("Success")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -983,7 +1003,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAdd(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "name", "description",
           "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1004,7 +1024,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           res.put("buid", building.getId)
           return AnyResponseHelper.ok(res, "Successfully added building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1018,7 +1038,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "co_owners")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\\("access_token") == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1035,7 +1055,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.appendCoOwners(json))) return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1048,7 +1068,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "new_owner")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1067,7 +1087,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.changeOwner(newOwner))) return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1081,7 +1101,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingUpdate(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1109,7 +1129,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1123,7 +1143,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingDelete(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1137,7 +1157,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
@@ -1149,14 +1169,14 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               " items.")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val filePath = AnyPlaceTilerHelper.getRootFloorPlansDirFor(buid)
         try {
           val buidfile = new File(filePath)
           if (buidfile.exists()) HelperMethods.recDeleteDirFile(buidfile)
         } catch {
-          case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plans." +
+          case e: IOException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "] while deleting floor plans." +
             "\nAll related information is deleted from the database!")
         }
         return AnyResponseHelper.ok("Successfully deleted everything related to building!")
@@ -1171,10 +1191,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
+          val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAll(): " + stripJson(json))
         try {
-
           val buildings = ProxyDataSource.getIDatasource.getAllBuildings
           val res = JsonObject.empty()
           res.put("buildings", buildings)
@@ -1186,7 +1205,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1194,7 +1213,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   def echo = Action { implicit request =>
-    var response = Ok("Got request [" + request + "]")
+    var response = Ok("Got request [" + request)
     response
   }
 
@@ -1204,8 +1223,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingGet(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingGet(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -1230,7 +1249,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
           return AnyResponseHelper.not_found("Building not found.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1243,7 +1262,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingAll(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1262,7 +1281,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1276,8 +1295,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAll(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingAll(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "bucode")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val bucode = (json \ "bucode").as[String]
@@ -1293,7 +1312,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1307,7 +1326,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingCoordinates(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingCoordinates(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1328,7 +1347,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings near your position!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1348,8 +1367,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper
             .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString)
+        val json = anyReq.getJsonBody
+        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + stripJson(json))
         var cuid = request.getQueryString("cuid").orNull
         if (cuid == null) cuid = (json \ "cuid").as[String]
         try {
@@ -1377,7 +1396,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("buildings", result)
           res.put("name", cuname)
-          System.out.println(greeklish)
+          LPLogger.debug(greeklish)
           if (greeklish == null) greeklish = "false"
           res.put("greeklish", greeklish)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
@@ -1390,7 +1409,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1411,7 +1430,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper
             .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "description", "name", "buids", "greeklish")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1443,7 +1462,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1463,7 +1482,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::campusUpdate(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::campusUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1492,7 +1511,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.ok("Successfully updated campus!")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1513,7 +1532,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1541,7 +1560,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1560,7 +1579,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::campusDelete(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::campusDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1580,10 +1599,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!isCampusOwner(stored_campus, owner_id))
             return AnyResponseHelper.unauthorized("Unauthorized")
           if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid))
-            return AnyResponseHelper.internal_server_error("Server Internal Error while trying to delete Campus")
+            return AnyResponseHelper.internal_server_error("500: Failed to delete Campus")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         return AnyResponseHelper.ok("Successfully deleted everything related to building!")
       }
@@ -1606,7 +1625,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::floorAdd(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::floorAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
           "description", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1621,7 +1640,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val floor_number = (json \ "floor_number").as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
@@ -1630,7 +1649,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.addJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor already exists or could not be added!")
           return AnyResponseHelper.ok("Successfully added floor " + floor_number + "!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1643,7 +1662,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::floorUpdate(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::floorUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1657,7 +1676,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val floor_number = (json \ "fllor_number").as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
@@ -1672,12 +1691,37 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor could not be updated!")
           return AnyResponseHelper.ok("Successfully updated floor!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
       inner(request)
   }
+
+  // REVIEWLS I think this deletes crlbs file (not radiomaps)
+  // also rename the log messages
+  def radiomapDelete()= Action {
+      implicit request =>
+        def inner(request: Request[AnyContent]): Result = {
+          val anyReq = new OAuth2Request(request)
+          if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          val json = anyReq.getJsonBody
+          val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+          if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+          val buid = (json \ "buid").as[String]
+          val floor_number=(json \ "floor").as[String]
+          val file_path=new File(
+              Play.application().configuration().getString("crlbsDir") +
+              File.separatorChar+buid+File.separator+"fl_"+floor_number+".txt")
+         if (file_path.exists()){
+              if(file_path.delete){
+                return AnyResponseHelper.ok("Deleted floor :" + floor_number)
+              }
+         }
+          return AnyResponseHelper.bad_request("ERROR: while deleting: " + floor_number)
+        }
+        inner(request)
+    }
 
   def floorDelete() = Action {
     implicit request =>
@@ -1685,7 +1729,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::floorDelete(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::floorDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1700,7 +1744,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
@@ -1712,7 +1756,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               " items.")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
         try {
@@ -1723,7 +1767,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
            */
           if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile())
         } catch {
-          case e: IOException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "] while deleting floor plan." +
+          case e: IOException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "] while deleting floor plan." +
             "\nAll related information is deleted from the database!")
         }
         return AnyResponseHelper.ok("Successfully deleted everything related to the floor!")
@@ -1738,7 +1782,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::floorAll(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::floorAll(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -1752,7 +1796,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all floors!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1765,7 +1809,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisAdd(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
           "floor_number", "name", "pois_type", "is_door", "is_building_entrance", "coordinates_lat", "coordinates_lon",
           "access_token")
@@ -1781,7 +1825,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val poi = new Poi(JsonObject.fromJson(json.toString()))
@@ -1790,7 +1834,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           res.put("puid", poi.getId)
           return AnyResponseHelper.ok(res, "Successfully added poi!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1809,7 +1853,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "poistypeid", "poistype", "owner_id", "types")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1836,7 +1880,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.ok(res, "Successfully added Pois Category!")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1849,7 +1893,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisUpdate(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1864,7 +1908,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val stored_poi = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid)
@@ -1892,7 +1936,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Poi could not be updated!")
           return AnyResponseHelper.ok("Successfully updated poi!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1905,7 +1949,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poiDelete(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poiDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1920,7 +1964,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByPoi(puid)
@@ -1933,7 +1977,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
           return AnyResponseHelper.ok("Successfully deleted everything related to the poi!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
 
       }
@@ -1947,7 +1991,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisByFloor(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -1963,7 +2007,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               "!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1977,7 +2021,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisByBuid(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisByBuid(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -1991,7 +2035,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2034,7 +2078,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2054,7 +2098,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2073,7 +2117,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2092,7 +2136,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisTypes(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisTypes(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2120,7 +2164,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2134,7 +2178,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::connectionAdd(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::connectionAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "pois_a", "floor_a",
           "buid_a", "pois_b", "floor_b", "buid_b", "buid", "edge_type", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2153,7 +2197,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val edge_type = (json \ "edge_type").as[String]
         if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
@@ -2173,7 +2217,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           res.put("cuid", conn.getId)
           return AnyResponseHelper.ok(res, "Successfully added new connection!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2187,7 +2231,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::connectionUpdate(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::connectionUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
           "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2206,7 +2250,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
           val pois_a = (json \ "pois_a").as[String]
@@ -2230,7 +2274,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (!ProxyDataSource.getIDatasource.replaceJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Connection could not be updated!")
           return AnyResponseHelper.ok("Successfully updated connection!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2244,7 +2288,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poiDelete(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poiDelete(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
           "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2263,7 +2307,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         val pois_a = (json \ "pois_a").as[String]
         val pois_b = (json \ "pois_b").as[String]
@@ -2283,7 +2327,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
           return AnyResponseHelper.ok("Successfully deleted everything related to the connection!")
         } catch {
-          case e: DatasourceException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2298,7 +2342,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::poisByFloor(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
@@ -2314,7 +2358,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               "!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2340,7 +2384,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2359,7 +2403,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2402,12 +2446,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::serveFloorPlan(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::serveFloorPlan(): " + stripJson(json))
         val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
         LPLogger.info("requested: " + filePath)
         try {
           val file = new File(filePath)
-          println("filePath " + file.getAbsolutePath)
+          // LPLogger.debug("filePath " + file.getAbsolutePath.toString)
           if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
             floor_number +
             ")")
@@ -2427,7 +2471,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZip(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZip(): " + stripJson(json))
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
         LPLogger.info("requested: " + filePath)
@@ -2452,7 +2496,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + stripJson(json))
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
         LPLogger.info("requested: " + filePath)
@@ -2498,7 +2542,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64(): " + stripJson(json))
         val filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floor_number)
         LPLogger.info("requested: " + filePath)
         val file = new File(filePath)
@@ -2542,7 +2586,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64all(): " + json.toString + " " + floor_number)
+        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64all(): " + stripJson(json) + " " + floor_number)
         val floors = floor_number.split(" ")
         val all_floors = new util.ArrayList[String]
         var z = 0
@@ -2666,7 +2710,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
-        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        LPLogger.info("Successfully tiled: " + floor_file.toString)
         return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
 
@@ -2734,7 +2778,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
-        LPLogger.info("Successfully tiled [" + floor_file.toString + "]")
+        LPLogger.info("Successfully tiled: " + floor_file.toString)
         return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
 
@@ -2749,7 +2793,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceAccounts::addAccount():: ")
+        LPLogger.info("AnyplaceAccounts::addAccount()")
         val notFound = JsonUtils.requirePropertiesInJson(json, "access_token", "type")
         if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -2764,7 +2808,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           return AnyResponseHelper.ok("New user.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -2827,10 +2871,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
+            LPLogger.info("getAccesHeatmapByBuildingFloor: assert json anyreq")
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): " + json.toString)
+        LPLogger.info("getAccesHeatmapByBuildingFloor(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2851,23 +2896,47 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           } else {
             val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
               cut_k_features = cut_k_features, h = h)
+            if (latlon_predict == null) {
+
+                val crlb_filename=Play.application().configuration().getString("crlbsDir") +
+                    File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
+                val crlb_filename_lock=crlb_filename+".lock"
+
+                val lockInstant =
+                    Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
+                val requestExpired = lockInstant.
+                    plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
+                var msg=""
+                if(requestExpired) {
+                    // TODO if ACCES generation happens asynchronously we can skip the extra step
+                    // This is just to show a warning message to the user.
+                    val file_lock =new File(crlb_filename_lock)
+                    file_lock.delete()
+                    msg = "Generating ACCES has previously failed. Please retry."
+                } else {
+                    msg = "Generating ACCES map in another background thread!"
+                }
+
+                return AnyResponseHelper.bad_request(msg)
+            }
+
             val res = JsonObject.empty()
             res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
             res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.toList)))
             return AnyResponseHelper.ok(res, "Successfully served ACCES map.")
           }
         } catch {
-          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-          case e: IOException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
-          case e: Exception => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
-          case _: Throwable => return AnyResponseHelper.internal_server_error("Server Internal Error [" + "]")
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+              "Cannot create radiomap:mapping:FNFE:" + e.getMessage)
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: IOException => return AnyResponseHelper.internal_server_error(
+              "Cannot create radiomap:IOE:" + e.getMessage)
+          case e: Exception => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case _: Throwable => return AnyResponseHelper.internal_server_error("500: ")
         }
       }
-
       inner(request)
   }
-
 
   def maintenance() = Action {
     implicit request =>
@@ -2876,12 +2945,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::deleteNotValidDocuments(): " + json.toString)
+        LPLogger.info("AnyplaceMapping::deleteNotValidDocuments(): " + stripJson(json))
         try {
           if (!ProxyDataSource.getIDatasource.deleteNotValidDocuments()) return AnyResponseHelper.bad_request("None valid documents!")
           return AnyResponseHelper.ok("Success")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
       inner(request)
@@ -2891,6 +2960,44 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   private def getAccesMap(rm: RadioMapMean,
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
+
+      // TODO this should be asynchronous. and display warning that it will take time
+      // Especially if it runs on radiomap upload
+    
+    val folder=new File(
+        Play.application().configuration().getString("crlbsDir") +
+    File.separatorChar+buid)
+    if (!folder.exists()) {
+        LPLogger.debug("getAccesMap: mkdir: " + folder.getCanonicalPath)
+        folder.mkdirs()
+    }
+
+    // REVIEWLS use option for this
+    val crlb_filename=Play.application().configuration().getString("crlbsDir") +
+        File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
+
+    val crlb_filename_lock=crlb_filename+".lock"
+    LPLogger.debug("getAccesMap:" + crlb_filename)
+
+    val file_path=new File(crlb_filename)
+    val file_lock =new File(crlb_filename_lock)
+
+      if (file_lock.exists()) {
+        val lockInstant =
+            Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
+        val requestExpired = lockInstant.
+            plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
+        if(requestExpired) {
+            // This is to give user some feedback too..
+            LPLogger.info("getAccesMap: Previous request failed and expired." +
+                "Will retry on next request.\nFile: " + crlb_filename)
+            // lock will be deleted at the callsite of this method
+        } else {
+            LPLogger.debug("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
+        }
+
+        return (null, null)
+    }
 
     val hm = rm.getGroupLocationRSS_HashMap()
     val keys = hm.keySet()
@@ -2921,7 +3028,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): fingerprints, APs: "
       + n.toString + ", " + m.toString)
 
-    LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): multipoint: " + multipoint.toGeoJSON().toString)
+    //LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): multipoint: " + multipoint.toGeoJSON().toString)
 
     val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
     val floor = floors.filter((js: JsonObject) => js.getString("floor_number") == floor_number)(0)
@@ -2946,19 +3053,56 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       drop_redundant_features = true,
       cut_k_features = cut_k_features
     )
-    println("fit_gpr: starting")
-    acces.fit_gpr(estimate = true, use_default_params = false)
-    println("fit_gpr: finished")
+
+    
+    // CLRLS
+    //    if (!Files.exists(Paths.get(file_path))) {
+    //   acces.fit_gpr(estimate = true, use_default_params = false)
+    //    }
+    //    LPLogger.debug("fit_gpr: starting")
+    //  acces.fit_gpr(estimate = true, use_default_params = false)
+    //    LPLogger.debug("fit_gpr: finished")
+
     //X_min and X_max are bl and ur in XY coordinates
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
-    val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
-    println("crlbs", crlbs)
-    val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
 
-      GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur)
-    )
+    if (file_path.exists()) {
+        val crl= Source.fromFile(file_path).getLines.toArray
+        val crlbs = DenseVector.zeros[Double](crl.length)
 
-    return (latlon_predict, crlbs)
+        // CLRLS
+        // acces.fit_gpr(estimate = true, use_default_params = false)
+        // LPLogger.debug("crl",crl.length);
+
+        for (k<-0 until crlbs.length){
+            crlbs(k)=crl(k).toDouble
+        }
+        val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+            GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+
+        return (latlon_predict, crlbs)
+    } else {
+        file_lock.createNewFile();
+        // TODO this should happen in the background.
+        LPLogger.info("Generating ACCES: " + crlb_filename)
+        acces.fit_gpr(estimate = true, use_default_params = false)
+
+        val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+
+        LPLogger.debug("length:" + crlbs.length)
+        val acces_file = new PrintWriter(file_path)
+        for (i <- 0 until crlbs.length) {
+            acces_file.println(crlbs(i))
+        }
+        acces_file.close()
+        file_lock.delete()
+
+        LPLogger.debug("Generated ACCES:" + crlb_filename)
+        val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+            GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+
+        return (latlon_predict, crlbs)
+    }
   }
 
 
@@ -2981,7 +3125,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
     var fout: FileOutputStream = null
     fout = new FileOutputStream(radio)
-    println(radio.toPath().getFileName)
+    LPLogger.debug(radio.toPath().getFileName.toString)
     var floorFetched: Long = 0l
     floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floor_number)
     try {
@@ -3009,8 +3153,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
 
-
-
   //  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {
   //    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floor_number)
   //    val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
@@ -3034,7 +3176,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   //    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
   //    var fout: FileOutputStream = null
   //    fout = new FileOutputStream(radio)
-  //    println(radio.toPath().getFileName)
+  //    LPLogger.debug(radio.toPath().getFileName.toString)
   //
   //    var floorFetched: Long = 0l
   //    floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
@@ -3059,6 +3201,3 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   //    return Option[RadioMapMean](rm)
   //  }
 }
-
-
-

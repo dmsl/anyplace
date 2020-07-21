@@ -167,9 +167,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+                "Cannot create radiomap:1: " + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {
@@ -180,7 +181,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
               case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
-            case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            case e: DatasourceException => return AnyResponseHelper.internal_server_error(
+                "500: " + e.getMessage)
           }
           if (floorFetched == 0) {
             return AnyResponseHelper.bad_request("Area not supported yet!")
@@ -284,9 +286,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
         var fout: FileOutputStream = null
         try {
           fout = new FileOutputStream(radio)
-          println(radio.toPath().getFileName)
+          LPLogger.debug(radio.toPath().getFileName.toString)
         } catch {
-          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+              "Cannot create radiomap:2: " + e.getMessage)
         }
         var floorFetched: Long = 0l
         try {
@@ -297,7 +300,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
             case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         if (floorFetched == 0) {
           return AnyResponseHelper.bad_request("Area not supported yet!")
@@ -405,9 +408,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+                "Cannot create radiomap:3:" + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {
@@ -418,7 +422,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
               case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
-            case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           }
           if (floorFetched != 0) {
 
@@ -525,7 +529,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           }
           Ok.sendFile(file)
         } catch {
-          case e: FileNotFoundException => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: FileNotFoundException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -553,7 +557,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         Ok.sendFile(file)
       } catch {
-        case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+        case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
       }
     }
 
@@ -676,7 +680,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           LPLogger.info("Time for Algo1 is millis: " + watch.getNanoTime / 1000000)
           AnyResponseHelper.ok(res, "Successfully predicted Floor.")
         } catch {
-          case e: Exception => AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: Exception => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -703,7 +707,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(radio)
-      println(radio.toPath().getFileName)
+      LPLogger.debug(radio.toPath().getFileName.toString)
     } catch {
       case e: FileNotFoundException => return
     }
@@ -784,9 +788,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            println(radio.toPath().getFileName)
+            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!")
+            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+                "Cannot create radiomap:4:" + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {
@@ -797,7 +802,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
               case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
-            case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           }
           if (floorFetched == 0) {
             return AnyResponseHelper.bad_request("Area not supported yet!")
@@ -862,7 +867,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           res.put("mpath", mpath.getId)
           return AnyResponseHelper.ok(res, "Successfully added magnetic path!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -889,7 +894,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
             return AnyResponseHelper.bad_request("Magnetic Path does not exist or could not be retrieved!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         return AnyResponseHelper.ok("Successfully deleted magnetic path!")
       }
@@ -918,7 +923,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           res.put("mpaths", JsonArray.from(mpaths))
           return AnyResponseHelper.ok(res.toString)
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -945,7 +950,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           res.put("mpaths", JsonArray.from(mpaths))
           return AnyResponseHelper.ok(res.toString)
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -981,7 +986,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
               return AnyResponseHelper.bad_request("Milestone already exists or could not be added!")
             }
           } catch {
-            case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+            case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           }
         }
         return AnyResponseHelper.ok("ok")
@@ -1011,7 +1016,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           res.put("mpaths", JsonArray.from(mpaths))
           return AnyResponseHelper.ok(res.toString)
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 

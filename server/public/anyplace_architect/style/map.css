@@ -31,13 +31,14 @@ footer{
     padding: 2px 8px;
     outline-style: none;
     /*background: #428bca;*/
-    border-radius: 0;
+  background: white;
+  border-radius: 5px;
     margin-bottom: 10px;
 }
 
 .fa-window-minimize, .fa-window-maximize{
-    color:#428bca;
-    margin-bottom: 10px;
+  color: #212B7B;
+  margin-bottom: 10px;
 }
 
 .controls {
@@ -52,21 +53,29 @@ footer{
 }
 
 #pac-input {
-    background-color: #fff;
-    padding: 0 11px 0 13px;
-    width: 400px;
-    font-family: Roboto;
-    font-size: 15px;
-    font-weight: 300;
-    text-overflow: ellipsis;
-    left: 35% !important;
+  /* Initially searchbox will be hidden.
+  Then when attached to googleAPI will be centered and shown*/
+  display: none;
+  background-color: #fff;
+  padding: 0 11px 0 13px;
+  border-width: 1px;
+  border-color: gray;
+  border-radius: 5px;
+  width: 400px;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 300;
+  text-overflow: ellipsis;
+  left: 35% !important;
 }
 
 #pac-input:focus {
-    border-color: #4d90fe;
-    margin-left: -1px;
-    padding-left: 14px; /* Regular padding-left + 1. */
-    width: 401px;
+    border-color: #202B7B;
+    border-width: 2px;
+    border-radius: 5px;
+    margin-left: -2px;
+    padding-left: 15px; /* Regular padding-left + 1. */
+    width: 403px;
 }
 
 .pac-container {
@@ -86,11 +95,16 @@ footer{
 }
 
 #map-canvas {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    margin: 0;
-    padding: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+}
+#map-canvas > div {
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  z-index:0;
 }
 
 #control-panel {
@@ -106,6 +120,9 @@ footer{
     overflow-y: scroll;
     z-index: 99;
     background-color: white;
+  border-width: 0 2px;
+  border: solid gray;
+  border-radius: 5px;
 }
 
 #floorCanvas {
@@ -144,19 +161,21 @@ footer{
 }
 
 #control-bar {
-    width: auto;
-    max-width: 35%;
-    min-width: 400px;
-    height: auto;
-    max-height: 100%;
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    z-index: 99;
-    border: 1px solid #ddd;
-    background-color: white;
-    /*border-top: 10px #428bca solid;*/
+  width: auto;
+  max-width: 35%;
+  min-width: 400px;
+  height: auto;
+  max-height: 100%;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  margin: 0;
+  z-index: 99;
+  background-color: white;
+  border-width: 2px;
+  border-color: gray;
+  border-radius: 5px;
+  /*border-top: 10px #428bca solid;*/
 }
 
 
@@ -203,14 +222,36 @@ footer{
 /*.A_0*/
 
 #logistics {
-    background-color: #EEEEEE;
+    /*background-color: #EEEEEE;*/
     padding: 5px;
     /*border: 1px #428bca solid;*/
     /*border-bottom: none;*/
-    height: 60px;
+    height: 50px;
     min-height: 50px;
     min-width: 300px;
     margin-bottom: 4px;
+}
+
+.logistics-header {
+  margin-top: -4px;
+}
+.logistics-header-title {
+ font-size: 2rem;
+  font-weight: bolder;
+  color: #212B7B;
+  margin-left: -2px;
+}
+
+.logistics-header-version {
+  font-size: 1rem;
+  font-weight: bolder;
+  color: gray;
+  /*opacity: 0.7;*/
+}
+
+.logistics-header-img {
+  height: 35px;
+  margin-bottom: -2px;
 }
 
 #ctrl-bar-buildings, #ctrl-bar-floors, #ctrl-bar-pois, #ctrl-bar-more {
@@ -282,12 +323,12 @@ footer{
 }
 
 #div-logo {
-    background-image: url('../images/anyplace_logo_text.png');
-    height: 100%;
-    width: 80px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    margin-left: 8px;
+    height: auto;
+    width: 150px;
+    opacity: 0.6;
+    position: fixed;
+    bottom: 20px;
+    right: 10px;
 }
 
 #bulding-tablist, #building-select-list, #floor-tablist, #floor-select-list, #floor-select-list-new, #poi-tablist, #poi-select-list {
@@ -365,11 +406,11 @@ contextmenu {
 
 }
 
-#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccurancy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
+#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccuracy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
     padding: 0px;
 }
 
-#radioHeatmapRSS-mode-btn, #APs-mode-btn, #fingerPrints-mode-btn, #localizationAccurancy-mode-btn,#connections-mode-btn,#delete-mode-btn{
+#radioHeatmapRSS-mode-btn, #APs-mode-btn, #fingerPrints-mode-btn, #localizationAccuracy-mode-btn,#connections-mode-btn,#delete-mode-btn{
     height: 30px;
     width: 30px;
     outline-style: none;
@@ -467,10 +508,9 @@ contextmenu {
     cursor: not-allowed;
 }
 
-.infowindow-scroll-fix {
-    line-height: 1.35;
-    overflow: auto;
-    white-space: nowrap;
+#date-chart svg:not(:root) {
+  overflow: hidden;
+  border-radius: 5px;
 }
 
 .alert {

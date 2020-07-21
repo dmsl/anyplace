@@ -41,6 +41,8 @@ import java.io.FileReader
 import java.util.ArrayList
 import java.util.HashMap
 
+import utils.LPLogger
+
 import scala.beans.BeanProperty
 //remove if not needed
 import scala.collection.JavaConversions._
@@ -87,9 +89,6 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
             while ({line = reader.readLine; line != null}) {
                 breakable {
                     c += 1
-                    if (c == 33) {
-                        System.out.print("tet")
-                    }
                     if (line.trim() == "") {
                         //continue (break from breakable inside loop)
                         break
@@ -143,7 +142,7 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
             reader.close()
         } catch {
             case e: Exception => {
-                System.err.println("Error while constructing RadioMap: " + "")
+                LPLogger.debug("Error while constructing RadioMap: ")
                 e.printStackTrace()
                 return false
             }

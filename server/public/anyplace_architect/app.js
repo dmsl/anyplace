@@ -150,7 +150,8 @@ app.service('GMapService', function () {
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
         zoomControl: true,
-        zoomControlOptions: {
+      fullscreenControl: false,
+      zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER
         },
@@ -167,11 +168,10 @@ app.service('GMapService', function () {
     });
 
     self.gmap.addListener('maptypeid_changed', function () {
-        
-        //Bugfix: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
+        // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
         //Issue happens due to setting of custom maptype Id
         if (self.gmap.getMapTypeId() === 'my_custom_layer1' && self.gmap.zoom < 22) {
-            GMapService.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ;
+            self.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
         } 
         else if (self.gmap.getMapTypeId() !== 'my_custom_layer1' && self.gmap.zoom === 22){
             localStorage.setItem("previousMapTypeId",self.gmap.getMapTypeId());
@@ -218,6 +218,10 @@ app.service('GMapService', function () {
     self.gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
     self.searchBox = new google.maps.places.SearchBox((input));
 
+  setTimeout(function(){
+    $("#pac-input").fadeIn(500);
+  }, 1500);
+
     google.maps.event.addListener(self.searchBox, 'places_changed', function () {
         var places = self.searchBox.getPlaces();
 
@@ -251,6 +255,7 @@ app.factory('AnyplaceService', function () {
     anyService.allPois = {};
     anyService.allConnections = {};
     anyService.radioHeatmapRSSMode = false;
+    anyService.radioHeatmapLocalization = false; //lsolea01
     anyService.fingerPrintsTimeMode = false;
     anyService.radioHeatmapRSSTimeMode = false;
 
@@ -416,35 +421,48 @@ app.config(['$locationProvider', function ($location) {
     $location.html5Mode(true);
 }]);
 
-app.filter('propsFilter', function () {
-    return function (items, props) {
-        var out = [];
+//from: https://stackoverflow.com/a/57713216/776345
+app.filter('propsFilter', function() {
+  return function(items, props) {
+    var out = [];
 
-        if (angular.isArray(items)) {
-            items.forEach(function (item) {
-                var itemMatches = false;
+    if (angular.isArray(items)) {
+      var keys = Object.keys(props);
+      var propCache = {};
 
-                var keys = Object.keys(props);
-                for (var i = 0; i < keys.length; i++) {
-                    var prop = keys[i];
-                    var text = props[prop].toLowerCase();
-                    if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-                        itemMatches = true;
-                        break;
-                    }
-                }
+      for (var i = 0; i < keys.length; i++) {
+        var prop = keys[i];
+        var text = props[prop].toLowerCase();
+        propCache[props[prop]] = text;
+      }
 
-                if (itemMatches) {
-                    out.push(item);
-                }
-            });
-        } else {
-            // Let the output be the input untouched
-            out = items;
+      items.forEach(function(item) {
+        var itemMatches = false;
+
+        for (var i = 0; i < keys.length; i++) {
+          var prop = keys[i];
+          var text = propCache[props[prop]];
+          // BUG: not sure what is this for. It doesn't work.
+          if(prop == null || item[prop] == null) {
+            continue;
+          }
+          if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+            itemMatches = true;
+            break;
+          }
         }
 
-        return out;
+        if (itemMatches) {
+          out.push(item);
+        }
+      });
+    } else {
+      // Let the output be the input untouched
+      out = items;
     }
+
+    return out;
+  };
 });
 
 app.factory('myInterceptor', [function () {

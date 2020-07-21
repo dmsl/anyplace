@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -34,28 +34,34 @@
  *
  */
 
-import java.io.{BufferedReader, InputStreamReader}
+import java.text.SimpleDateFormat
+import java.util.Date
 
 import datasources.CouchbaseDatasource
 import datasources.DatasourceException
 import play.{Application, GlobalSettings, Logger}
-
 import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
 import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
-
 import datasources.InfluxdbDatasource
+import utils.LPLogger
 
+// TODO Should be deprecated once we update.
 class Global extends GlobalSettings {
+    def _date () = {
+        val date_format = "dd/MM/YY HH:mm:ss";
+        new SimpleDateFormat(date_format).format(new Date)
+    }
 
   override def onStart(app: Application) {
-    Logger.info("Global::onStart():: AnyPlace Application started")
+    LPLogger.info(_date + " | Global::onStart():: AnyPlace Application started: ")
     InfluxdbDatasource.getStaticInstance
     CouchbaseDatasource.getStaticInstance
-    log()
+    logAnalyticsInstallation()
   }
 
+    // TPDP this
   override def onStop(app: Application) {
-    Logger.info("Global::onStop():: AnyPlace Application stopped")
+    Logger.info(_date + " | Global::onStop():: AnyPlace Application stopped ")
     try {
       InfluxdbDatasource.getStaticInstance.disconnect()
       CouchbaseDatasource.getStaticInstance.disconnect()
@@ -65,7 +71,7 @@ class Global extends GlobalSettings {
     }
   }
 
-  def log(): Unit = {
+  def logAnalyticsInstallation(): Unit = {
     /**
       * Log the entry point from server installation
       */
@@ -76,7 +82,5 @@ class Global extends GlobalSettings {
     /**
       * End
       */
-
   }
-
 }

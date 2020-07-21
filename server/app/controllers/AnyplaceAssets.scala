@@ -47,8 +47,7 @@ object AnyplaceAssets extends play.api.mvc.Controller {
       val campus = !uri.contains("cuid")
       if (campus) {
         viewerDir = "/anyplace_viewer/"
-      }
-      else {
+      } else {
         viewerDir = "/anyplace_viewer_campus/"
       }
       Assets.at(path + viewerDir, file).apply(request)
