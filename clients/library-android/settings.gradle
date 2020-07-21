@@ -1,0 +1,2 @@
+include ':app', ':android-library'
+rootProject.name='AndroidLibraryExample'
