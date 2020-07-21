@@ -5,6 +5,9 @@ Different clients for Anyplace.
 ## android-legacy
 Legacy code from old Android client.
 
+## bin
+Precompiled binaries for the clients.
+
 ## ios 
 Legacy iOS client.
 
@@ -13,6 +16,9 @@ Gradle-based Android library for anyplace.
 
 ## library-core
 Gradle-based Java library for anyplace.
+
+## robotOS
+Robot OS client demo.
 
 ## windows
 Legacy Windows client code.
