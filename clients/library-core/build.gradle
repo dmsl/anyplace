@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'cy.ac.ucy.cs.anyplace'
+group 'cy.ac.ucy.cs.anyplace.core'
 version '0.1'
 
 sourceCompatibility = 1.8
@@ -25,7 +25,7 @@ dependencies {
 
 // JAR library generation
 jar { manifest {
-    attributes 'Main-Class': 'cy.ac.ucy.cs.anyplace.CLI'
+    attributes 'Main-Class': 'cy.ac.ucy.cs.anyplace.core.CLI'
 }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     tasks.withType(Jar) {
@@ -38,7 +38,7 @@ jar { manifest {
 // Run cli task
 task run_cli(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
-    main = "cy.ac.ucy.cs.anyplace.CLI"
+    main = "cy.ac.ucy.cs.anyplace.core.CLI"
     args "arg1", "arg2"
 }
 test {

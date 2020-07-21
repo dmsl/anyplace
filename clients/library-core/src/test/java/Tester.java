@@ -1,6 +1,6 @@
-import cy.ac.ucy.cs.anyplace.*;
 //TODO: build.gradle check how to create new tests
 
+import cy.ac.ucy.cs.anyplace.core.Anyplace;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

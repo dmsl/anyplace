@@ -34,31 +34,22 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.core;
 
-public class LogRecord {
+public class LocDistance {
+	private double distance;
+	private String location;
 
-	private String bssid;
-	private int rss;
-
-	public LogRecord(String bssid, int rss) {
-		super();
-		this.bssid = bssid;
-		this.rss = rss;
+	public LocDistance(double distance, String location) {
+		this.distance = distance;
+		this.location = location;
 	}
 
-	public String getBssid() {
-		return bssid;
+	public double getDistance() {
+		return distance;
 	}
 
-	public int getRss() {
-		return rss;
+	public String getLocation() {
+		return location;
 	}
-
-	public String toString() {
-		String str = new String();
-		str = String.valueOf(bssid) + " " + String.valueOf(rss) + "\n";
-		return str;
-	}
-
 }

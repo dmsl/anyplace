@@ -1,2 +1,2 @@
-include ':app', ':android-library'
+include ':demo-client', ':android-library'
 rootProject.name='AndroidLibraryExample'

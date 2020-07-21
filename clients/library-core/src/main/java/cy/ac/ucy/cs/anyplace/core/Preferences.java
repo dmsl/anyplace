@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.core;
 
 import java.io.BufferedReader;
 import java.io.File;

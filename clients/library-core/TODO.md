@@ -65,8 +65,8 @@ Estimate the location of the user offline. Needs the radiomap file:
 Exception in thread "main" org.json.JSONException: JSONObject["rss"] is not a number.
         at org.json.JSONObject.getDouble(JSONObject.java:543)
         at org.json.JSONObject.getInt(JSONObject.java:560)
-        at cy.ac.ucy.cs.anyplace.Anyplace.estimatePositionOffline(Anyplace.java:608)
-        at cy.ac.ucy.cs.anyplace.CLI.main(CLI.java:424
+        at Anyplace.estimatePositionOffline(Anyplace.java:608)
+        at CLI.main(CLI.java:424
 
 
 * Deprecated API warning:

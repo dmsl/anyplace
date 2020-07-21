@@ -11,8 +11,12 @@ Precompiled binaries for the clients.
 ## ios 
 Legacy iOS client.
 
-## library-android
+## android
+Demo using the android-library.
+
+### libray
 Gradle-based Android library for anyplace.
+Uses core and implements new features in android java.
 
 ## library-core
 Gradle-based Java library for anyplace.
@@ -22,6 +26,9 @@ Robot OS client demo.
 
 ## windows
 Legacy Windows client code.
+
+## cli-java
+Command line Java client.
 
 
 CURRENTLY WORKING

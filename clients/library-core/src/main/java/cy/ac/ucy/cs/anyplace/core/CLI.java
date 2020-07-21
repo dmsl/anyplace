@@ -36,7 +36,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.core;
 
 import org.json.JSONException;
 

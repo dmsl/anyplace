@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
