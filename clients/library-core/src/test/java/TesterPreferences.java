@@ -53,7 +53,7 @@ public class TesterPreferences {
         Anyplace client = new Anyplace(preferences);
 
         response = client.radioheatMapBuildingFloor(buid, floor);
-        //System.out.println(response + "\n");
+        //System.out.println(response + "\n"); ---
 
     }
 
