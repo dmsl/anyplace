@@ -89,8 +89,20 @@ class ErrorHandler extends HttpErrorHandler {
         val errPub =  "500 Internal Server Error: Error ID: " + eid
 
         LPLogger.error(errInt + " " + errorMsg(request))
-        LPLogger.error("Cause: " + exception.getMessage)
-        LPLogger.error("StackTrace: " + fullStacktrace(exception))
+
+        LPLogger.error("Message: " + exception.getMessage)
+        LPLogger.error("Cause: " + exception.getCause)
+        if (exception.isInstanceOf[MatchError]) {
+            // CHECK if OK leave like this
+            LPLogger.error("Skip full stacktrace?")
+        } else {
+            LPLogger.error("StackTrace: " + fullStacktrace(exception))
+        }
+
+      //  Handle:
+//        p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
+//          java.lang.IllegalArgumentException: empty text
+
 
         Future.successful(InternalServerError(
             errPub + "\n\n\n" + errorMsg(request) +
