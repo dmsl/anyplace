@@ -27,6 +27,16 @@ Is used to create CLI clients for Windows, Linux, macOS.
 Robot OS client demo.
 Developed by Mike Karamousadakis.
 
+## [macos](macos)
+Demo bash script for macOS.
+
+## [linux](linux)
+Demo bash script for Linux.
+
+## [windows](windows)
+PowerShell script for Windows (placeholder).
+
+---
 ## [deprecated](deprecated)
 Clients that won't be further developed.
 
@@ -36,14 +46,6 @@ Legacy Windows client code.
 ### [deprecated/ios](deprecated/ios)
 Legacy iOS client.
 
-## [macos](macos)
-Demo bash script for macOS.
-
-## [linux](linux)
-Demo bash script for Linux.
-
-## [windows](windows)
-PowerShell script for Windows (placeholder).
 
 ---
 TEAM
