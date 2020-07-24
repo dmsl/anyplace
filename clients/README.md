@@ -37,7 +37,7 @@ Demo bash script for Linux.
 PowerShell script for Windows (placeholder).
 
 ---
-## [deprecated](deprecated)
+## [_deprecated](deprecated)
 Clients that won't be further developed.
 
 #### [deprecated/windows-phone](deprecated/windows-phone)
