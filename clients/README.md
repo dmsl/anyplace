@@ -8,18 +8,18 @@ Developed by Timotheos.
 ## [android-new](android-new)
 In development by Christakis Achilleos
 
-### [android-new/lib](android-new/lib)
+#### [android-new/lib](android-new/lib)
 Gradle-based Android library for anyplace.
 Uses core and implements new features specific for Android.
 
-### [android-new/demo](android-new/demo)
+#### [android-new/demo](android-new/demo)
 Thin Demo Android client that uses the [android-new/lib](android-new/lib).
 
 ## [core](core)
-### [core/lib](core/lib)
+#### [core/lib](core/lib)
 Gradle-based Java core library that can be included in both Android and desktop JVMs.
 
-### [core/cli](core/cli)
+#### [core/cli](core/cli)
 Command line interface for fully-fledged desktops.
 Is used to create CLI clients for Windows, Linux, macOS.
 
