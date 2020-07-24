@@ -64,11 +64,11 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 ## B. Clients
 Various anyplace clients:
 - [Android](clients/android/)
-- [ios](clients/deprecated/ios/)
-- [windows-phone](clients/deprecated/windows-phone/)
-- [RobotOS]clients/robotos/)
-- [Linux]clients/linux/)
-- [macOS]clients/macos/)
+- [iOS](clients/deprecated/ios/)
+- [Windows Phone](clients/deprecated/windows-phone/)
+- [RobotOS](clients/robotos/)
+- [Linux](clients/linux/)
+- [macOS](clients/macos/)
 
 ## C. Simulator
 
