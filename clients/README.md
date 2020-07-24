@@ -30,10 +30,10 @@ Developed by Mike Karamousadakis.
 ## [deprecated](deprecated)
 Clients that won't be further developed.
 
-### [windows-phone](deprecated/windows-phone)
+### [deprecated/windows-phone](deprecated/windows-phone)
 Legacy Windows client code.
 
-### [ios](deprecated/ios)
+### [deprecated/ios](deprecated/ios)
 Legacy iOS client.
 
 ## [macos](macos)
