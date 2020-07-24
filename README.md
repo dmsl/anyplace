@@ -82,14 +82,14 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
     - On the given service, you can observe the latest bug fixes and additions. 
     - It uses the **SAME** database as the live service so be careful when deleting data.
 
-# Links
-
-## Contributors: 
+# Contributors: 
 - University of Cyprus (Cyprus)
 - Alstom (France)
 - Infosys (India)
 - University of Pittsburgh (USA)
 - University of Mannheim (Germany)
+
+# Links
 
 ## [Team](https://anyplace.cs.ucy.ac.cy/#about)
 
