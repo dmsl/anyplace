@@ -61,4 +61,4 @@ Past Members:
 * Constandinos Demetriou
 * Christakis Achilleos
 
-* [About us](https://anyplace.cs.ucy.ac.cy/#team)
+## [About us](https://anyplace.cs.ucy.ac.cy/#team)
