@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.android;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

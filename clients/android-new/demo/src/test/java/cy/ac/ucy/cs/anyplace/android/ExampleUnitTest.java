@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.android;
 
 import org.junit.Test;
 

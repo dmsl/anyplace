@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace;
+package cy.ac.ucy.cs.anyplace.android;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     // Context of the app under test.
     Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-    assertEquals("cy.ac.ucy.cs.anyplace", appContext.getPackageName());
+    assertEquals("cy.ac.ucy.cs.anyplace.android", appContext.getPackageName());
   }
 }
