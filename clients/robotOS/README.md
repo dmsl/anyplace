@@ -1,5 +1,11 @@
 # Anyplace-ROS client
 ---
+
+##  bin
+Precompiled library for robotOS
+
+## Tutorial
+
 Welcome to the tutorial for running the anyplace-ros client which resides in ROS and provides the common API of the Anyplace endpoints to the ROS network.
 
 In order to test the package, a docker container is provided. Thus, for testing the package, the docker software is necessary. Steps to test the anyplace-ros client:

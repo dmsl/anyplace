@@ -1,6 +1,13 @@
+# TODO Put a bash script in linux/macos from 421 on linux and macos
+
+
 Anyplace Clients
 ================
 Different clients for Anyplace.
+
+## android
+Android client with Navigator and Logger.
+Developed by Timotheos.
 
 ## android-legacy
 Legacy code from old Android client.
@@ -8,28 +15,38 @@ Legacy code from old Android client.
 ## bin
 Precompiled binaries for the clients.
 
-## ios 
-Legacy iOS client.
+## core
+### lib
+Gradle-based Java core library that can be included in both Android and desktop JVMs.
 
-## android
-Demo using the android-library.
+### cli
+Command line interface for fully-fledged desktops.
+Is used to create CLI clients for Windows, Linux, macOS.
 
-### libray
+### library
 Gradle-based Android library for anyplace.
 Uses core and implements new features in android java.
 
-## library-core
-Gradle-based Java library for anyplace.
-
-## robotOS
+## robotos
 Robot OS client demo.
 
-## windows
+## Deprecated
+Clients that won't be further developed.
+
+### windows-phone
 Legacy Windows client code.
 
-## cli-java
-Command line Java client.
+### ios 
+Legacy iOS client.
 
+## macos
+Demo bash script for macOS.
+
+## linux
+Demo bash script for Linux.
+
+## windows
+PowerShell script for Windows (placeholder).
 
 CURRENTLY WORKING
 ---

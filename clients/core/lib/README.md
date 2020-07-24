@@ -1,3 +1,7 @@
+# TODO CA Remove all Java stuff that do not work on Android.
+And export it as gradle (or maybe even jar for now)
+
+
 Anyplace-core Gradle Library
 ================
 
