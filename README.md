@@ -35,13 +35,13 @@ If you install Anyplace on your own servers, please record your URL
 
 # Components 
 
-## A. Server:
+## A. [Server](server):
 
 The server entails all components to run the anyplace service on your own server. 
 
 - Executable (Binary): Visit our Github [releases](https://github.com/dmsl/anyplace/releases)
 - Source Code (including IntelliJ IDE SBT file) : [master.zip](https://github.com/dmsl/anyplace/archive/master.zip)
-- [Instructions](server)
+- Instructions: [Link](server)
 - Current Leaders: Constantinos Costa, Paschalis Mpeis, Kyriakos Georgiou
 
 #### Server: [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
@@ -58,7 +58,7 @@ The source code of Anyplace JSON API.
 
 #### Server: Data Store:
 To setup Anyplace with Couchbase follow the general server instructions here:
-- [Instructions](server)
+- Instructions: [Link](server)
 - Couchbase: [./server/anyplace_views](server/anyplace_views)
 
 ## B. [Clients](clients)
