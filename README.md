@@ -1,4 +1,4 @@
-# Anyplace v4
+# Anyplace v4.0 (A4IoT)
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -19,6 +19,8 @@ If you install Anyplace on your own servers, please record your URL
 [here](https://docs.google.com/spreadsheets/d/1GQySk4omlEcTPWoAt_Vt3WUmVbqFko4xoFKQ2N222RI/edit?usp=sharing).
 
 #### In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
+
+- [The Anyplace 4.0 IoT Localization Architecture](https://www.cs.ucy.ac.cy/~dzeina/papers/mdm20-a4iot.pdf), Paschalis Mpeis, Thierry Roussel, Manish Kumar, Constantinos Costa, Christos Laoudias, Denis Capot-Ray Demetrios Zeinalipour-Yazti, Proceedings of the 21st IEEE International Conference on Mobile Data Management (MDM'20), IEEE Computer Society, ISBN:, pp. 8, June 30 - July 3, 2020, Versailles, France, 2020.
 
 - [The Anatomy of the Anyplace Indoor Navigation Service**](http://www.sigspatial.org/sigspatial-special-issues/sigspatial-special-volume-9-number-2-july-2017/04-Paper01_Anatomy.pdf)  
   **Demetrios Zeinalipour-Yazti and Christos Laoudias**  
@@ -82,12 +84,15 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
     - On the given service, you can observe the latest bug fixes and additions. 
     - It uses the SAME database as the live service so be careful when deleting data.
 
-# Contributors: 
+# Core Contributors: 
 - University of Cyprus (Cyprus)
 - Alstom (France)
 - Infosys (India)
 - University of Pittsburgh (USA)
+
+# Other Contributors:
 - University of Mannheim (Germany)
+- Many individuals
 
 # Links
 
