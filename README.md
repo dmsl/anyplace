@@ -33,13 +33,6 @@ If you install Anyplace on your own servers, please record your URL
   _IEEE Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015_
 
 
-## Contributors: 
-- University of Cyprus (Cyprus)
-- Alstom (France)
-- Infosys (India)
-- University of Pittsburgh (USA)
-- University of Mannheim (Germany)
-
 # Components 
 
 ## A. Server:
@@ -90,6 +83,14 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
     - It uses the **SAME** database as the live service so be careful when deleting data.
 
 # Links
+
+## Contributors: 
+- University of Cyprus (Cyprus)
+- Alstom (France)
+- Infosys (India)
+- University of Pittsburgh (USA)
+- University of Mannheim (Germany)
+
 ## [Team](https://anyplace.cs.ucy.ac.cy/#about)
 
 ---
