@@ -74,7 +74,8 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
 DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
-*** Important:
+
+**Important:**
     - On the given service, you can observe the latest bug fixes and additions. 
     - It uses the **SAME** database as the live service so be careful when deleting data.
 
