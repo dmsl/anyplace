@@ -2,58 +2,59 @@ Anyplace Clients
 ================
 Different clients for Anyplace.
 
-## android
-Android client with Navigator and Logger.
+## [android](android): Anyplace Navigator and Logger
 Developed by Timotheos.
 
-## android-legacy
-Legacy code from old Android client.
+## [android-new](android-new)
+In development by Christakis Achilleos
 
-## bin
-Precompiled binaries for the clients.
+#### [android-new/lib](android-new/lib)
+Gradle-based Android library for anyplace.
+Uses core and implements new features specific for Android.
 
-## core
-### lib
+#### [android-new/demo](android-new/demo)
+Thin Demo Android client that uses the [android-new/lib](android-new/lib).
+
+## [core](core)
+#### [core/lib](core/lib)
 Gradle-based Java core library that can be included in both Android and desktop JVMs.
 
-### cli
+#### [core/cli](core/cli)
 Command line interface for fully-fledged desktops.
 Is used to create CLI clients for Windows, Linux, macOS.
 
-### library
-Gradle-based Android library for anyplace.
-Uses core and implements new features in android java.
-
-## robotos
+## [robotos](robotos)
 Robot OS client demo.
+Developed by Mike Karamousadakis.
 
-## Deprecated
-Clients that won't be further developed.
-
-### windows-phone
-Legacy Windows client code.
-
-### ios 
-Legacy iOS client.
-
-## macos
+## [macos](macos)
 Demo bash script for macOS.
 
-## linux
+## [linux](linux)
 Demo bash script for Linux.
 
-## windows
+## [windows](windows)
 PowerShell script for Windows (placeholder).
 
-CURRENTLY WORKING
 ---
-* Christakis Achilleos
+## [deprecated](deprecated)
+Clients that won't be further developed.
 
-OLD TEAM:
-* Marcos Antonios Charalambous
-* Constandinos Demetriou
-* Christakis Achilleos
+#### [deprecated/windows-phone](deprecated/windows-phone)
+Legacy Windows client code.
 
+#### [deprecated/ios](deprecated/ios)
+Legacy iOS client.
+
+---
 TEAM
 ---
-* [https://anyplace.cs.ucy.ac.cy/](https://anyplace.cs.ucy.ac.cy/)
+- **Leader:** Christakis Achilleos
+- **Co-Advisor:** Paschalis Mpeis
+
+* Past Members:
+    - Marcos Antonios Charalambous
+    - Constandinos Demetriou
+    - Christakis Achilleos
+
+## [About us](https://anyplace.cs.ucy.ac.cy/#team)
