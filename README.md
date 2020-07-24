@@ -15,6 +15,9 @@ It is recommended to watch the [video tutorials](https://anyplace.cs.ucy.ac.cy/#
 We hope that you find our Anyplace Indoor Information Service useful for your research and innovation activities.  We would like to have feedback, comments, remarks, and, of course, any experience or test results from your own experimental setups. Currently, we can offer only limited support and assistance on the code, due to lack of resources, but we will try to get back to you as soon as possible. Questions and feedback may be sent to
 anyplace@cs.ucy.ac.cy
 
+If you install Anyplace on your own servers, please record your URL
+[here](https://docs.google.com/spreadsheets/d/1GQySk4omlEcTPWoAt_Vt3WUmVbqFko4xoFKQ2N222RI/edit?usp=sharing).
+
 #### In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
 - [The Anatomy of the Anyplace Indoor Navigation Service**](http://www.sigspatial.org/sigspatial-special-issues/sigspatial-special-volume-9-number-2-july-2017/04-Paper01_Anatomy.pdf)  
@@ -43,31 +46,30 @@ anyplace@cs.ucy.ac.cy
 
 The server entails all components to run the anyplace service on your own server. 
 
-- Executable (Binary): Visit our Github releases page or visit the link:
-    https://anyplace.cs.ucy.ac.cy/downloads/anyplace_v4.zip
+- Executable (Binary): Visit our Github [releases](https://github.com/dmsl/anyplace/releases)
 - Source Code (including IntelliJ IDE SBT file) : [master.zip](https://github.com/dmsl/anyplace/archive/master.zip)
-- Instructions: [server](server)
+- Instructions: [./server](server)
 - Current Leaders: Constantinos Costa, Paschalis Mpeis, Kyriakos Georgiou
 
 #### Server: Viewer
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
 - Try: [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
-- Documentation/Source: [server/public/anyplace_viewer](server/public/anyplace_viewer)
+- Documentation/Source: [./server/public/anyplace_viewer](server/public/anyplace_viewer)
 
 #### Server: Architect:
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
 - Try: [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
-- Documentation/Source: [server/public/anyplace_architect](server/public/anyplace_architect)
+- Documentation/Source: [./server/public/anyplace_architect](server/public/anyplace_architect)
 
 #### Server: API:
 The source code of Anyplace JSON API.  
 - Try: [API](https://anyplace.cs.ucy.ac.cy/developers/)
-- Documentation/Source: [server/public/anyplace_developers](server/public/anyplace_developers)
+- Documentation/Source: [./server/public/anyplace_developers](server/public/anyplace_developers)
 
 #### Server: Data Store:
 To setup Anyplace with Couchbase follow the general server instructions here:
-- Instructions: [server](server)
-- Couchbase: [Views](server/anyplace_views)
+- Instructions: [./server](server)
+- Couchbase: [./server/anyplace_views](server/anyplace_views)
 
 ## B. Clients
 Various anyplace clients:
@@ -81,7 +83,11 @@ Various anyplace clients:
 ## C. Simulator
 
 ## LATEST DEVELOPMENT VERSION
-To test the latest development version you can fork the [DEVELOP branch](https://github.com/dmsl/anyplace/tree/develop)
+To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
+DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
+*** Important:
+    - On the given service, you can observe the latest bug fixes and additions. 
+    - It uses the **SAME** database as the live service so be careful when deleting data.
 
 # Links
 ## [Team](https://anyplace.cs.ucy.ac.cy/#about)
