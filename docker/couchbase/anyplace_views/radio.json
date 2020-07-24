@@ -1,0 +1,17 @@
+{
+					"views": {
+						"raw_radio_all": {
+							"map": "function (doc, meta) {\n  if(doc.rss && doc.MAC && doc.heading && doc.timestamp && doc.x && doc.y && doc.buid) {\n    emit(meta.id, meta.id);\n  }\n}"
+						},
+						"raw_radio_building_floor": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor], null);\n  }\n}"
+						},
+						"radio_heatmap_building_floor": {
+							"map": "function (doc, meta) {\n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n    emit([doc.buid, doc.floor, doc.x, doc.y], null);\n  }\n}",
+							"reduce": "_count"
+						},
+						"tempview": {
+							"map": "function (doc, meta) {\n  if (doc.rss && doc.MAC && doc.x >= 40.44159232134214 && doc.y >= -80.00603422522545 & doc.x <= 40.44192454900267 && doc.y <= -80.00557959079742)\n  \temit(meta.id, null);\n}"
+						}
+					}
+				}

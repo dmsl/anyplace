@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import sys
+import rospy
+from anyplace_ros_custom_msgs.srv import *
+from anyplace_ros_custom_msgs.msg import *
+from rospy_message_converter import json_message_converter, message_converter
+from std_msgs.msg import String
+
+anyplace_ros_namespace = "/anyplace_ros/"
+anyplace_ros_tester_namespace = "/anyplace_ros_request_tester/"
+
+def estimate_position_client(operating_system, buid, floor, algorithm, debug):
+    rospy.wait_for_service(anyplace_ros_namespace + "estimate_position")
+    try:
+
+        estimate_position = rospy.ServiceProxy(anyplace_ros_namespace + "estimate_position", EstimatePosition)
+        response = estimate_position(operating_system=operating_system, buid=buid,floor=floor, algorithm=algorithm)
+        if ("Error" in response.response):
+            raise ValueError("Anyplace Server responded with error code\n")
+        if(debug):
+            rospy.loginfo("Success: {} and response: {}\n".format(response.success, response.response))
+        resp_ros_msg = json_message_converter.convert_json_to_ros_message('anyplace_ros_custom_msgs/AnyplaceResponse', response.response)
+        resp = message_converter.convert_ros_message_to_dictionary(resp_ros_msg)
+        rospy.loginfo("{}, lat:{}, long: {}\n".format(resp["message"], resp["lat"], resp["long"]))
+    except rospy.ServiceException, e:
+        rospy.logerr("Service call failed: {}".format(e))
+    except ValueError, e:
+        rospy.logerr("Value error: {}".format(e))
+
+
+if __name__ == "__main__":
+
+    rospy.init_node('anyplace_ros_request_tester')
+    rate = rospy.Rate(0.1) # 1 Hz
+    debug = False
+    while not rospy.is_shutdown():
+        try:
+            if(debug):
+                rospy.loginfo("Creating request for estimate_position\n")
+
+            operating_system = rospy.get_param(anyplace_ros_tester_namespace + 'operating_system', 'linux')
+            buid = rospy.get_param(anyplace_ros_tester_namespace + 'buid', 'user')
+            floor = rospy.get_param(anyplace_ros_tester_namespace + 'floor', '1')
+            algorithm = rospy.get_param(anyplace_ros_tester_namespace + 'algorithm', '1')
+            debug = rospy.get_param(anyplace_ros_tester_namespace + 'tester_debug', False)
+
+            if(debug):
+                rospy.loginfo("Data to be sent:\n os: {},\n buid: {},\n floor: {},\n algorithm: {}\n".format(operating_system, buid, floor, algorithm))
+            estimate_position_client(operating_system, buid, floor, algorithm, debug)
+        except rospy.ROSInterruptException:
+            rospy.logerr("program interrupted before completion")
+            exit(1)
+        rate.sleep()

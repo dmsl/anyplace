@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dmsl.anyplace"
+    android:versionCode="47"
+    android:versionName="2.4.0" >
+
+    <uses-sdk
+        android:minSdkVersion="10"
+        android:targetSdkVersion="19" />
+
+    <permission
+        android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <!--
+         The following two permissions are not required to use
+	     Google Maps Android API v2, but are recommended.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <application
+        android:name="com.dmsl.anyplace.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/anyplace_logo_icon_bg"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.AnyplaceTheme" >
+
+        <activity
+            android:name="com.dmsl.anyplace.StartActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.AnyplaceAboutActivity"
+            android:label="@string/app_name_about"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- singleTop before <0.8 ! -->
+        <activity
+            android:name="com.dmsl.anyplace.UnifiedNavigationActivity"
+            android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" >
+                </action>
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="anyplace.rayzit.com"
+                    android:pathPrefix="/getnavigation"
+                    android:scheme="http" >
+                </data>
+            </intent-filter>
+
+            <!--
+                 <meta-data 
+            	android:name="android.app.default_searchable" 
+            	android:value=".SearchPOIActivity" /> 
+            -->
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".UnifiedNavigationActivity" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.SearchPOIActivity"
+            android:label="Search POI"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Light" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.SelectBuildingActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.logger.AnyplaceLoggerActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+            android:label="@string/app_name_logger"
+            android:screenOrientation="nosensor"
+            android:theme="@style/Theme.Sherlock" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.AnyplacePrefs"
+            android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+            android:label="@string/prefs_name_anyplace"
+            android:screenOrientation="nosensor" >
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.logger.LoggerPrefs"
+            android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+            android:label="@string/prefs_name_logger"
+            android:screenOrientation="nosensor" >
+        </activity>
+        <activity
+            android:name="com.dmsl.anyplace.AndroidFileBrowser"
+            android:label="@string/app_choose_folder"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+       
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="insert_api_key" />
+    </application>
+
+</manifest>

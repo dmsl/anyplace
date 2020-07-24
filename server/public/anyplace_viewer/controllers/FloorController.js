@@ -92,18 +92,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         return undefined;
     };
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
-    var _warn = function (msg) {
-        $scope.anyService.addAlert('warning', msg);
-    };
-
     $scope.orderByFloorNo = function (floor) {
         if (!floor || LPUtils.isNullOrUndefined(floor.floor_number)) {
             return 0;
@@ -169,8 +157,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
                 }
             },
             function (resp) {
-                console.log(resp.data.message);
-                _err("Something went wrong while fetching all floors");
+                ShowError($scope, resp, "Something went wrong while fetching all floors", true);
             }
         );
     };
@@ -223,7 +210,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
 
         if (AnyplaceService.getBuildingId() === null || AnyplaceService.getBuildingId() === undefined) {
             console.log('building is undefined');
-            _err("Something went wrong. It seems like there is no building selected");
+            _err($scope, "Something went wrong. It seems like there is no building selected");
         }
 
         var newFl = {
@@ -292,7 +279,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
             }
         }
 
-        _err("Floor not found.");
+        _err($scope, "Floor not found.");
     };
 
     $scope.floorDown = function () {
@@ -308,7 +295,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
             }
         }
 
-        _err("Floor not found.");
+        _err($scope, "Floor not found.");
     };
 
     // pass scope to floor controls in the html

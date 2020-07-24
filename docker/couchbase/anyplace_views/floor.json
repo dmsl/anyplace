@@ -1,0 +1,7 @@
+{
+					"views": {
+						"group_wifi": {
+							"map": "function (doc, meta) {\n  if (doc.strongestWifi && doc.geometry && doc.MAC && doc.rss) {\n    emit([doc.strongestWifi, doc.geometry.coordinates[0],doc.geometry.coordinates[1],doc.timestamp], {\n   \"floor\": doc.floor,\n   \"rss\": doc.rss,\n   \"MAC\": doc.MAC});\n  }\n}"
+						}
+					}
+				}

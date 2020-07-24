@@ -1,0 +1,5 @@
+string coordinates_lat
+string coordinates_lon
+---
+bool success
+string response

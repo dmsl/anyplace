@@ -2,51 +2,56 @@
 USERNAME=""
 PASSWORD=""
 BUCKET=""
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_accounts -d @accounts.json -u $USERNAME:$PASSWORD
+IP=localhost
+PORT=8092
 
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_admin -d @admin.json -u $USERNAME:$PASSWORD
+# override values from .env (docker_compose)
+USERNAME="${COUCHBASE_BUCKET_USER:-$USERNAME}"
+PASSWORD="${COUCHBASE_BUCKET_PASS:-$PASSWORD}"
+BUCKET="${COUCHBASE_BUCKET:-$BUCKET}"
 
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_campus -d @accounts.json -u $USERNAME:$PASSWORD
+if [[ -z "$USERNAME" ]] || [[ -z "$PASSWORD" ]] || [[ -z "$BUCKET" ]]; then
+    echo "Please initialize variables"
+    exit 1
+fi
 
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_floor -d @floor.json -u $USERNAME:$PASSWORD
+couchbase="http://$IP:$PORT/$BUCKET"
+contentType="Content-Type: application/json"
+designDoc=$couchbase/_design
 
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_magnetic -d @magnetic.json -u $USERNAME:$PASSWORD
+##########
+# DEV Views
+##########
+echo "Creating dev views.."
 
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_nav -d @nav.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_radio -d @radio.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_radio_spatial -d @spatial_radio.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_nav_spatial -d @spatial_nav.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_heatmaps -d @heatmaps.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/dev_heatmaps_spatial -d @spatial_heatmaps.json -u $USERNAME:$PASSWORD
-
+curl -X PUT -H "$contentType" $designDoc/dev_accounts -d @accounts.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_admin -d @admin.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_campus -d @accounts.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_floor -d @floor.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_magnetic -d @magnetic.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_nav -d @nav.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_radio -d @radio.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/dev_heatmaps -d @heatmaps.json -u $USERNAME:$PASSWORD
 
 ##########
 # PUBLISH
 ##########
+echo "Publishing views.."
+curl -X PUT -H "$contentType" $designDoc/accounts -d @accounts.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/admin -d @admin.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/campus -d @accounts.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/floor -d @floor.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/magnetic -d @magnetic.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/nav -d @nav.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/radio -d @radio.json -u $USERNAME:$PASSWORD
+curl -X PUT -H "$contentType" $designDoc/heatmaps -d @heatmaps.json -u $USERNAME:$PASSWORD
 
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/accounts -d @accounts.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/admin -d @admin.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/campus -d @accounts.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/floor -d @floor.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/magnetic -d @magnetic.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/nav -d @nav.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/radio -d @radio.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/radio_spatial -d @spatial_radio.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/nav_spatial -d @spatial_nav.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/heatmaps -d @heatmaps.json -u $USERNAME:$PASSWORD
-
-curl -X PUT -H "Content-Type: application/json" http://localhost:8092/$BUCKET/_design/heatmaps_spatial -d @spatial_heatmaps.json -u $USERNAME:$PASSWORD
+if [ -z $GENERATE_SPATIAL_VIEWS  ]; then
+    echo "Creating spatial views.."
+    curl -X PUT -H "$contentType" $designDoc/dev_radio_spatial -d @spatial_radio.json -u $USERNAME:$PASSWORD
+    curl -X PUT -H "$contentType" $designDoc/dev_nav_spatial -d @spatial_nav.json -u $USERNAME:$PASSWORD
+    curl -X PUT -H "$contentType" $designDoc/dev_heatmaps_spatial -d @spatial_heatmaps.json -u $USERNAME:$PASSWORD
+    curl -X PUT -H "$contentType" $designDoc/radio_spatial -d @spatial_radio.json -u $USERNAME:$PASSWORD
+    curl -X PUT -H "$contentType" $designDoc/nav_spatial -d @spatial_nav.json -u $USERNAME:$PASSWORD
+    curl -X PUT -H "$contentType" $designDoc/heatmaps_spatial -d @spatial_heatmaps.json -u $USERNAME:$PASSWORD
+fi

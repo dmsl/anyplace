@@ -84,7 +84,7 @@ app.service('GMapService', function () {
         }
         var tile = ownerDocument.createElement('img');
           // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
-        tile.src =  "http://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";;
+        tile.src =  "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";;
         tile.style.width = this.tileSize.width + 'px';
         tile.style.height = this.tileSize.height + 'px';
         return tile;
@@ -141,18 +141,19 @@ app.service('GMapService', function () {
     };
 
 
-    var mapTypeId = "OSM";
+    var mapTypeId = "roadmap";
     if (typeof(Storage) !== "undefined" && localStorage) {
         if (localStorage.getItem('mapTypeId'))
             mapTypeId = localStorage.getItem('mapTypeId');
         else
-            localStorage.setItem("mapTypeId", "OSM");
+            localStorage.setItem("mapTypeId", "roadmap");
     }
 
 
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
         zoomControl: true,
+        fullscreenControl: false,
         zoomControlOptions: {
             style: google.maps.ZoomControlStyle.LARGE,
             position: google.maps.ControlPosition.LEFT_CENTER
@@ -169,14 +170,41 @@ app.service('GMapService', function () {
         }
     });
 
-    self.gmap.addListener('maptypeid_changed', function () {
-        var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
-        localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
-        self.gmap.setOptions({
-            streetViewControl: showStreetViewControl
-        });
-    });
+  self.gmap.addListener('maptypeid_changed', function () {
+    // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
+    //Issue happens due to setting of custom maptype Id
+    if (self.gmap.getMapTypeId() === 'my_custom_layer1' && self.gmap.zoom < 22) {
+      self.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
+    } 
+    else if (self.gmap.getMapTypeId() !== 'my_custom_layer1' && self.gmap.zoom === 22){
+      localStorage.setItem("previousMapTypeId",self.gmap.getMapTypeId());
+    }
 
+    var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
+    localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
+    customMapAttribution(self.gmap);
+    self.gmap.setOptions({
+      streetViewControl: showStreetViewControl
+    });
+  });
+
+    function customMapAttribution(map) {
+        var id = "custom-maps-attribution";
+        var attributionElm = document.getElementById(id);
+        if (attributionElm === undefined || attributionElm === null) {
+            attributionElm = document.createElement('div');
+            attributionElm.id = id;
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(attributionElm);
+        }
+        if (self.gmap.getMapTypeId() === "OSM")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        if (self.gmap.getMapTypeId() === "roadmap")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "satellite")
+            attributionElm.innerHTML = '';
+        if (self.gmap.getMapTypeId() === "CartoLight")
+            attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
+    }
 
     //Define OSM map type pointing at the OpenStreetMap tile server
     self.gmap.mapTypes.set("OSM", new OSMMapType(new google.maps.Size(256, 256)));
@@ -186,7 +214,7 @@ app.service('GMapService', function () {
     self.gmap.mapTypes.set("CartoLight", new CartoLightMapType(new google.maps.Size(256, 256)));
     // Now attach the coordinate map type to the map's registry.
     //self.gmap.mapTypes.set('coordinate', new CoordMapType(new google.maps.Size(256, 256)));
-
+    customMapAttribution(self.gmap);
 
     var directionsService = new google.maps.DirectionsService();
     var directionsDisplay = new google.maps.DirectionsRenderer();

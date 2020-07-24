@@ -1,0 +1,7 @@
+string operating_system
+string buid
+string floor
+string algorithm
+---
+bool success
+string response

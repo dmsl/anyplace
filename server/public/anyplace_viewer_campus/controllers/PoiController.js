@@ -114,9 +114,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 $scope.myallPois = data.pois;
             },
             function (resp) {
-                var data = resp.data;
-                if (letters=="")
-                    _err("Something went wrong while fetching POIs");
+                if (letters=="") {
+                    ShowError($scope, resp, "Something went wrong while fetching POIs", true);
+                }
             }
         );
     };
@@ -234,18 +234,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
 
         prevSelectedPoi = newVal;
-    };
-
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
-    var _warn = function (msg) {
-        $scope.anyService.addAlert('warning', msg);
     };
 
     var _latLngFromPoi = function (p) {
@@ -427,8 +415,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 $scope.showPoisOnlyForFloor($scope.anyService.getFloorNumber());
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while fetching POIs");
+                ShowError($scope, resp, "Something went wrong while fetching POIs", true);
             }
         );
     };
@@ -436,12 +423,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     $scope.retrieveRouteFromPoiToPoi = function (from, to) {
 
         if (!from || !from.puid) {
-            _err("Source POI is corrupted.");
+            _err($scope, "Source POI is corrupted.");
             return;
         }
 
         if (!to || !to.puid) {
-            _err("Source POI is corrupted.");
+            _err($scope, "Source POI is corrupted.");
             return;
         }
 
@@ -523,8 +510,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 }
             },
             function (resp) {
-                var data = resp.data;
-                _err("Something went wrong while fetching route.");
+                ShowError($scope, resp, "Something went wrong while fetching route.", true);
             }
         );
 
@@ -655,20 +641,20 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.startNavFromPoi = function () {
         $scope.poiRouteState.from = $scope.anyService.selectedPoi;
-        _suc("Now you can click on another POI to draw the indoor path between the 2 points.");
+        _suc($scope, "Now you can click on another POI to draw the indoor path between the 2 points.");
     };
 
     $scope.getHtml5GeoLocation = function (callback, errcallback) {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(callback, errcallback);
         } else {
-            _err("The Geolocation feature is not supported by this browser.");
+            _err($scope, "The Geolocation feature is not supported by this browser.");
         }
     };
 
     $scope.navigateFromUserToPoiAux = function (position) {
         if (!position) {
-            _err('Invalid position detected by HTML5.');
+            _err($scope, "Invalid position detected by HTML5.");
             return;
         }
 
@@ -684,7 +670,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var targetPoi = $scope.anyService.selectedPoi;
 
         if (!targetPoi) {
-            _err('No target poi found.');
+            _err($scope, "No target poi found.");
             return;
         }
 
@@ -793,15 +779,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 },
                 function (err) {
                     $scope.$apply(function () {
-                        if (err.code == 1) {
-                            _err("Permission denied. Anyplace was not able to retrieve your Geolocation.")
-                        } else if (err.code == 2) {
-                            _err("Position unavailable. The network is down or the positioning satellites couldn't be contacted.")
-                        } else if (err.code == 3) {
-                            _err("Timeout. The request for retrieving your Geolocation was timed out.")
-                        } else {
-                            _err("There was an error while retrieving your Geolocation. Please try again.");
-                        }
+                      HandleGeolocationError(err.code);
                     });
                 }
             );
@@ -894,7 +872,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 + '</div>'
                 + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
                 + '<div>Share URL:</div>'
-                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}"/>'
+                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)"/>'
                 + /**
                  +'<ul class="rrssb-buttons">'
                  +'<li class="rrssb-facebook">'
@@ -939,7 +917,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                  +'</ul>'
                  */
                 '<div>Embed:</div>'
-                + '<input class="form-control" value="{{poiShareUrl.embed}}"/>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)"/>'
                 + '</div>'
                 + '</div>';
 

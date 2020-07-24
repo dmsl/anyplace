@@ -4,7 +4,7 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -39,7 +39,7 @@ import java.io.{FileOutputStream, IOException, PrintWriter}
 import java.net.URI
 import java.util
 import java.util._
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{TimeUnit, TimeoutException}
 
 import accounts.IAccountService
 import com.couchbase.client.java.document.JsonDocument
@@ -52,7 +52,7 @@ import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
 import play.{Logger, Play}
-import utils.{GeoPoint, JsonUtils, LPLogger}
+import utils.{AnyResponseHelper, GeoPoint, JsonUtils, LPLogger}
 //remove if not needed
 import scala.collection.JavaConversions._
 import scala.util.control._
@@ -66,12 +66,13 @@ object CouchbaseDatasource {
   def getStaticInstance: CouchbaseDatasource = {
     sLockInstance.synchronized {
       if (sInstance == null) {
+        val clusterNodes = Play.application().configuration().getString("couchbase.clusterNodes")
         val hostname = Play.application().configuration().getString("couchbase.hostname")
         val port = Play.application().configuration().getString("couchbase.port")
         val username = Play.application().configuration().getString("couchbase.username")
         val bucket = Play.application().configuration().getString("couchbase.bucket")
         val password = Play.application().configuration().getString("couchbase.password")
-        sInstance = CouchbaseDatasource.createNewInstance(hostname, port, bucket, username, password)
+        sInstance = CouchbaseDatasource.createNewInstance(hostname, clusterNodes, port, bucket, username, password)
         try {
           sInstance.init()
         } catch {
@@ -85,53 +86,67 @@ object CouchbaseDatasource {
   }
 
   def createNewInstance(hostname_in: String,
+                        clusterNodes_in: String,
                         port_in: String,
                         bucket_in: String,
                         username_in: String,
                         password_in: String): CouchbaseDatasource = {
-    if (hostname_in == null || port_in == null || bucket_in == null || password_in == null) {
+    if ((hostname_in == null && clusterNodes_in == null) || port_in == null || bucket_in == null || password_in == null) {
       throw new IllegalArgumentException("[null] parameters are not allowed to create a CouchbaseDatasource")
     }
-    val hostname = hostname_in.trim()
+
+    var hostname = ""
+    var clusterNodes = ""
+    if(hostname_in != null) {
+        hostname = hostname_in.trim()
+    }
+    if(clusterNodes_in != null) {
+        clusterNodes=clusterNodes_in.trim()
+    }
+    
     val port = port_in.trim()
     val bucket = bucket_in.trim()
     val password = password_in.trim()
     val username = username_in.trim()
-    if (hostname.isEmpty || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
-      throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource")
+    
+    if ((hostname.isEmpty && clusterNodes.isEmpty) || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
+      throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource.")
     }
-    new CouchbaseDatasource(hostname, port, bucket, username, password)
+    if (!hostname.isEmpty && !clusterNodes.isEmpty) {
+        // prefer clusterNodes
+        hostname="" 
+        // CLR
+        //throw new IllegalArgumentException("Please use either single-node (couchbase.hostname) or multi-node (couchbase.clusterNodes) couchbase configuration.")
+    }
+
+    new CouchbaseDatasource(hostname, clusterNodes, port, bucket, username, password)
   }
 }
 
 class CouchbaseDatasource private(hostname: String,
+                                  clusterNodes: String,
                                   port: String,
                                   bucket: String,
                                   username: String,
                                   password: String) extends IDatasource with IAccountService {
-
   private var mHostname: String = hostname
-
+  private var mClusterNodes: String = clusterNodes
   private var mPort: String = port
-
   private var mBucket: String = bucket
-
-
   private var mUsername: String = username
-
   private var mPassword: String = password
-
   private var mCluster: CouchbaseCluster = _
-
   private var mSecureBucket: Bucket = _
 
   private def connect(): Boolean = {
-    Logger.info("Trying to connect to: " + mHostname + ":" + mPort + " bucket[" +
-      mBucket +
-      "] password: " +
-      mPassword)
-    val uris = new LinkedList[URI]()
-    uris.add(URI.create(mHostname + ":" + mPort + "/pools"))
+    // TODO FEATURE: sleep until couchbase is ready:
+    // This was probably written for sleeping until couchbase is app (checking on the pools).
+    // It's a nice functionality to be added, as it will avoid many unnecessary crashes when booting up.
+    // if it gets implemented make it also work with mClusterNodes (similarly with connect).
+    //
+    // val uris = new LinkedList[URI]()
+    // uris.add(URI.create(mHostname + ":" + mPort + "/pools"))
+    val errMsg="Cannot connect to Couchbase"
     try {
       val env = DefaultCouchbaseEnvironment
         .builder()
@@ -140,24 +155,30 @@ class CouchbaseDatasource private(hostname: String,
         .socketConnectTimeout(100000) //100000ms = 100s, default is 5s
         .build()
 
-      // Connects to a cluster on hostname
-      // if the other one does not respond during bootstrap.
-      mCluster = CouchbaseCluster.create(env, mHostname)
+      // Connects to a cluster on hostname if the other one does not respond during bootstrap.
+      if (!mHostname.isEmpty) {
+          LPLogger.info("Couchbase: connecting to: " + mHostname + ":" + mPort + " bucket[" +
+              mBucket + "]")
+          mCluster = CouchbaseCluster.create(env, mHostname)
+      } else if (!mClusterNodes.isEmpty) {
+          LPLogger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
+              mBucket + "]")
+          mCluster = CouchbaseCluster.fromConnectionString(env, mClusterNodes);
+      } else {
+          throw new DatasourceException("Both single-node and multi-node couchbase configuration were empty!")
+      }
 
       mSecureBucket = mCluster.openBucket(mBucket, mPassword)
     } catch {
       case e: java.net.SocketTimeoutException =>
-        LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
-          e.getMessage)
-        throw new DatasourceException("Cannot connect to Anyplace Database [SocketTimeout]!")
+        LPLogger.error(errMsg + ": " +  e.getMessage)
+        throw new DatasourceException(errMsg + ": SocketTimeout")
       case e: IOException =>
-        LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
-          e.getMessage)
-        throw new DatasourceException("Cannot connect to Anyplace Database [IO]!")
+        LPLogger.error(errMsg + ": " + e.getMessage)
+        throw new DatasourceException(errMsg + ": IO")
       case e: Exception =>
-        LPLogger.error("CouchbaseDatasource::connect():: Error connection to Couchbase: " +
-          e.getMessage)
-        throw new DatasourceException("Cannot connect to Anyplace Database! [Unknown]")
+        LPLogger.error(errMsg + ": " + e.getMessage)
+        throw new DatasourceException(errMsg + ": " + e.getMessage)
     }
     true
   }
@@ -185,7 +206,7 @@ class CouchbaseDatasource private(hostname: String,
     } catch {
       case e: DatasourceException => {
         LPLogger.error("CouchbaseDatasource::init():: " + e.getMessage)
-        throw new DatasourceException("Cannot establish connection to Anyplace database!")
+        throw new DatasourceException("Cannot connect to couchbase.")
       }
     }
     true
@@ -275,6 +296,9 @@ class CouchbaseDatasource private(hostname: String,
         result.add(json)
       } catch {
         case e: IOException =>
+            // CHECK COSTA
+        case toe: TimeoutException => //LPLogger.error("TimeoutException: " + toe.getMessage)
+            AnyResponseHelper.bad_request("IO: " + toe.getMessage)
       }
     }
     result
@@ -333,7 +357,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(buid).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
-    println("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
     if (!res.success()) {
       throw new DatasourceException("Error retrieving floors from database!")
     }
@@ -357,7 +381,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
-    println("couchbase results: " + res.totalRows)
+    LPLogger.debug("couchbase results: " + res.totalRows)
     if (!res.success()) {
       throw new DatasourceException("Error retrieving floors from database!")
     }
@@ -460,7 +484,11 @@ class CouchbaseDatasource private(hostname: String,
   override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key((buid))
+    /*
+     * DELETE FLOOR : BuxFix
+     * Fixing query keys as db entry was not getting removed
+     */
+    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
     val res = couchbaseClient.query(viewQuery)
 
     for (row <- res.allRows()) {
@@ -514,7 +542,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("radio", "radio_new_campus_experiment").group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows)
+    LPLogger.debug("couchbase results: " + res.totalRows)
     var json: JsonObject = null
 
     for (row <- res.allRows()) {
@@ -537,8 +565,8 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
-    println("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -563,7 +591,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -588,7 +616,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -613,7 +641,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -674,6 +702,8 @@ class CouchbaseDatasource private(hostname: String,
         points.add(json)
       } catch {
         case e: IOException =>
+          //CHECK COSTA: let this fail?
+        //case ioobe: IndexOutOfBoundsException => //LPLogger.error("IndexOutOfBoundsException: " + ioobe.getMessage) // CHECK COSTA
       }
     }
     points
@@ -799,7 +829,7 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
 
-    //System.out.println("couchbase results: " + res.size)
+    //LPLogger.debug("couchbase results: " + res.size)
 
     var json: JsonObject = null
     for (row <- res.allRows()) { // handle each building entry
@@ -833,7 +863,7 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
 
-    //System.out.println("couchbase results: " + res.size)
+    //LPLogger.debug("couchbase results: " + res.size)
 
     var json: JsonObject = null
     for (row <- res.allRows()) { // handle each building entry
@@ -861,10 +891,10 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor,"000000000000000")
     val endkey = JsonArray.from(buid, floor,"999999999999999")
-    val viewQuery = ViewQuery.from("heatmaps", "timestamp_by_floor_building").startKey(startkey).endKey(endkey).group(true)
+    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows())
+    LPLogger.debug("couchbase results: " + res.totalRows())
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
@@ -906,8 +936,8 @@ class CouchbaseDatasource private(hostname: String,
 
     val test = JsonObject.empty().put("name", " 星网:")
     val name = " 星网:"
-    println(test.toString)
-    println(name)
+    LPLogger.debug(test.toString)
+    LPLogger.debug(name)
     buildings
   }
 
@@ -917,7 +947,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "building_all_by_owner").key((oid)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows)
+    LPLogger.debug("couchbase results: " + res.totalRows)
     var json: JsonObject = null
 
     for (row <- res.allRows()) {
@@ -965,7 +995,7 @@ class CouchbaseDatasource private(hostname: String,
       .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.size)
+    LPLogger.debug("couchbase results: " + res.size)
     var json: JsonObject = null
     if (res.nonEmpty)
       for (row <- res) {
@@ -995,7 +1025,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "building_by_alias").key((alias)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-    // println("couchbase results: " + res.totalRows)
+    // LPLogger.debug("couchbase results: " + res.totalRows)
     if (!res.iterator().hasNext) {
       return null
     }
@@ -1036,7 +1066,7 @@ class CouchbaseDatasource private(hostname: String,
     }
     //allPoisSide.put(cuid2,);
     if (allPoisbycuid.get(cuid2) == null) {
-      System.out.println("LOAD CUID:" + cuid2)
+      LPLogger.debug("LOAD CUID:" + cuid2)
       var i = 0
       for (i <- 0 until buildingSet.get(0).getArray("buids").size) {
         val buid = buildingSet.get(0).getArray("buids").get(i).toString
@@ -1080,8 +1110,7 @@ class CouchbaseDatasource private(hostname: String,
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "cuid_all_by_owner").key((oid)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
-
-    System.out.println("couchbase results campus: " + res.totalRows())
+      LPLogger.debug("couchbase results campus: " + res.totalRows())
 
     var json: JsonObject = null
     for (row <- res.allRows()) {
@@ -1235,7 +1264,7 @@ class CouchbaseDatasource private(hostname: String,
 
     val res = couchbaseClient.query(viewQuery)
 
-    println("couchbase results: " + res.totalRows)
+    LPLogger.debug("couchbase results: " + res.totalRows)
     if (res.error().size > 0) {
       throw new DatasourceException("Error retrieving accounts from database!")
     }
@@ -1559,7 +1588,7 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
 
-    System.out.println("couchbase results: " + res.size)
+    LPLogger.debug("couchbase results: " + res.size)
 
     var json: JsonObject = null
     for (row <- res) { // handle each building entry

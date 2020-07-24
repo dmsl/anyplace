@@ -1,0 +1,3 @@
+rootProject.name='Anyplace'
+include ':demo'
+include ':lib'

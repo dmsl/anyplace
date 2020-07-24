@@ -37,7 +37,7 @@ package controllers
 
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.mvc.Security
-import utils.{AndroidAPKFile, AnyplaceServerAPI}
+import utils.{AndroidAPKFile, AnyplaceServerAPI, LPLogger}
 
 /**
   * Created by costantinos on 25/6/2017.
@@ -79,7 +79,7 @@ object AnyplaceAndroid extends play.api.mvc.Controller {
 
     def inner(): Result = {
       val fileApk: File = new File(ANDROID_APKS_ROOT_DIRECTORY_LOCAL, file)
-      println("requested: " + fileApk)
+      LPLogger.debug("requested: " + fileApk)
       if (!fileApk.exists() || !fileApk.canRead()) {
         return BadRequest("Requested APK does not exist on our database!")
       }

@@ -5,20 +5,23 @@ import java.io._
 import java.nio.file.Files
 //remove if not needed
 import scala.collection.JavaConversions._
+import play.Play
 
 object AnyPlaceTilerHelper {
 
-    private val ANYPLACE_TILER_SCRIPTS_DIR = "anyplace_tiler"
-
-    private val ANYPLACE_TILER_SCRIPT_START = ANYPLACE_TILER_SCRIPTS_DIR + File.separatorChar + "start-anyplace-tiler.sh"
-
+    private val ANYPLACE_TILER_SCRIPT_START =  "start-anyplace-tiler.sh"
     private val FLOOR_PLANS_ROOT_DIR = "floor_plans" + File.separatorChar
-
     private val FLOOR_TILES_DIR = "static_tiles" + File.separatorChar
 
     val FLOOR_TILES_ZIP_NAME = "tiles_archive.zip"
 
-    def getRootFloorPlansDir(): String = FLOOR_PLANS_ROOT_DIR
+    def getTilerScriptStart(): String = {
+        Play.application().configuration().getString("tilerRootDir")  + File.separatorChar + ANYPLACE_TILER_SCRIPT_START
+    }
+
+    def getRootFloorPlansDir(): String = {
+        Play.application().configuration().getString("floorPlansRootDir") + File.separatorChar
+    }
 
     def getRootFloorPlansDirFor(buid: String): String = {
         getRootFloorPlansDir + buid + File.separatorChar
@@ -92,7 +95,7 @@ object AnyPlaceTilerHelper {
               imageFile.toString +
               "]")
         }
-        val pb = new ProcessBuilder(ANYPLACE_TILER_SCRIPT_START, imageFile.getAbsolutePath.toString, lat,
+        val pb = new ProcessBuilder(getTilerScriptStart, imageFile.getAbsolutePath.toString, lat,
             lng, "-DISLOG")
         val log = new File(imageDir, "anyplace_tiler_" + imageFile.getName + ".log")
         pb.redirectErrorStream(true)
@@ -103,7 +106,7 @@ object AnyPlaceTilerHelper {
             val br = new BufferedReader(new InputStreamReader(is))
             var line = br.readLine()
             while (line != null) {
-                println(">" + line)
+                LPLogger.debug(">" + line)
                 line = br.readLine()
             }
             p.waitFor()
@@ -143,7 +146,7 @@ object AnyPlaceTilerHelper {
               imageFile.toString +
               "]")
         }
-        val pb = new ProcessBuilder(ANYPLACE_TILER_SCRIPT_START, imageFile.getAbsolutePath.toString, lat,
+        val pb = new ProcessBuilder(getTilerScriptStart, imageFile.getAbsolutePath.toString, lat,
             lng,"-DISLOG",zoom)
         val log = new File(imageDir, "anyplace_tiler_" + imageFile.getName + ".log")
         pb.redirectErrorStream(true)
@@ -154,7 +157,7 @@ object AnyPlaceTilerHelper {
             val br = new BufferedReader(new InputStreamReader(is))
             var line = br.readLine()
             while (line != null) {
-                println(">" + line)
+                LPLogger.debug(">" + line)
                 line = br.readLine()
             }
             p.waitFor()

@@ -39,18 +39,12 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
         }
     });
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
     $scope.orderByFloorNo = function (floor) {
         if (!floor || LPUtils.isNullOrUndefined(floor.floor_number)) {
             return 0;
         }
         return parseInt(floor.floor_number);
     };
-
-
 
     $scope.floorUp = function () {
         //here new
@@ -70,7 +64,7 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
             }
         }
 
-        _err("Floor not found.");
+        _err($scope, "Floor not found.");
     };
 
     $scope.floorDown = function () {
@@ -91,7 +85,7 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
             }
         }
 
-        _err("Floor not found.");
+        _err($scope, "Floor not found.");
     };
 
 

@@ -52,6 +52,20 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.myallPoisHashT = {};
     $scope.myallEntrances = [];
 
+    $scope.fetchVersion = function () {
+        var jsonReq = {};
+        var promise = $scope.anyAPI.version(jsonReq);
+        promise.then(
+            function (resp) { // on success
+                var data = resp.data;
+                // console.log("VERSION: " + data);
+                var element = document.getElementById("anyplace-version");
+                element.textContent = "v"+data;
+            },
+            function (resp) { console.log("Failed to get version: " + resp.data); }
+        );
+    };
+    $scope.fetchVersion();
 
     var markerCluster = new MarkerClusterer($scope.gmapService.gmap);
 
@@ -96,7 +110,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         if (newVal && newVal.coordinates_lat && newVal.coordinates_lon) {
             // Hide the building's marker for less clutter
             if (!newVal.buid) {
-                _err('Some information is missing from the building and it could not be loaded.');
+                _err($scope, "Some information is missing from the building and it could not be loaded.");
                 return;
             }
 
@@ -206,7 +220,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 $scope.anyService.selectedBuilding = b;
             },
             function (resp) {
-                _err("No matching building found");
+                ShowError($scope, resp, "No matching building found", true);
             }
         )
 
@@ -321,9 +335,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 $scope.anyService.BuildingsLoaded=false;
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching buildings.');
+              ShowError($scope, resp, ERR_FETCH_BUILDINGS);
             }
         );
     };
@@ -336,14 +348,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 delete $scope.myBuildingsHashT[b];
             }
         }
-    };
-
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
     };
 
     var _calcDistance = function (x1, y1, x2, y2) {

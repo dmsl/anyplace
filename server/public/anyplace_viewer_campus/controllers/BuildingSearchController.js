@@ -69,7 +69,7 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
             return $scope.myallPois;
         }
         if (!$scope.userPosition) {
-            // _info("Enabling the location service will improve your search results.");
+            // _info($scope, "Enabling the location service will improve your search results.");
             $scope.showUserLocation();
         }
 
@@ -103,7 +103,7 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
             function (resp) {
                 var data = resp.data;
                 if (letters=="")
-                    _err("Something went wrong while fetching POIs");
+                    _err($scope, "Something went wrong while fetching POIs");
             }
         );
     };
@@ -138,9 +138,7 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
             },
             function (resp) {
-                // on error
-                var data = resp.data;
-                _err('Something went wrong while fetching buildings.');
+              ShowError($scope, resp, ERR_FETCH_BUILDINGS);
             }
         );
     };
@@ -155,23 +153,6 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
             }
         }
         return undefined;
-    };
-
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
-    var _suc = function (msg) {
-        $scope.anyService.addAlert('success', msg);
-    };
-
-    var _info = function (msg) {
-        $scope.anyService.addAlert('info', msg);
-        window.setTimeout(function() {
-            $(".alert-info").fadeTo(500, 0).slideUp(500, function(){
-                $(this).remove();
-            });
-        }, 4000);
     };
 
     var _calcDistance = function (x1, y1, x2, y2) {

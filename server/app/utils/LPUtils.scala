@@ -64,6 +64,11 @@ object LPUtils {
 
     def getRandomUUID(): String = UUID.randomUUID().toString
 
+    def genErrorUniqueID(): String = {
+        java.net.InetAddress.getLocalHost().getHostName().toUpperCase +
+        "x" + UUID.randomUUID().toString.split("-").last.toUpperCase
+    }
+
     def generateRandomToken(): String = {
         var secureRandom: SecureRandom = null
         try {
@@ -79,7 +84,6 @@ object LPUtils {
             }
         }
     }
-
 
     def hashStringBase64(input: String) = new String(Base64.encodeBase64(hashString(input)))
 
