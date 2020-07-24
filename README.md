@@ -61,7 +61,7 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 - [Instructions](server)
 - Couchbase: [./server/anyplace_views](server/anyplace_views)
 
-## B. Clients
+## B. [Clients](clients)
 - [Android](clients/android/)
 - [iOS](clients/deprecated/ios/)
 - [Windows Phone](clients/deprecated/windows-phone/)
@@ -70,6 +70,7 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 - [macOS](clients/macos/)
 
 ## C. Simulator
+- Documentation/Source: [simulator](simulator)
 
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
