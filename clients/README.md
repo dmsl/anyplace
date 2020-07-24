@@ -53,6 +53,7 @@ TEAM
 
 Leader:
 - Christakis Achilleos
+
 Co-Advisor:
 - Paschalis Mpeis
 
