@@ -41,27 +41,24 @@ The server entails all components to run the anyplace service on your own server
 
 - Executable (Binary): Visit our Github [releases](https://github.com/dmsl/anyplace/releases)
 - Source Code (including IntelliJ IDE SBT file) : [master.zip](https://github.com/dmsl/anyplace/archive/master.zip)
-- Instructions: [./server](server)
+- [Instructions](server)
 - Current Leaders: Constantinos Costa, Paschalis Mpeis, Kyriakos Georgiou
 
-#### Server: Viewer
+#### Server: [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
-- Try: [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
 - Documentation/Source: [./server/public/anyplace_viewer](server/public/anyplace_viewer)
 
-#### Server: Architect:
+#### Server: [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
-- Try: [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
 - Documentation/Source: [./server/public/anyplace_architect](server/public/anyplace_architect)
 
-#### Server: API:
+#### Server: [API](https://anyplace.cs.ucy.ac.cy/developers/)
 The source code of Anyplace JSON API.  
-- Try: [API](https://anyplace.cs.ucy.ac.cy/developers/)
 - Documentation/Source: [./server/public/anyplace_developers](server/public/anyplace_developers)
 
 #### Server: Data Store:
 To setup Anyplace with Couchbase follow the general server instructions here:
-- Instructions: [./server](server)
+- [Instructions](server)
 - Couchbase: [./server/anyplace_views](server/anyplace_views)
 
 ## B. Clients
