@@ -49,14 +49,12 @@ Legacy iOS client.
 ---
 TEAM
 ---
-
-Leader:
 - **Leader:** Christakis Achilleos
 - **Co-Advisor:** Paschalis Mpeis
 
-Past Members:
-* Marcos Antonios Charalambous
-* Constandinos Demetriou
-* Christakis Achilleos
+* Past Members:
+    - Marcos Antonios Charalambous
+    - Constandinos Demetriou
+    - Christakis Achilleos
 
 ## [About us](https://anyplace.cs.ucy.ac.cy/#team)
