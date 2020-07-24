@@ -79,7 +79,7 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 **Important:**
 
     - On the given service, you can observe the latest bug fixes and additions. 
-    - It uses the **SAME** database as the live service so be careful when deleting data.
+    - It uses the SAME database as the live service so be careful when deleting data.
 
 # Contributors: 
 - University of Cyprus (Cyprus)
