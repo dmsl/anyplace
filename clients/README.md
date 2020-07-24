@@ -40,12 +40,11 @@ PowerShell script for Windows (placeholder).
 ## [deprecated](deprecated)
 Clients that won't be further developed.
 
-### [deprecated/windows-phone](deprecated/windows-phone)
+#### [deprecated/windows-phone](deprecated/windows-phone)
 Legacy Windows client code.
 
-### [deprecated/ios](deprecated/ios)
+#### [deprecated/ios](deprecated/ios)
 Legacy iOS client.
-
 
 ---
 TEAM
@@ -62,4 +61,4 @@ Past Members:
 * Constandinos Demetriou
 * Christakis Achilleos
 
-* [anyplace.cs.ucy.ac.cy/](https://anyplace.cs.ucy.ac.cy/#team)
+* [About us](https://anyplace.cs.ucy.ac.cy/#team)
