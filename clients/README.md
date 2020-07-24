@@ -51,10 +51,8 @@ TEAM
 ---
 
 Leader:
-- Christakis Achilleos
-
-Co-Advisor:
-- Paschalis Mpeis
+- **Leader:** Christakis Achilleos
+- **Co-Advisor:** Paschalis Mpeis
 
 Past Members:
 * Marcos Antonios Charalambous
