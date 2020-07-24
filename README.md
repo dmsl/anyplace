@@ -69,7 +69,7 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 - [Linux](clients/linux/)
 - [macOS](clients/macos/)
 
-## C. Simulator
+## C. [Simulator](simulator)
 - Documentation/Source: [simulator](simulator)
 
 ## LATEST DEVELOPMENT VERSION
