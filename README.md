@@ -62,7 +62,6 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 - Couchbase: [./server/anyplace_views](server/anyplace_views)
 
 ## B. Clients
-Various anyplace clients:
 - [Android](clients/android/)
 - [iOS](clients/deprecated/ios/)
 - [Windows Phone](clients/deprecated/windows-phone/)
