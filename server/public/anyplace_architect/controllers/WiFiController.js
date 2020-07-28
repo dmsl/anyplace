@@ -1908,6 +1908,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
 
                 //create AccessPoint "map"
+		// TODO PM replace with FontAwesome
                 var _ACCESS_POINT_IMAGE = 'images/access-point-icon.svg';
 
                 var imgType = _ACCESS_POINT_IMAGE;
@@ -2077,6 +2078,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                         }
 
                                         //create fringerPrint "map"
+					// TODO PM replace with FontAwesome
                                         var _FINGERPRINT_IMAGE = 'build/images/red_dot.svg';
 
                                         var imgType = _FINGERPRINT_IMAGE;
@@ -2182,6 +2184,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                 }
 
                                 //create fringerPrint "map"
+				// TODO PM replace with FontAwesome
                                 var _FINGERPRINT_IMAGE = 'build/images/red_dot.svg';
 
                                 var imgType = _FINGERPRINT_IMAGE;
@@ -2286,6 +2289,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     resp.data.radioPoints.splice(i, 1);
                 }
 
+		// TODO PM replace with FontAwesome
                 //create fringerPrint "map"
                 var _FINGERPRINT_IMAGE = 'build/images/red_dot.svg';
 
@@ -2394,7 +2398,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
       circleRadius=1.8;
     } else if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS) {
       levelOfZoom = 3;
-      circleRadius=2.1;
+      circleRadius=1.9;
     } else {
       levelOfZoom = 1;
     }
