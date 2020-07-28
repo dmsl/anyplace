@@ -2077,7 +2077,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                         }
 
                                         //create fringerPrint "map"
-                                        var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
+                                        var _FINGERPRINT_IMAGE = 'build/images/red_dot.svg';
 
                                         var imgType = _FINGERPRINT_IMAGE;
 
@@ -2182,7 +2182,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                 }
 
                                 //create fringerPrint "map"
-                                var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
+                                var _FINGERPRINT_IMAGE = 'build/images/red_dot.svg';
 
                                 var imgType = _FINGERPRINT_IMAGE;
 
@@ -2287,7 +2287,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 }
 
                 //create fringerPrint "map"
-                var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
+                var _FINGERPRINT_IMAGE = 'build/images/red_dot.svg';
 
                 var imgType = _FINGERPRINT_IMAGE;
 
