@@ -1,3 +1,5 @@
 rootProject.name='Anyplace'
 include ':demo'
 include ':lib'
+include ':lib-core'
+project(':lib-core').projectDir = new File(settingsDir, '../core/lib')
