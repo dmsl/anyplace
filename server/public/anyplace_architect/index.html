@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html ng-app="anyArchitect">
 <head>
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            if ($("[rel=tooltip]").length) {
+                $("[rel=tooltip]").tooltip();
+            }
+        });
+    </script>
     <!--<script>-->
     <!--   if (window.location.protocol != "https:")-->
     <!--       window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);-->
@@ -84,7 +91,7 @@
               <span id="anyplace-version" class="logistics-header-version"></span>
           </span>
 
-          <!--<button id="minimize-btn" class="btn btn-default" ng-click="toggleFullControls()"></button>-->
+          <!--<button id="minimize-btn" class="btn btn" ng-click="toggleFullControls()"></button>-->
             <button type="button"  id="minimize-btn" class="btn btn-minimize"  ng-click="toggleFullControls()">
                 <i class="fa fa-window-minimize" ></i>
             </button>
@@ -574,7 +581,13 @@
                                             class="glyphicon glyphicon-remove"></span></button>
                                 </div>
                                 <div class="divider-top-10">
-                                    <span class="subnote"><b>Note:</b> Zooming in the map as much as possible while placing the floor plan will result to better image quality.</span>
+                                    <div class="subnote">
+                                        <b>Note:</b>
+                                        Zooming in the map as much as possible while placing the floor plan
+                                    </div>
+                                    <div class="subnote">
+                                        will result to better image quality.
+                                    </div>
                                 </div>
                             </div>
                             <div ng-show="isCrudTabSelected(2)">
@@ -661,7 +674,7 @@
                             </div>
 
                             <div class="divider-top-10">
-                            <span id="poi-edge-mode" ng-class="(edgeMode) ? 'draggable-border-green' : ''"
+                            <span id="poi-edge-mode" ng-class="(edgeMode) ? 'draggable-border-blue' : ''"
                                   ng-click="toggleEdgeMode()">
                                 <img id="edge-mode-btn" src="build/images/edge-mode.png"/>
                             </span>
@@ -772,52 +785,54 @@
 
                     <div id="control-bar-FMS" class="ng-cloak box-shadow-1" ng-cloak>
 
-                        <div class="diveder-top-1">
-                            <span title="Time MODE: {{ getFingerPrintsTimeModeText() }}" id="FPs_2"  class="A_0" ng-show="fingerPrintsMode || radioHeatmapRSSMode" >
-                                    <span id="fingerPrints-time-mode">
-                                      <button type="button" class="btn btn-default">
-                                            <i class="fa fa-clock-o"></i>
-                                        </button>
-                                    </span>
-                            </span>
-                        </div>
-
                         <div class="divider-top-1" >
                             <span title="{{ getFingerPrintsModeText() }}" id="FPs_1"  class="A_0 box-shadow-1" >
                                 <span id="fingerPrints-mode">
-                                        <button type="button" class="btn btn-default">
+                                        <button type="button" class="btn btn-light btn-quickactions"
+                                        data-toggle="tooltip" data-placement="right" title="Fingerprints">
                                             <i class="fa fa-podcast"></i>
                                         </button>
                                     </span>
-
                             </span>
 
-                            <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="DL_1"  class="A_0" ng-show="fingerPrintsMode" >
-                                    <span id="delete-mode">
-                                      <button type="button" class="btn btn-default">
-                                            <i class="fa fa-trash"></i>
+                            <span title="Time MODE: {{ getFingerPrintsTimeModeText() }}" id="FPs_2" class="A_0" ng-show="fingerPrintsMode || radioHeatmapRSSMode" >
+                                    <span id="fingerPrints-time-mode">
+                                      <button type="button" class="btn btn-light btn-quickactions"
+                                              data-toggle="tooltip" data-placement="right" title="Chronological filtering">
+                                            <i class="fa fa-clock"></i>
                                         </button>
                                     </span>
                             </span>
 
+                            <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}" id="deleteFingerprintsSpn"  class="A_0" ng-show="fingerPrintsMode" >
+                                    <span id="delete-mode">
+                                      <button type="button" class="btn btn-light btn-quickactions"
+                                      data-toggle="tooltip" data-placement="right" title="Cannot be undone!">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </button>
+                                    </span>
+                            </span>
                         </div>
 
                         <div class="divider-top-1">
                             <span title="{{ getHeatmapModeText() }}" id="HMs_1" class="A_0">
                                 <span id="radioHeatmapRSS-mode">
-                                    <button type="button" class="btn btn-default">
-                                        <i class="fa fa-area-chart"></i>
+                                    <button type="button" class="btn btn-light btn-quickactions"
+                                    data-toggle="tooltip" data-placement="right" title="WiFi coverage">
+<!--                                        <i class="fa fa-area-chart"></i>-->
+                                        <i class="fa fa-wifi fa-margin-left-fix-lg"></i>
                                     </button>
                                 </span>
                             </span>
-
                         </div>
 
                         <div class="divider-top-1">
                                  <span title="{{ getAPsModeText() }}" id="APs_1"  class="A_0">
                                     <span id="APs-mode">
-                                        <button type="button" class="btn btn-default">
-                                            <i class="fa fa-wifi"></i>
+                                        <button type="button" class="btn btn-light btn-quickactions"
+                                        data-toggle="tooltip" data-placement="right" title="Router location estimations">
+<!--                                        <i class="fa fa-wifi"></i>-->
+                                             <i class="icon-quickaction-router"></i>
                                         </button>
                                     </span>
                                  </span>
@@ -826,8 +841,9 @@
                         <div class="divider-top-1">
                                  <span title="{{ getLocalizationAccuracyModeText() }}" id="LA_1" class="A_0">
                                     <span id="localizationAccuracy-mode">
-                                       <button type="button" class="btn btn-default">
-                                            <i class="fa fa-map"></i>
+                                       <button type="button" class="btn btn-light btn-quickactions"
+                                        data-toggle="tooltip" data-placement="right" title="Accuracy map">
+                                            <i class="fa fa-map fa-margin-left-fix"></i>
                                         </button>
                                     </span>
                                  </span>
@@ -835,8 +851,11 @@
                         <div class="divider-top-1">
                                  <span title="{{ getPOIsModeText() }}" id="POIs_1"  class="A_0" >
                                     <span id="POIs-mode">
-                                         <button type="button" class="btn btn-default">
-                                           <img src="build/images/poi-icon.png" height="16px" width="14px"/>
+                                         <button type="button" class="btn btn-light btn-quickactions"
+                                         data-toggle="tooltip" data-placement="right" title="POIs">
+<!--                                           <img src="build/images/poi-icon.png" height="16px" width="14px"/>-->
+                                             <!-- For some reason it is smaller, so use fa-lg -->
+                                             <i class="fa fa-map-marker-alt fa-lg fa-margin-left-fix-sm" aria-hidden="true"></i>
                                         </button>
                                     </span>
                                  </span>
@@ -844,17 +863,20 @@
                         <div class="divider-top-1">
                                  <span title="{{ getConnectionsModeText() }}" id="CNs_1"  class="A_0" >
                                     <span id="connections-mode">
-                                         <button type="button" class="btn btn-default">
-                                             <img src="build/images/edge-mode.png" height="16px" width="14px"/>
+                                         <button type="button" class="btn btn-light btn-quickactions"
+                                         data-toggle="tooltip" data-placement="right" title="Edges">
+                                             <i class="icon-quickaction-edges"></i>
                                         </button>
-
                                     </span>
                                  </span>
                         </div>
 
+<!--                        <div class="diveder-top-1">-->
+<!--                            CLR if ok-->
+<!--                        </div>-->
                     </div>
 
-                    <div ng-show="showFullControls &&  isTabSet(6)">
+                    <div class="ctlr-group" ng-show="showFullControls &&  isTabSet(6)">
                     <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
 
                     <div class="divider-top-15-line">
@@ -870,15 +892,15 @@
                                     <a href="" ng-click="setCrudTabSelected(2)" id="HMs">Wi-Fi Coverage</a>
                                 </li>
                                 <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
-                                    <a href="" ng-click="setCrudTabSelected(3)" id="LAs">Localization</a>
+                                    <a href="" ng-click="setCrudTabSelected(3)" id="LAs">Accuracy</a>
                                 </li>
 
                             </ul>
 
                             <div ng-show="isCrudTabSelected(1)" class="divider-top-10 center-wifi-div">
                                 <div class="subnote">
-                                    This area shows the Wi-Fi fingerprints that have been collected
-                                    <a data-toggle="modal" data-target="#myModal_1">read more...</a>
+                                    Shows the Wi-Fi fingerprints that have been collected.
+                                    <a href="javascript:void(0)" data-toggle="modal" data-target="#myModal_1">Read more...</a>
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
                                     <button id="FPsButton" class="btn btn-success" ng-click="toggleFingerPrints()">
@@ -911,9 +933,8 @@
 
                             <div ng-show="isCrudTabSelected(2)" class="divider-top-10 center-wifi-div">
                                 <div class="subnote">
-                                    This area allows you to observe the network coverage
-
-                                    <a data-toggle="modal" data-target="#myModal_2">read more...</a>
+                                    Shows the Wi-Fi network coverage.
+                                    <a href="javascript:void(0)" data-toggle="modal" data-target="#myModal_2">Read more...</a>
                                 </div>
 
                                 <div style="margin: 10px; font-weight: bold">
@@ -942,14 +963,21 @@
 
                             <div  ng-show="isCrudTabSelected(3)" class="divider-top-10 center-wifi-div">
                                 <div class="subnote scroll">
-                                    This area allows you to observe the expected localization accuracy
-
-                                    <a data-toggle="modal" data-target="#myModal_3">read more...</a>
+                                    Shows the expected localization accuracy.
+                                    <div>
+                                        <span class="text-danger"><b>EXPERIMENTAL! </b></span>
+                                        <a href="javascript:void(0)" data-toggle="modal" data-target="#myModal_3">Read more...</a>
+                                    </div>
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
                                   <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccuracy()" >
                                     {{getLocalizationAccuracyText()}}
-                                    <i id="LAButtonProgress" class="fa fa-circle-o-notch fa-spin hidden"></i>
+<!--                                    <i id="LAButtonProgres" class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>-->
+
+                                      <div id="LAButtonProgres" class="spinner-border text-secondary hidden" role="status">
+                                          <span class="sr-only"></span>
+                                      </div>
+
                                   </button>
                                         <button id="LAButton1" class="btn btn-success" ng-click="deleteRadiomaps()" >
                                             Delete Radiomap
@@ -973,19 +1001,19 @@
                 <div id="color-bar" ng-show="anyService.radioHeatmapRSSMode" class="">
                     <ul class="spot">
                         <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0" >
-                            <button style="background-color: rgb(78, 212, 25); width: 100px;" id="greenSquares">0 to -60</button>
+                            <button style="background-color: rgb(78, 212, 25); width: 110px;" id="greenSquares">0 to -60</button>
                         </span>
                         <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0" >
-                            <button style="background-color: rgb(255, 255, 0); width: 100px;" id="yellowSquares">-60 to -70</button>
+                            <button style="background-color: rgb(255, 255, 0); width: 110px;" id="yellowSquares">-60 to -70</button>
                         </span>
                         <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
-                            <button style="background-color: rgb(255, 165, 0); width: 100px;" id="orangeSquares">-70 to -90</button>
+                            <button style="background-color: rgb(255, 165, 0); width: 110px;" id="orangeSquares">-70 to -90</button>
                         </span>
                         <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
-                            <button style="background-color: rgb(189,6,189); width: 100px;" id="purpleSquares">-90 to -100</button>
+                            <button style="background-color: rgb(189,6,189); width: 110px;" id="purpleSquares">-90 to -100</button>
                         </span>
                         <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('red')}}" class="A_0" >
-                            <button style="background-color: rgb(255, 0, 0); width: 100px;" id="redSquares">-100 to -110</button>
+                            <button style="background-color: rgb(255, 0, 0); width: 110px;" id="redSquares">-100 to -110</button>
                         </span>
 
                         <li style="background-color: rgb(255, 255, 255); width: 50px; text-align: center;">dBm</li>
@@ -1021,7 +1049,7 @@
                 <input class="form-control" value="{{gAuth.access_token}}">
             </div>
             <a data-toggle="modal" data-target="#myModal_Welcome">
-                <button style="width: 50px; float: right; margin:10px;">
+                <button style="width: 50px; float: right; margin:10px; border-radius: 5px; border:3px">
                      <i class="fa fa-question-circle"></i>
                 </button>
             </a>
@@ -1106,17 +1134,19 @@
 <script>FlurryAgent.startSession("DND8DGH2MT7VZGBMNBPP");</script>
 
 <!-- Modals -->
-<div class="modal fade" id="myModal_1" role="dialog">
-    <div class="modal-dialog">
+<div class="modal" id="myModal_1" tabindex="-1" role="dialog">
+    <div class="modal-dialog  modal-lg"  role="document">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <b>FingerPrints</b>
+                <h3 class="modal-title">Fingerprints</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button >
             </div>
             <div class="modal-body">
-                <p>This area shows the Wi-Fi fingerprints that have been collected using
+                <p>Shows the Wi-Fi fingerprints that have been collected using
                     <a href="//play.google.com/store/apps/details?id=com.dmsl.anyplace"
                        target="_blank">Anyplace Logger</a> on Android as shown in the video below:<br>
                     <iframe width="100%" height="315" src="https://www.youtube.com/embed/8EvioLZ6hvg?autoplay=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe><br>
@@ -1126,21 +1156,23 @@
                     using your Android Phone.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light btn-quickactions" data-dismiss="modal">Close</button>
             </div>
         </div>
 
     </div>
 </div>
 
-<div class="modal fade" id="myModal_2" role="dialog">
-    <div class="modal-dialog modal-lg">
+<div class="modal" id="myModal_2" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg"  role="document">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <b>Wi-Fi Coverage</b>
+                <h3 class="modal-title">Wi-Fi Coverage</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button >
             </div>
 
             <div class="modal-body">
@@ -1153,19 +1185,19 @@
                     The image below shows the Wi-Fi signal intensity:<br>
                 <ul class="spot">
                                         <span ng-click="hideRSSExcept('g')" title="{{getColorBarTextFor('green')}}" class="A_0">
-                                            <li style="background-color: rgb(78, 212, 25); width: 100px;">0 to 60</li>
+                                            <li style="background-color: rgb(78, 212, 25); width: 110px;">0 to 60</li>
                                         </span>
                     <span ng-click="hideRSSExcept('y')" title="{{getColorBarTextFor('yellow')}}" class="A_0">
-                                        <li style="background-color: rgb(255, 255, 0); width: 100px;">-60 to -70</li>
+                                        <li style="background-color: rgb(255, 255, 0); width: 110px;">-60 to -70</li>
                                         </span>
                     <span ng-click="hideRSSExcept('o')" title="{{getColorBarTextFor('orange')}}" class="A_0">
-                                        <li style="background-color: rgb(255, 165, 0); width: 100px;">-70 to -90</li>
+                                        <li style="background-color: rgb(255, 165, 0); width: 110px;">-70 to -90</li>
                                         </span>
                     <span ng-click="hideRSSExcept('p')" title="{{getColorBarTextFor('purple')}}" class="A_0">
-                                        <li style="background-color: rgb(128, 0, 128); width: 100px;">-90 to -100</li>
+                                        <li style="background-color: rgb(128, 0, 128); width: 110px;">-90 to -100</li>
                                         </span>
                     <span ng-click="hideRSSExcept('r')" title="{{getColorBarTextFor('r')}}" class="A_0">
-                                        <li style="background-color: rgb(255, 0, 0); width: 100px;">-100 to -110</li>
+                                        <li style="background-color: rgb(255, 0, 0); width: 110px;">-100 to -110</li>
                                         </span> dBm<br>
                 </ul>
                 <b>You can click on a certain color (range) to filter the measurements in that range.</b><br>
@@ -1180,7 +1212,10 @@
                 </ul></p>
             </div>
             <div class="modal-header">
-                <b>ESTIMATED ACCESS POINTS (APs)</b>
+                <h3 class="modal-title">Estimated Access Points (APs)</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button >
             </div>
 
             <div class="modal-body">
@@ -1193,21 +1228,23 @@
                     fingerprints close to the real AP as possible using the Anyplace Logger.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
             </div>
         </div>
 
     </div>
 </div>
 
-<div class="modal fade" id="myModal_3" role="dialog">
-    <div class="modal-dialog">
+<div class="modal" id="myModal_3"  tabindex="-1" role="dialog">
+    <div class="modal-dialog  modal-lg"  role="document">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <b>Localization Accuracy Estimation:</b>
+                <h3 class="modal-title">Localization Accuracy Estimation</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button >
             </div>
             <div class="modal-body">
                 This area allows you to observe the expected localization accuracy (i.e., different than Wi-Fi coverage) using the ACCES algorithm .<br>
@@ -1233,21 +1270,22 @@
                 <iframe width="100%" height="315" src="https://www.youtube.com/embed/xPZlwKngcGo?autoplay=0" frameborder="0" allow="encrypted-media" allowfullscreen></iframe></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
             </div>
         </div>
 
     </div>
 </div>
 
-<div class="modal fade" id="myModal_Welcome" role="dialog" >
-    <div class="modal-dialog">
-
+<div class="modal" id="myModal_Welcome"  tabindex="-1" role="dialog" >
+        <div class="modal-dialog modal-lg" role="document">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <b>ANYPLACE ARCHITECT</b>
+                <h3 class="modal-title">Anyplace Architect</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button >
             </div>
             <div class="modal-body">
                 <p>
@@ -1266,9 +1304,14 @@
             </div>
             <div class="modal-footer">
                 <label class="pull-left"><input type="checkbox" name="dismiss" id="dismiss">Don't show again!</label>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
+
+
+
+
+
     </div>
 </div>
 
@@ -1276,12 +1319,9 @@
 </body>
 
 <footer>
-
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- Optional theme -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
 </footer>
 
 </html>

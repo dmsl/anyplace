@@ -169,20 +169,22 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
 
                 $scope.myBuildings.push(b);
 
-                var s = new google.maps.Size(55, 80);
-                if ($scope.isFirefox)
-                    s = new google.maps.Size(110, 160);
 
-                var marker = new google.maps.Marker({
-                    position: _latLngFromBuilding(b),
-                    icon: {
-                        url: 'build/images/building-icon.png',
-                        size: s,
-                        scaledSize: new google.maps.Size(55, 80)
-                    },
-                    draggable: false
-                });
-
+                // var s = new google.maps.Size(55, 80);
+                // if ($scope.isFirefox)
+                //     s = new google.maps.Size(110, 160);
+                //
+                // var marker = new google.maps.Marker({
+                //     position: _latLngFromBuilding(b),
+                //     icon: {
+                //         url: 'build/images/building-icon.png',
+                //         size: s,
+                //         scaledSize: new google.maps.Size(55, 80)
+                //     },
+                //     draggable: false
+                // });
+                // markerCluster.addMarker(marker);
+                var marker = getMapsIconBuildingViewer($scope, _latLngFromBuilding(b));
                 markerCluster.addMarker(marker);
 
                 var htmlContent = '<div class="infowindow-scroll-fix">'
@@ -273,20 +275,20 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
                         loadBuidFromUrl = i;
                     }
 
-                    var s = new google.maps.Size(55, 80);
-                    if ($scope.isFirefox)
-                        s = new google.maps.Size(110, 160);
-
-                    var marker = new google.maps.Marker({
-                        position: _latLngFromBuilding(b),
-                        icon: {
-                            url: 'build/images/building-icon.png',
-                            size: s,
-                            scaledSize: new google.maps.Size(55, 80)
-                        },
-                        draggable: false
-                    });
-
+                    // var s = new google.maps.Size(55, 80);
+                    // if ($scope.isFirefox)
+                    //     s = new google.maps.Size(110, 160);
+                    // var marker = new google.maps.Marker({
+                    //     position: _latLngFromBuilding(b),
+                    //     icon: {
+                    //         url: 'build/images/building-icon.png',
+                    //         size: s,
+                    //         scaledSize: new google.maps.Size(55, 80)
+                    //     },
+                    //     draggable: false
+                    // });
+                    // markerCluster.addMarker(marker);
+                    var marker = getMapsIconBuildingViewer($scope, _latLngFromBuilding(b));
                     markerCluster.addMarker(marker);
 
                     var htmlContent = '<div class="infowindow-scroll-fix">'

@@ -25,6 +25,8 @@
  THE SOFTWARE.
  */
 
+
+
 app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($cookieStore, $scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     $scope.myMarkers = {};
@@ -356,17 +358,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         b.is_published = false;
                     }
 
-                    var marker = new google.maps.Marker({
-                        position: _latLngFromBuilding(b),
-                        map: GMapService.gmap,
-                        icon: new google.maps.MarkerImage(
-                            'build/images/building-icon.png',
-                            null, /* size is determined at runtime */
-                            null, /* origin is 0,0 */
-                            null, /* anchor is bottom center of the scaled image */
-                            new google.maps.Size(54, 54)),
-                        draggable: false
-                    });
+                    var marker = getMapsIconBuildingArchitect(GMapService.gmap, _latLngFromBuilding(b))
+
 
                     var htmlContent = '<div class="infowindow-scroll-fix">'
                         + '<h5>Building:</h5>'
@@ -392,6 +385,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         });
                     });
                 }
+                console.log("Loaded " + $scope.myBuildings.length + " buildings!")
 
                 // using the latest building form localStorage
                 if (localStoredBuildingIndex >= 0) {
@@ -899,7 +893,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var marker = new google.maps.Marker({
             position: location,
             map: GMapService.gmap,
-            icon: 'build/images/building-icon.png',
+            icon: IMG_BUILDING_ARCHITECT,
             draggable: true
         });
 
