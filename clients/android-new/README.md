@@ -5,3 +5,6 @@ Most of the android legacy code will go here.
 
 # demo
 Thin client.
+
+# lib-core
+The core java library used as a dependency.
