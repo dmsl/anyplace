@@ -24,14 +24,29 @@ android {
         release.setRoot('build-types/release')
     }
 
-    buildTypes {
-        debug{
-            debuggable = true
+    signingConfigs {
+        config {
+            keyAlias 'Anyplace'
+            keyPassword 'abcdef'
+            storeFile file('D:/XP_Documents/University of Cyprus/9 Term/Play Store/Files/ucy.keystore')
+            storePassword 'abcdef'
         }
     }
-    lintOptions {
+
+    buildTypes {
+        debug {
+            debuggable = true
+            signingConfig signingConfigs.config
+        }
+        release {
+            signingConfig signingConfigs.config
+        }
+    }
+
+    lintOptions{
         abortOnError false
     }
+
     defaultConfig {
         targetSdkVersion 26
         minSdkVersion 14

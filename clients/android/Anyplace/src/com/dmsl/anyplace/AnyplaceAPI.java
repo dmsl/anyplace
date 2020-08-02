@@ -45,7 +45,7 @@ import java.net.URL;
 
 public class AnyplaceAPI {
 
-	public final static String FLURRY_APIKEY = "insert_flurry_key";
+	public final static String FLURRY_APIKEY = "73R5667PJ6MRB5ZB6D3P";
 	public final static Boolean FLURRY_ENABLE = false;
 	public final static Boolean FLOOR_SELECTOR = true;
 
