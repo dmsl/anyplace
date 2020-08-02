@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dmsl.anyplace"
-    android:versionCode="47"
-    android:versionName="2.4.0" >
-
-    <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="19" />
+    android:versionCode="51"
+    android:versionName="2.5.3">
 
     <permission
         android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"
@@ -37,12 +33,12 @@
         android:allowBackup="true"
         android:icon="@drawable/anyplace_logo_icon_bg"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AnyplaceTheme" >
+        android:theme="@style/Theme.AnyplaceTheme">
 
         <activity
             android:name="com.dmsl.anyplace.StartActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+            android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,7 +48,7 @@
         <activity
             android:name="com.dmsl.anyplace.AnyplaceAboutActivity"
             android:label="@string/app_name_about"
-            android:theme="@android:style/Theme.Dialog" >
+            android:theme="@android:style/Theme.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -67,24 +63,22 @@
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" >
-                </action>
+                <action android:name="android.intent.action.VIEW"></action>
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="anyplace.rayzit.com"
+                    android:host="ap.cs.ucy.ac.cy"
                     android:pathPrefix="/getnavigation"
-                    android:scheme="http" >
-                </data>
+                    android:scheme="https"></data>
             </intent-filter>
 
             <!--
@@ -109,7 +103,7 @@
             android:label="Search POI"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Light" >
+            android:theme="@android:style/Theme.Light">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -123,7 +117,7 @@
             android:excludeFromRecents="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Dialog" >
+            android:theme="@android:style/Theme.Dialog">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -136,7 +130,7 @@
             android:icon="@drawable/anyplace_logo_icon_actionbar_white"
             android:label="@string/app_name_logger"
             android:screenOrientation="nosensor"
-            android:theme="@style/Theme.Sherlock" >
+            android:theme="@style/Theme.Sherlock">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -147,26 +141,27 @@
             android:name="com.dmsl.anyplace.AnyplacePrefs"
             android:icon="@drawable/anyplace_logo_icon_actionbar_white"
             android:label="@string/prefs_name_anyplace"
-            android:screenOrientation="nosensor" >
-        </activity>
+            android:screenOrientation="nosensor"></activity>
         <activity
             android:name="com.dmsl.anyplace.logger.LoggerPrefs"
             android:icon="@drawable/anyplace_logo_icon_actionbar_white"
             android:label="@string/prefs_name_logger"
-            android:screenOrientation="nosensor" >
-        </activity>
+            android:screenOrientation="nosensor"></activity>
         <activity
             android:name="com.dmsl.anyplace.AndroidFileBrowser"
             android:label="@string/app_choose_folder"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-       
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
+            android:value="insert_api_key" />
+
+        <meta-data
+            android:name="google.directions.API_KEY"
             android:value="insert_api_key" />
     </application>
 

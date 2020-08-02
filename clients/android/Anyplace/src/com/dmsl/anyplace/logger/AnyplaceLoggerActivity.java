@@ -98,6 +98,8 @@ import com.dmsl.anyplace.utils.NetworkUtils;
 import com.dmsl.anyplace.wifi.SimpleWifiManager;
 import com.dmsl.anyplace.wifi.WifiReceiver;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 
@@ -121,6 +123,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -144,6 +147,8 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, OnMapClickListener {
 	private static final String TAG = "AnyplaceLoggerActivity";
 	public static final String SHARED_PREFS_LOGGER = "LoggerPreferences";
+
+	private static final int PERMISSION_STORAGE_WRITE = 100;
 
 	// Define a request code to send to Google Play services This code is
 	// returned in Activity.onActivityResult
@@ -376,7 +381,25 @@ public class AnyplaceLoggerActivity extends SherlockFragmentActivity implements 
 		AnyPlaceLoggerReceiver mSamplingAnyplaceLoggerReceiver = new AnyPlaceLoggerReceiver();
 		logger = new LoggerWiFi(mSamplingAnyplaceLoggerReceiver);
 
-		setUpMapIfNeeded();
+		requestForPermissions();
+	}
+
+	@TargetApi(Build.VERSION_CODES.M)
+	private void requestForPermissions() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			String permissionString = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+			if (this.checkSelfPermission(permissionString)
+					!= PackageManager.PERMISSION_GRANTED) {
+				this.requestPermissions(
+						new String[]{permissionString},
+						PERMISSION_STORAGE_WRITE);
+			} else {
+				setUpMapIfNeeded();
+			}
+		}else{
+			setUpMapIfNeeded();
+		}
 	}
 
 	/*
