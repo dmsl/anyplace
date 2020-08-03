@@ -3,8 +3,6 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="11">
       <module name="anyplace-core" target="1.8" />
-      <module name="anyplace-core.main" target="1.8" />
-      <module name="anyplace-core.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
