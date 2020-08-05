@@ -11,7 +11,7 @@ explaining what it fixes/improves so it can be reviewed.
 ---
 
 # Links
-## [Contributing](CONTRIBUTING.md)
 
----
+## [Team](https://anyplace.cs.ucy.ac.cy/#about)
+
 ## [License](LICENSE.txt)
