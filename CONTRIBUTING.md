@@ -1,7 +1,7 @@
 # CONTRIBUTING
 Thanks you for your interest in contributing to [Anyplace](http://anyplace.cs.ucy.ac.cy/)!
 
-## Issues;
+## Issues:
 Please open a Github Issue to report a problem, explaining how to reproduce it.
 
 ## Fixes:
