@@ -5,6 +5,11 @@
       <module fileurl="file://$PROJECT_DIR$/Anyplace/Anyplace.iml" filepath="$PROJECT_DIR$/Anyplace/Anyplace.iml" />
       <module fileurl="file://$PROJECT_DIR$/actionbarsherlock/actionbarsherlock.iml" filepath="$PROJECT_DIR$/actionbarsherlock/actionbarsherlock.iml" />
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Anyplace/android-Anyplace.iml" filepath="$PROJECT_DIR$/.idea/modules/Anyplace/android-Anyplace.iml" group="android/Anyplace" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/actionbarsherlock/android-actionbarsherlock.iml" filepath="$PROJECT_DIR$/.idea/modules/actionbarsherlock/android-actionbarsherlock.iml" group="android/actionbarsherlock" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/google-play-services_lib/android-google-play-services_lib.iml" filepath="$PROJECT_DIR$/.idea/modules/google-play-services_lib/android-google-play-services_lib.iml" group="android/google-play-services_lib" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/android-library.iml" filepath="$PROJECT_DIR$/.idea/modules/library/android-library.iml" group="android/library" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients-android.iml" filepath="$PROJECT_DIR$/.idea/modules/clients-android.iml" group="android" />
       <module fileurl="file://$PROJECT_DIR$/google-play-services_lib/google-play-services_lib.iml" filepath="$PROJECT_DIR$/google-play-services_lib/google-play-services_lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
     </modules>

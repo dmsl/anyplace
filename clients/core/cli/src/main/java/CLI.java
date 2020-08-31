@@ -36,7 +36,7 @@
  *
  */
 
-import cy.ac.ucy.cs.anyplace.core.Anyplace;
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 
 import org.json.JSONException;
 

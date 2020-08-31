@@ -1,5 +1,5 @@
-import cy.ac.ucy.cs.anyplace.core.Anyplace;
-import cy.ac.ucy.cs.anyplace.core.Preferences;
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
+import cy.ac.ucy.cs.anyplace.lib.Preferences;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
