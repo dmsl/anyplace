@@ -3,8 +3,8 @@
   <string name="title_activity_settings">SettingsActivity</string>
 
   <!-- Preference Titles -->
-  <string name="messages_header">Messages</string>
-  <string name="sync_header">Sync</string>
+  <string name="pref_header">Settings</string>
+  <string name="cache_header">Cache</string>
 
   <!-- Messages Preferences -->
   <string name="signature_title">Your signature</string>

@@ -40,7 +40,7 @@ package cy.ac.ucy.cs.anyplace.logger;
 
 
 
-import com.flurry.android.FlurryAgent;
+//mport com.flurry.android.FlurryAgent;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -66,39 +66,17 @@ import com.google.maps.android.clustering.ClusterManager.OnClusterItemClickListe
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 
+//import com.dmsl.anyplace.AnyplaceAboutActivity;
+//import com.dmsl.anyplace.SelectBuildingActivity;
 
 
-import com.dmsl.anyplace.AnyplaceAboutActivity;
-import com.dmsl.anyplace.SelectBuildingActivity;
-
-
-
-
-import com.dmsl.anyplace.logger.LoggerPrefs.Action;
-import com.dmsl.anyplace.logger.LoggerWiFi.Function;
-
-
-
-
-
-
-
-
-
-
-
-
-import com.dmsl.anyplace.tasks.UploadRSSLogTask;
-import com.dmsl.anyplace.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
-
-
-
-
-
-import com.dmsl.anyplace.wifi.SimpleWifiManager;
-import com.dmsl.anyplace.wifi.WifiReceiver;
-
-
+import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerPrefs.Action;
+import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi;
+import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi.Function;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.UploadRSSLogTask;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
+import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager;
+import cy.ac.ucy.cs.anyplace.lib.android.wifi.WifiReceiver;
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.MovementDetector;
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsMain;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
@@ -153,6 +131,8 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -764,7 +744,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 
 		// Flurry Analytics
 		if (AnyplaceAPI.FLURRY_ENABLE) {
-			FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
+			//FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
 		}
 	}
 
@@ -777,7 +757,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 
 		// Flurry Analytics
 		if (AnyplaceAPI.FLURRY_ENABLE) {
-			FlurryAgent.onEndSession(this);
+			//FlurryAgent.onEndSession(this);
 		}
 	}
 

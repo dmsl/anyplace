@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
     buildToolsVersion "30.0.1"
 
     defaultConfig {
         applicationId "cy.ac.ucy.cs.anyplace.android"
-        minSdkVersion 26
-        targetSdkVersion 30
+        minSdkVersion 28
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -46,7 +46,7 @@ android {
 
 dependencies {
 
-  implementation project(path: ':lib')
+  //implementation project(path: ':lib')
   implementation fileTree(dir: "libs", include: ["*.jar"])
   implementation 'androidx.appcompat:appcompat:1.1.0'
   //implementation 'com.google.android.gms:play-services-maps:17.0.0'

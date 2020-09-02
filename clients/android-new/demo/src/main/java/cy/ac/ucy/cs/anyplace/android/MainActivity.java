@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -16,7 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -56,25 +61,14 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    //we need to get the information from the preferences activity
-    if (getIntent().hasExtra("cy.ac.ucy.cs.anyplace.android.apikey")){
-      //textbox = (TextView) findViewById(R.id.textbox);
-      apikey = getIntent().getExtras().getString("cy.ac.ucy.cs.anyplace.android.apikey");
-     // textbox.setText(text);
-    }
+    //
 
-    if (getIntent().hasExtra("cy.ac.ucy.cs.anyplace.android.host")){
-      //textbox = (TextView) findViewById(R.id.textbox);
-      host = getIntent().getExtras().getString("cy.ac.ucy.cs.anyplace.android.host");
-      // textbox.setText(text);
-    }
 
-    if (getIntent().hasExtra("cy.ac.ucy.cs.anyplace.android.port")){
-      //textbox = (TextView) findViewById(R.id.textbox);
-      port = getIntent().getExtras().getString("cy.ac.ucy.cs.anyplace.android.port");
-      // textbox.setText(text);
-    }
 
+    port = "443";
+    host="ap-dev.cs.ucy.ac.cy";
+
+    apikey="";
     cache = String.valueOf(getApplicationContext().getFilesDir());
 
 
@@ -123,6 +117,32 @@ public class MainActivity extends AppCompatActivity {
         }
       }
     });
+
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.settingsbar, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()){
+
+      case R.id.item2:
+          Toast.makeText(this, "Preferences Selected", Toast.LENGTH_SHORT).show();
+          Intent startIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+          startActivity(startIntent);
+          return true;
+      case R.id.item3:
+        Toast.makeText(this, "About Selected", Toast.LENGTH_SHORT).show();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+
+    }
 
   }
 
