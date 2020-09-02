@@ -38,6 +38,8 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android;
 
+//TODO: To be replaced with the Anyplace java file from lib core
+
 import android.content.Context;
 import android.content.SharedPreferences;
 

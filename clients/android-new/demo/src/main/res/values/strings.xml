@@ -6,11 +6,11 @@
   <string name="pref_header">Settings</string>
   <string name="cache_header">Cache</string>
 
-  <!-- Messages Preferences -->
+  <!-- Server Preferences -->
   <string name="signature_title">Your signature</string>
   <string name="reply_title">Default reply action</string>
 
-  <!-- Sync Preferences -->
+  <!-- Cache Preferences -->
   <string name="sync_title">Sync email periodically</string>
   <string name="attachment_title">Download incoming attachments</string>
   <string name="attachment_summary_on">Automatically download attachments for incoming emails

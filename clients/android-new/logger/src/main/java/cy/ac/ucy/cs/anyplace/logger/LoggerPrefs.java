@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.lib.android.logger;
+package cy.ac.ucy.cs.anyplace.logger;
 
 import com.dmsl.anyplace.AndroidFileBrowser;
 import com.dmsl.anyplace.R;

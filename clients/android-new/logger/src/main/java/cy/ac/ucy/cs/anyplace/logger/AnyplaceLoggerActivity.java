@@ -70,7 +70,7 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 //import com.dmsl.anyplace.SelectBuildingActivity;
 
 
-import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerPrefs.Action;
+import cy.ac.ucy.cs.anyplace.logger.LoggerPrefs.Action;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi.Function;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.UploadRSSLogTask;

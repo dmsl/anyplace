@@ -29,6 +29,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 
+import cy.ac.ucy.cs.anyplace.lib.android.SettingsAnyplace;
+
 public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = MainActivity.class.getSimpleName();
@@ -63,10 +65,13 @@ public class MainActivity extends AppCompatActivity {
 
     //
 
+    SettingsAnyplace prefs = new SettingsAnyplace(getApplicationContext(), "");
+//getString(R.xml.root_preferences)
 
 
     port = "443";
-    host="ap-dev.cs.ucy.ac.cy";
+    host=prefs.getHost();  // Read preferences
+    Log.d(TAG, "host: " + host);
 
     apikey="";
     cache = String.valueOf(getApplicationContext().getFilesDir());
@@ -209,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected String doInBackground(String... params) {
       //Collect fingerprints
-      boolean debugging = true;
+      boolean debugging = false;
       String fingerprints[];
 
       if (debugging){

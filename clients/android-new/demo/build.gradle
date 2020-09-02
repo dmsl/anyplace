@@ -32,6 +32,7 @@ android {
         exclude 'kotlin/ranges/ranges.kotlin_builtins'
         exclude 'kotlin/kotlin.kotlin_builtins'
         exclude 'kotlin/coroutines/coroutines.kotlin_builtins'
+        //exclude 'kotlin/kotlin.ArrayIntrinsicsKt'
       }
     }
 
@@ -53,6 +54,7 @@ dependencies {
   implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.preference:preference:1.1.0'
   implementation project(path: ':lib-core')
+  implementation project(path: ':lib')
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

@@ -4,7 +4,8 @@
 
     <EditTextPreference
 
-        app:key="server"
+
+        app:key="ap_url"
         app:title="Server address"
         app:useSimpleSummaryProvider="true" />
     <EditTextPreference

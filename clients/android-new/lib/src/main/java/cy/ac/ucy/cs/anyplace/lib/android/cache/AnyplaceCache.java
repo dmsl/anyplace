@@ -59,8 +59,11 @@ import com.dmsl.anyplace.tasks.FetchBuildingsTask;
 import com.dmsl.anyplace.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
 import com.dmsl.anyplace.utils.NetworkUtils;
 */
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisModel;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask;
+import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 
 
 /**
@@ -75,15 +78,17 @@ public class AnyplaceCache implements Serializable {
 
 
 	private static AnyplaceCache mInstance = null;
+  private final Context ctx;
 
-	public static AnyplaceCache getInstance(Context ctx) {
+
+  public static AnyplaceCache getInstance(Context ctx) {
 		if (mInstance == null) {
 			synchronized (ctx) {
 				if (mInstance == null) {
 					mInstance = getObject(ctx, ctx.getCacheDir());
 				}
 				if (mInstance == null) {
-					mInstance = new AnyplaceCache();
+					mInstance = new AnyplaceCache(ctx);
 				}
 			}
 		}
@@ -105,15 +110,18 @@ public class AnyplaceCache implements Serializable {
 	private Map<String, PoisModel> mLoadedPoisMap;
 	private String poisBUID;
 
-	private AnyplaceCache() {
+
+	private AnyplaceCache(Context ctx) {
 		// last fetched Buildings
 		this.mSpinnerBuildings = new ArrayList<BuildingModel>();
 		// last fetched pois
 		this.mLoadedPoisMap = new HashMap<String, PoisModel>();
+		this.ctx = ctx;
+
 	}
 
 	// </All Buildings
-	public List<BuildingModel> loadWorldBuildings(final FetchBuildingsTaskListener fetchBuildingsTaskListener, final Context ctx, Boolean forceReload) {
+	public List<BuildingModel> loadWorldBuildings(final FetchBuildingsTask.FetchBuildingsTaskListener fetchBuildingsTaskListener, final Context ctx, Boolean forceReload) {
 		if ((forceReload && NetworkUtils.isOnline(ctx)) || mWorldBuildings.isEmpty()) {
 			new FetchBuildingsTask(new FetchBuildingsTask.FetchBuildingsTaskListener() {
 
@@ -136,9 +144,9 @@ public class AnyplaceCache implements Serializable {
 		return mWorldBuildings;
 	}
 
-	public void loadBuilding(final String buid, final FetchBuildingTaskListener l, Context ctx) {
+	public void loadBuilding(final String buid, final BuildingModel.FetchBuildingTaskListener l, Context ctx) {
 
-		loadWorldBuildings(new FetchBuildingsTaskListener() {
+		loadWorldBuildings(new FetchBuildingsTask.FetchBuildingsTaskListener() {
 
 			@Override
 			public void onSuccess(String result, List<BuildingModel> buildings) {
@@ -230,18 +238,18 @@ public class AnyplaceCache implements Serializable {
 
 		if (bf == null) {
 			l.onPrepareLongExecute();
-			bf = new BackgroundFetch(l, build);
+			bf = new BackgroundFetch(ctx, l, build);
 			bf.run();
 		} else if (!bf.build.buid.equals(build.buid)) {
 			// Navigated to another building
 			bf.cancel();
 			l.onPrepareLongExecute();
-			bf = new BackgroundFetch(l, build);
+			bf = new BackgroundFetch(ctx, l, build);
 			bf.run();
 		} else if (bf.status == BackgroundFetchListener.Status.SUCCESS) {
 			// Previously finished for the current building
 			l.onSuccess("Already Downloaded");
-		} else if (bf.status == Status.STOPPED) {
+		} else if (bf.status == BackgroundFetchListener.Status.STOPPED) {
 			// Task Download Error Occurred
 			l.onErrorOrCancel("Task Failed", BackgroundFetchListener.ErrorType.EXCEPTION);
 		} else {

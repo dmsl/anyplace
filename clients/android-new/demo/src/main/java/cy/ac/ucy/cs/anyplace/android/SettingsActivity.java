@@ -1,12 +1,14 @@
 package cy.ac.ucy.cs.anyplace.android;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
 
 public class SettingsActivity extends AppCompatActivity {
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +28,13 @@ public class SettingsActivity extends AppCompatActivity {
 
 
   public static class SettingsFragment extends PreferenceFragmentCompat {
+    private static final String TAG = SettingsFragment.class.getSimpleName() ;
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-      setPreferencesFromResource(R.xml.root_preferences, rootKey);
+      Log.d(TAG, rootKey +"");
+       setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
     }
   }
 }

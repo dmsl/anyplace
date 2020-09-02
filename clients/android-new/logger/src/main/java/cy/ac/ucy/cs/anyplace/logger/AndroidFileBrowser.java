@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.lib.android;
+package cy.ac.ucy.cs.anyplace.logger;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -54,7 +54,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.dmsl.anyplace.R;
+
 
 import java.io.File;
 import java.util.ArrayList;
