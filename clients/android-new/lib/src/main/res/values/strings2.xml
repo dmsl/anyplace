@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+
+  <string name="anyplace_url" tools:ignore="ExtraTranslation">ap-dev.cs.ucy.ac.cy</string>
+  <string name="ap_default_server_url">ap-dev.cs.ucy.ac.cy</string>
+  <string name="ap_default_port">443</string>
+
+</resources>

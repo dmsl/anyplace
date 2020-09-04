@@ -2,6 +2,7 @@
   <string name="app_name">Anyplace</string>
   <string name="title_activity_settings">SettingsActivity</string>
 
+
   <!-- Preference Titles -->
   <string name="pref_header">Settings</string>
   <string name="cache_header">Cache</string>
@@ -16,4 +17,10 @@
   <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
   <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+
+  <string name="ap_default_server_url">ap-dev.cs.ucy.ac.cy</string>
+  <string name="ap_default_port">443</string>
+  <string name="title_activity_maps">Map</string>
+
 </resources>

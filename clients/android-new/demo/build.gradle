@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "30.0.1"
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "cy.ac.ucy.cs.anyplace.android"
@@ -47,7 +47,6 @@ android {
 
 dependencies {
 
-  //implementation project(path: ':lib')
   implementation fileTree(dir: "libs", include: ["*.jar"])
   implementation 'androidx.appcompat:appcompat:1.1.0'
   //implementation 'com.google.android.gms:play-services-maps:17.0.0'
@@ -55,6 +54,7 @@ dependencies {
     implementation 'androidx.preference:preference:1.1.0'
   implementation project(path: ':lib-core')
   implementation project(path: ':lib')
+  implementation 'com.google.android.gms:play-services-maps:17.0.0'
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

@@ -5,14 +5,20 @@
 
     <EditTextPreference
 
-
         app:key="ap_url"
         app:title="Server address"
-        app:useSimpleSummaryProvider="true" />
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/ap_default_server_url"
+        />
+
+
     <EditTextPreference
         app:key="port"
         app:title="Server Port"
-        app:useSimpleSummaryProvider="true" />
+        app:useSimpleSummaryProvider="true"
+        android:defaultValue="@string/ap_default_port"
+
+        />
     <EditTextPreference
         app:key="apikey"
         app:title="API Key"
@@ -28,30 +34,24 @@
         app:key="default"
         app:title="Use default cache" />
 
-
-
   </PreferenceCategory>
 
   <Preference
-      android:id="@+id/r_building"
       android:key="refresh_building"
       android:summary="Reload the current building from server"
       android:title="Refresh Building" >
   </Preference>
   <Preference
-      android:id="@+id/r_map"
       android:key="refresh_map"
     android:summary="Reload the map pois from server"
     android:title="Refresh Map" >
   </Preference>
   <Preference
-      android:id="@+id/d_radiomaps"
       android:key="delete_radiomaps"
       android:summary="Deletes the cached radiomaps"
       android:title="Delete cached RadioMaps" >
   </Preference>
   <Preference
-      android:id="@+id/d_floorplans"
       android:key="delete_floorplans"
       android:summary="Deletes the cached floor plans."
       android:title="Delete cached Floor plans." >

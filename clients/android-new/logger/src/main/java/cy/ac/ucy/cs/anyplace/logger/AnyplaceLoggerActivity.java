@@ -70,6 +70,7 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 //import com.dmsl.anyplace.SelectBuildingActivity;
 
 
+import cy.ac.ucy.cs.anyplace.lib.android.logger.LogRecordMap;
 import cy.ac.ucy.cs.anyplace.logger.LoggerPrefs.Action;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi.Function;
@@ -133,6 +134,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -348,7 +350,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 		mLocationClient = new LocationClient(this, this, this);
 
 		// get settings
-		PreferenceManager.setDefaultValues(this, SHARED_PREFS_LOGGER, MODE_PRIVATE, R.xml.preferences_logger, true);
+		PreferenceManager.setDefaultValues(this, SHARED_PREFS_LOGGER, MODE_PRIVATE,
+                cy.ac.ucy.cs.anyplace.lib.R.xml.preferences_logger, true);
 		preferences = getSharedPreferences(SHARED_PREFS_LOGGER, MODE_PRIVATE);
 		preferences.registerOnSharedPreferenceChangeListener(this);
 		onSharedPreferenceChanged(preferences, "walk_bar");
@@ -369,7 +372,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 		}
 
 		// WiFi manager to manage scans
-		wifi = SimpleWifiManager.getInstance();
+		wifi = SimpleWifiManager.getInstance(getApplicationContext());
 		// Create new receiver to get broadcasts
 		receiverWifi = new SimpleWifiReceiver();
 		wifi.registerScan(receiverWifi);
@@ -394,7 +397,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 	/**
 	 * Sets up the map if it is possible to do so (i.e., the Google Play
 	 * services APK is correctly installed) and the map has not already been
-	 * instantiated.. This will ensure that we only ever call {@link #setUpMap()} once when {@link #mMap} is not null.
+	 * instantiated.. This will ensure that we only ever call  once when {@link #mMap} is not null.
 	 * <p>
 	 * If it isn't installed {@link SupportMapFragment} (and {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to install/update the Google Play services APK on
 	 * their device.
@@ -769,94 +772,95 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case SELECT_PLACE_ACTIVITY_RESULT:
-			if (resultCode == RESULT_OK) {
-				if (data == null) {
-					return;
-				}
+      super.onActivityResult(requestCode, resultCode, data);
+      switch (requestCode) {
+        case SELECT_PLACE_ACTIVITY_RESULT:
+          if (resultCode == RESULT_OK) {
+            if (data == null) {
+              return;
+            }
 
-				String fpf = data.getStringExtra("floor_plan_path");
-				if (fpf == null) {
-					Toast.makeText(getBaseContext(), "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show();
-					return;
-				}
+            String fpf = data.getStringExtra("floor_plan_path");
+            if (fpf == null) {
+              Toast.makeText(getBaseContext(), "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show();
+              return;
+            }
 
-				try {
-					BuildingModel b = AnyplaceCache.getInstance(this).getSpinnerBuildings().get(data.getIntExtra("bmodel", 0));
-					FloorModel f = b.getFloors().get(data.getIntExtra("fmodel", 0));
+            try {
+              BuildingModel b = AnyplaceCache.getInstance(this).getSpinnerBuildings().get(data.getIntExtra("bmodel", 0));
+              FloorModel f = b.getFloors().get(data.getIntExtra("fmodel", 0));
 
-					bypassSelectBuildingActivity(b, f);
-				} catch (Exception ex) {
-					Toast.makeText(getBaseContext(), "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show();
-				}
-			} else if (resultCode == RESULT_CANCELED) {
-				// CANCELLED
-				if (data == null) {
-					return;
-				}
-				String msg = (String) data.getSerializableExtra("message");
-				if (msg != null) {
-					Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
-				}
-			}
-			break;
-		case PREFERENCES_ACTIVITY_RESULT:
-			if (resultCode == RESULT_OK) {
-				LoggerPrefs.Action result = (Action) data.getSerializableExtra("action");
+              bypassSelectBuildingActivity(b, f);
+            } catch (Exception ex) {
+              Toast.makeText(getBaseContext(), "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show();
+            }
+          } else if (resultCode == RESULT_CANCELED) {
+            // CANCELLED
+            if (data == null) {
+              return;
+            }
+            String msg = (String) data.getSerializableExtra("message");
+            if (msg != null) {
+              Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+            }
+          }
+          break;
+        case PREFERENCES_ACTIVITY_RESULT:
+          if (resultCode == RESULT_OK) {
+            Action result = (Action) data.getSerializableExtra("action");
 
-				switch (result) {
-				case REFRESH_BUILDING:
+            switch (result) {
+              case REFRESH_BUILDING:
 
-					if (mCurrentBuilding == null) {
-						Toast.makeText(getBaseContext(), "Load a map before performing this action!", Toast.LENGTH_SHORT).show();
-						break;
-					}
+                if (mCurrentBuilding == null) {
+                  Toast.makeText(getBaseContext(), "Load a map before performing this action!", Toast.LENGTH_SHORT).show();
+                  break;
+                }
 
-					if (progressBar.getVisibility() == View.VISIBLE) {
-						Toast.makeText(getBaseContext(), "Building Loading in progress. Please Wait!", Toast.LENGTH_SHORT).show();
-						break;
-					}
+                if (progressBar.getVisibility() == View.VISIBLE) {
+                  Toast.makeText(getBaseContext(), "Building Loading in progress. Please Wait!", Toast.LENGTH_SHORT).show();
+                  break;
+                }
 
-					try {
+                try {
 
-						// clear_floorplans
-						File floorsRoot = new File(AnyplaceUtils.getFloorPlansRootFolder(this), mCurrentBuilding.buid);
-						// clear radiomaps
-						File radiomapsRoot = AnyplaceUtils.getRadioMapsRootFolder(this);
-						final String[] radiomaps = radiomapsRoot.list(new FilenameFilter() {
+                  // clear_floorplans
+                  File floorsRoot = new File(AnyplaceUtils.getFloorPlansRootFolder(this), mCurrentBuilding.buid);
+                  // clear radiomaps
+                  File radiomapsRoot = AnyplaceUtils.getRadioMapsRootFolder(this);
+                  final String[] radiomaps = radiomapsRoot.list(new FilenameFilter() {
 
-							@Override
-							public boolean accept(File dir, String filename) {
-								if (filename.startsWith(mCurrentBuilding.buid))
-									return true;
-								else
-									return false;
-							}
-						});
-						for (int i = 0; i < radiomaps.length; i++) {
-							radiomaps[i] = radiomapsRoot.getAbsolutePath() + File.separator + radiomaps[i];
-						}
+                    @Override
+                    public boolean accept(File dir, String filename) {
+                      if (filename.startsWith(mCurrentBuilding.buid))
+                        return true;
+                      else
+                        return false;
+                    }
+                  });
+                  for (int i = 0; i < radiomaps.length; i++) {
+                    radiomaps[i] = radiomapsRoot.getAbsolutePath() + File.separator + radiomaps[i];
+                  }
 
-						DeleteFolderBackgroundTask task = new DeleteFolderBackgroundTask(new DeleteFolderBackgroundTask.DeleteFolderBackgroundTaskListener() {
+                  DeleteFolderBackgroundTask task = new DeleteFolderBackgroundTask(new DeleteFolderBackgroundTask.DeleteFolderBackgroundTaskListener() {
 
-							@Override
-							public void onSuccess() {
-								bypassSelectBuildingActivity(mCurrentBuilding, mCurrentBuilding.getSelectedFloor());
-							}
-						}, this, true);
-						task.setFiles(floorsRoot);
-						task.setFiles(radiomaps);
-						task.execute();
-					} catch (Exception e) {
-						Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-					}
-				}
-				break;
-			}
-			break;
-		}
-	}
+                    @Override
+                    public void onSuccess() {
+                      bypassSelectBuildingActivity(mCurrentBuilding, mCurrentBuilding.getSelectedFloor());
+                    }
+                  }, this, true);
+                  task.setFiles(floorsRoot);
+                  task.setFiles(radiomaps);
+                  task.execute();
+                } catch (Exception e) {
+                  Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            break;
+          }
+          break;
+      }
+    }
 
 	private void bypassSelectBuildingActivity(final BuildingModel b) {
 
@@ -877,7 +881,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 					ArrayList<BuildingModel> list = new ArrayList<BuildingModel>(1);
 					list.add(b);
 					mAnyplaceCache.setSelectedBuildingIndex(0);
-					mAnyplaceCache.setSpinnerBuildings(list);
+					mAnyplaceCache.setSpinnerBuildings(getApplicationContext(), list);
 
 					FloorModel floor;
 					if ((floor = b.getFloorFromNumber("0")) == null) {
@@ -1075,9 +1079,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 	// MENUS
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
-		inflater.inflate(R.menu.main_menu_logger, menu);
-
+      MenuInflater inflater = getMenuInflater();
+      inflater.inflate(cy.ac.ucy.cs.anyplace.lib.R.menu.logger, menu);
 		return true;
 	}
 
@@ -1571,7 +1574,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 	private void showHelp(String title, String message) {
 		AlertDialog.Builder adb = new AlertDialog.Builder(this);
 		LayoutInflater adbInflater = LayoutInflater.from(this);
-		View eulaLayout = adbInflater.inflate(R.layout.info_window_help, null);
+		View eulaLayout = adbInflater.inflate(cy.ac.ucy.cs.anyplace.lib.R.layout.info_window_help, null);
 		final CheckBox dontShowAgain = (CheckBox) eulaLayout.findViewById(R.id.skip);
 		adb.setView(eulaLayout);
 		adb.setTitle(Html.fromHtml(title));
@@ -1598,7 +1601,9 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
 
 		@Override
 		protected Collection<WeightedLatLng> doInBackground(File... params) {
-			return RadioMap.readRadioMapLocations(params[0]);
+		  //TODO: fix this
+          return null;
+			//return RadioMap.readRadioMapLocations(params[0]);
 		}
 
 		@Override

@@ -72,8 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     port = prefer.getString("port","443");
-    host=prefer.getString("ap_url", "ap-dev.cs.ucy.ac.cy");  // Read preferences
-    //Log.e(TAG, "host: " + prefer.getString("ap_url", "ap-dev.cs.ucy.ac.cy"));
+    //host=prefer.getString("ap_url", "ap-dev.cs.ucy.ac.cy");  // Read preferences
+    host=prefs.getHost();
+    Log.e(TAG, "host: " + host);
 
     apikey=prefer.getString("apikey", "Enter Key Here"); // Need a default api key maybe
     cache = String.valueOf(getApplicationContext().getFilesDir());
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected String doInBackground(String... params) {
       //Collect fingerprints
-      boolean debugging = true;
+      boolean debugging = false;
       String fingerprints[];
 
       if (debugging){
