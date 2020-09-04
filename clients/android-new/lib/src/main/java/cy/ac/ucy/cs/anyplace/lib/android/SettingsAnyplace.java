@@ -2,7 +2,7 @@ package cy.ac.ucy.cs.anyplace.lib.android;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-//TODO: Add port and the rest from preferences. Logger data will also be accessed from here
+//TODO: Add port and the rest from preferences. Logger data will also be accessed from here. This class is currently unnecessary.
 
 
 

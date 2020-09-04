@@ -16,24 +16,28 @@ class WifiReceiver extends BroadcastReceiver {
   private WifiManager wifiManager;
 
   private String fingerprints[]; //a list with all fingerprints
+  private String fingerprints2[]; //a list with all fingerprints
   private boolean ready = false;
 
   private static final String TAG = WifiReceiver.class.getSimpleName();
 
   public WifiReceiver(WifiManager wifiManager) {
     this.wifiManager = wifiManager;
-    Log.e(TAG, "constructor");
+    //Log.e(TAG, "constructor");
   }
 
   public void onReceive(Context context, Intent intent) {
+
+    //----------------
     String action = intent.getAction();
-    Log.e(TAG, "Before if");
+    //Log.e(TAG, "Before if + " + action +"  +  "+WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
     if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(action)) {
+      //wifiManager.startScan();
       List<ScanResult> wifiList = wifiManager.getScanResults();
       fingerprints = new String[wifiList.size()];
       int i = 0;
       //for each fingerprint
-      Log.e(TAG, "Before for with : " + wifiList.size());
+      //Log.e(TAG, "Before for with : " + wifiList.size());
       for (ScanResult scanResult : wifiList) {
         StringBuilder result = new StringBuilder();
         result.append("{\"bssid\":\"").append(scanResult.BSSID).append("\",\"rss\":").append(scanResult.level).append("}");
@@ -42,6 +46,47 @@ class WifiReceiver extends BroadcastReceiver {
       }
       this.ready = true;
     }
+    //-----------
+
+    // boolean success = intent.getBooleanExtra(
+    //         WifiManager.EXTRA_RESULTS_UPDATED, false);
+    // if (success) {
+    //   scanSuccess();
+    // } else {
+    //   // scan failure handling
+    //   scanFailure();
+    // }
+
+
+  }
+  private void scanSuccess() {
+    List<ScanResult> wifiList = wifiManager.getScanResults();
+    fingerprints2 = new String[wifiList.size()];
+    int i = 0;
+    //for each fingerprint
+    Log.e(TAG, "scanSuccess : " + wifiList.size());
+    for (ScanResult scanResult : wifiList) {
+      StringBuilder result = new StringBuilder();
+      result.append("{\"bssid\":\"").append(scanResult.BSSID).append("\",\"rss\":").append(scanResult.level).append("}");
+      fingerprints2[i] = result.toString();
+      i++;
+    }
+  }
+  private void scanFailure() {
+    // handle failure: new scan did NOT succeed
+    // consider using old scan results: these are the OLD results!
+    List<ScanResult> wifiList = wifiManager.getScanResults();
+    fingerprints2 = new String[wifiList.size()];
+    int i = 0;
+    //for each fingerprint
+    Log.e(TAG, "scanFailure : " + wifiList.size());
+    for (ScanResult scanResult : wifiList) {
+      StringBuilder result = new StringBuilder();
+      result.append("{\"bssid\":\"").append(scanResult.BSSID).append("\",\"rss\":").append(scanResult.level).append("}");
+      fingerprints2[i] = result.toString();
+      i++;
+    }
+
   }
 
   /**

@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +26,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 
 import cy.ac.ucy.cs.anyplace.lib.android.SettingsAnyplace;
@@ -68,12 +68,14 @@ public class MainActivity extends AppCompatActivity {
     SettingsAnyplace prefs = new SettingsAnyplace(getApplicationContext(), "");
 //getString(R.xml.root_preferences)
 
+    SharedPreferences prefer = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-    port = "443";
-    host=prefs.getHost();  // Read preferences
-    Log.d(TAG, "host: " + host);
 
-    apikey="";
+    port = prefer.getString("port","443");
+    host=prefer.getString("ap_url", "ap-dev.cs.ucy.ac.cy");  // Read preferences
+    //Log.e(TAG, "host: " + prefer.getString("ap_url", "ap-dev.cs.ucy.ac.cy"));
+
+    apikey=prefer.getString("apikey", "Enter Key Here"); // Need a default api key maybe
     cache = String.valueOf(getApplicationContext().getFilesDir());
 
 
@@ -84,6 +86,12 @@ public class MainActivity extends AppCompatActivity {
       Toast.makeText(getApplicationContext(), "Turning WiFi ON...", Toast.LENGTH_LONG).show();
       wifiManager.setWifiEnabled(true);
     }
+    // receiverWifi = new WifiReceiver(wifiManager);
+    // IntentFilter intentFilter = new IntentFilter();
+    // intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+    // registerReceiver(receiverWifi, intentFilter);
+    //
+     wifiManager.startScan();
 
     //Button
     final Button mainB = (Button) findViewById(R.id.button);
@@ -99,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
       @Override
       public void onClick(View v) {
         try {
+
           AsyncTaskOnlineLocal asyncTask = new AsyncTaskOnlineLocal();
           asyncTask.execute();
         } catch (Exception ex) {
@@ -134,15 +143,18 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
+    Intent startIntent;
     switch (item.getItemId()){
 
       case R.id.item2:
           Toast.makeText(this, "Preferences Selected", Toast.LENGTH_SHORT).show();
-          Intent startIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+          startIntent = new Intent(getApplicationContext(), SettingsActivity.class);
           startActivity(startIntent);
           return true;
       case R.id.item3:
-        Toast.makeText(this, "About Selected", Toast.LENGTH_SHORT).show();
+          Toast.makeText(this, "About Selected", Toast.LENGTH_SHORT).show();
+          startIntent = new Intent(getApplicationContext(), AboutActivity.class);
+          startActivity(startIntent);
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -150,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
   }
+
+
 
   //Wifi scanning
 
@@ -214,10 +228,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected String doInBackground(String... params) {
       //Collect fingerprints
-      boolean debugging = false;
+      boolean debugging = true;
       String fingerprints[];
 
       if (debugging){
+        //Hardcode fingerprints (only for testing)
         fingerprints = new String[]{"{\"bssid\":\"d4:d7:48:d8:28:b0\",\"rss\":-40}", "{\"bssid\":\"00:0e:38:7a:37:77\",\"rss\":-50}"};
       }
       else  {
@@ -228,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
          fingerprints = receiverWifi.getFingerprints();
       }
 
-      //Hardcode fingerprints (only for testing)
 
 
 
@@ -256,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
       String[] response = estimateResults.split("[,:]");
       double x = 0;
       double y = 0;
-
+      t= "";
       for (int i = 0; i < response.length; i++) {
         if (response[i].equals("\"lat\"")) {
           x = Double.parseDouble(response[i + 1].replace('"', ' '));

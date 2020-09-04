@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
   <PreferenceCategory app:title="@string/pref_header">
 
@@ -30,5 +31,30 @@
 
 
   </PreferenceCategory>
+
+  <Preference
+      android:id="@+id/r_building"
+      android:key="refresh_building"
+      android:summary="Reload the current building from server"
+      android:title="Refresh Building" >
+  </Preference>
+  <Preference
+      android:id="@+id/r_map"
+      android:key="refresh_map"
+    android:summary="Reload the map pois from server"
+    android:title="Refresh Map" >
+  </Preference>
+  <Preference
+      android:id="@+id/d_radiomaps"
+      android:key="delete_radiomaps"
+      android:summary="Deletes the cached radiomaps"
+      android:title="Delete cached RadioMaps" >
+  </Preference>
+  <Preference
+      android:id="@+id/d_floorplans"
+      android:key="delete_floorplans"
+      android:summary="Deletes the cached floor plans."
+      android:title="Delete cached Floor plans." >
+  </Preference>
 
 </PreferenceScreen>
