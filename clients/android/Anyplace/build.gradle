@@ -3,6 +3,8 @@ apply plugin: 'com.android.application'
 android {
 
     compileSdkVersion 26
+    useLibrary 'org.apache.http.legacy'
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -58,4 +60,9 @@ dependencies {
     implementation project(':library')
     implementation project(':actionbarsherlock')
     implementation 'com.android.support:support-v4:19.1.0'
+
+    api group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    api('org.apache.httpcomponents:httpmime:4.3') {
+        exclude module: "httpclient"
+    }
 }
