@@ -50,7 +50,6 @@ public class MyBuildingsRenderer extends DefaultClusterRenderer <BuildingModel>{
 
 	public MyBuildingsRenderer(Context context, GoogleMap map, ClusterManager<BuildingModel> clusterManager) {
 		super(context, map, clusterManager);
-		// TODO Auto-generated constructor stub
 	}
 	
     @Override

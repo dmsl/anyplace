@@ -87,7 +87,6 @@ public class RestClient {
 			return response.body().string();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -118,7 +117,6 @@ public class RestClient {
 			return response.body().bytes();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -155,7 +153,6 @@ public class RestClient {
 			return response.body().bytes();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}

@@ -37,13 +37,14 @@
 */
 -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
         android:id="@+id/search"
-        android:actionViewClass="com.actionbarsherlock.widget.SearchView"
         android:icon="@drawable/action_search"
-        android:showAsAction="always|collapseActionView"
-        android:title="Search POI"/>
+        android:title="Search POI"
+        app:showAsAction="always|collapseActionView"
+        app:actionViewClass="android.widget.SearchView" />
 
 </menu>

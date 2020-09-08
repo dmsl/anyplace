@@ -1,4 +1,3 @@
-//TODO: build.gradle check how to create new tests
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import org.junit.After;
@@ -201,9 +200,6 @@ public class Tester {
         // Code executed after each test
     }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        //TODO: remove used res file
-    }
+
 
 }

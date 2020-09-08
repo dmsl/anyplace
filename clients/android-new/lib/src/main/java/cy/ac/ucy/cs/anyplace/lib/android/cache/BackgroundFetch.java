@@ -131,7 +131,6 @@ class BackgroundFetch implements Serializable, Runnable {
 
 					@Override
 					public void onPrepareLongExecute() {
-						// TODO Auto-generated method stub
 
 					}
 				});
