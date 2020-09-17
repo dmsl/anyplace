@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -53,9 +53,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 
 
-
-
-
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
@@ -127,9 +125,12 @@ public class FetchBuildingsTask extends AsyncTask<Void, Void, String> {
 
 			String response = null;
 
-			//Uses GZIP encoding
-			response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchBuildingsUrl(ctx), j.toString());
+			// response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchBuildingsUrl(ctx), j.toString());
 
+          //TODO: fix the host preferences form the shared preferences
+
+          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");   //TEMPORARY
+            response =  client.buildingAll();
 			JSONObject json = new JSONObject(response);
 
 			// Missing in Zip Format
@@ -158,13 +159,7 @@ public class FetchBuildingsTask extends AsyncTask<Void, Void, String> {
 			success = true;
 			return "Successfully fetched buildings";
 
-		} catch (ConnectTimeoutException e) {
-			return "Cannot connect to Anyplace service!";
-		} catch (SocketTimeoutException e) {
-			return "Communication with the server is taking too long!";
-		} catch (UnknownHostException e) {
-			return "No connection available!";
-		} catch (Exception e) {
+		}  catch (Exception e) {
 			return "Error fetching buildings. [ " + e.getMessage() + " ]";
 		}
 	}

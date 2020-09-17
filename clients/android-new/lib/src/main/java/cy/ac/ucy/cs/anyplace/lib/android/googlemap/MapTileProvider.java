@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -54,7 +54,7 @@ import com.google.android.gms.maps.model.TileProvider;
 
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils;
 
-public class AnyPlaceMapTileProvider implements TileProvider {
+public class MapTileProvider implements TileProvider {
 
 	private static final int TILE_WIDTH = 256;
 	private static final int TILE_HEIGHT = 256;
@@ -64,7 +64,7 @@ public class AnyPlaceMapTileProvider implements TileProvider {
 	private String dirPath;
 	private SparseArray<Integer[]> mTileBounds;
 
-	public AnyPlaceMapTileProvider(Context ctx, String buid, String floor_number) {
+	public MapTileProvider(Context ctx, String buid, String floor_number) {
 		this.mCtx = ctx;
 		this.dirPath = buid + File.separatorChar + floor_number + File.separatorChar + "tiles_archive" + File.separatorChar;
 
@@ -117,10 +117,10 @@ public class AnyPlaceMapTileProvider implements TileProvider {
 
 			return buffer.toByteArray();
 		} catch (IOException e) {
-			Log.d("AnyPlaceTileProvider", e.getMessage());
+			Log.d("AnyplaceTileProvider", e.getMessage());
 			return null;
 		} catch (OutOfMemoryError e) {
-			Log.d("AnyPlaceTileProvider", e.getMessage());
+			Log.d("AnyplaceTileProvider", e.getMessage());
 			return null;
 		} finally {
 			if (in != null)

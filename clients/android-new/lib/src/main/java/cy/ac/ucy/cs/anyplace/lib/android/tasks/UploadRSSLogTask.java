@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -72,7 +72,7 @@ import android.util.Log;
 
 
 public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
-
+  private final static String RADIO_UPLOAD_URL_API = "/anyplace/position/radio_upload";
     private static String TAG = UploadRSSLogTask.class.getSimpleName();
 	public interface UploadRSSLogTaskListener {
 		void onErrorOrCancel(String result);
@@ -136,7 +136,9 @@ public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
 			String response;
             Log.e(TAG, "TODO: replace the api calls into the library");
 			HttpClient httpclient = new DefaultHttpClient();
-			httppost = new HttpPost(AnyplaceAPI.getRadioUploadUrl(null));
+
+			//TODO: Place into the Anyplace core lib and use shared prefs
+			httppost = new HttpPost("ap-dev.cs.ucy.ac.cy" + RADIO_UPLOAD_URL_API);
 
 			MultipartEntity entity = new MultipartEntity();
 

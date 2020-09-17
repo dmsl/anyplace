@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -52,7 +52,7 @@ import com.google.gson.JsonSerializer;
 public interface IPoisClass extends Serializable {
 
 	enum Type {
-		AnyPlacePOI, GooglePlace;
+		AnyplacePOI, GooglePlace;
 	}
 
 	public final class MyInterfaceAdapter implements JsonDeserializer<IPoisClass>, JsonSerializer<IPoisClass> {

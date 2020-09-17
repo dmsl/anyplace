@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -49,9 +49,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * This Activity displays information about AnyPlace and has logos that 
+ * This Activity displays information about Anyplace and has logos that
  * link to the corresponding websites.
- * The version of the current AnyPlace installation is also displayed.
+ * The version of the current Anyplace installation is also displayed.
  * 
  * @author Lambros Petrou
  *

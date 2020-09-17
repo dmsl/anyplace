@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -53,8 +53,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 
 
-
-
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
@@ -121,17 +120,15 @@ public class FetchFloorsByBuidTask extends AsyncTask<Void, Void, String> {
         }
 
         try {
-            JSONObject j = new JSONObject();
-            try {
-                j.put("username", "username");
-                j.put("password", "pass");
-                j.put("buid", this.buid);
-            } catch (JSONException e) {
-                return "Error requesting the floors for the buildings!";
-            }
+
 
             //Uses GZIP encoding
-            String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchFloorsByBuidUrl(ctx), j.toString());
+            // String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchFloorsByBuidUrl(ctx), j.toString());
+
+          //TODO: USE SHARED PREFERENCES
+          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+          String response = client.allBuildingFloors(this.buid);
+
             JSONObject json = new JSONObject(response);
 
             if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {
@@ -169,13 +166,7 @@ public class FetchFloorsByBuidTask extends AsyncTask<Void, Void, String> {
             success = true;
             return "Successfully fetched floors";
 
-        } catch (ConnectTimeoutException e) {
-            return "Cannot connect to Anyplace service!";
-        } catch (SocketTimeoutException e) {
-            return "Communication with the server is taking too long!";
-        } catch (UnknownHostException e) {
-            return "No connection available!";
-        } catch (Exception e) {
+        }  catch (Exception e) {
             // Log.d("fetching floors task", e.getMessage());
             return "Error fetching floors. [ " + e.getMessage() + " ]";
         }

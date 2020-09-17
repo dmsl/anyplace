@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -54,7 +54,7 @@ public class Algo1Server extends FloorSelector {
 	public Algo1Server(final Context myContext) {
 		super(myContext);
 	}
-
+  private final static String PREDICT_FLOOR_ALGO1 = "/anyplace/position/predictFloorAlgo1";
 	protected String calculateFloor(Args args) throws Exception {
 
 		JSONObject request = new JSONObject();
@@ -86,8 +86,9 @@ public class Algo1Server extends FloorSelector {
 		String response = "";
 
 		if (NetworkUtils.isOnline(context)) {
-			response = NetworkUtils.downloadHttpClientJsonPost(
-					AnyplaceAPI.predictFloorAlgo1(context), request.toString());
+
+		  //TODO: PUT IN ANYPLACE CORE AND USE SHARED PREF
+			response = NetworkUtils.downloadHttpClientJsonPost("ap-dev.cs.ucy.ac.cy" + PREDICT_FLOOR_ALGO1, request.toString());
 
 			JSONObject json = new JSONObject(response);
 

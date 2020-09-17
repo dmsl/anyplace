@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+*
+* Anyplace is a first-of-a-kind indoor information service offering GPS-less
+* localization, navigation and search inside buildings using ordinary smartphones.
+*
+* Author(s): Timotheos Constambeys, Lambros Petrou
+*
+* Supervisor: Demetrios Zeinalipour-Yazti
+*
+* URL: http://anyplace.cs.ucy.ac.cy
+* Contact: anyplace@cs.ucy.ac.cy
+*
+* Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
+* All rights reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the “Software”), to deal in the
+* Software without restriction, including without limitation the rights to use, copy,
+* modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+* and to permit persons to whom the Software is furnished to do so, subject to the
+* following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+*
+*/
+
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_screen_key" >
+
+    <PreferenceCategory android:title="Server" >
+    <EditTextPreference
+        android:defaultValue="@string/default_server_ip_address"
+        android:key="server_ip_address"
+        android:summary="Modify Anyplace Server IP Address"
+        android:title="Anyplace Server IP Address" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Cache" >
+        <Preference
+            android:key="clear_radiomaps"
+            android:summary="Deletes the cached radiomaps."
+            android:title="Delete cached RadioMaps" />
+        <Preference
+            android:key="clear_floorplans"
+            android:summary="Deletes the cached floor plans."
+            android:title="Delete cached Floor plans" />
+        <Preference
+            android:key="refresh_building"
+            android:summary="Reload the current building from server"
+            android:title="Refresh Building" />
+        <Preference
+            android:key="refresh_map"
+            android:summary="Reload the map pois from server"
+            android:title="Refresh Map" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Algorithms" >
+        <ListPreference
+            android:defaultValue="WKNN"
+            android:entries="@array/AlgorithmsFullNames"
+            android:entryValues="@array/AlgorithmsValues"
+            android:key="TrackingAlgorithm"
+            android:summary="@string/algorithms_summary"
+            android:title="@string/algorithms_title" />
+
+        <Preference
+            android:key="Short_Desc"
+            android:summary="Choose an algorithm to learn about it"
+            android:title="Short Description" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

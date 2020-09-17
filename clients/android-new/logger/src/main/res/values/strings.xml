@@ -3,13 +3,13 @@
 
   <string name="default_server_ip_address">https://anyplace.rayzit.com</string>
 
-  <string name="app_name">AnyPlace</string>
-  <string name="app_name_logger">AnyPlace Logger</string>
-  <string name="app_name_about">About AnyPlace</string>
+  <string name="app_name">Logger</string>
+  <string name="app_name_logger">Anyplace Logger</string>
+  <string name="app_name_about">About Anyplace</string>
   <string name="action_settings">Settings</string>
 
   <!-- Required by AndroidFileBrowser -->
-  <string name="prefs_name_logger">AnyPlace Logger Preferences</string>
+  <string name="prefs_name_logger">Anyplace Logger Preferences</string>
   <string name="app_choose_folder">Choose folder</string>
   <string name="parentDir">..</string>
   <string name="homeDir">.</string>
@@ -43,7 +43,7 @@
   </string-array>
 
   <string name="walk_bar_max">30</string>
-  <string name="prefs_name_anyplace">AnyPlace Preferences</string>
+  <string name="prefs_name_anyplace">Anyplace Preferences</string>
   <string name="algorithms_title">Positioning Algorithms</string>
   <string name="algorithms_summary">Choose one of the following algorithms to estimate
 		your position</string>

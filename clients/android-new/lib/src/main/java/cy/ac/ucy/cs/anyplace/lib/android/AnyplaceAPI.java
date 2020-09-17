@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -38,7 +38,7 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android;
 
-//TODO: To be replaced with the Anyplace java file from lib core
+//TODO: To be replaced with the Anyplace java file from lib core .. Done for logger
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -47,8 +47,8 @@ import java.io.File;
 
 public class AnyplaceAPI {
 
-	public final static String FLURRY_APIKEY = "insert_flurry_key";
-	public final static Boolean FLURRY_ENABLE = false;
+
+
 	public final static Boolean FLOOR_SELECTOR = true;
 
 	// Lock Location to GPS
@@ -68,6 +68,8 @@ public class AnyplaceAPI {
 	// private static String server = "https://anyplace.rayzit.com";
 
 	private static String getServerIPAddress(Context ctx){
+
+
 		if (!DEBUG_URL) {
 			Context c = ctx;
 			SharedPreferences preferences = c.getSharedPreferences("Anyplace_Preferences", c.MODE_PRIVATE);
@@ -88,7 +90,7 @@ public class AnyplaceAPI {
 	private final static String NAV_ROUTE_XY_URL_API = "/anyplace/navigation/route_xy";
 
 	private final static String FLOOR_PLAN_DOWNLOAD = "/anyplace/floorplans";
-	private final static String FLOOR_TILES_ZIP_DOWNLOAD = "/anyplace/floortiles/zip";
+	private final static String FLOOR_TILES_ZIP_DOWNLOAD = "/anyplace/floortiles";
 
 	public static String predictFloorAlgo1(Context ctx) {
 		return getServerIPAddress(ctx) + PREDICT_FLOOR_ALGO1;
@@ -98,7 +100,7 @@ public class AnyplaceAPI {
 		return getServerIPAddress(ctx) + PREDICT_FLOOR_ALGO2;
 	}
 
-	public static String getRadioDownloadBuid(Context ctx) {
+	public static String getRadioDownloadBuid(Context ctx) {   //deprecated
 		return getServerIPAddress(ctx) + RADIO_DOWNLOAD_BUID;
 	}
 
@@ -106,7 +108,7 @@ public class AnyplaceAPI {
 		return getServerIPAddress(ctx) + RADIO_DOWNLOAD_XY;
 	}
 
-	public static String getRadioUploadUrl(Context ctx) {
+	public static String getRadioUploadUrl(Context ctx) {  //deprecated
 		return getServerIPAddress(ctx) + RADIO_UPLOAD_URL_API;
 	}
 
@@ -120,19 +122,19 @@ public class AnyplaceAPI {
 
 	// --------------Select Building Activity--------------------------
 
-	public static String getFetchBuildingsUrl(Context ctx) {
+	public static String getFetchBuildingsUrl(Context ctx) {     // Deprecated
 		return getServerIPAddress(ctx) + "/anyplace/mapping/building/all";
 	}
 
-	public static String getFetchBuildingsByBuidUrl(Context ctx) {
+	public static String getFetchBuildingsByBuidUrl(Context ctx) {      //  This call is wrong and deprecated now
 		return getServerIPAddress(ctx) + "/anyplace/navigation/building/id";
 	}
 
-	public static String getFetchFloorsByBuidUrl(Context ctx) {
+	public static String getFetchFloorsByBuidUrl(Context ctx) {     // deprecated
 		return getServerIPAddress(ctx) + "/anyplace/mapping/floor/all";
 	}
 
-	public static String getServeFloorTilesZipUrl(String buid, String floor_number,Context ctx) {
+	public static String getServeFloorTilesZipUrl(String buid, String floor_number,Context ctx) {   // Replace but needs access token
 		return getServerIPAddress(ctx) + FLOOR_TILES_ZIP_DOWNLOAD + File.separatorChar + buid + File.separatorChar + floor_number;
 	}
 

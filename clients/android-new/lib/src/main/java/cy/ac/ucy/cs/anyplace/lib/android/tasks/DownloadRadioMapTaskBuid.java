@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -49,7 +49,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 
 
-
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
@@ -157,7 +157,11 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 			okfile.delete();
 
 			// receive only the radio map for the current floor 0 timeout overrides default timeout
-			String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getRadioDownloadBuid(ctx), json_req, 0);
+			// String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getRadioDownloadBuid(ctx), json_req, 0);
+
+          //TODO: USE SHARED PREFERENCES
+          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+          String response = client.radioByBuildingFloor(mBuildID, mFloor_number);
 			JSONObject json = new JSONObject(response);
 
 			if (json.getString("status").equalsIgnoreCase("error")) {

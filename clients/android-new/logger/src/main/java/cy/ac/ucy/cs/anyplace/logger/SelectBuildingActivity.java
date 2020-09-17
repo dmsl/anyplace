@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -73,19 +73,25 @@ import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector.FloorAnyplaceFloorL
 
 
 
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsByBuidTask;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
 
 
 
 
 
 
-import com.dmsl.anyplace.tasks.FetchBuildingsByBuidTask;
-import com.dmsl.anyplace.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
-import com.dmsl.anyplace.tasks.FetchFloorPlanTask;
-import com.dmsl.anyplace.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener;
-import com.dmsl.anyplace.tasks.FetchNearBuildingsTask;
 
-public class SelectBuildingActivity extends FragmentActivity implements FloorAnyplaceFloorListener, ErrorAnyplaceFloorListener {
+
+
+
+
+
+public class SelectBuildingActivity extends FragmentActivity implements FloorAnyplaceFloorListener,
+        ErrorAnyplaceFloorListener {
 
 	public enum Mode {
 		NONE, NEAREST, // Automatically show nearby Building
@@ -446,7 +452,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
 			spinnerBuildings.setEnabled(false);
 
-			building.loadFloors(new FetchFloorsByBuidTaskListener() {
+			building.loadFloors(new FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener() {
 
 				@Override
 				public void onSuccess(String result, List<FloorModel> floors) {
@@ -479,7 +485,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
 	private void setBuildingSpinner(List<BuildingModel> buildings, List<Double> distance) {
 		if (!buildings.isEmpty()) {
-			mAnyplaceCache.setSpinnerBuildings(buildings);
+			mAnyplaceCache.setSpinnerBuildings(getApplicationContext(),buildings);
 			List<String> list = new ArrayList<String>();
 			if (distance == null) {
 				for (BuildingModel building : buildings) {

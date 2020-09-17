@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -36,8 +36,8 @@
 
 package cy.ac.ucy.cs.anyplace.logger;
 
-import com.dmsl.anyplace.AndroidFileBrowser;
-import com.dmsl.anyplace.R;
+import cy.ac.ucy.cs.anyplace.logger.AndroidFileBrowser;
+
 
 import android.app.Activity;
 import android.content.Intent;
@@ -67,7 +67,7 @@ public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenc
 
 		getPreferenceManager().setSharedPreferencesName(AnyplaceLoggerActivity.SHARED_PREFS_LOGGER);
 
-		addPreferencesFromResource(R.xml.preferences_logger);
+		addPreferencesFromResource(cy.ac.ucy.cs.anyplace.lib.R.xml.preferences_logger);
 
 		getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
