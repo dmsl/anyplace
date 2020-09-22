@@ -938,6 +938,15 @@
                                 </div>
 
                                 <div style="margin: 10px; font-weight: bold">
+
+                                    <div>
+                                        <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsMode">
+                                            <option id="defaultOption" selected disabled>Filters:</option>
+                                            <option style="margin: 10px; font-weight: bold" value="0">By MAC</option>
+                                            <option style="margin: 10px; font-weight: bold" value="1">By manufacturer</option>
+                                        </select>
+                                    </div>
+
                                     <button id="HMsButton" class="btn btn-success" ng-click="toggleRadioHeatmapRSS()">
                                         {{getHeatMapButtonText()}}
                                     </button>
@@ -945,13 +954,6 @@
                                     <button id="APsButton" class="btn btn-success" ng-click="toggleAPs()">
                                         {{getAPsButtonText()}}
                                     </button>
-
-                                    <select class="btn" style="margin: 10px; font-weight: bold" ng-model="selected" ng-change="selectFilterForAPs()" ng-show="APsMode">
-                                        <option id="defaultOption" selected disabled>Filters:</option>
-                                        <option style="margin: 10px; font-weight: bold" value="0">By MAC</option>
-                                        <option style="margin: 10px; font-weight: bold" value="1">By manufacturer</option>
-
-                                    </select>
 
                                     <div ng-dropdown-multiselect="" events="multiuserevents" options="example9data" selected-model="example9model" extra-settings="example9settings" ng-show="filterByMAC" ></div>
 

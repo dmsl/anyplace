@@ -523,10 +523,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         val file = new File(filePath)
         try {
-          if (!file.exists() || !file.canRead()) {
-            AnyResponseHelper.bad_request("Requested file does not exist or cannot be read! (" + fileName +
-              ")")
-          }
+          if (!file.exists()) return AnyResponseHelper.bad_request("Requested file does not exist");
+          if (!file.canRead()) return AnyResponseHelper.bad_request("Requested file cannot be read: " +
+            fileName)
           Ok.sendFile(file)
         } catch {
           case e: FileNotFoundException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -550,11 +549,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
       LPLogger.info("requested: " + filePath)
       val file = new File(filePath)
       try {
-        if (!file.exists() || !file.canRead()) {
-          return AnyResponseHelper.bad_request("Requested file does not exist or cannot be read! (" +
-            fileName +
-            ")")
-        }
+        if (!file.exists()) return AnyResponseHelper.bad_request("Requested file does not exist");
+        if (!file.canRead()) return AnyResponseHelper.bad_request("Requested file cannot be read: " +
+          fileName)
         Ok.sendFile(file)
       } catch {
         case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)

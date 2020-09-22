@@ -54,6 +54,12 @@ class Global extends GlobalSettings {
 
   override def onStart(app: Application) {
     LPLogger.info(_date + " | Global::onStart():: AnyPlace Application started: ")
+    // TODO PM: store const: upTime
+    // and if ap-dev: display it somewhere
+    // or figure out a way to find which version is used)
+    // ls <apfs>/build/server-zip creation time?
+    // or restart service time?
+
     InfluxdbDatasource.getStaticInstance
     CouchbaseDatasource.getStaticInstance
     logAnalyticsInstallation()
