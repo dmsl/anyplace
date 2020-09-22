@@ -150,32 +150,36 @@ public class AndroidUtils {
 			Enumeration<? extends ZipEntry> e = zipFile.entries();
 
 			while (e.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry) e.nextElement();
-				File destinationFilePath = new File(zipPath, entry.getName());
+				ZipEntry ze = (ZipEntry) e.nextElement();
+				File f = new File(zipPath, ze.getName());
+				String canonicalPath = f.getCanonicalPath();
+				if (!canonicalPath.startsWith(zipPath)) {
+					throw new SecurityException("Zip Path Traversal Vulnerability");
+				}
 
 				// create directories if required.
-				destinationFilePath.getParentFile().mkdirs();
+				f.getParentFile().mkdirs();
 
-				// if the entry is directory, leave it. Otherwise extract it.
-				if (entry.isDirectory()) {
+				// if the ze is directory, leave it. Otherwise extract it.
+				if (ze.isDirectory()) {
 					continue;
 				} else {
-					// System.out.println("Extracting " + destinationFilePath);
+					// System.out.println("Extracting " + f);
 
 					/*
-					 * Get the InputStream for current entry of the zip file using
+					 * Get the InputStream for current ze of the zip file using
 					 * 
-					 * InputStream getInputStream(Entry entry) method.
+					 * InputStream getInputStream(Entry ze) method.
 					 */
-					BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
+					BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(ze));
 
 					int b;
 					byte buffer[] = new byte[1024];
 
 					/*
-					 * read the current entry from the zip file, extract it and write the extracted file.
+					 * read the current ze from the zip file, extract it and write the extracted file.
 					 */
-					FileOutputStream fos = new FileOutputStream(destinationFilePath);
+					FileOutputStream fos = new FileOutputStream(f);
 					BufferedOutputStream bos = new BufferedOutputStream(fos, 1024);
 
 					while ((b = bis.read(buffer, 0, 1024)) != -1) {

@@ -164,7 +164,7 @@ public class AnyplacePOIProvider extends ContentProvider {
 				if (pois != null) {
 					for (PoisModel p : pois) {
 						// check if the query matches the POI
-						if (AnyplaceSuggestionsTask.matchQueryPoi(query, p.name)) {
+						if (AnyplaceSuggestionsTask.isMatching(query, p.name)) {
 							// add the matched POI into the suggestions list
 							// mcursor.addRow( new
 							// String[]{Integer.toString(i++), p.name, p.puid}
@@ -252,7 +252,7 @@ public class AnyplacePOIProvider extends ContentProvider {
 				if (pois != null) {
 					for (PoisModel p : pois) {
 						// check if the query matches the POI
-						if (AnyplaceSuggestionsTask.matchQueryPoi(query, p.name)) {
+						if (AnyplaceSuggestionsTask.isMatching(query, p.name)) {
 							// add the matched POI into the suggestions list
 							// mcursor.addRow( new
 							// String[]{Integer.toString(i++), p.name, p.puid}

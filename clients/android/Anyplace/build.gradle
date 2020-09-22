@@ -1,14 +1,10 @@
 apply plugin: 'com.android.application'
 
-dependencies {
-    compile fileTree(include: '*.jar', dir: 'libs')
-    compile project(':library')
-}
-
 android {
 
-    compileSdkVersion 19
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 26
+    useLibrary 'org.apache.http.legacy'
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -20,9 +16,6 @@ android {
             assets.srcDirs = ['assets']
         }
 
-        // Move the tests to tests/java, tests/res, etc...
-        instrumentTest.setRoot('tests')
-
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
         // This moves them out of them default location under src/<type>/... which would
@@ -33,9 +26,43 @@ android {
         release.setRoot('build-types/release')
     }
 
-    buildTypes {
-        debug{
-            debuggable = true
+    signingConfigs {
+        config {
+            keyAlias 'Anyplace'
+            keyPassword 'abcdef'
+            storeFile file('D:/XP_Documents/University of Cyprus/9 Term/Play Store/Files/ucy.keystore')
+            storePassword 'abcdef'
         }
+    }
+
+    buildTypes {
+        debug {
+            debuggable = true
+            signingConfig signingConfigs.config
+        }
+        release {
+            signingConfig signingConfigs.config
+        }
+    }
+
+    lintOptions{
+        abortOnError false
+    }
+
+    defaultConfig {
+        targetSdkVersion 29
+        minSdkVersion 14
+    }
+}
+
+dependencies {
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation project(':library')
+    implementation project(':actionbarsherlock')
+    implementation 'com.android.support:support-v4:19.1.0'
+
+    api group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    api('org.apache.httpcomponents:httpmime:4.3') {
+        exclude module: "httpclient"
     }
 }
