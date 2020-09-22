@@ -363,6 +363,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
     mLocationRequest.setFastestInterval(1000);
     //mLocationClient = new LocationClient(this, this, this); //deprecated
 
+    // REPLACED WITH:
+
     mGoogleApiClient = new GoogleApiClient.Builder(this)
             .addApi(LocationServices.API)
             .addConnectionCallbacks(this)

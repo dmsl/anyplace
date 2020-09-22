@@ -152,11 +152,11 @@ public class AnyplaceAPI {
 
 	// --------------POIS Api--------------------------
 
-	public static String getFetchPoisByBuidUrl(Context ctx) {
+	public static String getFetchPoisByBuidUrl(Context ctx) { //deprecated
 		return getServerIPAddress(ctx) + "/anyplace/mapping/pois/all_building";
 	}
 
-	public static String getFetchPoisByBuidFloorUrl(Context ctx) {
+	public static String getFetchPoisByBuidFloorUrl(Context ctx) { //deprecated
 		return getServerIPAddress(ctx) + "/anyplace/mapping/pois/all_floor";
 	}
 
