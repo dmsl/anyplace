@@ -66,6 +66,8 @@ import androidx.fragment.app.DialogFragment;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
@@ -133,6 +135,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
 import com.google.maps.android.clustering.Cluster;
@@ -154,7 +158,7 @@ import java.util.Map;
 public class UnifiedNavigationActivity extends AppCompatActivity implements AnyplaceTracker.TrackedLocAnyplaceTrackerListener,
         AnyplaceTracker.WifiResultsAnyplaceTrackerListener, AnyplaceTracker.ErrorAnyplaceTrackerListener,
         LocationListener, FloorAnyplaceFloorListener, ErrorAnyplaceFloorListener, OnSharedPreferenceChangeListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
 
   private static final double csLat = 35.144569;
   private static final double csLon = 33.411107;
@@ -245,7 +249,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
 
     userData = new AnyUserData();
 
-    SimpleWifiManager.getInstance().startScan();
+    SimpleWifiManager.getInstance(getApplicationContext()).startScan();
     sensorsMain = new SensorsMain(getApplicationContext());
     movementDetector = new MovementDetector();
     sensorsMain.addListener(movementDetector);
@@ -514,12 +518,13 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
   @Override
   protected void onStart() {
     super.onStart();
-    mLocationClient.connect();
+    //mLocationClient.connect();
+    mGoogleApiClient.connect();
 
-    // Flurry Analytics
-    if (AnyplaceAPI.FLURRY_ENABLE) {
-      FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
-    }
+    // // Flurry Analytics
+    // if (AnyplaceAPI.FLURRY_ENABLE) {
+    //   FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
+    // }
 
     Runnable checkGPS = new Runnable() {
       @Override
@@ -550,6 +555,8 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
   protected void onResume() {
     super.onResume();
     setUpMapIfNeeded();
+    //TODO CHECK IF MMAP IS USED AND MOVE TO ONMAPREADY
+
     addTrackerListeners();
     // check the Play Services
     checkPlayServices();
@@ -573,12 +580,13 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
   protected void onStop() {
     super.onStop();
     // Disconnecting the client invalidates it.
-    mLocationClient.disconnect();
+    //mLocationClient.disconnect();
+    //TODO: Check the deprecated call
 
     // Flurry Analytics
-    if (AnyplaceAPI.FLURRY_ENABLE) {
-      FlurryAgent.onEndSession(this);
-    }
+    // if (AnyplaceAPI.FLURRY_ENABLE) {
+    //   FlurryAgent.onEndSession(this);
+    // }
   }
 
   @Override
@@ -593,7 +601,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    MenuInflater inflater = getSupportMenuInflater();
+    MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.unified_options_menu, menu);
 
     // ****************************************** Search View
@@ -784,7 +792,9 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
     // searchView.setSuggestionsAdapter(adapter);
     // adapter.notifyDataSetChanged();
 
-    AnyPlaceSeachingHelper.HTMLCursorAdapter adapter = new HTMLCursorAdapter(UnifiedNavigationActivity.this, R.layout.queried_pois_item_1_searchbox, cursor, from, to);
+    AnyPlaceSeachingHelper.HTMLCursorAdapter adapter = new HTMLCursorAdapter(
+            UnifiedNavigationActivity.this,
+            R.layout.queried_pois_item_1_searchbox, cursor, from, to);
     searchView.setSuggestionsAdapter(adapter);
     adapter.notifyDataSetChanged();
   }
@@ -800,101 +810,19 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
       return;
     }
     // Try to obtain the map from the SupportMapFragment.
-    mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-    mClusterManager = new ClusterManager<BuildingModel>(this, mMap);
+    //mMap = ((MapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 
-    // Check if we were successful in obtaining the map.
-    if (mMap != null) {
 
-      // http://stackoverflow.com/questions/14123243/google-maps-android-api-v2-interactive-infowindow-like-in-original-android-go
-      final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout) findViewById(R.id.map_relative_layout);
 
-      // MapWrapperLayout initialization
-      // 39 - default marker height
-      // 20 - offset between the default InfoWindow bottom edge and
-      // it's content bottom edge
-      mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
+    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+            .findFragmentById(R.id.map);
 
-      final ViewGroup infoWindow;
-      final TextView infoTitle;
-      final TextView infoSnippet;
-      final Button infoButton1;
-      final OnInfoWindowElemTouchListener infoButtonListener1;
-      Button infoButton2;
-      final OnInfoWindowElemTouchListener infoButtonListener2;
+    mapFragment.getMapAsync(this);
 
-      // We want to reuse the info window for all the markers,
-      // so let's create only one class member instance
-      infoWindow = (ViewGroup) getLayoutInflater().inflate(R.layout.info_window, null);
-      infoTitle = (TextView) infoWindow.findViewById(R.id.title);
-      infoSnippet = (TextView) infoWindow.findViewById(R.id.snippet);
-      infoButton1 = (Button) infoWindow.findViewById(R.id.button1);
-      infoButton2 = (Button) infoWindow.findViewById(R.id.button2);
 
-      // Setting custom OnTouchListener which deals with the pressed
-      // state
-      // so it shows up
-      infoButtonListener1 = new OnInfoWindowElemTouchListener(infoButton1, getResources().getDrawable(R.drawable.button_unsel), getResources().getDrawable(R.drawable.button_sel)) {
-        @Override
-        protected void onClickConfirmed(View v, Marker marker) {
+    //TODO move to onmapready. All calls that use mMap must move.
 
-          PoisModel poi = visiblePois.getPoisModelFromMarker(marker);
-          if (poi != null) {
-            // start the navigation using the clicked marker as
-            // destination
-            startNavigationTask(poi.puid);
-          }
 
-        }
-      };
-      infoButton1.setOnTouchListener(infoButtonListener1);
-
-      // Setting custom OnTouchListener which deals with the pressed
-      // state
-      // so it shows up
-      infoButtonListener2 = new OnInfoWindowElemTouchListener(infoButton2, getResources().getDrawable(R.drawable.button_unsel), getResources().getDrawable(R.drawable.button_sel)) {
-        @Override
-        protected void onClickConfirmed(View v, Marker marker) {
-
-          PoisModel poi = visiblePois.getPoisModelFromMarker(marker);
-          if (poi != null) {
-            if (poi.description.equals("") || poi.description.equals("-")) {
-              // start the navigation using the clicked marker
-              // as destination
-              popup_msg("No description available.", poi.name);
-            } else {
-              popup_msg(poi.description, poi.name);
-            }
-
-          }
-
-        }
-      };
-      infoButton2.setOnTouchListener(infoButtonListener2);
-
-      mMap.setInfoWindowAdapter(new InfoWindowAdapter() {
-        @Override
-        public View getInfoWindow(Marker marker) {
-          return null;
-        }
-
-        @Override
-        public View getInfoContents(Marker marker) {
-          // Setting up the infoWindow with current's marker info
-          infoTitle.setText(marker.getTitle());
-          infoSnippet.setText(marker.getSnippet());
-          infoButtonListener1.setMarker(marker);
-          infoButtonListener2.setMarker(marker);
-
-          // We must call this to set the current marker and
-          // infoWindow references
-          // to the MapWrapperLayout
-          mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
-          return infoWindow;
-        }
-      });
-      setUpMap();
-    }
 
   }
 
@@ -2323,7 +2251,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
         if (place == null)
             return;
         switch (place.type()) {
-            case AnyPlacePOI:
+            case AnyplacePOI:
                 startNavigationTask(place.id());
                 break;
             case GooglePlace:
@@ -2398,7 +2326,112 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
         alert.show();
     }
 
-    // Define a DialogFragment that displays the error dialog
+  @Override
+  public void onMapReady(GoogleMap googleMap) {
+    mMap = googleMap;
+
+    //mClusterManager = new ClusterManager<>(this, mMap);
+    mClusterManager = new ClusterManager<BuildingModel>(this, mMap);
+
+    // Check if we were successful in obtaining the map.
+    if (mMap != null) {
+
+      // http://stackoverflow.com/questions/14123243/google-maps-android-api-v2-interactive-infowindow-like-in-original-android-go
+      final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout) findViewById(R.id.map_relative_layout);
+
+      // MapWrapperLayout initialization
+      // 39 - default marker height
+      // 20 - offset between the default InfoWindow bottom edge and
+      // it's content bottom edge
+      mapWrapperLayout.init(mMap, getPixelsFromDp(this, 39 + 20));
+
+      final ViewGroup infoWindow;
+      final TextView infoTitle;
+      final TextView infoSnippet;
+      final Button infoButton1;
+      final OnInfoWindowElemTouchListener infoButtonListener1;
+      Button infoButton2;
+      final OnInfoWindowElemTouchListener infoButtonListener2;
+
+      // We want to reuse the info window for all the markers,
+      // so let's create only one class member instance
+      infoWindow = (ViewGroup) getLayoutInflater().inflate(R.layout.info_window, null);
+      infoTitle = (TextView) infoWindow.findViewById(R.id.title);
+      infoSnippet = (TextView) infoWindow.findViewById(R.id.snippet);
+      infoButton1 = (Button) infoWindow.findViewById(R.id.button1);
+      infoButton2 = (Button) infoWindow.findViewById(R.id.button2);
+
+      // Setting custom OnTouchListener which deals with the pressed
+      // state
+      // so it shows up
+      infoButtonListener1 = new OnInfoWindowElemTouchListener(infoButton1, getResources().getDrawable(R.drawable.button_unsel), getResources().getDrawable(R.drawable.button_sel)) {
+        @Override
+        protected void onClickConfirmed(View v, Marker marker) {
+
+          PoisModel poi = visiblePois.getPoisModelFromMarker(marker);
+          if (poi != null) {
+            // start the navigation using the clicked marker as
+            // destination
+            startNavigationTask(poi.puid);
+          }
+
+        }
+      };
+      infoButton1.setOnTouchListener(infoButtonListener1);
+
+      // Setting custom OnTouchListener which deals with the pressed
+      // state
+      // so it shows up
+      infoButtonListener2 = new OnInfoWindowElemTouchListener(infoButton2, getResources().getDrawable(R.drawable.button_unsel), getResources().getDrawable(R.drawable.button_sel)) {
+        @Override
+        protected void onClickConfirmed(View v, Marker marker) {
+
+          PoisModel poi = visiblePois.getPoisModelFromMarker(marker);
+          if (poi != null) {
+            if (poi.description.equals("") || poi.description.equals("-")) {
+              // start the navigation using the clicked marker
+              // as destination
+              popup_msg("No description available.", poi.name);
+            } else {
+              popup_msg(poi.description, poi.name);
+            }
+
+          }
+
+        }
+      };
+      infoButton2.setOnTouchListener(infoButtonListener2);
+
+      mMap.setInfoWindowAdapter(new InfoWindowAdapter() {
+        @Override
+        public View getInfoWindow(Marker marker) {
+          return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+          // Setting up the infoWindow with current's marker info
+          infoTitle.setText(marker.getTitle());
+          infoSnippet.setText(marker.getSnippet());
+          infoButtonListener1.setMarker(marker);
+          infoButtonListener2.setMarker(marker);
+
+          // We must call this to set the current marker and
+          // infoWindow references
+          // to the MapWrapperLayout
+          mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow);
+          return infoWindow;
+        }
+      });
+      setUpMap();
+    }
+
+    // initMap();
+    // // initCamera();
+    // initListeners();
+  }
+
+  // Define a DialogFragment that displays the error dialog
     public static class ErrorDialogFragment extends DialogFragment {
         // Global field to contain the error dialog
         private Dialog mDialog;

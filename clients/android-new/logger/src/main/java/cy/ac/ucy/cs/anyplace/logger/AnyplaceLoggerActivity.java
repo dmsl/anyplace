@@ -161,7 +161,10 @@ import androidx.fragment.app.FragmentManager;
  * Anyplace Logger Activity. The main interface for the Logger functionality
  *
  */
-public class AnyplaceLoggerActivity extends AppCompatActivity implements OnSharedPreferenceChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, OnMapClickListener, OnMapReadyCallback {
+public class AnyplaceLoggerActivity extends AppCompatActivity implements
+        OnSharedPreferenceChangeListener, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, OnMapClickListener,
+        OnMapReadyCallback {
   private static final String TAG = "AnyplaceLoggerActivity";
   public static final String SHARED_PREFS_LOGGER = "LoggerPreferences";
 
@@ -435,13 +438,13 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
       return;
     }
 
-    Object temp = (Object) getSupportFragmentManager().findFragmentById(R.id.map);
+    // Object temp = (Object) getSupportFragmentManager().findFragmentById(R.id.map);
     // Try to obtain the map from the SupportMapFragment.
 
-    FragmentActivity t = new FragmentActivity();
-
-
-    FragmentManager v = t.getSupportFragmentManager();
+    // FragmentActivity t = new FragmentActivity();
+    //
+    //
+    // FragmentManager v = t.getSupportFragmentManager();
     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
             .findFragmentById(R.id.map);
 
@@ -460,6 +463,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
     initMap();
     // initCamera();
     initListeners();
+
+    //TODO: Add all buildings on map (GOOGLE MAP)
   }
 
 
@@ -468,9 +473,12 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements OnShare
     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     // mMap.setMyLocationEnabled(true); //displays a button to navigate to
     // the current user's position
+
+    //TODO: IF its the same with map utils then reuse.
   }
 
   private void initCamera() {
+    //TODO move to maputils
     // Only for the first time
     if (gpsMarker != null) {
       return;

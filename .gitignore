@@ -67,3 +67,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 clients/android-new/.idea/dictionaries/christos.xml
+clients/android-new/demo/src/debug/res/values/google_maps_api.xml
