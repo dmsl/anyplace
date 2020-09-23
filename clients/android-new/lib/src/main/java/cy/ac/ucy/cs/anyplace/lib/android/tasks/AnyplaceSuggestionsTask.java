@@ -50,14 +50,16 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
 
-import com.dmsl.anyplace.cache.AnyplaceCache;
-import com.dmsl.anyplace.googleapi.GooglePlaces;
-import com.dmsl.anyplace.googleapi.PlacesList;
-import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper;
-import com.dmsl.anyplace.nav.IPoisClass;
-import com.dmsl.anyplace.nav.PoisModel;
-import com.dmsl.anyplace.nav.AnyPlaceSeachingHelper.SearchTypes;
-import com.dmsl.anyplace.utils.GeoPoint;
+import cy.ac.ucy.cs.anyplace.lib.android.cache.AnyplaceCache;
+import cy.ac.ucy.cs.anyplace.lib.android.googleapi.GooglePlaces;
+import cy.ac.ucy.cs.anyplace.lib.android.googleapi.PlacesList;
+import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
+import cy.ac.ucy.cs.anyplace.lib.android.nav.IPoisClass;
+import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisModel;
+import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
+import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
+
+import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
 
 /**
  * The task that provides the Suggestions according to the zoom level and the position.
@@ -78,7 +80,7 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 	private boolean run = false;
 
 	private boolean exceptionOccured = false;
-	private SearchTypes searchType;
+	private AnyPlaceSeachingHelper.SearchTypes searchType;
 	private GeoPoint position;
 	private String query;
 	private List<? extends IPoisClass> pois;

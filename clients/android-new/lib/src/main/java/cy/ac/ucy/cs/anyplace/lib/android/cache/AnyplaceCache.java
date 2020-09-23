@@ -178,6 +178,10 @@ public class AnyplaceCache implements Serializable {
 		return mSpinnerBuildings;
 	}
 
+  /**
+   * @param ctx Context
+   * @param mLoadedBuildings Loaded buildings
+   */
 	public void setSpinnerBuildings(Context ctx, List<BuildingModel> mLoadedBuildings) {
 		this.mSpinnerBuildings = mLoadedBuildings;
 		AnyplaceCache.saveInstance(ctx);
