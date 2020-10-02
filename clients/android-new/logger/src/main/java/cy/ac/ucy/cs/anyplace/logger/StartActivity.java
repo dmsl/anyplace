@@ -1,10 +1,10 @@
 /*
-* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
+* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
 *
-* Author(s): Timotheos Constambeys
+* Author(s): Lambros Petrou
 * 
 * Supervisor: Demetrios Zeinalipour-Yazti
 *
@@ -34,30 +34,43 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.lib.android.googlemap;
+package cy.ac.ucy.cs.anyplace.logger;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.util.Log;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+public class StartActivity extends Activity {
 
-import cy.ac.ucy.cs.anyplace.lib.R;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.start_screen_layout);
 
-public class MyBuildingsRenderer extends DefaultClusterRenderer <BuildingModel>{
+		PackageInfo pinfo;
+		try {
+			pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			String versionName = pinfo.versionName;
+			((TextView) findViewById(R.id.tvVersion)).setText(versionName);
+		} catch (NameNotFoundException e) {
+			Log.d("anyplace start screen", "Cannot get version name!");
+		}
 
-	public MyBuildingsRenderer(Context context, GoogleMap map, ClusterManager<BuildingModel> clusterManager) {
-		super(context, map, clusterManager);
+		new CountDownTimer(1000, 10000) {
+			public void onTick(long millisUntilFinished) {
+			}
+
+			public void onFinish() {
+				Intent intent = new Intent(StartActivity.this, UnifiedNavigationActivity.class);
+				startActivity(intent);
+				StartActivity.this.finish();
+			}
+		}.start();
 	}
-	
-    @Override
-    protected void onBeforeClusterItemRendered(BuildingModel bm, MarkerOptions markerOptions) {
-
-       markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.pin2));
-      // markerOptions.icon(BitmapDescriptorFactory.fromFile("pin2.png"));
-    }
 
 }

@@ -54,7 +54,7 @@ public class AnyplaceAPI {
 	// Lock Location to GPS
 	public final static Boolean LOCK_TO_GPS = false;
 	// Show Debug Messages
-	public final static Boolean DEBUG_MESSAGES = false;
+	public final static Boolean DEBUG_MESSAGES = true;
 	// Wifi and GPS Data
 	public final static Boolean DEBUG_WIFI = false;
 	// API URLS
@@ -160,7 +160,7 @@ public class AnyplaceAPI {
 		return getServerIPAddress(ctx) + "/anyplace/mapping/pois/all_floor";
 	}
 
-	public static String getFetchPoisByPuidUrl(Context ctx) {
+	public static String getFetchPoisByPuidUrl(Context ctx) { //deprecated
 		return getServerIPAddress(ctx) + "/anyplace/navigation/pois/id";
 	}
 

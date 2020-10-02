@@ -78,6 +78,7 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 //import com.dmsl.anyplace.SelectBuildingActivity;
 
 
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LogRecordMap;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
 import cy.ac.ucy.cs.anyplace.logger.LoggerPrefs.Action;
@@ -248,11 +249,14 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   private int mCurrentSamplesTaken = 0;
   private boolean mIsSamplingActive = false;
   private LoggerWiFi logger;
+  private AnyplaceApp app;
+
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    //TODO: initialize anyplace client.
+    app = (AnyplaceApp) getApplication();
     setContentView(R.layout.activity_logger);
 
     textFloor = (TextView) findViewById(R.id.textFloor);
@@ -271,7 +275,9 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
       public void onClick(View v) {
 
         if (gpsMarker != null) {
+          //TODO: replace cache
           AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
+          //TODO: in MapUtils
           mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
 
             @Override
@@ -289,7 +295,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
             @Override
             public void onErrorOrCancel(String result) {
-
+              Toast.makeText(getBaseContext(), "Error localizing, line 292 in logger", Toast.LENGTH_SHORT).show();
             }
 
           }, AnyplaceLoggerActivity.this, false);
@@ -790,6 +796,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
   }
 
+
   private void handleBuildingsOnMap() {
 
     AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
@@ -850,6 +857,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     super.onStart();
     //mLocationClient.connect();  //Deprecated
     mGoogleApiClient.connect();
+
+
 
     // // Flurry Analytics
     // if (AnyplaceAPI.FLURRY_ENABLE) {

@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -63,8 +64,9 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AndroidFileBrowser extends ListActivity implements OnClickListener {
+  private static final String TAG = AndroidFileBrowser.class.getSimpleName() ;
 
-	/*
+  /*
 	 * Select File Code Intent i = new Intent(getBaseContext(),
 	 * AndroidFileBrowser.class); Bundle extras = new Bundle();
 	 * extras.putBoolean("selectFolder", false); extras.putString("defaultPath",
@@ -202,6 +204,7 @@ public class AndroidFileBrowser extends ListActivity implements OnClickListener 
 					browseTo(currentDirectory.getParentFile());
 				} else if (file.getName().equals(getString(R.string.homeDir))) {
 					browseTo(homeDirectory);
+					Log.e(TAG, "Browsing home directory in AndroidFileBrowser" );
 				} else
 					browseTo(file);
 			} else {

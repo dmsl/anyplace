@@ -52,6 +52,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
 @SuppressWarnings("serial")
 public class BuildingModel implements Comparable<BuildingModel>, ClusterItem, Serializable {
 
+
+
 	public interface FetchBuildingTaskListener {
 		void onErrorOrCancel(String result);
 

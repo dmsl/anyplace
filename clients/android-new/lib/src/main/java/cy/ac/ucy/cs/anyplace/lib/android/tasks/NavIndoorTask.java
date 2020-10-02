@@ -48,6 +48,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisNav;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
@@ -67,10 +68,21 @@ public class NavIndoorTask extends AsyncTask<Void, Void, String> {
 	private String json_req;
 	private List<PoisNav> mPuids = new ArrayList<PoisNav>();
 	private boolean success = false;
+	private String pois_to;
+	private String lat;
+	private String lon;
+	private String flr;
+	private String buid;
 
-	public NavIndoorTask(NavRouteListener l, Context ctx, String poid, GeoPoint pos, String floor) {
+
+	public NavIndoorTask(NavRouteListener l, Context ctx, String poid, GeoPoint pos, String floor, String building) {
 		this.mListener = l;
 		this.mCtx = ctx;
+		pois_to= poid;
+		lat = pos.lat;
+		lon =pos.lng;
+		flr = floor;
+		buid = building;
 
 		// create the JSON object for the navigation API call
 		JSONObject j = new JSONObject();
@@ -97,7 +109,12 @@ public class NavIndoorTask extends AsyncTask<Void, Void, String> {
 				return "Error creating the request!";
 
 			// changed to the coordnates function
-			String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getNavRouteXYUrl(mCtx), json_req);
+
+          //TODO: USE SHARED PREFERENCES
+          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+
+			// String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getNavRouteXYUrl(mCtx), json_req);
+			String response = client.navigationXY("access_token", pois_to,buid, flr, lat,lon);
 			JSONObject json = new JSONObject(response);
 
 			if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {
@@ -126,11 +143,7 @@ public class NavIndoorTask extends AsyncTask<Void, Void, String> {
 			success = true;
 			return "Successfully plotted navigation route!";
 
-		} catch (ConnectTimeoutException e) {
-			return "Connecting to the server is taking too long!";
-		} catch (SocketTimeoutException e) {
-			return "Communication with the server is taking too long!";
-		} catch (JSONException e) {
+		}  catch (JSONException e) {
 			return "Not valid response from the server! Contact the admin.";
 		} catch (Exception e) {
 			return "Error plotting navigation route. Exception[ " + e.getMessage() + " ]";

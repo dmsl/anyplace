@@ -46,6 +46,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
@@ -70,11 +71,14 @@ public class FetchPoiByPuidTask extends AsyncTask<Void, Void, String> {
 
 	private ProgressDialog dialog;
 	private boolean success = false;
+	private String access_token;
 
-	public FetchPoiByPuidTask(FetchPoiListener l, Context ctx, String puid) {
+
+	public FetchPoiByPuidTask(FetchPoiListener l, Context ctx, String puid, String token) {
 		this.mCtx = ctx;
 		this.mListener = l;
 		this.puid = puid;
+		access_token= token;
 	}
 
 	@Override
@@ -112,8 +116,10 @@ public class FetchPoiByPuidTask extends AsyncTask<Void, Void, String> {
 			}
 
 			// fetch the pois of this floor
-          //TODO replace in AnyplaceAPI
-			String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchPoisByPuidUrl(mCtx), j.toString());
+          //TODO: USE SHARED PREFERENCES
+          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+			// String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchPoisByPuidUrl(mCtx), j.toString());
+			String response = client.poiDetails(access_token, puid) ;
 			// fetch the pois for the whole building
 			// String response = NetworkUtils.downloadHttpClientJsonPost(
 			// AnyplaceAPI.getFetchPoisByBuidUrl(),j.toString());
@@ -139,11 +145,7 @@ public class FetchPoiByPuidTask extends AsyncTask<Void, Void, String> {
 			success = true;
 			return "Successfully fetched Points of Interest";
 
-		} catch (ConnectTimeoutException e) {
-			return "Connecting to Anyplace service is taking too long!";
-		} catch (SocketTimeoutException e) {
-			return "Communication with the server is taking too long!";
-		} catch (JSONException e) {
+		}  catch (JSONException e) {
 			return "Not valid response from the server! Contact the admin.";
 		} catch (Exception e) {
 			return "Error fetching Point of Interest. Exception[ " + e.getMessage() + " ]";

@@ -63,6 +63,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
+
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -87,6 +88,7 @@ import android.widget.Toast;
 //import com.actionbarsherlock.view.SubMenu;
 //import com.actionbarsherlock.widget.SearchView;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.LOG;
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout;
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.OnInfoWindowElemTouchListener;
 import cy.ac.ucy.cs.anyplace.logger.AnyplacePrefs.Action;
@@ -164,9 +166,13 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
   private static final double csLon = 33.411107;
   private static final float mInitialZoomLevel = 19.0f;
   public static final String SHARED_PREFS_ANYPLACE = "Anyplace_Preferences";
-
+private static final String TAG = UnifiedNavigationActivity.class.getSimpleName();
   private GoogleApiClient mGoogleApiClient;
   private LocationListener mLocationListener = this;
+
+
+  //TODO: LOAD from preferences
+  private String access_token ="";
 
   // Define a request code to send to Google Play services This code is
   // returned in Activity.onActivityResult
@@ -175,6 +181,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
   private final static int SELECT_PLACE_ACTIVITY_RESULT = 1112;
   private final static int SEARCH_POI_ACTIVITY_RESULT = 1113;
   private final static int PREFERENCES_ACTIVITY_RESULT = 1114;
+  private final int REQUEST_PERMISSION_LOCATION =1;
 
   // Location API
   //private LocationClient mLocationClient;
@@ -237,6 +244,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_unifiednav);
 
+
     detectedAPs = (TextView) findViewById(R.id.detectedAPs);
     textFloor = (TextView) findViewById(R.id.textFloor);
     progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -271,7 +279,11 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
       @Override
       public void onClick(View v) {
 
+        Toast.makeText(getBaseContext(), "Clicked localize", Toast.LENGTH_SHORT).show();
+
         final GeoPoint gpsLoc = userData.getLocationGPSorIP();
+
+
         if (gpsLoc != null) {
           AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(UnifiedNavigationActivity.this);
           mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
@@ -328,6 +340,8 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
                 floorSelectorDialog.show();
                 floorSelectorAlgo1.Start(gpsLoc.lat, gpsLoc.lng);
               } else {
+
+                Log.d(TAG, "no nearby buildings or buid missmatch" );
                 focusUserLocation();
 
                 // Clear cancel request
@@ -344,6 +358,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
 
           }, UnifiedNavigationActivity.this, false);
         } else {
+          Log.d(TAG, "gpsLoc is null, line 355" );
           focusUserLocation();
 
           // Clear cancel request
@@ -513,6 +528,12 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
 
       }
     }
+    else{
+      Log.d(TAG, "No user marker, in focusUserLocation()");
+    }
+
+
+
   }
 
   @Override
@@ -644,6 +665,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
         }
 
         GeoPoint gp = userData.getLatestUserPosition();
+
 
         mSuggestionsTask = new AnyplaceSuggestionsTask(new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
           @Override
@@ -856,7 +878,9 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
       return;
     }
 
-    //Location gps = mLocationClient.getLastLocation();  //DEPRECSTED
+    //Location gps = mLocationClient.getLastLocation();  //DEPRECATED
+
+
 
 
     // REPLACED WITH:
@@ -1571,40 +1595,104 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
       GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
     }
   }
+  @Override
+  public void onRequestPermissionsResult(
+          int requestCode,
+          String permissions[],
+          int[] grantResults) {
+    switch (requestCode) {
+      case REQUEST_PERMISSION_LOCATION:
+        if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          Toast.makeText(UnifiedNavigationActivity.this, "Permission Granted!", Toast.LENGTH_SHORT).show();
+        } else {
+          Toast.makeText(UnifiedNavigationActivity.this, "Permission Denied!", Toast.LENGTH_SHORT).show();
+        }
+    }
+  }
+  private void showExplanation(String title,
+                               String message,
+                               final String permission,
+                               final int permissionRequestCode) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int id) {
+                requestPermission(permission, permissionRequestCode);
+              }
+            });
+    builder.create().show();
+  }
+  private void requestPermission(String permissionName, int permissionRequestCode) {
+    ActivityCompat.requestPermissions(this,
+            new String[]{permissionName}, permissionRequestCode);
+  }
 
   @Override
   public void onConnected(Bundle dataBundle) {
+
+    LOG.i(2,"We are connected");
     // Called after onResume by system
     // Log.d("Google Play services", "Connected");
     if (checkPlayServices()) {
+      LOG.i("checking Play services");
       initCamera();
       // Get Wifi + GPS Fused Location
       //Location currentLocation = mLocationClient.getLastLocation();
 
-      if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+      if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+              != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+              Manifest.permission.ACCESS_COARSE_LOCATION)
+              != PackageManager.PERMISSION_GRANTED) {
+
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+          showExplanation("Permission Needed", "Rationale", Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSION_LOCATION);
+        } else {
+          requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSION_LOCATION);
+        }
+
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)) {
+          showExplanation("Permission Needed", "Rationale",
+                  Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_PERMISSION_LOCATION);
+        } else {
+          requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_PERMISSION_LOCATION);
+        }
+
+        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        // LOG.i(currentLocation.toString() + " is my location");
+        // we must set listener to the get the first location from the API
+        // it will trigger the onLocationChanged below when a new location
+        // is found or notify the user
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest ,mLocationListener );
+        //mLocationClient.requestLocationUpdates(mLocationRequest, this);
+        if (currentLocation != null) {
+          onLocationChanged(currentLocation);
+        } else {
+          if (mAutomaticGPSBuildingSelection)
+            Toast.makeText(getBaseContext(), "No location available at the moment.", Toast.LENGTH_LONG).show();
+        }
+      }
+
         // TODO: Consider calling
         //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
+
         return;
       }
-      Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            // we must set listener to the get the first location from the API
-            // it will trigger the onLocationChanged below when a new location
-            // is found or notify the user
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest ,mLocationListener );
-            //mLocationClient.requestLocationUpdates(mLocationRequest, this);
-            if (currentLocation != null) {
-                onLocationChanged(currentLocation);
-            } else {
-                if (mAutomaticGPSBuildingSelection)
-                    Toast.makeText(getBaseContext(), "No location available at the moment.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
+      else{
+        LOG.i("Have permissions for gps");
+      }
+
+
+
+        LOG.i("finished on connected");
+  }
 
   @Override
   public void onConnectionSuspended(int i) {
@@ -1758,7 +1846,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
                 }
             }
 
-        }, this, id, (pos == null) ? new GeoPoint(_entrance.lat(), _entrance.lng()) : pos, (pos == null) ? _entrance.floor_number : currentFloor);
+        }, this, id, (pos == null) ? new GeoPoint(_entrance.lat(), _entrance.lng()) : pos, (pos == null) ? _entrance.floor_number : currentFloor, b.buid);
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -1857,7 +1945,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
 
         }
     }
-
+//TODO: move to android lib.
     private void handleBuildingsOnMap(boolean forceReload) {
         AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(UnifiedNavigationActivity.this);
         mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
@@ -2220,7 +2308,7 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
                                 public void onErrorOrCancel(String result) {
                                     Toast.makeText(getBaseContext(), result, Toast.LENGTH_SHORT).show();
                                 }
-                            }, this, poid).execute();
+                            }, this, poid, access_token).execute();
                         }
                     }
                 }

@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.location.Location;
+import android.util.Log;
 
 
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LogRecord;
@@ -47,6 +48,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 
 public class AnyUserData {
+  private static final String TAG = AnyUserData.class.getSimpleName();
 	// the selected Floor displayed on map & used when requesting the radio map
 	// = floor_number in FloorModel
 	private FloorModel selectedFloor = null;
@@ -154,6 +156,9 @@ public class AnyUserData {
 	}
 
 	public GeoPoint getLocationGPSorIP() {
+
+
+	     Log.d(TAG, "Trying to get the gps location");
 		GeoPoint result = null;
 
 		if (positionGPS != null) {
@@ -163,8 +168,13 @@ public class AnyUserData {
 				result = new GeoPoint(positionGPS.getLatitude(), positionGPS.getLongitude());
 			}
 		} else {
+		  Log.d(TAG,"positionGPS is null");
 			result = positionIP;
 		}
+		// if (result == null){
+		//   result = fakeGPS();
+		//   Log.d(TAG, "The gps location is null since there isnt a gps registered");
+        // }
 		return result;
 	}
 

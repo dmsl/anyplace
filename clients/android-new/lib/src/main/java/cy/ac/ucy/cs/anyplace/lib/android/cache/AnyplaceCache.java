@@ -48,8 +48,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
+
+
 /*
 import com.dmsl.anyplace.AnyplaceAPI;
 import com.dmsl.anyplace.MyApplication;
@@ -59,7 +65,12 @@ import com.dmsl.anyplace.tasks.FetchBuildingsTask;
 import com.dmsl.anyplace.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
 import com.dmsl.anyplace.utils.NetworkUtils;
 */
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.LOG;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisModel;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask;
@@ -75,17 +86,62 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
  */
 @SuppressWarnings("serial")
 public class AnyplaceCache implements Serializable {
+  private static final String TAG = AnyplaceCache.class.getSimpleName();
 
-
-	private static AnyplaceCache mInstance = null;
+  private static AnyplaceCache mInstance = null;
   private final Context ctx;
 
 
   public static AnyplaceCache getInstance(Context ctx) {
+        // Log.e(TAG, "AnyplaceCache getting dir. -> " + ctx.getCacheDir().toString());
+
+    // if(ActivityCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    //         == PackageManager.PERMISSION_GRANTED){
+    //   LOG.e("Unable to write to external storage due to no permissions. WRITE_EXTERNAL_STORAGE");
+    //
+    //
+    // }
+    // else if(true){
+    //
+    // }
+    // if(ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION)
+    //         != PackageManager.PERMISSION_GRANTED){
+    //   LOG.e("No access to fine location");
+    //
+    // }
+    //
+    // File AnyplaceAppDir = new File(Environment.getExternalStorageDirectory()
+    //         +File.separator+"AnyplaceCache");
+    //
+    // if(!AnyplaceAppDir.exists() && !AnyplaceAppDir.isDirectory())
+    // {
+    //   // create empty directory
+    //   if (AnyplaceAppDir.mkdirs())
+    //   {
+    //     Log.i("CreateDir","AnyplaceCache dir created");
+    //   }
+    //   else
+    //   {
+    //     Log.e("CreateDir","Unable to create AnyplaceCache dir!");
+    //   }
+    // }
+    // else
+    // {
+    //   Log.i("CreateDir","AnyplaceCache dir already exists");
+    // }
+    //
+    //
+    //
+    //
+    //     LOG.i(AnyplaceAppDir.getAbsolutePath());
+
 		if (mInstance == null) {
 			synchronized (ctx) {
 				if (mInstance == null) {
 					mInstance = getObject(ctx, ctx.getCacheDir());
+					// mInstance = getObject(ctx, AnyplaceAppDir);
+					LOG.i("cache dir : " + (mInstance == null ? "NULL" :  "resolved"));
+					//TODO: Create an internal private directory and replace cache
 				}
 				if (mInstance == null) {
 					mInstance = new AnyplaceCache(ctx);
@@ -275,7 +331,19 @@ public class AnyplaceCache implements Serializable {
 	// </SAVE CACHE
 	public static boolean saveObject(Context ctx, File cacheDir, AnyplaceCache obj) {
 
-		final File suspend_f = new File(cacheDir, "AnyplaceCache");
+
+
+      if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+              != PackageManager.PERMISSION_GRANTED ){
+
+        LOG.e("Need write permissions to save object");
+
+      }
+      else{
+        LOG.i("We have write permissions");
+      }
+
+        final File suspend_f = new File(cacheDir, "AnyplaceCache");
 
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
@@ -287,6 +355,7 @@ public class AnyplaceCache implements Serializable {
 			oos.writeObject(obj);
 		} catch (Exception e) {
 			keep = false;
+          LOG.i(2, "AnyplaceCache: getObject :" + e.getMessage());
 			if (AnyplaceAPI.DEBUG_MESSAGES)
 				Toast.makeText(ctx, "AnyplaceCache: saveObject :" + e.getMessage(), Toast.LENGTH_LONG).show();
 		} finally {
@@ -306,6 +375,16 @@ public class AnyplaceCache implements Serializable {
 
 	public static AnyplaceCache getObject(Context ctx, File cacheDir) {
 		final File suspend_f = new File(cacheDir, "AnyplaceCache");
+      if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE)
+              != PackageManager.PERMISSION_GRANTED ){
+
+        LOG.e("Need read permissions to read object");
+
+      }
+      else{
+        LOG.i("We have read permissions");
+      }
+
 
 		AnyplaceCache simpleClass = null;
 		FileInputStream fis = null;
@@ -316,6 +395,7 @@ public class AnyplaceCache implements Serializable {
 			is = new ObjectInputStream(fis);
 			simpleClass = (AnyplaceCache) is.readObject();
 		} catch (Exception e) {
+          LOG.i(2, "AnyplaceCache: getObject :" + e.getMessage());
 			if (AnyplaceAPI.DEBUG_MESSAGES)
 				Toast.makeText(ctx, "AnyplaceCache: getObject :" + e.getMessage(), Toast.LENGTH_LONG).show();
 		} finally {

@@ -68,3 +68,4 @@ $RECYCLE.BIN/
 *.lnk
 clients/android-new/.idea/dictionaries/christos.xml
 clients/android-new/demo/src/debug/res/values/google_maps_api.xml
+clients/android-new/logger/src/debug/res/values/google_maps_api.xml
