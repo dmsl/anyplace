@@ -69,6 +69,8 @@ body {
     position: absolute;
     margin: 0;
     padding: 0;
+-webkit-border-radius:20px;
+  z-index:0;
 }
 
 /*#control-panel {*/
@@ -204,7 +206,7 @@ body {
 }
 
 #div-logo {
-    margin: 8px 8px 8px 8px;
+    /*margin: 8px 8px 8px 8px;*/
     /*display: inline-block;*/
 }
 
@@ -435,7 +437,8 @@ body {
 }
 
 @media (max-width: 768px) {
-    #div-logo {
+    /* Hide just the image*/
+    #div-logo img {
         display: none;
     }
 }

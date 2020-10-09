@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    tools:layout_editor_absoluteX="1dp"
+    tools:layout_editor_absoluteY="604dp">
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="271dp"
+        android:layout_height="63dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:text="API CALL&#10;(All building floors)"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/buttonOnlineLocalization"
+        android:layout_width="271dp"
+        android:layout_height="63dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:text="ONLINE LOCALIZATION" />
+
+    <Button
+        android:id="@+id/buttonOfflineLocalization"
+        android:layout_width="271dp"
+        android:layout_height="63dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:text="OFFLINE LOCALIZATION" />
+
+    <TextView
+        android:id="@+id/tvOutput"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical" />
+
+</LinearLayout>

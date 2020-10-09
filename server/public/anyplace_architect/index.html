@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html ng-app="anyArchitect">
 <head>
-    <script>
-        // if (window.location.protocol != "https:")
-        //     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
-    </script>
-    <link rel="icon" type="image/png" href="build/images/logo.png">
+    <!--<script>-->
+    <!--   if (window.location.protocol != "https:")-->
+    <!--       window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);-->
+    <!--</script>-->
+    <link rel="icon" type="image/png" href="build/images/favicon.png">
 
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
@@ -22,7 +22,7 @@
 
 
     <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCRLbtsuuKx5cdY2ydiri2r4ji3FTYdbY&libraries=places,visualization,drawing">
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCRLbtsuuKx5cdY2ydiri2r4ji3FTYdbY&libraries=places,visualization,drawing,geometry">
     </script>
 
 
@@ -46,6 +46,7 @@
     <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css"/>
     <link rel="stylesheet" href="bower_components/select2/select2.css">
 
+    <!--  TODO Deprecate/Remove angularjs-dropdown-multiselect -->
     <script type="text/javascript" src="bower_components/angularjs-dropdown-multiselect/dist/angularjs-dropdown-multiselect.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bower_components/angularjs-dropdown-multiselect/pages/stylesheets/stylesheet.css"/>
     <link rel="stylesheet" href="style/rrssb.css"/>
@@ -77,11 +78,16 @@
         </button>
 
         <div id="logistics" ng-show="showFullControls">
-            <!--<button id="minimize-btn" class="btn btn-default" ng-click="toggleFullControls()"></button>-->
+          <span class="logistics-header text-center">
+          <span><img  class="logistics-header-img" src='build/images/logo-blue.png'/></span>
+              <span class="logistics-header-title">rchitect </span>
+              <span id="anyplace-version" class="logistics-header-version"></span>
+          </span>
+
+          <!--<button id="minimize-btn" class="btn btn-default" ng-click="toggleFullControls()"></button>-->
             <button type="button"  id="minimize-btn" class="btn btn-minimize"  ng-click="toggleFullControls()">
                 <i class="fa fa-window-minimize" ></i>
             </button>
-            <div id="div-logo" class="pull-left"></div>
             <span id="login-details" ng-show="isAuthenticated">
                 <span class="subnote">
                     {{person.displayName}}
@@ -250,7 +256,7 @@
                                                 // Set values for window
                                                 intWidth = intWidth || '500';
                                                 intHeight = intHeight || '400';
-                                                var strResize = (blnResize ? 'yes' : 'no');
+                                                strResize = (blnResize ? 'yes' : 'no');
 
                                                 // Set title and open popup with focus on it
                                                 var strTitle = ((typeof this.attr('title') !== 'undefined') ? this.attr('title') : 'Social Share'),
@@ -451,7 +457,7 @@
                                                     // Set values for window
                                                     intWidth = intWidth || '500';
                                                     intHeight = intHeight || '400';
-                                                    var strResize = (blnResize ? 'yes' : 'no');
+                                                    strResize = (blnResize ? 'yes' : 'no');
 
                                                     // Set title and open popup with focus on it
                                                     var strTitle = ((typeof this.attr('title') !== 'undefined') ? this.attr('title') : 'Social Share'),
@@ -818,8 +824,8 @@
                         </div>
 
                         <div class="divider-top-1">
-                                 <span title="{{ getLocalizationAccurancyModeText() }}" id="LA_1" class="A_0">
-                                    <span id="localizationAccurancy-mode">
+                                 <span title="{{ getLocalizationAccuracyModeText() }}" id="LA_1" class="A_0">
+                                    <span id="localizationAccuracy-mode">
                                        <button type="button" class="btn btn-default">
                                             <i class="fa fa-map"></i>
                                         </button>
@@ -830,9 +836,8 @@
                                  <span title="{{ getPOIsModeText() }}" id="POIs_1"  class="A_0" >
                                     <span id="POIs-mode">
                                          <button type="button" class="btn btn-default">
-                                            <img src="build/images/poi-icon.png" height="16px" width="14px"/>
+                                           <img src="build/images/poi-icon.png" height="16px" width="14px"/>
                                         </button>
-
                                     </span>
                                  </span>
                         </div>
@@ -942,11 +947,14 @@
                                     <a data-toggle="modal" data-target="#myModal_3">read more...</a>
                                 </div>
                                 <div style="margin: 10px; font-weight: bold">
-                                    <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccurancy()" >
-                                        {{getLocalizationAccurancyText()}}
-                                    </button>
+                                  <button id="LAButton" class="btn btn-success" ng-click="toggleLocalizationAccuracy()" >
+                                    {{getLocalizationAccuracyText()}}
+                                    <i id="LAButtonProgress" class="fa fa-circle-o-notch fa-spin hidden"></i>
+                                  </button>
+                                        <button id="LAButton1" class="btn btn-success" ng-click="deleteRadiomaps()" >
+                                            Delete Radiomap
+                                        </button>
                                 </div>
-
                             </div>
                         </div>
                         </div>
@@ -1051,19 +1059,16 @@
             </span>
                 </div>
             </div>
-
         </div>
-
     </div>
 
-
-    <input id="pac-input" class="controls" type="text" placeholder="Search for desired area to add a Building">
-
-    <div id="map-canvas"></div>
-
-
-</div>
-
+  <input id="pac-input" class="controls" type="text" placeholder="Search for desired area to add a Building">
+  <div id="map-canvas"></div>
+    <!-- Logo at bottom right -->
+    <!--<div id="div-logo">-->
+    <!--<img style="width: 150px; height: auto" src="build/images/logo4.0-blue-full-wide.png"/>-->
+    <!--</div>-->
+  </div>
 
 <div id="floor-controls">
     <div id="DIV_1" ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null" class="ng-cloak" ng-cloak ng-controller="SelectFloorController as selectfloorCtrl">
@@ -1264,7 +1269,6 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
-
     </div>
 </div>
 

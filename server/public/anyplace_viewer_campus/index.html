@@ -2,10 +2,10 @@
 <html ng-app="anyViewer" ng-controller="AppCtrl">
 <head>
     <script>
-        if (window.location.protocol != "https:")
-            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+        // if (window.location.protocol != "https:")
+        //     window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
     </script>
-    <link rel="icon" type="image/png" href="build/images/logo.png">
+    <link rel="icon" type="image/png" href="build/images/favicon.png">
 
     <link rel="apple-touch-icon-precomposed" href="build/images/ios-icons/touch-icon-ipad.png"/>
     <link rel="apple-touch-icon" href="build/images/ios-icons/touch-icon-iphone.png">
@@ -121,9 +121,9 @@
 
     <script type="text/javascript" src="bower_components/angular-loading-bar/src/loading-bar.js"></script>
     <link rel="stylesheet" href="bower_components/angular-loading-bar/src/loading-bar.css">
-    <script type="text/javascript" src="build/js/anyplace.js"></script>
+    <script type="text/javascript" src="build/js/anyplace.js?campus"></script>
     <script type="text/javascript" src="libs/svg-assets-cache.js"></script>
-    <link rel="stylesheet" type="text/css" href="build/css/anyplace.css"/>
+    <link rel="stylesheet" type="text/css" href="build/css/anyplace.css?campus"/>
 
     <script type="text/javascript" src="bower_components/add-to-homescreen/src/addtohomescreen.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bower_components/add-to-homescreen/style/addtohomescreen.css"/>
@@ -145,13 +145,14 @@
 <div ng-click="close()" id="control-bar" class="box-shadow-1 ng-cloak" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
 
     <div class="container-fluid" id="gray-bg">
-
-        <div class="col-md-1 col-sm-2 col-xs-2 " id="div-logo">
-            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white3_4.png"/>
+        <!-- LOGO: hidden at sm, xs -->
+        <div class="col-md-2 col-sm-1 d-none d-sm-block hidden-xs hidden-md" id="div-logo">
+            <span><img class="logo-header-img" src='build/images/logo-white-full.png'/></span>
+            <span id="anyplace-version" class="logo-header-version"></span>
         </div>
 
         <!-- BUILDINGS -->
-        <div ng-hide="anyService.selectedBuilding" class="col-md-8 col-sm-7 col-xs-10" id="ctrl-bar-buildings"
+        <div ng-hide="anyService.selectedBuilding" class="col-md-8 col-sm-9 col-xs-10" id="ctrl-bar-buildings"
              ng-controller="BuildingSearchController as ctrl" layout="column" ng-cloak >
             <div class="bold-f" style="color:transparent; pointer-events:none;">_</div>
             <ui-select ng-model="anyService.selectedBuilding" theme="bootstrap" ng-disabled="anyService.BuildingsLoaded" >
@@ -178,7 +179,7 @@
         </div>
 
         <!-- POIS -->
-        <div ng-show="anyService.selectedBuilding" class="col-md-8 col-sm-7 col-xs-10" id="ctrl-bar-pois"
+        <div ng-show="anyService.selectedBuilding" class="col-md-8 col-sm-9 col-xs-10" id="ctrl-bar-pois"
              ng-controller="PoiController as poiCtrl"
              ng-show="anyService.selectedBuilding !== undefined && anyService.selectedBuilding !== null && anyService.selectedFloor !== undefined && anyService.selectedFloor !== null">
             <div class="bold-f one-line-wrap-div">
@@ -207,7 +208,7 @@
 
         </div>
 
-        <div class="col-md-2 col-sm-1 col-xs-2" id="more-menu">
+        <div class="col-md-1 col-sm-1 col-xs-2" id="more-menu">
             <div class="bold-f" style="color:transparent; pointer-events:none;"
                  ng-style="{ 'height' : (anyService.selectedBuilding?'2em':null)}">_
             </div>
@@ -229,7 +230,7 @@
                         <li style="text-align: center;">
                             <a href="https://anyplace.cs.ucy.ac.cy" target="_blank">
                                 <div class="div-logo-menu">
-                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text3_4.png"/>
+                                    <img style="width: 120px; height: auto" src="build/images/logo4.0-blue-full-wide.png"/>
                                 </div>
                             </a>
                         </li>

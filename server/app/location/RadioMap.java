@@ -36,6 +36,8 @@
 
 package location;
 
+import utils.LPLogger;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +75,7 @@ public class RadioMap {
         String calculatedLocation = Algorithms.ProcessingAlgorithms(latestScanList, rm, algoChoice);
 
         if (calculatedLocation == null) {
-            System.out.println("Can't find location. Check that radio map file refers to the same area.");
+            LPLogger.debug("Can't find location. Check that radio map file refers to the same area.");
             return null;
         } else {
             String[] temp = calculatedLocation.split(" ");
@@ -251,7 +253,7 @@ public class RadioMap {
             }
         }
 
-        //System.out.println(minDistanceKey+" "+heading);
+        //LPLogger.debug(minDistanceKey+" "+heading);
         ArrayList<String> rss = getLocationRSS_HashMap().get(minDistanceKey);
         ArrayList<String> macAddress = getMacAdressList();
         if (rss != null)

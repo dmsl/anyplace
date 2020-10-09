@@ -3,34 +3,36 @@
 ### Installing dependencies
 
 Install [Bower](http://bower.io/) dependencies:
-
 ```
-$ bower install 
+bower install 
 ```
 
 Install [Grunt](http://gruntjs.com/) tasks (requires [npm](https://www.npmjs.com/)):
 
 ```
-$ npm install
+npm install
 ```
 
 Or (for Windows)
 
 ```
-$ npm install -g grunt-cli
+npm install -g grunt-cli
 ```
 
 ### Building the app
+#### Development:
+```
+grunt
+```
 
-Run Grunt
+#### Deployment:
+```
+grunt deploy
+```
 
-```
-$ grunt
-```
-Or (for Windows)
-```
-$ grunt.cmd
-```
+NOTE: On windows use `grunt.cmd`
+
+
 The built files will be in the *build* folder with the following structure:
 
     .

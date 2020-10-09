@@ -383,6 +383,7 @@ CanvasOverlay.prototype.onAdd = function () {
     panes.overlayImage.appendChild(this.div_);
 ////////////////////////////////////////
     var that=this;
+    // CHECK why that?
     var container=div;
     google.maps.event.addDomListener(this.get('map').getDiv(),
         'mouseleave',
@@ -396,12 +397,13 @@ CanvasOverlay.prototype.onAdd = function () {
         'mousedown',
         function(e){
             this.style.cursor='move';
-            that.map.set('draggable',false);
+            that.map_.set('draggable',false);
             that.set('origin',e);        }
     );
 
     google.maps.event.addDomListener(container,'mouseup',function(){
-        that.map.set('draggable',true);
+        // BUG
+        that.map_.set('draggable',true);
         this.style.cursor='default';
         google.maps.event.removeListener(that.moveHandler);
     });

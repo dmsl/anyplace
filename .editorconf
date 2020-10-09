@@ -1,0 +1,31 @@
+root = true
+
+# Scala sources mostly have 2-space identation, but it was not consistent.
+# This will eventually enforce it to the whole project.
+[*.scala]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+max_line_length = 100
+trim_trailing_whitespace = true
+
+[*.js]
+charset = utf-8
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.md]
+# preserve trailing ws in markdown as they denote newline
+trim_trailing_whitespace = false
+
+[{package.json,.travis.yml}]
+indent_style = space
+indent_size = 2
+
+# TODO add for java, bash, etc
