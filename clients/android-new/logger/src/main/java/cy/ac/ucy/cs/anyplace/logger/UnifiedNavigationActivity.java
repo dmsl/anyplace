@@ -103,7 +103,6 @@ import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector.NonCriticalError;
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MapTileProvider;
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MyBuildingsRenderer;
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.VisiblePois;
-import cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.*;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.HTMLCursorAdapter;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
@@ -137,7 +136,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
@@ -1436,7 +1434,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
     // we must now change the radio map file since we changed floor RADIO MAP initialization
     try {
-      File root = AnyplaceUtils.getRadioMapFoler(this, b.buid, userData.getSelectedFloorNumber());
+      File root = AnyplaceUtils.getRadioMapFolder(this, b.buid, userData.getSelectedFloorNumber());
       lpTracker.setRadiomapFile(new File(root, AnyplaceUtils.getRadioMapFileName(userData.getSelectedFloorNumber())).getAbsolutePath());
     } catch (Exception e) {
       // exception thrown by GetRootFolder when sdcard is not writable

@@ -38,9 +38,7 @@ package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.net.SocketTimeoutException;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,9 +48,8 @@ import android.os.Handler;
 
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 
 /**
  * The main task that downloads a radio map for the specified area.
@@ -132,7 +129,7 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 			// check sdcard state
 			File root;
 			try {
-				root = AnyplaceUtils.getRadioMapFoler(ctx, mBuildID, mFloor_number);
+				root = AnyplaceUtils.getRadioMapFolder(ctx, mBuildID, mFloor_number);
 			} catch (Exception e) {
 				return e.getMessage();
 			}
@@ -161,36 +158,49 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 
           //TODO: USE SHARED PREFERENCES
           Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
-          String response = client.radioByBuildingFloor(mBuildID, mFloor_number);
+
+          String access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhjNThlMTM4NjE0YmQ1ODc0MjE3MmJkNTA4MGQxOTdkMmIyZGQyZjMiLCJ0eXAiOiJKV1QifQ";
+          String response = client.radiomapMeanByBuildingFloor( access_token, mBuildID, mFloor_number);
 			JSONObject json = new JSONObject(response);
 
 			if (json.getString("status").equalsIgnoreCase("error")) {
 				return "Error Message: " + json.getString("message");
 			}
 
-			String means = json.getString("map_url_mean");
+			// String means = json.getString("map_url_mean");
 
-			// create the credentials JSON in order to send and download the radio map
-			JSONObject json_credentials = new JSONObject();
-			json_credentials.put("username", "username");
-			json_credentials.put("password", "pass");
-			String cred_str = json_credentials.toString();
+			// // create the credentials JSON in order to send and download the radio map
+			// JSONObject json_credentials = new JSONObject();
+			// json_credentials.put("username", "username");
+			// json_credentials.put("password", "pass");
+			// String cred_str = json_credentials.toString();
+            //
+			// String ms = NetworkUtils.downloadHttpClientJsonPost(means, cred_str);
 
-			String ms = NetworkUtils.downloadHttpClientJsonPost(means, cred_str);
+
+			String ms = response;
 
 			// check if the files downloaded correctly
-			if (ms.contains("error")) {
-				json = new JSONObject(response);
-				return "Error Message: " + json.getString("message");
-			}
+			// if (ms.contains("error")) {
+			// 	json = new JSONObject(response);
+			// 	return "Error Message: " + json.getString("message");
+			// }
 
 			// rename the radiomap according to the floor
 			// parameters and weights not used any more (RPF Algorithm Removed)
+
+
+
 			String filename_radiomap_download = AnyplaceUtils.getRadioMapFileName(mFloor_number);
 			String mean_fname = filename_radiomap_download;
+
+
+
 			// String rbf_weights_fname = mean_fname.replace(".txt", "-rbf-weights.txt");
 			// String parameters_fname = mean_fname.replace(".txt", "-parameters.txt");
-			FileWriter out;
+
+
+          FileWriter out;
 
 			out = new FileWriter(new File(root, mean_fname));
 			out.write(ms);
@@ -204,10 +214,6 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 			success = true;
 			return "Successfully saved radio maps!";
 
-		} catch (ConnectTimeoutException e) {
-			return "Connecting to Anyplace service is taking too long!";
-		} catch (SocketTimeoutException e) {
-			return "Communication with the server is taking too long!";
 		} catch (Exception e) {
 			return "Error downloading radio maps [ " + e.getMessage() + " ]";
 		} finally {

@@ -37,6 +37,18 @@ public class LOG {
     }
 
   }
+  public static void e(String tag, String message){
+
+      Log.e(tag, message);
+
+
+  }
+  public static void i(String tag, String message){
+
+    Log.i(tag, message);
+
+
+  }
 
   public static void d(String message){
 

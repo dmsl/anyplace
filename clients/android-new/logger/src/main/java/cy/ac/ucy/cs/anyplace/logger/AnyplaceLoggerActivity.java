@@ -78,7 +78,6 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 //import com.dmsl.anyplace.SelectBuildingActivity;
 
 
-import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LogRecordMap;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
 import cy.ac.ucy.cs.anyplace.logger.LoggerPrefs.Action;
@@ -155,8 +154,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 
 /**
  * Anyplace Logger Activity. The main interface for the Logger functionality
@@ -256,7 +253,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     //TODO: initialize anyplace client.
-    app = (AnyplaceApp) getApplication();
+    //app = (AnyplaceApp) getApplication();
     setContentView(R.layout.activity_logger);
 
     textFloor = (TextView) findViewById(R.id.textFloor);
@@ -1103,7 +1100,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
         File root;
         try {
-          root = AnyplaceUtils.getRadioMapFoler(AnyplaceLoggerActivity.this, mCurrentBuilding.buid, mCurrentFloor.floor_number);
+          root = AnyplaceUtils.getRadioMapFolder(AnyplaceLoggerActivity.this, mCurrentBuilding.buid, mCurrentFloor.floor_number);
           File f = new File(root, AnyplaceUtils.getRadioMapFileName(mCurrentFloor.floor_number));
 
           new HeatmapTask().execute(f);

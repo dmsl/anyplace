@@ -91,7 +91,7 @@ public class AnyplaceUtils {
 		return "fl_" + (floor == null ? "-" : floor) + "_indoor-radiomap.txt";
 	}
 
-	public static File getRadioMapFoler(Context ctx, String buid, String floor) throws Exception {
+	public static File getRadioMapFolder(Context ctx, String buid, String floor) throws Exception {
 		File root = getRadioMapsRootFolder(ctx);
 		File file = new File(root, (buid == null ? "-" : buid) + "fl_" + (floor == null ? "-" : floor));
 		file.mkdirs();

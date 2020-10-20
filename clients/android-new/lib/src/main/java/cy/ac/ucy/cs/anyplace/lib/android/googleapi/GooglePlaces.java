@@ -42,6 +42,7 @@ import org.apache.http.client.HttpResponseException;
 
 import android.util.Log;
 
+import cy.ac.ucy.cs.anyplace.lib.android.LOG;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpHeaders;
@@ -53,10 +54,13 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+
+
 public class GooglePlaces {
 
 	/** Global instance of the HTTP transport. */
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+	private static final String TAG = GooglePlaces.class.getSimpleName();
 
 	// Google API Key
 	private static final String API_KEY = "AIzaSyBhOx9L_6sIo8s771SGKyMvPeJo9e7Kq4k";
@@ -101,6 +105,8 @@ public class GooglePlaces {
 	}
 
 	public static PlacesList queryStaticGoogle(String query, GeoPoint position) throws IOException {
+
+	    LOG.i(TAG, "Creating places");
 		PlacesList placesList = GooglePlaces.search(position.dlat, position.dlon, -1, query);
 		return placesList;
 	}

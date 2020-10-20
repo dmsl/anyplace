@@ -54,9 +54,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 
 
-
-
-
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils;
@@ -150,27 +148,26 @@ public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
 			runPreExecuteOnUI();
 			okfile.delete();
 
-			// prepare the json object request
-			JSONObject j = new JSONObject();
+			// // prepare the json object request
+			// JSONObject j = new JSONObject();
+            //
+			// j.put("username", "username");
+			// j.put("password", "pass");
 
-			j.put("username", "username");
-			j.put("password", "pass");
-
-			is = NetworkUtils.downloadHttpClientJsonPostStream(AnyplaceAPI.getServeFloorTilesZipUrl(buid, floor_number, ctx), j.toString());
+			//is = NetworkUtils.downloadHttpClientJsonPostStream(AnyplaceAPI.getServeFloorTilesZipUrl(buid, floor_number, ctx), j.toString());
 
 			tempFile = new File(ctx.getCacheDir(), "FloorPlan" + Integer.toString((int) (Math.random() * 100)));
 			if (tempFile.exists())
 				throw new Exception("Temp File already in use");
 
-			output = new FileOutputStream(tempFile);
 
-			byte[] buffer = new byte[4096];
-			int bytesRead = 0;
-			while ((bytesRead = is.read(buffer, 0, buffer.length)) >= 0) {
-				output.write(buffer, 0, bytesRead);
-			}
+          //TODO preferences
+          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
 
-			output.close();
+          String access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhjNThlMTM4NjE0YmQ1ODc0MjE3MmJkNTA4MGQxOTdkMmIyZGQyZjMiLCJ0eXAiOiJKV1QifQ";
+          String response = client.floorplans( access_token, buid, floor_number, tempFile);
+
+
 
 			// Critical Block - Added for safety
 			synchronized (sync) {

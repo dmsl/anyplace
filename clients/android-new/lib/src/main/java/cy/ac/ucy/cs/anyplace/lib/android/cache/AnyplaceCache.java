@@ -159,8 +159,8 @@ public class AnyplaceCache implements Serializable {
 
 	private int selectedBuilding = 0;
 	// last fetched Buildings
-	private List<BuildingModel> mSpinnerBuildings = new ArrayList<BuildingModel>(0);
-	private List<BuildingModel> mWorldBuildings = new ArrayList<BuildingModel>(0);
+	private List<BuildingModel> mSpinnerBuildings = new ArrayList<>(0);
+	private List<BuildingModel> mWorldBuildings = new ArrayList<>(0);
 
 	// last fetched pois
 	private Map<String, PoisModel> mLoadedPoisMap;
@@ -340,10 +340,11 @@ public class AnyplaceCache implements Serializable {
 
       }
       else{
-        LOG.i("We have write permissions");
+        Log.d(TAG,"We have write permissions");
       }
 
         final File suspend_f = new File(cacheDir, "AnyplaceCache");
+
 
 		FileOutputStream fos = null;
 		ObjectOutputStream oos = null;
@@ -355,7 +356,7 @@ public class AnyplaceCache implements Serializable {
 			oos.writeObject(obj);
 		} catch (Exception e) {
 			keep = false;
-          LOG.i(2, "AnyplaceCache: getObject :" + e.getMessage());
+            LOG.i(2, "AnyplaceCache: saveObject :" + e.getMessage());
 			if (AnyplaceAPI.DEBUG_MESSAGES)
 				Toast.makeText(ctx, "AnyplaceCache: saveObject :" + e.getMessage(), Toast.LENGTH_LONG).show();
 		} finally {
@@ -378,11 +379,12 @@ public class AnyplaceCache implements Serializable {
       if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.READ_EXTERNAL_STORAGE)
               != PackageManager.PERMISSION_GRANTED ){
 
-        LOG.e("Need read permissions to read object");
+        LOG.e(TAG,"Need read permissions to read object");
 
       }
+
       else{
-        LOG.i("We have read permissions");
+        LOG.i(TAG,"We have read permissions");
       }
 
 
@@ -405,6 +407,7 @@ public class AnyplaceCache implements Serializable {
 				if (is != null)
 					is.close();
 			} catch (Exception e) {
+              LOG.i(2, "AnyplaceCache : getObject finally:" + e.getMessage());
 			}
 		}
 
