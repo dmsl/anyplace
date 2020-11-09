@@ -72,7 +72,7 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 		void onSuccess(String result);
 	}
 
-	private static final boolean DEBUG = true;
+
 	private static final String TAG = DownloadRadioMapTaskBuid.class.getSimpleName();
 
 	// Allow only one download task (real time creation of radiomap)
@@ -168,7 +168,7 @@ public class DownloadRadioMapTaskBuid extends AsyncTask<Void, Void, String> {
 
           String access_token = pref.getString("server_access_token", "need an access token");
           String response = client.radiomapMeanByBuildingFloor( access_token, mBuildID, mFloor_number);
-          if (DEBUG){
+          if (AnyplaceDebug.DEBUG_MESSAGES){
             Log.d(TAG, "Anyplace client response is " + response);
           }
 

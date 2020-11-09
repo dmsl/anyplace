@@ -313,7 +313,10 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
 
         else{
-          Log.d(TAG, " gpsMarker is null");
+          if(AnyplaceDebug.DEBUG_MESSAGES){
+            Log.d(TAG, " gpsMarker is null");
+          }
+
 
           AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
           //TODO: in MapUtils
@@ -691,6 +694,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
         marker.rotation(raw_heading - bearing);
         gpsMarker = mMap.addMarker(marker);
+        // Log.d(TAG, "Should have a marker");
 
         //move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
@@ -773,6 +777,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
             checkLocationPermission();
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallbackConnected, Looper.myLooper());
+            handleBuildingsOnMap();
 
             // mMap.setMyLocationEnabled(true);
 
@@ -865,7 +870,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
   @Override
   public void onConnectionFailed(ConnectionResult connectionResult) {
-    // TODO - CHECK HOW THIS WORKS
+
     Log.d("Google Play Services", "Connection failed");
     // Google Play services can resolve some errors it detects.
     // If the error has a resolution, try sending an Intent to
@@ -949,7 +954,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
 
   private void handleBuildingsOnMap() {
-    Log.d(TAG, "Handling buildings on map");
+
     AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
     mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
 
@@ -1397,7 +1402,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
           // it will trigger the onLocationChanged below when a new location
           // is found or notify the user
           checkLocationPermission();
-          // mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper());
+
 
           mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
