@@ -71,7 +71,7 @@ public class AnyplacePrefs extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 
 		// Load the appropriate preferences
-		getPreferenceManager().setSharedPreferencesName(UnifiedNavigationActivity.SHARED_PREFS_ANYPLACE);
+		getPreferenceManager().setSharedPreferencesName("Anyplace_Preferences");
 
 		addPreferencesFromResource(R.xml.preferences_anyplace);
 

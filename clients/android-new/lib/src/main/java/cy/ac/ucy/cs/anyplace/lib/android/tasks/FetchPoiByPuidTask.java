@@ -36,20 +36,20 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
-import java.net.SocketTimeoutException;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Returns the POIs according to a given Building and Floor
@@ -116,10 +116,19 @@ public class FetchPoiByPuidTask extends AsyncTask<Void, Void, String> {
 			}
 
 			// fetch the pois of this floor
-          //TODO: USE SHARED PREFERENCES
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+          SharedPreferences pref = mCtx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
+
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
+
+          Anyplace client = new Anyplace(host, port, mCtx.getCacheDir().getAbsolutePath());
+
+          String access_token = pref.getString("server_access_token", "need an access token");
+
+          String response = client.poiDetails(access_token, puid) ;
+          // Anyplace client = new Anyplace("ap.cs.ucy.ac.cy", "443", "");
 			// String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchPoisByPuidUrl(mCtx), j.toString());
-			String response = client.poiDetails(access_token, puid) ;
+
 			// fetch the pois for the whole building
 			// String response = NetworkUtils.downloadHttpClientJsonPost(
 			// AnyplaceAPI.getFetchPoisByBuidUrl(),j.toString());

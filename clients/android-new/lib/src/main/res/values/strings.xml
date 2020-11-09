@@ -39,7 +39,9 @@
 
 <resources>
 
-    <string name="default_server_ip_address">https://anyplace.rayzit.com</string>
+    <string name="default_server_ip_address">ap.cs.ucy.ac.cy</string>
+    <string name="default_server_access_token">Insert Access Token</string>
+    <string name="default_server_port">443</string>
 
     <string name="app_name">Anyplace</string>
     <string name="app_name_logger">Anyplace Logger</string>

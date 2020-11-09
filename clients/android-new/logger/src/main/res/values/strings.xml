@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="default_server_ip_address">https://anyplace.rayzit.com</string>
+  <string name="default_server_ip_address">ap.cs.ucy.ac.cy.</string>
+  <string name="preferences_file">LoggerPreferences</string>
+
+  <string name="description_body">Anyplace Logger for RSS logging. You can select locations in a building that have been registered and upload RSS log files.</string>
+  <string name="github">https://github.com/dmsl/anyplace/tree/develop-clients</string>
+
+  <!-- Start Screen Values  -->
+  <string name="content_description">Anyplace Logo</string>
+  <string name="start_text">Anyplace Logger</string>
+  <string name="start_text2">Anyplace Logger</string>
 
   <string name="app_name">Logger</string>
   <string name="app_name_logger">Anyplace Logger</string>

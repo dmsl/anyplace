@@ -50,9 +50,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
 import com.google.android.gms.maps.model.LatLng;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyUserData;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyUserData.FakeResults;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsMain;
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager;
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.WifiReceiver;
@@ -413,7 +411,7 @@ public class AnyplaceTracker {
 					if (future != null && future.isDone() == false)
 						return;
 
-					if (AnyplaceAPI.DEBUG_WIFI) {
+					if (AnyplaceDebug.DEBUG_WIFI) {
                         //
 						// FakeResults r = AnyUserData.fakeScan();
 						// latestScanList =  r.records;

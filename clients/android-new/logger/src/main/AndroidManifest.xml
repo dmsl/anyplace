@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cy.ac.ucy.cs.anyplace.logger">
-<!--    android:versionCode="47"-->
-<!--    android:versionName="2.4.0" >-->
+
 
 
 
@@ -60,48 +59,7 @@
     </activity>
 
     <!-- singleTop before <0.8 ! -->
-    <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.UnifiedNavigationActivity"
-        android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-        android:label="@string/app_name"
-        android:launchMode="singleTask"
-        android:screenOrientation="portrait" >
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
 
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.VIEW" >
-        </action>
-
-        <category android:name="android.intent.category.DEFAULT" />
-        <category android:name="android.intent.category.BROWSABLE" />
-
-        <data
-            android:host="anyplace.rayzit.com"
-            android:pathPrefix="/getnavigation"
-            android:scheme="http" >
-        </data>
-      </intent-filter>
-
-      <!--
-           <meta-data
-          android:name="android.app.default_searchable"
-          android:value=".SearchPOIActivity" />
-      -->
-      <meta-data
-          android:name="android.app.default_searchable"
-          android:value=".UnifiedNavigationActivity" />
-
-      <intent-filter>
-        <action android:name="android.intent.action.SEARCH" />
-      </intent-filter>
-
-      <meta-data
-          android:name="android.app.searchable"
-          android:resource="@xml/searchable" />
-    </activity>
     <activity
         android:name="SearchPOIActivity"
         android:label="Search POI"
@@ -168,8 +126,8 @@
         android:value="@integer/google_play_services_version" />
 
     <meta-data
-        android:name="com.google.android.maps.v2.API_KEY"
-        android:value="@string/google_maps_key" />
+        android:name="com.google.android.geo.API_KEY"
+        android:value="@string/maps_api_key" />
   </application>
 
 </manifest>

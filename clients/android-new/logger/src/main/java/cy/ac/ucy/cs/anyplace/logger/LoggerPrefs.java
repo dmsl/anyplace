@@ -65,7 +65,7 @@ public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenc
 
 		super.onCreate(savedInstanceState);
 
-		getPreferenceManager().setSharedPreferencesName(AnyplaceLoggerActivity.SHARED_PREFS_LOGGER);
+		getPreferenceManager().setSharedPreferencesName(getString(R.string.preferences_file));
 
 		addPreferencesFromResource(cy.ac.ucy.cs.anyplace.lib.R.xml.preferences_logger);
 

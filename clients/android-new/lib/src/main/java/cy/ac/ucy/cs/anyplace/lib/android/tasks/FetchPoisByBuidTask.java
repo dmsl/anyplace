@@ -36,11 +36,9 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
-import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,12 +46,14 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Returns the POIs according to a given Building and Floor
@@ -127,8 +127,14 @@ public class FetchPoisByBuidTask extends AsyncTask<Void, Void, String> {
 			}
 
 			String response;
-          //TODO: USE SHARED PREFERENCES
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+
+          SharedPreferences pref = mCtx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
+
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
+
+
+          Anyplace client = new Anyplace(host, port, mCtx.getCacheDir().getAbsolutePath());
 			if (floor_number != null) {
 				// fetch the pois of this floor
 				//response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchPoisByBuidFloorUrl(), j.toString());

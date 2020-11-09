@@ -36,6 +36,11 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.utils;
 
+
+import android.location.Location;
+
+import cy.ac.ucy.cs.anyplace.lib.android.googleapi.Place;
+
 public class GeoPoint {
 
 	public String lat;
@@ -53,6 +58,13 @@ public class GeoPoint {
 		this.dlat = lat;
 		this.dlon = lon;
 	}
+	public GeoPoint(Location location){
+	  this.lat = Double.toString(location.getLatitude());
+	  this.lng = Double.toString(location.getLongitude());
+	  this.dlat = location.getLatitude();
+	  this.dlon = location.getLongitude();
+
+    }
 
 	public GeoPoint(String lat, String lon) {
 		try {

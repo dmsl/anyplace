@@ -45,8 +45,19 @@
     <EditTextPreference
         android:defaultValue="@string/default_server_ip_address"
         android:key="server_ip_address"
-        android:summary="Modify Anyplace Server IP Address"
-        android:title="Anyplace Server IP Address" />
+        android:summary="Modify Server IP Address"
+        android:title="Server IP Address" />
+      <EditTextPreference
+        android:defaultValue="@string/default_server_port"
+        android:key="server_port"
+        android:summary="Modify Server Port"
+        android:title="Server Port" />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_server_access_token"
+        android:key="server_access_token"
+        android:summary="Modify Access Token"
+        android:title="Anyplace Server Access Token" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Cache" >

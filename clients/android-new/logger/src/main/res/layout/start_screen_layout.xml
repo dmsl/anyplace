@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:contentDescription="Anyplace Logo"
+        android:contentDescription="@string/content_description"
         android:scaleType="centerInside"
         android:src="@drawable/anyplace_logo_shadow" />
 
@@ -60,7 +60,7 @@
         android:shadowDx="5"
         android:shadowDy="5"
         android:shadowRadius="5"
-        android:text="Indoor Information Service"
+        android:text="@string/start_text"
         android:textColor="#283891"
         android:textSize="15sp"
         android:textStyle="bold" />
@@ -75,7 +75,7 @@
         android:shadowDx="5"
         android:shadowDy="5"
         android:shadowRadius="5"
-        android:text="Indoor Information Service"
+        android:text="Version"
         android:textColor="#28398f"
         android:textSize="14sp"
         android:textStyle="italic" />

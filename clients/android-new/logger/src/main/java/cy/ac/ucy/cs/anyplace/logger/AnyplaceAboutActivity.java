@@ -94,15 +94,15 @@ public class AnyplaceAboutActivity extends Activity {
 				startActivity(browserIntent);
 			}
 		});
-		
-		img = (ImageView)findViewById(R.id.viewLogoKIOS);
-		img.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.kios.ucy.ac.cy/"));
-				startActivity(browserIntent);
-			}
-		});
+
+      TextView text = (TextView) findViewById(R.id.githubLink);
+      text.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/dmsl/anyplace/tree/develop-clients"));
+          startActivity(browserIntent);
+        }
+      });
 		
 		img = (ImageView)findViewById(R.id.viewLogoUCY);
 		img.setOnClickListener(new View.OnClickListener() {

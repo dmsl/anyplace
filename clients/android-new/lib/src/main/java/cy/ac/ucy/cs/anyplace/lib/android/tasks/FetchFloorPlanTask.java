@@ -47,20 +47,21 @@ import java.net.SocketTimeoutException;
 
 import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
-import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
+    private static final String TAG = FetchFloorPlanTask.class.getSimpleName();
 
 	private final static Object sync = new Object();
 
@@ -150,24 +151,42 @@ public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
 
 			// // prepare the json object request
 			// JSONObject j = new JSONObject();
-            //
+            // //
 			// j.put("username", "username");
 			// j.put("password", "pass");
-
-			//is = NetworkUtils.downloadHttpClientJsonPostStream(AnyplaceAPI.getServeFloorTilesZipUrl(buid, floor_number, ctx), j.toString());
+            //
+			// is = NetworkUtils.downloadHttpClientJsonPostStream(AnyplaceAPI.getServeFloorTilesZipUrl(buid, floor_number, ctx), j.toString());
 
 			tempFile = new File(ctx.getCacheDir(), "FloorPlan" + Integer.toString((int) (Math.random() * 100)));
 			if (tempFile.exists())
 				throw new Exception("Temp File already in use");
 
 
-          //TODO preferences
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+          SharedPreferences pref = ctx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
 
-          String access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhjNThlMTM4NjE0YmQ1ODc0MjE3MmJkNTA4MGQxOTdkMmIyZGQyZjMiLCJ0eXAiOiJKV1QifQ";
-          String response = client.floorplans( access_token, buid, floor_number, tempFile);
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
 
 
+          //Anyplace client = new Anyplace("ap.cs.ucy.ac.cy", "443", "");
+          Anyplace client = new Anyplace(host, port, ctx.getCacheDir().getAbsolutePath());
+
+          //String access_token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjhjNThlMTM4NjE0YmQ1ODc0MjE3MmJkNTA4MGQxOTdkMmIyZGQyZjMiLCJ0eXAiOiJKV1QifQ";
+          String access_token = pref.getString("server_access_token", "need an access token");
+          byte[] response = client.floortilesByte( access_token, buid, floor_number);
+
+          // LOG.i(TAG, response );
+
+
+          output = new FileOutputStream(tempFile);
+
+          // byte[] buffer = new byte[4096];
+          // int bytesRead = 0;
+          // while ((bytesRead = is.read(buffer, 0, buffer.length)) >= 0) {
+          //   output.write(response);
+          // }
+          output.write(response);
+          output.close();
 
 			// Critical Block - Added for safety
 			synchronized (sync) {
@@ -180,7 +199,9 @@ public class FetchFloorPlanTask extends AsyncTask<Void, Void, String> {
 				out.close();
 			}
 
+
 			floor_plan_file = dest_path;
+			// LOG.i(TAG, "Floor tiles are at: "+ floor_plan_file.getAbsolutePath());
 			waitPreExecute();
 			success = true;
 			return "Successfully fetched floor plan";

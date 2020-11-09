@@ -43,6 +43,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.heatmaps.WeightedLatLng;
+import java.util.HashMap;
+import java.util.ArrayList;
+
 
 import android.content.Context;
 import android.util.Log;
@@ -55,6 +61,9 @@ import com.google.android.gms.maps.model.TileProvider;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils;
 
 public class MapTileProvider implements TileProvider {
+
+    private static final boolean DEBUG = true;
+    private static final String TAG = MapTileProvider.class.getSimpleName();
 
 	private static final int TILE_WIDTH = 256;
 	private static final int TILE_HEIGHT = 256;
@@ -201,5 +210,120 @@ public class MapTileProvider implements TileProvider {
 		}
 
 	}
+  public static Collection<WeightedLatLng> readRadioMapLocations(File inFile) {
+    class Weight {
+      String lat;
+      String lot;
+      int intesity;
+    }
+    //sixth decimal place is worth up to 0.11 m
+    final int decimal_place = 6;
+    HashMap<String, Weight> locations = new HashMap<String, Weight>();
+    BufferedReader reader = null;
+    String line = null;
+    String[] temp = null;
+    String key = null;
+    try {
+
+      reader = new BufferedReader(new FileReader(inFile));
+
+      // Read the first line # NaN -110
+      line = reader.readLine();
+      temp = line.split(" ");
+      if (!temp[1].equals("NaN")) {
+        if (DEBUG) {
+          Log.d(TAG, "readMapLocations first one is not NaN");
+        }
+        return null;
+      }
+
+      line = reader.readLine();
+
+      // Must exists
+      if (line == null) {
+        if(DEBUG){
+          Log.d(TAG, "readMapLocations second line is empty" );
+        }
+        return null;
+      }
+      line = line.replace(", ", " ");
+      temp = line.split(" ");
+
+      final int startOfRSS = 4;
+
+      // Must have more than 4 fields
+      if (temp.length < startOfRSS) {
+        if(DEBUG){
+          Log.d(TAG, "readMapLocations lines have less than 4 fields" );
+        }
+        return null;
+      }
+
+      while ((line = reader.readLine()) != null) {
+
+        if (line.trim().equals(""))
+          continue;
+
+        line = line.replace(", ", " ");
+        temp = line.split(" ");
+
+        if (temp.length < startOfRSS){
+          if(DEBUG){
+            Log.d(TAG, "readMapLocations lines have less than 4 fields" );
+          }
+          return null;
+        }
+        String lat;
+        String lot;
+        try {
+          lat = temp[0].substring(0, temp[0].indexOf(".") + decimal_place);
+        } catch (IndexOutOfBoundsException e) {
+          lat = temp[0];
+        }
+
+        try {
+          lot = temp[1].substring(0, temp[1].indexOf(".") + decimal_place);
+        } catch (IndexOutOfBoundsException e) {
+          lot = temp[1];
+        }
+
+        key = lat + " " + lot;
+        Weight weight = locations.get(key);
+        if (weight == null) {
+          weight = new Weight();
+          weight.lat = temp[0];
+          weight.lot = temp[1];
+          locations.put(key, weight);
+        }
+
+        weight.intesity++;
+      }
+
+      Collection<WeightedLatLng> collection = new ArrayList<WeightedLatLng>();
+      for (Weight w : locations.values()) {
+        collection.add(new WeightedLatLng(new LatLng(Double.parseDouble(w.lat), Double.parseDouble(w.lot)), w.intesity));
+      }
+      if(DEBUG){
+        Log.d(TAG, "readMapLocations collection retrieved successfully" );
+      }
+
+      return collection;
+    } catch (Exception ex) {
+
+      if(DEBUG){
+        Log.d(TAG, "readMapLocations exception with " + ex.getMessage() );
+      }
+
+      return null;
+    } finally {
+      if (reader != null)
+        try {
+          reader.close();
+        } catch (IOException e) {
+
+        }
+    }
+  }
+
 
 }

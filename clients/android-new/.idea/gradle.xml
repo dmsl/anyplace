@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/demo" />
             <option value="$PROJECT_DIR$/lib" />
             <option value="$PROJECT_DIR$/logger" />
+            <option value="$PROJECT_DIR$/navigator" />
             <option value="$PROJECT_DIR$/../core/lib" />
           </set>
         </option>

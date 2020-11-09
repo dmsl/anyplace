@@ -45,7 +45,7 @@ import android.util.Log;
 
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LogRecord;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 
 public class AnyUserData {
   private static final String TAG = AnyUserData.class.getSimpleName();
@@ -142,7 +142,7 @@ public class AnyUserData {
 	public GeoPoint getLatestUserPosition() {
 		GeoPoint result = null;
 
-		if (!AnyplaceAPI.LOCK_TO_GPS && positionCoordsWifi != null) {
+		if (!AnyplaceDebug.LOCK_TO_GPS && positionCoordsWifi != null) {
 			result = positionCoordsWifi;
 		} else {
 			result = getLocationGPSorIP();
@@ -158,11 +158,11 @@ public class AnyUserData {
 	public GeoPoint getLocationGPSorIP() {
 
 
-	     Log.d(TAG, "Trying to get the gps location");
+
 		GeoPoint result = null;
 
 		if (positionGPS != null) {
-			if (AnyplaceAPI.DEBUG_WIFI) {
+			if (AnyplaceDebug.DEBUG_WIFI) {
 				result = fakeGPS();
 			} else {
 				result = new GeoPoint(positionGPS.getLatitude(), positionGPS.getLongitude());

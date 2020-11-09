@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="default_server_ip_address">ap.cs.ucy.ac.cy</string>
+  <string name="preferences_file">NavigatorPreferences</string>
+
+  <string name="about_description">Anyplace Navigator for indoor navigation</string>
+  <string name="github">https://github.com/dmsl/anyplace/tree/develop-clients</string>
+  <string name="start_screen_description">Indoor Navigator</string>
+
+  <string name="maps_api_key"></string>
+
+
+  <string name="app_name">Navigator</string>
+  <string name="app_name_logger">Anyplace Navigator</string>
+  <string name="app_name_about">About Anyplace</string>
+  <string name="action_settings">Settings</string>
+
+  <!-- Required by AndroidFileBrowser -->
+  <string name="prefs_name_logger">Anyplace Logger Preferences</string>
+  <string name="app_choose_folder">Choose folder</string>
+  <string name="parentDir">..</string>
+  <string name="homeDir">.</string>
+  <string name="rootDir">/</string>
+  <string name="logger_sampling_title">Sampling Settings</string>
+  <string name="logger_samples_interval_title">Samples Interval</string>
+  <string name="logger_samples_interval_summary">Time between two consecutive samplings</string>
+  <string name="logger_storing_title">Storing Settings</string>
+  <string name="logger_folder_browser_title">Folder</string>
+  <string name="logger_folder_browser_summary">The folder to store RSS log files</string>
+  <string name="logger_filename_title">Filename</string>
+  <string name="logger_filename_summary">The file contains RSS log records</string>
+  <string name="logger_uploading_title">Uploading Settings</string>
+  <string name="logger_server_Username_title">Username</string>
+  <string name="logger_server_Username_summary">The logger\'s username</string>
+  <string name="logger_server_Password_title">Password</string>
+  <string name="logger_server_Password_summary">The logger\'s password</string>
+  <string name="logger_others_title">Other Settings</string>
+  <string name="logger_add_building_title">Add Building</string>
+  <string name="logger_add_building_summary">Open Anyplace Architect</string>
+
+  <string-array name="intervalArray">
+    <item>0.5 sec</item>
+    <item>1 sec</item>
+    <item>2 sec</item>
+  </string-array>
+  <string-array name="intervalValues">
+    <item>500</item>
+    <item>1000</item>
+    <item>2000</item>
+  </string-array>
+
+  <string name="walk_bar_max">30</string>
+  <string name="prefs_name_anyplace">Anyplace Preferences</string>
+  <string name="algorithms_title">Positioning Algorithms</string>
+  <string name="algorithms_summary">Choose one of the following algorithms to estimate
+		your position</string>
+
+  <string-array name="AlgorithmsFullNames">
+
+    <!-- <item>Radial Basis Function (RBF) C Library </item> -->
+    <item>K Nearest Neighbor (KNN) Algorithm</item>
+    <item>Weighted K Nearest Neighbor (WKNN) Algorithm</item>
+    <item>Probabilistic Maximum A Posteriori (MAP) Algorithm</item>
+    <item>Probabilistic Minimum Mean Square Error (MMSE) Algorithm</item>
+  </string-array>
+  <string-array name="AlgorithmsValues">
+
+    <!-- <item>RBF</item> -->
+    <item>KNN</item>
+    <item>WKNN</item>
+    <item>MAP</item>
+    <item>MMSE</item>
+  </string-array>
+  <string-array name="AlgorithmsDescriptions">
+
+    <!-- <item>The RBF is is an artificial neural network that uses radial basis functions as activation functions. The output of the network is a linear combination of radial basis functions  </item> -->
+    <item>The KNN algorithm estimates the unknown user location as the average of K locations which have the shortest Euclidean distances between the currently observed RSS fingerprint and the respective mean value fingerprints in the radiomap.</item>
+    <item>The WKNN algorithm is a variant of KNN and estimates the unknown user location as the weighted average of K locations which have the shortest Euclidean distances between the currently observed RSS fingerprint and the respective mean value fingerprints in the radiomap. The weight of each location is set equal to the inverse of the distance.</item>
+    <item>The MAP algorithm is a probabilistic approach that estimates the unknown user location by maximizing the conditional probability of each location in the radiomap given the currently observed fingerprint (posterior).</item>
+    <item>The MMSE algorithm is a probabilistic approach that estimates the unknown user location by calculating the expected value of the location, which is equivalent to the weighted sum of the loations in the radiomap while the weights are set equal to the conditional probability of each location in the radiomap given the currently observed fingerprint (posterior).</item>
+  </string-array>
+  <string-array name="AlgorithmsNames">
+
+    <!-- <item> Radial Basis Function (RBF)</item> -->
+    <item> K Nearest Neighbor (KNN)</item>
+    <item> Weighted K Nearest Neighbor (WKNN)</item>
+    <item> Maximum A Posteriori (MAP)</item>
+    <item> Minimum Mean Square Error (MMSE)</item>
+  </string-array>
+
+</resources>

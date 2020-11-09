@@ -37,24 +37,16 @@
 package cy.ac.ucy.cs.anyplace.logger;
 
 
-//import com.flurry.android.FlurryAgent;
-
 import com.google.android.gms.common.ConnectionResult;
-
-
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-
-
-//import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-
-
 import com.google.android.gms.maps.CameraUpdateFactory;
-
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.CancelableCallback;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
@@ -65,19 +57,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.ClusterManager.OnClusterItemClickListener;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 
-//import com.dmsl.anyplace.AnyplaceAboutActivity;
-//import com.dmsl.anyplace.SelectBuildingActivity;
-
-
+import cy.ac.ucy.cs.anyplace.lib.RadioMap;
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LogRecordMap;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
 import cy.ac.ucy.cs.anyplace.logger.LoggerPrefs.Action;
@@ -94,7 +88,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyUserData;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.AnyplaceCache;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.BackgroundFetchListener;
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MapTileProvider;
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MyBuildingsRenderer;
@@ -108,7 +102,6 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid.DownloadRadioMapListener;
-
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -134,9 +127,12 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.ScanResult;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.telecom.Call;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -149,11 +145,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 /**
  * Anyplace Logger Activity. The main interface for the Logger functionality
@@ -164,7 +163,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, LocationListener, OnMapClickListener,
         OnMapReadyCallback {
   private static final String TAG = "AnyplaceLoggerActivity";
-  public static final String SHARED_PREFS_LOGGER = "LoggerPreferences";
+
 
   // Define a request code to send to Google Play services This code is
   // returned in Activity.onActivityResult
@@ -172,11 +171,12 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
   private final static int PREFERENCES_ACTIVITY_RESULT = 1114;
   private static final int SELECT_PLACE_ACTIVITY_RESULT = 1112;
+  private final int REQUEST_PERMISSION_LOCATION = 1;
 
   private static final float mInitialZoomLevel = 18.0f;
 
   //Google API
-  private GoogleApiClient mGoogleApiClient;
+
 
   private LocationListener mLocationListener = this;
   // Location API
@@ -187,6 +187,10 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   private GoogleMap mMap;
   private Marker marker;
   private LatLng curLocation = null;
+  private Location mLastLocation;
+
+  private FusedLocationProviderClient mFusedLocationClient;
+
 
   // <Load Building and Marker>
   private ClusterManager<BuildingModel> mClusterManager;
@@ -248,13 +252,17 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   private LoggerWiFi logger;
   private AnyplaceApp app;
 
+  private List<BuildingModel> builds;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    //TODO: initialize anyplace client.
     //app = (AnyplaceApp) getApplication();
     setContentView(R.layout.activity_logger);
+
+
+    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
 
     textFloor = (TextView) findViewById(R.id.textFloor);
     progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -267,14 +275,19 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
     // setup the trackme button overlaid in the map
     btnTrackme = (ImageButton) findViewById(R.id.btnTrackme);
+
+
+
+
+
     btnTrackme.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
+        Toast.makeText(getBaseContext(), "Localizing", Toast.LENGTH_SHORT).show();
 
         if (gpsMarker != null) {
-          //TODO: replace cache
+          Log.d(TAG, " gpsMarker is not null");
           AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
-          //TODO: in MapUtils
           mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
 
             @Override
@@ -292,10 +305,54 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
             @Override
             public void onErrorOrCancel(String result) {
-              Toast.makeText(getBaseContext(), "Error localizing, line 292 in logger", Toast.LENGTH_SHORT).show();
+              Toast.makeText(getBaseContext(), "Error localizing", Toast.LENGTH_SHORT).show();
             }
 
           }, AnyplaceLoggerActivity.this, false);
+        }
+
+
+        else{
+          Log.d(TAG, " gpsMarker is null");
+
+          AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
+          //TODO: in MapUtils
+          mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
+
+            @Override
+            public void onSuccess(String result, List<BuildingModel> buildings) {
+              builds = buildings;
+              checkLocationPermission();
+              // mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallbackInitial,Looper.myLooper());
+
+              mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                  Location loc = task.getResult();
+                  LatLng coord = new LatLng(loc.getLatitude(),loc.getLongitude());
+                  FetchNearBuildingsTask nearest = new FetchNearBuildingsTask();
+                  nearest.run(builds.iterator(), coord.latitude, coord.longitude, 100);
+
+                  if (nearest.buildings.size() > 0) {
+                    bypassSelectBuildingActivity(nearest.buildings.get(0));
+                  } else {
+                    // mMap.getCameraPosition().zoom
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coord, mInitialZoomLevel));
+                  }
+                }
+              });
+
+
+
+            }
+
+            @Override
+            public void onErrorOrCancel(String result) {
+              Toast.makeText(getBaseContext(), "Error localizing", Toast.LENGTH_SHORT).show();
+            }
+
+          }, AnyplaceLoggerActivity.this, false);
+
         }
 
       }
@@ -367,20 +424,13 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     mLocationRequest.setInterval(2000);
     // Set the fastest update interval to 1 second
     mLocationRequest.setFastestInterval(1000);
-    //mLocationClient = new LocationClient(this, this, this); //deprecated
 
-    // REPLACED WITH:
 
-    mGoogleApiClient = new GoogleApiClient.Builder(this)
-            .addApi(LocationServices.API)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .build();
 
     // get settings
-    PreferenceManager.setDefaultValues(this, SHARED_PREFS_LOGGER, MODE_PRIVATE,
+    PreferenceManager.setDefaultValues(this, getString(R.string.preferences_file), MODE_PRIVATE,
             cy.ac.ucy.cs.anyplace.lib.R.xml.preferences_logger, true);
-    preferences = getSharedPreferences(SHARED_PREFS_LOGGER, MODE_PRIVATE);
+    preferences = getSharedPreferences(getString(R.string.preferences_file), MODE_PRIVATE);
     preferences.registerOnSharedPreferenceChangeListener(this);
     onSharedPreferenceChanged(preferences, "walk_bar");
 
@@ -417,6 +467,78 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
     setUpMapIfNeeded();
   }
+  public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+  private void checkLocationPermission() {
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+
+      // Should we show an explanation?
+      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+              Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+        new AlertDialog.Builder(this)
+                .setTitle("Location Permission Needed")
+                .setMessage("This app needs the Location permission, please accept to use location functionality")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                    //Prompt the user once explanation has been shown
+                    ActivityCompat.requestPermissions(AnyplaceLoggerActivity.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION );
+                  }
+                })
+                .create()
+                .show();
+
+
+      } else {
+        // No explanation needed, we can request the permission.
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION );
+      }
+    }
+
+
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+
+      // Should we show an explanation?
+      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+              Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+        new AlertDialog.Builder(this)
+                .setTitle("Location Permission Needed")
+                .setMessage("This app needs the Location permission, please accept to use location functionality")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                    //Prompt the user once explanation has been shown
+                    ActivityCompat.requestPermissions(AnyplaceLoggerActivity.this,
+                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION );
+                  }
+                })
+                .create()
+                .show();
+
+
+      } else {
+        // No explanation needed, we can request the permission.
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION );
+      }
+    }
+
+  }
 
   /*
    * GOOGLE MAP FUNCTIONS
@@ -440,14 +562,6 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     if (mMap != null) {
       return;
     }
-
-    // Object temp = (Object) getSupportFragmentManager().findFragmentById(R.id.map);
-    // Try to obtain the map from the SupportMapFragment.
-
-    // FragmentActivity t = new FragmentActivity();
-    //
-    //
-    // FragmentManager v = t.getSupportFragmentManager();
     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
             .findFragmentById(R.id.map);
 
@@ -460,105 +574,177 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   @Override
   public void onMapReady(GoogleMap googleMap) {
     mMap = googleMap;
+    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
     mClusterManager = new ClusterManager<>(this, mMap);
-
-    initMap();
-    // initCamera();
     initListeners();
 
-    //TODO: Add all buildings on map (GOOGLE MAP)
+
   }
 
+  LocationCallback mLocationCallbackInitial = new LocationCallback() {
+    @Override
+    public void onLocationResult(LocationResult locationResult) {
+      List<Location> locationList = locationResult.getLocations();
+      if (locationList.size() > 0) {
+        //The last location in the list is the newest
+        Location location = locationList.get(locationList.size() - 1);
+        if (AnyplaceDebug.DEBUG_LOCATION){
+          Log.i(TAG, "Location: " + location.getLatitude() + " " + location.getLongitude());
+        }
 
-  private void initMap() {
-    // Sets the map type to be NORMAL - ROAD mode
-    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    // mMap.setMyLocationEnabled(true); //displays a button to navigate to
-    // the current user's position
+        mLastLocation = location;
 
-    //TODO: IF its the same with map utils then reuse.
-  }
+
+        if (gpsMarker != null) {
+          // draw the location of the new position
+          gpsMarker.remove();
+
+        }
+        MarkerOptions marker = new MarkerOptions();
+        marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
+        marker.title("User").snippet("Estimated Position");
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+
+        marker.rotation(raw_heading - bearing);
+        gpsMarker = mMap.addMarker(marker);
+
+        //move map camera
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker.getPosition(), mInitialZoomLevel));
+
+
+      }
+
+      mFusedLocationClient.removeLocationUpdates(mLocationCallbackInitial);
+    }
+  };
+
+
+  LocationCallback mLocationCallback = new LocationCallback() {
+    @Override
+    public void onLocationResult(LocationResult locationResult) {
+      List<Location> locationList = locationResult.getLocations();
+      if (locationList.size() > 0) {
+        //The last location in the list is the newest
+        Location location = locationList.get(locationList.size() - 1);
+        if (AnyplaceDebug.DEBUG_LOCATION){
+          Log.i(TAG, "Location: " + location.getLatitude() + " " + location.getLongitude());
+        }
+
+        mLastLocation = location;
+
+
+        if (gpsMarker != null) {
+          // draw the location of the new position
+          gpsMarker.remove();
+
+        }
+        MarkerOptions marker = new MarkerOptions();
+        marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
+        marker.title("User").snippet("Estimated Position");
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+
+        marker.rotation(raw_heading - bearing);
+        gpsMarker = mMap.addMarker(marker);
+
+        //move map camera
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+
+        // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker.getPosition(), mInitialZoomLevel));
+
+        FetchNearBuildingsTask nearest = new FetchNearBuildingsTask();
+        if (builds != null){
+          nearest.run(builds.iterator(), gpsMarker.getPosition().latitude, gpsMarker.getPosition().longitude, 100);
+          if (nearest.buildings.size() > 0) {
+            bypassSelectBuildingActivity(nearest.buildings.get(0));
+          }
+        }
+      }
+    }
+  };
+
+  LocationCallback mLocationCallbackConnected = new LocationCallback() {
+    @Override
+    public void onLocationResult(LocationResult locationResult) {
+      List<Location> locationList = locationResult.getLocations();
+      if (locationList.size() > 0) {
+        //The last location in the list is the newest
+        Location location = locationList.get(locationList.size() - 1);
+        if (AnyplaceDebug.DEBUG_LOCATION){
+          Log.i(TAG, "Location: " + location.getLatitude() + " " + location.getLongitude());
+        }
+
+        mLastLocation = location;
+
+
+        if (gpsMarker != null) {
+          // draw the location of the new position
+          gpsMarker.remove();
+
+        }
+        MarkerOptions marker = new MarkerOptions();
+        marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
+        marker.title("User").snippet("Estimated Position");
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+
+        marker.rotation(raw_heading - bearing);
+        gpsMarker = mMap.addMarker(marker);
+
+        //move map camera
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker.getPosition(), mInitialZoomLevel));
+
+
+      }
+        mFusedLocationClient.removeLocationUpdates(mLocationCallbackConnected);
+        checkLocationPermission();
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper());
+
+    }
+  };
+
+
 
   private void initCamera() {
-    //TODO move to maputils
-    // Only for the first time
+
     if (gpsMarker != null) {
       return;
     }
 
-    //Location gps = mLocationClient.getLastLocation(); deprecated
-    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-      // TODO: Consider calling
-      //    ActivityCompat#requestPermissions
-      // here to request the missing permissions, and then overriding
-      //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-      //                                          int[] grantResults)
-      // to handle the case where the user grants the permission. See the documentation
-      // for ActivityCompat#requestPermissions for more details.
-      return;
-    }
-    Location gps = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-    if (gps != null) {
-      mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gps.getLatitude(), gps.getLongitude()), mInitialZoomLevel), new CancelableCallback() {
-
-        @Override
-        public void onFinish() {
-          handleBuildingsOnMap();
-        }
-
-        @Override
-        public void onCancel() {
-          handleBuildingsOnMap();
-        }
-      });
-    } else {
-      AsyncTask<Void, Integer, Void> task = new AsyncTask<Void, Integer, Void>() {
-
-        GeoPoint location;
-
-        @Override
-        protected Void doInBackground(Void... params) {
-          try {
-            location = AndroidUtils.getIPLocation();
-          } catch (Exception e) {
-
-          }
-          return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-          if (location != null && gpsMarker == null) {
-            updateLocation(location);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.dlat, location.dlon), mInitialZoomLevel), new CancelableCallback() {
-
+    checkLocationPermission();
+    mFusedLocationClient
+            .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+            .addOnCompleteListener(new OnCompleteListener<Location>() {
               @Override
-              public void onFinish() {
-                handleBuildingsOnMap();
+              public void onComplete(@NonNull Task<Location> task) {
+                Location gps = task.getResult();
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gps.getLatitude(), gps.getLongitude()), mInitialZoomLevel), new CancelableCallback() {
+
+                  @Override
+                  public void onFinish() {
+                    handleBuildingsOnMap();
+                  }
+
+                  @Override
+                  public void onCancel() {
+                    handleBuildingsOnMap();
+                  }
+                });
               }
-
-              @Override
-              public void onCancel() {
-                handleBuildingsOnMap();
-              }
-            });
-          } else {
-            handleBuildingsOnMap();
-          }
-
-        }
-
-      };
-
-      int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-      if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-      } else {
-        task.execute();
+            }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        Toast.makeText(getApplicationContext(), "Failed to get location. Please check if location is enabled", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, e.getMessage());
       }
-    }
+    });
+
+
+
+
   }
 
   private void initListeners() {
@@ -574,22 +760,6 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
             btnRecord.setVisibility(View.VISIBLE);
 
 
-
-
-
-
-            //mLocationClient.removeLocationUpdates(AnyplaceLoggerActivity.this);
-            //LocationServices.FusedLocationApi.removeLocationUpdates(mLocationListener);
-
-            //TODO: Find out why the LocactionListener object is problematic
-
-
-
-
-
-
-
-
             if (gpsMarker != null) {
               // draw the location of the new position
               gpsMarker.remove();
@@ -599,17 +769,12 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
             btnTrackme.setVisibility(View.VISIBLE);
             btnRecord.setVisibility(View.INVISIBLE);
 
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-              // TODO: Consider calling
-              //    ActivityCompat#requestPermissions
-              // here to request the missing permissions, and then overriding
-              //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-              //                                          int[] grantResults)
-              // to handle the case where the user grants the permission. See the documentation
-              // for ActivityCompat#requestPermissions for more details.
-              return;
-            }
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, mLocationListener);
+
+
+            checkLocationPermission();
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallbackConnected, Looper.myLooper());
+
+            // mMap.setMyLocationEnabled(true);
 
           }
         }
@@ -687,8 +852,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     } else {
       // Google Play services was not available for some reason
 
-      // GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-      // 0).show();
+
       if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
         GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
       } else {
@@ -720,7 +884,6 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     } else {
       // If no resolution is available, display a dialog to the
       // user with the error.
-      // showErrorDialog(connectionResult.getErrorCode());
       GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
     }
 
@@ -733,28 +896,18 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     mLocationRequest = LocationRequest.create();
     mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     mLocationRequest.setInterval(1000); // Update location every second
+    checkLocationPermission();
+    mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper());
 
-    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-      // TODO: Consider calling
-      //    ActivityCompat#requestPermissions
-      // here to request the missing permissions, and then overriding
-      //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-      //                                          int[] grantResults)
-      // to handle the case where the user grants the permission. See the documentation
-      // for ActivityCompat#requestPermissions for more details.
-      return;
-    }
-    LocationServices.FusedLocationApi.requestLocationUpdates(
-            mGoogleApiClient, mLocationRequest, this);
+
+
     // No map is loaded
     if (checkPlayServices()) {
       initCamera();
       SearchTypes type = AnyPlaceSeachingHelper.getSearchType(mMap.getCameraPosition().zoom);
       if (type == SearchTypes.INDOOR_MODE) {
-        //mLocationClient.removeLocationUpdates(AnyplaceLoggerActivity.this);
-        //TODO: Check what this is
+
       } else if (type == SearchTypes.OUTDOOR_MODE) {
-        //mLocationClient.requestLocationUpdates(mLocationRequest, AnyplaceLoggerActivity.this);
       }
     }
   }
@@ -769,10 +922,11 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
     if (location != null) {
       GeoPoint gps;
-      if (AnyplaceAPI.DEBUG_WIFI) {
+      if (AnyplaceDebug.DEBUG_WIFI) {
         gps = AnyUserData.fakeGPS();
       } else {
         gps = new GeoPoint(location.getLatitude(), location.getLongitude());
+        // checkLocationPermission();
       }
 
       updateLocation(gps);
@@ -789,13 +943,13 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     marker.title("User").snippet("Estimated Position");
     marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
     marker.rotation(raw_heading - bearing);
-    gpsMarker = this.mMap.addMarker(marker);
+    gpsMarker = mMap.addMarker(marker);
 
   }
 
 
   private void handleBuildingsOnMap() {
-
+    Log.d(TAG, "Handling buildings on map");
     AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
     mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
 
@@ -852,15 +1006,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   @Override
   protected void onStart() {
     super.onStart();
-    //mLocationClient.connect();  //Deprecated
-    mGoogleApiClient.connect();
 
 
-
-    // // Flurry Analytics
-    // if (AnyplaceAPI.FLURRY_ENABLE) {
-    // 	//FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
-    // }
   }
 
   @Override
@@ -868,13 +1015,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     super.onStop();
 
     // Disconnecting the client invalidates it.
-    //mLocationClient.disconnect(); Deprecated
-    mGoogleApiClient.disconnect();
 
-    // // Flurry Analytics
-    // if (AnyplaceAPI.FLURRY_ENABLE) {
-    // 	//FlurryAgent.onEndSession(this);
-    // }
   }
 
   @Override
@@ -1015,9 +1156,10 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
   private void bypassSelectBuildingActivity(final BuildingModel b, final FloorModel f) {
 
-    final FetchFloorPlanTask fetchFloorPlanTask = new FetchFloorPlanTask(this, b.buid, f.floor_number);
+    final FetchFloorPlanTask fetchFloorPlanTask = new FetchFloorPlanTask(getApplicationContext(), b.buid, f.floor_number);
 
     fetchFloorPlanTask.setCallbackInterface(new FetchFloorPlanTask.FetchFloorPlanTaskListener() {
+
 
       private ProgressDialog dialog;
 
@@ -1025,7 +1167,10 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
       public void onSuccess(String result, File floor_plan_file) {
         if (dialog != null)
           dialog.dismiss();
+
+
         selectPlaceActivityResult(b, f);
+
       }
 
       @Override
@@ -1037,20 +1182,36 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
       @Override
       public void onPrepareLongExecute() {
-        dialog = new ProgressDialog(AnyplaceLoggerActivity.this);
-        dialog.setIndeterminate(true);
-        dialog.setTitle("Downloading floor plan");
-        dialog.setMessage("Please be patient...");
-        dialog.setCancelable(true);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-          @Override
-          public void onCancel(DialogInterface dialog) {
-            fetchFloorPlanTask.cancel(true);
-          }
-        });
-        dialog.show();
+        // dialog = new ProgressDialog(getApplicationContext());
+        // dialog.setIndeterminate(true);
+        // dialog.setTitle("Downloading floor plan");
+        // dialog.setMessage("Please be patient...");
+        // dialog.setCancelable(true);
+        // dialog.setCanceledOnTouchOutside(false);
+        // dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        //   @Override
+        //   public void onCancel(DialogInterface dialog) {
+        //     fetchFloorPlanTask.cancel(true);
+        //   }
+        // });
+        // dialog.show();
+
+        RelativeLayout layout = findViewById(R.id.loggerView);
+
+        progressBar = new ProgressBar(AnyplaceLoggerActivity.this, null, android.R.attr.progressBarStyleLarge);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100, 100);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        layout.addView(progressBar, params);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+
+
+
       }
+
+
+
     });
     fetchFloorPlanTask.execute();
   }
@@ -1065,6 +1226,8 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
   }
 
   private void selectPlaceActivityResult(final BuildingModel b, FloorModel f) {
+
+
 
     // set the newly selected floor
     b.setSelectedFloor(f.floor_number);
@@ -1090,9 +1253,14 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     class Callback implements DownloadRadioMapListener, PreviousRunningTask {
       boolean progressBarEnabled = false;
       boolean disableSuccess = false;
+      static final boolean DEBUG_CALLBACK = false;
+
+
+
 
       @Override
       public void onSuccess(String result) {
+
         if (disableSuccess) {
           onErrorOrCancel("");
           return;
@@ -1102,12 +1270,15 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
         try {
           root = AnyplaceUtils.getRadioMapFolder(AnyplaceLoggerActivity.this, mCurrentBuilding.buid, mCurrentFloor.floor_number);
           File f = new File(root, AnyplaceUtils.getRadioMapFileName(mCurrentFloor.floor_number));
+          if(DEBUG_CALLBACK){
+            Log.d(TAG, "inside the Callback class before heatmaptask");
+          }
 
           new HeatmapTask().execute(f);
         } catch (Exception e) {
         }
 
-        if (AnyplaceAPI.PLAY_STORE) {
+        if (AnyplaceDebug.PLAY_STORE) {
 
           AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(AnyplaceLoggerActivity.this);
           mAnyplaceCache.fetchAllFloorsRadiomapsRun(new BackgroundFetchListener() {
@@ -1115,7 +1286,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
             @Override
             public void onSuccess(String result) {
               hideProgressBar();
-              if (AnyplaceAPI.DEBUG_MESSAGES) {
+              if (AnyplaceDebug.DEBUG_MESSAGES) {
                 btnTrackme.setBackgroundColor(Color.YELLOW);
               }
             }
@@ -1146,6 +1317,9 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
       @Override
       public void onErrorOrCancel(String result) {
+        if (DEBUG_CALLBACK){
+          Log.d(TAG, "Callback onErrorOrCancel with " + result);
+        }
         if (progressBarEnabled) {
           hideProgressBar();
         }
@@ -1168,6 +1342,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     if (downloadRadioMapTaskBuid != null) {
       ((PreviousRunningTask) downloadRadioMapTaskBuid.getCallbackInterface()).disableSuccess();
     }
+
 
     downloadRadioMapTaskBuid = new DownloadRadioMapTaskBuid(new Callback(), this, b.getLatitudeString(), b.getLongitudeString(), b.buid, f.floor_number, false);
 
@@ -1216,32 +1391,43 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
           return true;
         }
 
-        //Location currentLocation = mLocationClient.getLastLocation(); deprecated
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-          // TODO: Consider calling
-          //    ActivityCompat#requestPermissions
-          // here to request the missing permissions, and then overriding
-          //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-          //                                          int[] grantResults)
-          // to handle the case where the user grants the permission. See the documentation
-          // for ActivityCompat#requestPermissions for more details.
+          // checkLocationPermission();
+          // Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+          // we must set listener to the get the first location from the API
+          // it will trigger the onLocationChanged below when a new location
+          // is found or notify the user
+          checkLocationPermission();
+          // mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback,Looper.myLooper());
 
-        }
-        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+          mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+              final Location currentLocation = task.getResult();
+              onLocationChanged(currentLocation);
 
-        Intent placeIntent = new Intent(this, SelectBuildingActivity.class);
-        Bundle b = new Bundle();
-        if (currentLocation != null) {
-          b.putString("coordinates_lat", String.valueOf(currentLocation.getLatitude()));
-          b.putString("coordinates_lon", String.valueOf(currentLocation.getLongitude()));
-        }
+              Intent placeIntent = new Intent(AnyplaceLoggerActivity.this, SelectBuildingActivity.class);
+              Bundle b = new Bundle();
+              if (currentLocation != null) {
+                b.putString("coordinates_lat", String.valueOf(currentLocation.getLatitude()));
+                b.putString("coordinates_lon", String.valueOf(currentLocation.getLongitude()));
+              }
 
-        if (mCurrentBuilding == null) {
-          b.putSerializable("mode", SelectBuildingActivity.Mode.NEAREST);
-        }
+              if (mCurrentBuilding == null) {
+                b.putSerializable("mode", SelectBuildingActivity.Mode.NEAREST);
+              }
 
-        placeIntent.putExtras(b);
-        startActivityForResult(placeIntent, SELECT_PLACE_ACTIVITY_RESULT);
+              placeIntent.putExtras(b);
+              startActivityForResult(placeIntent, SELECT_PLACE_ACTIVITY_RESULT);
+
+            }
+          }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+              Toast.makeText(getBaseContext(), "No location available at the moment.", Toast.LENGTH_LONG).show();
+            }
+          });
+
+
         return true;
       }
       case R.id.main_menu_clear_logging: {
@@ -1465,7 +1651,6 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     @Override
     public void onReceive(Context c, Intent intent) {
 
-      // Log.d("SimpleWiFi Receiver", "wifi received");
 
       try {
         if (intent == null || c == null || intent.getAction() == null)
@@ -1518,6 +1703,9 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     }
   }
 
+
+
+
   private void startRecordingInfo() {
 
     // avoid recording when no floor has been selected
@@ -1544,35 +1732,50 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
         }
 
         final GeoPoint gps;
-        if (AnyplaceAPI.DEBUG_WIFI) {
+        if (AnyplaceDebug.DEBUG_WIFI) {
           gps = AnyUserData.fakeGPS();
-        } else {
-          //Location location = mLocationClient.getLastLocation(); deprecated
-          if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-          }
-          Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-					if (location == null) {
-						Toast.makeText(this, "Waiting for a valid GPS signal", Toast.LENGTH_LONG).show();
-						return;
-					}
-					gps = new GeoPoint(location.getLatitude(), location.getLongitude());
-				}
 
-				if (GeoPoint.getDistanceBetweenPoints(mCurrentBuilding.longitude, mCurrentBuilding.latitude, gps.dlon, gps.dlat, "") > 200) {
-					Toast.makeText(getBaseContext(), "You are only allowed to use the logger for a building you are currently at or physically nearby.", Toast.LENGTH_SHORT).show();
-					return;
-				}
-				userIsNearby = true;
-			}
-		}
+        } else {
+          // checkLocationPermission();
+          // Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+          try {
+            checkLocationPermission();
+            mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+              @Override
+              public void onComplete(@NonNull Task<Location> task) {
+                try {
+                  Location location = task.getResult();
+                  GeoPoint gps = new GeoPoint(location.getLatitude(), location.getLongitude());
+                  if (GeoPoint.getDistanceBetweenPoints(mCurrentBuilding.longitude, mCurrentBuilding.latitude, gps.dlon, gps.dlat, "") > 200) {
+                    Toast.makeText(getBaseContext(), "You are only allowed to use the logger for a building you are currently at or physically nearby.", Toast.LENGTH_SHORT).show();
+                    userIsNearby = false;
+                  }else{
+                    userIsNearby = true;
+                  }
+
+
+                }
+                catch(Exception e){
+                  Log.d(TAG, e.getMessage());
+                }
+              }
+              });
+
+            if (!userIsNearby){
+              return;
+            }
+           }
+           catch (Exception e){
+              Log.d(TAG, e.getMessage());
+            }
+          }
+
+        userIsNearby = true;
+
+
+      }
+    }
 
 		folder_path = (String) preferences.getString("folder_browser", "n/a");
 		if (folder_path.equals("n/a") || folder_path.equals("")) {
@@ -1737,6 +1940,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 	}
 
 	private class HeatmapTask extends AsyncTask<File, Integer, Collection<WeightedLatLng>> {
+        private static final boolean DEBUG = false;
 
 		public HeatmapTask() {
 
@@ -1744,9 +1948,21 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 
 		@Override
 		protected Collection<WeightedLatLng> doInBackground(File... params) {
-		  //TODO: fix this
-          return null;
-			//return RadioMap.readRadioMapLocations(params[0]);
+		  if (DEBUG) {
+            Log.d(TAG, "HeatmapTask doInBackground");
+            if (params[0] == null) {
+              Log.d(TAG, "HeatmapTask params is null");
+            } else {
+              Log.d(TAG, "HeatmapTask params is not null and is : " + params[0].getAbsolutePath());
+            }
+          }
+          Collection<WeightedLatLng>  res = MapTileProvider.readRadioMapLocations(params[0]);
+		  if (DEBUG && res == null){
+            Log.e(TAG, "HeatmapTask doInBackground has a null result");
+          }
+
+          return res;
+
 		}
 
 		@Override
@@ -1754,10 +1970,19 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
 			// Check if need to instantiate (avoid setData etc
 			// twice)
 			if (mProvider == null) {
+			  if(result  == null){
+			    Log.d(TAG, "No radiomap for selected building");
+			    Toast.makeText(getApplicationContext(), "This building has no radiomap", Toast.LENGTH_SHORT).show();
+			    return;
+              }
 				mProvider = new HeatmapTileProvider.Builder().weightedData(result).build();
 			} else {
 				mProvider.setWeightedData(result);
 			}
+            if (DEBUG){
+              Log.d(TAG, "Setting heatmap, " + result.size());
+            }
+
 
 			TileOverlay mHeapOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider).zIndex(1));
 		}

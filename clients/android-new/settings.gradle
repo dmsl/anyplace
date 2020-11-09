@@ -1,3 +1,4 @@
+include ':navigator'
 include ':logger'
 rootProject.name='Anyplace'
 include ':demo'

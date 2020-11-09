@@ -34,9 +34,10 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.navigator;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -57,8 +58,10 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -80,18 +83,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.actionbarsherlock.app.ActionBar;
-//import com.actionbarsherlock.app.SherlockFragmentActivity;
-//import com.actionbarsherlock.view.Menu;
-//import com.actionbarsherlock.view.MenuInflater;
-//import com.actionbarsherlock.view.MenuItem;
-//import com.actionbarsherlock.view.SubMenu;
-//import com.actionbarsherlock.widget.SearchView;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.LOG;
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout;
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.OnInfoWindowElemTouchListener;
-import cy.ac.ucy.cs.anyplace.logger.AnyplacePrefs.Action;
+import cy.ac.ucy.cs.anyplace.navigator.AnyplacePrefs.Action;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.AnyplaceCache;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.BackgroundFetchListener;
 import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Radiomap;
@@ -126,6 +122,9 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 
 //import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -139,6 +138,11 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.*;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.ClusterManager.OnClusterClickListener;
@@ -165,12 +169,16 @@ public class UnifiedNavigationActivity extends AppCompatActivity implements Anyp
   private static final float mInitialZoomLevel = 19.0f;
   public static final String SHARED_PREFS_ANYPLACE = "Anyplace_Preferences";
 private static final String TAG = UnifiedNavigationActivity.class.getSimpleName();
-  private GoogleApiClient mGoogleApiClient;
+
   private LocationListener mLocationListener = this;
 
+  private Location mLastLocation;
+  private float raw_heading = 0.0f;
 
-  //TODO: LOAD from preferences
-  private String access_token ="";
+  private List<BuildingModel> builds;
+  private FusedLocationProviderClient mFusedLocationClient;
+
+
 
   // Define a request code to send to Google Play services This code is
   // returned in Activity.onActivityResult
@@ -241,19 +249,21 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_unifiednav);
-
+    mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
     detectedAPs = (TextView) findViewById(R.id.detectedAPs);
     textFloor = (TextView) findViewById(R.id.textFloor);
     progressBar = (ProgressBar) findViewById(R.id.progressBar);
     textDebug = (TextView) findViewById(R.id.textDebug);
-    if (AnyplaceAPI.DEBUG_MESSAGES)
+    if (AnyplaceDebug.DEBUG_MESSAGES)
       textDebug.setVisibility(View.VISIBLE);
 
     ActionBar actionBar = getSupportActionBar();
     actionBar.setHomeButtonEnabled(true);
 
     userData = new AnyUserData();
+
+
 
     SimpleWifiManager.getInstance(getApplicationContext()).startScan();
     sensorsMain = new SensorsMain(getApplicationContext());
@@ -277,93 +287,124 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
       @Override
       public void onClick(View v) {
 
-        Toast.makeText(getBaseContext(), "Clicked localize", Toast.LENGTH_SHORT).show();
+        // final GeoPoint gpsLoc = userData.getLocationGPSorIP();
 
-        final GeoPoint gpsLoc = userData.getLocationGPSorIP();
+        ///----------------------
+
+        checkLocationPermission();
+        mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null).addOnCompleteListener(new OnCompleteListener<Location>() {
+          @Override
+          public void onComplete(@NonNull Task<Location> task) {
+            Location location = task.getResult();
+            final GeoPoint gpsLoc = new GeoPoint(location);
 
 
-        if (gpsLoc != null) {
-          AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(UnifiedNavigationActivity.this);
-          mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
+            AnyplaceCache mAnyplaceCache = AnyplaceCache.getInstance(UnifiedNavigationActivity.this);
+            mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
 
-            @Override
-            public void onSuccess(String result, List<BuildingModel> buildings) {
-              final FetchNearBuildingsTask nearest = new FetchNearBuildingsTask();
-              nearest.run(buildings.iterator(), gpsLoc.lat, gpsLoc.lng, 200);
+              @Override
+              public void onSuccess(String result, List<BuildingModel> buildings) {
+                final FetchNearBuildingsTask nearest = new FetchNearBuildingsTask();
+                nearest.run(buildings.iterator(), gpsLoc.lat, gpsLoc.lng, 200);
 
-              if (nearest.buildings.size() > 0 && (userData.getSelectedBuildingId() == null || !userData.getSelectedBuildingId().equals(nearest.buildings.get(0).buid))) {
-                floorSelector.Stop();
-                final FloorSelector floorSelectorAlgo1 = new Algo1Server(getApplicationContext());
-                final ProgressDialog floorSelectorDialog = new ProgressDialog(UnifiedNavigationActivity.this);
+                if (nearest.buildings.size() > 0 && (userData.getSelectedBuildingId() == null || !userData.getSelectedBuildingId().equals(nearest.buildings.get(0).buid))) {
+                  floorSelector.Stop();
+                  final FloorSelector floorSelectorAlgo1 = new Algo1Server(getApplicationContext());
+                  final ProgressDialog floorSelectorDialog = new ProgressDialog(UnifiedNavigationActivity.this);
 
-                floorSelectorDialog.setIndeterminate(true);
-                floorSelectorDialog.setTitle("Detecting floor");
-                floorSelectorDialog.setMessage("Please be patient...");
-                floorSelectorDialog.setCancelable(true);
-                floorSelectorDialog.setCanceledOnTouchOutside(false);
-                floorSelectorDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                  @Override
-                  public void onCancel(DialogInterface dialog) {
-                    floorSelectorAlgo1.Destoy();
-                    bypassSelectBuildingActivity(nearest.buildings.get(0), "0", false);
-                  }
-                });
-
-                class Callback implements ErrorAnyplaceFloorListener, FloorAnyplaceFloorListener {
-
-                  @Override
-                  public void onNewFloor(String floor) {
-                    floorSelectorAlgo1.Destoy();
-                    if (floorSelectorDialog.isShowing()) {
-                      floorSelectorDialog.dismiss();
-                      bypassSelectBuildingActivity(nearest.buildings.get(0), floor, false);
-                    }
-                  }
-
-                  @Override
-                  public void onFloorError(Exception ex) {
-                    floorSelectorAlgo1.Destoy();
-                    if (floorSelectorDialog.isShowing()) {
-                      floorSelectorDialog.dismiss();
+                  floorSelectorDialog.setIndeterminate(true);
+                  floorSelectorDialog.setTitle("Detecting floor");
+                  floorSelectorDialog.setMessage("Please be patient...");
+                  floorSelectorDialog.setCancelable(true);
+                  floorSelectorDialog.setCanceledOnTouchOutside(false);
+                  floorSelectorDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                      floorSelectorAlgo1.Destoy();
                       bypassSelectBuildingActivity(nearest.buildings.get(0), "0", false);
                     }
+                  });
+
+                  class Callback implements ErrorAnyplaceFloorListener, FloorAnyplaceFloorListener {
+
+                    @Override
+                    public void onNewFloor(String floor) {
+                      floorSelectorAlgo1.Destoy();
+                      if (floorSelectorDialog.isShowing()) {
+                        floorSelectorDialog.dismiss();
+                        bypassSelectBuildingActivity(nearest.buildings.get(0), floor, false);
+                      }
+                    }
+
+                    @Override
+                    public void onFloorError(Exception ex) {
+                      floorSelectorAlgo1.Destoy();
+                      if (floorSelectorDialog.isShowing()) {
+                        floorSelectorDialog.dismiss();
+                        bypassSelectBuildingActivity(nearest.buildings.get(0), "0", false);
+                      }
+                    }
+
                   }
+                  Callback callback = new Callback();
+                  floorSelectorAlgo1.addListener((FloorAnyplaceFloorListener) callback);
+                  floorSelectorAlgo1.addListener((ErrorAnyplaceFloorListener) callback);
 
+                  // Show Dialog
+                  floorSelectorDialog.show();
+                  floorSelectorAlgo1.Start(gpsLoc.lat, gpsLoc.lng);
+                } else {
+
+                  Log.d(TAG, "No nearby buildings or buid missmatch" );
+                  // focusUserLocation();
+                  checkLocationPermission();
+                  // mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
+                  mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                      Location loc= task.getResult();
+
+                      addMarker(loc);
+                      cameraUpdate = true;
+                      mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel), new CancelableCallback() {
+
+                        @Override
+                        public void onFinish() {
+                          cameraUpdate = false;
+                        }
+
+                        @Override
+                        public void onCancel() {
+                          cameraUpdate = false;
+                        }
+                      });
+
+                    }
+                  });
+                  // Clear cancel request
+                  lastFloor = null;
+                  floorSelector.RunNow();
+                  lpTracker.reset();
                 }
-                Callback callback = new Callback();
-                floorSelectorAlgo1.addListener((FloorAnyplaceFloorListener) callback);
-                floorSelectorAlgo1.addListener((ErrorAnyplaceFloorListener) callback);
-
-                // Show Dialog
-                floorSelectorDialog.show();
-                floorSelectorAlgo1.Start(gpsLoc.lat, gpsLoc.lng);
-              } else {
-
-                Log.d(TAG, "no nearby buildings or buid missmatch" );
-                focusUserLocation();
-
-                // Clear cancel request
-                lastFloor = null;
-                floorSelector.RunNow();
-                lpTracker.reset();
               }
-            }
 
-            @Override
-            public void onErrorOrCancel(String result) {
+              @Override
+              public void onErrorOrCancel(String result) {
 
-            }
+              }
 
-          }, UnifiedNavigationActivity.this, false);
-        } else {
-          Log.d(TAG, "gpsLoc is null, line 355" );
-          focusUserLocation();
+            }, UnifiedNavigationActivity.this, false);
 
-          // Clear cancel request
-          lastFloor = null;
-          floorSelector.RunNow();
-          lpTracker.reset();
-        }
+          }
+        }).addOnFailureListener(new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+              lastFloor = null;
+              floorSelector.RunNow();
+              lpTracker.reset();
+          }
+        });
+
 
       }
     });
@@ -472,11 +513,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     mLocationRequest.setFastestInterval(1000);
     //mLocationClient = new LocationClient(this, this, this);
 
-    mGoogleApiClient = new GoogleApiClient.Builder(this)
-            .addApi(LocationServices.API)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .build();
+
 
     // declare that this is the first time this Activity launched so make
     // the automatic building selection
@@ -527,23 +564,17 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
       }
     }
     else{
-      Log.d(TAG, "No user marker, in focusUserLocation()");
+      if(AnyplaceDebug.DEBUG_MESSAGES){
+        Log.d(TAG, "No user marker, in focusUserLocation()");
+      }
     }
-
-
 
   }
 
   @Override
   protected void onStart() {
     super.onStart();
-    //mLocationClient.connect();
-    mGoogleApiClient.connect();
 
-    // // Flurry Analytics
-    // if (AnyplaceAPI.FLURRY_ENABLE) {
-    //   FlurryAgent.onStartSession(this, AnyplaceAPI.FLURRY_APIKEY);
-    // }
 
     Runnable checkGPS = new Runnable() {
       @Override
@@ -598,14 +629,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
   @Override
   protected void onStop() {
     super.onStop();
-    // Disconnecting the client invalidates it.
-    //mLocationClient.disconnect();
-    //TODO: Check the deprecated call
 
-    // Flurry Analytics
-    // if (AnyplaceAPI.FLURRY_ENABLE) {
-    //   FlurryAgent.onEndSession(this);
-    // }
   }
 
   @Override
@@ -726,20 +750,6 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
       }
     });
 
-    // ***********************Load Ayplace Logger
-    // ************************************** /
-    final SubMenu subMenuLoadLogger = menu.addSubMenu("Show Logger");
-    final MenuItem LoadLogger = subMenuLoadLogger.getItem();
-    LoadLogger.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-    LoadLogger.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        Intent intent = new Intent(getApplicationContext(), AnyplaceLoggerActivity.class);
-        startActivity(intent);
-        return true;
-      }
-    });
-
     // ****************************************** preferences
     // ********************************************** /
     final SubMenu subMenuPreferences = menu.addSubMenu("Preferences");
@@ -807,10 +817,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     int[] to = {android.R.id.text1
             // ,android.R.id.text2
     };
-    // add the cursor of the results to the search view
-    // SimpleCursorAdapter adapter = new SimpleCursorAdapter(UnifiedNavigationActivity.this, R.layout.queried_pois_item_1_searchbox, cursor, from, to, 0);
-    // searchView.setSuggestionsAdapter(adapter);
-    // adapter.notifyDataSetChanged();
+
 
     AnyPlaceSeachingHelper.HTMLCursorAdapter adapter = new HTMLCursorAdapter(
             UnifiedNavigationActivity.this,
@@ -829,20 +836,10 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     if (mMap != null) {
       return;
     }
-    // Try to obtain the map from the SupportMapFragment.
-    //mMap = ((MapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
-
-
-
     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
             .findFragmentById(R.id.map);
 
     mapFragment.getMapAsync(this);
-
-
-    //TODO move to onmapready. All calls that use mMap must move.
-
-
 
   }
 
@@ -854,7 +851,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
   // Called from setUpMapIfNeeded
   private void setUpMap() {
     initMap();
-    // initCamera();
+     initCamera();
     initListeners();
   }
 
@@ -862,11 +859,81 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
   private void initMap() {
     // Sets the map type to be NORMAL - ROAD mode
     mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    // mMap.setMyLocationEnabled(true); //displays a button to navigate to
-    // the current user's position
-    // mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this,
-    // mPoiMarkersBundle));
+
     mMap.setBuildingsEnabled(false);
+  }
+
+
+  public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+  private void checkLocationPermission() {
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+
+      // Should we show an explanation?
+      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+              Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+        new AlertDialog.Builder(this)
+                .setTitle("Location Permission Needed")
+                .setMessage("This app needs the Location permission, please accept to use location functionality")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                    //Prompt the user once explanation has been shown
+                    ActivityCompat.requestPermissions(UnifiedNavigationActivity.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION );
+                  }
+                })
+                .create()
+                .show();
+
+
+      } else {
+        // No explanation needed, we can request the permission.
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION );
+      }
+    }
+
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+
+      // Should we show an explanation?
+      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+              Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+        new AlertDialog.Builder(this)
+                .setTitle("Location Permission Needed")
+                .setMessage("This app needs the Location permission, please accept to use location functionality")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                    //Prompt the user once explanation has been shown
+                    ActivityCompat.requestPermissions(UnifiedNavigationActivity.this,
+                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION );
+                  }
+                })
+                .create()
+                .show();
+
+
+      } else {
+        // No explanation needed, we can request the permission.
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION );
+      }
+    }
+
   }
 
   // Called from onConnecetd
@@ -875,93 +942,66 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     if (userMarker != null) {
       return;
     }
+    checkLocationPermission();
+    CancellationTokenSource source = new CancellationTokenSource();
+    CancellationToken token = source.getToken();
 
-    //Location gps = mLocationClient.getLastLocation();  //DEPRECATED
-
-
-
-
-    // REPLACED WITH:
-    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-      // TODO: Consider calling
-      //    ActivityCompat#requestPermissions
-      // here to request the missing permissions, and then overriding
-      //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-      //                                          int[] grantResults)
-      // to handle the case where the user grants the permission. See the documentation
-      // for ActivityCompat#requestPermissions for more details.
-      return;
-    }
-    Location gps = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-
-    if (gps != null) {
-      cameraUpdate = true;
-      mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gps.getLatitude(), gps.getLongitude()), mInitialZoomLevel), new CancelableCallback() {
-
-        @Override
-        public void onFinish() {
-          cameraUpdate = false;
-          handleBuildingsOnMap(false);
-        }
-
-        @Override
-        public void onCancel() {
-          cameraUpdate = false;
-          handleBuildingsOnMap(false);
-        }
-      });
-    } else {
-      AsyncTask<Void, Integer, Void> task = new AsyncTask<Void, Integer, Void>() {
-
-        GeoPoint location;
-
-        @Override
-        protected Void doInBackground(Void... params) {
-          try {
-            location = AndroidUtils.getIPLocation();
-          } catch (Exception e) {
-
+    mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, token)
+            .addOnCompleteListener(new OnCompleteListener<Location>() {
+      @Override
+      public void onComplete(@NonNull Task<Location> task) {
+        Location gps = task.getResult();
+        if (gps == null){
+          if (AnyplaceDebug.DEBUG_MESSAGES){
+            Log.d(TAG, "Location returned is null");
           }
-          return null;
+          // return;
         }
+        cameraUpdate = true;
+        addMarker(gps);
 
-        @Override
-        protected void onPostExecute(Void result) {
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gps.getLatitude(), gps.getLongitude()), mInitialZoomLevel), new CancelableCallback() {
 
-          if (location != null && userMarker == null) {
-            userData.setLocationIP(location);
-            updateLocation();
-            cameraUpdate = true;
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.dlat, location.dlon), mInitialZoomLevel), new CancelableCallback() {
-
-              @Override
-              public void onFinish() {
-                cameraUpdate = false;
-                handleBuildingsOnMap(false);
-              }
-
-              @Override
-              public void onCancel() {
-                cameraUpdate = false;
-                handleBuildingsOnMap(false);
-              }
-            });
-          } else {
+          @Override
+          public void onFinish() {
+            cameraUpdate = false;
             handleBuildingsOnMap(false);
           }
 
-        }
-
-      };
-
-      int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-      if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-      } else {
-        task.execute();
+          @Override
+          public void onCancel() {
+            cameraUpdate = false;
+            handleBuildingsOnMap(false);
+          }
+        });
       }
-    }
+    }).addOnFailureListener(new OnFailureListener() {
+      @Override
+      public void onFailure(@NonNull Exception e) {
+        Toast.makeText(getApplicationContext(), "Failed to get location. Please check if location is enabled", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, e.getMessage());
+      }
+    });
+
+    // mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+
+
+  }
+
+  private void addMarker(Location location){
+
+    if (userMarker != null)
+      userMarker.remove();
+
+
+    MarkerOptions marker = new MarkerOptions();
+    marker.position(new LatLng(location.getLatitude(), location.getLongitude()));
+    marker.title("User").snippet("Estimated Position");
+    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+
+    marker.rotation(sensorsMain.getRAWHeading() - bearing);
+    userMarker = mMap.addMarker(marker);
+
   }
 
   // Called from setUpMap
@@ -1043,6 +1083,8 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
   // Select Building Activity based on gps location
   private void loadSelectBuildingActivity(GeoPoint loc, boolean invisibleSelection) {
 
+
+
     Intent placeIntent = new Intent(UnifiedNavigationActivity.this, SelectBuildingActivity.class);
     Bundle b = new Bundle();
 
@@ -1077,9 +1119,6 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
           // search activity finished OK
           if (data == null)
             return;
-          // PoisModel poi_to = (PoisModel)
-          // data.getSerializableExtra("pmodel");
-          // startNavigationTask(poi_to);
 
           IPoisClass place = (IPoisClass) data.getSerializableExtra("ianyplace");
           handleSearchPlaceSelection(place);
@@ -1417,6 +1456,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
     // add the Tile Provider that uses our Building tiles over Google Maps
     TileOverlay mTileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(new MapTileProvider(getBaseContext(), b.buid, f.floor_number)));
+
     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(b.getPosition(), 19.0f), new CancelableCallback() {
 
       @Override
@@ -1466,14 +1506,14 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
         enableAnyplaceTracker();
 
         // Download All Building Floors and Radiomaps
-        if (AnyplaceAPI.PLAY_STORE) {
+        if (AnyplaceDebug.PLAY_STORE) {
 
           mAnyplaceCache.fetchAllFloorsRadiomapsRun(new BackgroundFetchListener() {
 
             @Override
             public void onSuccess(String result) {
               hideProgressBar();
-              if (AnyplaceAPI.DEBUG_MESSAGES) {
+              if (AnyplaceDebug.DEBUG_MESSAGES) {
                 btnTrackme.setBackgroundColor(Color.YELLOW);
               }
               floorSelector.updateFiles(b.buid);
@@ -1541,6 +1581,76 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
       downloadRadioMapTaskBuid.execute();
     }
   }
+  LocationCallback mLocationCallback = new LocationCallback() {
+    @Override
+    public void onLocationResult(LocationResult locationResult) {
+      List<Location> locationList = locationResult.getLocations();
+      if (locationList.size() > 0) {
+        //The last location in the list is the newest
+        Location location = locationList.get(locationList.size() - 1);
+        if (AnyplaceDebug.DEBUG_LOCATION){
+          Log.i(TAG, "Location: " + location.getLatitude() + " " + location.getLongitude());
+        }
+
+        mLastLocation = location;
+
+
+        if (userMarker != null) {
+          // draw the location of the new position
+          userMarker.remove();
+
+        }
+
+          MarkerOptions marker = new MarkerOptions();
+          marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
+          marker.title("User").snippet("Estimated Position");
+          marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+
+          marker.rotation(sensorsMain.getRAWHeading() - bearing);
+          userMarker = mMap.addMarker(marker);
+
+
+          //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel));
+
+
+      }
+    }
+  };
+
+
+  LocationCallback mLocationCallbackInitial = new LocationCallback() {
+    @Override
+    public void onLocationResult(LocationResult locationResult) {
+      List<Location> locationList = locationResult.getLocations();
+      if (locationList.size() > 0) {
+        //The last location in the list is the newest
+        Location location = locationList.get(locationList.size() - 1);
+        if (AnyplaceDebug.DEBUG_LOCATION){
+          Log.i(TAG, "Location: " + location.getLatitude() + " " + location.getLongitude());
+        }
+
+        mLastLocation = location;
+
+
+        if (userMarker != null) {
+          // draw the location of the new position
+          userMarker.remove();
+
+        }
+        MarkerOptions marker = new MarkerOptions();
+        marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
+        marker.title("User").snippet("Estimated Position");
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+
+        marker.rotation(sensorsMain.getRAWHeading() - bearing);
+        userMarker = mMap.addMarker(marker);
+
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel));
+
+      }
+    }
+  };
+
 
 
   // </ Play Services Functions
@@ -1556,8 +1666,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     } else {
       // Google Play services was not available for some reason
 
-      // GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-      // 0).show();
+
       if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
         GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
       } else {
@@ -1570,7 +1679,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
   @Override
   public void onConnectionFailed(ConnectionResult connectionResult) {
-    // TODO - CHECK HOW THIS WORKS
+
     Log.d("Google Play Services", "Connection failed");
     // Google Play services can resolve some errors it detects.
     // If the error has a resolution, try sending an Intent to
@@ -1589,7 +1698,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     } else {
       // If no resolution is available, display a dialog to the
       // user with the error.
-      // showErrorDialog(connectionResult.getErrorCode());
+
       GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
     }
   }
@@ -1608,88 +1717,45 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
         }
     }
   }
-  private void showExplanation(String title,
-                               String message,
-                               final String permission,
-                               final int permissionRequestCode) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int id) {
-                requestPermission(permission, permissionRequestCode);
-              }
-            });
-    builder.create().show();
-  }
-  private void requestPermission(String permissionName, int permissionRequestCode) {
-    ActivityCompat.requestPermissions(this,
-            new String[]{permissionName}, permissionRequestCode);
-  }
 
+
+
+  @SuppressLint("MissingPermission")
   @Override
   public void onConnected(Bundle dataBundle) {
 
     LOG.i(2,"We are connected");
     // Called after onResume by system
-    // Log.d("Google Play services", "Connected");
+
     if (checkPlayServices()) {
       LOG.i("checking Play services");
       initCamera();
       // Get Wifi + GPS Fused Location
-      //Location currentLocation = mLocationClient.getLastLocation();
 
 
-      if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-              != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-              Manifest.permission.ACCESS_COARSE_LOCATION)
-              != PackageManager.PERMISSION_GRANTED) {
+      checkLocationPermission();
 
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-          showExplanation("Permission Needed", "Rationale", Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSION_LOCATION);
-        } else {
-          requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSION_LOCATION);
+      mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+        @Override
+        public void onComplete(@NonNull Task<Location> task) {
+          Location location = task.getResult();
+          onLocationChanged(location);
         }
-
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)) {
-          showExplanation("Permission Needed", "Rationale",
-                  Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_PERMISSION_LOCATION);
-        } else {
-          requestPermission(Manifest.permission.ACCESS_COARSE_LOCATION, REQUEST_PERMISSION_LOCATION);
+      }).addOnFailureListener(new OnFailureListener() {
+        @Override
+        public void onFailure(@NonNull Exception e) {
+          Toast.makeText(getBaseContext(), "No location available at the moment.", Toast.LENGTH_LONG).show();
         }
+      });
 
-        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        // LOG.i(currentLocation.toString() + " is my location");
-        // we must set listener to the get the first location from the API
-        // it will trigger the onLocationChanged below when a new location
-        // is found or notify the user
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest ,mLocationListener );
-        //mLocationClient.requestLocationUpdates(mLocationRequest, this);
-        if (currentLocation != null) {
-          onLocationChanged(currentLocation);
-        } else {
-          if (mAutomaticGPSBuildingSelection)
-            Toast.makeText(getBaseContext(), "No location available at the moment.", Toast.LENGTH_LONG).show();
-        }
-      }
 
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
+        checkLocationPermission();
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallbackInitial, Looper.myLooper());
 
-        return;
-      }
-      else{
-        LOG.i("Have permissions for gps");
+
       }
 
 
-
-        LOG.i("finished on connected");
   }
 
   @Override
@@ -1697,11 +1763,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
   }
 
-  // @Override
-  //   public void onDisconnected() {
-  //       Log.d("Google Play services", "Disconnected. Please re-connect!");
-  //   }
-    // /> Play Services Functions
+
 
 
     // </ NAVIGATION FUNCTIONS
@@ -1951,6 +2013,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
             @Override
             public void onSuccess(String result, List<BuildingModel> buildings) {
                 List<BuildingModel> collection = new ArrayList<BuildingModel>(buildings);
+              builds = buildings;
                 mClusterManager.clearItems();
                 BuildingModel buid = userData.getSelectedBuilding();
                 if (buid != null)
@@ -2025,7 +2088,6 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     // </ Activity Listeners
     @Override
     public void onNewWifiResults(int aps) {
-        // Log.d( "Anyplace Tracker", "wifi res: " + list.size() );
         detectedAPs.setText("AP: " + aps);
     }
 
@@ -2036,10 +2098,20 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
             userData.setLocationGPS(location);
             updateLocation();
 
-            if (mAutomaticGPSBuildingSelection) {
-                mAutomaticGPSBuildingSelection = false;
-                loadSelectBuildingActivity(userData.getLatestUserPosition(), true);
-            }
+             if (mAutomaticGPSBuildingSelection) {
+                 mAutomaticGPSBuildingSelection = false;
+
+                 checkLocationPermission();
+                 mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                   @Override
+                   public void onComplete(@NonNull Task<Location> task) {
+                     Location location = task.getResult();
+                     GeoPoint point = new GeoPoint(location.getLatitude(),location.getLongitude());
+
+                     loadSelectBuildingActivity(point, true);
+                   }
+                 });
+             }
 
         }
     }
@@ -2144,22 +2216,42 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
     private void updateLocation() {
 
-        GeoPoint location = userData.getLatestUserPosition();
-        if (location != null) {
-            // draw the location of the new position
-            if (userMarker != null) {
-                userMarker.remove();
-            }
-            MarkerOptions marker = new MarkerOptions();
-            marker.position(new LatLng(location.dlat, location.dlon));
-            marker.title("User").snippet("Estimated Position");
-            marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
-            marker.rotation(sensorsMain.getRAWHeading() - bearing);
-            userMarker = this.mMap.addMarker(marker);
-        }
-    }
+        // GeoPoint location = userData.getLatestUserPosition();
+      try {
+        checkLocationPermission();
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+          @Override
+          public void onComplete(@NonNull Task<Location> task) {
+            try {
+              Location loc = task.getResult();
 
-    // /> Activity Listeners
+              GeoPoint location = new GeoPoint(loc.getLatitude(), loc.getLongitude());
+              if (location != null) {
+                // draw the location of the new position
+                if (userMarker != null) {
+                  userMarker.remove();
+                }
+                MarkerOptions marker = new MarkerOptions();
+                marker.position(new LatLng(location.dlat, location.dlon));
+                marker.title("User").snippet("Estimated Position");
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+                marker.rotation(sensorsMain.getRAWHeading() - bearing);
+                userMarker = mMap.addMarker(marker);
+              }
+
+
+            }
+            catch(Exception e){
+              Log.d(TAG, e.getMessage());
+            }
+          }
+        });
+
+      }
+      catch (Exception e){
+        Log.d(TAG, e.getMessage());
+      }
+    }
 
 
     // </ HELPER FUNCTIONS
@@ -2248,7 +2340,6 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
                         String poid = uri.getQueryParameter("poid");
                         if (poid == null || poid.equals("")) {
                             // Share building
-                            // http://anyplace.rayzit.com/getnavigation?buid=username_1373876832005&floor=0
                             String buid = uri.getQueryParameter("buid");
                             if (buid == null || buid.equals("")) {
                                 Toast.makeText(getBaseContext(), "Buid parameter expected", Toast.LENGTH_SHORT).show();
@@ -2272,8 +2363,10 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
                             }
                         } else {
                             // Share POI
-                            // http://anyplace.rayzit.com/getnavigation?poid=username_username_1373876832005_0_35.14424091022549_33.41139659285545_1382635428093
                             mAutomaticGPSBuildingSelection = false;
+
+                            SharedPreferences pref = getSharedPreferences("Anyplace_Preferences", MODE_PRIVATE);
+                            String access_token = pref.getString("access_token", "");
                             new FetchPoiByPuidTask(new FetchPoiByPuidTask.FetchPoiListener() {
 
                                 @Override
@@ -2370,6 +2463,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
     private void showGooglePoi(IPoisClass place) {
         cameraUpdate = true;
+
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(place.lat(), place.lng()), mInitialZoomLevel), new CancelableCallback() {
 
             @Override

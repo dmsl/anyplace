@@ -36,22 +36,21 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class FetchBuildingsByBuidTask extends AsyncTask<Void, Void, String> {
 
@@ -126,15 +125,17 @@ public class FetchBuildingsByBuidTask extends AsyncTask<Void, Void, String> {
 			if (json_req == null)
 				return "Error creating the request!";
 
-			String response = null;
+			String response;
+          SharedPreferences pref = ctx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
 
-			// response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchBuildingsByBuidUrl(ctx), json_req);
-          //TODO: USE SHARED PREFERENCES
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
+
+          Anyplace client = new Anyplace(host, port, ctx.getCacheDir().getAbsolutePath());
             response = client.buildingsByBuildingCode(mbuid);
 			JSONObject json = new JSONObject(response);
 
-			if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {
+			if (json.has("status") && json.getString("status").equalsIgnoreCase("1")) {
 				return "Error Message: " + json.getString("message");
 			}
 
@@ -143,10 +144,7 @@ public class FetchBuildingsByBuidTask extends AsyncTask<Void, Void, String> {
 			b = new BuildingModel();
 			b.setPosition(json.getString("coordinates_lat"), json.getString("coordinates_lon"));
 			b.buid = json.getString("buid");
-			// b.address = json.getString("address");
-			// b.description = json.getString("description");
 			b.name = json.getString("name");
-			// b.url = json.getString("url");
 
 			building = b;
 

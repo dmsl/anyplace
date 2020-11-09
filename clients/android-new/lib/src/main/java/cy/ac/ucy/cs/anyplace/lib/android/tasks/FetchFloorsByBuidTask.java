@@ -36,27 +36,25 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class FetchFloorsByBuidTask extends AsyncTask<Void, Void, String> {
 
@@ -125,8 +123,12 @@ public class FetchFloorsByBuidTask extends AsyncTask<Void, Void, String> {
             //Uses GZIP encoding
             // String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchFloorsByBuidUrl(ctx), j.toString());
 
-          //TODO: USE SHARED PREFERENCES
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
+          SharedPreferences pref = ctx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
+
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
+
+          Anyplace client = new Anyplace(host, port, ctx.getCacheDir().getAbsolutePath());
           String response = client.allBuildingFloors(this.buid);
 
             JSONObject json = new JSONObject(response);

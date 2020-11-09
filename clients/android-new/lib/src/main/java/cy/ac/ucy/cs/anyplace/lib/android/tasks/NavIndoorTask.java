@@ -36,23 +36,22 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.PoisNav;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
-import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class NavIndoorTask extends AsyncTask<Void, Void, String> {
 
@@ -110,11 +109,17 @@ public class NavIndoorTask extends AsyncTask<Void, Void, String> {
 
 			// changed to the coordnates function
 
-          //TODO: USE SHARED PREFERENCES
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");
 
+          SharedPreferences pref = mCtx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
+
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
+
+          Anyplace client = new Anyplace(host, port, mCtx.getCacheDir().getAbsolutePath());
+          // Anyplace client = new Anyplace("ap.cs.ucy.ac.cy", "443", "");
+          String access_token = pref.getString("server_access_token", "need an access token");
 			// String response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getNavRouteXYUrl(mCtx), json_req);
-			String response = client.navigationXY("access_token", pois_to,buid, flr, lat,lon);
+			String response = client.navigationXY(access_token, pois_to,buid, flr, lat,lon);
 			JSONObject json = new JSONObject(response);
 
 			if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {

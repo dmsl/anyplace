@@ -40,14 +40,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 
-
-
-
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
 import cy.ac.ucy.cs.anyplace.lib.LogRecord;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class Algo1Server extends FloorSelector {
 
@@ -87,8 +86,9 @@ public class Algo1Server extends FloorSelector {
 
 		if (NetworkUtils.isOnline(context)) {
 
-		  //TODO: PUT IN ANYPLACE CORE AND USE SHARED PREF
-			response = NetworkUtils.downloadHttpClientJsonPost("ap-dev.cs.ucy.ac.cy" + PREDICT_FLOOR_ALGO1, request.toString());
+          SharedPreferences pref = context.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+			response = NetworkUtils.downloadHttpClientJsonPost(host + PREDICT_FLOOR_ALGO1, request.toString());
 
 			JSONObject json = new JSONObject(response);
 

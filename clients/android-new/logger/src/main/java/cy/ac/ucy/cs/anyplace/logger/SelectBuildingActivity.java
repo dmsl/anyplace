@@ -62,7 +62,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.AnyplaceCache;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
@@ -588,7 +588,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 				if (isfloorSelectorJobFinished) {
 					loadFloor(floorResult);
 				} else {
-					if (!AnyplaceAPI.FLOOR_SELECTOR) {
+					if (!AnyplaceDebug.FLOOR_SELECTOR) {
 						loadFloor("0");
 					} else {
 						// Wait Floor Selector Answer

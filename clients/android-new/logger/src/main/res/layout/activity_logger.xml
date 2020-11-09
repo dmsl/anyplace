@@ -38,10 +38,12 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/logger_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
     <RelativeLayout
+        android:id="@+id/loggerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/logger_bottom_info_height" >

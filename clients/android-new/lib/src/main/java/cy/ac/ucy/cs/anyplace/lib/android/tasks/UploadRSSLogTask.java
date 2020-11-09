@@ -37,38 +37,25 @@
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
-
-
-
-
-
-
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
-import cy.ac.ucy.cs.anyplace.lib.android.utils.ProgressHttpEntityWrapper;
-import cy.ac.ucy.cs.anyplace.lib.android.utils.ProgressHttpEntityWrapper.ProgressCallback;
+import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
@@ -121,11 +108,11 @@ public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
 	@Override
 	protected String doInBackground(Void... params) {
 		try {
-			JSONObject j;
-			j= new JSONObject();
-			j.put("username", username);
-			j.put("password", password);
-			String json = j.toString();
+			 JSONObject j;
+
+			// j.put("username", username);
+			// j.put("password", password);
+			// String json = j.toString();
 			
 			File rsslog = new File(this.file);
 			if (rsslog.exists() == false) {
@@ -134,39 +121,59 @@ public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
 			}
 			Log.d("radio upload", rsslog.toString());
 			String response;
-            Log.e(TAG, "TODO: replace the api calls into the library");
+            // Log.e(TAG, "TODO: replace the api calls into the library");
 			HttpClient httpclient = new DefaultHttpClient();
 
 			//TODO: Place into the Anyplace core lib and use shared prefs
-			httppost = new HttpPost("ap-dev.cs.ucy.ac.cy" + RADIO_UPLOAD_URL_API);
+          SharedPreferences pref = context.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
 
-			MultipartEntity entity = new MultipartEntity();
-
-			entity.addPart("radiomap", new FileBody(rsslog));
-			entity.addPart("json", new StringBody(json));
-
-			ProgressCallback progressCallback = new ProgressCallback() {
-
-				@Override
-				public void progress(float progress) {
-					if (currentProgress != (int) (progress)) {
-						currentProgress = (int) progress;
-						publishProgress(currentProgress);
-					}
-				}
-			};
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
 
 
-			httppost.setEntity(new ProgressHttpEntityWrapper(entity, progressCallback));
-			HttpResponse httpresponse = httpclient.execute(httppost);
-			HttpEntity resEntity = httpresponse.getEntity();
+          String port = pref.getString("server_port", "443");
+          String token = pref.getString("access_token", " ");
 
-			response = EntityUtils.toString(resEntity);
+
+          //Anyplace client = new Anyplace("ap.cs.ucy.ac.cy", "443", "");
+          Anyplace client = new Anyplace(host, port, context.getCacheDir().getAbsolutePath());
+
+
+
+
+			// httppost = new HttpPost(host + RADIO_UPLOAD_URL_API);
+
+			// MultipartEntity entity = new MultipartEntity();
+            //
+			// entity.addPart("radiomap", new FileBody(rsslog));
+			// entity.addPart("json", new StringBody(json));
+            //
+			// ProgressCallback progressCallback = new ProgressCallback() {
+            //
+			// 	@Override
+			// 	public void progress(float progress) {
+			// 		if (currentProgress != (int) (progress)) {
+			// 			currentProgress = (int) progress;
+			// 			publishProgress(currentProgress);
+			// 		}
+			// 	}
+			// };
+            //
+            //
+			// httppost.setEntity(new ProgressHttpEntityWrapper(entity, progressCallback));
+			// HttpResponse httpresponse = httpclient.execute(httppost);
+			// HttpEntity resEntity = httpresponse.getEntity();
+
+			// response = EntityUtils.toString(resEntity);
+
+          response = client.uploadRssLog(token,file);
+
+          //TODO fix uploadRSS
 
 			Log.d("radio upload", "response: " + response);
 
+
 			j = new JSONObject(response);
-			if (j.getString("status").equalsIgnoreCase("error")) {
+			if (j.getString("status").equalsIgnoreCase("1")) {
 				exceptionOccured = true;
 				return "Error: " + j.getString("message");
 			}
@@ -176,20 +183,21 @@ public class UploadRSSLogTask extends AsyncTask<Void, Integer, String> {
 			Log.d("upload rss log", e.getMessage());
 			return "Cannot upload RSS log. JSONException occurred[ " + e.getMessage() + " ]";
 		} catch (ParseException e) {
-			exceptionOccured = true;
-			Log.d("upload rss log", e.getMessage());
-			return "Cannot upload RSS log. ParseException occurred[ " + e.getMessage() + " ]";
-		} catch (IOException e) {
-			exceptionOccured = true;
-			Log.d("upload rss log", e.getMessage());
-
-			if (httppost != null && httppost.isAborted()) {
-				return "Uploading cancelled!";
-			} else {
-				return "Cannot upload RSS log. IOException occurred[ " + e.getMessage() + " ]";
-			}
-
-		}
+          exceptionOccured = true;
+          Log.d("upload rss log", e.getMessage());
+          return "Cannot upload RSS log. ParseException occurred[ " + e.getMessage() + " ]";
+        }
+		// } catch (IOException e) {
+		// 	exceptionOccured = true;
+		// 	Log.d("upload rss log", e.getMessage());
+        //
+		// 	if (httppost != null && httppost.isAborted()) {
+		// 		return "Uploading cancelled!";
+		// 	} else {
+		// 		return "Cannot upload RSS log. IOException occurred[ " + e.getMessage() + " ]";
+		// 	}
+        //
+		// }
 		return "Successfully uploaded RSS log!";
 	}
 

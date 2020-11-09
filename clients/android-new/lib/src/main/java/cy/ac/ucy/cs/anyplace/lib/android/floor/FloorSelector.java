@@ -53,8 +53,7 @@ import android.os.Handler;
 
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager;
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.WifiReceiver;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyUserData;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.LogRecord;
 
 public abstract class FloorSelector {
@@ -270,7 +269,7 @@ public abstract class FloorSelector {
 				}
 			}
 
-			if (AnyplaceAPI.DEBUG_WIFI) {
+			if (AnyplaceDebug.DEBUG_WIFI) {
 				//calculateFloor(AnyUserData.fakeScan().records);
 			} else {
 				calculateFloor(latestScanList);
@@ -331,7 +330,7 @@ public abstract class FloorSelector {
 	 * @param dlong
 	 */
 	public void Start(double dlat, double dlong) {
-		if (!AnyplaceAPI.FLOOR_SELECTOR) {
+		if (!AnyplaceDebug.FLOOR_SELECTOR) {
 			return;
 		}
 
@@ -353,7 +352,7 @@ public abstract class FloorSelector {
 				latestScanList.add(lr);
 			}
 
-			if (AnyplaceAPI.DEBUG_WIFI) {
+			if (AnyplaceDebug.DEBUG_WIFI) {
 				//calculateFloor(AnyUserData.fakeScan().records);
 			} else {
 				calculateFloor(latestScanList);

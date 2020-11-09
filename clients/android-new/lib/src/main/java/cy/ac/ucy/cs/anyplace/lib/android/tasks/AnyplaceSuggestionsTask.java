@@ -226,7 +226,6 @@ public class AnyplaceSuggestionsTask extends AsyncTask<Void, Void, String> {
 
 	@Override
 	protected void onProgressUpdate(Void... values) {
-		// TODO Auto-generated method stub
 		super.onProgressUpdate(values);
 	}
 

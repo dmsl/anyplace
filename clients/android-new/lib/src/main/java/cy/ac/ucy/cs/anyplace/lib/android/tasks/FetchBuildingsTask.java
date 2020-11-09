@@ -36,13 +36,10 @@
 
 package cy.ac.ucy.cs.anyplace.lib.android.tasks;
 
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,17 +47,23 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 
 import cy.ac.ucy.cs.anyplace.lib.Anyplace;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceAPI;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class FetchBuildingsTask extends AsyncTask<Void, Void, String> {
 
-	public interface FetchBuildingsTaskListener {
+  private static final String TAG = FetchNearBuildingsTask.class.getSimpleName();
+
+
+  public interface FetchBuildingsTaskListener {
 		void onErrorOrCancel(String result);
 
 		void onSuccess(String result, List<BuildingModel> buildings);
@@ -127,14 +130,22 @@ public class FetchBuildingsTask extends AsyncTask<Void, Void, String> {
 
 			// response = NetworkUtils.downloadHttpClientJsonPost(AnyplaceAPI.getFetchBuildingsUrl(ctx), j.toString());
 
-          //TODO: fix the host preferences form the shared preferences
 
-          Anyplace client = new Anyplace("ap-dev.cs.ucy.ac.cy", "443", "");   //TEMPORARY
+          SharedPreferences pref = ctx.getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
+
+          String host = pref.getString("server_ip_address", "ap.cs.ucy.ac.cy");
+          String port = pref.getString("server_port", "443");
+
+          Log.d(TAG, "The host ip is : " + host);
+
+          Anyplace client = new Anyplace(host, port, ctx.getCacheDir().getAbsolutePath());
+
+          Log.d(TAG, "The host ip is : " + client.getHost());
             response =  client.buildingAll();
 			JSONObject json = new JSONObject(response);
 
 			// Missing in Zip Format
-			if (json.has("status") && json.getString("status").equalsIgnoreCase("error")) {
+			if (json.has("status") && json.getString("status").equalsIgnoreCase("1")) {
 				return "Error Message: " + json.getString("message");
 			}
 
