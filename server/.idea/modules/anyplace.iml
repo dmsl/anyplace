@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="anyplace [file:/Users/paschalis/src/dmsl/anyplace/github/server/]" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="anyplace [file:/C:/Users/Nikolas/Documents/GitHub/anyplace/server/]" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../target/scala-2.11/classes" />
     <output-test url="file://$MODULE_DIR$/../../target/scala-2.11/test-classes" />
@@ -162,6 +162,11 @@
     <orderEntry type="library" name="sbt: org.javassist:javassist:3.19.0-GA:jar" level="project" />
     <orderEntry type="library" name="sbt: org.joda:joda-convert:1.7:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.mockito:mockito-core:1.9.5:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb.scala:mongo-scala-bson_2.11:2.9.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb.scala:mongo-scala-driver_2.11:2.9.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:bson:3.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:mongodb-driver-async:3.12.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.mongodb:mongodb-driver-core:3.12.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.objenesis:objenesis:2.1:jar" level="project" />
     <orderEntry type="library" name="sbt: org.reactivestreams:reactive-streams:1.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.1:jar" level="project" />
@@ -169,7 +174,7 @@
     <orderEntry type="library" name="sbt: org.scala-lang.modules:scala-xml_2.11:1.0.1:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang:scala-library:2.11.12:jar" level="project" />
-    <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.11.7:jar" level="project" />
+    <orderEntry type="library" name="sbt: org.scala-lang:scala-reflect:2.11.12:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.scala-sbt:test-interface:1.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-stm:scala-stm_2.11:0.7:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scalanlp:breeze-macros_2.11:0.12:jar" level="project" />
