@@ -38,6 +38,7 @@
 
 
     <style name="Widget.AnyplaceTheme.ActionBar" parent="Widget.AppCompat.ActionBar">
+      <item name="logo">@drawable/logo_white_small</item>
     <item name="displayOptions">useLogo|showHome|showTitle</item>
     <item name="height">?attr/actionBarSize</item>
     <item name="android:paddingLeft">0dip</item>

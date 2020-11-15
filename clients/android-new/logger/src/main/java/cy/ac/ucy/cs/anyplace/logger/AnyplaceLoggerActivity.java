@@ -283,7 +283,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     btnTrackme.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        Toast.makeText(getBaseContext(), "Localizing", Toast.LENGTH_SHORT).show();
+
 
         if (gpsMarker != null) {
           Log.d(TAG, " gpsMarker is not null");

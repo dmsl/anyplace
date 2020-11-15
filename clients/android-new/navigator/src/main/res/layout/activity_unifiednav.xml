@@ -39,23 +39,24 @@
 
 <cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/map_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UnifiedNavigationActivity" >
+    tools:context=".UnifiedNavigationActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true" >
 
-        <fragment
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            class="com.google.android.gms.maps.SupportMapFragment" />
+      <fragment
+          android:id="@+id/map"
+          class="com.google.android.gms.maps.SupportMapFragment"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" />
 
-        <ProgressBar
+      <ProgressBar
             android:id="@+id/progressBar"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
@@ -92,26 +93,12 @@
             android:textStyle="bold"
             android:visibility="invisible" />
 
-        <ImageButton
-            android:id="@+id/btnTrackme"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="30dp"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/trackme_bg"
-            android:contentDescription="Where am I?"
-            android:src="@drawable/dark_device_access_location_off" />
-
         <TextView
             android:id="@+id/textFloor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_toLeftOf="@+id/btnFloorUp"
-            android:background="#80FFFFFF"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="40dp"
             android:text="Floor: -"
             android:textColor="#283891"
             android:textSize="12.5dip"
@@ -123,8 +110,8 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/textFloor"
             android:layout_below="@+id/textFloor"
+            android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
-            android:background="#80FFFFFF"
             android:text="AP: -"
             android:textColor="#283891"
             android:textSize="12.5dip"
@@ -132,28 +119,42 @@
 
         <ImageButton
             android:id="@+id/btnFloorUp"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="300dp"
             android:background="@drawable/btnfloor_bg"
+            android:elevation="10dp"
             android:contentDescription="Go one floor up"
             android:scaleType="fitCenter"
-            android:src="@drawable/btnupfloor" />
+            android:src="@drawable/btnupfloor"
+            />
 
         <ImageButton
             android:id="@+id/btnFloorDown"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:layout_alignParentRight="true"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
+            android:layout_alignParentEnd="true"
             android:layout_below="@+id/btnFloorUp"
-            android:layout_marginRight="5dp"
+            android:layout_marginRight="20dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/btnfloor_bg"
+            android:elevation="10dp"
             android:contentDescription="Go one floor down"
             android:scaleType="fitCenter"
             android:src="@drawable/btndownfloor" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/btnTrackme"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="335dp"
+          android:layout_marginTop="520dp"
+          android:backgroundTint="@color/trackme"
+          android:contentDescription="Where am I?"
+          android:src="@drawable/dark_device_access_location_off"/>
+
     </RelativeLayout>
 
     <!--

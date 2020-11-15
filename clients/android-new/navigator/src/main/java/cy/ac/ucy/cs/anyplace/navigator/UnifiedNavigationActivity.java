@@ -52,6 +52,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -261,6 +262,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     ActionBar actionBar = getSupportActionBar();
     actionBar.setHomeButtonEnabled(true);
 
+
     userData = new AnyUserData();
 
 
@@ -292,7 +294,9 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
         ///----------------------
 
         checkLocationPermission();
-        mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null).addOnCompleteListener(new OnCompleteListener<Location>() {
+        mFusedLocationClient.getCurrentLocation
+                (LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
+                .addOnCompleteListener(new OnCompleteListener<Location>() {
           @Override
           public void onComplete(@NonNull Task<Location> task) {
             Location location = task.getResult();
@@ -2022,6 +2026,8 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
                 mClusterManager.cluster();
                 // HACK. This dumps all the cached icons & recreates everything.
                 mClusterManager.setRenderer(new MyBuildingsRenderer(UnifiedNavigationActivity.this, mMap, mClusterManager));
+
+
             }
 
             @Override

@@ -9,7 +9,7 @@ android {
         minSdkVersion 28
         targetSdkVersion 28
         versionCode 1
-        versionName "0.1"
+        versionName "4.0"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         // Read the API key from ./secure.properties into R.string.maps_api_key
@@ -61,7 +61,7 @@ dependencies {
   implementation 'com.google.android.gms:play-services-auth:18.1.0'
   implementation 'com.google.maps.android:android-maps-utils:0.3.4'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-  implementation project(path: ':lib-core')
+  implementation project(path: ':lib-core', configuration: 'default')
   implementation project(path: ':lib')
   implementation 'androidx.activity:activity:1.2.0-alpha08'
 
@@ -69,8 +69,9 @@ dependencies {
 
   //implementation 'com.google.android.gms:play-services:7.0.0'
   implementation 'androidx.preference:preference:1.1.0'
+  implementation 'com.google.android.material:material:1.0.0'
 
-  testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13'
   androidTestImplementation 'androidx.test.ext:junit:1.1.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
