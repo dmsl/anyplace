@@ -724,6 +724,8 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     searchView.setSubmitButtonEnabled(true);
     searchView.setQueryRefinementEnabled(false);
 
+
+
     // ****************************************** Select building
     // ***************************************************************** /
     // Select building and floor to start navigating and positioning
@@ -1001,7 +1003,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
     MarkerOptions marker = new MarkerOptions();
     marker.position(new LatLng(location.getLatitude(), location.getLongitude()));
     marker.title("User").snippet("Estimated Position");
-    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
 
     marker.rotation(sensorsMain.getRAWHeading() - bearing);
     userMarker = mMap.addMarker(marker);
@@ -1608,7 +1610,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
           MarkerOptions marker = new MarkerOptions();
           marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
           marker.title("User").snippet("Estimated Position");
-          marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+          marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
 
           marker.rotation(sensorsMain.getRAWHeading() - bearing);
           userMarker = mMap.addMarker(marker);
@@ -1644,7 +1646,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
         MarkerOptions marker = new MarkerOptions();
         marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
         marker.title("User").snippet("Estimated Position");
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
 
         marker.rotation(sensorsMain.getRAWHeading() - bearing);
         userMarker = mMap.addMarker(marker);
@@ -2056,7 +2058,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
         for (PoisModel pm : collection) {
             if (pm.floor_number.equalsIgnoreCase(currentFloor)) {
                 String snippet = AndroidUtils.fillTextBox(paint, fragmentWidth, pm.description);
-                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(pm.lat), Double.parseDouble(pm.lng))).title(pm.name).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.pin8)));
+                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(pm.lat), Double.parseDouble(pm.lng))).title(pm.name).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.pin_poi)));
                 visiblePois.addMarkerAndPoi(m, pm);
             }
         }
@@ -2240,7 +2242,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
                 MarkerOptions marker = new MarkerOptions();
                 marker.position(new LatLng(location.dlat, location.dlon));
                 marker.title("User").snippet("Estimated Position");
-                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
                 marker.rotation(sensorsMain.getRAWHeading() - bearing);
                 userMarker = mMap.addMarker(marker);
               }

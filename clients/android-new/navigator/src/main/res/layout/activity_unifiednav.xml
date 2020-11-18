@@ -97,8 +97,9 @@
             android:id="@+id/textFloor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="60dp"
             android:text="Floor: -"
             android:textColor="#283891"
             android:textSize="12.5dip"
@@ -119,41 +120,41 @@
 
         <ImageButton
             android:id="@+id/btnFloorUp"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="300dp"
-            android:background="@drawable/btnfloor_bg"
-            android:elevation="10dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/arrow_up"
+            android:backgroundTint="@color/floor_arrow"
             android:contentDescription="Go one floor up"
             android:scaleType="fitCenter"
-            android:src="@drawable/btnupfloor"
             />
 
         <ImageButton
             android:id="@+id/btnFloorDown"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
             android:layout_below="@+id/btnFloorUp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/btnfloor_bg"
-            android:elevation="10dp"
+            android:background="@drawable/arrow"
             android:contentDescription="Go one floor down"
             android:scaleType="fitCenter"
-            android:src="@drawable/btndownfloor" />
+            />
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
           android:id="@+id/btnTrackme"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginLeft="335dp"
-          android:layout_marginTop="520dp"
+          android:layout_marginEnd="20dp"
+          android:layout_marginBottom="50dp"
+          android:layout_alignBottom="@id/map"
+          android:layout_alignEnd="@id/map"
           android:backgroundTint="@color/trackme"
           android:contentDescription="Where am I?"
-          android:src="@drawable/dark_device_access_location_off"/>
+          android:src="@drawable/dark_device_access_location_off" />
 
     </RelativeLayout>
 

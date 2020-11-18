@@ -10,7 +10,7 @@
 
 
 
-  <string name="app_name">Navigator</string>
+  <string name="app_name"> Navigator </string>
   <string name="app_name_logger">Anyplace Navigator</string>
   <string name="app_name_about">About Anyplace</string>
   <string name="action_settings">Settings</string>

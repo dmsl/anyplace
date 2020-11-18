@@ -44,7 +44,7 @@
     <string name="default_server_port">443</string>
 
     <string name="app_name">Anyplace</string>
-    <string name="app_name_logger">Anyplace Logger</string>
+    <string name="app_name_logger">Logger</string>
     <string name="app_name_about">About Anyplace</string>
     <string name="action_settings">Settings</string>
 

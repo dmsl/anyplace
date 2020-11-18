@@ -15,7 +15,9 @@
  limitations under the License.
 -->
 <resources>
-
+    <color name="action_bar">#273697</color>
+    <color name="floor_arrow">#646464</color>
+    <color name="info_window">#ABABAB</color>
     <color name="contents_text">#ff000000</color>
     <color name="encode_view">#ffffffff</color>
     <color name="help_button_view">#ffcccccc</color>

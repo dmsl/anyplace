@@ -41,7 +41,10 @@
     android:id="@+id/popup"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="@color/floor_arrow"
+
+    >
 
     <TextView
         android:id="@+id/title"
@@ -53,7 +56,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="Title"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="16sp" />
 
@@ -67,7 +70,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:text="Click to navigate!"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textSize="16sp" />
 
@@ -82,6 +85,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/button_unsel"
+            android:backgroundTint="@color/info_window"
+            android:layout_marginRight="20dp"
             android:text="Navigate" />
 
         <Button
@@ -89,6 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/button1"
+            android:backgroundTint="@color/info_window"
             android:background="@drawable/button_unsel"
             android:text="Info" />
     </RelativeLayout>

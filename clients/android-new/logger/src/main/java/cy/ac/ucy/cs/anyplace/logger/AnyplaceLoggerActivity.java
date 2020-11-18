@@ -607,7 +607,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
         MarkerOptions marker = new MarkerOptions();
         marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
         marker.title("User").snippet("Estimated Position");
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
 
         marker.rotation(raw_heading - bearing);
         gpsMarker = mMap.addMarker(marker);
@@ -647,7 +647,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
         MarkerOptions marker = new MarkerOptions();
         marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
         marker.title("User").snippet("Estimated Position");
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
 
         marker.rotation(raw_heading - bearing);
         gpsMarker = mMap.addMarker(marker);
@@ -690,7 +690,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
         MarkerOptions marker = new MarkerOptions();
         marker.position(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()));
         marker.title("User").snippet("Estimated Position");
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
 
         marker.rotation(raw_heading - bearing);
         gpsMarker = mMap.addMarker(marker);
@@ -946,7 +946,7 @@ public class AnyplaceLoggerActivity extends AppCompatActivity implements
     MarkerOptions marker = new MarkerOptions();
     marker.position(new LatLng(gps.dlat, gps.dlon));
     marker.title("User").snippet("Estimated Position");
-    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.icon21));
+    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon));
     marker.rotation(raw_heading - bearing);
     gpsMarker = mMap.addMarker(marker);
 

@@ -28,7 +28,9 @@
 
   <style name="Theme.AnyplaceTheme" parent="Theme.AppCompat">
     <item name="actionBarStyle">@style/Widget.AnyplaceTheme.ActionBar</item>
+<!--    <item name="android:windowActionBarOverlay">true</item>-->
     <item name="android:actionBarStyle">@style/Widget.AnyplaceTheme.ActionBar</item>
+<!--    <item name="windowActionBarOverlay">true</item>-->
   </style>
 
 
@@ -38,7 +40,11 @@
 
 
     <style name="Widget.AnyplaceTheme.ActionBar" parent="Widget.AppCompat.ActionBar">
-      <item name="logo">@drawable/logo_white_small</item>
+      <item name="android:background">@color/action_bar</item>
+      <item name="background">@color/action_bar</item>
+      <item name="titleTextStyle">@style/TextStyle</item>
+
+      <item name="logo">@drawable/action_bar_logo</item>
     <item name="displayOptions">useLogo|showHome|showTitle</item>
     <item name="height">?attr/actionBarSize</item>
     <item name="android:paddingLeft">0dip</item>
@@ -51,6 +57,14 @@
     <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
     <item name="progressBarPadding">32dip</item>
     <item name="itemPadding">8dip</item>
+  </style>
+
+  <style name="TextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+
+    <!--    <item name="android:textColor">@color/floor_arrow</item>-->
+    <item name="android:textSize">25sp</item>
+    <item name="textAllCaps">false</item>
+
   </style>
 
 <!--  <item name="homeLayout">@layout/abs__action_bar_home</item>-->

@@ -123,8 +123,10 @@
           android:id="@+id/btnTrackme"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginLeft="335dp"
-          android:layout_marginTop="480dp"
+          android:layout_marginRight="20dp"
+          android:layout_alignEnd="@id/map"
+          android:layout_marginBottom="50dp"
+          android:layout_alignBottom="@id/map"
           android:backgroundTint="@color/trackme"
           android:src="@drawable/dark_device_access_location_off"
 
@@ -132,33 +134,29 @@
 
       <ImageButton
           android:id="@+id/btnFloorUp"
-          android:layout_width="43dp"
-          android:layout_height="43dp"
+          android:layout_width="50dp"
+          android:layout_height="50dp"
           android:layout_alignParentEnd="true"
           android:layout_marginRight="20dp"
-          android:layout_marginTop="300dp"
-          android:background="@drawable/btnfloor_bg"
-          android:elevation="10dp"
+          android:layout_centerInParent="true"
+          android:background="@drawable/arrow_up"
+          android:backgroundTint="@color/floor_arrow"
           android:contentDescription="Go one floor up"
           android:scaleType="fitCenter"
-          android:src="@drawable/btnupfloor"
           />
 
-        <ImageButton
-            android:id="@+id/btnFloorDown"
-            android:layout_width="43dp"
-            android:layout_height="43dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/btnFloorUp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/btnfloor_bg"
-            android:elevation="10dp"
-            android:contentDescription="Go one floor down"
-            android:scaleType="fitCenter"
-            android:src="@drawable/btndownfloor" />
-
-
+      <ImageButton
+          android:id="@+id/btnFloorDown"
+          android:layout_width="50dp"
+          android:layout_height="50dp"
+          android:layout_alignParentEnd="true"
+          android:layout_below="@+id/btnFloorUp"
+          android:layout_marginRight="20dp"
+          android:layout_marginTop="8dp"
+          android:background="@drawable/arrow"
+          android:contentDescription="Go one floor down"
+          android:scaleType="fitCenter"
+          />
 
     </RelativeLayout>
 
