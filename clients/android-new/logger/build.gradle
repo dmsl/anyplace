@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "cy.ac.ucy.cs.anyplace.logger"
         minSdkVersion 28
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "4.0"
 
@@ -59,7 +59,9 @@ dependencies {
   implementation 'com.google.android.gms:play-services-auth:18.1.0'
   implementation 'com.google.maps.android:android-maps-utils:0.3.4'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-  implementation project(path: ':lib-core')
+//  implementation project(path: ':lib-core')
+  implementation 'com.github.dmsl:anyplace-lib-core:main-SNAPSHOT'
+
   implementation project(path: ':lib')
   implementation 'androidx.activity:activity:1.2.0-alpha08'
   implementation 'androidx.preference:preference:1.1.0'

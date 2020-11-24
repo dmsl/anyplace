@@ -59,7 +59,10 @@ dependencies {
   implementation 'com.google.android.gms:play-services-auth:18.1.0'
   implementation 'com.google.maps.android:android-maps-utils:0.3.4'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-  implementation project(path: ':lib-core')
+//  implementation project(path: ':lib-core')
+  implementation 'com.github.dmsl:anyplace-lib-core:main-SNAPSHOT'
+
+
   implementation project(path: ':lib')
   implementation 'androidx.activity:activity:1.2.0-alpha08'
 
