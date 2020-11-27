@@ -31,20 +31,11 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
 
+    implementation 'com.github.dmsl:anyplace-lib-core:v4.0.1'
+    // INFO: To include the module locally
+    // (This requires pulling the submodules from our github - see README
+    // implementation project(path: ':lib-core')
 
-
-//    implementation project(path: ':lib-core')
-//  implementation 'com.github.cachil01:anyplace-lib-core:f53cc6bea8'
-  implementation 'com.github.dmsl:anyplace-lib-core:main-SNAPSHOT'
-
-
-
-
-
-
-
-
-  //implementation fileTree(dir: "libs", include: ["*.jar"])
   implementation group: 'gov.nist.math', name: 'jama', version: '1.0.3'
   implementation group: 'com.google.api-client', name: 'google-api-client', version: '1.30.10'
 
