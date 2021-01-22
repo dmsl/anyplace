@@ -8,8 +8,8 @@ PORT = "8091"
 
 USERNAME = "anyplace"
 
-PASSWORD = "my_password"
+PASSWORD = "My_Password"
 
 BUCKET = "anyplace"
 
-PATH = "./all_documents.json"
+PATH = "/path/to/save/all/documents/documents.json"
