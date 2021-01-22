@@ -1,5 +1,6 @@
 import json
 from fixSchema import *
+from helpers.config import * 
 
 
 def getKey(obj):
@@ -108,19 +109,28 @@ def defineCollections(file):
     users = 0
     campus = 0
     pois = 0
-    b = open("D:\JsonFiles\\buildings.json", "w")
-    c = open("D:\JsonFiles\campus.json", "w")
-    e = open("D:\JsonFiles\edges.json", "w")
-    fin = open("D:\JsonFiles\\fingerprintswifi.json", "w")
-    fl = open("D:\JsonFiles\\floorplans.json", "w")
-    p = open("D:\JsonFiles\pois.json", "w")
-    u = open("D:\JsonFiles\\users.json", "w")
-    und = open("D:\JsonFiles\\und.json", "w")
+    und = 0
+    pathB = JSON_FILES + "/buildings.json"
+    pathC = JSON_FILES + "campus.json"
+    pathE = JSON_FILES + "edges.json"
+    pathFIN = JSON_FILES + "fingerprintswifi.json"
+    pathFL = JSON_FILES + "floorplans.json"
+    pathP = JSON_FILES + "pois.json"
+    pathU = JSON_FILES + "users.json"
+    pathUND = JSON_FILES + "undefined.json"
+    b = open(pathB, "w")
+    c = open(pathC, "w")
+    e = open(pathE, "w")
+    fin = open(pathFIN, "w")
+    fl = open(pathFL, "w")
+    p = open(pathP, "w")
+    u = open(pathU, "w")
+    und = open(pathUND, "w")
     known_keys = set()
     collections = []
     i = 0
-    print("Reading from ", count, "..")
-    while count < 100000:
+    print("Reading from.. ", PATH)
+    while True:
         line = file.readline()
         if not line:
             break
@@ -179,6 +189,7 @@ def defineCollections(file):
             collections.insert(0, collection_info)
             und.write(json.dumps(obj))
             und.write("\n")
+            und += 1
     b.close()
     c.close()
     e.close()
@@ -187,9 +198,9 @@ def defineCollections(file):
     p.close()
     u.close()
     print("Found:\n", buildings, "Buildinds\n", campus, "Campus\n", edges, "Edge\n", fingerprints, "Fingerprints\n",
-          floorplans, "Floorplans\n", pois, "Pois\n", users, "Users")
+          floorplans, "Floorplans\n", pois, "Pois\n", users, "Users\n", und, "Undefined")
 
 #  MAIN
-f = open("D:\JsonsInLines.json", encoding="utf8")
+f = open(PATH, encoding="utf8")
 defineCollections(f)  # printing unique json keys with extra fields representing similar json keys
 f.close()
