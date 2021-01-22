@@ -110,14 +110,16 @@ def defineCollections(file):
     campus = 0
     pois = 0
     und = 0
-    pathB = JSON_FILES + "/buildings.json"
-    pathC = JSON_FILES + "campus.json"
-    pathE = JSON_FILES + "edges.json"
-    pathFIN = JSON_FILES + "fingerprintswifi.json"
-    pathFL = JSON_FILES + "floorplans.json"
-    pathP = JSON_FILES + "pois.json"
-    pathU = JSON_FILES + "users.json"
-    pathUND = JSON_FILES + "undefined.json"
+	collectionsPath = getCollectionsPath()
+	os.mkdirs(collectionsPath)
+    pathB = collectionsPath + "/buildings.json"
+    pathC = collectionsPath + "/campus.json"
+    pathE = collectionsPath + "/edges.json"
+    pathFIN = collectionsPath + "/fingerprintswifi.json"
+    pathFL = collectionsPath + "/floorplans.json"
+    pathP = collectionsPath + "/pois.json"
+    pathU = collectionsPath + "/users.json"
+    pathUND = collectionsPath + "/undefined.json"
     b = open(pathB, "w")
     c = open(pathC, "w")
     e = open(pathE, "w")
@@ -129,7 +131,7 @@ def defineCollections(file):
     known_keys = set()
     collections = []
     i = 0
-    print("Reading from.. ", PATH)
+    print("Reading from.. ", getDocumentsPath())
     while True:
         line = file.readline()
         if not line:

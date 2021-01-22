@@ -5,5 +5,11 @@ PORT = "8091"
 USERNAME = "anyplace"
 PASSWORD = "ENTER PASSWORD"
 BUCKET = "anyplace"
-PATH = "/home/anyplace/documents.json"
-JSON_FILES = "/home/anyplace/"
+
+
+def getDocumentsPath():
+	return DIR_MIGRATION + "/docs"
+
+
+def getCollectionsPath():
+	return getDocumentsPath() + "/collections"
