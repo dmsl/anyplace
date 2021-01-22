@@ -1,6 +1,6 @@
 import json
 from fixSchema import *
-from helpers.config import * 
+from config import * 
 
 
 def getKey(obj):
@@ -115,7 +115,7 @@ def defineCollections(file):
     pathB = collectionsPath + "/buildings.json"
     pathC = collectionsPath + "/campus.json"
     pathE = collectionsPath + "/edges.json"
-    pathFIN = collectionsPath + "/fingerprintswifi.json"
+    pathFIN = collectionsPath + "/fingerprintswifi.json"  # remove..
     pathFL = collectionsPath + "/floorplans.json"
     pathP = collectionsPath + "/pois.json"
     pathU = collectionsPath + "/users.json"
@@ -131,7 +131,6 @@ def defineCollections(file):
     known_keys = set()
     collections = []
     i = 0
-    print("Reading from.. ", getDocumentsPath())
     while True:
         line = file.readline()
         if not line:
@@ -202,7 +201,3 @@ def defineCollections(file):
     print("Found:\n", buildings, "Buildinds\n", campus, "Campus\n", edges, "Edge\n", fingerprints, "Fingerprints\n",
           floorplans, "Floorplans\n", pois, "Pois\n", users, "Users\n", und, "Undefined")
 
-#  MAIN
-f = open(PATH, encoding="utf8")
-defineCollections(f)  # printing unique json keys with extra fields representing similar json keys
-f.close()

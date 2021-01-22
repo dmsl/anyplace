@@ -13,3 +13,7 @@ def getDocumentsPath():
 
 def getCollectionsPath():
 	return getDocumentsPath() + "/collections"
+	
+	
+def getFingerprintsPath():
+	return getCollectionsPath() + "/buildings"
