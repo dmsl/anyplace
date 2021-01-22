@@ -1,2 +1,6 @@
+from helpers.config import *
 import subprocess
-subprocess.call(['/opt/couchbase/bin/cbexport', '-l'])
+
+#  main
+URL = DOMAIN_NAME + ":" + PORT
+subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", USERNAME, "-p", PASSWORD, "-b", BUCKET, "-f", "lines", "-o", PATH])
