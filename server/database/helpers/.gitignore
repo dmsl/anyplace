@@ -3,9 +3,8 @@
 ##############################################
 # Create config.py from config.example.py
 #   - Disable tracking:
-#       git update-index --assume-unchanged config.example.py
+#       git update-index --assume-unchanged config.py
 #   - Enable tracking:
-#       git update-index --no-assume-unchanged config.example.py
+#       git update-index --no-assume-unchanged config.py
 ##############################################
-#config.py
-#config.example.py
+config.py
