@@ -1,0 +1,163 @@
+# {
+#   "MAC": "18:d6:c7:78:ec:9b",
+#   "buid": "building_54f40b52-965e-40ce-b63b-1f9b8f06620e_1503209553410",
+#   "floor": "0", TODO string or int
+#   "geometry": {
+#     "coordinates": [
+#       35.70457645186153,
+#       51.40276417136192
+#     ],
+#     "type": "Point"
+#   },
+#   "heading": "111.15332",
+#   "rss": "-33",
+#   "strongestWifi": "18:d6:c7:78:ec:9b",
+#   "timestamp": "1503212196131",
+#   "x": "35.70457645186153",
+#   "y": "51.40276417136192"
+# }
+
+# timestamp must not be string
+def fixFINGERPRINT(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixed['timestamp'] = int(fixed['timestamp'])
+    fixed['heading'] = float(fixed['heading'])
+    fixed['rss'] = int(fixed['rss'])
+    fixLocation(fixed)
+    # fixFloorNumber(fixed)
+    return fixed
+
+
+def fixPOIS(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixLocation(fixed)
+    fixBooleans(fixed)
+    fixDashesOrNulls(fixed)
+    # fixFloorNumber(fixed)
+    return fixed
+
+
+def fixEDGES(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixBooleans(fixed)
+    # if "weight" in obj.keys():
+    #     if obj["weight"] is None:
+    #         del obj["weight"]
+    #     else:
+    #         obj["weight"] = float(obj["weight"])
+    # fixFloorNumber(fixed)
+    return fixed
+
+
+def fixUSER(obj):
+    fixed = obj
+    updateSchema(fixed)
+    if "doc_type" in obj.keys():
+        del obj["doc_type"]
+    if "owner_id" in obj.keys():
+        obj["id"] = obj["owner_id"]
+        del obj["owner_id"]
+    if "type" in obj.keys():
+        obj["external"] = obj["type"]
+        del obj["type"]
+
+    obj["type"] = "user"
+    return fixed
+
+
+def fixFLOORPLAN(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixBooleans(fixed)
+    fixDashesOrNulls(fixed)
+    # fixFloorNumber(fixed)
+    if "zoom" in obj.keys():
+        obj["zoom"] = int(obj["zoom"])
+    fixRectangle(fixed)
+    return fixed
+
+
+def fixRectangle(obj):
+    if "bottom_left_lat" in obj.keys() and "bottom_left_lng" in obj.keys() and "top_right_lat" in obj.keys() and \
+            "top_right_lng" in obj.keys():
+        x1 = obj["bottom_left_lng"]
+        y1 = obj["bottom_left_lat"]
+        x2 = obj["top_right_lng"]
+        y2 = obj["top_right_lat"]
+
+        obj["area"] = {"coordinates": [[[x1, y1], [x2, y1], [x2, y2], [x1, y2]]], "type": "Polygon"}
+
+        # obj["location_bottom_left"] = {"coordinates": [x1, y1], "type": "Point"}
+        # obj["location_top_right"] = {"coordinates": [x2, y2], "type": "Point"}
+
+        del obj["bottom_left_lng"]
+        del obj["bottom_left_lat"]
+        del obj["top_right_lng"]
+        del obj["top_right_lat"]
+
+
+def fixBUILDING(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixLocation(fixed)
+    fixBooleans(fixed)
+    fixDashesOrNulls(fixed)
+    return fixed
+
+
+def fixCAMPUS(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixDashesOrNulls(fixed)
+    return fixed
+
+
+def fixBooleans(obj):
+    for key in obj.keys():
+        if obj[key] == "True" or obj[key] == "true" or obj[key] == "TRUE":
+            obj[key] = True
+        if obj[key] == "False" or obj[key] == "false" or obj[key] == "FALSE":
+            obj[key] = False
+
+
+# TODO
+# elegxomeni diagrafi gia na kseroume ti einai keno
+def fixDashesOrNulls(obj):
+    listToDel = []
+    for key in obj.keys():
+        if obj[key] == "-" or obj[key] == "":
+            listToDel.insert(0, key)
+    for x in listToDel:
+        del obj[x]
+    pass
+
+
+def fixFloorNumber(obj):
+    if "floor_number" in obj.keys():
+        obj["floor_number"] = int(obj["floor_number"])
+    if "floor" in obj.keys():
+        obj["floor"] = int(obj["floor"])
+    if "floor_a" in obj.keys() and "floor_b" in obj.keys():
+        obj["floor_a"] = int(obj["floor_a"])
+        obj["floor_b"] = int(obj["floor_b"])
+
+
+def fixLocation(obj):
+    if "x" in obj:
+        del obj['x']
+    if "y" in obj:
+        del obj['y']
+    if "coordinates_lat" in obj:
+        del obj['coordinates_lat']
+    if "coordinates_lon" in obj:
+        del obj['coordinates_lon']
+    if "geometry" in obj.keys():
+        obj['location'] = obj['geometry']
+        del obj['geometry']
+
+
+def updateSchema(obj):
+    obj['_schema'] = 1
