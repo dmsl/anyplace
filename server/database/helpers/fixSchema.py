@@ -1,29 +1,9 @@
-# {
-#   "MAC": "18:d6:c7:78:ec:9b",
-#   "buid": "building_54f40b52-965e-40ce-b63b-1f9b8f06620e_1503209553410",
-#   "floor": "0", TODO string or int
-#   "geometry": {
-#     "coordinates": [
-#       35.70457645186153,
-#       51.40276417136192
-#     ],
-#     "type": "Point"
-#   },
-#   "heading": "111.15332",
-#   "rss": "-33",
-#   "strongestWifi": "18:d6:c7:78:ec:9b",
-#   "timestamp": "1503212196131",
-#   "x": "35.70457645186153",
-#   "y": "51.40276417136192"
-# }
-
-# timestamp must not be string
 def fixFINGERPRINT(obj):
     fixed = obj
     updateSchema(fixed)
-    fixed['timestamp'] = int(fixed['timestamp'])
-    fixed['heading'] = float(fixed['heading'])
-    fixed['rss'] = int(fixed['rss'])
+    #  fixed['timestamp'] = int(fixed['timestamp'])
+    #  fixed['heading'] = float(fixed['heading'])
+    #  fixed['rss'] = int(fixed['rss'])
     fixLocation(fixed)
     # fixFloorNumber(fixed)
     return fixed
@@ -33,7 +13,7 @@ def fixPOIS(obj):
     fixed = obj
     updateSchema(fixed)
     fixLocation(fixed)
-    fixBooleans(fixed)
+    #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     # fixFloorNumber(fixed)
     return fixed
@@ -42,7 +22,7 @@ def fixPOIS(obj):
 def fixEDGES(obj):
     fixed = obj
     updateSchema(fixed)
-    fixBooleans(fixed)
+    #  fixBooleans(fixed)
     # if "weight" in obj.keys():
     #     if obj["weight"] is None:
     #         del obj["weight"]
@@ -71,11 +51,11 @@ def fixUSER(obj):
 def fixFLOORPLAN(obj):
     fixed = obj
     updateSchema(fixed)
-    fixBooleans(fixed)
+    #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     # fixFloorNumber(fixed)
-    if "zoom" in obj.keys():
-        obj["zoom"] = int(obj["zoom"])
+    #  if "zoom" in obj.keys():
+    #       obj["zoom"] = int(obj["zoom"])
     fixRectangle(fixed)
     return fixed
 
@@ -103,7 +83,7 @@ def fixBUILDING(obj):
     fixed = obj
     updateSchema(fixed)
     fixLocation(fixed)
-    fixBooleans(fixed)
+    #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     return fixed
 
@@ -123,13 +103,12 @@ def fixBooleans(obj):
             obj[key] = False
 
 
-# TODO
-# elegxomeni diagrafi gia na kseroume ti einai keno
 def fixDashesOrNulls(obj):
     listToDel = []
     for key in obj.keys():
-        if obj[key] == "-" or obj[key] == "":
-            listToDel.insert(0, key)
+        if key == "address" or key == "url" or key == "description" or key == "name":
+            if obj[key] == "-" or obj[key] == "":
+                listToDel.insert(0, key)
     for x in listToDel:
         del obj[x]
     pass
@@ -160,4 +139,4 @@ def fixLocation(obj):
 
 
 def updateSchema(obj):
-    obj['_schema'] = 1
+    obj['_schema'] = 0

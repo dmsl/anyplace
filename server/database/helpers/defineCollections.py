@@ -1,7 +1,7 @@
 import json
-from fixSchema import *
-from config import * 
-
+from helpers.fixSchema import *
+from helpers.config import * 
+from pathlib import Path
 
 def getKey(obj):
     s = ""
@@ -109,9 +109,9 @@ def defineCollections(file):
     users = 0
     campus = 0
     pois = 0
-    und = 0
-	collectionsPath = getCollectionsPath()
-	os.mkdirs(collectionsPath)
+    undefined = 0
+    collectionsPath = getCollectionsPath()
+    Path(collectionsPath).mkdir(parents=True, exist_ok=True)
     pathB = collectionsPath + "/buildings.json"
     pathC = collectionsPath + "/campus.json"
     pathE = collectionsPath + "/edges.json"
@@ -190,7 +190,7 @@ def defineCollections(file):
             collections.insert(0, collection_info)
             und.write(json.dumps(obj))
             und.write("\n")
-            und += 1
+            undefined += 1
     b.close()
     c.close()
     e.close()
@@ -199,5 +199,5 @@ def defineCollections(file):
     p.close()
     u.close()
     print("Found:\n", buildings, "Buildinds\n", campus, "Campus\n", edges, "Edge\n", fingerprints, "Fingerprints\n",
-          floorplans, "Floorplans\n", pois, "Pois\n", users, "Users\n", und, "Undefined")
+            floorplans, "Floorplans\n", pois, "Pois\n", users, "Users\n", undefined, "Undefined")
 
