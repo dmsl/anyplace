@@ -69,37 +69,6 @@ def isEdge(json_obj):
     return False
 
 
-def isFound(param, listOfDict, uniq_key):
-    if len(listOfDict) == 0:
-        listOfDict.insert(0, uniq_key)
-        uniq_key.update({'Name': param})
-    else:
-        for x in listOfDict:
-            if param in x.values():  # if this collection exist update it
-                c1 = 0
-                c2 = 0
-                v1 = json.loads(json.dumps(x["Json"]))  # already in
-                for k in v1.keys():
-                    c1 += 1
-                v2 = uniq_key["Json"]
-                for k in v2.keys():  # about to put in
-                    c2 += 1
-                if c1 > c2:  # old one (v1) is bigger, must be replaced (with v2)
-                    big = v1
-                    small = v2
-                    x["Json"] = v2
-                else:  # old one is smaller
-                    big = v2
-                    small = v1
-                for k in big.keys():
-                    if k not in small and k not in x["Extras"]:
-                        x["Extras"] = x["Extras"] + k + " "
-                return listOfDict
-        listOfDict.insert(0, uniq_key)
-        uniq_key.update({'Name': param})
-    return listOfDict
-
-
 def defineCollections(file):
     count = 0
     buildings = 0
@@ -131,7 +100,7 @@ def defineCollections(file):
     known_keys = set()
     collections = []
     i = 0
-    while True:
+    while count < 100000:
         line = file.readline()
         if not line:
             break
@@ -142,52 +111,43 @@ def defineCollections(file):
         obj3 = json.loads(str)
         count += 1
         obj_key = getKey(obj3)
-        collection_info = {'Name': 'UNDEFINED', 'Json': obj3, 'Extras': ''}
         known_keys.add(obj_key)
         if isBuilding(obj):
-            collections = isFound("Building", collections, collection_info)  # DONE
             fixed_obj = fixBUILDING(obj)
             b.write(json.dumps(fixed_obj))
             b.write("\n")
             buildings += 1
         elif isCampus(obj):
-            collections = isFound("Campus", collections, collection_info)  # DONE
             fixed_obj = fixCAMPUS(obj)
             c.write(json.dumps(fixed_obj))
             c.write("\n")
             campus += 1
         elif isEdge(obj):
-            collections = isFound("Edge", collections, collection_info)  # DONE
             fixed_obj = fixEDGES(obj)
             e.write(json.dumps(fixed_obj))
             e.write("\n")
             edges +=1 
         elif isFingerprint(obj):
-            collections = isFound("Fingerprint", collections, collection_info)  # fingerprints
             fixed_obj = fixFINGERPRINT(obj)
             fin.write(json.dumps(fixed_obj))
             fin.write("\n")
             fingerprints += 1
         elif isFloorPlan(obj):
-            collections = isFound("FloorPlan", collections, collection_info)  # DONE
             fixed_obj = fixFLOORPLAN(obj)
             fl.write(json.dumps(fixed_obj))
             fl.write("\n")
             floorplans += 1
         elif isPois(obj):
-            collections = isFound("Pois", collections, collection_info)  # DONE
             fixed_obj = fixPOIS(obj)
             p.write(json.dumps(fixed_obj))
             p.write("\n")
             pois += 1
         elif isUser(obj):
-            collections = isFound("User", collections, collection_info)  # DONE
             fixed_obj = fixUSER(obj)
             u.write(json.dumps(fixed_obj))
             u.write("\n")
             users += 1
         else:
-            collections.insert(0, collection_info)
             und.write(json.dumps(obj))
             und.write("\n")
             undefined += 1

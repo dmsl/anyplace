@@ -10,7 +10,7 @@ Path(path).mkdir(parents=True, exist_ok=True)
 #  os.mkdirs(path)
 URL = DOMAIN_NAME + ":" + PORT
 print("Exporting documents from couchbase..")
-subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", USERNAME, "-p", PASSWORD, "-b", BUCKET, "-f", "lines", "-o", allDocs])
+#subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", USERNAME, "-p", PASSWORD, "-b", BUCKET, "-f", "lines", "-o", allDocs])
 print("Exporting documents from couchbase: Done")
 print("Splitting documents..")
 f = open(allDocs, encoding="utf8")
