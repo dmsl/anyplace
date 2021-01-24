@@ -2,6 +2,8 @@ import json
 from helpers.fixSchema import *
 from helpers.config import * 
 from pathlib import Path
+import os
+import shutil
 
 def getKey(obj):
     s = ""
@@ -68,6 +70,13 @@ def isEdge(json_obj):
         return True
     return False
 
+def splitToBuid(json_obj, fingPath):
+    filepath = fingPath + "/" + json_obj["buid"]
+    file = open(filepath, 'a')
+    file.write(json.dumps(json_obj))
+    file.write("\n")
+    file.close()
+
 
 def defineCollections(file):
     count = 0
@@ -84,15 +93,19 @@ def defineCollections(file):
     pathB = collectionsPath + "/buildings.json"
     pathC = collectionsPath + "/campus.json"
     pathE = collectionsPath + "/edges.json"
-    pathFIN = collectionsPath + "/fingerprintswifi.json"  # remove..
     pathFL = collectionsPath + "/floorplans.json"
     pathP = collectionsPath + "/pois.json"
     pathU = collectionsPath + "/users.json"
     pathUND = collectionsPath + "/undefined.json"
+    fingPath = collectionsPath + "/fingerprintsWifi"
+    if not os.path.exists(fingPath):
+        os.makedirs(fingPath)
+    else:
+        shutil.rmtree(fingPath)
+        os.makedirs(fingPath)
     b = open(pathB, "w")
     c = open(pathC, "w")
     e = open(pathE, "w")
-    fin = open(pathFIN, "w")
     fl = open(pathFL, "w")
     p = open(pathP, "w")
     u = open(pathU, "w")
@@ -100,7 +113,7 @@ def defineCollections(file):
     known_keys = set()
     collections = []
     i = 0
-    while count < 100000:
+    while True:
         line = file.readline()
         if not line:
             break
@@ -129,8 +142,7 @@ def defineCollections(file):
             edges +=1 
         elif isFingerprint(obj):
             fixed_obj = fixFINGERPRINT(obj)
-            fin.write(json.dumps(fixed_obj))
-            fin.write("\n")
+            splitToBuid(fixed_obj, fingPath)
             fingerprints += 1
         elif isFloorPlan(obj):
             fixed_obj = fixFLOORPLAN(obj)
@@ -154,7 +166,6 @@ def defineCollections(file):
     b.close()
     c.close()
     e.close()
-    fin.close()
     fl.close()
     p.close()
     u.close()
