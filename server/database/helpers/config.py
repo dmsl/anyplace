@@ -8,7 +8,7 @@ CDB_BUCKET = "anyplace"
 
 
 def getDocumentsPath():
-	return CDB_DIR_MIGRATION + "/docs"
+	return DIR_MIGRATION + "/docs"
 
 
 def getCollectionsPath():
