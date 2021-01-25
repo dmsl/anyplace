@@ -12,7 +12,7 @@ print("Exporting documents from couchbase..")
 subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", CDB_USERNAME, "-p", CDB_PASSWORD, "-b", CDB_BUCKET, "-f", "lines", "-o", allDocs])
 print("Exporting documents from couchbase: Done")
 print("Splitting documents..")
-f = open(allDocs, encoding="utf8")
-defineCollections(f)  # printing unique json keys with extra fields representing similar json keys
-f.close()
+fAllDocs = open(allDocs, encoding="utf8")
+defineCollections(fAllDocs)  # printing unique json keys with extra fields representing similar json keys
+fAllDocs.close()
 print("Splitting documents: Done")
