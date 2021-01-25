@@ -7,9 +7,9 @@ from pathlib import Path
 path = getDocumentsPath()
 allDocs = path + "/all_docs.jsonrows"
 Path(path).mkdir(parents=True, exist_ok=True)
-URL = DOMAIN_NAME + ":" + PORT
+URL = CDB_DOMAIN_NAME + ":" + CDB_PORT
 print("Exporting documents from couchbase..")
-subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", USERNAME, "-p", PASSWORD, "-b", BUCKET, "-f", "lines", "-o", allDocs])
+subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", CDB_USERNAME, "-p", CDB_PASSWORD, "-b", CDB_BUCKET, "-f", "lines", "-o", allDocs])
 print("Exporting documents from couchbase: Done")
 print("Splitting documents..")
 f = open(allDocs, encoding="utf8")
