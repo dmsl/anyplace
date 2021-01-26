@@ -98,7 +98,8 @@ def defineCollections(file):
     pathU = collectionsPath + "/users.json"
     pathUND = collectionsPath + "/undefined.json"
     fingPath = collectionsPath + "/fingerprintsWifi"
-    if not os.path.exists(fingPath):
+	#  create or clear fingerprints path if exists 
+    if not os.path.exists(fingPath):  
         os.makedirs(fingPath)
     else:
         shutil.rmtree(fingPath)
@@ -110,21 +111,13 @@ def defineCollections(file):
     p = open(pathP, "w")
     u = open(pathU, "w")
     und = open(pathUND, "w")
-    known_keys = set()
-    collections = []
     i = 0
     while True:
         line = file.readline()
         if not line:
             break
         obj = json.loads(line)
-        obj2 = json.dumps(obj, sort_keys=True)
-        str = ""
-        str = obj2
-        obj3 = json.loads(str)
         count += 1
-        obj_key = getKey(obj3)
-        known_keys.add(obj_key)
         if isBuilding(obj):
             fixed_obj = fixBUILDING(obj)
             b.write(json.dumps(fixed_obj))
@@ -169,6 +162,7 @@ def defineCollections(file):
     fl.close()
     p.close()
     u.close()
-    print("Found:\n", buildings, "Buildinds\n", campus, "Campus\n", edges, "Edge\n", fingerprints, "Fingerprints\n",
-            floorplans, "Floorplans\n", pois, "Pois\n", users, "Users\n", undefined, "Undefined")
+    print("OBJECT REPORT:\n", "Buildinds: ", buildings, 
+		"\nCampus:", campus, "\nEdge: ", edges, "\nFingerprints: ", fingerprints,
+        "\nFloorplans: ", floorplans, "\nPois: ", pois, "\nUsers: ", users, "\nUndefined: ", undefined)
 
