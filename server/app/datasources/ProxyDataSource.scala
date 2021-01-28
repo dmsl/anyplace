@@ -61,8 +61,11 @@ object ProxyDataSource {
 class ProxyDataSource private() extends IDatasource {
 
   private var mCouchbase: CouchbaseDatasource = _
+  // TODO private var mongoDB: mongodbDatasource = _
 
   private var mActiveDatabase: IDatasource = _
+
+
 
   initCouchbase()
 
@@ -289,6 +292,7 @@ class ProxyDataSource private() extends IDatasource {
   override def getAllAccounts(): List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllAccounts
+    // TODO mongoDatabase.getAllAccounts
   }
 
   def _checkActiveDatasource() {

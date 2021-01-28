@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-
 import org.mongodb.scala._
+import utils.LPLogger
 
 object Helpers {
 
@@ -40,8 +40,9 @@ object Helpers {
     def results(): Seq[C] = Await.result(observable.toFuture(), Duration(10, TimeUnit.SECONDS))
     def headResult() = Await.result(observable.head(), Duration(10, TimeUnit.SECONDS))
     def printResults(initial: String = ""): Unit = {
+      LPLogger.info("PrintResults: ")
       if (initial.length > 0) print(initial)
-      results().foreach(res => println(converter(res)))
+      results().foreach(res => LPLogger.info(converter(res)))
     }
     def printHeadResult(initial: String = ""): Unit = println(s"${initial}${converter(headResult())}")
   }
