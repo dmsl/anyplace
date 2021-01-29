@@ -90,7 +90,8 @@ dependencies {
 
 //  implementation project(path: ':lib')
 
-    implementation 'com.github.cachil01:anyplace-lib-android:c3b27b334c'
+    implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
+  //
 
 //  implementation("com.github.dmsl:anyplace-lib-android:1.0")1
   implementation 'androidx.activity:activity:1.2.0-alpha08'
