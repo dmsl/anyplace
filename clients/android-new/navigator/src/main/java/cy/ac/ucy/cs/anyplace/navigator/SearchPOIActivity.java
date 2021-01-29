@@ -125,7 +125,7 @@ public class SearchPOIActivity extends FragmentActivity {
 			final String query = intent.getStringExtra("query");
 			double lat = intent.getDoubleExtra("lat", 0);
 			double lng = intent.getDoubleExtra("lng", 0);
-
+          String key = getString(R.string.maps_api_key);
 			AnyplaceSuggestionsTask mSuggestionsTask = new AnyplaceSuggestionsTask(new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
 
 				@Override
@@ -186,7 +186,7 @@ public class SearchPOIActivity extends FragmentActivity {
 					txtResultsFound.setText("Results found [ " + cursor.getCount() + " ]");
 				}
 
-			}, this, mSearchType, new GeoPoint(lat, lng), query);
+			}, this, mSearchType, new GeoPoint(lat, lng), query, key);
 			mSuggestionsTask.execute();
 
 		}

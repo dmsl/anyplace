@@ -692,7 +692,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
 
         GeoPoint gp = userData.getLatestUserPosition();
 
-
+        String key = getString(R.string.maps_api_key);
         mSuggestionsTask = new AnyplaceSuggestionsTask(new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
           @Override
           public void onSuccess(String result, List<? extends IPoisClass> pois) {
@@ -709,7 +709,7 @@ private static final String TAG = UnifiedNavigationActivity.class.getSimpleName(
             showSearchResult(cursor);
           }
 
-        }, UnifiedNavigationActivity.this, searchType, (gp == null) ? new GeoPoint(csLat, csLon) : gp, newText);
+        }, UnifiedNavigationActivity.this, searchType, (gp == null) ? new GeoPoint(csLat, csLon) : gp, newText, key);
         mSuggestionsTask.execute(null, null);
 
         // we return true to avoid caling the provider set in the xml

@@ -1,5 +1,8 @@
 apply plugin: 'com.android.application'
 
+//def githubProperties = new Properties()
+//githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -11,7 +14,8 @@ android {
         versionCode 2
         versionName "4.0"
 
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        //testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner' CHECK REMOVE?
+
         // Read the API key from ./secure.properties into R.string.maps_api_key
         def secureProps = new Properties()
         if (file("../secure.properties").exists()) {
@@ -27,6 +31,25 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+//  repositories {
+//    maven {
+//      name = "GitHubPackages"
+//      /** Configure path of your package repository on Github
+//       ** Replace GITHUB_USERID with your/organisation Github userID
+//       ** and REPOSITORY with the repository name on GitHub
+//       */
+//      url = uri("https://maven.pkg.github.com/dmsl/anyplace-lib-android")
+//      credentials {
+//        /** Create github.properties in root project folder file with
+//         ** gpr.usr=GITHUB_USER_ID & gpr.key=PERSONAL_ACCESS_TOKEN
+//         ** Set env variable GPR_USER & GPR_API_KEY if not adding a properties file**/
+//
+//        username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+//        password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
+//      }
+//    }
+//  }
   packagingOptions {
     exclude 'kotlin/internal/internal.kotlin_builtins'
     exclude 'kotlin/reflect/reflect.kotlin_builtins'
@@ -60,12 +83,16 @@ dependencies {
   implementation 'com.google.maps.android:android-maps-utils:0.3.4'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 
-  implementation 'com.github.dmsl:anyplace-lib-core:v4.0.1'
+  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
   // INFO: To include the module locally
   // (This requires pulling the submodules from our github - see README
-  // implementation project(path: ':lib-core')
+//   implementation project(path: ':lib-core')
 
-  implementation project(path: ':lib')
+//  implementation project(path: ':lib')
+
+    implementation 'com.github.cachil01:anyplace-lib-android:c3b27b334c'
+
+//  implementation("com.github.dmsl:anyplace-lib-android:1.0")1
   implementation 'androidx.activity:activity:1.2.0-alpha08'
   implementation 'androidx.preference:preference:1.1.0'
   implementation 'com.google.android.material:material:1.0.0'

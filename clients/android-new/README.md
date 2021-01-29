@@ -5,6 +5,7 @@ Most of the android legacy code will go here.
 
 # lib-core
 The core java library used as a dependency.
+Use https://jitpack.io/#dmsl/anyplace-lib-core to get the artifact.
 
 # Development
 To pull submodules after the initial `git clone`:
