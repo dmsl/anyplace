@@ -90,7 +90,7 @@ dependencies {
 
 //  implementation project(path: ':lib')
 
-    implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
+    implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'
   //
 
 //  implementation("com.github.dmsl:anyplace-lib-android:1.0")1

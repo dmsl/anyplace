@@ -61,13 +61,13 @@ dependencies {
   implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 
 
-  implementation 'com.github.dmsl:anyplace-lib-core:v4.0.1'
+  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
   // INFO: To include the module locally
   // (This requires pulling the submodules from our github - see README
 //   implementation project(path: ':lib-core')
 
+  implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'
 //  implementation project(path: ':lib')
-  implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
 
 
   //
