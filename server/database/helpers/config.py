@@ -1,4 +1,4 @@
-# TODO: replace config.py with .env
+#  TODO: replace config.py with .env
 CDB_NAME = "localhost"
 DIR_MIGRATION = "/couchdb/migration"
 CDB_DOMAIN_NAME = "anyplace@ap-dev.cs.ucy.ac.cy"
