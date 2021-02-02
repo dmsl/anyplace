@@ -10,3 +10,4 @@
 ##############################################
 application.conf
 application.conf.*
+!application.conf.example
