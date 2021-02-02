@@ -28,7 +28,8 @@ libraryDependencies ++= Seq(
     // "org.scalanlp" %% "breeze" % "1.0",
   "org.scalanlp" % "breeze_2.11" % "0.12",
   "org.scalanlp" % "breeze-natives_2.11" % "0.12",
-  "org.scalanlp" % "breeze-viz_2.11" % "0.12"
+  "org.scalanlp" % "breeze-viz_2.11" % "0.12",
+  "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
 )
 
 // TODO ACCES Deprecate this library

@@ -35,7 +35,7 @@
  */
 package controllers
 
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc.{Action, Result}
 import play.mvc.Security
 import utils.{AndroidAPKFile, AnyplaceServerAPI, LPLogger}
 
@@ -70,7 +70,7 @@ object AnyplaceAndroid extends play.api.mvc.Controller {
         apks.add(apk)
       }
       Collections.sort(apks, new AndroidAPKFile.AndroidAPKComparator())
-     Ok(views.html.anyplace_android.render(apks))
+      Ok(views.html.anyplace_android.render(apks))
     }
     inner()
   }
