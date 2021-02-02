@@ -1,0 +1,10 @@
+##############################################
+# NOTES on updating config.py contents:
+##############################################
+# Create config.py from config.example.py
+#   - Disable tracking:
+#       git update-index --assume-unchanged config.py
+#   - Enable tracking:
+#       git update-index --no-assume-unchanged config.py
+##############################################
+config.py
