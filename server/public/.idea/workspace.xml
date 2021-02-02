@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:AccesMap" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:npm_and_yarn" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:npm_and_yarn" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:server" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:npm_and_yarn" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:server" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:public" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:dependabot" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:npm_and_yarn" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:server" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:public" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:anyplace_viewer" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:feature" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="34400174-d62b-4c79-964b-c6d25fc75b42" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/public.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/anyplace_architect/.idea/anyplace_architect.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/anyplace_developers/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/anyplace_developers/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/modules/anyplace-build.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/modules/anyplace-build.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/modules/anyplace.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/modules/anyplace.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/sbt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/sbt.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/ErrorHandler.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../app/ErrorHandler.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/controllers/AnyplaceMapping.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../app/controllers/AnyplaceMapping.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/datasources/CouchbaseDatasource.scala" beforeDir="false" afterPath="$PROJECT_DIR$/../app/datasources/CouchbaseDatasource.scala" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../build.sbt" beforeDir="false" afterPath="$PROJECT_DIR$/../build.sbt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../conf/application.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../conf/application.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/Gruntfile.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/Gruntfile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/controllers/BuildingController.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/controllers/BuildingController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/controllers/ControlBarController.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/controllers/ControlBarController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/controllers/PoiController.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/controllers/PoiController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/images/poi-icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_architect/style/map.css" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_architect/style/map.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_icon_bg.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text3_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text3_3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text3_4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text_white.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text_white3_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text_white3_3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text_white3_4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/images/anyplace_logo_text_white_.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_developers/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_developers/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_developers/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/controllers/PoiController.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_viewer/controllers/PoiController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/any-poi-icon-blue.png.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/any-poi-icon-red.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white.png.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white2_8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white3_0.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white3_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white3_3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer/images/anyplace_logo_text_white3_4.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/anyplace_viewer_campus/controllers/PoiController.js" beforeDir="false" afterPath="$PROJECT_DIR$/anyplace_viewer_campus/controllers/PoiController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/building-icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/images/building-icon.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/building-icon.png.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/building-icon.svg" beforeDir="false" afterPath="$PROJECT_DIR$/images/building-icon.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/edge-connector.svg" beforeDir="false" afterPath="$PROJECT_DIR$/images/edge-connector.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/wireless-router-icon-bg.png" beforeDir="false" afterPath="$PROJECT_DIR$/images/wireless-router-icon-bg.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/wireless-router-icon-bg.svg" beforeDir="false" afterPath="$PROJECT_DIR$/images/wireless-router-icon-bg.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/shared.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/shared.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/style/shared.css" beforeDir="false" afterPath="$PROJECT_DIR$/style/shared.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectId" id="1l9seYLNU2OWpWd7OVv8mk67VIb" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="34400174-d62b-4c79-964b-c6d25fc75b42" name="Default Changelist" comment="" />
+      <created>1607020738107</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1607020738107</updated>
+      <workItem from="1607020740175" duration="9001000" />
+      <workItem from="1608633954322" duration="368000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="0" y="0" width="1920" height="1080" key="VCS.ChangeListViewerDialog" timestamp="1607026743302">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="0" y="0" width="1920" height="1080" key="VCS.ChangeListViewerDialog/0.0.1920.1080/-1440.180.1440.900@0.0.1920.1080" timestamp="1607026743302" />
+    <state x="811" y="460" key="VCS.ChangelistChooser" timestamp="1607026730078">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="811" y="460" key="VCS.ChangelistChooser/0.0.1920.1080/-1440.180.1440.900@0.0.1920.1080" timestamp="1607026730078" />
+    <state x="658" y="137" width="949" height="648" key="find.popup" timestamp="1607036712467">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="658" y="137" width="949" height="648" key="find.popup/0.0.1920.1080/-1440.180.1440.900@0.0.1920.1080" timestamp="1607036712467" />
+  </component>
+</project>
