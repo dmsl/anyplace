@@ -12,7 +12,6 @@
           </set>
         </option>
         <option name="sbtVersion" value="0.13.18" />
-        <option name="useQualifiedModuleNames" value="true" />
       </SbtProjectSettings>
     </option>
   </component>
