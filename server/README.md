@@ -95,7 +95,7 @@ If you don't have unzip, just use any unzip tool (winzip, etc.)
 ## SSL and Cluster Configurations for Anyplace Server 
 + Install a free certificate from https://letsencrypt.org/ on your Anyplace Server to obtain a secure https connection. SSL is only optional for web functionality. For Android, SSL is a prerequisite!
 
-+ (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
++ (Optional) Install a free load balancer from [HAProxy](http://www.haproxy.org/) to scale your installation to multiple Anyplace servers. In case of Anyplace cluster configuration, please install the certificate on the load balancer.
 
 # Anyplace v4.x for developers
 
