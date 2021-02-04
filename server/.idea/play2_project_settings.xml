@@ -6,13 +6,8 @@
         <entry key="anyplace">
           <value>
             <ProjectSettingsEntry>
-<<<<<<< Updated upstream
               <option name="sourceDir" value="$PROJECT_DIR$/app" />
               <option name="confDir" value="$PROJECT_DIR$/app" />
-=======
-              <option name="sourceDir" value="C:\Users\Nikolas\Documents\GitHub\anyplace\server\app" />
-              <option name="confDir" value="C:\Users\Nikolas\Documents\GitHub\anyplace\server\app" />
->>>>>>> Stashed changes
               <option name="playDistrPath" value="$USER_HOME$/.ivy2/cache/com.typesafe.play/play_2.11/jars/play_2.11-2.4.2.jar" />
               <option name="templateImports">
                 <list>
