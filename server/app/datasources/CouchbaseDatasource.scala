@@ -1260,6 +1260,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def getAllAccounts(): List[JsonObject] = {
     LPLogger.debug("couchbase getAllAccounts: ")
+
     val accounts = new ArrayList[JsonObject]()
 
     val couchbaseClient = getConnection

@@ -4,6 +4,8 @@ import java.io.FileOutputStream
 import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.Helpers.DocumentObservable
+import datasources.MongodbDatasource.{database, mdb}
 import floor_module.IAlgo
 import org.mongodb.scala._
 import play.Play
@@ -11,27 +13,30 @@ import utils.{GeoPoint, LPLogger}
 
 object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
+  private var mdb: MongoDatabase = null
 
   def getStaticInstance: MongodbDatasource = {
-    val username = Play.application().configuration().getString("mongodb.app.username")
-    val password = Play.application().configuration().getString("mongodb.app.password")
-    val hostname = Play.application().configuration().getString("mongodb.hostname")
-    val port = Play.application().configuration().getString("mongodb.port")
+    val conf =  Play.application().configuration()
+    val username = conf.getString("mongodb.app.username")
+    val password = conf.getString("mongodb.app.password")
+    val hostname = conf.getString("mongodb.hostname")
+    val port = conf.getString("mongodb.port")
+    val database = conf.getString("mongodb.database")
     LPLogger.info("Mongodb: connecting to: " + hostname + ":" + port)
-    createInstance(username, password, hostname, port)
-    null
+    sInstance = createInstance(hostname, database, username, password, port)
+    sInstance
   }
 
-  def createInstance(username: String, password: String, hostname: String, port: String): MongodbDatasource = {
+  def createInstance( hostname: String, database: String, username: String, password: String,port: String): MongodbDatasource = {
     val uri: String = "mongodb://" + username + ":" + password + "@" + hostname + ":" + port
     val mongoClient: MongoClient = MongoClient(uri)
     // TODO check if database anyplace exists
-    val database: MongoDatabase = mongoClient.getDatabase(Play.application().configuration().getString("mongodb.database"))
+    mdb = mongoClient.getDatabase(database)
     // IF database not found
     // create it with collections
     // kill server
     var notFound = false
-    for (colName <- database.listCollectionNames()) {
+    for (colName <- mdb.listCollectionNames()) {
       if (colName != "buildings" && colName != "campuses" && colName != "edges" && colName != "fingerprintsWifi"
         && colName != "floorplans" && colName != "pois" && colName != "users") {
           notFound = true
@@ -163,7 +168,9 @@ class MongodbDatasource() extends IDatasource {
 
   override def getAllAccounts(): util.List[JsonObject] = {
     LPLogger.debug("mongodb getAllAccounts: ")
-    return null
+    val collection = mdb.getCollection("users")
+    collection.find().printResults()
+    null
   }
 
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = ???
