@@ -61,6 +61,7 @@ object AnyplaceAccounts extends Controller {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+        LPLogger.info("fetchAllAccounts")
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(

@@ -3,16 +3,6 @@
 # Secret key:
 application.secret="APPLICATION_SECRET_KEY"
 
-# Logger
-# ~~~~~
-# logger.xml: uses a logback configuration: http://logback.qos.ch/
-# root:
-logger.root=ERROR
-# framework:
-logger.play=INFO
-# application:
-logger.application=DEBUG
-
 # Server (API) address
 server.address="https://localhost"
 server.port="443"
@@ -35,9 +25,11 @@ couchbase.password=""
 #######################
 # Mongodb configuration
 #######################
-mongodb.hostname=""
-mongodb.port=9000
-mongodb.collection=""
+mongodb.hostname="localhost"
+mongodb.app.username="anyplace"
+mongodb.app.password=""
+mongodb.port=27017
+mongodb.database="anyplace"
 
 ##########
 # Raw Data
