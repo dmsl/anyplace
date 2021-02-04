@@ -36,7 +36,6 @@
 package datasources
 
 import java.io.{FileOutputStream, IOException, PrintWriter}
-import java.net.URI
 import java.util
 import java.util._
 import java.util.concurrent.{TimeUnit, TimeoutException}
@@ -51,7 +50,7 @@ import db_models.{Connection, Poi, RadioMapRaw}
 import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
-import play.{Logger, Play}
+import play.Play
 import utils.{AnyResponseHelper, GeoPoint, JsonUtils, LPLogger}
 //remove if not needed
 import scala.collection.JavaConversions._
@@ -1260,6 +1259,7 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   override def getAllAccounts(): List[JsonObject] = {
+    LPLogger.debug("couchbase getAllAccounts: ")
     val accounts = new ArrayList[JsonObject]()
 
     val couchbaseClient = getConnection

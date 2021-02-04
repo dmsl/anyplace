@@ -65,10 +65,7 @@ class ProxyDataSource private() extends IDatasource {
 
   private var mActiveDatabase: IDatasource = _
 
-
-
   initCouchbase()
-
   setActiveDatabase(this.mCouchbase)
 
   private def initCouchbase() {
