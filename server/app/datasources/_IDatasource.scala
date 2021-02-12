@@ -35,25 +35,26 @@
  */
 package datasources
 
-import floor_module.IAlgo
-import utils.GeoPoint
 import java.io.FileOutputStream
 import java.util.HashMap
-import java.util.List
 
 import com.couchbase.client.java.document.json.JsonObject
-import play.libs.Json // TODO: Will use play.json
+import floor_module.IAlgo
+import play.api.libs.json.JsValue
+import utils.GeoPoint
 
-trait IDatasource {
-  def getAllPoisTypesByOwner(owner_id: String): List[JsonObject]
+import scala.collection.mutable.ListBuffer // TODO: Will use play.json
 
-  def poisByBuildingIDAsJson(buid: String): List[JsonObject]
+trait _IDatasource {
+  def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject]
 
-  def poisByBuildingAsJson2(cuid: String, letters: String): List[JsonObject]
+  def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject]
 
-  def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsonObject]
+  def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject]
 
-  def poisByBuildingAsJson3(buid: String, letters: String): List[JsonObject]
+  def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject]
+
+  def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject]
 
 
   def init(): Boolean
@@ -72,75 +73,75 @@ trait IDatasource {
 
   def poiFromKeyAsJson(key: String): JsonObject
 
-  def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject]
+  def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
 
-  def poisByBuildingFloorAsMap(buid: String, floor_number: String): List[HashMap[String, String]]
+  def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]]
 
-  def poisByBuildingAsJson(buid: String): List[JsonObject]
+  def poisByBuildingAsJson(buid: String): java.util.List[JsonObject]
 
-  def poisByBuildingAsMap(buid: String): List[HashMap[String, String]]
+  def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
-  def floorsByBuildingAsJson(buid: String): List[JsonObject]
+  def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject]
 
-  def connectionsByBuildingAsJson(buid: String): List[JsonObject]
+  def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject]
 
-  def connectionsByBuildingAsMap(buid: String): List[HashMap[String, String]]
+  def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
-  def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject]
+  def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
 
-  def connectionsByBuildingAllFloorsAsJson(buid: String): List[JsonObject]
+  def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject]
 
-  def deleteAllByBuilding(buid: String): List[String]
+  def deleteAllByBuilding(buid: String): java.util.List[String]
 
-  def deleteAllByFloor(buid: String, floor_number: String): List[String]
+  def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String]
 
-  def deleteAllByConnection(cuid: String): List[String]
+  def deleteAllByConnection(cuid: String): java.util.List[String]
 
-  def deleteAllByPoi(puid: String): List[String]
+  def deleteAllByPoi(puid: String): java.util.List[String]
 
-  def getRadioHeatmap(): List[JsonObject]
+  def getRadioHeatmap(): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
 
-  def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject]
+  def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject]
 
-  def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): List[String]
+  def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String]
 
-  def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): List[JsonObject]
+  def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject]
 
-  def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsonObject]
+  def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
 
-  def getFingerPrintsTime(buid: String, floor: String): List[JsonObject]
+  def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject]
+  def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
-  def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject]
+  def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
-  def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject]
+  def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
-  def getAllBuildings(): List[JsonObject]
+  def getAllBuildings(): java.util.List[JsonObject]
 
-  def getAllBuildingsByOwner(oid: String): List[JsonObject]
+  def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject]
 
-  def getAllBuildingsByBucode(bucode: String): List[JsonObject]
+  def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject]
 
   def getBuildingByAlias(alias: String): JsonObject
 
-  def getAllBuildingsNearMe(oid: String,lat: Double, lng: Double): List[JsonObject]
+  def getAllBuildingsNearMe(oid: String,lat: Double, lng: Double): java.util.List[JsonObject]
 
   def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long
 
@@ -148,23 +149,23 @@ trait IDatasource {
 
   def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
 
-  def getAllAccounts(): List[Json]
+  def getAllAccounts(): ListBuffer[JsValue]
 
   def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean
 
   def deleteRadiosInBox(): Boolean
 
-  def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject]
+  def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
 
-  def magneticPathsByBuildingAsJson(buid: String): List[JsonObject]
+  def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject]
 
-  def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject]
+  def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
 
   def BuildingSetsCuids(cuid: String): Boolean
 
-  def getBuildingSet(cuid: String): List[JsonObject]
+  def getBuildingSet(cuid: String): java.util.List[JsonObject]
 
-  def getAllBuildingsetsByOwner(owner_id: String) : List[JsonObject]
+  def getAllBuildingsetsByOwner(owner_id: String) : java.util.List[JsonObject]
 
   def deleteNotValidDocuments(): Boolean
 

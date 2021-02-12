@@ -35,19 +35,18 @@
  */
 package controllers
 
-import java.util
 
-import datasources.DatasourceException
-import datasources.ProxyDataSource
+
+import com.couchbase.client.java.document.json.JsonObject
+import datasources.{DatasourceException, _ProxyDataSource}
 import oauth.provider.v2.granttype.GrantHandlerFactory
-import oauth.provider.v2.models.AccountModel
-import oauth.provider.v2.models.OAuth2Request
-import play.mvc.Controller
-import utils.AnyResponseHelper
-import utils.JsonUtils
-import utils.LPLogger
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import oauth.provider.v2.models.{AccountModel, OAuth2Request}
+import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.mvc.Controller
+import utils.{AnyResponseHelper, JsonUtils, LPLogger}
+
+import scala.collection.mutable.ListBuffer
 
 
 object AnyplaceAccounts extends Controller {
@@ -61,18 +60,22 @@ object AnyplaceAccounts extends Controller {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.info("fetchAllAccounts")
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(
             AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
-        val json = JsonObject.empty()
-        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): " + json.toString)
+        //val json = JsonObject.empty()
+        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ") // + json.toString)
         try {
-          val accounts: util.List[JsonObject] = ProxyDataSource.getIDatasource().getAllAccounts()
-          val res: JsonObject = JsonObject.empty()
-          res.put("accounts", JsonArray.from(accounts))
+          val users: ListBuffer[JsValue] = _ProxyDataSource.getIDatasource().getAllAccounts()
+          val res: JsValue = Json.obj(
+            "users_num" -> users.length,
+            "users" -> Json.arr(users)
+          )
+          //res = Json.obj()
+          //res.put("accounts", JsonArray.from(accounts))
+          println("after print")
           AnyResponseHelper.ok(res, "Successfully retrieved all accounts!")
         } catch {
           case e: DatasourceException =>
@@ -106,7 +109,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound: util.List[String] =
+        val notFound:  java.util.List[String] =
           JsonUtils.requirePropertiesInJson(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -117,7 +120,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            _ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
           if (storedAccount ==
             null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
@@ -155,7 +158,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound: util.List[String] =
+        val notFound:  java.util.List[String] =
           JsonUtils.requirePropertiesInJson(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -164,7 +167,7 @@ object AnyplaceAccounts extends Controller {
         if (auid == null || auid.trim().isEmpty)
           auid = json.\\("auid").mkString
         try {
-          if (!ProxyDataSource.getIDatasource.deleteFromKey(auid)) {
+          if (!_ProxyDataSource.getIDatasource.deleteFromKey(auid)) {
             return AnyResponseHelper.bad_request("Account could not be deleted!")
           }
           return AnyResponseHelper.ok("Successfully deleted account!")
@@ -199,7 +202,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound: util.List[String] =
+        val notFound:  java.util.List[String] =
           JsonUtils.requirePropertiesInJson(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -210,7 +213,7 @@ object AnyplaceAccounts extends Controller {
         try {
           // fetch the stored object
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = _ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request(
               "Account could not be updated! Try again...")
@@ -229,7 +232,7 @@ object AnyplaceAccounts extends Controller {
             }
           }
           // save the changes
-          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(auid, 0, storedAccount.toString)) {
+          if (!_ProxyDataSource.getIDatasource().replaceJsonDocument(auid, 0, storedAccount.toString)) {
             return AnyResponseHelper.bad_request(
               "Account could not be updated! Try again...")
           }
@@ -268,7 +271,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound: util.List[String] =
+        val notFound:  java.util.List[String] =
           JsonUtils.requirePropertiesInJson(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -279,7 +282,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+            _ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -318,7 +321,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound: util.List[String] =
+        val notFound:  java.util.List[String] =
           JsonUtils.requirePropertiesInJson(json, "auid", "grant_type")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -334,14 +337,14 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = _ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
           val account: AccountModel = new AccountModel(storedAccount)
           account.addNewClient(grant_type, scope, redirect_uri)
           // save the changes
-          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(
+          if (!_ProxyDataSource.getIDatasource().replaceJsonDocument(
             auid,
             0,
             account.toJson().toString)) {
@@ -388,7 +391,7 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          storedAccount = _ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -439,7 +442,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            _ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -448,7 +451,7 @@ object AnyplaceAccounts extends Controller {
             return AnyResponseHelper.bad_request("Account client could not be found!")
           }
           // save the changes
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(
+          if (!_ProxyDataSource.getIDatasource.replaceJsonDocument(
             auid,
             0,
             account.toJson().toString)) {

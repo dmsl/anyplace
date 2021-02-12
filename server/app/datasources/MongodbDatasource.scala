@@ -1,15 +1,18 @@
 package datasources
 
 import java.io.FileOutputStream
-import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.Helpers.DocumentObservable
-import datasources.MongodbDatasource.{database, mdb}
+import datasources.MongodbDatasource.mdb
 import floor_module.IAlgo
 import org.mongodb.scala._
 import play.Play
+import play.api.libs.json.{JsValue, Json}
 import utils.{GeoPoint, LPLogger}
+
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
@@ -56,7 +59,7 @@ object MongodbDatasource {
 
 // TODO getAllAccounts()
 
-class MongodbDatasource() extends IDatasource {
+class MongodbDatasource() extends _IDatasource {
 
   private def connect(): Boolean = {
     //    LPLogger.info("Mongodb: connecting to: " + mHostname + ":" + mPort + " bucket[" +
@@ -64,15 +67,15 @@ class MongodbDatasource() extends IDatasource {
     false
   }
 
-  override def getAllPoisTypesByOwner(owner_id: String): util.List[JsonObject] = ???
+  override def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingIDAsJson(buid: String): util.List[JsonObject] = ???
+  override def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsJson2(cuid: String, letters: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsJson2GR(cuid: String, letters: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsJson3(buid: String, letters: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject] = ???
 
   override def init(): Boolean = ???
 
@@ -90,75 +93,75 @@ class MongodbDatasource() extends IDatasource {
 
   override def poiFromKeyAsJson(key: String): JsonObject = ???
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): util.List[util.HashMap[String, String]] = ???
+  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def poisByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsMap(buid: String): util.List[util.HashMap[String, String]] = ???
+  override def poisByBuildingAsMap(buid: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def floorsByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def connectionsByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def connectionsByBuildingAsMap(buid: String): util.List[util.HashMap[String, String]] = ???
+  override def connectionsByBuildingAsMap(buid: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
-  override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = ???
+  override def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def deleteAllByBuilding(buid: String): util.List[String] = ???
+  override def deleteAllByBuilding(buid: String): java.util.List[String] = ???
 
-  override def deleteAllByFloor(buid: String, floor_number: String): util.List[String] = ???
+  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = ???
 
-  override def deleteAllByConnection(cuid: String): util.List[String] = ???
+  override def deleteAllByConnection(cuid: String): java.util.List[String] = ???
 
-  override def deleteAllByPoi(puid: String): util.List[String] = ???
+  override def deleteAllByPoi(puid: String): java.util.List[String] = ???
 
-  override def getRadioHeatmap(): util.List[JsonObject] = ???
+  override def getRadioHeatmap(): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): util.List[String] = ???
+  override def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String] = ???
 
-  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = ???
+  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject] = ???
 
-  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
-  override def getAllBuildings(): util.List[JsonObject] = ???
+  override def getAllBuildings(): java.util.List[JsonObject] = ???
 
-  override def getAllBuildingsByOwner(oid: String): util.List[JsonObject] = ???
+  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = ???
 
-  override def getAllBuildingsByBucode(bucode: String): util.List[JsonObject] = ???
+  override def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject] = ???
 
   override def getBuildingByAlias(alias: String): JsonObject = ???
 
-  override def getAllBuildingsNearMe(oid: String, lat: Double, lng: Double): util.List[JsonObject] = ???
+  override def getAllBuildingsNearMe(oid: String, lat: Double, lng: Double): java.util.List[JsonObject] = ???
 
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = ???
 
@@ -166,28 +169,65 @@ class MongodbDatasource() extends IDatasource {
 
   override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = ???
 
-  override def getAllAccounts(): util.List[JsonObject] = {
+  override def getAllAccounts(): ListBuffer[JsValue] = {
+    // TODO: Only for admin users
     LPLogger.debug("mongodb getAllAccounts: ")
+
     val collection = mdb.getCollection("users")
-    collection.find().printResults()
-    null
+
+    //val resultado = NewMongo.SequenceCollection.findOneAndUpdate(query,inc("nextId",1))
+    //resultado.subscribe(new Observer[Document] {
+    //  override def onNext(result: Document): Unit ={}
+    //  override def onError(e: Throwable): Unit ={}
+    //  override def onComplete(): Unit = {}
+    //})
+    //val awaitedR = Await.result(resultado.toFuture, Duration.Inf).asInstanceOf[List[Document]](0)
+    //
+    //val ret = awaitedR.get("nextId").getOrElse(0).asInstanceOf[BsonDouble].intValue();
+
+    val users = collection.find()
+    Await.result(users.toFuture, Duration.Inf)
+    var usersJsons: ListBuffer[JsValue] = ListBuffer[JsValue]()
+
+    users.subscribe(new Observer[Document] {
+      // add on json array
+      override def onNext(result: Document): Unit = {
+        println(result.toJson())
+        usersJsons.append(Json.toJson(result.toJson()))
+      }
+      // throw error
+      override def onError(e: Throwable): Unit = {
+
+      }
+      // complete message
+      override def onComplete(): Unit = {
+        println(usersJsons.length)
+      }
+    })
+
+
+    usersJsons
+
+    // TODO: See buildings_all and repeat
+    // TODO: save output and total number of accounts, LPL.(resultssize)
+    // TODO: Once getAllAccounts done, disable it
   }
 
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = ???
 
   override def deleteRadiosInBox(): Boolean = ???
 
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
-  override def magneticPathsByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
   override def BuildingSetsCuids(cuid: String): Boolean = ???
 
-  override def getBuildingSet(cuid: String): util.List[JsonObject] = ???
+  override def getBuildingSet(cuid: String): java.util.List[JsonObject] = ???
 
-  override def getAllBuildingsetsByOwner(owner_id: String): util.List[JsonObject] = ???
+  override def getAllBuildingsetsByOwner(owner_id: String): java.util.List[JsonObject] = ???
 
   override def deleteNotValidDocuments(): Boolean = ???
 }
