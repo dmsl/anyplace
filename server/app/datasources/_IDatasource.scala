@@ -41,8 +41,8 @@ import java.io.FileOutputStream
 import java.util.HashMap
 import java.util.List
 
-import com.couchbase.client.java.document.json.{JsonObject}
-
+import com.couchbase.client.java.document.json.JsonObject
+import play.libs.Json // TODO: Will use play.json
 
 trait IDatasource {
   def getAllPoisTypesByOwner(owner_id: String): List[JsonObject]
@@ -148,7 +148,7 @@ trait IDatasource {
 
   def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
 
-  def getAllAccounts(): List[JsonObject]
+  def getAllAccounts(): List[Json]
 
   def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean
 

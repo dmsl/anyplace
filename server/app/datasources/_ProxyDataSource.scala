@@ -41,6 +41,7 @@ import java.util.{HashMap, List}
 
 import com.couchbase.client.java.document.json.JsonObject
 import floor_module.IAlgo
+import play.libs.Json
 import utils.GeoPoint
 
 object ProxyDataSource {
@@ -292,10 +293,10 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
   }
 
-  override def getAllAccounts(): List[JsonObject] = {
+  override def getAllAccounts(): List[Json] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllAccounts
-    //mongoDB.getAllAccounts()
+    //mActiveDatabase.getAllAccounts
+    mongoDB.getAllAccounts()
   }
 
   def _checkActiveDatasource() {
