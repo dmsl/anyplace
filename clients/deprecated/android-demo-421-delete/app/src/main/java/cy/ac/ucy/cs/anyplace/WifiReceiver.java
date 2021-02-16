@@ -43,22 +43,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.widget.ListView;
+
 
 import java.util.List;
 
 class WifiReceiver extends BroadcastReceiver {
     private WifiManager wifiManager;
-    private ListView wifiDeviceList;
 
     private String fingerprints[]; //a list with all fingerprints
     private boolean ready = false;
 
     private static final String TAG = "DEBUG";
 
-    public WifiReceiver(WifiManager wifiManager, ListView wifiDeviceList) {
+    public WifiReceiver(WifiManager wifiManager) {
         this.wifiManager = wifiManager;
-        this.wifiDeviceList = wifiDeviceList;
     }
 
     public void onReceive(Context context, Intent intent) {
