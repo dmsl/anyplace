@@ -1,13 +1,7 @@
 //apply plugin: 'com.android.library'
 
-dependencies {
-    implementation FileTree(dir: 'libs', include: '*.jar')
-    //implementation 'com.google.android.gms:play-services-location:17.0.0'
-}
-
 android {
-    compileSdkVersion 19
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 26
 
     sourceSets {
         main {
@@ -20,9 +14,6 @@ android {
             assets.srcDirs = ['assets']
         }
 
-        // Move the tests to tests/java, tests/res, etc...
-        androidTest.setRoot('tests')
-
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
         // This moves them out of them default location under src/<type>/... which would
@@ -33,6 +24,10 @@ android {
         release.setRoot('build-types/release')
     }
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 14
     }
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: '*.jar')
 }

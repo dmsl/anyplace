@@ -57,6 +57,20 @@ ERR_GEOLOC_NOT_SUPPORTED="The Geolocation feature is not supported by this brows
 WARN_NO_FINGERPRINTS="This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.";
 WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
 
+// Activate tooltips
+$('document').ready(function(){
+    // Hide tooltip on click
+    // $('body').tooltip({
+    //     selector: '[data-toggle="tooltip"]'
+    // }).click(function () {
+    //     $('[data-toggle="tooltip"]').tooltip("hide");
+    // });
+
+    // modal focus fix
+    $('#myModal_Welcome').on('shown.bs.modal', function () {
+        $('#myModal_Welcome').trigger('focus')
+    });
+});
 
 function __addAlert(scope, level, msg) {
   // INFO new lines are not displayed.
@@ -98,7 +112,7 @@ var _info = function (scope, msg) {
 function _ShowAlert(scope, func, response, defaultMsg, showDefaultMessage) {
   var data = response.data;
   var msg = defaultMsg;
-  if (data["message"] != null) {
+  if (data != null && data["message"] != null) {
     if(showDefaultMessage) {
       msg += ": " + data["message"];
     } else {
@@ -151,8 +165,58 @@ function selectAllInputText(element) {
   element.setSelectionRange(0, element.value.length)
 }
 
-function setAnyplaceVersion(scope) {
 
+
+var IMG_ACCESS_POINT_ARCHITECT = 'build/images/wireless-router-icon-bg.png';
+var IMG_BUILDING_ARCHITECT = 'build/images/building-icon.png';
+// PM: For some reason different dimensions are used for viewer
+var IMG_BUILDING_VIEWER = 'build/images/building-icon-viewer.png';
+var IMG_FINGERPRINT_RED_SPOT= 'build/images/red_dot.png';
+
+
+function getMapsIconBuildingViewer(scope, latLong) {
+    // console.log("getMapsIconBuildingViewer")
+    var s = new google.maps.Size(55, 80);
+    if (scope.isFirefox)
+        s = new google.maps.Size(110, 160);
+
+    return new google.maps.Marker({
+        position: latLong,
+        icon: {
+            url: IMG_BUILDING_VIEWER,
+            size: s,
+            scaledSize: new google.maps.Size(55, 80)
+        },
+        draggable: false
+    });
 }
 
+function getMapsIconBuildingArchitect(gmap, latLong) {
+    return new google.maps.Marker({
+        position: latLong,
+        map: gmap,
+        icon: new google.maps.MarkerImage(
+            IMG_BUILDING_ARCHITECT,
+            null, /* size is determined at runtime */
+            null, /* origin is 0,0 */
+            null, /* anchor is bottom center of the scaled image */
+            new google.maps.Size(54, 54)),
+        draggable: false
+    });
+}
+
+function getMapsIconFingerprint(gmaps, fingerPrintsData) {
+    var size = new google.maps.Size(25, 25);
+    return new google.maps.Marker({
+        position: fingerPrintsData.location,
+        map: gmaps,
+        icon: new google.maps.MarkerImage(
+            IMG_FINGERPRINT_RED_SPOT,
+            null, /* size is determined at runtime */
+            null, /* origin is 0,0 */
+            null, /* anchor is bottom center of the scaled image */
+            size
+        )
+    });
+}
 

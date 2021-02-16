@@ -50,7 +50,7 @@ CHECK_COUCHBASE_INITIALIZED() {
 delay=2
 waitingTime=0
 until [[ $(CHECK_COUCHBASE_STARTED) = 0 ]]; do
-  >&2 log "     - Waiting CouchbaseDB ($COUCHBASE)."
+>&2 log "     - Waiting for Couchbase"
   sleep $delay
 done
 
@@ -60,11 +60,10 @@ NOCOLOR='\033[0m'
 if [[ $(CHECK_COUCHBASE_INITIALIZED) = "0" ]]; then
   >&2 log " "
   >&2 log " "
-  >&2 log "     - ${RED}CouchbaseDB not initialized! ${NOCOLOR}"
-  >&2 log "       Please run: ${RED}./post_install.sh${NOCOLOR}"
-  >&2 log "       Sleeping for a minute.."
-  >&2 log "       If awoke while post_install.sh runs restart the containers."
-sleep 60
+  >&2 log "     - WARNING: $CouchbaseDB not initialized! Please run: ./post_install.sh"
+  >&2 log "       SLEEPING for one minute!"
+  >&2 log "       If woken up in the midst of post_install.sh run, then restart the containers."
+  sleep 60
 fi
 
 # Wait until couchbase is initialized (only on first run)
@@ -75,6 +74,15 @@ done
 
 # copy certificate
 cp -R /opt/cert /opt/cp/
+
+ssl_dir=/opt/cp/cert/
+# echo "SSL Certificates installed at: $ssl_dir" 
+# ls -l $ssl_dir 
+# echo $JKS_KEY
+# echo $KEY_STORE_KEY
+# ls -l $JKS_KEY
+# cat $KEY_STORE_KEY
+
 
 # RUN ANYPLACE SERVER:
 # Any further configuration is passed through the environment to application.conf,
@@ -93,18 +101,25 @@ cp -R /opt/cert /opt/cp/
 #               . floor_plans
 #               . radiomaps_raw
 #               . radiomaps_frozen
-ssl_dir=/opt/cp/cert/
-echo "SSL Certificates: $ssl_dir" 
-ls -l $ssl_dir 
-echo $JKS_KEY
-echo $KEY_STORE_KEY
-ls -l $JKS_KEY
-cat $KEY_STORE_KEY
+IP=localhost
+echo "Starting anyplace server" >> $LOG_FILE 
+echo "+-----------------------------------"
+echo "| -> Anyplace server starting up..."
+echo "|    Please allow a few moments to be ready."
+echo "| "
+echo "| Couchbase is available at:"
+echo "| $PLAY_SERVER_PROTOCOL$IP:$PORT"
+echo "| "
+echo "| Anyplace is available at:"
+echo "| $PLAY_SERVER_PROTOCOL$IP/"
+echo "| $PLAY_SERVER_PROTOCOL$IP/viewer"
+echo "| $PLAY_SERVER_PROTOCOL$IP/architect"
+echo "+-----------------------------------"
 
-log "Starting anyplace server" >> $LOG_FILE 
 /opt/app/bin/anyplace \
         -Dhttps.port=$PORT_HTTPS -Dhttp.port=$PORT_HTTP \
         -Dpidfile.path=/dev/null -Dplay.crypto.secret=$PLAY_SECRET \
         -Dplay.server.https.keyStore.path=$JKS_KEY \
         -Dplay.server.https.keyStore.password=$(cat $KEY_STORE_KEY) \
         >> $LOG_FILE 2>&1
+

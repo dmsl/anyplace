@@ -85,17 +85,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     }
 
     private def verifyOwnerId(authToken: String): String = {
-    //remove the double string quotes due to json processing
-    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
-    var res = ""
-    try
-      res = sendGet(gURL)
-    catch {
-      case e: Exception => {
-        LPLogger.error(e.toString)
-        null
+      // remove the double string quotes due to json processing
+      val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
+      var res = ""
+      try {
+        res = sendGet(gURL)
+      } catch {
+        case e: Exception => {
+          LPLogger.error(e.toString)
+          null
+        }
       }
-    }
     if (res != null)
       try {
         val json = JsonObject.fromJson(res)
@@ -105,6 +105,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return appendToOwnerId(json.get("sub").toString)
       } catch {
         case ioe: IOException => null
+        case iae: IllegalArgumentException=> LPLogger.error("verifyOwnerId: " + iae.getMessage + "String: '" + res + "'");
       }
     null
   }
@@ -1920,6 +1921,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           if (json.\("name").getOrElse(null) != null) stored_poi.put("name", (json \ "name").as[String])
           if (json.\("description").getOrElse(null) != null) stored_poi.put("description", (json \ "description").as[String])
           if (json.\("url").getOrElse(null) != null) stored_poi.put("url", (json \ "url").as[String])
+
           if (json.\("pois_type").getOrElse(null) != null) stored_poi.put("pois_type", (json \ "pois_type").as[String])
           if (json.\("is_door").getOrElse(null) != null) {
             val is_door = (json \ "is_door").as[String]
@@ -2452,9 +2454,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         try {
           val file = new File(filePath)
           // LPLogger.debug("filePath " + file.getAbsolutePath.toString)
-          if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-            floor_number +
-            ")")
+          if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
+          if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
+            floor_number)
           Ok.sendFile(file)
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
@@ -2477,9 +2479,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         try {
           val file = new File(filePath)
-          if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-            floor_number +
-            ")")
+          if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
+          if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
+            floor_number)
           Ok.sendFile(file)
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("Could not read floor plan.")
@@ -2501,9 +2503,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val filePath = AnyPlaceTilerHelper.getFloorTilesZipFor(buid, floor_number)
         LPLogger.info("requested: " + filePath)
         val file = new File(filePath)
-        if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-          floor_number +
-          ")")
+        if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
+        if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
+          floor_number)
         val res = JsonObject.empty()
         res.put("tiles_archive", AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
         return AnyResponseHelper.ok(res, "Successfully fetched link for the tiles archive!")
@@ -2547,9 +2549,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("requested: " + filePath)
         val file = new File(filePath)
         try {
-          if (!file.exists() || !file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan does not exist or cannot be read! (" +
-            floor_number +
-            ")")
+          if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
+          if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
+            floor_number)
+
           try {
             val s = encodeFileToBase64Binary(filePath)
             try {
@@ -3143,6 +3146,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
     var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
     val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
+    // BUG CHECK this
     if (!rm.createRadioMap()) {
       LPLogger.error("Error while creating Radio Map on-the-fly!")
       throw new Exception("Error while creating Radio Map on-the-fly!")

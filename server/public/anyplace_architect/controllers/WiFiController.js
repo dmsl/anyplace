@@ -64,7 +64,7 @@ function clearLocalization() { //lsolea01
       heatMap[i] = null;
     }
     heatMap = [];
-    document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
+    document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
     _HEATMAP_Localization = false;
     setColorClicked('g', false);
     setColorClicked('y', false);
@@ -154,7 +154,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 heatMap[i] = null;
             }
             heatMap = [];
-            document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
+            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
             _HEATMAP_RSS_IS_ON = false;
             setColorClicked('g',false);
             setColorClicked('y',false);
@@ -178,6 +178,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     
     function clearFingerPrints(){
 
+	// CHECK
         // if ($scope.fingerPrintsMode) {
         //     document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
         // } else {
@@ -196,7 +197,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             }
             fingerPrintsMap = [];
              _FINGERPRINTS_IS_ON = false;
-             document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+             document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
 
 
         }
@@ -206,7 +207,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             heatmap.setMap(null);
              _FINGERPRINTS_IS_ON = false;
-             document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+             document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
              _HEATMAP_F_IS_ON = false;
             var i=heatmapFingerprints.length;
             while(i--){
@@ -262,7 +263,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $scope.anyService.radioHeatmapLocalization = true;
         // document.getElementById("radioHeatmapRSS-time-mode").classList.add('draggable-border-green');
       }
-        document.getElementById("fingerPrints-time-mode").classList.add('draggable-border-green');
+        document.getElementById("fingerPrints-time-mode").classList.add('quickaction-selected');
 
     }
 
@@ -704,8 +705,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 heatMap[i] = null;
             }
             heatMap = [];
-            document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
-            //document.getElementById("radioHeatmapRSS-time-mode").classList.remove('draggable-border-green');
+            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
             _HEATMAP_RSS_IS_ON = false;
             setColorClicked('g',false);
             setColorClicked('y',false);
@@ -728,7 +728,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             $scope.radioHeatmapRSSHasPurple=false;
             $scope.radioHeatmapRSSHasRed=false;
             if(!$scope.fingerPrintsMode){
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+                document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
             }
             $cookieStore.put('RSSClicked', 'NO');
             return;
@@ -742,7 +742,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             $scope.anyService.radioHeatmapRSSTimeMode=true;
         }
 
-        document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
+        document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
         $scope.radioHeatmapRSSMode = true;
         if (typeof(Storage) !== "undefined" && localStorage) {
             localStorage.setItem('radioHeatmapRSSMode', 'YES');
@@ -781,7 +781,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             _APs_IS_ON = false;
             $scope.filterByMAC=false;
             $scope.filterByMAN=false;
-            document.getElementById("APs-mode").classList.remove('draggable-border-green');
+            document.getElementById("APs-mode").classList.remove('quickaction-selected');
             $scope.APsMode = false;
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem('APsMode', 'NO');
@@ -797,7 +797,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             localStorage.setItem('APsMode', 'YES');
         }
 
-        document.getElementById("APs-mode").classList.add('draggable-border-green');
+        document.getElementById("APs-mode").classList.add('quickaction-selected');
 
         $scope.showAPs();
 
@@ -806,12 +806,12 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $scope.fingerPrintsMode = !$scope.fingerPrintsMode;
 
         if ($scope.fingerPrintsMode) {
-            document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
+            document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem('fingerprintsMode', 'YES');
             }
         } else {
-            document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem('fingerprintsMode', 'NO');
             }
@@ -829,8 +829,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             }
             fingerPrintsMap = [];
             _FINGERPRINTS_IS_ON = false;
-            document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-            //document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
             $scope.fingerPrintsMode = false;
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem('fingerprintsMode', 'NO');
@@ -841,7 +840,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             }
             $scope.anyService.fingerPrintsTimeMode=false;
             if(!$scope.radioHeatmapRSSMode){
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+                document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
             }
             return;
 
@@ -852,8 +851,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             heatmap.setMap(null);
             _FINGERPRINTS_IS_ON = false;
-            document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
-            //document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
             $scope.fingerPrintsMode = false;
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem('fingerprintsMode', 'NO');
@@ -865,7 +863,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             $scope.anyService.fingerPrintsTimeMode=false;
             _HEATMAP_F_IS_ON = false;
             if(!$scope.radioHeatmapRSSMode){
-                document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+                document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
             }
             var i=heatmapFingerprints.length;
             while(i--){
@@ -875,7 +873,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             return;
         }
 
-        document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
+        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
         $scope.fingerPrintsMode = true;
         if (typeof(Storage) !== "undefined" && localStorage) {
             localStorage.setItem('fingerprintsMode', 'YES');
@@ -917,7 +915,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
       setColorClicked('p', false);
       setColorClicked('r', false);
       document.getElementById("localizationAccuracy-mode").
-      classList.remove('draggable-border-green');
+      classList.remove('quickaction-selected');
       $scope.radioHeatmapLocalization = false;
 
       $scope.localizationAccMode = false;
@@ -929,7 +927,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     $scope.showLocalizationAccHeatmap();
 
-    document.getElementById("localizationAccuracy-mode").classList.add('draggable-border-green');
+    document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
     return;
   };
 
@@ -971,15 +969,15 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 localStorage.setItem('radioHeatmapRSSMode', 'YES');
             }
             $scope.anyService.radioHeatmapRSSMode = true;
-            document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
-            document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+            document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
+            document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
         }
 
     if(!$scope.fingerPrintsTimeMode && $scope.fingerPrintsMode){
       clearFingerPrints();
       $scope.showFingerPrints();
-      document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
-      document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+      document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+      document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
     }
 
     if(!$scope.radioHeatmapRSSTimeMode && $scope.radioHeatmapRSSMode){
@@ -990,8 +988,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         localStorage.setItem('radioHeatmapRSSMode', 'YES');
       }
       $scope.anyService.radioHeatmapRSSMode=true;
-      document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
-      document.getElementById("fingerPrints-time-mode").classList.remove('draggable-border-green');
+      document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
+      document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
     }
 
     if($scope.radioHeatmapRSSTimeMode || $scope.fingerPrintsTimeMode) {
@@ -1191,7 +1189,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     };
 
     $scope.getLocalizationAccuracyText = function(){
-        return $scope.localizationAccMode ? "Hide Acces Map" : "Show Acces Map";
+        return $scope.localizationAccMode ? "Hide ACCES Map" : "Show ACCES Map";
     }
 
 
@@ -1203,13 +1201,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         if (POIsMap.hasOwnProperty(key[check])) {
             if(POIsMap[key[check]].marker.getMap() !== undefined) {
                 if (POIsMap[key[check]].marker.getMap() !== null) {
-                    document.getElementById("POIs-mode").classList.add('draggable-border-green');
+                    document.getElementById("POIs-mode").classList.add('quickaction-selected');
                     $scope.POIsMode = true;
                     return "Hide POIs";
                 }
             }
         }
-        document.getElementById("POIs-mode").classList.remove('draggable-border-green');
+        document.getElementById("POIs-mode").classList.remove('quickaction-selected');
         $scope.POIsMode = false;
         return "Show POIs";
 
@@ -1223,14 +1221,14 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             if(connectionsMap[key[check]].polyLine !== undefined) {
                 if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
                     if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-                        document.getElementById("connections-mode").classList.add('draggable-border-green');
+                        document.getElementById("connections-mode").classList.add('quickaction-selected');
                         $scope.connectionsMode = true;
                         return "Hide Edges";
                     }
                 }
             }
         }
-        document.getElementById("connections-mode").classList.remove('draggable-border-green');
+        document.getElementById("connections-mode").classList.remove('quickaction-selected');
         $scope.connectionsMode = false;
         return "Show Edges";
         //return (connectionsMap!==undefined && connectionsMap!==null)  ? "Hide Edges" : "Show Edges";
@@ -1254,7 +1252,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $('#FPsButton').click();
     });
 
-    $('#DL_1').unbind().click(function () {
+    $('#deleteFingerprintsSpn').unbind().click(function () {
         $('#wifiTab').click();
         $('#FPs').click();
         $('#deleteButton').click();
@@ -1264,7 +1262,6 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $('#wifiTab').click();
         $('#FPs').click();
         $('#FPsTimeButton').click();
-
     });
 
     $('#LA_1').unbind().click(function () {
@@ -1318,14 +1315,11 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
     $scope.getPOIsModeText = function () {
         return $scope.POIsMode ? "POIs are online" : "POIs are offline";
-
     };
 
     $scope.getConnectionsModeText = function () {
         return $scope.connectionsMode ? "Edges are online" : "Edges are offline";
-
     };
-
 
   // REVIEWLS kept from lsolea
   $scope.deleteFingerPrints = function () {
@@ -1334,7 +1328,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     if (_DELETE_FINGERPRINTS_IS_ON) {
       drawingManager.setMap(null);
       $scope.deleteButtonWarning = false;
-      document.getElementById("delete-mode").classList.remove('draggable-border-green');
+      document.getElementById("delete-mode").classList.remove('quickaction-selected');
       _DELETE_FINGERPRINTS_IS_ON = false;
       $scope.deleteFingerPrintsMode = false;
       return;
@@ -1348,7 +1342,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
     $scope.deleteButtonWarning = true;
     $scope.deleteFingerPrintsMode = true;
     _DELETE_FINGERPRINTS_IS_ON = true;
-    document.getElementById("delete-mode").classList.add('draggable-border-green');
+    document.getElementById("delete-mode").classList.add('quickaction-selected');
     drawingManager = new google.maps.drawing.DrawingManager({
       drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
       drawingControl: false,
@@ -1398,7 +1392,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         $scope.deleteButtonWarning = false;
         _DELETE_FINGERPRINTS_IS_ON = false;
         $scope.deleteFingerPrintsMode = false;
-        document.getElementById("delete-mode").classList.remove('draggable-border-green');
+        document.getElementById("delete-mode").classList.remove('quickaction-selected');
         return;
       }
 
@@ -1523,7 +1517,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             ShowError($scope, resp,
               "Something went wrong. It's likely that everything related to the fingerPrints is deleted but please refresh to make sure or try again.",
               true);
-            document.getElementById("delete-mode").classList.remove('draggable-border-green');
+            document.getElementById("delete-mode").classList.remove('quickaction-selected');
           }
         );
       }
@@ -1533,7 +1527,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
       $scope.deleteButtonWarning = false;
       _DELETE_FINGERPRINTS_IS_ON = false;
       $scope.deleteFingerPrintsMode = false;
-      document.getElementById("delete-mode").classList.remove('draggable-border-green');
+      document.getElementById("delete-mode").classList.remove('quickaction-selected');
     });
   };
 
@@ -1713,7 +1707,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                     if (i <= 0) {
                         _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
                         if (!$scope.radioHeatmapRSSTimeMode) {
-                            document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
+                            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
                             $scope.radioHeatmapRSSMode = false;
                             if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
                                 localStorage.setItem('radioHeatmapRSSMode', 'NO');
@@ -1824,7 +1818,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                         if (typeof(Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
                             localStorage.setItem('radioHeatmapRSSMode', 'NO');
                         }
-                        document.getElementById("radioHeatmapRSS-mode").classList.remove('draggable-border-green');
+                        document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
                     }
 
                 }
@@ -1896,7 +1890,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 if (i <= 0) {
                     _err($scope, "This floor seems not to be Access Point mapped. Download the Anyplace app from the Google Play store to map the floor.");
                     $scope.APsMode=false;
-                    document.getElementById("APs-mode").classList.remove('draggable-border-green');
+                    document.getElementById("APs-mode").classList.remove('quickaction-selected');
                     return;
                 }
 
@@ -1906,13 +1900,10 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                 i = values.length;
 
-
-                //create AccessPoint "map"
-                var _ACCESS_POINT_IMAGE = 'images/access-point-icon.svg';
-
+                var _ACCESS_POINT_IMAGE = IMG_ACCESS_POINT_ARCHITECT;
                 var imgType = _ACCESS_POINT_IMAGE;
 
-                var size = new google.maps.Size(21, 32);
+                var size = new google.maps.Size(40, 40);
 
                 i = values.length;
                 var c = 0;
@@ -1980,7 +1971,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             function (resp) {
                 $scope.APsMode=false;
                 ShowError($scope, resp, 'Something went wrong while fetching Access Points.', true);
-                document.getElementById("APs-mode").classList.remove('draggable-border-green');
+                document.getElementById("APs-mode").classList.remove('quickaction-selected');
             }
         );
 
@@ -2076,45 +2067,20 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                             resp.data.radioPoints.splice(i, 1);
                                         }
 
-                                        //create fringerPrint "map"
-                                        var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
-
-                                        var imgType = _FINGERPRINT_IMAGE;
-
-                                        var size = new google.maps.Size(21, 32);
-
-                                        i = fingerPrintsData.length;
-
-
-                                        while (i--) {
-                                            if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
-                                                var fingerPrint = new google.maps.Marker({
-                                                    position: fingerPrintsData[i].location,
-                                                    map: GMapService.gmap,
-                                                    icon: new google.maps.MarkerImage(
-                                                        imgType,
-                                                        null, /* size is determined at runtime */
-                                                        null, /* origin is 0,0 */
-                                                        null, /* anchor is bottom center of the scaled image */
-                                                        size
-                                                    )
-                                                });
-                                                fingerPrintsMap.push(
-                                                    fingerPrint
-                                                );
-                                            }
-
+                                    //create fingeprint "map"
+                                    i = fingerPrintsData.length;
+                                    while (i--) {
+                                        if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
+                                            fingerPrintsMap.push(getMapsIconFingerprint(GMapService.gmap, fingerPrintsData[i]));
                                         }
-                                        _FINGERPRINTS_IS_ON = true;
-
-
-
+                                    }
+                                    _FINGERPRINTS_IS_ON = true;
                                 },
                                 function (resp) {
                                     console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
                                     // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                                     if (!$scope.fingerPrintsMode) {
-                                        document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                                        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
                                         $scope.fingerPrintsMode = false;
                                         if (typeof(Storage) !== "undefined" && localStorage) {
                                             localStorage.setItem('fingerprintsMode', 'NO');
@@ -2182,44 +2148,20 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                                 }
 
                                 //create fringerPrint "map"
-                                var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
-
-                                var imgType = _FINGERPRINT_IMAGE;
-
-                                var size = new google.maps.Size(21, 32);
-
                                 i = fingerPrintsData.length;
-
-
                                 while (i--) {
                                     if(_NOW_ZOOM === _MAX_ZOOM_LEVEL) {
-                                        var fingerPrint = new google.maps.Marker({
-                                            position: fingerPrintsData[i].location,
-                                            map: GMapService.gmap,
-                                            icon: new google.maps.MarkerImage(
-                                                imgType,
-                                                null, /* size is determined at runtime */
-                                                null, /* origin is 0,0 */
-                                                null, /* anchor is bottom center of the scaled image */
-                                                size
-                                            )
-                                        });
-                                        fingerPrintsMap.push(
-                                            fingerPrint
-                                        );
+				      // map: $scope.gmapService.gmap,
+                                      fingerPrintsMap.push(getMapsIconFingerprint(GMapService.gmap, fingerPrintsData[i]));
                                     }
-
                                 }
                                 _FINGERPRINTS_IS_ON = true;
-
-
-
                             },
                             function (resp) {
                                 console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
                                 // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                                 if (!$scope.fingerPrintsMode) {
-                                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
                                     $scope.fingerPrintsMode = false;
                                     if (typeof(Storage) !== "undefined" && localStorage) {
                                         localStorage.setItem('fingerprintsMode', 'NO');
@@ -2265,7 +2207,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             if (i <= 0) {
                 if (!$scope.fingerPrintsTimeMode) {
                     _err($scope, "This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
                     $scope.fingerPrintsMode = false;
                     if (typeof(Storage) !== "undefined" && localStorage) {
                         localStorage.setItem('fingerprintsMode', 'NO');
@@ -2287,32 +2229,9 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 }
 
                 //create fringerPrint "map"
-                var _FINGERPRINT_IMAGE = 'build/images/fingerPrint-icon.png';
-
-                var imgType = _FINGERPRINT_IMAGE;
-
-                var size = new google.maps.Size(21, 32);
-
                 i = fingerPrintsData.length;
-
-
                 while (i--) {
-
-                    var fingerPrint = new google.maps.Marker({
-                        position: fingerPrintsData[i].location,
-                        map: GMapService.gmap,
-                        icon: new google.maps.MarkerImage(
-                            imgType,
-                            null, /* size is determined at runtime */
-                            null, /* origin is 0,0 */
-                            null, /* anchor is bottom center of the scaled image */
-                            size
-                        )
-                    });
-                    fingerPrintsMap.push(
-                        fingerPrint
-                    );
-
+                    fingerPrintsMap.push(getMapsIconFingerprint(GMapService.gmap, fingerPrintsData[i]));
                 }
                 _FINGERPRINTS_IS_ON = true;
             } else {
@@ -2352,7 +2271,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
                 // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
                 if (!$scope.fingerPrintsMode) {
-                    document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
                     $scope.fingerPrintsMode = false;
                     if (typeof(Storage) !== "undefined" && localStorage) {
                         localStorage.setItem('fingerprintsMode', 'NO');
@@ -2394,7 +2313,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
       circleRadius=1.8;
     } else if (_NOW_ZOOM > MIN_ZOOM_FOR_HEATMAPS) {
       levelOfZoom = 3;
-      circleRadius=2.1;
+      circleRadius=1.9;
     } else {
       levelOfZoom = 1;
     }
@@ -2408,7 +2327,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         if (i <= 0) {
           _warn($scope, WARN_NO_FINGERPRINTS);
           document.getElementById("localizationAccuracy-mode")
-            .classList.remove('draggable-border-green');
+            .classList.remove('quickaction-selected');
           $scope.localizationAccMode = false;
           if (typeof(Storage) !== "undefined" && localStorage) {
             localStorage.setItem('localizationAccMode', 'NO');
@@ -2498,7 +2417,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
           j++;
         }
 
-        document.getElementById("localizationAccuracy-mode").classList.add('draggable-border-green');
+        document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
         $scope.localizationAccMode = true;
         if (typeof(Storage) !== "undefined" && localStorage) {
           localStorage.setItem('localizationAccMode', 'NO');
@@ -2517,7 +2436,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         ShowWarningAutohide($scope, resp, WARN_ACCES_ERROR);
 
         document.getElementById("localizationAccuracy-mode")
-          .classList.remove('draggable-border-green');
+          .classList.remove('quickaction-selected');
         $scope.localizationAccMode = false;
         if (typeof(Storage) !== "undefined" && localStorage) {
           localStorage.setItem('localizationAccMode', 'NO');
@@ -2951,7 +2870,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
                         $scope.showFingerPrints();
 
-                        document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
+                        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
 
                     }
 
@@ -2964,7 +2883,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                             localStorage.setItem('radioHeatmapRSSMode', 'YES');
                         }
                         $scope.anyService.radioHeatmapRSSMode = true;
-                        document.getElementById("radioHeatmapRSS-mode").classList.add('draggable-border-green');
+                        document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
 
                     }
 

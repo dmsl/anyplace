@@ -218,9 +218,10 @@ app.service('GMapService', function () {
     self.gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
     self.searchBox = new google.maps.places.SearchBox((input));
 
+    // reveal maps search box after 2s (once the website has loaded)
   setTimeout(function(){
     $("#pac-input").fadeIn(500);
-  }, 1500);
+  }, 2000);
 
     google.maps.event.addListener(self.searchBox, 'places_changed', function () {
         var places = self.searchBox.getPlaces();

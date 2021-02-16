@@ -36,7 +36,6 @@
 package datasources
 
 import java.io.{FileOutputStream, IOException, PrintWriter}
-import java.net.URI
 import java.util
 import java.util._
 import java.util.concurrent.{TimeUnit, TimeoutException}
@@ -51,7 +50,7 @@ import db_models.{Connection, Poi, RadioMapRaw}
 import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
-import play.{Logger, Play}
+import play.Play
 import utils.{AnyResponseHelper, GeoPoint, JsonUtils, LPLogger}
 //remove if not needed
 import scala.collection.JavaConversions._
@@ -683,6 +682,7 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+    LPLogger.info("Couchbase:: getRadioHeatmapByBuildingFloorTimestamp")
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor,timestampX,"","")
@@ -690,20 +690,22 @@ class CouchbaseDatasource private(hostname: String,
 
     val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
     val res = couchbaseClient.query(viewQuery)
-
+   // LPLogger.debug("couchbase results: " + res.size)
+   // LPLogger.info("Timestamp results length: " + res.allRows().length)
     var json: JsonObject = null
     for (row <- res.allRows()) {
       try {
         json = JsonObject.empty()
         val array = row.key().asInstanceOf[JsonArray]
+       // LPLogger.info("array.size: " + array.size())
         json.put("x", array.get(3))
         json.put("y", array.get(4))
         json.put("w", row.value().toString)
         points.add(json)
       } catch {
         case e: IOException =>
-          //CHECK COSTA: let this fail?
-        //case ioobe: IndexOutOfBoundsException => //LPLogger.error("IndexOutOfBoundsException: " + ioobe.getMessage) // CHECK COSTA
+          // BUG CHECK COSTA: let this fail?
+          // case ioobe: IndexOutOfBoundsException => LPLogger.error("IndexOutOfBoundsException: " + ioobe.getMessage) // CHECK COSTA
       }
     }
     points
@@ -829,7 +831,7 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
 
-    //LPLogger.debug("couchbase results: " + res.size)
+   LPLogger.debug("couchbase results: " + res.size)  // CHECK
 
     var json: JsonObject = null
     for (row <- res.allRows()) { // handle each building entry
@@ -1257,6 +1259,8 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   override def getAllAccounts(): List[JsonObject] = {
+    LPLogger.debug("couchbase getAllAccounts: ")
+
     val accounts = new ArrayList[JsonObject]()
 
     val couchbaseClient = getConnection

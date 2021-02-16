@@ -37,13 +37,13 @@ Demo bash script for Linux.
 PowerShell script for Windows (placeholder).
 
 ---
-## [deprecated](deprecated)
+## [_deprecated](deprecated)
 Clients that won't be further developed.
 
-#### [deprecated/windows-phone](deprecated/windows-phone)
+#### [_deprecated/windows-phone](deprecated/windows-phone)
 Legacy Windows client code.
 
-#### [deprecated/ios](deprecated/ios)
+#### [_deprecated/ios](deprecated/ios)
 Legacy iOS client.
 
 ---

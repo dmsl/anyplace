@@ -35,14 +35,13 @@
  */
 package datasources
 
-import floor_module.IAlgo
-import utils.GeoPoint
 import java.io.FileOutputStream
 import java.util
-import java.util.HashMap
-import java.util.List
+import java.util.{HashMap, List}
 
 import com.couchbase.client.java.document.json.JsonObject
+import floor_module.IAlgo
+import utils.GeoPoint
 
 object ProxyDataSource {
 
@@ -61,15 +60,22 @@ object ProxyDataSource {
 class ProxyDataSource private() extends IDatasource {
 
   private var mCouchbase: CouchbaseDatasource = _
+  private var mongoDB: MongodbDatasource = _
 
   private var mActiveDatabase: IDatasource = _
 
   initCouchbase()
-
   setActiveDatabase(this.mCouchbase)
+
+  initMongodb()
+  //setActiveDatabase(this.mongoDB) // TODO: nneof once all done
 
   private def initCouchbase() {
     this.mCouchbase = CouchbaseDatasource.getStaticInstance
+  }
+
+  private def initMongodb() {
+    this.mongoDB = MongodbDatasource.getStaticInstance
   }
 
   private def setActiveDatabase(ds: IDatasource) {
@@ -289,6 +295,7 @@ class ProxyDataSource private() extends IDatasource {
   override def getAllAccounts(): List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllAccounts
+    //mongoDB.getAllAccounts()
   }
 
   def _checkActiveDatasource() {

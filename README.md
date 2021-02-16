@@ -89,9 +89,12 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 - University of Pittsburgh (USA)
 - University of Mannheim (Germany)
 
+---
+
 # Links
+
+## [Contributing](CONTRIBUTING.md)
 
 ## [Team](https://anyplace.cs.ucy.ac.cy/#about)
 
----
 ## [License](LICENSE.txt)

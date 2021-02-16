@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -37,12 +37,10 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import datasources.CouchbaseDatasource
-import datasources.DatasourceException
+import datasources.{CouchbaseDatasource, DatasourceException, InfluxdbDatasource, MongodbDatasource}
 import play.{Application, GlobalSettings, Logger}
 import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
 import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
-import datasources.InfluxdbDatasource
 import utils.LPLogger
 
 // TODO Should be deprecated once we update.
@@ -53,18 +51,26 @@ class Global extends GlobalSettings {
     }
 
   override def onStart(app: Application) {
-    LPLogger.info(_date + " | Global::onStart():: AnyPlace Application started: ")
+    LPLogger.info(_date + " | Global::onStart():: Anyplace Application started: ")
+    // TODO PM: store const: upTime
+    // and if ap-dev: display it somewhere
+    // or figure out a way to find which version is used)
+    // ls <apfs>/build/server-zip creation time?
+    // or restart service time?
+
     InfluxdbDatasource.getStaticInstance
     CouchbaseDatasource.getStaticInstance
+    MongodbDatasource.getStaticInstance
     logAnalyticsInstallation()
   }
 
-    // TPDP this
+    // CHECK this
   override def onStop(app: Application) {
-    Logger.info(_date + " | Global::onStop():: AnyPlace Application stopped ")
+    Logger.info(_date + " | Global::onStop():: Anyplace Application stopped ")
     try {
       InfluxdbDatasource.getStaticInstance.disconnect()
       CouchbaseDatasource.getStaticInstance.disconnect()
+      // TODO:nneof disconnect mdb?
     } catch {
       case e: DatasourceException => Logger.error("Global::onStop():: Exception while disconnecting from the couchbase server: " +
         e.getMessage)

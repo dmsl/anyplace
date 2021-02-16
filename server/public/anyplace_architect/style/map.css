@@ -58,7 +58,7 @@ footer{
   display: none;
   background-color: #fff;
   padding: 0 11px 0 13px;
-  border-width: 1px;
+  border-width: 2px;
   border-color: gray;
   border-radius: 5px;
   width: 400px;
@@ -134,31 +134,20 @@ footer{
     -webkit-user-select: none;
 }
 
-#draggable-building, #draggable-poi,#POIs-mode-btn {
-    width: 30px;
-    height: 30px;
-    z-index: 100000;
+/*,#POIs-mode-btn*/
+#draggable-building, #draggable-poi {
+    width: 30px !important;
+    height: 30px !important;
+    z-index: 100000 !important;
+}
+/*,#POIs-mode-btn*/
+#draggable-poi {
+    width: 21px !important;
+    height: 32px !important;
+    z-index: 1000000000 !important;
 }
 
-#draggable-poi,#POIs-mode-btn {
-    width: 21px;
-    height: 32px;
-    z-index: 1000000000;
-}
 
-.draggable-border {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 4px;
-    display: inline-block;
-}
-
-.draggable-border-green {
-    border: 3px solid green;
-    border-radius: 6px;
-    padding: 4px;
-    display: inline-block;
-}
 
 #control-bar {
   width: auto;
@@ -232,18 +221,23 @@ footer{
     margin-bottom: 4px;
 }
 
+/* Fix for showing all on same line */
+#ctrl-bar-tablist {
+    display: block;
+}
+
 .logistics-header {
   margin-top: -4px;
 }
 .logistics-header-title {
- font-size: 2rem;
+ font-size: 1.4rem;
   font-weight: bolder;
   color: #212B7B;
   margin-left: -2px;
 }
 
 .logistics-header-version {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: bolder;
   color: gray;
   /*opacity: 0.7;*/
@@ -255,9 +249,12 @@ footer{
 }
 
 #ctrl-bar-buildings, #ctrl-bar-floors, #ctrl-bar-pois, #ctrl-bar-more {
-    padding: 8px;
+    padding: 8px !important;
 }
 
+.ctlr-group{
+padding: 8px !important;
+}
 #control-panel::-webkit-scrollbar {
     display: none;
 }
@@ -391,32 +388,117 @@ contextmenu {
     padding: 4px;
 }
 
-
 #edge-mode-btn {
     height: 30px;
     width: 30px;
     outline-style: none;
 }
 
-
-#DL_1{
-    position:fixed;
-    top:45px;
-    left:50px;
-
-}
-
-#radioHeatmapRSS-mode, #APs-mode, #fingerPrints-mode, #localizationAccuracy-mode,#connections-mode,#POIs-mode,#delete-mode,#fingerPrints-time-mode,#radioHeatmapRSS-time-mode{
+/*,#connections-mode #POIs-mode, fingerPrints-time-mode radioHeatmapRSS-mode#delete-mode,*/
+#APs-mode, #fingerPrints-mode, #localizationAccuracy-mode,#radioHeatmapRSS-time-mode{
     padding: 0px;
 }
-
-#radioHeatmapRSS-mode-btn, #APs-mode-btn, #fingerPrints-mode-btn, #localizationAccuracy-mode-btn,#connections-mode-btn,#delete-mode-btn{
-    height: 30px;
-    width: 30px;
+/*#connections-mode-btn, radioHeatmapRSS-mode,#delete-mode-btn*/
+#APs-mode-btn, #fingerPrints-mode-btn, #localizationAccuracy-mode-btn{
+    height: 2px;
+    width: 40px;
     outline-style: none;
 }
 
 
+/* QUICK ACTION BUTTONS: top left*/
+/* Hide focus outline */
+.btn.focus, .btn:focus {
+    outline: none !important;
+    box-shadow: none!important;
+}
+/* Show border colour when unselected */
+
+
+.btn-quickactions {
+    border: gray !important;
+    border-style: solid !important;
+    border-radius: 4px;
+    margin-top: 2px;
+    margin-left: 2px;
+    width:45px !important;
+    height:45px !important;
+}
+
+/* Show border colour when unselected */
+.quickaction-selected .btn-quickactions {
+    border-color: #202B7B !important;
+}
+/* Fixed placement of the delete button */
+#deleteFingerprintsSpn{
+    position:fixed;
+    top:2px;
+    left:99px;
+}
+
+#FPs_2{
+    position:fixed;
+    top:2px;
+    left:50px;
+}
+
+.fa-margin-left-fix-lg {
+    margin-left: -0.2em;
+}
+
+.fa-margin-left-fix {
+margin-left: -0.15em;
+}
+
+.fa-margin-left-fix-sm {
+    margin-left: -0.05em;
+}
+
+.icon-quickaction-router {
+    background-image : url(../images/wireless-router-icon.png);
+    background-size: cover;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    margin-left: -0.17em;
+    margin-bottom: -0.2em;
+}
+
+.icon-quickaction-edges {
+    background-image : url(../images/edges.png);
+    background-size: cover;
+    display: inline-block;
+    height: 23px;
+    width: 23px;
+    margin-left: -0.25em;
+    margin-bottom: -0.25em;
+}
+/* No wrapping tooltips */
+.tooltip-inner {
+    white-space:nowrap;
+    max-width:none;
+}
+
+/* */
+.draggable-border-green {
+    border: 3px solid green;
+    border-radius: 6px;
+    padding: 4px;
+    display: inline-block;
+}
+.draggable-border-blue{
+    border: 3px solid #202B7B;
+    border-radius: 6px;
+    padding: 4px;
+    display: inline-block;
+}
+
+.draggable-border {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 4px;
+    display: inline-block;
+}
 .divider-top-5 {
     margin-top: 5px;
 }
@@ -426,7 +508,6 @@ contextmenu {
     border-top: 1px solid #5d5d5d;
     padding-top: 2px;
 }
-
 
 .divider-top-15 {
     margin-top: 15px;

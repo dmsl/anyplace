@@ -96,7 +96,7 @@ public class AnyplaceCache implements Serializable {
 	private int selectedBuilding = 0;
 	// last fetched Buildings
 	private List<BuildingModel> mSpinnerBuildings = new ArrayList<BuildingModel>(0);
-	private List<BuildingModel> mWorldBuildings = new ArrayList<BuildingModel>(0);
+	public List<BuildingModel> mWorldBuildings = new ArrayList<BuildingModel>(0);
 
 	// last fetched pois
 	private Map<String, PoisModel> mLoadedPoisMap;
