@@ -36,7 +36,7 @@
 package controllers
 
 import datasources.DatasourceException
-import datasources._ProxyDataSource
+import datasources.ProxyDataSource
 import db_models.NavResultPoint
 import oauth.provider.v2.models.OAuth2Request
 import play.api.mvc.{Action, Controller, Result}
@@ -67,7 +67,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       }
       val buid = (json \ "buid").as[String]
       try {
-        val doc = _ProxyDataSource.getIDatasource.buildingFromKeyAsJson(buid)
+        val doc = ProxyDataSource.getIDatasource.buildingFromKeyAsJson(buid)
         if (doc == null) {
           AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
         }
@@ -92,7 +92,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       }
       val puid = (json \ "pois").as[String]
       try {
-        val doc = _ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid)
+        val doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid)
         if (doc == null) {
           AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
         }
@@ -122,11 +122,11 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         AnyResponseHelper.bad_request("Destination and Source is the same!")
       }
       try {
-        val poiFrom = _ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from)
+        val poiFrom = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from)
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
         }
-        val poiTo = _ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
+        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }
@@ -171,7 +171,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       val floor_number = (json \ "floor_number").as[String]
       val puid_to = (json \ "pois_to").as[String]
       try {
-        val poiTo = _ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
+        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
         if (poiTo == null) {
           AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }
@@ -179,7 +179,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         val floor_to = poiTo.getString("floor_number")
         val dlat = java.lang.Double.parseDouble(coordinates_lat)
         val dlon = java.lang.Double.parseDouble(coordinates_lon)
-        val floorPois = _ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
+        val floorPois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
         if (0 == floorPois.size) {
           AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
         }
@@ -219,14 +219,14 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
   }
 
   private def navigateSameFloor(from: JsonObject, to: JsonObject): List[JsonObject] = {
-    navigateSameFloor(from, to, _ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap(from.getString("buid"),
+    navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap(from.getString("buid"),
       from.getString("floor_number")))
   }
 
   private def navigateSameFloor(from: JsonObject, to: JsonObject, floorPois: List[HashMap[String, String]]): List[JsonObject] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
-    graph.addEdges(_ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
+    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
     val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
 
     val final_points = new ArrayList[JsonObject]()
@@ -246,8 +246,8 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
 
   private def navigateSameBuilding(from: JsonObject, to: JsonObject): List[JsonObject] = {
     val graph = new Dijkstra.Graph()
-    graph.addPois(_ProxyDataSource.getIDatasource.poisByBuildingAsMap(from.getString("buid")))
-    graph.addEdges(_ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
+    graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap(from.getString("buid")))
+    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
     val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
     val final_points = new ArrayList[JsonObject]()
     var p: NavResultPoint = null

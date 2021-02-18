@@ -50,7 +50,7 @@ import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
 import play.Play
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import utils.{AnyResponseHelper, GeoPoint, JsonUtils, LPLogger}
 
 import scala.collection.mutable.ListBuffer
@@ -129,7 +129,7 @@ class CouchbaseDatasource private(hostname: String,
                                   port: String,
                                   bucket: String,
                                   username: String,
-                                  password: String) extends _IDatasource with IAccountService {
+                                  password: String) extends IDatasource with IAccountService {
   private var mHostname: String = hostname
   private var mClusterNodes: String = clusterNodes
   private var mPort: String = port
@@ -212,6 +212,8 @@ class CouchbaseDatasource private(hostname: String,
     }
     true
   }
+
+  def addJsonDocument(document: String, col: String) = ???
 
   override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = {
     val client = getConnection.async()
@@ -938,10 +940,11 @@ class CouchbaseDatasource private(hostname: String,
       }
     }
 
-    val test = JsonObject.empty().put("name", " 星网:")
-    val name = " 星网:"
-    LPLogger.debug(test.toString)
-    LPLogger.debug(name)
+    // CLR
+    //val test = JsonObject.empty().put("name", " 星网:")
+    //val name = " 星网:"
+    //LPLogger.debug(test.toString)
+    //LPLogger.debug(name)
     buildings
   }
 
@@ -1260,36 +1263,35 @@ class CouchbaseDatasource private(hostname: String,
     totalFetched
   }
 
-  override def getAllAccounts(): ListBuffer[JsValue] = ???
-  //override def getAllAccounts(): List[JsonObject] = {
-  //  LPLogger.debug("couchbase getAllAccounts: ")
-  //
-  //  val accounts = new ArrayList[JsonObject]()
-  //
-  //  val couchbaseClient = getConnection
-  //  val viewQuery = ViewQuery.from("accounts", "accounts_all").includeDocs(true)
-  //
-  //  val res = couchbaseClient.query(viewQuery)
-  //
-  //  LPLogger.debug("couchbase results: " + res.totalRows)
-  //  if (res.error().size > 0) {
-  //    throw new DatasourceException("Error retrieving accounts from database!")
-  //  }
-  //  var json: JsonObject = null
-  //
-  //  for (row <- res.allRows()) {
-  //    try {
-  //      if (row.document() != null) {
-  //        json = row.document().content()
-  //        json.removeKey("doctype")
-  //        accounts.add(json)
-  //      }
-  //    } catch {
-  //      case e: IOException =>
-  //    }
-  //  }
-  //  accounts
-  //}
+  override def getAllAccounts(): List[JsValue] = {
+    LPLogger.debug("couchbase getAllAccounts: ")
+
+    val accounts = new ArrayList[JsonObject]()
+
+    val couchbaseClient = getConnection
+    val viewQuery = ViewQuery.from("accounts", "accounts_all").includeDocs(true)
+
+    val res = couchbaseClient.query(viewQuery)
+
+    LPLogger.debug("couchbase results: " + res.totalRows)
+    if (res.error().size > 0) {
+      throw new DatasourceException("Error retrieving accounts from database!")
+    }
+    var json: JsonObject = null
+
+    for (row <- res.allRows()) {
+      try {
+        if (row.document() != null) {
+          json = row.document().content()
+          json.removeKey("doctype")
+          accounts.add(json)
+        }
+      } catch {
+        case e: IOException =>
+      }
+    }
+    convertJson(accounts)
+  }
 
   override def deleteRadiosInBox(): Boolean = {
     val couchbaseClient = getConnection
@@ -2109,5 +2111,15 @@ class CouchbaseDatasource private(hostname: String,
     }
     true
   }
+
+  def convertJson(list: java.util.List[JsonObject]): List[JsValue] = {
+    val jsList = ListBuffer[JsValue]()
+    for (doc <- list) {
+      jsList.append(convertJson(doc))
+    }
+    jsList.toList
+  }
+
+  def convertJson(doc: JsonObject) = Json.parse(doc.toString)
 
 }

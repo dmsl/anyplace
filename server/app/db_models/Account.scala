@@ -36,36 +36,46 @@
 package db_models
 
 import java.io.IOException
-import java.util
-import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import play.api.libs.json._
+import utils.LPLogger
 
-class Account(hm: HashMap[String, String]) extends AbstractModel {
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
-    private var json: JsonObject = _
+object ExternalType extends Enumeration {
+    type ExternalType = Value
+    val GOOGLE, LOCAL = Value
+}
+
+class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
+
+    private var json: JsValue = _
 
     this.fields = hm
 
     def this() {
-        this(new util.HashMap[String, String]())
+        this(new java.util.HashMap[String, String]())
         fields.put("name", "")
-        fields.put("owner_id", "")
+        fields.put("id", "")
         fields.put("type", "")
-        fields.put("doc_type", "account")
+        //fields.put("doc_type", "account")
     }
 
-    def this(json: JsonObject) {
+
+    // TODO make it follow new version of User Json
+    def this(json: JsValue) {
         this()
-        fields.put("name", json.getString("name"))
-        fields.put("owner_id", json.getString("owner_id"))
-        fields.put("type", json.getString("type"))
-        fields.put("doc_type", "account")
+        fields.put("name", (json \ "name").as[String])
+        fields.put("id", (json \ "id").as[String])
+        fields.put("type", (json \ "type").as[String])
+        if ((json \ "external").toOption.isDefined)
+            fields.put("external", (json \ "external").as[String])
         this.json = json
     }
 
     def getId(): String = {
-        val puid = fields.get("owner_id")
+        val puid = fields.get("id")
         puid
     }
 
@@ -73,7 +83,15 @@ class Account(hm: HashMap[String, String]) extends AbstractModel {
         JsonObject.from(this.getFields())
     }
 
+    def toJson(): JsValue = {
+        val sMap: Map[String, String] = this.getFields().asScala.toMap
+        Json.toJson(sMap)
+    }
+
+
+    // TODO: replace with mongo
     def toCouchGeoJSON(): String = {
+        LPLogger.error("TODO:nn convert to mdb")
         val sb = new StringBuilder()
         var json: JsonObject = null
         try {
@@ -85,5 +103,7 @@ class Account(hm: HashMap[String, String]) extends AbstractModel {
         sb.toString
     }
 
-    override def toString(): String = toValidCouchJson().toString
+    def _toString(): String = toValidCouchJson().toString
+
+    override def toString(): String = toJson().toString()
 }

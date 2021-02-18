@@ -18,6 +18,8 @@ object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
   private var mdb: MongoDatabase = null
 
+  def getMDB: MongoDatabase = mdb
+
   def getStaticInstance: MongodbDatasource = {
     val conf =  Play.application().configuration()
     val username = conf.getString("mongodb.app.username")
@@ -59,7 +61,7 @@ object MongodbDatasource {
 
 // TODO getAllAccounts()
 
-class MongodbDatasource() extends _IDatasource {
+class MongodbDatasource() extends IDatasource {
 
   private def connect(): Boolean = {
     //    LPLogger.info("Mongodb: connecting to: " + mHostname + ":" + mPort + " bucket[" +
@@ -79,7 +81,14 @@ class MongodbDatasource() extends _IDatasource {
 
   override def init(): Boolean = ???
 
-  override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
+  def addJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
+
+  override def addJsonDocument(document: String, col: String) {
+    val collection = mdb.getCollection(col)
+    val addJson = collection.insertOne(Document.apply(document))
+    val awaited = Await.result(addJson.toFuture, Duration.Inf)
+    val res = awaited.toString
+  }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
 
@@ -169,48 +178,14 @@ class MongodbDatasource() extends _IDatasource {
 
   override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = ???
 
-  override def getAllAccounts(): ListBuffer[JsValue] = {
-    // TODO: Only for admin users
+  override def getAllAccounts(): List[JsValue] = {
     LPLogger.debug("mongodb getAllAccounts: ")
-
     val collection = mdb.getCollection("users")
-
-    //val resultado = NewMongo.SequenceCollection.findOneAndUpdate(query,inc("nextId",1))
-    //resultado.subscribe(new Observer[Document] {
-    //  override def onNext(result: Document): Unit ={}
-    //  override def onError(e: Throwable): Unit ={}
-    //  override def onComplete(): Unit = {}
-    //})
-    //val awaitedR = Await.result(resultado.toFuture, Duration.Inf).asInstanceOf[List[Document]](0)
-    //
-    //val ret = awaitedR.get("nextId").getOrElse(0).asInstanceOf[BsonDouble].intValue();
-
     val users = collection.find()
-    Await.result(users.toFuture, Duration.Inf)
-    var usersJsons: ListBuffer[JsValue] = ListBuffer[JsValue]()
-
-    users.subscribe(new Observer[Document] {
-      // add on json array
-      override def onNext(result: Document): Unit = {
-        println(result.toJson())
-        usersJsons.append(Json.toJson(result.toJson()))
-      }
-      // throw error
-      override def onError(e: Throwable): Unit = {
-
-      }
-      // complete message
-      override def onComplete(): Unit = {
-        println(usersJsons.length)
-      }
-    })
-
-
-    usersJsons
-
-    // TODO: See buildings_all and repeat
-    // TODO: save output and total number of accounts, LPL.(resultssize)
-    // TODO: Once getAllAccounts done, disable it
+    val awaited = Await.result(users.toFuture, Duration.Inf)
+    val res = awaited.toList
+    LPLogger.debug(s"Res on complete Length:${res.length}")
+    convertJson(res)
   }
 
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = ???
@@ -230,5 +205,15 @@ class MongodbDatasource() extends _IDatasource {
   override def getAllBuildingsetsByOwner(owner_id: String): java.util.List[JsonObject] = ???
 
   override def deleteNotValidDocuments(): Boolean = ???
+
+  def convertJson(list: List[Document]): List[JsValue] = {
+    val jsList = ListBuffer[JsValue]()
+    for (doc <- list) {
+      jsList.append(convertJson(doc))
+    }
+    jsList.toList
+  }
+
+  def convertJson(doc: Document) = Json.parse(doc.toJson())
 }
 

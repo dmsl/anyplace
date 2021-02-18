@@ -44,28 +44,26 @@ import floor_module.IAlgo
 import play.api.libs.json.JsValue
 import utils.GeoPoint
 
-import scala.collection.mutable.ListBuffer
+object ProxyDataSource {
 
-object _ProxyDataSource {
+  private var sInstance: ProxyDataSource = _
 
-  private var sInstance: _ProxyDataSource = _
-
-  def getInstance(): _ProxyDataSource = {
+  def getInstance(): ProxyDataSource = {
     if (sInstance == null) {
-      sInstance = new _ProxyDataSource()
+      sInstance = new ProxyDataSource()
     }
     sInstance
   }
 
-  def getIDatasource(): _IDatasource = getInstance()
+  def getIDatasource(): IDatasource = getInstance()
 }
 
-class _ProxyDataSource private() extends _IDatasource {
+class ProxyDataSource private() extends IDatasource {
 
   private var mCouchbase: CouchbaseDatasource = _
   private var mongoDB: MongodbDatasource = _
 
-  private var mActiveDatabase: _IDatasource = _
+  private var mActiveDatabase: IDatasource = _
 
   initCouchbase()
   setActiveDatabase(this.mCouchbase)
@@ -81,7 +79,7 @@ class _ProxyDataSource private() extends _IDatasource {
     this.mongoDB = MongodbDatasource.getStaticInstance
   }
 
-  private def setActiveDatabase(ds: _IDatasource) {
+  private def setActiveDatabase(ds: IDatasource) {
     this.mActiveDatabase = ds
   }
 
@@ -90,6 +88,11 @@ class _ProxyDataSource private() extends _IDatasource {
   override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = {
     _checkActiveDatasource()
     mActiveDatabase.addJsonDocument(key, expiry, document)
+  }
+
+  override def addJsonDocument(document: String, col: String) {
+    _checkActiveDatasource()
+    mongoDB.addJsonDocument(document, col)
   }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = {
@@ -295,7 +298,7 @@ class _ProxyDataSource private() extends _IDatasource {
     mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
   }
 
-  override def getAllAccounts(): ListBuffer[JsValue] = {
+  override def getAllAccounts(): List[JsValue] = {
     _checkActiveDatasource()
     //mActiveDatabase.getAllAccounts
     mongoDB.getAllAccounts()

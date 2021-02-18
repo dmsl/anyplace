@@ -38,15 +38,13 @@ package controllers
 
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.{DatasourceException, _ProxyDataSource}
+import datasources.{DatasourceException, ProxyDataSource}
 import oauth.provider.v2.granttype.GrantHandlerFactory
 import oauth.provider.v2.models.{AccountModel, OAuth2Request}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.mvc.Controller
 import utils.{AnyResponseHelper, JsonUtils, LPLogger}
-
-import scala.collection.mutable.ListBuffer
 
 
 object AnyplaceAccounts extends Controller {
@@ -60,6 +58,7 @@ object AnyplaceAccounts extends Controller {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+        // TODO: Only for admin users if not admin return only for admins
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(
@@ -68,7 +67,7 @@ object AnyplaceAccounts extends Controller {
         //val json = JsonObject.empty()
         LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ") // + json.toString)
         try {
-          val users: ListBuffer[JsValue] = _ProxyDataSource.getIDatasource().getAllAccounts()
+          val users: List[JsValue] = ProxyDataSource.getIDatasource().getAllAccounts()
           val res: JsValue = Json.obj(
             "users_num" -> users.length,
             "users" -> Json.arr(users)
@@ -120,7 +119,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            _ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
           if (storedAccount ==
             null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
@@ -167,7 +166,7 @@ object AnyplaceAccounts extends Controller {
         if (auid == null || auid.trim().isEmpty)
           auid = json.\\("auid").mkString
         try {
-          if (!_ProxyDataSource.getIDatasource.deleteFromKey(auid)) {
+          if (!ProxyDataSource.getIDatasource.deleteFromKey(auid)) {
             return AnyResponseHelper.bad_request("Account could not be deleted!")
           }
           return AnyResponseHelper.ok("Successfully deleted account!")
@@ -213,7 +212,7 @@ object AnyplaceAccounts extends Controller {
         try {
           // fetch the stored object
           var storedAccount: JsonObject = null
-          storedAccount = _ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request(
               "Account could not be updated! Try again...")
@@ -232,7 +231,7 @@ object AnyplaceAccounts extends Controller {
             }
           }
           // save the changes
-          if (!_ProxyDataSource.getIDatasource().replaceJsonDocument(auid, 0, storedAccount.toString)) {
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(auid, 0, storedAccount.toString)) {
             return AnyResponseHelper.bad_request(
               "Account could not be updated! Try again...")
           }
@@ -282,7 +281,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            _ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+            ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -337,14 +336,14 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = _ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
           val account: AccountModel = new AccountModel(storedAccount)
           account.addNewClient(grant_type, scope, redirect_uri)
           // save the changes
-          if (!_ProxyDataSource.getIDatasource().replaceJsonDocument(
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(
             auid,
             0,
             account.toJson().toString)) {
@@ -391,7 +390,7 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = _ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          storedAccount = ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -442,7 +441,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            _ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -451,7 +450,7 @@ object AnyplaceAccounts extends Controller {
             return AnyResponseHelper.bad_request("Account client could not be found!")
           }
           // save the changes
-          if (!_ProxyDataSource.getIDatasource.replaceJsonDocument(
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(
             auid,
             0,
             account.toJson().toString)) {

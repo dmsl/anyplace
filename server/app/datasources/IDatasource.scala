@@ -41,11 +41,9 @@ import java.util.HashMap
 import com.couchbase.client.java.document.json.JsonObject
 import floor_module.IAlgo
 import play.api.libs.json.JsValue
-import utils.GeoPoint
+import utils.GeoPoint // TODO: Will use play.json
 
-import scala.collection.mutable.ListBuffer // TODO: Will use play.json
-
-trait _IDatasource {
+trait IDatasource {
   def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject]
 
   def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject]
@@ -60,6 +58,7 @@ trait _IDatasource {
   def init(): Boolean
 
   def addJsonDocument(key: String, expiry: Int, document: String): Boolean
+  def addJsonDocument(document: String, col: String)
 
   def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean
 
@@ -149,7 +148,7 @@ trait _IDatasource {
 
   def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
 
-  def getAllAccounts(): ListBuffer[JsValue]
+  def getAllAccounts(): List[JsValue]
 
   def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean
 
