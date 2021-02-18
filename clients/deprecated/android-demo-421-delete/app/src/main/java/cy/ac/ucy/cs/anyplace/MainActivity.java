@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onPostResume() {
         super.onPostResume();
-        receiverWifi = new WifiReceiver(wifiManager, wifiList);
+        receiverWifi = new WifiReceiver(wifiManager);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         registerReceiver(receiverWifi, intentFilter);
