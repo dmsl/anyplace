@@ -2906,7 +2906,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     id = appendToId(id)
     json = json.as[JsObject] + ("owner_id" -> Json.toJson(id))
     if (userExists(json)) {
-      LPLogger.D2("User already exists") // CLR:nn
+      LPLogger.debug("User already exists") // CLR:nn
       AnyResponseHelper.ok("User Exists.") // its not AnyResponseHelperok
     } else {
       val newAccount = new Account(json)
