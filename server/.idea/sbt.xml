@@ -2,17 +2,5 @@
 <project version="4">
   <component name="ScalaSbtSettings">
     <option name="customVMPath" />
-    <option name="linkedExternalProjectsSettings">
-      <SbtProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/project" />
-          </set>
-        </option>
-        <option name="sbtVersion" value="0.13.18" />
-      </SbtProjectSettings>
-    </option>
   </component>
 </project>
