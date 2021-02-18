@@ -39,7 +39,7 @@ import java.io._
 import java.util._
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import datasources.{DatasourceException, ProxyDataSource}
+import datasources.{DatasourceException, _ProxyDataSource}
 import db_models.{Floor, MagneticMilestone, MagneticPath, RadioMapRaw}
 import floor_module.Algo1
 import oauth.provider.v2.models.OAuth2Request
@@ -174,7 +174,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           }
           var floorFetched: Long = 0l
           try {
-            floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floor_number)
+            floorFetched = _ProxyDataSource.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floor_number)
             try {
               fout.close()
             } catch {
@@ -293,7 +293,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         var floorFetched: Long = 0l
         try {
-          floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+          floorFetched = _ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
           try {
             fout.close()
           } catch {
@@ -415,7 +415,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           }
           var floorFetched: Long = 0l
           try {
-            floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            floorFetched = _ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
             try {
               fout.close()
             } catch {
@@ -487,7 +487,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         LPLogger.info(rmr.toValidCouchJson().toString)
         LPLogger.debug("raw[" + lineNumber + "] : " + rmr.toValidCouchJson())
         try {
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toCouchGeoJSON())) {
+          if (!_ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toCouchGeoJSON())) {
             return "Radio Map entry could not be saved in database![could not be created]"
           }
         } catch {
@@ -594,7 +594,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         LPLogger.info(rmr.toValidCouchJson().toString)
         try {
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toCouchGeoJSON())) {
+          if (!_ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toCouchGeoJSON())) {
             LPLogger.info("Radio Map entry was not saved in database![Possible duplicate]")
           }
         } catch {
@@ -668,7 +668,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           strongestMAC.add(json.\("first").\("MAC").as[String])
           if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\("MAC").as[String])
           val res = JsonObject.empty()
-          if (ProxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
+          if (_ProxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
             res.put("floor", alg1.getFloor)
           } else {
             res.put("floor", "")
@@ -710,7 +710,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
     }
     var floorFetched: Long = 0l
     try {
-      floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+      floorFetched = _ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
       try {
         fout.close()
       } catch {
@@ -792,7 +792,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           }
           var floorFetched: Long = 0l
           try {
-            floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floor_number)
+            floorFetched = _ProxyDataSource.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floor_number)
             try {
               fout.close()
             } catch {
@@ -857,7 +857,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           } catch {
             case e: NumberFormatException => return AnyResponseHelper.bad_request("Magnetic Path coordinates are invalid!")
           }
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(mpath.getId, 0, mpath.toValidCouchJson().toString)) {
+          if (!_ProxyDataSource.getIDatasource.addJsonDocument(mpath.getId, 0, mpath.toValidCouchJson().toString)) {
             return AnyResponseHelper.bad_request("MPath already exists or could not be added!")
           }
           val res = JsonObject.empty()
@@ -886,7 +886,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val mpuid = (json \ "mpuid").as[String]
         try {
-          val success = ProxyDataSource.getIDatasource.deleteFromKey(mpuid)
+          val success = _ProxyDataSource.getIDatasource.deleteFromKey(mpuid)
           if (!success) {
             return AnyResponseHelper.bad_request("Magnetic Path does not exist or could not be retrieved!")
           }
@@ -915,7 +915,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor_num").as[String]
         try {
-          val mpaths = ProxyDataSource.getIDatasource.magneticPathsByBuildingFloorAsJson(buid, floor_number)
+          val mpaths = _ProxyDataSource.getIDatasource.magneticPathsByBuildingFloorAsJson(buid, floor_number)
           val res = JsonObject.empty()
           res.put("mpaths", JsonArray.from(mpaths))
           return AnyResponseHelper.ok(res.toString)
@@ -942,7 +942,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val buid = (json \ "buid").as[String]
         try {
-          val mpaths = ProxyDataSource.getIDatasource.magneticPathsByBuildingAsJson(buid)
+          val mpaths = _ProxyDataSource.getIDatasource.magneticPathsByBuildingAsJson(buid)
           val res = JsonObject.empty()
           res.put("mpaths", JsonArray.from(mpaths))
           return AnyResponseHelper.ok(res.toString)
@@ -979,7 +979,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         for (jn <- milestones.toList.asInstanceOf[List[JsonObject]]) {
           val mm = new MagneticMilestone(jn, buid, floor_num, mpuid)
           try {
-            if (!ProxyDataSource.getIDatasource.addJsonDocument(mm.getId, 0, mm.toValidCouchJson().toString)) {
+            if (!_ProxyDataSource.getIDatasource.addJsonDocument(mm.getId, 0, mm.toValidCouchJson().toString)) {
               return AnyResponseHelper.bad_request("Milestone already exists or could not be added!")
             }
           } catch {
@@ -1008,7 +1008,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor_num").as[String]
         try {
-          val mpaths = ProxyDataSource.getIDatasource.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
+          val mpaths = _ProxyDataSource.getIDatasource.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
           val res = JsonObject.empty()
           res.put("mpaths", JsonArray.from(mpaths))
           return AnyResponseHelper.ok(res.toString)

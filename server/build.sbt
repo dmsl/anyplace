@@ -8,6 +8,8 @@ version := "4.0"
 
 scalaVersion := "2.11.7"
 
+val playVersion = "2.4.2" // see also plugins.sbt
+
 libraryDependencies ++= Seq( jdbc, cache , ws, specs2 % Test )
 //scalaVersion := "2.12.11"
 //scalaVersion := "2.13.2" // Cant be updated due to ACCES
@@ -32,10 +34,17 @@ libraryDependencies ++= Seq(
   "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
 )
 
-// TODO ACCES Deprecate this library
+// Play json
+libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion
+
+// TODO ACCES: DEPRECATE this library
 libraryDependencies += "com.github.danielkorzekwa" % "bayes-scala-gp_2.11" % "0.1-SNAPSHOT"
 
-libraryDependencies += "com.couchbase.client" % "java-client" % "2.4.5"
+// INFO: updated version to work with couchbase 6.5 version
+// Due to wiping/reinstalling Couchbase to v6.5
+libraryDependencies += "com.couchbase.client" % "java-client" % "2.7.18"
+// This version works with couchbase 6.0
+//libraryDependencies += "com.couchbase.client" % "java-client" % "2.4.5"
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 

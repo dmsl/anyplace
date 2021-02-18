@@ -35,10 +35,10 @@
  */
 package utils
 
-import java.io.{File, FileNotFoundException}
 import java.util.List
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import play.api.libs.json.JsValue
 //import play.api.mvc.{Result, Results}
 import play.api.mvc._
 import utils.AnyResponseHelper.Response.Response
@@ -67,6 +67,13 @@ object AnyResponseHelper {
 
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
+
+    // TODO: json of play
+    def ok(json: JsValue, msg: String): Result = {
+        CreateResultResponse(Response.OK, json, msg)
+    }
+
+    // #####################################################
 
     def ok(json: JsonObject, msg: String): Result = {
         createResultResponse(Response.OK, json, msg)
@@ -182,4 +189,52 @@ object AnyResponseHelper {
         }
     }
 
+    private def CreateResultResponse(r: Response, json_in: JsValue, message: String): Result = {
+        val json: JsValue = json_in
+
+        r match {
+            case Response.BAD_REQUEST =>
+                //json.put("status", "error")
+                //json.put("message", message)
+                //json.put("status_code", 400)
+                Results.BadRequest(json.toString)
+
+            case Response.OK =>
+                //json.put("status", "success")
+                //json.put("message", message)
+                //json.put("status_code", 200)
+                Results.Ok(json.toString)
+
+            case Response.FORBIDDEN =>
+                //json.put("status", "error")
+                //json.put("message", message)
+                //json.put("status_code", 401)
+                Results.Forbidden(json.toString)
+
+            case Response.UNAUTHORIZED_ACCESS =>
+                //json.put("status", "error")
+                //json.put("message", message)
+                //json.put("status_code", 403)
+                Results.Unauthorized(json.toString)
+
+            case Response.INTERNAL_SERVER_ERROR =>
+                //json.put("status", "error")
+                //json.put("message", message)
+                //json.put("status_code", 500)
+                Results.InternalServerError(json.toString)
+
+            case Response.NOT_FOUND =>
+                //json.put("status", "error")
+                //json.put("message", message)
+                //json.put("status_code", 404)
+                Results.NotFound(json.toString)
+
+            case _ =>
+                //json.put("status", "error")
+                //json.put("message", "Unknown Action")
+                //json.put("status_code", 403)
+                Results.BadRequest(json.toString)
+
+        }
+    }
 }

@@ -3,6 +3,7 @@ USERNAME=""
 PASSWORD=""
 BUCKET=""
 IP=localhost
+# default port of couchbase
 PORT=8092
 
 # override values from .env (docker_compose)

@@ -179,3 +179,19 @@ GET         /admin                                                              
 # Android
 GET         /android                                                                   controllers.AnyplaceAndroid.getApks()
 GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
+
+#####################################################################################################
+###
+# DEBUG ENDPOINTS: These are for testing the migration to the MongoDB layer.
+#                  DISABLE them in production environments.
+###
+POST        /anyplace/debug/accounts_all                                                controllers.AnyplaceAccounts.fetchAllAccounts()
+
+
+#####################################################################################################
+###
+# MONGODB_WORKING: The following endpoints work with mongodb.
+#                  DISABLE them in production environments.
+###
+
+# TODO: addAccount sign login oauth(token)
