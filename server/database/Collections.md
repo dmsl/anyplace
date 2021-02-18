@@ -1,14 +1,26 @@
-## Object Report from pullCouchbase.py (18/02/2021)
+# Collections
+
+## users
+#### total: 4351
+```json
+{
+  "doc_type": "account",
+  "owner_id": "100428071994993122990_google",
+  "type": "google"
+}
 ```
-Buildinds:  4439
-Campus: 258
-Edge:  45269
-Fingerprints:  11142975
-Floorplans:  3975
-Pois:  49037
-Users:  4353
-Undefined:  2
-```
+Extra Keys:
+auid clients doctype email isadmin nickname password scope username 
+### Changes: 
+- doc_type deleted
+- type -> external
+- new key: type (user, admin) (user by default) 
+### V1 Changes:
+- NONE
+
+---
+# TODO: 
+
 ## buildings
 #### total: 4438
 ```json
@@ -37,7 +49,7 @@ bucode geometry username_creator co_owners owner_id
 - coordinates_lon deleted 
 - geometry -> location
 - dashes and nulls removed
-### V2 Changes:
+### V1 Changes:
 - is_published: String -> Boolean 
 
 ## campuses
@@ -77,7 +89,7 @@ greeklish
 ```
 ### Changes: 
 - NONE
-### V2 Changes:
+### V1 Changes:
 - floors: String -> (remain String?) 
 - is_published: String -> Boolean 
 - weight: String -> Float
@@ -119,7 +131,7 @@ strongestWifi
 - y deleted
 - geometry -> location
 - measurements[] = array [Mac, rss] (not during pulling, but during inserting)
-### V2 Changes:
+### V1 Changes:
 - rss: String -> Int
 - timestamp: String -> Int 
 - heading: String -> Float
@@ -142,7 +154,7 @@ username_creator bottom_left_lat bottom_left_lng top_right_lat top_right_lng hei
 ### Changes: 
 - dashes and nulls removed
 - bottom_left_lat, bottom_left_lng, top_right_lat, top_right_lng -> area (GeoJson polygon)
-### V2 Changes:
+### V1 Changes:
 - floors: String -> (remain String?) 
 - is_published: String -> Boolean 
 - zoom: String -> Int
@@ -183,29 +195,11 @@ username_creator image
 - coordinates_lon deleted 
 - geometry -> location
 - dashes and nulls removed
-### V2 Changes:
+### V1 Changes:
 - floors: String -> (remain String?) 
 - is_published: String -> Boolean 
 - is_door: String -> Boolean 
 - is_building_entrance: String -> Boolean 
-
-## users
-#### total: 4351
-```json
-{
-  "doc_type": "account",
-  "owner_id": "100428071994993122990_google",
-  "type": "google"
-}
-```
-Extra Keys:
-auid clients doctype email isadmin nickname password scope username 
-### Changes: 
-- doc_type deleted
-- type -> external
-- new key: type (user, admin) (user by default) 
-### V2 Changes:
-- NONE
 
 # UNDEFINED
 

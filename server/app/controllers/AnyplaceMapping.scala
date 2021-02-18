@@ -2821,7 +2821,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // TODO: query
         val mdb:MongoDatabase = MongodbDatasource.getMDB
         val collection = mdb.getCollection("users")
-        val userLookUp = collection.find(equal("id", (json \ "id").as[String]))
+        val userLookUp = collection.find(equal("owner_id", (json \ "owner_id").as[String]))
         val awaited = Await.result(userLookUp.toFuture, Duration.Inf)
         val res = awaited.toList
         if (res.size != 0) {
@@ -2860,7 +2860,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   // TODO if json has not type add type = user
   def appendUserType(json: JsValue):JsValue = {
     if ((json \ "type").toOption.isDefined) {
-      LPLogger.info("user type exists: " + (json \ "type").as[String])
+      LPLogger.info("user type exists: " + (json \ "type").as[String]) // Might crash
       return json
     } else {
       var userType: String = ""
@@ -2868,7 +2868,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         userType = "admin"
         LPLogger.info("Initializing admin user!")
       } else {
-        LPLogger.debug("Initializing regular user")
+        LPLogger.D4("AppendUserType: user")
         userType = "user"
       }
       return json.as[JsObject] + ("type" -> JsString(userType))
@@ -2904,15 +2904,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     var id = verifyId((json \ "access_token").as[String])
     if (id == null) return AnyResponseHelper.forbidden("Unauthorized")
     id = appendToId(id)
-    json = json.as[JsObject] + ("id" -> Json.toJson(id))
+    json = json.as[JsObject] + ("owner_id" -> Json.toJson(id))
     if (userExists(json)) {
-      LPLogger.debug("User already exists") // CLR:nn
-      AnyResponseHelper.ok("User Exists.") // its not ok
+      LPLogger.D2("User already exists") // CLR:nn
+      AnyResponseHelper.ok("User Exists.") // its not AnyResponseHelperok
     } else {
       val newAccount = new Account(json)
       try {
         ProxyDataSource.getIDatasource.addJsonDocument(newAccount.toString(), "users")
-        LPLogger.debug("Added google user") // CLR:nn
+        LPLogger.D2("Added google user") // CLR:nn
         AnyResponseHelper.ok("Added google user.")
       } catch {
         case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)

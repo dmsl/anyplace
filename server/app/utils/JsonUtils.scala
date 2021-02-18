@@ -36,13 +36,10 @@
 package utils
 
 import java.util
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-import java.util.List
+import java.util.{ArrayList, Collections, HashMap, List}
 
 import com.couchbase.client.java.document.json.JsonObject
-import play.api.libs.json.{JsArray, JsValue}
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue}
 
 object JsonUtils {
 
@@ -113,4 +110,11 @@ object JsonUtils {
     }
     notFound
   }
+
+  def convertToInt(key: String, json: JsValue): JsValue = {
+    var value = "0"
+    if ((json \ key).toOption.isDefined) value = (json \ key).as[String]
+    json.as[JsObject] + (key -> JsNumber(value.toInt))
+  }
+
 }

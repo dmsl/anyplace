@@ -108,12 +108,12 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.personLookUp = function (resp) {
         // BUG: resp.getBasicProfile is not a function
-        $scope.person = resp.getBasicProfile();
-        $scope.person.image = $scope.person.getImageUrl();
-        $scope.person.id = $scope.person.getId();
+        $scope.person = resp.getBasicProfile(); // BUG
+        $scope.person.image = $scope.person.getImageUrl(); // BUG
+        $scope.person.id = $scope.person.getId(); // BUG
         $scope.person.displayName = $scope.person.getName();
         // compose user id
-        $scope.owner_id = $scope.person.id + '_' + $scope.signInType; // id was owner_id TODO replace all
+        $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
         $scope.displayName = $scope.person.displayName;
 
         if ($scope.person && $scope.person.id) {
