@@ -24,6 +24,7 @@ FLAGS+=" --delete"
 # excludes+="--exclude=public/anyplace_viewer/libs/ "
 
 excludes+="--exclude=anyplace_views "
+excludes+="--exclude=application.conf "
 excludes+="--exclude=logs "
 excludes+="--exclude=dist "
 excludes+="--exclude=tmp "

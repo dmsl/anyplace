@@ -876,7 +876,8 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    apiService.signAccount = function (json_req) {
+    // TODO: specialize google and local
+    apiService.signGoogleAccount = function (json_req) {
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.SIGN_URL,

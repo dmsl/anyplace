@@ -54,11 +54,14 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.showFullControls = !$scope.showFullControls;
     };
 
+    // not called
     var apiClientLoaded = function () {
         gapi.client.plus.people.get({userId: 'me'}).execute(handleEmailResponse);
     };
 
+
     var handleEmailResponse = function (resp) {
+        console.log("handleEmailResponse ?");
         $scope.personLookUp(resp);
     };
 
@@ -105,9 +108,9 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.personLookUp = function (resp) {
         // BUG: resp.getBasicProfile is not a function
-        $scope.person = resp.getBasicProfile();
-        $scope.person.image = $scope.person.getImageUrl();
-        $scope.person.id = $scope.person.getId();
+        $scope.person = resp.getBasicProfile(); // BUG
+        $scope.person.image = $scope.person.getImageUrl(); // BUG
+        $scope.person.id = $scope.person.getId(); // BUG
         $scope.person.displayName = $scope.person.getName();
         // compose user id
         $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
@@ -117,16 +120,15 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             $scope.$broadcast('loggedIn', []);
         }
 
-        var promise = AnyplaceAPIService.signAccount({
+        // TODO console.log(scope.person) tell PM if has email
+        var promise = AnyplaceAPIService.signGoogleAccount({
             name: $scope.person.displayName,
-            type: "google"
+            external: "google"
         });
 
         promise.then(
-            function (resp) {
-            },
-            function (resp) {
-            }
+            function (resp) {},
+            function (resp) {}
         );
     };
 

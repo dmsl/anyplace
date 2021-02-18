@@ -37,7 +37,10 @@ package controllers
 
 import java.io._
 import java.net.{HttpURLConnection, URL}
+import java.nio.file.{Files, Paths}
 import java.text.{NumberFormat, ParseException}
+import java.time.Instant
+import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.util
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
@@ -45,30 +48,30 @@ import java.util.zip.GZIPOutputStream
 import acces.{AccesRBF, GeoUtils}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import datasources.{DatasourceException, ProxyDataSource}
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource}
+import db_models.ExternalType.ExternalType
 import db_models._
 import location.Algorithms
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
+import org.mongodb.scala.MongoDatabase
+import org.mongodb.scala.model.Filters.equal
 import play.Play
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.Reads._
+import play.api.libs.json.{JsObject, JsValue, Json, _}
 import play.api.mvc._
 import play.libs.F
 import radiomapserver.RadioMap.RadioMap
 import radiomapserver.RadioMapMean
 import utils._
 
-import scala.util.control.Breaks
-import play.api.libs.json.Reads._
-import play.api.libs.json._
-
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 import scala.io.Source
-import java.nio.file.{Files, Paths}
-import java.time.Instant
-import java.time.temporal.{ChronoUnit, TemporalUnit}
+import scala.util.control.Breaks
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -84,7 +87,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         (jsVal.as[JsObject] - "access_token" - "password" - "username").toString()
     }
 
-    private def verifyOwnerId(authToken: String): String = {
+    private def verifyId(authToken: String): String = {
       // remove the double string quotes due to json processing
       val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
       var res = ""
@@ -92,26 +95,29 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         res = sendGet(gURL)
       } catch {
         case e: Exception => {
-          LPLogger.error(e.toString)
+          LPLogger.error("verifyId: " + e.toString)
           null
         }
       }
     if (res != null)
       try {
-        val json = JsonObject.fromJson(res)
-        if (json.get("user_id") != null)
-          return json.get("user_id").toString
-        else if (json.get("sub") != null)
-          return appendToOwnerId(json.get("sub").toString)
+
+        val json = Json.parse(res)
+        val uid = (json \ "user_id")
+        val sub = (json \ "sub")
+        if (uid.toOption.isDefined)
+          return uid.as[String]
+        if (sub.toOption.isDefined)
+          return sub.as[String]
       } catch {
         case ioe: IOException => null
-        case iae: IllegalArgumentException=> LPLogger.error("verifyOwnerId: " + iae.getMessage + "String: '" + res + "'");
+        case iae: IllegalArgumentException=> LPLogger.error("verifyId: " + iae.getMessage + "String: '" + res + "'");
       }
     null
   }
 
   //Make the id to the appropriate format
-  private def appendToOwnerId(ownerId: String) = if (ownerId.contains("_google")) ownerId else ownerId + "_google"
+  private def appendToId(id: String) = if (id.contains("_google")) id else id + "_google"
 
   private def sendGet(url: String) = {
     val obj = new URL(url)
@@ -1009,9 +1015,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if ((json \ "access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id.toString)
+        owner_id = appendToId(owner_id.toString)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         try {
           var building: Building = null
@@ -1043,9 +1049,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "co_owners")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\\("access_token") == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
@@ -1073,13 +1079,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "new_owner")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         var newOwner = (json \ "new_owner").as[String]
-        newOwner = appendToOwnerId(newOwner)
+        newOwner = appendToId(newOwner)
         try {
           val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -1106,9 +1112,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
@@ -1148,9 +1154,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
@@ -1267,9 +1273,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         if (owner_id == null || owner_id.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
@@ -1331,9 +1337,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) owner_id = ""
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         requiredMissing.addAll(JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon"))
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1438,10 +1444,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // get access token from url and check it against google's service
         if (json.\\("access_token") == null)
           return AnyResponseHelper.forbidden("Unauthorized1")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized2")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         try {
           val cuid = (json \ "cuid").as[String]
@@ -1490,10 +1496,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // get access token from url and check it against google's service
         if (json.\\("access_token") == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val cuid = (json \ "cuid").as[String]
         try {
@@ -1540,10 +1546,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // get access token from url and check it against google's service
         if (json.\\("access_token") == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         if (owner_id == null || owner_id.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1587,10 +1593,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // get access token from url and check it against google's service
         if (json.\\("access_token") == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val cuid = (json \ "cuid").as[String]
         try {
@@ -1631,9 +1637,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           "description", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
@@ -1667,9 +1673,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
@@ -1734,9 +1740,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         val floor_number = (json \ "floor_name").as[String]
@@ -1816,9 +1822,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
@@ -1861,10 +1867,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // get access token from url and check it against google's service
         if (json.\\("access_token") == null)
           return AnyResponseHelper.forbidden("Unauthorized1")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized2")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         try {
           var poiscategory: PoisCategory = null
@@ -1898,9 +1904,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val puid = (json \ "puid").as[String]
         val buid = (json \ "buid").as[String]
@@ -1955,9 +1961,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         val puid = (json \ "puid").as[String]
@@ -2145,10 +2151,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         // get access token from url and check it against google's service
         if (json.\\("access_token") == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         if (owner_id == null || owner_id.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2185,9 +2191,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           "buid_a", "pois_b", "floor_b", "buid_b", "buid", "edge_type", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid1 = (json \ "buid_a").as[String]
         val buid2 = (json \ "buid_b").as[String]
@@ -2238,9 +2244,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid1 = (json \ "buid_a").as[String]
         val buid2 = (json \ "buid_b").as[String]
@@ -2295,9 +2301,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ "access_token").as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
+        owner_id = appendToId(owner_id)
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid1 = (json \ "buid_a").as[String]
         val buid2 = (json \ "buid_b").as[String]
@@ -2788,34 +2794,131 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  def getAccountType(json: JsValue): ExternalType = {
+    val external = (json \ "external")
+    if (external.toOption.isDefined) {
+      val exts = external.as[String]
+      if (exts == "google") return ExternalType.GOOGLE
+    }
+    ExternalType.LOCAL
+  }
+
+
+  def isFirstUser(): Boolean = {
+    val mdb:MongoDatabase = MongodbDatasource.getMDB
+    val collection = mdb.getCollection("users")
+    val users = collection.find()
+    var awaited = Await.result(users.toFuture, Duration.Inf)
+    var res = awaited.toList
+    return (res.size == 0)
+  }
+
+  def userExists(json: JsValue): Boolean = {
+    val mdb:MongoDatabase = MongodbDatasource.getMDB
+    val collection = mdb.getCollection("users")
+    getAccountType(json) match {
+      case ExternalType.GOOGLE => {
+        // TODO: query
+        val mdb:MongoDatabase = MongodbDatasource.getMDB
+        val collection = mdb.getCollection("users")
+        val userLookUp = collection.find(equal("owner_id", (json \ "owner_id").as[String]))
+        val awaited = Await.result(userLookUp.toFuture, Duration.Inf)
+        val res = awaited.toList
+        if (res.size != 0) {
+          return true
+        }
+        return false
+      }
+      case ExternalType.LOCAL => LPLogger.debug("TODO: query unique email")
+    }
+    val users = collection.find()
+    var awaited = Await.result(users.toFuture, Duration.Inf)
+    var res = awaited.toList
+    return (res.size == 0)
+  }
 
   def addAccount() = Action {
-    implicit request =>
-
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceAccounts::addAccount()")
-        val notFound = JsonUtils.requirePropertiesInJson(json, "access_token", "type")
-        if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyOwnerId((json \ "access_token").as[String])
-        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToOwnerId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-
-        val newAccount = new Account(JsonObject.fromJson(json.toString()))
-        try {
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(newAccount.getId, 0, newAccount.toValidCouchJson().toString)) return AnyResponseHelper.ok("Returning user.")
-          val res = JsonObject.empty()
-          return AnyResponseHelper.ok("New user.")
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+      implicit request =>
+        def inner(request: Request[AnyContent]): Result = {
+          val anyReq = new OAuth2Request(request)
+          if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          var json = anyReq.getJsonBody
+          json = appendUserType(json)
+          val external = (json \ "external")
+          if (external.toOption.isDefined) {
+            addGoogleAccount(json)
+          } else {
+            // addLocalAccount() // TODO
+            LPLogger.error("TODO: Add Local Account")
+            null
+          }
         }
-      }
+        inner(request)
+  }
 
-      inner(request)
+
+  // TODO if json has not type add type = user
+  def appendUserType(json: JsValue):JsValue = {
+    if ((json \ "type").toOption.isDefined) {
+      LPLogger.info("user type exists: " + (json \ "type").as[String]) // Might crash
+      return json
+    } else {
+      var userType: String = ""
+      if (isFirstUser()) {
+        userType = "admin"
+        LPLogger.info("Initializing admin user!")
+      } else {
+        LPLogger.D4("AppendUserType: user")
+        userType = "user"
+      }
+      return json.as[JsObject] + ("type" -> JsString(userType))
+    }
+  }
+
+  // TODO: Implement
+  // TODO new object with above but password encrypt (salt)
+  // TODO add this to mongo (insert)
+  // TODO Generate access_token: "local_VERY LONG SHA"
+  def addLocalAccount(json: JsValue): Result = {
+
+    // call appendUserType
+    // ----------------------------
+    //  requirePropertiesInJson: email, username, password
+    val mdb:MongoDatabase = MongodbDatasource.getMDB
+    val collection = mdb.getCollection("users")
+    val userLookUp = collection.find(equal("username", (json \ "username").as[String]))
+    val awaited = Await.result(userLookUp.toFuture, Duration.Inf)
+    val res = awaited.toList
+    if (res.size != 0) {
+      // TODO user must have unique username (query username in mongo)
+    }
+    null
+  }
+
+  def addGoogleAccount(obj: JsValue): Result = {
+    LPLogger.info("AnyplaceAccounts::addGoogleAccount()")
+    var json = obj
+    val notFound = JsonUtils.requirePropertiesInJson(json, "access_token", "external") // TODO
+    if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
+    if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+    var id = verifyId((json \ "access_token").as[String])
+    if (id == null) return AnyResponseHelper.forbidden("Unauthorized")
+    id = appendToId(id)
+    json = json.as[JsObject] + ("owner_id" -> Json.toJson(id))
+    if (userExists(json)) {
+      LPLogger.D2("User already exists") // CLR:nn
+      AnyResponseHelper.ok("User Exists.") // its not AnyResponseHelperok
+    } else {
+      val newAccount = new Account(json)
+      try {
+        ProxyDataSource.getIDatasource.addJsonDocument(newAccount.toString(), "users")
+        LPLogger.D2("Added google user") // CLR:nn
+        AnyResponseHelper.ok("Added google user.")
+      } catch {
+        case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+      }
+    }
+
   }
 
   private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {

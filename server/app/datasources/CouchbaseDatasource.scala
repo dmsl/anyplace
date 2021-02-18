@@ -36,9 +36,8 @@
 package datasources
 
 import java.io.{FileOutputStream, IOException, PrintWriter}
-import java.util
-import java.util._
 import java.util.concurrent.{TimeUnit, TimeoutException}
+import java.util.{ArrayList, Collections, HashMap}
 
 import accounts.IAccountService
 import com.couchbase.client.java.document.JsonDocument
@@ -51,7 +50,10 @@ import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
 import play.Play
+import play.api.libs.json.{JsValue, Json}
 import utils.{AnyResponseHelper, GeoPoint, JsonUtils, LPLogger}
+
+import scala.collection.mutable.ListBuffer
 //remove if not needed
 import scala.collection.JavaConversions._
 import scala.util.control._
@@ -211,6 +213,8 @@ class CouchbaseDatasource private(hostname: String,
     true
   }
 
+  def addJsonDocument(document: String, col: String) = ???
+
   override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = {
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
@@ -279,7 +283,7 @@ class CouchbaseDatasource private(hostname: String,
 
   override def poiFromKeyAsJson(key: String): JsonObject = getFromKeyAsJson(key)
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
 
@@ -303,19 +307,19 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
-  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): List[HashMap[String, String]] = {
+  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
 
     val res = couchbaseClient.query(viewQuery)
-    val result = new util.ArrayList[HashMap[String, String]]()
+    val result = new java.util.ArrayList[HashMap[String, String]]()
     for (row <- res.allRows()) {
       result.add(JsonUtils.getHashMapStrStr(row.document().content()))
     }
     result
   }
 
-  override def poisByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def poisByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
@@ -336,7 +340,7 @@ class CouchbaseDatasource private(hostname: String,
     pois
   }
 
-  override def poisByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
+  override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
@@ -350,7 +354,7 @@ class CouchbaseDatasource private(hostname: String,
     pois
   }
 
-  override def floorsByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     val floors = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(buid).includeDocs(true)
@@ -374,7 +378,7 @@ class CouchbaseDatasource private(hostname: String,
     floors
   }
 
-  @throws[DatasourceException] override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = {
+  @throws[DatasourceException] override def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject] = {
     val result = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "connection_by_buid_all_floors").includeDocs(true).key((buid))
@@ -398,7 +402,7 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
-  override def connectionsByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
 
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "connection_by_buid").includeDocs(true).key((buid))
@@ -420,7 +424,7 @@ class CouchbaseDatasource private(hostname: String,
   }
 
 
-  override def connectionsByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
+  override def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "connection_by_buid").includeDocs(true).key((buid))
 
@@ -436,7 +440,7 @@ class CouchbaseDatasource private(hostname: String,
     conns
   }
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
 
@@ -459,7 +463,7 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
-  override def deleteAllByBuilding(buid: String): List[String] = {
+  override def deleteAllByBuilding(buid: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "all_by_buid").includeDocs(true).key((buid))
@@ -480,7 +484,7 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
+  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
     /*
@@ -505,7 +509,7 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def deleteAllByConnection(cuid: String): List[String] = {
+  override def deleteAllByConnection(cuid: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
     if (!this.deleteFromKey(cuid)) {
       all_items_failed.add(cuid)
@@ -513,7 +517,7 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def deleteAllByPoi(puid: String): List[String] = {
+  override def deleteAllByPoi(puid: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "all_by_pois").includeDocs(true).key((puid))
@@ -535,7 +539,7 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def getRadioHeatmap(): List[JsonObject] = {
+  override def getRadioHeatmap(): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("radio", "radio_new_campus_experiment").group(true).reduce(true)
@@ -556,7 +560,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
@@ -582,7 +586,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
@@ -607,7 +611,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
@@ -632,7 +636,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
@@ -657,7 +661,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
@@ -681,7 +685,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     LPLogger.info("Couchbase:: getRadioHeatmapByBuildingFloorTimestamp")
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
@@ -711,7 +715,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-   override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
      val startkey = JsonArray.from(buid, floor,timestampX,"","")
@@ -737,7 +741,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-   override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
      val startkey = JsonArray.from(buid, floor,timestampX,"","")
@@ -762,7 +766,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
+  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor)
@@ -796,7 +800,7 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def deleteAllByXsYs(id: String, floor: String, x: String, y: String): List[String] = {
+  override def deleteAllByXsYs(id: String, floor: String, x: String, y: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).key((id))
@@ -817,9 +821,9 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = {
+  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject] = {
 
-    val points = new util.ArrayList[JsonObject]
+    val points = new java.util.ArrayList[JsonObject]
 
     val couchbaseClient = getConnection
 
@@ -851,9 +855,9 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = {
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
 
-    val points = new util.ArrayList[JsonObject]
+    val points = new java.util.ArrayList[JsonObject]
 
     val couchbaseClient = getConnection
 
@@ -888,7 +892,7 @@ class CouchbaseDatasource private(hostname: String,
   }
 
 
-  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
+  override def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val startkey = JsonArray.from(buid, floor,"000000000000000")
@@ -915,7 +919,7 @@ class CouchbaseDatasource private(hostname: String,
 
 
 
-  override def getAllBuildings(): List[JsonObject] = {
+  override def getAllBuildings(): java.util.List[JsonObject] = {
 
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
@@ -936,14 +940,15 @@ class CouchbaseDatasource private(hostname: String,
       }
     }
 
-    val test = JsonObject.empty().put("name", " 星网:")
-    val name = " 星网:"
-    LPLogger.debug(test.toString)
-    LPLogger.debug(name)
+    // CLR
+    //val test = JsonObject.empty().put("name", " 星网:")
+    //val name = " 星网:"
+    //LPLogger.debug(test.toString)
+    //LPLogger.debug(name)
     buildings
   }
 
-  override def getAllBuildingsByOwner(oid: String): List[JsonObject] = {
+  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "building_all_by_owner").key((oid)).includeDocs(true)
@@ -966,7 +971,7 @@ class CouchbaseDatasource private(hostname: String,
     buildings
   }
 
-  override def getAllBuildingsByBucode(bucode: String): List[JsonObject] = {
+  override def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "building_all_by_bucode").key((bucode)).includeDocs(true)
@@ -987,7 +992,7 @@ class CouchbaseDatasource private(hostname: String,
     buildings
   }
 
-  override def getAllBuildingsNearMe(owner_id: String, lat: Double, lng: Double): List[JsonObject] = {
+  override def getAllBuildingsNearMe(owner_id: String, lat: Double, lng: Double): java.util.List[JsonObject] = {
     val buildings = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
 
@@ -1018,9 +1023,9 @@ class CouchbaseDatasource private(hostname: String,
     buildings
   }
 
-  var allPoisSide = new util.HashMap[String, util.List[JsonObject]]()
+  var allPoisSide = new java.util.HashMap[String, java.util.List[JsonObject]]()
 
-  var allPoisbycuid = new util.HashMap[String, util.List[JsonObject]]()
+  var allPoisbycuid = new java.util.HashMap[String, java.util.List[JsonObject]]()
 
   override def getBuildingByAlias(alias: String): JsonObject = {
     var jsn: JsonObject = null
@@ -1041,7 +1046,7 @@ class CouchbaseDatasource private(hostname: String,
 
 
   @throws[DatasourceException]
-  override def getBuildingSet(cuid2: String): List[JsonObject] = {
+  override def getBuildingSet(cuid2: String): java.util.List[JsonObject] = {
     val buildingSet = new ArrayList[JsonObject]()
     val allPois = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
@@ -1107,8 +1112,8 @@ class CouchbaseDatasource private(hostname: String,
 
 
   @throws[DatasourceException]
-  override def getAllBuildingsetsByOwner(oid: String): util.List[JsonObject] = {
-    val buildingsets = new util.ArrayList[JsonObject]
+  override def getAllBuildingsetsByOwner(oid: String): java.util.List[JsonObject] = {
+    val buildingsets = new java.util.ArrayList[JsonObject]
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "cuid_all_by_owner").key((oid)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
@@ -1218,7 +1223,7 @@ class CouchbaseDatasource private(hostname: String,
       var threshold = 0
       var thresholdCounter= 0
       var thresholdAction = false
-      val results = new util.ArrayList[JsonObject]
+      val results = new java.util.ArrayList[JsonObject]
       for (row <- res.allRows()) {
         results.add(row.document().content())
       }
@@ -1258,7 +1263,7 @@ class CouchbaseDatasource private(hostname: String,
     totalFetched
   }
 
-  override def getAllAccounts(): List[JsonObject] = {
+  override def getAllAccounts(): List[JsValue] = {
     LPLogger.debug("couchbase getAllAccounts: ")
 
     val accounts = new ArrayList[JsonObject]()
@@ -1285,7 +1290,7 @@ class CouchbaseDatasource private(hostname: String,
         case e: IOException =>
       }
     }
-    accounts
+    convertJson(accounts)
   }
 
   override def deleteRadiosInBox(): Boolean = {
@@ -1355,7 +1360,7 @@ class CouchbaseDatasource private(hostname: String,
     }
   }
 
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
@@ -1377,7 +1382,7 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
-  override def magneticPathsByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid").key((buid)).includeDocs(true)
 
@@ -1399,7 +1404,7 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("magnetic", "mmilestones_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
@@ -1543,7 +1548,7 @@ class CouchbaseDatasource private(hostname: String,
   override def getAuthInfoByRefreshToken(refreshToken: String): AuthInfo = // TODO - not used yet since we do not issue refresh tokens
     null
 
-  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
     val points = new ArrayList[JsonObject]()
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("radio", "radio_heatmap_building_floor").key(JsonArray.from(buid, floor)).group(true).reduce(true)
@@ -1576,11 +1581,11 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject] = {
+  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
 
-    val points = new util.ArrayList[JsonObject]
-    val point = new util.HashMap[List[String], Integer]()
-    val xy = new util.ArrayList[List[String]]
+    val points = new java.util.ArrayList[JsonObject]
+    val point = new java.util.HashMap[java.util.List[String], Integer]()
+    val xy = new java.util.ArrayList[java.util.List[String]]
 
     val couchbaseClient = getConnection
 
@@ -1599,7 +1604,7 @@ class CouchbaseDatasource private(hostname: String,
       try {
         json = row.document().content()
         if ((json.getString("buid").compareTo("\"" + buid + "\"") == 0) && (json.getString("floor").compareTo("\"" + floor + "\"") == 0)) {
-          val p = new util.ArrayList[String]
+          val p = new java.util.ArrayList[String]
           val x = json.getString("x")
           val y = json.getString("y")
           p.add(x)
@@ -1636,10 +1641,10 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): List[JsonObject] = {
+  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
 
-    val points = new util.ArrayList[JsonObject]
-    val point = new HashMap[List[String], Integer]
+    val points = new java.util.ArrayList[JsonObject]
+    val point = new HashMap[java.util.List[String], Integer]
 
     val couchbaseClient = getConnection
 
@@ -1656,7 +1661,7 @@ class CouchbaseDatasource private(hostname: String,
       try {
         json = row.document().content()
         if ((json.getString("buid").compareTo("\"" + buid + "\"") == 0) && (json.getString("floor").compareTo("\"" + floor + "\"") == 0)) {
-          val p = new util.ArrayList[String]
+          val p = new ArrayList[String]
           val x = json.getString("x")
           val y = json.getString("y")
           p.add(x)
@@ -1680,11 +1685,11 @@ class CouchbaseDatasource private(hostname: String,
 
 
   var lastletters = ""
-  var wordsELOT = new util.ArrayList[util.ArrayList[String]]
+  var wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
 
-  override def poisByBuildingAsJson2GR(cuid: String, letters: String): util.List[JsonObject] = {
+  override def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject] = {
     var pois = allPoisbycuid.get(cuid)
-    val pois2 = new util.ArrayList[JsonObject]
+    val pois2 = new java.util.ArrayList[JsonObject]
     val words = letters.split(" ")
     var flag = false
     var flag2 = false
@@ -1692,7 +1697,7 @@ class CouchbaseDatasource private(hostname: String,
 
     if (letters.compareTo(lastletters) != 0) {
       lastletters = letters
-      wordsELOT = new util.ArrayList[util.ArrayList[String]]
+      wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
       var j = 0
       for (word <- words) {
         wordsELOT.add(greeklishTogreekList(word.toLowerCase))
@@ -1713,7 +1718,7 @@ class CouchbaseDatasource private(hostname: String,
           val greeklish = greeklishTogreek(w.toLowerCase)
           if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
           if (wordsELOT.size != 0) {
-            var wordsELOT2 = new util.ArrayList[String]
+            var wordsELOT2 = new java.util.ArrayList[String]
             wordsELOT2 = wordsELOT.get({
               j += 1
               j - 1
@@ -1742,9 +1747,9 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   @throws[DatasourceException]
-  override def poisByBuildingAsJson2(cuid: String, letters: String): util.List[JsonObject] = {
-    var pois: List[JsonObject] = null
-    val pois2 = new util.ArrayList[JsonObject]
+  override def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject] = {
+    var pois: java.util.List[JsonObject] = null
+    val pois2 = new java.util.ArrayList[JsonObject]
     pois = allPoisbycuid.get(cuid)
     val words = letters.split(" ")
     var flag = false
@@ -1762,10 +1767,9 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   @throws[DatasourceException]
-  override def poisByBuildingAsJson3(buid: String, letters: String): util.List[JsonObject] = {
-    var pois: List[JsonObject] = null
-    val pois2 = new util.ArrayList[JsonObject]
-    import java.util
+  override def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject] = {
+    var pois: java.util.List[JsonObject] = null
+    val pois2 = new java.util.ArrayList[JsonObject]
     if (allPoisSide.get(buid) != null) pois = allPoisSide.get(buid)
     else pois = poisByBuildingAsJson(buid)
 
@@ -1777,7 +1781,7 @@ class CouchbaseDatasource private(hostname: String,
 
     if (letters.compareTo(lastletters) != 0) {
       lastletters = letters
-      wordsELOT = new util.ArrayList[util.ArrayList[String]]
+      wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
       var j = 0
       for (word <- words) {
         wordsELOT.add(greeklishTogreekList(word.toLowerCase))
@@ -1798,7 +1802,7 @@ class CouchbaseDatasource private(hostname: String,
           val greeklish = greeklishTogreek(w.toLowerCase)
           if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
           if (wordsELOT.size != 0) {
-            var wordsELOT2 = new util.ArrayList[String]
+            var wordsELOT2 = new java.util.ArrayList[String]
             wordsELOT2 = wordsELOT.get({
               j += 1
               j - 1
@@ -1924,7 +1928,7 @@ class CouchbaseDatasource private(hostname: String,
   }
 
   def greeklishTogreekList(greeklish: String) = {
-    val words = new util.ArrayList[String]
+    val words = new java.util.ArrayList[String]
     words.add("")
     val myChars = greeklish.toCharArray
     var i = 0
@@ -2035,12 +2039,12 @@ class CouchbaseDatasource private(hostname: String,
     words
   }
 
-  override def poisByBuildingIDAsJson(buid: String): util.List[JsonObject] = {
+  override def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "pois_by_buid").key((buid)).includeDocs(true)
 
     val res = couchbaseClient.query(viewQuery)
-    val result = new util.ArrayList[JsonObject]
+    val result = new java.util.ArrayList[JsonObject]
     var json: JsonObject = null
     for (row <- res) {
       try {
@@ -2059,8 +2063,8 @@ class CouchbaseDatasource private(hostname: String,
 
 
   @throws[DatasourceException]
-  def getAllPoisTypesByOwner(oid: String): util.List[JsonObject] = {
-    val poistypes = new util.ArrayList[JsonObject]
+  def getAllPoisTypesByOwner(oid: String): java.util.List[JsonObject] = {
+    val poistypes = new java.util.ArrayList[JsonObject]
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "all_pois_types").key((oid)).includeDocs(true)
 
@@ -2107,5 +2111,15 @@ class CouchbaseDatasource private(hostname: String,
     }
     true
   }
+
+  def convertJson(list: java.util.List[JsonObject]): List[JsValue] = {
+    val jsList = ListBuffer[JsValue]()
+    for (doc <- list) {
+      jsList.append(convertJson(doc))
+    }
+    jsList.toList
+  }
+
+  def convertJson(doc: JsonObject) = Json.parse(doc.toString)
 
 }

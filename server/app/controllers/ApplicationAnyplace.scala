@@ -41,7 +41,7 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc.{Action, Result}
 import security.User
-import utils.AnyResponseHelper
+import utils.{AnyResponseHelper, LPLogger}
 
 object ApplicationAnyplace extends play.api.mvc.Controller {
 
@@ -86,7 +86,7 @@ object ApplicationAnyplace extends play.api.mvc.Controller {
 
   // displays the login form for the architect
   def login = Action { // IMPORTANT - to allow cross domain requests
-
+    LPLogger.error("ApplicationAnyplace.login() ?")
     //response().setHeader("Access-Control-Allow-Origin", CORSHelper.checkOriginFromRequest(request()));
     // allows session cookies to be transferred
     //response().setHeader("Access-Control-Allow-Credentials", "true");
@@ -98,6 +98,7 @@ object ApplicationAnyplace extends play.api.mvc.Controller {
 
   // validates the username and password
   def authenticate = Action {
+    LPLogger.error("ApplicationAnyplace.authenticate() ?")
     def loginForm = Form(mapping("Username" -> nonEmptyText, "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
 
     if (loginForm.hasErrors)
@@ -122,6 +123,7 @@ object ApplicationAnyplace extends play.api.mvc.Controller {
     * Logout and clean the session.
     */
   def logout = Action {
+    LPLogger.error("ApplicationAnyplace.logout() ?")
     Redirect(routes.ApplicationAnyplace.login).withNewSession.flashing(
       "success" -> "You've been logged out"
     )

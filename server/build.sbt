@@ -8,6 +8,8 @@ version := "4.0"
 
 scalaVersion := "2.11.7"
 
+val playVersion = "2.4.2" // see also plugins.sbt
+
 libraryDependencies ++= Seq( jdbc, cache , ws, specs2 % Test )
 //scalaVersion := "2.12.11"
 //scalaVersion := "2.13.2" // Cant be updated due to ACCES
@@ -31,6 +33,9 @@ libraryDependencies ++= Seq(
   "org.scalanlp" % "breeze-viz_2.11" % "0.12",
   "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
 )
+
+// Play json
+libraryDependencies += "com.typesafe.play" %% "play-json" % playVersion
 
 // TODO ACCES: DEPRECATE this library
 libraryDependencies += "com.github.danielkorzekwa" % "bayes-scala-gp_2.11" % "0.1-SNAPSHOT"

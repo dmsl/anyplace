@@ -35,17 +35,13 @@
  */
 package controllers
 
-import datasources.DatasourceException
-import datasources.ProxyDataSource
-import db_models.NavResultPoint
-import oauth.provider.v2.models.OAuth2Request
-import play.api.mvc.{Action, Controller, Result}
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-import java.util.List
+import java.util.{ArrayList, HashMap, List}
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.{DatasourceException, ProxyDataSource}
+import db_models.NavResultPoint
+import oauth.provider.v2.models.OAuth2Request
+import play.api.mvc.Action
 import utils._
 //remove if not needed
 import scala.collection.JavaConversions._
