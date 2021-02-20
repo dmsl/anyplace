@@ -2,6 +2,3 @@
 [submodule "clients/android-new/lib"]
 	path = clients/android-new/lib
 	url = git@github.com:dmsl/anyplace-lib-android.git
-[submodule "clients/android-new/anyplace-lib-android"]
-	path = clients/android-new/lib
-	url = git@github.com:dmsl/anyplace-lib-android.git
