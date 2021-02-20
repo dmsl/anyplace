@@ -309,11 +309,18 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         }
     };
 
+    $scope.copyApiKey = function () {
+        var copyTextarea = document.querySelector('#auth-api-key');
+        copyTextarea.focus();
+        copyTextarea.select();
+        document.execCommand("copy");
+        _info($scope, "API key copied");
+    }
+
     $scope.centerViewToSelectedItem = function () {
         if ($scope.anyService.selectedBuilding == null || $scope.anyService.selectedBuilding == undefined) {
             _err($scope, "You have to select a building first");
             return;
-
         }
         var position = {};
         if ($scope.anyService.selectedPoi) {
