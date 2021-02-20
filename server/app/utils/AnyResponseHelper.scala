@@ -35,10 +35,10 @@
  */
 package utils
 
-import java.io.{File, FileNotFoundException}
 import java.util.List
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue}
 //import play.api.mvc.{Result, Results}
 import play.api.mvc._
 import utils.AnyResponseHelper.Response.Response
@@ -67,6 +67,70 @@ object AnyResponseHelper {
 
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
+
+    // TODO: json of play
+    def ok(json: JsValue, msg: String) = CreateResultResponse(Response.OK, json, msg)
+    def bad_request(json: JsValue, msg: String) = CreateResultResponse(Response.BAD_REQUEST, json, msg)
+
+
+    private def CreateResultResponse(r: Response, json_in: JsValue, message: String): Result = {
+        var obj: JsValue = json_in
+
+        r match {
+            case Response.BAD_REQUEST =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("error")) +
+                  ("message" -> JsString(message)) +
+                  ("status_code" -> JsNumber(400))
+                Results.BadRequest(res.toString)
+
+            case Response.OK =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("success")) +
+                  ("message" -> JsString(message)) +
+                  ("status_code" -> JsNumber(200))
+                Results.Ok(res.toString)
+
+            case Response.FORBIDDEN =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("error")) +
+                  ("message" -> JsString(message)) +
+                  ("status_code" -> JsNumber(401))
+                Results.Forbidden(res.toString)
+
+            case Response.UNAUTHORIZED_ACCESS =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("error")) +
+                  ("message" -> JsString(message)) +
+                  ("status_code" -> JsNumber(403))
+                Results.Unauthorized(res.toString)
+
+            case Response.INTERNAL_SERVER_ERROR =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("error")) +
+                  ("message" -> JsString(message)) +
+                  ("status_code" -> JsNumber(500))
+                Results.InternalServerError(res.toString)
+
+            case Response.NOT_FOUND =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("error")) +
+                  ("message" -> JsString(message)) +
+                  ("status_code" -> JsNumber(404))
+                Results.NotFound(res.toString)
+
+            case _ =>
+                val res: JsObject = obj.as[JsObject] +
+                  ("status" -> JsString("error")) +
+                  ("message" -> JsString("Unknown Action")) +
+                  ("status_code" -> JsNumber(403))
+                Results.BadRequest(res.toString)
+
+        }
+    }
+
+    // #####################################################
+    // TODO: DEPRECATE (couchbase)
 
     def ok(json: JsonObject, msg: String): Result = {
         createResultResponse(Response.OK, json, msg)
@@ -120,6 +184,13 @@ object AnyResponseHelper {
         if (missing == null) {
             throw new IllegalArgumentException("No null List of missing keys allowed!")
         }
+
+
+        //val res: JsValue = Json.obj(
+        //    "users_num" -> users.length,
+        //    "users" -> Json.arr(users)
+        //)
+        // TODO Convert to Json (example above)
         val error_messages = JsonArray.empty()
         val json =JsonObject.empty()
 
@@ -181,5 +252,6 @@ object AnyResponseHelper {
 
         }
     }
+
 
 }

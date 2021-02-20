@@ -1,4 +1,3 @@
-
 [submodule "clients/core/lib"]
 	path = clients/core/lib
 	url = git@github.com:dmsl/anyplace-lib-core.git

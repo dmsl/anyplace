@@ -1,19 +1,25 @@
 package datasources
 
 import java.io.FileOutputStream
-import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.Helpers.DocumentObservable
-import datasources.MongodbDatasource.{database, mdb}
+import datasources.MongodbDatasource.mdb
 import floor_module.IAlgo
 import org.mongodb.scala._
 import play.Play
+import play.api.libs.json.{JsValue, Json}
 import utils.{GeoPoint, LPLogger}
+
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
   private var mdb: MongoDatabase = null
+  var _SCHEMA:Int = 0
+
+  def getMDB: MongoDatabase = mdb
 
   def getStaticInstance: MongodbDatasource = {
     val conf =  Play.application().configuration()
@@ -22,7 +28,6 @@ object MongodbDatasource {
     val hostname = conf.getString("mongodb.hostname")
     val port = conf.getString("mongodb.port")
     val database = conf.getString("mongodb.database")
-    LPLogger.info("Mongodb: connecting to: " + hostname + ":" + port)
     sInstance = createInstance(hostname, database, username, password, port)
     sInstance
   }
@@ -32,6 +37,7 @@ object MongodbDatasource {
     val mongoClient: MongoClient = MongoClient(uri)
     // TODO check if database anyplace exists
     mdb = mongoClient.getDatabase(database)
+    LPLogger.info("MongoDB: Connected to: " + hostname + ":" + port)
     // IF database not found
     // create it with collections
     // kill server
@@ -45,9 +51,9 @@ object MongodbDatasource {
     }
     if (notFound) {
       // create collections
-      LPLogger.info("Not found: TODO collections")
+      LPLogger.error("Not found: TODO collections")
     } else {
-      LPLogger.info("Found all collections.")
+      LPLogger.D3("Found all collections.")
     }
     new MongodbDatasource()
   }
@@ -64,19 +70,26 @@ class MongodbDatasource() extends IDatasource {
     false
   }
 
-  override def getAllPoisTypesByOwner(owner_id: String): util.List[JsonObject] = ???
+  override def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingIDAsJson(buid: String): util.List[JsonObject] = ???
+  override def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsJson2(cuid: String, letters: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsJson2GR(cuid: String, letters: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsJson3(buid: String, letters: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject] = ???
 
   override def init(): Boolean = ???
 
-  override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
+  def addJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
+
+  override def addJsonDocument(document: String, col: String) {
+    val collection = mdb.getCollection(col)
+    val addJson = collection.insertOne(Document.apply(document))
+    val awaited = Await.result(addJson.toFuture, Duration.Inf)
+    val res = awaited.toString
+  }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
 
@@ -90,75 +103,75 @@ class MongodbDatasource() extends IDatasource {
 
   override def poiFromKeyAsJson(key: String): JsonObject = ???
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): util.List[util.HashMap[String, String]] = ???
+  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def poisByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def poisByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def poisByBuildingAsMap(buid: String): util.List[util.HashMap[String, String]] = ???
+  override def poisByBuildingAsMap(buid: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def floorsByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def connectionsByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def connectionsByBuildingAsMap(buid: String): util.List[util.HashMap[String, String]] = ???
+  override def connectionsByBuildingAsMap(buid: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
-  override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = ???
+  override def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def deleteAllByBuilding(buid: String): util.List[String] = ???
+  override def deleteAllByBuilding(buid: String): java.util.List[String] = ???
 
-  override def deleteAllByFloor(buid: String, floor_number: String): util.List[String] = ???
+  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = ???
 
-  override def deleteAllByConnection(cuid: String): util.List[String] = ???
+  override def deleteAllByConnection(cuid: String): java.util.List[String] = ???
 
-  override def deleteAllByPoi(puid: String): util.List[String] = ???
+  override def deleteAllByPoi(puid: String): java.util.List[String] = ???
 
-  override def getRadioHeatmap(): util.List[JsonObject] = ???
+  override def getRadioHeatmap(): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): util.List[String] = ???
+  override def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String] = ???
 
-  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = ???
+  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject] = ???
 
-  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = ???
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = ???
+  override def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
-  override def getAllBuildings(): util.List[JsonObject] = ???
+  override def getAllBuildings(): java.util.List[JsonObject] = ???
 
-  override def getAllBuildingsByOwner(oid: String): util.List[JsonObject] = ???
+  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = ???
 
-  override def getAllBuildingsByBucode(bucode: String): util.List[JsonObject] = ???
+  override def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject] = ???
 
   override def getBuildingByAlias(alias: String): JsonObject = ???
 
-  override def getAllBuildingsNearMe(oid: String, lat: Double, lng: Double): util.List[JsonObject] = ???
+  override def getAllBuildingsNearMe(oid: String, lat: Double, lng: Double): java.util.List[JsonObject] = ???
 
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = ???
 
@@ -166,29 +179,42 @@ class MongodbDatasource() extends IDatasource {
 
   override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = ???
 
-  override def getAllAccounts(): util.List[JsonObject] = {
+  override def getAllAccounts(): List[JsValue] = {
     LPLogger.debug("mongodb getAllAccounts: ")
     val collection = mdb.getCollection("users")
-    collection.find().printResults()
-    null
+    val users = collection.find()
+    val awaited = Await.result(users.toFuture, Duration.Inf)
+    val res = awaited.toList
+    LPLogger.debug(s"Res on complete Length:${res.length}")
+    convertJson(res)
   }
 
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = ???
 
   override def deleteRadiosInBox(): Boolean = ???
 
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
-  override def magneticPathsByBuildingAsJson(buid: String): util.List[JsonObject] = ???
+  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
 
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): util.List[JsonObject] = ???
+  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
   override def BuildingSetsCuids(cuid: String): Boolean = ???
 
-  override def getBuildingSet(cuid: String): util.List[JsonObject] = ???
+  override def getBuildingSet(cuid: String): java.util.List[JsonObject] = ???
 
-  override def getAllBuildingsetsByOwner(owner_id: String): util.List[JsonObject] = ???
+  override def getAllBuildingsetsByOwner(owner_id: String): java.util.List[JsonObject] = ???
 
   override def deleteNotValidDocuments(): Boolean = ???
+
+  def convertJson(list: List[Document]): List[JsValue] = {
+    val jsList = ListBuffer[JsValue]()
+    for (doc <- list) {
+      jsList.append(convertJson(doc))
+    }
+    jsList.toList
+  }
+
+  def convertJson(doc: Document) = Json.parse(doc.toJson())
 }
 

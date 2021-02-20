@@ -91,7 +91,7 @@ def defineCollections(file):
     collectionsPath = getCollectionsPath()
     Path(collectionsPath).mkdir(parents=True, exist_ok=True)
     pathB = collectionsPath + "/buildings.json"
-    pathC = collectionsPath + "/campus.json"
+    pathC = collectionsPath + "/campuses.json"
     pathE = collectionsPath + "/edges.json"
     pathFL = collectionsPath + "/floorplans.json"
     pathP = collectionsPath + "/pois.json"

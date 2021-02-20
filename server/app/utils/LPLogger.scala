@@ -35,13 +35,11 @@
  */
 package utils
 
-import java.text.SimpleDateFormat
-import java.util.Date
-
 import play.Logger
 
-// TODO rename to APLogger
+// TODO rename to LOG
 object LPLogger {
+private val LEVEL:Int = 2
 
     def error(tag: String, message: String, e: Exception) {
         Logger.error(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
@@ -66,4 +64,18 @@ object LPLogger {
     def debug(message: String) {
         Logger.debug(String.format("%s", message))
     }
+
+    def D1():Boolean = LEVEL >= 1
+    def D2():Boolean = LEVEL >= 2
+    def D3():Boolean = LEVEL >= 3
+    def D4():Boolean = LEVEL >= 4
+    def D5():Boolean = LEVEL >= 5
+
+    def D1(message: String): Unit = if (D1()) Logger.debug(String.format("%s", message))
+    def D2(message: String): Unit = if (D2()) Logger.debug(String.format("%s", message))
+    def D3(message: String): Unit = if (D3()) Logger.debug(String.format("%s", message))
+    def D4(message: String): Unit = if (D4()) Logger.debug(String.format("%s", message))
+    def D5(message: String): Unit = if (D5()) Logger.debug(String.format("%s", message))
+
+
 }

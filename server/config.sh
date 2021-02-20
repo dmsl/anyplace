@@ -9,10 +9,11 @@ REMOTE=$USER@$DOMAIN
 # L: Local
 # R: Remote
 LFOLDER=.
+
 RFOLDER='~/alpha-deploy/'
 RPORT=9001
 
 ## COMPILATION NOTIFICATIONS:
 # macOS: terminal-notifier
 # Ubuntu/Windows: ?
-NOTIFIER=terminal-notifier
+NOTIFIER=

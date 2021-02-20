@@ -10,7 +10,7 @@ GET          /favicon.ico    controllers.Assets.at(path="/public/images", file="
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                              controllers.Assets.at(path="/public", file)
 # OAuth2 API
-POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
+#POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
 # Anyplace API - Navigation
 POST        /anyplace/navigation/building/id                                           controllers.AnyplaceNavigation.getBuildingById()
 POST        /anyplace/navigation/pois/id                                               controllers.AnyplaceNavigation.getPoisById()
@@ -20,7 +20,7 @@ POST        /anyplace/navigation/route_xy                                       
 # Anyplace API - Mapping
 #POST           /anyplace/mapping/radio/addbuids                             controllers.AnyplaceMapping.addBuidInRssLogs()
 #POST           /anyplace/mapping/pois/temp_url                              controllers.AnyplaceMapping.tempAllPoisWithoutUrl()
-POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
+#DOING#POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
 POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
 
 POST        /anyplace/mapping/radio/heatmap_building_floor_avarage                     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage()
@@ -170,9 +170,8 @@ GET         /*any                                                               
 
 #####################################################################################################
 # SESSION AUTHENTICATION PAGES
-GET         /login                                                                     controllers.ApplicationAnyplace.login()
-POST        /authenticate                                                              controllers.ApplicationAnyplace.authenticate()
-GET         /logout                                                                    controllers.ApplicationAnyplace.logout()
+
+
 ### ADMIN WEBSITE ###
 GET         /admin/*file                                                               controllers.AnyplaceWebApps.serveAdmin(file: String)
 GET         /admin                                                                     controllers.AnyplaceWebApps.AddTrailingSlash()
@@ -181,9 +180,31 @@ GET         /android                                                            
 GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
 
 
+
+#####################################################################################################
+###
+# MONGODB_WORKING: The following endpoints work with mongodb.
+#                  DISABLE them in production environments.
+###
+
+POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
+
 #####################################################################################################
 ###
 # DEBUG ENDPOINTS: These are for testing the migration to the MongoDB layer.
 #                  DISABLE them in production environments.
 ###
-POST        /anyplace/debug/accounts_all                                                controllers.AnyplaceAccounts.fetchAllAccounts()
+# TODO Only for admin
+POST        /anyplace/debug/accounts_all                                               controllers.AnyplaceAccounts.fetchAllAccounts()
+
+#####################################################################################################
+###
+# ENDPOINTS THAT MIGHT NOT BE IN USE
+###
+# TODO: endpoint that find access token
+# OAuth2 API
+POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
+# CHECK:nn this is probably never called
+GET         /login                                                                     controllers.ApplicationAnyplace.login()
+GET         /logout                                                                    controllers.ApplicationAnyplace.logout()
+POST        /authenticate                                                              controllers.ApplicationAnyplace.authenticate()

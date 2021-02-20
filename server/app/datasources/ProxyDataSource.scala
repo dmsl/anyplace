@@ -37,10 +37,11 @@ package datasources
 
 import java.io.FileOutputStream
 import java.util
-import java.util.{HashMap, List}
+import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
 import floor_module.IAlgo
+import play.api.libs.json.JsValue
 import utils.GeoPoint
 
 object ProxyDataSource {
@@ -89,6 +90,11 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.addJsonDocument(key, expiry, document)
   }
 
+  override def addJsonDocument(document: String, col: String) {
+    _checkActiveDatasource()
+    mongoDB.addJsonDocument(document, col)
+  }
+
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = {
     _checkActiveDatasource()
     mActiveDatabase.replaceJsonDocument(key, expiry, document)
@@ -121,118 +127,118 @@ class ProxyDataSource private() extends IDatasource {
 
   override def poiFromKeyAsJson(key: String): JsonObject = getFromKeyAsJson(key)
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.poisByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): List[HashMap[String, String]] = {
+  override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
     mActiveDatabase.poisByBuildingFloorAsMap(buid, floor_number)
   }
 
-  override def poisByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def poisByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.poisByBuildingAsJson(buid)
   }
 
-  override def poisByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
+  override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
     mActiveDatabase.poisByBuildingAsMap(buid)
   }
 
-  override def floorsByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.floorsByBuildingAsJson(buid)
   }
 
-  override def connectionsByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.connectionsByBuildingAsJson(buid)
   }
 
-  override def connectionsByBuildingAsMap(buid: String): List[HashMap[String, String]] = {
+  override def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
     mActiveDatabase.connectionsByBuildingAsMap(buid)
   }
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.connectionsByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def deleteAllByBuilding(buid: String): List[String] = {
+  override def deleteAllByBuilding(buid: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByBuilding(buid)
   }
 
-  override def deleteAllByFloor(buid: String, floor_number: String): List[String] = {
+  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByFloor(buid, floor_number)
   }
 
-  override def deleteAllByConnection(cuid: String): List[String] = {
+  override def deleteAllByConnection(cuid: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByConnection(cuid)
   }
 
-  override def deleteAllByPoi(puid: String): List[String] = {
+  override def deleteAllByPoi(puid: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByPoi(puid)
   }
 
-  override def getRadioHeatmap(): List[JsonObject] = {
+  override def getRadioHeatmap(): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmap
   }
 
-  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloor(buid, floor)
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorAverage(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
   }
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsonObject] = {
+  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAPsByBuildingFloor(buid, floor)
   }
 
 
-  override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): List[String] = {
+  override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByXsYs(buid,floor,x,y)
   }
@@ -252,17 +258,17 @@ class ProxyDataSource private() extends IDatasource {
   }
 
 
-  override def getAllBuildings(): List[JsonObject] = {
+  override def getAllBuildings(): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllBuildings
   }
 
-  override def getAllBuildingsByOwner(oid: String): List[JsonObject] = {
+  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllBuildingsByOwner(oid)
   }
 
-  override def getAllBuildingsByBucode(bucode: String): List[JsonObject] = {
+  override def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllBuildingsByBucode(bucode)
   }
@@ -272,7 +278,7 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getBuildingByAlias(alias)
   }
 
-  override def getAllBuildingsNearMe(ownerid:String,lat: Double, lng: Double): List[JsonObject] = {
+  override def getAllBuildingsNearMe(ownerid:String,lat: Double, lng: Double): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.getAllBuildingsNearMe(ownerid,lat, lng)
   }
@@ -292,10 +298,10 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
   }
 
-  override def getAllAccounts(): List[JsonObject] = {
+  override def getAllAccounts(): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllAccounts
-    //mongoDB.getAllAccounts()
+    //mActiveDatabase.getAllAccounts
+    mongoDB.getAllAccounts()
   }
 
   def _checkActiveDatasource() {
@@ -309,17 +315,17 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.predictFloor(algo, bbox, strongestMACs)
   }
 
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.magneticPathsByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def magneticPathsByBuildingAsJson(buid: String): List[JsonObject] = {
+  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.magneticPathsByBuildingAsJson(buid)
   }
 
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): List[JsonObject] = {
+  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
   }

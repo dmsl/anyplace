@@ -4,6 +4,15 @@
 
 A free and open Indoor Navigation Service with superb accuracy!
 
+## Cloning instructions
+To include the submodules (`anyplace-lib`, and `anyplace-lib-android`) please clone using:
+```
+git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
+```
+
+Fetching those git submodules can be also done at a later stage.
+These submodules are needed when developing on the libraries or the client apps.
+
 ## Preface 
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones. 

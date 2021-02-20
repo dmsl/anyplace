@@ -1,21 +1,16 @@
-def fixFINGERPRINT(obj):
-    fixed = obj
-    updateSchema(fixed)
-    #  fixed['timestamp'] = int(fixed['timestamp'])
-    #  fixed['heading'] = float(fixed['heading'])
-    #  fixed['rss'] = int(fixed['rss'])
-    fixLocation(fixed)
-    # fixFloorNumber(fixed)
-    return fixed
-
-
-def fixPOIS(obj):
+def fixBUILDING(obj):
     fixed = obj
     updateSchema(fixed)
     fixLocation(fixed)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
-    # fixFloorNumber(fixed)
+    return fixed
+
+
+def fixCAMPUS(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixDashesOrNulls(fixed)
     return fixed
 
 
@@ -32,19 +27,14 @@ def fixEDGES(obj):
     return fixed
 
 
-def fixUSER(obj):
+def fixFINGERPRINT(obj):
     fixed = obj
     updateSchema(fixed)
-    if "doc_type" in obj.keys():
-        del obj["doc_type"]
-    if "owner_id" in obj.keys():
-        obj["id"] = obj["owner_id"]
-        del obj["owner_id"]
-    if "type" in obj.keys():
-        obj["external"] = obj["type"]
-        del obj["type"]
-
-    obj["type"] = "user"
+    #  fixed['timestamp'] = int(fixed['timestamp'])
+    #  fixed['heading'] = float(fixed['heading'])
+    #  fixed['rss'] = int(fixed['rss'])
+    fixLocation(fixed)
+    # fixFloorNumber(fixed)
     return fixed
 
 
@@ -57,6 +47,29 @@ def fixFLOORPLAN(obj):
     #  if "zoom" in obj.keys():
     #       obj["zoom"] = int(obj["zoom"])
     fixRectangle(fixed)
+    return fixed
+
+
+def fixPOIS(obj):
+    fixed = obj
+    updateSchema(fixed)
+    fixLocation(fixed)
+    #  fixBooleans(fixed)
+    fixDashesOrNulls(fixed)
+    # fixFloorNumber(fixed)
+    return fixed
+
+
+def fixUSER(obj):
+    fixed = obj
+    updateSchema(fixed)
+    if "doc_type" in obj.keys():
+        del obj["doc_type"]
+    if "type" in obj.keys():
+        obj["external"] = obj["type"]
+        del obj["type"]
+
+    obj["type"] = "user"
     return fixed
 
 
@@ -77,22 +90,6 @@ def fixRectangle(obj):
         del obj["bottom_left_lat"]
         del obj["top_right_lng"]
         del obj["top_right_lat"]
-
-
-def fixBUILDING(obj):
-    fixed = obj
-    updateSchema(fixed)
-    fixLocation(fixed)
-    #  fixBooleans(fixed)
-    fixDashesOrNulls(fixed)
-    return fixed
-
-
-def fixCAMPUS(obj):
-    fixed = obj
-    updateSchema(fixed)
-    fixDashesOrNulls(fixed)
-    return fixed
 
 
 def fixBooleans(obj):

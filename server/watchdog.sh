@@ -7,5 +7,4 @@ PORT=
 watchmedo shell-command \
       --patterns="*.scala;*.css;*.js;*.vue;" \
       --recursive \
-      --command='./sync.sh' \
-      .
+      --command='./sync.sh' .
