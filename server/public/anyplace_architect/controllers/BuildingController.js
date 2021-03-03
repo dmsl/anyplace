@@ -317,9 +317,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         jsonReq.password = $scope.creds.password;
         jsonReq.owner_id = $scope.owner_id;
 
-        console.log($scope)
-        console.log(jsonReq)
-
         if (!jsonReq.owner_id) {
             _err($scope, ERR_USER_AUTH);
             return;

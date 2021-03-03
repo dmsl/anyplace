@@ -4,6 +4,8 @@
     android:versionCode="53"
     android:versionName="2.5.5">
 
+    <uses-sdk android:targetSdkVersion="26" />
+
     <permission
         android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />

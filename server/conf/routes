@@ -170,10 +170,8 @@ GET         /*any                                                               
 
 #####################################################################################################
 # SESSION AUTHENTICATION PAGES
-# CHECK:nn this is probably never called
-GET         /login                                                                     controllers.ApplicationAnyplace.login()
-POST        /authenticate                                                              controllers.ApplicationAnyplace.authenticate()
-GET         /logout                                                                    controllers.ApplicationAnyplace.logout()
+
+
 ### ADMIN WEBSITE ###
 GET         /admin/*file                                                               controllers.AnyplaceWebApps.serveAdmin(file: String)
 GET         /admin                                                                     controllers.AnyplaceWebApps.AddTrailingSlash()
@@ -181,13 +179,7 @@ GET         /admin                                                              
 GET         /android                                                                   controllers.AnyplaceAndroid.getApks()
 GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
 
-#####################################################################################################
-###
-# DEBUG ENDPOINTS: These are for testing the migration to the MongoDB layer.
-#                  DISABLE them in production environments.
-###
-# TODO Only for admin
-POST        /anyplace/debug/accounts_all                                                controllers.AnyplaceAccounts.fetchAllAccounts()
+
 
 #####################################################################################################
 ###
@@ -197,6 +189,22 @@ POST        /anyplace/debug/accounts_all                                        
 
 POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
 
+#####################################################################################################
+###
+# DEBUG ENDPOINTS: These are for testing the migration to the MongoDB layer.
+#                  DISABLE them in production environments.
+###
+# TODO Only for admin
+POST        /anyplace/debug/accounts_all                                               controllers.AnyplaceAccounts.fetchAllAccounts()
+
+#####################################################################################################
+###
+# ENDPOINTS THAT MIGHT NOT BE IN USE
+###
 # TODO: endpoint that find access token
 # OAuth2 API
 POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
+# CHECK:nn this is probably never called
+GET         /login                                                                     controllers.ApplicationAnyplace.login()
+GET         /logout                                                                    controllers.ApplicationAnyplace.logout()
+POST        /authenticate                                                              controllers.ApplicationAnyplace.authenticate()

@@ -38,10 +38,13 @@ package db_models
 import java.io.IOException
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.MongodbDatasource
 import play.api.libs.json._
+import utils.JsonUtils.convertToInt
 import utils.LPLogger
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
+
 
 object ExternalType extends Enumeration {
     type ExternalType = Value
@@ -56,36 +59,37 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
     def this() {
         this(new java.util.HashMap[String, String]())
+        fields.put("_schema", MongodbDatasource._SCHEMA.toString)
+        fields.put("owner_id", "")
         fields.put("name", "")
-        fields.put("id", "")
         fields.put("type", "")
-        //fields.put("doc_type", "account")
     }
 
 
     // TODO make it follow new version of User Json
     def this(json: JsValue) {
         this()
+        fields.put("_schema", MongodbDatasource._SCHEMA.toString)
+        fields.put("owner_id", (json \ "owner_id").as[String])
         fields.put("name", (json \ "name").as[String])
-        fields.put("id", (json \ "id").as[String])
         fields.put("type", (json \ "type").as[String])
         if ((json \ "external").toOption.isDefined)
             fields.put("external", (json \ "external").as[String])
         this.json = json
     }
 
-    def getId(): String = {
-        val puid = fields.get("id")
-        puid
-    }
+    def getId(): String = fields.get("owner_id")
 
+    // DEPRECATE
     def toValidCouchJson(): JsonObject = {
         JsonObject.from(this.getFields())
     }
 
     def toJson(): JsValue = {
         val sMap: Map[String, String] = this.getFields().asScala.toMap
-        Json.toJson(sMap)
+        val res = Json.toJson(sMap)
+        // convert some keys to primitive types
+        convertToInt("_schema", res)
     }
 
 

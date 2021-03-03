@@ -2,15 +2,16 @@
 
 # ONCE UPDATED IGNORE THIS FILE USING:
 # git update-index --assume-unchanged config.sh
-USER=anyplace
-DOMAIN=ap-dev.cs.ucy.ac.cy
+USER=
+DOMAIN=
 REMOTE=$USER@$DOMAIN
 
 # L: Local
 # R: Remote
 LFOLDER=.
-RFOLDER='~/alpha/nneofy01'
-RPORT=9002
+
+RFOLDER='~/alpha-deploy/'
+RPORT=9001
 
 ## COMPILATION NOTIFICATIONS:
 # macOS: terminal-notifier

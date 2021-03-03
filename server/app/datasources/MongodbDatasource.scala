@@ -17,6 +17,7 @@ import scala.concurrent.duration.Duration
 object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
   private var mdb: MongoDatabase = null
+  var _SCHEMA:Int = 0
 
   def getMDB: MongoDatabase = mdb
 
@@ -27,7 +28,6 @@ object MongodbDatasource {
     val hostname = conf.getString("mongodb.hostname")
     val port = conf.getString("mongodb.port")
     val database = conf.getString("mongodb.database")
-    LPLogger.info("Mongodb: connecting to: " + hostname + ":" + port)
     sInstance = createInstance(hostname, database, username, password, port)
     sInstance
   }
@@ -37,6 +37,7 @@ object MongodbDatasource {
     val mongoClient: MongoClient = MongoClient(uri)
     // TODO check if database anyplace exists
     mdb = mongoClient.getDatabase(database)
+    LPLogger.info("MongoDB: Connected to: " + hostname + ":" + port)
     // IF database not found
     // create it with collections
     // kill server
@@ -50,9 +51,9 @@ object MongodbDatasource {
     }
     if (notFound) {
       // create collections
-      LPLogger.info("Not found: TODO collections")
+      LPLogger.error("Not found: TODO collections")
     } else {
-      LPLogger.info("Found all collections.")
+      LPLogger.D3("Found all collections.")
     }
     new MongodbDatasource()
   }
