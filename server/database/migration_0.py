@@ -6,10 +6,25 @@ from helpers.config import *
 def pushBuilding(database):
     path = getCollectionsPath() + "/buildings.json"
     count = 0
+    try:
+        file = open(path, encoding="utf8")
+    except:
+        print("Path was not correct.")
+        return
+    count = 0
     print("Pushing Buildings..")
-    print(count, "json files were pushed.")
+    col = database["buildings"]
+    while True:
+        line = file.readline()
+        if not line:
+            break
+        count += 1
+        col.insert_one(json.loads(line))
+    if count == 0:
+        print("File is empty.")
+    else:
+        print(count, "Buildings were pushed.")
     return
-
 
 def pushCampuses(database):
     path = getCollectionsPath() + "/campuses.json"
