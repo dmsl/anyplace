@@ -1,0 +1,152 @@
+{
+	"info": {
+		"_postman_id": "90b1ec46-a71a-4829-ac5a-74116556d173",
+		"name": "Anyplace API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "debug/accounts_all",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}:{{PORT}}/anyplace/debug/accounts_all",
+					"host": [
+						"{{HOST}}"
+					],
+					"port": "{{PORT}}",
+					"path": [
+						"anyplace",
+						"debug",
+						"accounts_all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "mapping/accounts/sign",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/accounts/sign",
+					"host": [
+						"{{HOST}}"
+					],
+					"port": "{{PORT}}",
+					"path": [
+						"anyplace",
+						"mapping",
+						"accounts",
+						"sign"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "mapping/building/all",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/all",
+					"host": [
+						"{{HOST}}"
+					],
+					"port": "{{PORT}}",
+					"path": [
+						"anyplace",
+						"mapping",
+						"building",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "navigation/building/id",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"buid\": \"username_1373876832005\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}:{{PORT}}/anyplace/navigation/building/id",
+					"host": [
+						"{{HOST}}"
+					],
+					"port": "{{PORT}}",
+					"path": [
+						"anyplace",
+						"navigation",
+						"building",
+						"id"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
