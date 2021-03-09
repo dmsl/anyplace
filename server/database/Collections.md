@@ -45,12 +45,13 @@ auid clients doctype email isadmin nickname password scope username
 Extra Keys:
 bucode geometry username_creator co_owners owner_id 
 ### Changes: 
-- coordinates_lat deleted 
-- coordinates_lon deleted 
-- geometry -> location
+
 - dashes and nulls removed
 ### V1 Changes:
 - is_published: String -> Boolean 
+- coordinates_lat deleted 
+- coordinates_lon deleted 
+- geometry -> location
 
 ## campuses
 #### total: 258
@@ -129,13 +130,13 @@ strongestWifi
 ### Changes: 
 - x deleted 
 - y deleted
-- geometry -> location
 - measurements[] = array [Mac, rss] (not during pulling, but during inserting)
 ### V1 Changes:
 - rss: String -> Int
 - timestamp: String -> Int 
 - heading: String -> Float
 - floor: String -> (remain String?)
+- geometry -> location
 
 ## floorPlans
 #### total: 3974
@@ -153,12 +154,12 @@ Extra Keys:
 username_creator bottom_left_lat bottom_left_lng top_right_lat top_right_lng height width zoom 
 ### Changes: 
 - dashes and nulls removed
-- bottom_left_lat, bottom_left_lng, top_right_lat, top_right_lng -> area (GeoJson polygon)
 ### V1 Changes:
 - floors: String -> (remain String?) 
 - is_published: String -> Boolean 
 - zoom: String -> Int
 - width, height -> ?? (see note bellow)
+- bottom_left_lat, bottom_left_lng, top_right_lat, top_right_lng -> area (GeoJson polygon)
 ### Notes: 
 - Width and height? are they all strings? (yes, but only 1 object)
 
@@ -191,15 +192,15 @@ username_creator bottom_left_lat bottom_left_lng top_right_lat top_right_lng hei
 Extra Keys:
 username_creator image 
 ### Changes: 
-- coordinates_lat deleted 
-- coordinates_lon deleted 
-- geometry -> location
 - dashes and nulls removed
 ### V1 Changes:
 - floors: String -> (remain String?) 
 - is_published: String -> Boolean 
 - is_door: String -> Boolean 
 - is_building_entrance: String -> Boolean 
+- coordinates_lat deleted 
+- coordinates_lon deleted 
+- geometry -> location
 
 # UNDEFINED
 

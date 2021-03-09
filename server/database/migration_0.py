@@ -29,16 +29,48 @@ def pushBuilding(database):
 def pushCampuses(database):
     path = getCollectionsPath() + "/campuses.json"
     count = 0
-    print("Pushing Campus..")
-    print(count, "json files were pushed.")
+    try:
+        file = open(path, encoding="utf8")
+    except:
+        print("Path was not correct.")
+        return
+    count = 0
+    print("Pushing Campuses..")
+    col = database["campuses"]
+    while True:
+        line = file.readline()
+        if not line:
+            break
+        count += 1
+        col.insert_one(json.loads(line))
+    if count == 0:
+        print("File is empty.")
+    else:
+        print(count, "Campuses were pushed.")
     return
 
 
 def pushEdges(database):
     path = getCollectionsPath() + "/edges.json"
     count = 0
+    try:
+        file = open(path, encoding="utf8")
+    except:
+        print("Path was not correct.")
+        return
+    count = 0
     print("Pushing Edges..")
-    print(count, "json files were pushed.")
+    col = database["edges"]
+    while True:
+        line = file.readline()
+        if not line:
+            break
+        count += 1
+        col.insert_one(json.loads(line))
+    if count == 0:
+        print("File is empty.")
+    else:
+        print(count, "Edges were pushed.")
     return
 
 
@@ -112,18 +144,31 @@ def pushFingerprintsBle(database):
 
 def pushFloorplans(database):
     path = getCollectionsPath() + "/floorplans.json"
-    
-    
-    
-    
+    count = 0
+    try:
+        file = open(path, encoding="utf8")
+    except:
+        print("Path was not correct.")
+        return
     count = 0
     print("Pushing Floorplans..")
-    print(count, "json files were pushed.")
+    col = database["floorplans"]
+    while True:
+        line = file.readline()
+        if not line:
+            break
+        count += 1
+        col.insert_one(json.loads(line))
+    if count == 0:
+        print("File is empty.")
+    else:
+        print(count, "Floorplans were pushed.")
     return
 
 
 def pushPois(database):
     path = getCollectionsPath() + "/pois.json"
+    count = 0
     try:
         file = open(path, encoding="utf8")
     except:
@@ -132,7 +177,16 @@ def pushPois(database):
     count = 0
     print("Pushing Pois..")
     col = database["pois"]
-    print(count, "json files were pushed.")
+    while True:
+        line = file.readline()
+        if not line:
+            break
+        count += 1
+        col.insert_one(json.loads(line))
+    if count == 0:
+        print("File is empty.")
+    else:
+        print(count, "Pois were pushed.")
     return
 
 
