@@ -1,7 +1,7 @@
 def fixBUILDING(obj):
     fixed = obj
     updateSchema(fixed)
-    fixLocation(fixed)
+    #fixLocation(fixed)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     return fixed
@@ -33,7 +33,7 @@ def fixFINGERPRINT(obj):
     #  fixed['timestamp'] = int(fixed['timestamp'])
     #  fixed['heading'] = float(fixed['heading'])
     #  fixed['rss'] = int(fixed['rss'])
-    fixLocation(fixed)
+    #fixLocation(fixed)
     # fixFloorNumber(fixed)
     return fixed
 
@@ -46,14 +46,14 @@ def fixFLOORPLAN(obj):
     # fixFloorNumber(fixed)
     #  if "zoom" in obj.keys():
     #       obj["zoom"] = int(obj["zoom"])
-    fixRectangle(fixed)
+    #fixRectangle(fixed)
     return fixed
 
 
 def fixPOIS(obj):
     fixed = obj
     updateSchema(fixed)
-    fixLocation(fixed)
+    #fixLocation(fixed)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     # fixFloorNumber(fixed)
