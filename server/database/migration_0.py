@@ -1,7 +1,7 @@
 import pymongo
 import json
 from helpers.config import *
-
+import os
 
 def pushBuilding(database):
     path = getCollectionsPath() + "/buildings.json"
@@ -76,45 +76,56 @@ def pushEdges(database):
 
 # "D:\JsonFiles\\fingerprintswifi.json", collection: FingerprintWifi
 def pushFingerprintsWifi(database):
-    path = getCollectionsPath() + "/fingerprintsWifi.json"
-    # path = input("Enter the path of json file with FingerprintsWifi:\n")
-    path = "D:\JsonFiles\\fingerprintswifi.json"
+    path = getCollectionsPath() + "/fingerprintsWifi"
     dupes = 0
-    try:
-        file = open(path, encoding="utf8")
-    except:
-        print("Path was not correct.")
-        return
-    count = 0
+    countAll = 0
+    filesPaths = os.listdir(path)
     print("Pushing FingerprintsWifi..")
-    col = database["FingerprintWifi"]
-    visited = []
-    while True:
-        line = file.readline()  # read new obj
-        if not line:
-            break
-        count += 1
-        found = False
-        obj = json.loads(line)
-        newFingerprint = createNewFingerprint(obj)  # create new fingerprint with "measurements"
-        if len(visited) == 0:  # if its the first obj then add it to visited fingerprints
-            visited.insert(0, newFingerprint)  # mark as visited
+    for fileP in filesPaths: 
+        try:
+            file = open(path + "/" + fileP, encoding="utf8")
+        except:
+            print("Path was not correct.")
+            return
+        count = 0
+        col = database["fingerprintsWifi"]
+        query = {"buid": fileP}
+        doc = col.find_one(query)
+        if doc is None:
+            print("There are no fingerprints in database with buid: " + fileP)
+            print("Adding fingerprints of building: " + fileP)
         else:
-            for jsonFingeprint in visited:  # for every visited json
-                if obj["timestamp"] == jsonFingeprint["timestamp"] and obj["buid"] == jsonFingeprint["buid"] \
-                        and obj["floor"] == jsonFingeprint["floor"] and obj["location"] == jsonFingeprint["location"] \
-                        and obj["heading"] == jsonFingeprint["heading"]:  # locate visited
-                    dupes += 1
-                    found = True
-                    updateExistingFingerprint(jsonFingeprint, obj)  # update visited
-            if not found:
-                visited.insert(0, newFingerprint)  # if first seen, add it
-    if count == 0:
-        print("File is empty.")
-    else:
-        print(len(visited), "FingerprintsWifi were pushed.")
-    for j in visited:
-        col.insert_one(j)
+            # print("Found fingreprints for building: " + fileP)
+            continue
+        visited = []
+        while True:
+            line = file.readline()  # read new obj
+            if not line:
+                break
+            count += 1
+            found = False
+            obj = json.loads(line)
+            newFingerprint = createNewFingerprint(obj)  # create new fingerprint with "measurements"
+            if len(visited) == 0:  # if its the first obj then add it to visited fingerprints
+                visited.insert(0, newFingerprint)  # mark as visited
+            else:
+                for jsonFingeprint in visited:  # for every visited json
+                    if obj["timestamp"] == jsonFingeprint["timestamp"] and obj["buid"] == jsonFingeprint["buid"] \
+                            and obj["floor"] == jsonFingeprint["floor"] and obj["geometry"] == jsonFingeprint["geometry"] \
+                            and obj["heading"] == jsonFingeprint["heading"]:  # locate visited
+                        # dupes += 1
+                        found = True
+                        updateExistingFingerprint(jsonFingeprint, obj)  # update visited
+                if not found:
+                    visited.insert(0, newFingerprint)  # if first seen, add it
+        if count == 0:
+            print("File is empty.")
+        else:
+            print(len(visited), "FingerprintsWifi were pushed for building" + fileP +"\n")
+        for j in visited:
+            col.insert_one(j)
+            countAll += 1
+    print(countAll, "FingerprintsWifi were pushed in total.")
     # print("visited length = ", len(visited))
     # print("dupes = ", dupes)
     return
@@ -293,10 +304,10 @@ elif countCollections < 8:
         pushEdges(db)
     else:
         print("Edges already exists.")
-    if fingerprintsWifi == False:
-        pushFingerprintsWifi(db)
-    else:
-        print("Fingerprints Wifi already exists.")
+    #if fingerprintsWifi == False:
+    # pushFingerprintsWifi(db)
+    #else:
+    #    print("Fingerprints Wifi already exists.")
     if fingerprintsBle == False:
         pushFingerprintsBle(db)  # creating empty collection for now
     else:

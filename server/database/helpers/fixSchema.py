@@ -103,7 +103,7 @@ def fixBooleans(obj):
 def fixDashesOrNulls(obj):
     listToDel = []
     for key in obj.keys():
-        if key == "address" or key == "url" or key == "description" or key == "name":
+        if key == "address" or key == "url" or key == "description" or key == "name" or key == "bucode" or key == "username_creator":
             if obj[key] == "-" or obj[key] == "":
                 listToDel.insert(0, key)
     for x in listToDel:
