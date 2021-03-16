@@ -19,7 +19,6 @@ auid clients doctype email isadmin nickname password scope username
 - NONE
 
 ---
-# TODO: 
 
 ## buildings
 #### total: 4438
@@ -201,7 +200,8 @@ username_creator image
 - coordinates_lat deleted 
 - coordinates_lon deleted 
 - geometry -> location
-
+### Notes:
+- 21456 out of 49038 pois_type are None
 # UNDEFINED
 
 ## CAMPUSx1

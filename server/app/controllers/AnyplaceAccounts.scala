@@ -44,6 +44,7 @@ import oauth.provider.v2.models.{AccountModel, OAuth2Request}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.mvc.Controller
+import utils.JsonUtils.toCouchObject
 import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
 
@@ -119,7 +120,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(auid))
           if (storedAccount ==
             null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
@@ -212,7 +213,7 @@ object AnyplaceAccounts extends Controller {
         try {
           // fetch the stored object
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request(
               "Account could not be updated! Try again...")
@@ -281,7 +282,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+            toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -336,7 +337,7 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -390,7 +391,7 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          storedAccount = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -441,7 +442,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -468,5 +469,4 @@ object AnyplaceAccounts extends Controller {
 
       inner(request)
   }
-
 }

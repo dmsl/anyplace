@@ -37,10 +37,10 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
+import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
+import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
 import datasources.{CouchbaseDatasource, DatasourceException, InfluxdbDatasource, MongodbDatasource}
 import play.{Application, GlobalSettings, Logger}
-import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
-import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
 import utils.LPLogger
 
 // TODO Should be deprecated once we update.
@@ -89,4 +89,8 @@ class Global extends GlobalSettings {
       * End
       */
   }
+
+//  override def onHandlerNotFound(request: RequestHeader) = {
+//    Future.successful(NotFound(Json.obj("error" -> "Not Found")))
+//  }
 }

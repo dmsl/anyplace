@@ -48,6 +48,7 @@ import scala.collection.JavaConversions._
 object AnyResponseHelper {
 
     val CANNOT_PARSE_BODY_AS_JSON = "Cannot parse request body as Json object!"
+    val WRONG_API_USAGE = "Wrong API usage!"
 
     object Response extends Enumeration {
 

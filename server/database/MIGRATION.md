@@ -3,7 +3,6 @@
 ## /anyplace/navigation/building/id
 ## TODO collapse
  
-
 <details> 
 <summary>
   couchbase

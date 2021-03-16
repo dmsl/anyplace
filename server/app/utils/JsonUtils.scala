@@ -36,10 +36,10 @@
 package utils
 
 import java.util
-import java.util.{ArrayList, Collections, HashMap, List}
+import java.util.{ArrayList, Collections, HashMap}
 
 import com.couchbase.client.java.document.json.JsonObject
-import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue}
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 
 object JsonUtils {
 
@@ -54,7 +54,7 @@ object JsonUtils {
 
   }
 
-  def fillMapFromJson(json: JsonObject, map: HashMap[String, String], keys: String*): List[String] = {
+  def fillMapFromJson(json: JsonObject, map: HashMap[String, String], keys: String*): util.List[String] = {
     if (json == null || map == null) {
       throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
     }
@@ -115,6 +115,52 @@ object JsonUtils {
     var value = "0"
     if ((json \ key).toOption.isDefined) value = (json \ key).as[String]
     json.as[JsObject] + (key -> JsNumber(value.toInt))
+  }
+
+  def isNullOrEmpty(x: JsValue): Boolean = {
+    if (x == null)
+      return true
+    if (Json.stringify(x) == "{}" || Json.stringify(x) == "")
+      return true
+    return false
+  }
+
+  @deprecated("mdb")
+  def toCouchObject(json: JsValue): JsonObject = {
+    val sJson = json.toString
+    JsonObject.fromJson(sJson)
+  }
+
+  @deprecated("mdb")
+  def fromCouchObject(json: JsonObject): JsValue = {
+    val sJson = json.toString
+    Json.parse(sJson)
+  }
+
+  @deprecated("mdb")
+  def toCouchArray(json: Array[JsValue]): Array[JsonObject] = {
+    val temp = new ArrayList[JsonObject]()
+    for (i <- json) {
+      temp.add(toCouchObject(i))
+    }
+    temp.asInstanceOf[Array[JsonObject]]
+  }
+
+  @deprecated("mdb")
+  def fromCouchList(json: java.util.ArrayList[JsonObject]): List[JsValue] = {
+    val temp = new ArrayList[JsValue]()
+    for (i <- 0 until json.size()) {
+      temp.add(fromCouchObject(json.get(i)))
+    }
+    temp.asInstanceOf[List[JsValue]]
+  }
+
+  @deprecated("mdb")
+  def toCouchList(json: util.List[JsValue]): util.List[JsonObject] = {
+    val list: util.List[JsonObject] = null
+    for (i <- 1 until json.size())
+      list.add(toCouchObject(json.get(i)))
+    list
   }
 
 }

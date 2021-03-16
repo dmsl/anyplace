@@ -58,29 +58,38 @@ trait IDatasource {
   def init(): Boolean
 
   def addJsonDocument(key: String, expiry: Int, document: String): Boolean
-  def addJsonDocument(document: String, col: String)
+  def addJsonDocument(col: String, document: String, key: String):Boolean
 
   def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean
 
+  def replaceJsonDocument(col: String, key: String, document: String): Boolean
+
+  def deleteFromKey(col: String, key: String): Boolean
   def deleteFromKey(key: String): Boolean
 
+  @deprecated("mdb")
   def getFromKey(key: String): AnyRef
 
-  def getFromKeyAsJson(key: String): JsonObject
+  def getFromKey(collection:String, key: String): AnyRef
 
-  def buildingFromKeyAsJson(key: String): JsonObject
+  @deprecated("mdb")
+  def getFromKeyAsJson(key: String): JsValue
 
-  def poiFromKeyAsJson(key: String): JsonObject
+  def getFromKeyAsJson(collection: String,key: String): JsValue
+
+  def buildingFromKeyAsJson(key: String): JsValue
+
+  def poiFromKeyAsJson(key: String): JsValue
 
   def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
 
   def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]]
 
-  def poisByBuildingAsJson(buid: String): java.util.List[JsonObject]
+  def poisByBuildingAsJson(buid: String): java.util.List[JsValue]
 
   def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
-  def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject]
+  def floorsByBuildingAsJson(buid: String): java.util.List[JsValue]
 
   def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject]
 
@@ -90,7 +99,7 @@ trait IDatasource {
 
   def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject]
 
-  def deleteAllByBuilding(buid: String): java.util.List[String]
+  def deleteAllByBuilding(buid: String)
 
   def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String]
 
@@ -100,7 +109,7 @@ trait IDatasource {
 
   def getRadioHeatmap(): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject]
 
@@ -132,11 +141,11 @@ trait IDatasource {
 
   def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
-  def getAllBuildings(): java.util.List[JsonObject]
+  def getAllBuildings(): List[JsValue]
 
-  def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject]
+  def getAllBuildingsByOwner(oid: String): List[JsValue]
 
-  def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject]
+  def getAllBuildingsByBucode(bucode: String): List[JsValue]
 
   def getBuildingByAlias(alias: String): JsonObject
 

@@ -38,6 +38,7 @@ package controllers
 import java.util.{ArrayList, HashMap, List}
 
 import com.couchbase.client.java.document.json.JsonObject
+import utils.JsonUtils.toCouchObject
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models.NavResultPoint
 import oauth.provider.v2.models.OAuth2Request
@@ -50,7 +51,6 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
 
   def getBuildingById() = Action {
     implicit request =>
-
       val anyReq = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
         AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -88,7 +88,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       }
       val puid = (json \ "pois").as[String]
       try {
-        val doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid)
+        val doc = toCouchObject(ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid))
         if (doc == null) {
           AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
         }
@@ -118,11 +118,11 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         AnyResponseHelper.bad_request("Destination and Source is the same!")
       }
       try {
-        val poiFrom = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from)
+        val poiFrom = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from))
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
         }
-        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
+        val poiTo = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to))
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }
@@ -167,7 +167,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       val floor_number = (json \ "floor_number").as[String]
       val puid_to = (json \ "pois_to").as[String]
       try {
-        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to)
+        val poiTo = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to))
         if (poiTo == null) {
           AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }

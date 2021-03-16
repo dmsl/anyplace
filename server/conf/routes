@@ -12,7 +12,8 @@ GET         /assets/*file                                                       
 # OAuth2 API
 #POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
 # Anyplace API - Navigation
-POST        /anyplace/navigation/building/id                                           controllers.AnyplaceNavigation.getBuildingById()
+
+
 POST        /anyplace/navigation/pois/id                                               controllers.AnyplaceNavigation.getPoisById()
 POST        /anyplace/navigation/route                                                 controllers.AnyplaceNavigation.getNavigationRoute()
 POST        /anyplace/navigation/route_xy                                              controllers.AnyplaceNavigation.getNavigationRouteXY()
@@ -21,7 +22,6 @@ POST        /anyplace/navigation/route_xy                                       
 #POST           /anyplace/mapping/radio/addbuids                             controllers.AnyplaceMapping.addBuidInRssLogs()
 #POST           /anyplace/mapping/pois/temp_url                              controllers.AnyplaceMapping.tempAllPoisWithoutUrl()
 #DOING#POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
-POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
 
 POST        /anyplace/mapping/radio/heatmap_building_floor_avarage                     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage()
 
@@ -50,13 +50,6 @@ POST        /anyplace/position/radio/acces                                      
 
 POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
 #POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
-POST        /anyplace/mapping/building/coowners                                        controllers.AnyplaceMapping.buildingUpdateCoOwners()
-POST        /anyplace/mapping/building/newowner                                        controllers.AnyplaceMapping.buildingUpdateOwner()
-POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()
-POST        /anyplace/mapping/building/add                                             controllers.AnyplaceMapping.buildingAdd()
-POST        /anyplace/mapping/building/update                                          controllers.AnyplaceMapping.buildingUpdate()
-POST        /anyplace/mapping/building/delete                                          controllers.AnyplaceMapping.buildingDelete()
-POST        /anyplace/mapping/building/all                                             controllers.AnyplaceMapping.buildingAll()
 
 POST        /anyplace/mapping/campus/all_cucode                                        controllers.AnyplaceMapping.buildingSetAll()
 POST        /anyplace/mapping/campus/add                                               controllers.AnyplaceMapping.buildingSetAdd()
@@ -64,9 +57,7 @@ POST        /anyplace/mapping/campus/update                                     
 POST        /anyplace/mapping/campus/all_owner                                         controllers.AnyplaceMapping.buildingsetAllByOwner()
 POST        /anyplace/mapping/campus/delete                                            controllers.AnyplaceMapping.campusDelete()
 
-POST        /anyplace/mapping/building/all_owner                                       controllers.AnyplaceMapping.buildingAllByOwner()
-POST        /anyplace/mapping/building/all_bucode                                      controllers.AnyplaceMapping.buildingByBucode()
-POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
+
 POST        /anyplace/mapping/floor/add                                                controllers.AnyplaceMapping.floorAdd()
 POST        /anyplace/mapping/floor/update                                             controllers.AnyplaceMapping.floorUpdate()
 POST        /anyplace/mapping/floor/delete                                             controllers.AnyplaceMapping.floorDelete()
@@ -77,11 +68,8 @@ POST        /anyplace/mapping/pois/add                                          
 
 
 POST        /anyplace/mapping/pois/add_category                                        controllers.AnyplaceMapping.categoryAdd()
-
 POST        /anyplace/mapping/pois/all_pois                                            controllers.AnyplaceMapping.poisAll()
-
 POST        /anyplace/mapping/pois/all_pois_nconnectors                                controllers.AnyplaceMapping.poisByBuidincConnectors()
-
 POST        /anyplace/mapping/pois/update                                              controllers.AnyplaceMapping.poisUpdate()
 POST        /anyplace/mapping/pois/delete                                              controllers.AnyplaceMapping.poisDelete()
 POST        /anyplace/mapping/pois/all_floor                                           controllers.AnyplaceMapping.poisByFloor()
@@ -178,6 +166,32 @@ GET         /admin                                                              
 # Android
 GET         /android                                                                   controllers.AnyplaceAndroid.getApks()
 GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
+
+
+#####################################################################################################
+###
+# ENDPOINTS ON DEVELOP-TESTING
+###
+# TESTING
+POST        /anyplace/mapping/building/all                                             controllers.AnyplaceMapping.buildingAll()
+POST        /anyplace/navigation/building/id                                           controllers.AnyplaceNavigation.getBuildingById()
+POST        /anyplace/mapping/building/all_bucode                                      controllers.AnyplaceMapping.buildingByBucode()
+POST        /anyplace/mapping/building/all_owner                                       controllers.AnyplaceMapping.buildingAllByOwner()
+
+POST        /anyplace/mapping/building/coowners                                        controllers.AnyplaceMapping.buildingUpdateCoOwners()
+POST        /anyplace/mapping/building/newowner                                        controllers.AnyplaceMapping.buildingUpdateOwner()
+POST        /anyplace/mapping/building/update                                          controllers.AnyplaceMapping.buildingUpdate()
+POST        /anyplace/mapping/building/add                                             controllers.AnyplaceMapping.buildingAdd()
+POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()
+POST        /anyplace/mapping/building/delete                                          controllers.AnyplaceMapping.buildingDelete()
+# DEVELOPING
+POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
+POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
+
+
+# BLOCKED
+
+
 
 
 

@@ -80,7 +80,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
     def getId(): String = fields.get("owner_id")
 
-    // DEPRECATE
+    @deprecated
     def toValidCouchJson(): JsonObject = {
         JsonObject.from(this.getFields())
     }
@@ -107,6 +107,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
         sb.toString
     }
 
+    @deprecated
     def _toString(): String = toValidCouchJson().toString
 
     override def toString(): String = toJson().toString()

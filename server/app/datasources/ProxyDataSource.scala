@@ -90,9 +90,9 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.addJsonDocument(key, expiry, document)
   }
 
-  override def addJsonDocument(document: String, col: String) {
+  override def addJsonDocument(col: String, document: String, key: String): Boolean = {
     _checkActiveDatasource()
-    mongoDB.addJsonDocument(document, col)
+    mongoDB.addJsonDocument(col, document, key)
   }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = {
@@ -100,9 +100,24 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.replaceJsonDocument(key, expiry, document)
   }
 
+  override def replaceJsonDocument(col: String, key: String, document: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.replaceJsonDocument(col, key, document)
+  }
+
+  def deleteFromKey(col: String, key: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.deleteFromKey(col, key)
+  }
+
   override def deleteFromKey(key: String): Boolean = {
     _checkActiveDatasource()
     mActiveDatabase.deleteFromKey(key)
+  }
+
+  override def getFromKey(collection:String, key: String):AnyRef = {
+    _checkActiveDatasource()
+    mongoDB.getFromKey(collection, key)
   }
 
   override def getFromKey(key: String): AnyRef = {
@@ -115,17 +130,23 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.deleteRadiosInBox()
   }
 
-  override def getFromKeyAsJson(key: String): JsonObject = {
+  override def getFromKeyAsJson(collection: String,key: String): JsValue = {
+    _checkActiveDatasource()
+    mongoDB.getFromKeyAsJson(collection, key)
+  }
+
+  override def getFromKeyAsJson(key: String): JsValue = {
     _checkActiveDatasource()
     mActiveDatabase.getFromKeyAsJson(key)
   }
 
-  override def buildingFromKeyAsJson(key: String): JsonObject = {
+  override def buildingFromKeyAsJson(key: String): JsValue = {
     _checkActiveDatasource()
-    mActiveDatabase.buildingFromKeyAsJson(key)
+//    mActiveDatabase.buildingFromKeyAsJson(key)
+    mongoDB.buildingFromKeyAsJson(key)
   }
 
-  override def poiFromKeyAsJson(key: String): JsonObject = getFromKeyAsJson(key)
+  override def poiFromKeyAsJson(key: String): JsValue = getFromKeyAsJson(key)
 
   override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
@@ -137,7 +158,7 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.poisByBuildingFloorAsMap(buid, floor_number)
   }
 
-  override def poisByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  override def poisByBuildingAsJson(buid: String): java.util.List[JsValue] = {
     _checkActiveDatasource()
     mActiveDatabase.poisByBuildingAsJson(buid)
   }
@@ -147,7 +168,7 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.poisByBuildingAsMap(buid)
   }
 
-  override def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  override def floorsByBuildingAsJson(buid: String): java.util.List[JsValue] = {
     _checkActiveDatasource()
     mActiveDatabase.floorsByBuildingAsJson(buid)
   }
@@ -167,9 +188,9 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.connectionsByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def deleteAllByBuilding(buid: String): java.util.List[String] = {
+  override def deleteAllByBuilding(buid: String) {
     _checkActiveDatasource()
-    mActiveDatabase.deleteAllByBuilding(buid)
+    mongoDB.deleteAllByBuilding(buid)
   }
 
   override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = {
@@ -192,9 +213,10 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getRadioHeatmap
   }
 
-  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloor(buid, floor)
+//    mActiveDatabase.getRadioHeatmapByBuildingFloor(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloor(buid, floor)
   }
 
   override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
@@ -258,19 +280,22 @@ class ProxyDataSource private() extends IDatasource {
   }
 
 
-  override def getAllBuildings(): java.util.List[JsonObject] = {
+  override def getAllBuildings(): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildings
+//    mActiveDatabase.getAllBuildings
+    mongoDB.getAllBuildings()
   }
 
-  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = {
+  override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsByOwner(oid)
+//    mActiveDatabase.getAllBuildingsByOwner(oid)
+    mongoDB.getAllBuildingsByOwner(oid)
   }
 
-  override def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject] = {
+  override def getAllBuildingsByBucode(bucode: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsByBucode(bucode)
+//    mActiveDatabase.getAllBuildingsByBucode(bucode)
+    mongoDB.getAllBuildingsByBucode(bucode)
   }
 
   override def getBuildingByAlias(alias: String): JsonObject = {
