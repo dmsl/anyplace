@@ -1,3 +1,6 @@
+from helpers.config import *
+
+
 def fixBUILDING(obj):
     fixed = obj
     updateSchema(fixed)
@@ -68,8 +71,10 @@ def fixUSER(obj):
     if "type" in obj.keys():
         obj["external"] = obj["type"]
         del obj["type"]
-
-    obj["type"] = "user"
+    if obj["owner_id"] in ADMINS:
+        obj["type"] = "admin"
+    else:
+        obj["type"] = "user"
     return fixed
 
 
