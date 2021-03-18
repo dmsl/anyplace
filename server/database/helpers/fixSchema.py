@@ -68,11 +68,17 @@ def fixUSER(obj):
     updateSchema(fixed)
     if "doc_type" in obj.keys():
         del obj["doc_type"]
+    #if "owner_id" in obj.keys():
+    #    obj["id"] = obj["owner_id"]
+    #    del obj["owner_id"]
     if "type" in obj.keys():
         obj["external"] = obj["type"]
         del obj["type"]
-    if obj["owner_id"] in ADMINS:
-        obj["type"] = "admin"
+    if "owner_id" in obj.keys():
+        if obj["owner_id"] in ADMINS:
+            obj["type"] = "admin"
+        else:
+            obj["type"] = "user"
     else:
         obj["type"] = "user"
     return fixed
