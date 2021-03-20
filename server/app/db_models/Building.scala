@@ -48,22 +48,15 @@ import utils.{GeoJSONPoint, LPLogger, LPUtils}
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 class Building(hm: HashMap[String, String]) extends AbstractModel {
-
   private var json: JsValue = _
-
   private var lat: Double = _
-
   private var lng: Double = _
-
   private var admins: Array[String] = Array("112997031510415584062_google")
-
   private var co_owners = JsArray()
-
   this.fields = hm
 
   def this() {
     this(new HashMap[String, String])
-    fields.put("username_creator", "")
     fields.put("buid", "")
     fields.put("is_published", "")
     fields.put("name", "")
@@ -77,11 +70,6 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
   def this(json: JsValue) {
     this()
-    if ((json \ "username_creator").toOption.isDefined && (json \ "username_creator") != JsDefined(JsNull)) {
-      val temp = (json \ "username_creator").as[String]
-      if (!temp.equals(""))
-        fields.put("username_creator", temp)
-    }
     fields.put("owner_id", (json \ "owner_id").as[String])
     if ((json \ "buid").toOption.isDefined)
       fields.put("buid", (json \ "buid").as[String])
@@ -91,31 +79,15 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
         fields.put("is_published", temp)
     }
     fields.put("name", (json \ "name").as[String])
-    if ((json \ "description").toOption.isDefined && (json \ "description") != JsDefined(JsNull)) {
-      val temp = (json \ "description").as[String]
-      if (!temp.equals(""))
-        fields.put("description", temp)
-    }
-    if ((json \ "url").toOption.isDefined && (json \ "url") != JsDefined(JsNull)) {
-      val temp = (json \ "url").as[String]
-      if (!temp.equals(""))
-        fields.put("url", temp)
-    }
-    if ((json \ "address").toOption.isDefined && (json \ "address") != JsDefined(JsNull)) {
-      val temp = (json \ "address").as[String]
-      if (!temp.equals(""))
-        fields.put("address", temp)
-    }
+    cleanupFieldKey(json, "description")
+    cleanupFieldKey(json, "url")
+    cleanupFieldKey(json, "address")
     fields.put("coordinates_lat", (json \ "coordinates_lat").as[String])
     fields.put("coordinates_lon", (json \ "coordinates_lon").as[String])
-    if ((json \ "bucode").toOption.isDefined && (json \ "bucode") != JsDefined(JsNull)) {
-      val temp = (json \ "bucode").as[String]
-      if (!temp.equals(""))
-        fields.put("bucode", temp)
-    }
+    cleanupFieldKey(json, "bucode")
     if ((json \ "co_owners").toOption.isDefined)
       co_owners = (json \ "co_owners").as[JsArray]
-    this.json = json
+    this.json = cleanupJson(json)
     this.lat = java.lang.Double.parseDouble((json \ "coordinates_lat").as[String])
     this.lng = java.lang.Double.parseDouble((json \"coordinates_lon").as[String])
   }
@@ -136,25 +108,13 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     buid
   }
 
-  def toCouchGeoJSON(): String = {
+  def toGeoJSON(): String = {
     val sb = new StringBuilder()
     var json = toValidMongoJson()
     try {
-      json = json.as[JsObject] + ("geometry" -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
+      json = json.as[JsObject] + ("geometry" -> Json.toJson(
+        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
         java.lang.Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON()))
-//      json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
-//        java.lang.Double.parseDouble(fields.get("coordinates_lon")))
-//        .toGeoJSON())
-//      if (json.getArray("co_owners") == null || json.getArray("co_owners").isEmpty) {}
-      if ((json\"co_owners") == JsDefined(JsNull) || (json\"co_owners") == JsDefined(JsString(""))) {
-        val ja = new util.ArrayList[String]
-        for (i <- admins.indices) {
-          ja.add(admins(i))
-        }
-        json = Json.toJson(json.as[JsObject] + ("co_owners" -> Json.toJson(ja.toList)))
-      }
-//      json.removeKey("username")
-        json = json.as[JsObject] - "username"
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -163,7 +123,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   @deprecated
-  def toValidCouchJson(): JsonObject = {
+  def toValidJson(): JsonObject = {
     // initialize id if not initialized
     getId()
     JsonObject.from(this.getFields()).put("co_owners",co_owners)
@@ -207,15 +167,27 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
 
   def changeOwner(newOwnerId: String): String = {
     val sb = new StringBuilder()
-    var json = removeEmpty(toValidMongoJson())
-    LPLogger.debug("BEFORE ?? = " + json)
+    var json = cleanupJson(toValidMongoJson())
     try {
+      val newCoOwners:util.ArrayList[String] = new util.ArrayList[String]()
       this.fields.put("owner_id", newOwnerId)
-//      val ja = new java.util.ArrayList[String]
-//      for (i <- 0 until admins.length) {
-//        ja.add(admins(i))
-//      }
+      if ((json \ "co_owners").toOption.isDefined) {
+        if ((json \ "co_owners").as[List[String]].length > 0) {
+          val co_owners = (json \ "co_owners").as[List[String]]
+          for (co_owner <- co_owners) {
+            newCoOwners.add(co_owner)
+          }
+          for (i <- 0 until newCoOwners.size()){
+            if (newCoOwners.get(i) == newOwnerId) {
+              newCoOwners.remove(i)
+            }
+          }
+        }
+      }
+      json = json.as[JsObject] + ("geometry" -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
+        java.lang.Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON()))
       json = Json.toJson(json.as[JsObject] + ("owner_id" -> JsString(newOwnerId)))
+      json = Json.toJson(json.as[JsObject] + ("co_owners" -> Json.toJson(newCoOwners.toList)))
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -223,20 +195,35 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  def removeEmpty(json: JsValue):JsValue = {
+  def cleanupJsonKey(json:JsValue, key: String): JsValue = {
+    if ((json\key).toOption.isDefined){
+      val str = (json\key).as[String]
+      if (str == "" || str == "-") {
+        fields.remove(key)
+        return json.as[JsObject] - key
+      }
+    }
+    json
+  }
+
+  def cleanupJson(json: JsValue):JsValue = {
     var ret = json
-    LPLogger.debug("w???? = " + (json\"bucode").as[String])
-    if ((json\"bucode").as[String].equals(""))
-      ret = ret.as[JsObject] - "bucode"
-    if ((json\"address").as[String].equals(""))
-      ret = ret.as[JsObject] - "address"
-    if ((json\"description").as[String].equals(""))
-      ret = ret.as[JsObject] - "description"
-    if ((json\"username_creator").as[String].equals(""))
-      ret = ret.as[JsObject] - "username_creator"
-    if ((json\"url").as[String].equals(""))
-      ret = ret.as[JsObject] - "url"
+    ret = cleanupJsonKey(ret, "bucode")
+    ret = cleanupJsonKey(ret, "address")
+    ret = cleanupJsonKey(ret, "description")
+    ret = cleanupJsonKey(ret, "url")
     ret
+  }
+
+  def cleanupFieldKey(json: JsValue, key: String) {
+    if ((json \ key).toOption.isDefined && (json \ key) != JsDefined(JsNull)) {
+      val temp = (json \ key).as[String]
+      if (!temp.equals("")) {
+        fields.put(key, temp)
+      }
+    } else {
+      fields.remove(key)
+    }
   }
 
   def toJson(): JsValue = {
@@ -247,7 +234,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   @deprecated
-  def _toString(): String = toValidCouchJson().toString
+  def _toString(): String = toValidJson().toString
 
   override def toString(): String = toJson().toString()
 }

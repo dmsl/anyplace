@@ -164,13 +164,13 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
       fields.get("MAC")
   }
 
-  def toValidCouchJson(): JsonObject = {
+  def toValidJson(): JsonObject = {
     // initialize id if not initialized
     getId
     JsonObject.from(this.getFields())
   }
 
-  def toCouchGeoJSON(): String = {
+  def toGeoJSON(): String = {
     val sb = new StringBuilder()
     var json: JsonObject = null
     try {
@@ -184,7 +184,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  override def toString(): String = this.toValidCouchJson().toString
+  override def toString(): String = this.toValidJson().toString
 
   def toRawRadioMapRecord(): String = {
     val sb = new StringBuilder()

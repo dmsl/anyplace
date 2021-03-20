@@ -30,3 +30,8 @@
     width: 140px;
     /*margin-bottom: -2px;*/
 }
+
+.textUserAdmin {
+    font-weight: bolder;
+    color: #ff0000;
+}

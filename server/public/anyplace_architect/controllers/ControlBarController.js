@@ -39,7 +39,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.owner_id = undefined;
     $scope.displayName = undefined;
-
+    $scope.userType = undefined;
 
     var self = this; //to be able to reference to it in a callback, you could use $scope instead
 
@@ -127,8 +127,14 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         });
 
         promise.then(
-            function (resp) {},
-            function (resp) {}
+            function (resp) {
+                // console.log(resp)
+                $scope.userType = resp.data.type;
+            },
+            function (resp) {
+                console.log("error: personLookUp")
+                console.log(resp)
+            }
         );
     };
 
@@ -179,17 +185,25 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         return $scope.tab === num;
     };
 
-
-    $scope.tab = 1;
-
-    $scope.setTab = function (num) {
-        $scope.tab = num;
-
+    $scope.isUserAdmin = function () {
+        if ($scope.userType == null) {
+            return false;
+        } else if ($scope.userType == undefined) {
+            return false;
+        } else if ($scope.userType == "admin") {
+            return true;
+        }
     };
-
-    $scope.isTabSet = function (num) {
-        return $scope.tab === num;
-    };
+    // CLR:NN REVIEW:PM
+    // $scope.tab = 1;
+    //
+    // $scope.setTab = function (num) {
+    //     $scope.tab = num;
+    // };
+    //
+    // $scope.isTabSet = function (num) {
+    //     return $scope.tab === num;
+    // };
 
     var _err = function (msg) {
         $scope.anyService.addAlert('danger', msg);

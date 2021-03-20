@@ -38,10 +38,11 @@ package controllers
 import java.util.{ArrayList, HashMap, List}
 
 import com.couchbase.client.java.document.json.JsonObject
-import utils.JsonUtils.toCouchObject
+import utils.JsonUtils.{toCouchList, toCouchObject}
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models.NavResultPoint
 import oauth.provider.v2.models.OAuth2Request
+import play.api.libs.json.JsObject
 import play.api.mvc.Action
 import utils._
 //remove if not needed
@@ -88,11 +89,11 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       }
       val puid = (json \ "pois").as[String]
       try {
-        val doc = toCouchObject(ProxyDataSource.getIDatasource.poiFromKeyAsJson(puid))
+        var doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson("pois", "puid", puid)
         if (doc == null) {
           AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
         }
-        doc.removeKey("owner_id")
+        doc = doc.as[JsObject] - "owner_id" - "_id" - "_schema"
         AnyResponseHelper.ok(doc, "Successfully fetched Poi information!")
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
@@ -175,7 +176,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         val floor_to = poiTo.getString("floor_number")
         val dlat = java.lang.Double.parseDouble(coordinates_lat)
         val dlon = java.lang.Double.parseDouble(coordinates_lon)
-        val floorPois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
+        val floorPois = toCouchList(ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number))
         if (0 == floorPois.size) {
           AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
         }

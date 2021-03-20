@@ -69,7 +69,6 @@ object AnyResponseHelper {
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
 
-    // TODO: json of play
     def ok(json: JsValue, msg: String) = CreateResultResponse(Response.OK, json, msg)
     def bad_request(json: JsValue, msg: String) = CreateResultResponse(Response.BAD_REQUEST, json, msg)
 

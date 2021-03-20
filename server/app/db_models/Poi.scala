@@ -41,6 +41,10 @@ import java.io.IOException
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import utils.JsonUtils.convertToInt
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 object Poi {
 
@@ -59,7 +63,7 @@ object Poi {
 
 class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsonObject = _
+    private var json: JsValue = _
 
     private var lat: Double = _
 
@@ -69,8 +73,6 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
     def this() {
         this(new HashMap[String, String])
-        fields.put("username", "")
-        fields.put("username_creator", "")
         fields.put("puid", "")
         fields.put("buid", "")
         fields.put("is_published", "")
@@ -86,36 +88,59 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
         fields.put("coordinates_lon", "")
     }
 
-    def this(json: JsonObject) {
+    def this(json: JsValue) {
         this()
-        fields.put("username_creator", json.getString("username_creator"))
-        fields.put("puid", json.getString("puid"))
-        fields.put("buid", json.getString("buid"))
-        fields.put("is_published", json.getString("is_published"))
-        fields.put("floor_name", json.getString("floor_name"))
-        fields.put("floor_number", json.getString("floor_number"))
-        fields.put("name", json.getString("name"))
-        if (json.getString("description") != null && json.getString("description") != null &&
-          !json.getString("description").isEmpty) {
-            fields.put("description", json.getString("description"))
-        } else {
-            fields.put("description", "-")
+        if ((json\"puid").toOption.isDefined)
+            fields.put("puid", (json\"puid").as[String])
+        if ((json\"buid").toOption.isDefined)
+            fields.put("buid", (json\"buid").as[String])
+        if ((json\"is_published").toOption.isDefined)
+            fields.put("is_published", (json\"is_published").as[String])
+        if ((json\"floor_name").toOption.isDefined)
+            fields.put("floor_name", (json\"floor_name").as[String])
+        if ((json\"floor_number").toOption.isDefined)
+            fields.put("floor_number", (json\"floor_number").as[String])
+        if ((json\"name").toOption.isDefined) {
+            val temp = (json\"name").as[String]
+            if (temp != "" && temp != "-" && temp != null) {
+                fields.put("name", temp)
+            } else {
+                fields.remove("name")
+            }
         }
-        if (json.getString("url") != null && json.getString("url") != null &&
-          !json.getString("url").isEmpty) {
-            fields.put("url", json.getString("url"))
-        } else {
-            fields.put("url", "-")
-        }
-        fields.put("image", json.getString("image"))
-        fields.put("pois_type", json.getString("pois_type"))
-        fields.put("is_door", json.getString("is_door"))
-        fields.put("is_building_entrance", json.getString("is_building_entrance"))
-        fields.put("coordinates_lat", json.getString("coordinates_lat"))
-        fields.put("coordinates_lon", json.getString("coordinates_lon"))
+        if ((json\"description").toOption.isDefined) {
+            val temp = (json\"description").as[String]
+            if (temp != "" && temp != "-" && temp != null) {
+                fields.put("description", temp)
+            } else {
+                fields.remove("description")
+            }
+        } else
+            fields.remove("description")
+        if ((json\"url").toOption.isDefined) {
+            val temp = (json\"url").as[String]
+            if (temp != "" && temp != "-" && temp != null) {
+                fields.put("url", temp)
+            } else {
+                fields.remove("url")
+            }
+        } else
+            fields.remove("url")
+        if ((json\"image").toOption.isDefined)
+            fields.put("image", (json\"image").as[String])
+        if ((json\"pois_type").toOption.isDefined)
+            fields.put("pois_type", (json\"pois_type").as[String])
+        if ((json\"is_door").toOption.isDefined)
+            fields.put("is_door", (json\"is_door").as[String])
+        if ((json\"is_building_entrance").toOption.isDefined)
+            fields.put("is_building_entrance", (json\"is_building_entrance").as[String])
+        if ((json\"coordinates_lat").toOption.isDefined)
+            fields.put("coordinates_lat", (json\"coordinates_lat").as[String])
+        if ((json\"coordinates_lon").toOption.isDefined)
+            fields.put("coordinates_lon", (json\"coordinates_lon").as[String])
         this.json = json
-        this.lat = java.lang.Double.parseDouble(json.getString("coordinates_lat"))
-        this.lng = java.lang.Double.parseDouble(json.getString("coordinates_lon"))
+        this.lat = java.lang.Double.parseDouble((json\"coordinates_lat").as[String])
+        this.lng = java.lang.Double.parseDouble((json\"coordinates_lon").as[String])
     }
 
     def getId(): String = {
@@ -123,26 +148,30 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
         if (puid==null || puid.isEmpty || puid == "") {
             fields.put("puid", Poi.getId(fields.get("username_creator"), fields.get("buid"), fields.get("floor_number"),
                 fields.get("coordinates_lat"), fields.get("coordinates_lon")))
-            this.json.put("puid", fields.get("puid"))
+            this.json = this.json.as[JsObject] + ("puid" -> JsString(fields.get("puid")))
             puid = fields.get("puid")
         }
         puid
     }
 
-    def toValidCouchJson(): JsonObject = {
+    def toValidJson(): JsonObject = {
         // initialize id if not initialized
         getId
         JsonObject.from(this.getFields())
     }
 
-    def toCouchGeoJSON(): String = {
+    def toValidMongoJson():JsValue = {
+        getId
+        toJson()
+    }
+
+    def toGeoJSON(): String = {
         val sb = new StringBuilder()
-        val json= toValidCouchJson()
+        var json= toValidMongoJson()
         try {
-            json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
-                java.lang.Double.parseDouble(fields.get("coordinates_lon")))
-              .toGeoJSON())
-            json.removeKey("username")
+            json = json.as[JsObject] + ("geometry" -> Json.toJson(
+                new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
+                java.lang.Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON()))
         } catch {
             case e: IOException => e.printStackTrace()
         }
@@ -150,5 +179,12 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
         sb.toString
     }
 
-    override def toString(): String = toValidCouchJson().toString
+    override def toString(): String = toJson().toString
+
+    def toJson(): JsValue = {
+        val sMap: Map[String, String] = this.getFields().asScala.toMap
+        val res = Json.toJson(sMap)
+        // convert some keys to primitive types
+        convertToInt("_schema", res)
+    }
 }

@@ -90,25 +90,26 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
         cuid
     }
 
-    def toValidCouchJson(): JsonObject = {
+    def toValidJson(): JsonObject = {
         // initialize id if not initialized
         getId()
         JsonObject.from(this.getFields())
     }
 
-    def toCouchGeoJSON(): String = {
+    def toGeoJSON(): String = {
         val sb: StringBuilder = new StringBuilder()
         json.removeKey("access_token")
         sb.append(this.json.toString)
         sb.toString
     }
 
-    def changeOwner(newOwnerId: String): String = {
+    @deprecated("unused")
+    def _changeOwner(newOwnerId: String): String = {
         val sb: StringBuilder = new StringBuilder()
         var json: JsonObject = null
         try {
             this.fields.put("owner_id", newOwnerId)
-            json = toValidCouchJson()
+            json = toValidJson()
         } catch {
             case e: IOException => e.printStackTrace()
 
@@ -117,6 +118,6 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
         sb.toString
     }
 
-    override def toString(): String = toValidCouchJson().toString
+    override def toString(): String = toValidJson().toString
 
 }

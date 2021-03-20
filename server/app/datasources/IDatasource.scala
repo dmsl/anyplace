@@ -44,7 +44,7 @@ import play.api.libs.json.JsValue
 import utils.GeoPoint // TODO: Will use play.json
 
 trait IDatasource {
-  def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject]
+  def getAllPoisTypesByOwner(owner_id: String): List[JsValue]
 
   def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject]
 
@@ -58,30 +58,30 @@ trait IDatasource {
   def init(): Boolean
 
   def addJsonDocument(key: String, expiry: Int, document: String): Boolean
-  def addJsonDocument(col: String, document: String, key: String):Boolean
+  def addJsonDocument(col: String, document: String):Boolean
 
   def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean
 
-  def replaceJsonDocument(col: String, key: String, document: String): Boolean
+  def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean
 
-  def deleteFromKey(col: String, key: String): Boolean
+  def deleteFromKey(col: String, key: String, value: String): Boolean
   def deleteFromKey(key: String): Boolean
 
   @deprecated("mdb")
   def getFromKey(key: String): AnyRef
 
-  def getFromKey(collection:String, key: String): AnyRef
+  def getFromKey(collection:String, key: String, value: String): JsValue
 
   @deprecated("mdb")
   def getFromKeyAsJson(key: String): JsValue
 
-  def getFromKeyAsJson(collection: String,key: String): JsValue
+  def getFromKeyAsJson(collection: String,key: String, value: String): JsValue
 
   def buildingFromKeyAsJson(key: String): JsValue
 
-  def poiFromKeyAsJson(key: String): JsValue
+  def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue
 
-  def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
+  def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue]
 
   def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]]
 
@@ -95,13 +95,13 @@ trait IDatasource {
 
   def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
-  def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
+  def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue]
 
   def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject]
 
   def deleteAllByBuilding(buid: String)
 
-  def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String]
+  def deleteAllByFloor(buid: String, floor_number: String): Boolean
 
   def deleteAllByConnection(cuid: String): java.util.List[String]
 
@@ -171,7 +171,7 @@ trait IDatasource {
 
   def BuildingSetsCuids(cuid: String): Boolean
 
-  def getBuildingSet(cuid: String): java.util.List[JsonObject]
+  def getBuildingSet(cuid: String): List[JsValue]
 
   def getAllBuildingsetsByOwner(owner_id: String) : java.util.List[JsonObject]
 

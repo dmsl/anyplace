@@ -96,8 +96,8 @@
                 <i class="fa fa-window-minimize" ></i>
             </button>
             <span id="login-details" ng-show="isAuthenticated">
-                <span class="subnote">
-                    {{person.displayName}}
+                <span class="subnote" ng-class="{textUserAdmin:isUserAdmin()}">
+                    {{person.displayName }}
                 </span>
                 <button class="btn profile-photo-wrapper">
                     <span class="profile-photo" ng-style="{'background-image': 'url('+person.image+')'}"></span>

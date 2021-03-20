@@ -59,7 +59,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
     def this() {
         this(new java.util.HashMap[String, String]())
-        fields.put("_schema", MongodbDatasource._SCHEMA.toString)
+        fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
         fields.put("owner_id", "")
         fields.put("name", "")
         fields.put("type", "")
@@ -69,7 +69,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     // TODO make it follow new version of User Json
     def this(json: JsValue) {
         this()
-        fields.put("_schema", MongodbDatasource._SCHEMA.toString)
+        fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
         fields.put("owner_id", (json \ "owner_id").as[String])
         fields.put("name", (json \ "name").as[String])
         fields.put("type", (json \ "type").as[String])
@@ -81,7 +81,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     def getId(): String = fields.get("owner_id")
 
     @deprecated
-    def toValidCouchJson(): JsonObject = {
+    def toValidJson(): JsonObject = {
         JsonObject.from(this.getFields())
     }
 
@@ -94,7 +94,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
 
     // TODO: replace with mongo
-    def toCouchGeoJSON(): String = {
+    def toGeoJSON(): String = {
         LPLogger.error("TODO:nn convert to mdb")
         val sb = new StringBuilder()
         var json: JsonObject = null
@@ -108,7 +108,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     }
 
     @deprecated
-    def _toString(): String = toValidCouchJson().toString
+    def _toString(): String = toValidJson().toString
 
     override def toString(): String = toJson().toString()
 }

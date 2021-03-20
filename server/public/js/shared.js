@@ -220,3 +220,6 @@ function getMapsIconFingerprint(gmaps, fingerPrintsData) {
     });
 }
 
+function isNullOrEmpty(value){
+    return (value == null || value == undefined || value == "" || value == "-");
+}

@@ -532,12 +532,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    apiService.updateBuilding = function (json_req) {
+    apiService.updateBuilding = function (jsonReq) {
         //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_UPDATE_URL,
-            data: json_req
+            data: jsonReq
         }).success(function (data, status) {
             return data;
         }).error(function (data, status) {
@@ -722,7 +722,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         var formData = new FormData();
         formData.append("json", json_req);
         formData.append("floorplan", blob);
-
         return $http.post(AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL, formData, {
             transformRequest: angular.identity,
             headers: {

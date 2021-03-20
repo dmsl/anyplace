@@ -4,14 +4,14 @@ import java.io.{FileOutputStream, IOException}
 import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.MongodbDatasource.mdb
+import datasources.MongodbDatasource.{__geometry, admins, convertJson, mdb}
 import db_models.Poi
 import floor_module.IAlgo
 import org.mongodb.scala._
 import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.Aggregates
 import org.mongodb.scala.model.Aggregates.project
-import org.mongodb.scala.model.Filters.{and, equal}
+import org.mongodb.scala.model.Filters.{and, equal, or}
 import play.Play
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.twirl.api.TemplateMagic.javaCollectionToScala
@@ -24,7 +24,10 @@ import scala.concurrent.duration.Duration
 object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
   private var mdb: MongoDatabase = null
-  var _SCHEMA:Int = 0
+  private var admins:List[String] = List[String]()
+  val __SCHEMA: Int = 0
+  val __USERS = "users"
+  val __geometry = "geometry"
 
   def getMDB: MongoDatabase = mdb
 
@@ -49,18 +52,37 @@ object MongodbDatasource {
     val res = awaited.toList
     LPLogger.info("MongoDB: Connected to: " + hostname + ":" + port)
     LPLogger.debug("Collections = " + res)
-//    if (res.size != 7)
-//      return null
-//    for (colName <- mdb.listCollectionNames()) {
-//      if (colName != "buildings" && colName != "campuses" && colName != "edges" && colName != "fingerprintsWifi"
-//        && colName != "floorplans" && colName != "pois" && colName != "users") {
-//          notFound = true
-//        LPLogger.info(colName + " is problematic")
-//      }
-//    }
+    admins = loadAdmins()
     new MongodbDatasource()
   }
 
+  /**
+   * Cache admins on MongoDB initialization.
+   * @return a list with admins.
+   */
+  def loadAdmins(): List[String] = {
+    val collection = mdb.getCollection(__USERS)
+    val query = BsonDocument("type" -> "admin")
+    val adm = collection.find(query)
+    val awaited = Await.result(adm.toFuture, Duration.Inf)
+    val res = awaited.toList
+    val ret = new util.ArrayList[String]
+    for (admin <- res) {
+      val temp = Json.parse(admin.toJson())
+      ret.add((temp \ "owner_id").as[String])
+    }
+    ret.toList
+  }
+
+  def convertJson(list: List[Document]): List[JsValue] = {
+    val jsList = ListBuffer[JsValue]()
+    for (doc <- list) {
+      jsList.append(convertJson(doc))
+    }
+    jsList.toList
+  }
+
+  def convertJson(doc: Document) = Json.parse(doc.toJson())
 }
 
 // TODO getAllAccounts()
@@ -73,7 +95,18 @@ class MongodbDatasource() extends IDatasource {
     false
   }
 
-  override def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject] = ???
+  override def getAllPoisTypesByOwner(owner_id: String): List[JsValue] = {
+    val collection = mdb.getCollection("pois")
+    val query = BsonDocument("owner_id" -> owner_id)
+    val pois = collection.find(query)
+    val awaited = Await.result(pois.toFuture, Duration.Inf)
+    val res = awaited.toList
+    val listJson = convertJson(res)
+    val poisArray = new java.util.ArrayList[JsValue]()
+    for (poi <- listJson)
+      poisArray.add(poi.as[JsObject] - "owner_id")
+    poisArray.toList
+  }
 
   override def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject] = ???
 
@@ -87,19 +120,22 @@ class MongodbDatasource() extends IDatasource {
 
   def addJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
 
-  override def addJsonDocument(col: String, document: String, key: String): Boolean = {
+  override def addJsonDocument(col: String, document: String): Boolean = {
     val collection = mdb.getCollection(col)
     val addJson = collection.insertOne(Document.apply(document))
     val awaited = Await.result(addJson.toFuture, Duration.Inf)
-    val res = awaited.toString
-    true
+    val res = awaited
+    if (res.toString() == "The operation completed successfully")
+      true
+    else
+      false
   }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
 
-  override def replaceJsonDocument(col: String, key: String, document: String): Boolean = {
+  override def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean = {
     val collection = mdb.getCollection(col)
-    val query = BsonDocument("buid" -> key)
+    val query = BsonDocument(key -> value)
     val update = BsonDocument(document)
     val replaceJson = collection.replaceOne(query, update)
     val awaited = Await.result(replaceJson.toFuture, Duration.Inf)
@@ -112,33 +148,46 @@ class MongodbDatasource() extends IDatasource {
 
   override def deleteFromKey(key: String): Boolean = ???
 
-  override def deleteFromKey(col: String, key: String): Boolean = {
-
-    false
+  override def deleteFromKey(col: String, key: String, value: String): Boolean = {
+    val collection = mdb.getCollection(col)
+    val query = BsonDocument(key -> value)
+    val deleted = collection.deleteOne(query)
+    val awaited = Await.result(deleted.toFuture, Duration.Inf)
+    val res = awaited
+    LPLogger.debug("deleteFromKey:: " + res)
+    res.wasAcknowledged()
   }
 
   override def getFromKey(key: String) = ???
 
-  override def getFromKey(sCollection: String, key: String): Document = {
-    val collection = mdb.getCollection(sCollection)
-    val buildingLookUp = collection.find(equal("buid", key)).first()
+  /**
+   * If a document in Collection col, with {key: value} exists will be deleted.
+   *
+   * @param col collection name
+   * @param key key for query
+   * @param value key for query
+   * @return true if found a document and deleted it.
+   */
+  override def getFromKey(col: String, key: String, value: String): JsValue = {
+    val collection = mdb.getCollection(col)
+    val buildingLookUp = collection.find(equal(key, value)).first()
     val awaited = Await.result(buildingLookUp.toFuture, Duration.Inf)
     val res = awaited.asInstanceOf[Document]
-    res
+    convertJson(res)
   }
 
   override def getFromKeyAsJson(key: String) = ???
 
-  override def getFromKeyAsJson(collection: String,key: String): JsValue = {
+  override def getFromKeyAsJson(collection: String,key: String, value: String): JsValue = {
     if (key == null || key.trim().isEmpty) {
       throw new IllegalArgumentException("No null or empty string allowed as key!")
     }
-    val db_res = getFromKey(collection, key)
+    val db_res = getFromKey(collection, key, value)
     if (db_res == null) {
       return null
     }
     try {
-      convertJson(db_res)
+      db_res
     } catch {
       case e: IOException => {
         LPLogger.error("CouchbaseDatasource::getFromKeyAsJson():: Could not convert document from Couchbase into JSON!")
@@ -147,21 +196,21 @@ class MongodbDatasource() extends IDatasource {
     }
   }
 
-  override def buildingFromKeyAsJson(key: String): JsValue = {
-    LPLogger.D1("buildingFromKeyAsJson::"+key)
-    var building = getFromKeyAsJson("buildings", key)
+  override def buildingFromKeyAsJson(value: String): JsValue = {
+    LPLogger.D1("buildingFromKeyAsJson::"+value)
+    var building = getFromKeyAsJson("buildings", "buid", value)
     if (building == null) {
       return null
     }
     building = building.as[JsObject] - "_id" - "_schema"
     val floors = new java.util.ArrayList[JsValue]()
-    for (f <- floorsByBuildingAsJson(key)) {
+    for (f <- floorsByBuildingAsJson(value)) {
       floors.add(f)
     }
 
     // ignore pois with pois_type = "None"
     val pois = new java.util.ArrayList[JsValue]()
-    for (p <- poisByBuildingAsJson(key)) {
+    for (p <- poisByBuildingAsJson(value)) {
       if (!(p\"pois_type").toString.equalsIgnoreCase(Poi.POIS_TYPE_NONE))
         pois.add(p)
     }
@@ -170,13 +219,27 @@ class MongodbDatasource() extends IDatasource {
 
   }
 
-  override def poiFromKeyAsJson(key: String): JsValue = ???
+  override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = {
+    getFromKeyAsJson(collection, key, value)
+  }
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = {
+    val collection = mdb.getCollection("pois")
+    val query = BsonDocument("buid" -> buid, "floor_number" -> floor_number)
+    val pois = collection.find(query)
+    val awaited = Await.result(pois.toFuture, Duration.Inf)
+    val res = awaited.toList
+    val listJson = convertJson(res)
+    val poisArray = new java.util.ArrayList[JsValue]()
+    for (poi <- listJson)
+        poisArray.add(poi.as[JsObject] - "owner_id" - __geometry)
+    poisArray.toList
+  }
 
   override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[java.util.HashMap[String, String]] = ???
 
   override def poisByBuildingAsJson(buid: String): java.util.List[JsValue] = {
+    LPLogger.D1("poisByBuildingAsJson::" + buid)
     val collection = mdb.getCollection("pois")
     val poisLookUp = collection.find(equal("buid", buid))
     val awaited = Await.result(poisLookUp.toFuture, Duration.Inf)
@@ -185,7 +248,7 @@ class MongodbDatasource() extends IDatasource {
     val pois = new java.util.ArrayList[JsValue]()
     for (floor <- listJson) {
       try {
-        pois.add(floor.as[JsObject] - "owner_id" - "geometry" - "_id")
+        pois.add(floor.as[JsObject] - "owner_id" - __geometry - "_id" - "_schema")
       } catch {
         case e: IOException =>
       }
@@ -204,7 +267,7 @@ class MongodbDatasource() extends IDatasource {
     val floors = new java.util.ArrayList[JsValue]()
     for (floor <- listJson) {
       try {
-        floors.add(floor.as[JsObject] - "owner_id" - "_id")
+        floors.add(floor.as[JsObject] - "owner_id" - "_id" - "_schema")
       } catch {
         case e: IOException =>
       }
@@ -216,7 +279,18 @@ class MongodbDatasource() extends IDatasource {
 
   override def connectionsByBuildingAsMap(buid: String): java.util.List[java.util.HashMap[String, String]] = ???
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = {
+    val collection = mdb.getCollection("edges")
+    val query = BsonDocument("buid" -> buid, "floor_a" -> floor_number, "floor_b" -> floor_number)
+    val edges = collection.find(query)
+    val awaited = Await.result(edges.toFuture, Duration.Inf)
+    val res = awaited.toList
+    val listJson = convertJson(res)
+    val edgesArray = new java.util.ArrayList[JsValue]()
+    for (poi <- listJson)
+      edgesArray.add(poi.as[JsObject] - "owner_id")
+    edgesArray.toList
+  }
 
   override def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject] = ???
 
@@ -232,11 +306,66 @@ class MongodbDatasource() extends IDatasource {
     }
   }
 
-  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = ???
+  override def deleteAllByFloor(buid: String, floor_number: String): Boolean = {
+    var collection = mdb.getCollection("edges")
 
-  override def deleteAllByConnection(cuid: String): java.util.List[String] = ???
+    // queryBuidA deletes edges that start from building buid (containing edges that have buid_b == buid_a)
+    val queryBuidA = BsonDocument("buid_a" -> buid, "floor_a" -> floor_number)
+    var deleted = collection.deleteMany(queryBuidA)
+    var awaited = Await.result(deleted.toFuture, Duration.Inf)
+    var res = awaited
+    val bool1 = res.wasAcknowledged()
+    LPLogger.debug("delete Edges in my floor and separated floors:: " + bool1 + " "+ res.toString)
 
-  override def deleteAllByPoi(puid: String): java.util.List[String] = ???
+    // queryBuidB deletes edges that point to building buid
+    val queryBuidB = BsonDocument("buid_b" -> buid, "floor_b" -> floor_number)
+    deleted = collection.deleteMany(queryBuidB)
+    awaited = Await.result(deleted.toFuture, Duration.Inf)
+    res = awaited
+    val bool2 = res.wasAcknowledged()
+    LPLogger.debug("delete Edges in my floor and separated floors:: " + bool2 + " "+ res.toString)
+
+    // this query will delete the pois of the floor
+    val queryFloor = BsonDocument("buid" -> buid, "floor_number" -> floor_number)
+    collection = mdb.getCollection("pois")
+    deleted = collection.deleteMany(queryFloor)
+    awaited = Await.result(deleted.toFuture, Duration.Inf)
+    res = awaited
+    val bool3 = res.wasAcknowledged()
+    LPLogger.debug("delete pois in my floor:: " + bool3 + " "+ res.toString)
+
+    // this query will delete the floor it self
+    collection = mdb.getCollection("floorplans")
+    deleted = collection.deleteMany(queryFloor)
+    awaited = Await.result(deleted.toFuture, Duration.Inf)
+    res = awaited
+    val bool4 = res.wasAcknowledged()
+    LPLogger.debug("delete floorplan:: " + bool4 + " "+ res.toString)
+    bool1 && bool2 && bool3 && bool4
+  }
+
+  override def deleteAllByConnection(cuid: String): java.util.List[String] = {
+    val all_items_failed = new util.ArrayList[String]()
+    if (!this.deleteFromKey("edges", "cuid", cuid)) {
+      all_items_failed.add(cuid)
+    }
+    all_items_failed
+  }
+
+  // ASK:PM
+  override def deleteAllByPoi(puid: String): java.util.List[String] = {
+    val all_items_failed = new util.ArrayList[String]()
+    if (!this.deleteFromKey("edges", "pois_a", puid)) {
+      all_items_failed.add(puid)
+    }
+    if (!this.deleteFromKey("edges", "pois_b", puid)) {
+      all_items_failed.add(puid)
+    }
+    if (!this.deleteFromKey("pois", "puid", puid)) {
+      all_items_failed.add(puid)
+    }
+    all_items_failed
+  }
 
   override def getRadioHeatmap(): java.util.List[JsonObject] = ???
 
@@ -306,22 +435,28 @@ class MongodbDatasource() extends IDatasource {
     var newJson: JsValue = null
     val newList = new util.ArrayList[JsValue]()
     for (x <- listJson) {
-      newJson = x.as[JsObject] - "geometry" - "owner_id" - "co_owners" - "_id"
+      newJson = x.as[JsObject] - __geometry - "owner_id" - "co_owners" - "_id"
       newList.add(newJson)
     }
     newList.toList
   }
 
+
+
   override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
+    LPLogger.debug("getAllBuildingsByOwner::" + oid)
     val collection = mdb.getCollection("buildings")
-    val buildingLookUp = collection.find(equal("owner_id", oid))
+    var buildingLookUp = collection.find(or(equal("owner_id", oid), equal("co_owners", oid)))
+    if (admins.contains(oid)){
+      buildingLookUp = collection.find()
+    }
     val awaited = Await.result(buildingLookUp.toFuture, Duration.Inf)
     val res = awaited.toList
     val listJson = convertJson(res)
     val buildings = new java.util.ArrayList[JsValue]()
     for (building <- listJson) {
       try {
-        buildings.add(building.as[JsObject] - "co_owners" - "geometry" - "owner_id" - "_id" - "_schema")
+        buildings.add(building.as[JsObject] - "co_owners" - __geometry - "owner_id" - "_id" - "_schema")
       } catch {
         case e: IOException =>
       }
@@ -339,7 +474,7 @@ class MongodbDatasource() extends IDatasource {
     val buildings = new java.util.ArrayList[JsValue]()
     for (building <- listJson) {
       try {
-        buildings.add(building.as[JsObject] - "co_owners" - "geometry" - "owner_id" - "_id")
+        buildings.add(building.as[JsObject] - "co_owners" - __geometry - "owner_id" - "_id" - "_schema")
       } catch {
         case e: IOException =>
       }
@@ -360,7 +495,7 @@ class MongodbDatasource() extends IDatasource {
     val buildings = new java.util.ArrayList[JsValue]()
     for (building <- listJson) {
       try {
-        buildings.add(building.as[JsObject] - "co_owners" - "geometry" - "owner_id" - "_id")
+        buildings.add(building.as[JsObject] - "co_owners" - __geometry - "owner_id" - "_id")
       } catch {
         case e: IOException =>
       }
@@ -397,20 +532,18 @@ class MongodbDatasource() extends IDatasource {
 
   override def BuildingSetsCuids(cuid: String): Boolean = ???
 
-  override def getBuildingSet(cuid: String): java.util.List[JsonObject] = ???
+  override def getBuildingSet(cuid: String): List[JsValue] = {
+    LPLogger.debug("mongodb getBuildingSet: ")
+    val collection = mdb.getCollection("campuses")
+    val query: BsonDocument = BsonDocument("cuid" -> cuid)
+    val campus = collection.find(query)
+    val awaited = Await.result(campus.toFuture, Duration.Inf)
+    val res = awaited.toList
+    convertJson(res)
+  }
 
   override def getAllBuildingsetsByOwner(owner_id: String): java.util.List[JsonObject] = ???
 
   override def deleteNotValidDocuments(): Boolean = ???
-
-  def convertJson(list: List[Document]): List[JsValue] = {
-    val jsList = ListBuffer[JsValue]()
-    for (doc <- list) {
-      jsList.append(convertJson(doc))
-    }
-    jsList.toList
-  }
-
-  def convertJson(doc: Document) = Json.parse(doc.toJson())
 }
 

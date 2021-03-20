@@ -35,15 +35,14 @@
  */
 package db_models
 
-import utils.LPUtils
 import java.io.IOException
 import java.util
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import utils.LPUtils
 
 //remove if not needed
-import scala.collection.JavaConversions._
 
 class PoisCategory(hm: HashMap[String, String]) extends AbstractModel {
 
@@ -86,25 +85,26 @@ class PoisCategory(hm: HashMap[String, String]) extends AbstractModel {
     poistypeid
   }
 
-  def toValidCouchJson(): JsonObject = {
+  def toValidJson(): JsonObject = {
     // initialize id if not initialized
     getId()
     JsonObject.from(this.getFields())
   }
 
-  def toCouchGeoJSON(): String = {
+  def toGeoJSON(): String = {
     val sb: StringBuilder = new StringBuilder()
     json.removeKey("access_token")
     sb.append(this.json.toString)
     sb.toString
   }
 
-  def changeOwner(newOwnerId: String): String = {
+  @deprecated("unused")
+  def _changeOwner(newOwnerId: String): String = {
     val sb: StringBuilder = new StringBuilder()
     var json: JsonObject = null
     try {
       this.fields.put("owner_id", newOwnerId)
-      json = toValidCouchJson()
+      json = toValidJson()
     } catch {
       case e: IOException => e.printStackTrace()
 
@@ -113,6 +113,6 @@ class PoisCategory(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  override def toString: String = toValidCouchJson().toString
+  override def toString: String = toValidJson().toString
 
 }

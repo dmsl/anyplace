@@ -588,8 +588,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         reqObj.buid = b.buid;
 
-        if (b.description) {
-            reqObj.description = b.description;
+        reqObj.description = b.description;
+        if (isNullOrEmpty(b.description)) {
+            reqObj.description = "";
         }
 
         if (b.name) {
@@ -602,8 +603,10 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             reqObj.is_published = "false";
         }
 
-        if (b.bucode) {
-            reqObj.bucode = b.bucode;
+
+        reqObj.bucode = b.bucode;
+        if (isNullOrEmpty(b.bucode)) {
+            reqObj.bucode = "";
         }
 
         var marker = $scope.myBuildingsHashT[b.buid].marker;

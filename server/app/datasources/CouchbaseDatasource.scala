@@ -36,7 +36,7 @@
 package datasources
 
 import java.io.{FileOutputStream, IOException, PrintWriter}
-import java.util.concurrent.{TimeUnit, TimeoutException}
+import java.util.concurrent.TimeUnit
 import java.util.{ArrayList, Collections, HashMap}
 
 import accounts.IAccountService
@@ -52,7 +52,7 @@ import oauth.provider.v2.token.TokenService
 import play.Play
 import play.api.libs.json.{JsValue, Json}
 import utils.JsonUtils.{fromCouchList, fromCouchObject, toCouchList, toCouchObject}
-import utils.{AnyResponseHelper, GeoPoint, JsonUtils, LPLogger}
+import utils.{GeoPoint, JsonUtils, LPLogger}
 
 import scala.collection.mutable.ListBuffer
 //remove if not needed
@@ -214,7 +214,7 @@ class CouchbaseDatasource private(hostname: String,
     true
   }
 
-  def addJsonDocument(col: String, document: String, key: String): Boolean = ???
+  def addJsonDocument(col: String, document: String): Boolean = ???
 
   override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = {
     val client = getConnection.async()
@@ -224,7 +224,7 @@ class CouchbaseDatasource private(hostname: String,
     true
   }
 
-  override def replaceJsonDocument(col: String, document: String, key: String): Boolean = ???
+  override def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean = ???
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = {
     val client = getConnection.async()
     val content = JsonObject.fromJson(document)
@@ -233,14 +233,14 @@ class CouchbaseDatasource private(hostname: String,
     true
   }
 
-  def deleteFromKey(col: String, key: String): Boolean = ???
+  def deleteFromKey(col: String, key: String, value: String): Boolean = ???
   override def deleteFromKey(key: String): Boolean = {
     val client = getConnection.async()
     val db_res = client.remove(key, PersistTo.MASTER).toBlocking.first()
     true
   }
 
-  def getFromKey(collection:String, key: String) = ???
+  def getFromKey(collection:String, key: String, value: String): JsValue = ???
 
   override def getFromKey(key: String): JsonDocument = {
     val client = getConnection
@@ -248,7 +248,7 @@ class CouchbaseDatasource private(hostname: String,
     db_res
   }
 
-  override def getFromKeyAsJson(collection: String, key: String): JsValue = ???
+  override def getFromKeyAsJson(collection: String, key: String, value: String): JsValue = ???
 
 //  override def getFromKeyAsJson(key: String): JsValue = ???
   override def getFromKeyAsJson(key: String): JsValue = {
@@ -292,31 +292,33 @@ class CouchbaseDatasource private(hostname: String,
     fromCouchObject(building)
   }
 
-  override def poiFromKeyAsJson(key: String): JsValue = getFromKeyAsJson(key)
+  override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = getFromKeyAsJson(key)
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = ???
 
-    val res = couchbaseClient.query(viewQuery)
-    val result = new ArrayList[JsonObject]()
-    var json: JsonObject = null
-
-    for (row <- res.allRows()) {
-      try {
-        json = row.document().content()
-        json.removeKey("owner_id")
-        json.removeKey("geometry")
-        result.add(json)
-      } catch {
-        case e: IOException =>
-            // CHECK COSTA
-        case toe: TimeoutException => //LPLogger.error("TimeoutException: " + toe.getMessage)
-            AnyResponseHelper.bad_request("IO: " + toe.getMessage)
-      }
-    }
-    result
-  }
+//  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
+//    val couchbaseClient = getConnection
+//    val viewQuery = ViewQuery.from("nav", "pois_by_buid_floor").key(JsonArray.from(buid, floor_number))
+//
+//    val res = couchbaseClient.query(viewQuery)
+//    val result = new ArrayList[JsonObject]()
+//    var json: JsonObject = null
+//
+//    for (row <- res.allRows()) {
+//      try {
+//        json = row.document().content()
+//        json.removeKey("owner_id")
+//        json.removeKey("geometry")
+//        result.add(json)
+//      } catch {
+//        case e: IOException =>
+//            // CHECK COSTA
+//        case toe: TimeoutException => //LPLogger.error("TimeoutException: " + toe.getMessage)
+//            AnyResponseHelper.bad_request("IO: " + toe.getMessage)
+//      }
+//    }
+//    result
+//  }
 
   override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]] = {
     val couchbaseClient = getConnection
@@ -451,28 +453,29 @@ class CouchbaseDatasource private(hostname: String,
     conns
   }
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
-
-    val res = couchbaseClient.query(viewQuery)
-    if (0 == res.totalRows) {
-      return Collections.emptyList()
-    }
-    val result = new ArrayList[JsonObject]()
-    var json: JsonObject = null
-
-    for (row <- res.allRows()) {
-      try {
-        json = row.document().content()
-        json.removeKey("owner_id")
-        result.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    result
-  }
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = ???
+//  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
+//    val couchbaseClient = getConnection
+//    val viewQuery = ViewQuery.from("nav", "connection_by_buid_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
+//
+//    val res = couchbaseClient.query(viewQuery)
+//    if (0 == res.totalRows) {
+//      return Collections.emptyList()
+//    }
+//    val result = new ArrayList[JsonObject]()
+//    var json: JsonObject = null
+//
+//    for (row <- res.allRows()) {
+//      try {
+//        json = row.document().content()
+//        json.removeKey("owner_id")
+//        result.add(json)
+//      } catch {
+//        case e: IOException =>
+//      }
+//    }
+//    result
+//  }
 
   override def deleteAllByBuilding(buid: String) {
     val all_items_failed = new ArrayList[String]()
@@ -495,30 +498,31 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = {
-    val all_items_failed = new ArrayList[String]()
-    val couchbaseClient = getConnection
-    /*
-     * DELETE FLOOR : BuxFix
-     * Fixing query keys as db entry was not getting removed
-     */
-    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
-    val res = couchbaseClient.query(viewQuery)
-
-    for (row <- res.allRows()) {
-      val id = row.id()
-      val db_res = couchbaseClient.remove(id, PersistTo.ONE)
-      try {
-        if (db_res.id.ne(id)) {
-          all_items_failed.add(id)
-        } else {
-        }
-      } catch {
-        case e: Exception => all_items_failed.add(id)
-      }
-    }
-    all_items_failed
-  }
+  override def deleteAllByFloor(buid: String, floor_number: String): Boolean = ???
+//  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = {
+//    val all_items_failed = new ArrayList[String]()
+//    val couchbaseClient = getConnection
+//    /*
+//     * DELETE FLOOR : BuxFix
+//     * Fixing query keys as db entry was not getting removed
+//     */
+//    val viewQuery = ViewQuery.from("nav", "all_by_floor").includeDocs(true).key(JsonArray.from(buid, floor_number))
+//    val res = couchbaseClient.query(viewQuery)
+//
+//    for (row <- res.allRows()) {
+//      val id = row.id()
+//      val db_res = couchbaseClient.remove(id, PersistTo.ONE)
+//      try {
+//        if (db_res.id.ne(id)) {
+//          all_items_failed.add(id)
+//        } else {
+//        }
+//      } catch {
+//        case e: Exception => all_items_failed.add(id)
+//      }
+//    }
+//    all_items_failed
+//  }
 
   override def deleteAllByConnection(cuid: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
@@ -1056,53 +1060,53 @@ class CouchbaseDatasource private(hostname: String,
     jsn
   }
 
-
-  @throws[DatasourceException]
-  override def getBuildingSet(cuid2: String): java.util.List[JsonObject] = {
-    val buildingSet = new ArrayList[JsonObject]()
-    val allPois = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-    var json: JsonObject = null
-    var break = false
-    for (row <- res.allRows() if !break) { // handle each building entry
-      try {
-        json = row.document().content()
-        val cuid = json.toString
-        json.removeKey("owner_id")
-        json.removeKey("description")
-        if (cuid.contains(cuid2)) {
-          json.removeKey("cuid")
-          buildingSet.add(json)
-          break = true
-        }
-      } catch {
-        case e: IOException =>
-
-        // skip this NOT-JSON document
-      }
-    }
-    //allPoisSide.put(cuid2,);
-    if (allPoisbycuid.get(cuid2) == null) {
-      LPLogger.debug("LOAD CUID:" + cuid2)
-      var i = 0
-      for (i <- 0 until buildingSet.get(0).getArray("buids").size) {
-        val buid = buildingSet.get(0).getArray("buids").get(i).toString
-        if (allPoisSide.get(buid) != null) {
-          val pois = allPoisSide.get(buid)
-          allPois.addAll(pois)
-        }
-        else {
-          val pois = toCouchList(poisByBuildingAsJson(buid))
-          allPoisSide.put(buid, pois)
-          allPois.addAll(pois)
-        }
-      }
-      allPoisbycuid.put(cuid2, allPois)
-    }
-    buildingSet
-  }
+  override def getBuildingSet(cuid2: String): List[JsValue] = ???
+//  @throws[DatasourceException]
+//  override def getBuildingSet(cuid2: String): java.util.List[JsonObject] = {
+//    val buildingSet = new ArrayList[JsonObject]()
+//    val allPois = new ArrayList[JsonObject]()
+//    val couchbaseClient = getConnection
+//    val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
+//    val res = couchbaseClient.query(viewQuery)
+//    var json: JsonObject = null
+//    var break = false
+//    for (row <- res.allRows() if !break) { // handle each building entry
+//      try {
+//        json = row.document().content()
+//        val cuid = json.toString
+//        json.removeKey("owner_id")
+//        json.removeKey("description")
+//        if (cuid.contains(cuid2)) {
+//          json.removeKey("cuid")
+//          buildingSet.add(json)
+//          break = true
+//        }
+//      } catch {
+//        case e: IOException =>
+//
+//        // skip this NOT-JSON document
+//      }
+//    }
+//    //allPoisSide.put(cuid2,);
+//    if (allPoisbycuid.get(cuid2) == null) {
+//      LPLogger.debug("LOAD CUID:" + cuid2)
+//      var i = 0
+//      for (i <- 0 until buildingSet.get(0).getArray("buids").size) {
+//        val buid = buildingSet.get(0).getArray("buids").get(i).toString
+//        if (allPoisSide.get(buid) != null) {
+//          val pois = allPoisSide.get(buid)
+//          allPois.addAll(pois)
+//        }
+//        else {
+//          val pois = toCouchList(poisByBuildingAsJson(buid))
+//          allPoisSide.put(buid, pois)
+//          allPois.addAll(pois)
+//        }
+//      }
+//      allPoisbycuid.put(cuid2, allPois)
+//    }
+//    buildingSet
+//  }
 
   @throws[DatasourceException] override def BuildingSetsCuids(cuid2: String): Boolean = {
     val couchbaseClient = getConnection
@@ -2073,28 +2077,29 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
+  override def getAllPoisTypesByOwner(owner_id: String): List[JsValue] = ???
 
-  @throws[DatasourceException]
-  def getAllPoisTypesByOwner(oid: String): java.util.List[JsonObject] = {
-    val poistypes = new java.util.ArrayList[JsonObject]
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "all_pois_types").key((oid)).includeDocs(true)
-
-    val res = couchbaseClient.query(viewQuery)
-    var json: JsonObject = null
-    for (row <- res) {
-      try {
-        json = row.document().content()
-        json.removeKey("owner_id")
-        poistypes.add(json)
-      } catch {
-        case e: Exception =>
-
-        // skip this NOT-JSON document
-      }
-    }
-    poistypes
-  }
+//  @throws[DatasourceException]
+//  def getAllPoisTypesByOwner(oid: String): java.util.List[JsonObject] = {
+//    val poistypes = new java.util.ArrayList[JsonObject]
+//    val couchbaseClient = getConnection
+//    val viewQuery = ViewQuery.from("nav", "all_pois_types").key((oid)).includeDocs(true)
+//
+//    val res = couchbaseClient.query(viewQuery)
+//    var json: JsonObject = null
+//    for (row <- res) {
+//      try {
+//        json = row.document().content()
+//        json.removeKey("owner_id")
+//        poistypes.add(json)
+//      } catch {
+//        case e: Exception =>
+//
+//        // skip this NOT-JSON document
+//      }
+//    }
+//    poistypes
+//  }
 
 
   override def deleteNotValidDocuments(): Boolean = {

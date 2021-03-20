@@ -484,10 +484,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
           lineNumber += 1
         val segs = line.split(" ")
         val rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6))
-        LPLogger.info(rmr.toValidCouchJson().toString)
-        LPLogger.debug("raw[" + lineNumber + "] : " + rmr.toValidCouchJson())
+        LPLogger.info(rmr.toValidJson().toString)
+        LPLogger.debug("raw[" + lineNumber + "] : " + rmr.toValidJson())
         try {
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toCouchGeoJSON())) {
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toGeoJSON())) {
             return "Radio Map entry could not be saved in database![could not be created]"
           }
         } catch {
@@ -592,9 +592,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
         } else {
           return "Some fields are missing from the log."
         }
-        LPLogger.info(rmr.toValidCouchJson().toString)
+        LPLogger.info(rmr.toValidJson().toString)
         try {
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toCouchGeoJSON())) {
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toGeoJSON())) {
             LPLogger.info("Radio Map entry was not saved in database![Possible duplicate]")
           }
         } catch {
@@ -857,7 +857,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           } catch {
             case e: NumberFormatException => return AnyResponseHelper.bad_request("Magnetic Path coordinates are invalid!")
           }
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(mpath.getId, 0, mpath.toValidCouchJson().toString)) {
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(mpath.getId, 0, mpath.toValidJson().toString)) {
             return AnyResponseHelper.bad_request("MPath already exists or could not be added!")
           }
           val res = JsonObject.empty()
@@ -979,7 +979,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         for (jn <- milestones.toList.asInstanceOf[List[JsonObject]]) {
           val mm = new MagneticMilestone(jn, buid, floor_num, mpuid)
           try {
-            if (!ProxyDataSource.getIDatasource.addJsonDocument(mm.getId, 0, mm.toValidCouchJson().toString)) {
+            if (!ProxyDataSource.getIDatasource.addJsonDocument(mm.getId, 0, mm.toValidJson().toString)) {
               return AnyResponseHelper.bad_request("Milestone already exists or could not be added!")
             }
           } catch {

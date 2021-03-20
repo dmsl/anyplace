@@ -79,13 +79,13 @@ class MagneticPath(hm: HashMap[String, String]) extends AbstractModel {
         id
     }
 
-    def toValidCouchJson(): JsonObject = {
+    def toValidJson(): JsonObject = {
         // initialize id if not initialized
         getId
         JsonObject.from(this.getFields())
     }
 
-    override def toCouchGeoJSON(): String = toValidCouchJson().toString
+    override def toGeoJSON(): String = toValidJson().toString
 
-    override def toString(): String = this.toValidCouchJson().toString
+    override def toString(): String = this.toValidJson().toString
 }

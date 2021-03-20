@@ -14,7 +14,6 @@ GET         /assets/*file                                                       
 # Anyplace API - Navigation
 
 
-POST        /anyplace/navigation/pois/id                                               controllers.AnyplaceNavigation.getPoisById()
 POST        /anyplace/navigation/route                                                 controllers.AnyplaceNavigation.getNavigationRoute()
 POST        /anyplace/navigation/route_xy                                              controllers.AnyplaceNavigation.getNavigationRouteXY()
 
@@ -50,40 +49,6 @@ POST        /anyplace/position/radio/acces                                      
 
 POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
 #POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
-
-POST        /anyplace/mapping/campus/all_cucode                                        controllers.AnyplaceMapping.buildingSetAll()
-POST        /anyplace/mapping/campus/add                                               controllers.AnyplaceMapping.buildingSetAdd()
-POST        /anyplace/mapping/campus/update                                            controllers.AnyplaceMapping.campusUpdate()
-POST        /anyplace/mapping/campus/all_owner                                         controllers.AnyplaceMapping.buildingsetAllByOwner()
-POST        /anyplace/mapping/campus/delete                                            controllers.AnyplaceMapping.campusDelete()
-
-
-POST        /anyplace/mapping/floor/add                                                controllers.AnyplaceMapping.floorAdd()
-POST        /anyplace/mapping/floor/update                                             controllers.AnyplaceMapping.floorUpdate()
-POST        /anyplace/mapping/floor/delete                                             controllers.AnyplaceMapping.floorDelete()
-POST        /anyplace/mapping/floor/all                                                controllers.AnyplaceMapping.floorAll()
-POST        /anyplace/mapping/floor/upload                                             controllers.AnyplaceMapping.floorPlanUpload()
-POST        /anyplace/mapping/floor/uploadWithZoom                                     controllers.AnyplaceMapping.floorPlanUploadWithZoom()
-POST        /anyplace/mapping/pois/add                                                 controllers.AnyplaceMapping.poisAdd()
-
-
-POST        /anyplace/mapping/pois/add_category                                        controllers.AnyplaceMapping.categoryAdd()
-POST        /anyplace/mapping/pois/all_pois                                            controllers.AnyplaceMapping.poisAll()
-POST        /anyplace/mapping/pois/all_pois_nconnectors                                controllers.AnyplaceMapping.poisByBuidincConnectors()
-POST        /anyplace/mapping/pois/update                                              controllers.AnyplaceMapping.poisUpdate()
-POST        /anyplace/mapping/pois/delete                                              controllers.AnyplaceMapping.poisDelete()
-POST        /anyplace/mapping/pois/all_floor                                           controllers.AnyplaceMapping.poisByFloor()
-POST        /anyplace/mapping/pois/all_building                                        controllers.AnyplaceMapping.poisByBuid()
-#mapping/pois/types
-POST        /anyplace/mapping/pois/types                                               controllers.AnyplaceMapping.poisTypes()
-
-POST        /anyplace/mapping/connection/add                                           controllers.AnyplaceMapping.connectionAdd()
-POST        /anyplace/mapping/connection/update                                        controllers.AnyplaceMapping.connectionUpdate()
-POST        /anyplace/mapping/connection/delete                                        controllers.AnyplaceMapping.connectionDelete()
-POST        /anyplace/mapping/connection/all_floor                                     controllers.AnyplaceMapping.connectionsByFloor()
-POST        /anyplace/mapping/connection/all_floors                                    controllers.AnyplaceMapping.connectionsByallFloors()
-POST        /anyplace/mapping/maintenance                                              controllers.AnyplaceMapping.maintenance()
-
 
 
 POST        /anyplace/floortiles/:buid/:floor_number                                   controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
@@ -167,41 +132,94 @@ GET         /admin                                                              
 GET         /android                                                                   controllers.AnyplaceAndroid.getApks()
 GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
 
-
 #####################################################################################################
 ###
-# ENDPOINTS ON DEVELOP-TESTING
+# CHECK:NN
 ###
-# TESTING
+# does it remove geometry + username_creator?
+# is it used?
+# does it add dmsl hardcoded on co_owners?
+POST        /anyplace/mapping/building/coowners                                        controllers.AnyplaceMapping.buildingUpdateCoOwners()
+
+#####################################################################################################
+
+##### VALIDATED
+POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
 POST        /anyplace/mapping/building/all                                             controllers.AnyplaceMapping.buildingAll()
 POST        /anyplace/navigation/building/id                                           controllers.AnyplaceNavigation.getBuildingById()
-POST        /anyplace/mapping/building/all_bucode                                      controllers.AnyplaceMapping.buildingByBucode()
+# Fetches building for: owner, co_owners. If admin fetches all.
+# Previously a single hardcoded admin account was forced to co_owners.
 POST        /anyplace/mapping/building/all_owner                                       controllers.AnyplaceMapping.buildingAllByOwner()
-
-POST        /anyplace/mapping/building/coowners                                        controllers.AnyplaceMapping.buildingUpdateCoOwners()
-POST        /anyplace/mapping/building/newowner                                        controllers.AnyplaceMapping.buildingUpdateOwner()
 POST        /anyplace/mapping/building/update                                          controllers.AnyplaceMapping.buildingUpdate()
 POST        /anyplace/mapping/building/add                                             controllers.AnyplaceMapping.buildingAdd()
-POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()
-POST        /anyplace/mapping/building/delete                                          controllers.AnyplaceMapping.buildingDelete()
-# DEVELOPING
-POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
-POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
+# RENAME:NN parameter 'pois' -> 'puid'
+POST        /anyplace/navigation/pois/id                                               controllers.AnyplaceNavigation.getPoisById()
+POST        /anyplace/mapping/campus/all_cucode                                        controllers.AnyplaceMapping.buildingSetAll()
+POST        /anyplace/mapping/floor/all                                                controllers.AnyplaceMapping.floorAll()
+POST        /anyplace/mapping/pois/all_building                                        controllers.AnyplaceMapping.poisByBuid()
 
+## Not in use:
+# Fetches all buildings that matches bucode.
+POST        /anyplace/mapping/building/all_bucode                                      controllers.AnyplaceMapping.buildingByBucode()
+# fixed: geometry is not removed, new_owner removed if exists in co_owners CHECK:NN:geometry
+POST        /anyplace/mapping/building/newowner                                        controllers.AnyplaceMapping.buildingUpdateOwner()
+
+##### TO REVIEW with PM
+POST        /anyplace/mapping/floor/uploadWithZoom                                     controllers.AnyplaceMapping.floorPlanUploadWithZoom()
+POST        /anyplace/mapping/floor/add                                                controllers.AnyplaceMapping.floorAdd()
+POST        /anyplace/mapping/floor/delete                                             controllers.AnyplaceMapping.floorDelete()
+
+POST        /anyplace/mapping/pois/add                                                 controllers.AnyplaceMapping.poisAdd()
+POST        /anyplace/mapping/pois/all_floor                                           controllers.AnyplaceMapping.poisByFloor()
+POST        /anyplace/mapping/pois/update                                              controllers.AnyplaceMapping.poisUpdate()
+POST        /anyplace/mapping/pois/delete                                              controllers.AnyplaceMapping.poisDelete()
+
+POST        /anyplace/mapping/connection/add                                           controllers.AnyplaceMapping.connectionAdd()
+POST        /anyplace/mapping/connection/all_floor                                     controllers.AnyplaceMapping.connectionsByFloor()
+POST        /anyplace/mapping/connection/delete                                        controllers.AnyplaceMapping.connectionDelete()
+
+#### TESTING
+# i dont know how to test it
+POST        /anyplace/mapping/connection/update                                        controllers.AnyplaceMapping.connectionUpdate()
+# implemented(possibly wrong) but not sure what it does (???)
+POST        /anyplace/mapping/pois/types                                               controllers.AnyplaceMapping.poisTypes()
+# CHECK:PM CHECK:NN
+POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()
+
+# DEVELOPING
+POST        /anyplace/mapping/floor/update                                             controllers.AnyplaceMapping.floorUpdate()
+POST        /anyplace/mapping/floor/upload                                             controllers.AnyplaceMapping.floorPlanUpload()
+
+
+POST        /anyplace/mapping/pois/add_category                                        controllers.AnyplaceMapping.categoryAdd()
+POST        /anyplace/mapping/pois/all_pois                                            controllers.AnyplaceMapping.poisAll()
+POST        /anyplace/mapping/pois/all_pois_nconnectors                                controllers.AnyplaceMapping.poisByBuidincConnectors()
+
+
+POST        /anyplace/mapping/connection/all_floors                                    controllers.AnyplaceMapping.connectionsByallFloors()
+POST        /anyplace/mapping/maintenance                                              controllers.AnyplaceMapping.maintenance()
+
+
+POST        /anyplace/mapping/campus/add                                               controllers.AnyplaceMapping.buildingSetAdd()
+POST        /anyplace/mapping/campus/update                                            controllers.AnyplaceMapping.campusUpdate()
+POST        /anyplace/mapping/campus/all_owner                                         controllers.AnyplaceMapping.buildingsetAllByOwner()
+POST        /anyplace/mapping/campus/delete                                            controllers.AnyplaceMapping.campusDelete()
+POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
+
+# HARD
+# computed pattern in mongo
+POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
 
 # BLOCKED
 
+# TODO:NN cascade delete "floorplans", "edges", "pois", "fingerprints"
+# return all_items_failed[]. Not anymore
+# requires testing on complicated buildings with many pois, fingerprints, edges
+# also must remove the building if exists in a campus buids[]
+POST        /anyplace/mapping/building/delete                                          controllers.AnyplaceMapping.buildingDelete()
 
 
 
-
-#####################################################################################################
-###
-# MONGODB_WORKING: The following endpoints work with mongodb.
-#                  DISABLE them in production environments.
-###
-
-POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
 
 #####################################################################################################
 ###
