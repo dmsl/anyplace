@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -39,6 +40,7 @@ import java.util
 import java.util.{ArrayList, Collections, HashMap}
 
 import com.couchbase.client.java.document.json.JsonObject
+import com.google.gson.Gson
 import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 
 object JsonUtils {
@@ -49,9 +51,9 @@ object JsonUtils {
 
   }
 
-  def getHashMapStrStr(json: JsonObject): HashMap[String, String] = {
-    json.toMap.asInstanceOf[HashMap[String, String]]
-
+  def getHashMapStrStr(json: JsValue): HashMap[String, String] = {
+    val gson: Gson = new Gson()
+    gson.fromJson(json.toString(), (new HashMap[String, String]()).getClass)
   }
 
   def fillMapFromJson(json: JsonObject, map: HashMap[String, String], keys: String*): util.List[String] = {
@@ -113,7 +115,8 @@ object JsonUtils {
 
   def convertToInt(key: String, json: JsValue): JsValue = {
     var value = "0"
-    if ((json \ key).toOption.isDefined) value = (json \ key).as[String]
+    if ((json \ key).toOption.isDefined)
+      value = (json \ key).as[String]
     json.as[JsObject] + (key -> JsNumber(value.toInt))
   }
 
@@ -125,6 +128,9 @@ object JsonUtils {
     return false
   }
 
+  def cleanupMongoJson(json: JsValue): JsValue = {
+    return json.as[JsObject] - "_id" - "_schema"
+  }
   @deprecated("mdb")
   def toCouchObject(json: JsValue): JsonObject = {
     val sJson = json.toString

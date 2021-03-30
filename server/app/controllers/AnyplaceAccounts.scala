@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -66,16 +67,13 @@ object AnyplaceAccounts extends Controller {
             AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         //val json = JsonObject.empty()
-        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ") // + json.toString)
+        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ")
         try {
           val users: List[JsValue] = ProxyDataSource.getIDatasource().getAllAccounts()
           val res: JsValue = Json.obj(
             "users_num" -> users.length,
             "users" -> Json.arr(users)
           )
-          //res = Json.obj()
-          //res.put("accounts", JsonArray.from(accounts))
-          println("after print")
           AnyResponseHelper.ok(res, "Successfully retrieved all accounts!")
         } catch {
           case e: DatasourceException =>

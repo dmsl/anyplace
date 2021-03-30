@@ -1,10 +1,10 @@
 package utils
 
-import play.Logger
 import java.io._
 import java.nio.file.Files
+
+import play.Logger
 //remove if not needed
-import scala.collection.JavaConversions._
 import play.Play
 
 object AnyPlaceTilerHelper {
@@ -69,12 +69,19 @@ object AnyPlaceTilerHelper {
           FLOOR_TILES_ZIP_NAME
     }
 
+    /**
+     * Stores floorplan(images) to fileSystem.
+     * @param buid
+     * @param floor_number
+     * @param file
+     * @return
+     */
     def storeFloorPlanToServer(buid: String, floor_number: String, file: File): File = {
         val dirS = AnyPlaceTilerHelper.getRootFloorPlansDirFor(buid, floor_number)
         val dir = new File(dirS)
         dir.mkdirs()
         if (!dir.isDirectory || !dir.canWrite() || !dir.canExecute()) {
-            throw new AnyPlaceException("Floor plans directory is inaccessible!!!")
+            throw new AnyPlaceException("Floor plans directory is inaccessible!")
         }
         val name = "fl" + "_" + floor_number
         val dest_f = new File(dir, name)

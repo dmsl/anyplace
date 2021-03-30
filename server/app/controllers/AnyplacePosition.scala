@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -36,26 +37,32 @@
 package controllers
 
 import java.io._
-import java.util._
+import java.util.ArrayList
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import controllers.AnyplaceMapping.verifyId
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models.{Floor, MagneticMilestone, MagneticPath, RadioMapRaw}
 import floor_module.Algo1
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.lang3.time.StopWatch
+import play.Play
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import play.libs.F
 import radiomapserver.RadioMap
 import radiomapserver.RadioMap.RadioMap
 import utils._
-import play.Play
 
 import scala.collection.JavaConversions._
 
+
+
+
 object AnyplacePosition extends play.api.mvc.Controller {
 
-  def radioUpload() = Action {
+
+
+    def radioUpload() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -63,31 +70,25 @@ object AnyplacePosition extends play.api.mvc.Controller {
         if (body == null) {
           return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
         }
-        val radioFile = body.file("radiomap")
-        if (radioFile == null) {
-          return AnyResponseHelper.bad_request("Cannot find the rss file (radiomap)!")
+        var rssLog: File = null
+        try {
+          rssLog = body.file("radiomap").get.ref.file
+        } catch {
+          case e: Exception => return AnyResponseHelper.bad_request("Cannot find radiomap (rss log)!")
         }
-        LPLogger.info("Radio Upload File: " + radioFile.get.ref.file.getAbsolutePath)
+
         val body_form = body.asFormUrlEncoded
         if (body_form == null) {
           return AnyResponseHelper.bad_request("Invalid request type - Cannot be parsed as form data!")
         }
-        if (body_form.get("json") == null) {
-          return AnyResponseHelper.bad_request("Cannot find json in the request!")
+        if (!body_form.contains("access_token")) {
+          return AnyResponseHelper.bad_request("Cannot find access_token in the request!")
         }
-        val json_str = body_form.get("json").get.head
-        LPLogger.info("Radio Upload json: " + json_str)
-        if (json_str == null) {
-          return AnyResponseHelper.bad_request("Cannot find json in the request!")
-        }
-        var json: JsonObject = null
-        try {
-          json = JsonObject.fromJson(json_str)
-        } catch {
-          case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json request!")
-        }
+        val access_token = body_form.get("access_token").get.head
+        if (verifyId(access_token) == null) return AnyResponseHelper.forbidden("Unauthorized")
 
-/*
+        // INFO:NN INFO:PM Replace with token auth
+        /*
         if (json.get("username") == null || json.get("password") == null) {
           return AnyResponseHelper.bad_request("Cannot parse json request!")
         }
@@ -106,27 +107,47 @@ object AnyplacePosition extends play.api.mvc.Controller {
           return AnyResponseHelper.forbidden("Invalid username or password")
         }
         */
-        val newBuildingsFloors = RadioMap.authenticateRSSlogFileAndReturnBuildingsFloors(radioFile.get.ref.file)
+        var ret: String = ""
+        val newBuildingsFloors = RadioMap.verifyRssLogAndGetBuildingFloors(rssLog)
         if (newBuildingsFloors == null) {
-          return AnyResponseHelper.bad_request("Corrupted radio file uploaded!")
+          return AnyResponseHelper.bad_request("Uploaded a corrupted rss-log file!")
         } else {
-          HelperMethods.storeRadioMapToServer(radioFile.get.ref.file)
-          val errorMsg: String = null
-          val strPromise = F.Promise.pure("10")
-          val intPromise = strPromise.map(new F.Function[String, Integer]() {
-
-            override def apply(arg0: String): java.lang.Integer = {
-              storeFloorAlgoToDB(radioFile.get.ref.file)
-              for (nBuilding <- newBuildingsFloors.keySet) {
-                var bFloors = newBuildingsFloors.get(nBuilding)
-                for (bFloor <- bFloors) {
-                  updateFrozenRadioMap(nBuilding, bFloor)
-                }
+          HelperMethods.storeRadioMapRawToServer(rssLog)
+          // CHECK:DZ CHECK:PM CHECK:NN made it synchronous
+          //val errorMsg: String = null
+          //val strPromise = F.Promise.pure("10")
+          //val intPromise = strPromise.map(new F.Function[String, Integer]() {
+          //  override def apply(arg0: String): java.lang.Integer = {
+          ret = storeFloorRssToDB(rssLog)
+          LPLogger.debug("Rss values already exist: " + ret)
+          val errors: ArrayList[JsValue] = new ArrayList[JsValue]
+          for (buid <- newBuildingsFloors.keySet) {
+            for (floor_num <- newBuildingsFloors.get(buid)) {
+              val res = updateFrozenRadioMap(buid, floor_num)
+              if (res != null) {
+                val js = Json.obj("buid" -> buid, "floor_num" -> floor_num, "error" -> res)
+                errors.add(js)
               }
-              0
             }
-          })
+          }
+          if (errors.size > 0) {
+            val json = Json.obj("errorList" -> errors.toList)
+            return AnyResponseHelper.bad_request(json, "Failed to create frozen radio maps.")
+          }
+          //    0
+          //  }
+          //})
         }
+//        if (ret != "") {
+//          val tokens = ret.split("/")
+//          if (tokens(0) == tokens(1)) {
+//            LPLogger.debug("RSS values were previously uploaded.")
+//          } else if (tokens(0).toInt > tokens(1).toInt && tokens(0).toInt != 0) {
+//            LPLogger.debug(ret + " were uploaded already.")
+//          } else
+//            LPLogger.debug("Successfully uploaded rss log.")
+//        }
+        LPLogger.debug("Successfully uploaded rss log.")
         return AnyResponseHelper.ok("Successfully uploaded rss log.")
       }
 
@@ -195,8 +216,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
             var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
             var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
             val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
-            if (!rm.createRadioMap()) {
-              return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+            val resCreate = rm.createRadioMap()
+            if (resCreate != null) {
+              return AnyResponseHelper.internal_server_error("radioDownloadFloor: Error: on-the-fly radioMap: " + resCreate)
             }
             val api = AnyplaceServerAPI.SERVER_API_ROOT
             var pos = radiomap_mean_filename.indexOf("radiomaps")
@@ -313,8 +335,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
           var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
           val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
-          if (!rm.createRadioMap()) {
-            return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+          val resCreate = rm.createRadioMap()
+          if (resCreate != null) {
+            return AnyResponseHelper.internal_server_error("radioDownloadByBuildingFloor: Error: on-the-fly radioMap: " + resCreate)
           }
           val api = AnyplaceServerAPI.SERVER_API_ROOT
           var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
@@ -434,8 +457,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
               var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
               var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
               val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
-              if (!rm.createRadioMap()) {
-                return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+              val resCreate = rm.createRadioMap()
+              if (resCreate != null) {
+                return AnyResponseHelper.internal_server_error("radioDownloadByBuildingFloorall: Error: on-the-fly radioMap: " + resCreate)
               }
               val api = AnyplaceServerAPI.SERVER_API_ROOT
               var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
@@ -561,17 +585,24 @@ object AnyplacePosition extends play.api.mvc.Controller {
     inner()
   }
 
-  private def storeFloorAlgoToDB_Help(values: ArrayList[String]): String = {
+  /**
+   * Processes a row rss log file (the one that was uploaded)
+   * This is a raw rss window (optimised by mongoDB)
+   * TODO:NN in mongodb the window will be created based on same timestamp buid floor geometry heading
+   * @param values
+   * @return
+   */
+  private def storeFloorRssWindowToDB(values: ArrayList[String]): String = {
     if (values.size > 0) {
       var maxMac = ""
       var maxRss = java.lang.Integer.MIN_VALUE
       var i = 0
       while (i < values.size()) {
         val value = values.get(i)
-        val segs = value.split(" ")
+        val tok = value.split(" ")
         try {
-          val mac = segs(4)
-          val rss = java.lang.Integer.parseInt(segs(5))
+          val mac = tok(4)
+          val rss = java.lang.Integer.parseInt(tok(5))
           if (rss > maxRss) {
             maxRss = rss
             maxMac = mac
@@ -581,34 +612,54 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         i += 1
       }
+      val fingerprintToks = values.get(0).split(" ")
+      val tempMeasurements = new ArrayList[List[String]]
+      // creating measurements for the currect window
       for (value <- values) {
-        val segs = value.split(" ")
-        var rmr: RadioMapRaw = null
-        if (segs.length >= 8) {
-          rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6), maxMac,
-            segs(7))
-        } else if (segs.length >= 7) {
-          rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6), maxMac)
-        } else {
-          return "Some fields are missing from the log."
-        }
-        LPLogger.info(rmr.toValidJson().toString)
+        val tok = value.split(" ")
+        val measurement = new ArrayList[String]
+        measurement.add(tok(4)) // adding MAC
+        measurement.add(tok(5)) // adding heading
+        tempMeasurements.add(measurement.toList)
+      }
+      val measurements: List[List[String]] = tempMeasurements.toList
+      // creating fingerprint with measurements
+      var rmr: RadioMapRaw = null
+      if (fingerprintToks.length >= 8) {
+        rmr = new RadioMapRaw(fingerprintToks(0), fingerprintToks(1), fingerprintToks(2), fingerprintToks(3),
+          /*tok(4), tok(5),*/ fingerprintToks(6), maxMac, fingerprintToks(7))
+      } else if (fingerprintToks.length >= 7) {
+        rmr = new RadioMapRaw(fingerprintToks(0), fingerprintToks(1), fingerprintToks(2), fingerprintToks(3),
+          /*tok(4), tok(5),*/ fingerprintToks(6), maxMac)
+      } else {
+        return "Some fields are missing from the log."
+      }
+
+      // Before add check if already exists, if exists ignore and notify
+      if (ProxyDataSource.getIDatasource().fingerprintExists("fingerprintsWifi", fingerprintToks(7),
+        fingerprintToks(6), fingerprintToks(1), fingerprintToks(2), fingerprintToks(3))) {
+        return 1 + ""
+      } else {
         try {
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(rmr.getId, 0, rmr.toGeoJSON())) {
-            LPLogger.info("Radio Map entry was not saved in database![Possible duplicate]")
-          }
+          ProxyDataSource.getIDatasource.addJsonDocument("fingerprintsWifi", rmr.addMeasurements(measurements))
+          //LPLogger.debug("Adding: " + rmr.addMeasurements(measurements))
         } catch {
           case e: DatasourceException => return "Internal server error while trying to save rss entry."
         }
+        return 0 + ""
       }
     }
     null
   }
 
-  private def storeFloorAlgoToDB(infile: File): String = {
+  def isAllDigits(x: String) = x forall Character.isDigit
+
+  private def storeFloorRssToDB(infile: File): String = {
     var line: String = null
     var fr: FileReader = null
     var bf: BufferedReader = null
+    var totalRss = -1
+    var totalExists = 0
     try {
       fr = new FileReader(infile)
       bf = new BufferedReader(fr)
@@ -618,15 +669,28 @@ object AnyplacePosition extends play.api.mvc.Controller {
         line != null
       }) {
         if (line.startsWith("# Timestamp")) {
-          val result = storeFloorAlgoToDB_Help(values)
-          if (result != null) return result
+          val result = storeFloorRssWindowToDB(values)
+          totalRss += 1
+          if (result != null && !isAllDigits(result)) return result
+          if (result != null) {
+            if (isAllDigits(result)) {
+              totalExists += Integer.parseInt(result)
+            }
+          }
           values.clear()
         } else {
           values.add(line)
         }
       }
-      val result = storeFloorAlgoToDB_Help(values)
-      if (result != null) return result
+      val result = storeFloorRssWindowToDB(values)
+      totalRss += 1
+      if (result != null && !isAllDigits(result))
+        return result
+      if (result != null) {
+        if (isAllDigits(result)) {
+          totalExists += Integer.parseInt(result)
+        }
+      }
     } catch {
       case e: FileNotFoundException => return "Internal server error: Error while storing rss log."
       case e: IOException => return "Internal server error: Error while storing rss log."
@@ -638,7 +702,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         case e: IOException => return "Internal server error: Error while storing rss log."
       }
     }
-    null
+    return totalExists + "/" + totalRss
   }
 
   def predictFloorAlgo1() = Action {
@@ -684,70 +748,87 @@ object AnyplacePosition extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def updateFrozenRadioMap(buid: String, floor_number: String) {
+  /**
+   * Now this is synchronously called.
+   * @param buid
+   * @param floor_number
+   * @return a status regarding the frozen radio_map creation.
+   */
+  def updateFrozenRadioMap(buid: String, floor_number: String): String = {
+    val cls = "updateFrozenRadioMap: "
     if (!Floor.checkFloorNumberFormat(floor_number)) {
-      return
+      return null
     }
-    
-    //FeatureAdd : Configuring location for server generated files
+    LPLogger.D1(cls + buid + ":" + floor_number)
+
     val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
 
     val rmapDir = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
       floor_number)
 
-    // val rmapDir = new File("radiomaps_frozen" + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
-    //   floor_number)
     if (!rmapDir.exists() && !rmapDir.mkdirs()) {
-      return
+      return cls + "failed to create: " + rmapDir.toString
     }
-    val radio = new File(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
+    val rssLogPerFloor = new File(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
     var fout: FileOutputStream = null
     try {
-      fout = new FileOutputStream(radio)
-      LPLogger.debug(radio.toPath().getFileName.toString)
+      fout = new FileOutputStream(rssLogPerFloor)
+      LPLogger.D1(cls + "Creating rss-log: " + rssLogPerFloor.toPath().getFileName.toString)
     } catch {
-      case e: FileNotFoundException => return
+      case e: FileNotFoundException => return cls + e.getClass + ": " + e.getMessage
     }
     var floorFetched: Long = 0l
+
     try {
       floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
-      try {
-        fout.close()
-      } catch {
-        case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
-      }
+      fout.close()
     } catch {
-      case e: DatasourceException => return
+      case e: DatasourceException => return cls + e.getClass + ": " + e.getMessage
+      case e: IOException => return cls +  e.getClass + " Error while closing rss-log: " + e.getMessage
     }
     if (floorFetched == 0) {
-      return
+      return null
     }
-    try {
-      val folder = rmapDir.toString
-      val radiomap_filename = new File(folder + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
-        .getAbsolutePath
-      var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
-      var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
-      var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
-      val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
-      if (!rm.createRadioMap()) {
-        return
-      }
-      val api = AnyplaceServerAPI.SERVER_API_ROOT
-      var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
-      radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
-      pos = radiomap_rbf_weights_filename.indexOf("radiomaps_frozen")
-      radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos)
-      pos = radiomap_parameters_filename.indexOf("radiomaps_frozen")
-      radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
-      val res = JsonObject.empty()
-      res.put("map_url_mean", radiomap_mean_filename)
-      res.put("map_url_weights", radiomap_rbf_weights_filename)
-      res.put("map_url_parameters", radiomap_parameters_filename)
-      return
-    } catch {
-      case e: Exception => return
-    }
+
+    val radiomap_filename = new File(rmapDir.toString + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
+      .getAbsolutePath
+    val rm = new RadioMap(new File(rmapDir.toString), radiomap_filename, "", -110)
+    val resCreate = rm.createRadioMap()
+
+    if (resCreate != null) return cls + "Failed: createRadioMap: " + resCreate
+    // TODO: Replace indexOf("hardcoded") in other places, not here
+    //val api = AnyplaceServerAPI.SERVER_API_ROOT
+    // this should be based on radioMapFrozenDir
+    // /db/apfs/radiomaps_frozen
+    // ap.cs.ucy.ac.cy/.../radiomaps_frozen/buid/0/rss-log
+    // WORKS BY ACCIDENT. THIS MUST BE GENERIC
+    // /db/apfs/FOLDER
+    // ap.cs.ucy.ac.cy/.../FOLDER/buid/0/rss-log
+    // i must get folder eg: radioMapFrozenDir split and get last
+    // TODO VERIFY in application.conf use another name
+
+    // CLR:NN this method
+    //var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
+    //var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
+    //var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
+
+    //var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
+    //radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
+    //pos = radiomap_rbf_weights_filename.indexOf("radiomaps_frozen")
+    //radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos)
+    //pos = radiomap_parameters_filename.indexOf("radiomaps_frozen")
+    //radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
+    //
+    //val res: JsValue = Json.obj(
+    //  "map_url_mean" -> radiomap_mean_filename,
+    //  "map_url_weights" -> radiomap_rbf_weights_filename,
+    //  "map_url_parameters"-> radiomap_parameters_filename)
+    //return
+    //} catch {
+    //  case e: Exception => return AnyResponseHelper.bad_request("Failed to create frozen radio map!")
+    //}
+
+    null
   }
 
   def radioDownloadFloorBbox() = Action {
@@ -812,8 +893,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
             var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
             var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
             val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
-            if (!rm.createRadioMap()) {
-              return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+            val resCreate = rm.createRadioMap()
+            if (resCreate != null) {
+              return AnyResponseHelper.internal_server_error("radioDownloadFloorBbox: Error: on-the-fly radioMap: " + resCreate)
             }
             val api = AnyplaceServerAPI.SERVER_API_ROOT
             var pos = radiomap_mean_filename.indexOf("radiomaps")

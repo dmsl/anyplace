@@ -55,8 +55,10 @@ object AnyplaceAndroid extends play.api.mvc.Controller {
 
   // the action for the Anyplce Architect
   @Security.Authenticated(classOf[Secured])
-  def getApks = Action {
+  def   getApks = Action {
     def inner(): Result = {
+      if (true)
+        return BadRequest("Android disabled!")
       val dirApks: File = new File(ANDROID_APKS_ROOT_DIRECTORY_LOCAL)
       if (!dirApks.isDirectory || !dirApks.canExecute() || !dirApks.canRead()) {
         return BadRequest("No Android apk available!")

@@ -82,8 +82,7 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
       if (null == campus) {
         campus = ""
         viewerDir = "public/anyplace_viewer"
-      }
-      else {
+      } else {
         viewerDir = "public/anyplace_viewer_campus"
       }
 

@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -35,15 +36,20 @@
  */
 package db_models
 
-import utils.LPUtils
 import java.io.IOException
 import java.util.HashMap
+
 import com.couchbase.client.java.document.json.JsonObject
+import play.api.libs.json.{JsObject, JsValue, Json}
+import utils.JsonUtils.convertToInt
+import utils.LPUtils
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 
 class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsonObject = _
+    private var json: JsValue = _
 
     private var lat: Double = _
 
@@ -63,19 +69,41 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
         fields.put("buids", "[]")
     }
 
-    def this(json: JsonObject) = {
+    def this(json: JsValue) = {
         this()
-        fields.put("owner_id", json.getString("owner_id"))
-        fields.put("cuid", json.getString("cuid"))
-        fields.put("name", json.getString("name"))
-        fields.put("greeklish", json.getString("greeklish"))
-        fields.put("description", json.getString("description"))
+        if ((json \ "owner_id").toOption.isDefined)
+            fields.put("owner_id", (json\"owner_id").as[String])
+        if ((json \ "cuid").toOption.isDefined)
+            fields.put("cuid", (json\"cuid").as[String])
+        if ((json \ "name").toOption.isDefined)
+            isEmptyDeleteElseAdd(json, "name")
+        else
+            fields.remove("name")
+        if ((json \ "greeklish").toOption.isDefined)
+            isEmptyDeleteElseAdd(json, "greeklish")
+        else
+            fields.remove("greeklish")
+        if ((json \ "description").toOption.isDefined) {
+            isEmptyDeleteElseAdd(json, "description")
+        } else {
+            fields.remove("description")
+        }
         this.json = json
+
     }
 
-    def this(json: JsonObject, owner: String) = {
+    def this(json: JsValue, owner: String) = {
         this(json)
         fields.put("owner_id", owner)
+    }
+
+    def isEmptyDeleteElseAdd(json:JsValue, key: String) {
+        val temp = (json \ key).as[String]
+        if (temp != "" && temp != null && temp != "-") {
+            fields.put(key, temp)
+        } else {
+            fields.remove(key)
+        }
     }
 
     def getId(): String = {
@@ -85,7 +113,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
               .currentTimeMillis()
             fields.put("cuid", "cuid_" + finalId)
             cuid = fields.get("cuid")
-            this.json.asInstanceOf[JsonObject].put("cuid", cuid)
+            this.json.as[JsObject] + ("cuid" -> Json.toJson(cuid))
         }
         cuid
     }
@@ -96,10 +124,27 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
         JsonObject.from(this.getFields())
     }
 
+    def toValidMongoJson(): JsValue = {
+        getId()
+        toJson()
+    }
+
+
     def toGeoJSON(): String = {
         val sb: StringBuilder = new StringBuilder()
-        json.removeKey("access_token")
+        json = json.as[JsObject] - "access_token"
         sb.append(this.json.toString)
+        sb.toString
+    }
+
+    def addBuids(): String = {
+        val sb: StringBuilder = new StringBuilder()
+        if ((this.json \ "description").as[String] == "" || (this.json \ "description").as[String] == "-")
+            this.json = this.json.as[JsObject] - "description"
+        if ((this.json \ "name").as[String] == "" || (this.json \ "name").as[String] == "-")
+            this.json = this.json.as[JsObject] - "name"
+        this.json = convertToInt("_schema", this.json)
+        sb.append(this.json.toString())
         sb.toString
     }
 
@@ -112,12 +157,20 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
             json = toValidJson()
         } catch {
             case e: IOException => e.printStackTrace()
-
         }
         sb.append(json.toString)
         sb.toString
     }
 
-    override def toString(): String = toValidJson().toString
+    def toJson(): JsValue = {
+        val sMap: Map[String, String] = this.getFields().asScala.toMap
+        val res = Json.toJson(sMap)
+        // convert some keys to primitive types
+        convertToInt("_schema", res)
+    }
 
+    @deprecated()
+    def _toString(): String = toValidJson().toString
+
+    override def toString(): String = toJson().toString()
 }

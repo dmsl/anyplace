@@ -284,6 +284,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         }
         return undefined;
     };
+
     $scope.fetchAllPoisTypes = function () {
 
         var jsonReq = {};
@@ -706,12 +707,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         reqObj.cuid = b.cuid;
 
-        if (b.description) {
-            reqObj.description = b.description;
+        reqObj.description = b.description;
+        if (isNullOrEmpty(b.description)) {
+            reqObj.description = "";
         }
 
-        if (b.name) {
-            reqObj.name = b.name;
+        reqObj.name = b.name;
+        if (isNullOrEmpty(b.name)) {
+            reqObj.name = "";
         }
 
         if (b.newcuid) {
@@ -724,7 +727,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             _err($scope, "No buildings selected.");
             return;
         }
-        var buids = "\"buids\":[";
+        var buids = "[";
         for (var i = sz - 1; i > 0; i--) {
             buids = buids + "\"" + $scope.example9modeledit[i].id + "\",";
         }

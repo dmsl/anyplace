@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -36,11 +37,15 @@
 package db_models
 
 
-import utils.GeoJSONPoint
 import java.io.IOException
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import play.api.libs.json.{JsObject, JsValue, Json}
+import utils.GeoJSONPoint
+import utils.JsonUtils.convertToInt
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 object RadioMapRaw {
 
@@ -62,21 +67,21 @@ object RadioMapRaw {
     sb.toString
   }
 
-  def toRawRadioMapRecord(json: JsonObject): String = {
+  def toRawRadioMapRecord(json: JsValue): String = {
     val sb = new StringBuilder()
-    sb.append(json.getString("timestamp"))
+    sb.append((json \ "timestamp").as[String])
     sb.append(" ")
-    sb.append(json.getString("x"))
+    sb.append((json \ "x").as[String])
     sb.append(" ")
-    sb.append(json.getString("y"))
+    sb.append((json \ "y").as[String])
     sb.append(" ")
-    sb.append(json.getString("heading"))
+    sb.append((json \ "heading").as[String])
     sb.append(" ")
-    sb.append(json.getString("MAC"))
+    sb.append((json \ "MAC").as[String])
     sb.append(" ")
-    sb.append(json.getString("rss"))
+    sb.append((json \ "rss").as[String])
     sb.append(" ")
-    sb.append(json.getString("floor"))
+    sb.append((json \ "floor").as[String])
     sb.toString
   }
 }
@@ -88,16 +93,13 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
   def this(timestamp: String,
            x: String,
            y: String,
-           heading: String,
-           MAC_addr: String,
-           rss: String) {
+           heading: String
+          ) {
     this(new HashMap[String, String])
     fields.put("timestamp", timestamp)
     fields.put("x", x)
     fields.put("y", y)
     fields.put("heading", heading)
-    fields.put("MAC", MAC_addr)
-    fields.put("rss", rss)
     fields.put("floor", "-")
   }
 
@@ -105,16 +107,13 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            x: String,
            y: String,
            heading: String,
-           MAC_addr: String,
-           rss: String,
+
            floor: String) {
     this(new HashMap[String, String])
     fields.put("timestamp", timestamp)
     fields.put("x", x)
     fields.put("y", y)
     fields.put("heading", heading)
-    fields.put("MAC", MAC_addr)
-    fields.put("rss", rss)
     fields.put("floor", floor)
   }
 
@@ -122,8 +121,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            x: String,
            y: String,
            heading: String,
-           MAC_addr: String,
-           rss: String,
            floor: String,
            strongestWifi: String) {
     this(new HashMap[String, String])
@@ -131,8 +128,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     fields.put("x", x)
     fields.put("y", y)
     fields.put("heading", heading)
-    fields.put("MAC", MAC_addr)
-    fields.put("rss", rss)
     fields.put("floor", floor)
     fields.put("strongestWifi", strongestWifi)
   }
@@ -141,8 +136,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            x: String,
            y: String,
            heading: String,
-           MAC_addr: String,
-           rss: String,
            floor: String,
            strongestWifi: String,
            buid: String) {
@@ -151,8 +144,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     fields.put("x", x)
     fields.put("y", y)
     fields.put("heading", heading)
-    fields.put("MAC", MAC_addr)
-    fields.put("rss", rss)
     fields.put("floor", floor)
     fields.put("strongestWifi", strongestWifi)
     fields.put("buid", buid)
@@ -165,18 +156,21 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
   }
 
   def toValidJson(): JsonObject = {
-    // initialize id if not initialized
-    getId
     JsonObject.from(this.getFields())
   }
 
-  def toGeoJSON(): String = {
+  def toValidMongoJson(): JsValue = {
+    toJson()
+  }
+
+  def addMeasurements(measurements: List[List[String]]): String =  {
     val sb = new StringBuilder()
-    var json: JsonObject = null
+    var json = toValidMongoJson()
     try {
-      json =  JsonObject.from(this.getFields())
-      json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("x")), java.lang.Double.parseDouble(fields.get("y")))
-        .toGeoJSON())
+      json = json.as[JsObject] + ("measurements" -> Json.toJson(measurements))
+      json = json.as[JsObject] + ("geometry" -> Json.toJson(
+        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("x")),
+          java.lang.Double.parseDouble(fields.get("y"))).toGeoJSON()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -184,7 +178,29 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  override def toString(): String = this.toValidJson().toString
+  def toGeoJSON(): String = {
+    val sb = new StringBuilder()
+    var json = toValidMongoJson()
+    try {
+      json = json.as[JsObject] + ("geometry" -> Json.toJson(
+        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("x")),
+          java.lang.Double.parseDouble(fields.get("y"))).toGeoJSON()))
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+    sb.append(json.toString)
+    sb.toString
+  }
+
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    convertToInt("_schema", res)
+  }
+
+  @deprecated("")
+  def _toString(): String = this.toValidJson().toString
+  override def toString(): String = toJson().toString()
 
   def toRawRadioMapRecord(): String = {
     val sb = new StringBuilder()

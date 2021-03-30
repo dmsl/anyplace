@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea, Paschalis Mpeis
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea, Paschalis Mpeis
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -64,7 +65,7 @@ import play.api.mvc._
 import play.libs.F
 import radiomapserver.RadioMap.RadioMap
 import radiomapserver.RadioMapMean
-import utils.JsonUtils.{fromCouchObject, isNullOrEmpty, toCouchArray, toCouchObject}
+import utils.JsonUtils.{isNullOrEmpty, toCouchArray}
 import utils._
 
 import scala.collection.JavaConversions._
@@ -89,21 +90,23 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         (jsVal.as[JsObject] - "access_token" - "password" - "username").toString()
     }
 
-    private def verifyId(authToken: String): String = {
-      // remove the double string quotes due to json processing
-      val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
-      var res = ""
-      try {
-        res = sendGet(gURL)
-      } catch {
-        case e: Exception => {
-          LPLogger.error("verifyId: " + e.toString)
-          null
-        }
+  // TODO:PM TODO:NN local accounts
+  def verifyId(authToken: String): String = {
+    // remove the double string quotes due to json processing
+    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
+    var res = ""
+    try {
+      res = sendGet(gURL)
+    } catch {
+      case e: Exception => {
+        LPLogger.error("verifyId: " + e.toString)
+        null
       }
+    }
     if (res != null)
       try {
 
+        // CHECK:PM CHECK:NN bug on main branch (JsonObject.fromJson())
         val json = Json.parse(res)
         val uid = (json \ "user_id")
         val sub = (json \ "sub")
@@ -1063,12 +1066,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
-//          val stored_building = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(buid))
           val stored_building: JsValue = ProxyDataSource.getIDatasource().getFromKeyAsJson("buildings","buid", buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
           val building = new Building(stored_building)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument("buildings", "buid" ,building.getId, building.appendCoOwners(json))) return AnyResponseHelper.bad_request("Building could not be updated!")
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument("buildings", "buid" ,building.getId, building.appendCoOwners(json)))
+            return AnyResponseHelper.bad_request("Building could not be updated!")
           return AnyResponseHelper.ok("Successfully updated building!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1183,7 +1186,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
+          val deleted = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
+          if (deleted == false)
+            return AnyResponseHelper.bad_request("Some items related to the deleted building could not be deleted.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1394,6 +1399,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             buildings.add(ProxyDataSource.getIDatasource().getFromKey("buildings","buid", b).as[JsObject] - "_id"
               - "_schema" - "co_owners" - "geometry" - "type" - "owner_id")
           }
+          if (campus.size == 0) {
+            return AnyResponseHelper.not_found("Campus '" + cuid + "' not found!")
+          } else if (campus.size > 1) {
+            return AnyResponseHelper.not_found("Something went wrong. More than one matches for '" + cuid + "'!")
+          }
           val res = campus.get(0).as[JsObject] - "buids" - "owner_id" - "_id" - "_schema" - "cuid" - "description" +
             ("buildings" -> Json.toJson(buildings.toList))
           try
@@ -1436,23 +1446,22 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized2")
         owner_id = appendGoogleId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id)) - "access_token"
         try {
           val cuid = (json \ "cuid").as[String]
           val campus = ProxyDataSource.getIDatasource.BuildingSetsCuids(cuid)
           if (campus) return AnyResponseHelper.bad_request("Building set already exists!")
           else {
             var buildingset: BuildingSet = null
-            try
-              buildingset = new BuildingSet(JsonObject.fromJson(json.toString()))
-            catch {
+            try {
+              buildingset = new BuildingSet(json)
+            } catch {
               case e: NumberFormatException =>
                 return AnyResponseHelper.bad_request("Building coordinates are invalid!")
             }
-            if (!ProxyDataSource.getIDatasource.addJsonDocument(buildingset.getId, 0, buildingset.toGeoJSON))
+            if (!ProxyDataSource.getIDatasource.addJsonDocument("campuses", buildingset.addBuids()))
               return AnyResponseHelper.bad_request("Building set already exists or could not be added!")
-            val res = JsonObject.empty()
-            res.put("cuid", buildingset.getId)
+            val res: JsValue = Json.obj("cuid" -> buildingset.getId)
             return AnyResponseHelper.ok(res, "Successfully added building Set!")
           }
         } catch {
@@ -1491,17 +1500,44 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val cuid = (json \ "cuid").as[String]
         try {
-          val stored_campus = toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid))
+          var stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson("campuses", "cuid", cuid)
           if (stored_campus == null)
             return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
           if (!isCampusOwner(stored_campus, owner_id))
             return AnyResponseHelper.unauthorized("Unauthorized")
           // check for values to update
-          if (json.\\("name") != null) stored_campus.put("name", (json \ "name").as[String])
-          if (json.\\("description") != null) stored_campus.put("description", (json \ "description").as[String])
-          if (json.\\("cuidnew") != null) stored_campus.put("cuid", (json \ "cuid").as[String])
+          if ((json\"name").toOption.isDefined) {
+            val temp = (json \ "name").as[String]
+            if (temp != "-" && temp != "") {
+              stored_campus = stored_campus.as[JsObject] + ("name" -> JsString(temp))
+            } else {
+              stored_campus = stored_campus.as[JsObject] - "name"
+            }
+          }
+          if ((json\"description").toOption.isDefined) {
+            val temp = (json \ "description").as[String]
+            if (temp != "-" && temp != "") {
+              stored_campus = stored_campus.as[JsObject] + ("description", JsString(temp))
+            } else
+              stored_campus = stored_campus.as[JsObject] - "description"
+          }
+          if ((json\"cuidnew").toOption.isDefined) {
+            val temp = (json \ "cuid").as[String]
+            if (temp != "-" && temp != "")
+              stored_campus = stored_campus.as[JsObject] + ("cuid", JsString(temp))
+          }
+          if ((json\"greeklish").toOption.isDefined) {
+            val temp = (json \ "greeklish").as[Boolean]
+            stored_campus = stored_campus.as[JsObject] + ("greeklish" -> JsString(temp.toString))
+          }
+          if ((json\"buids").toOption.isDefined) {
+            var buids = (json \ "buids").as[String]
+            buids = buids.replace("[", "").replace("]", "").replace("\"", "")
+            val buidsList = buids.split(",")
+            stored_campus = stored_campus.as[JsObject] + ("buids" -> Json.toJson(buidsList.toList))
+          }
           val campus = new BuildingSet(stored_campus)
-          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(campus.getId(), 0, campus.toGeoJSON()))
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument("campuses", "cuid", campus.getId(), campus.toGeoJSON()))
             return AnyResponseHelper.bad_request("Campus could not be updated!")
           return AnyResponseHelper.ok("Successfully updated campus!")
         } catch {
@@ -1543,8 +1579,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
           val buildingsets = ProxyDataSource.getIDatasource().getAllBuildingsetsByOwner(owner_id)
-          val res = JsonObject.empty()
-          res.put("buildingsets", buildingsets)
+          val res: JsValue = Json.obj("buildingsets" -> buildingsets)
           try
             gzippedJSONOk(res.toString)
           catch {
@@ -1586,12 +1621,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val cuid = (json \ "cuid").as[String]
         try {
-          val stored_campus = toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid))
+          val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson("campuses", "cuid", cuid)
           if (stored_campus == null)
             return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
           if (!isCampusOwner(stored_campus, owner_id))
             return AnyResponseHelper.unauthorized("Unauthorized")
-          if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid))
+          if (!ProxyDataSource.getIDatasource().deleteFromKey("campuses", "cuid", cuid))
             return AnyResponseHelper.internal_server_error("500: Failed to delete Campus")
         } catch {
           case e: DatasourceException =>
@@ -1603,12 +1638,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  private def isCampusOwner(campus: JsonObject, userId: String): Boolean = { // Admin
+  private def isCampusOwner(campus: JsValue, userId: String): Boolean = { // Admin
     if (userId.equals(ADMIN_ID))
       return true
     // Check if owner
-    if (campus != null && campus.get("owner_id") != null && campus.getString("owner_id").equals(userId))
-      return true
+    if (campus != null && (campus\"owner_id").toOption.isDefined) {
+      return (campus\"owner_id").as[String].equals(userId)
+    }
     false
   }
 
@@ -1618,7 +1654,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::floorAdd(): " + stripJson(json))
+        LPLogger.D2("AnyplaceMapping::floorAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
           "description", "floor_number", "access_token")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -1649,7 +1685,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-
+  @deprecated("NotInUse")
   def floorUpdate() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -1666,9 +1702,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
         val buid = (json \ "buid").as[String]
         try {
-          val stored_building = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(buid))
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson("buildings", "buid", buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(fromCouchObject(stored_building), owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1676,13 +1712,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         try {
           val fuid = Floor.getId(buid, floor_number)
-          val stored_floor = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid))
+          var stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson("floorplans", "fuid", fuid)
           if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
-          if (json.\("is_published").getOrElse(null) != null) stored_floor.put("is_published", (json \ "is_published").as[String])
-          if (json.\("floor_name").getOrElse(null) != null) stored_floor.put("floor_name", (json \ "floor_name").as[String])
-          if (json.\("description").getOrElse(null) != null) stored_floor.put("description", (json \ "description").as[String])
-          val floor = new Floor(fromCouchObject(stored_floor))
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(floor.getId, 0, floor.toValidJson().toString)) return AnyResponseHelper.bad_request("Floor could not be updated!")
+          if (json.\("is_published").getOrElse(null) != null)
+            stored_floor = stored_floor.as[JsObject] + ("is_published" -> JsString((json \ "is_published").as[String]))
+          if (json.\("floor_name").getOrElse(null) != null)
+            stored_floor = stored_floor.as[JsObject] + ("floor_name", JsString((json \ "floor_name").as[String]))
+          if (json.\("description").getOrElse(null) != null)
+            stored_floor = stored_floor.as[JsObject] + ("description", JsString((json \ "description").as[String]))
+          val floor = new Floor(stored_floor)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument("floorplans", "fuid", floor.getId, floor.toValidMongoJson().toString))
+            return AnyResponseHelper.bad_request("Floor could not be updated!")
           return AnyResponseHelper.ok("Successfully updated floor!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1741,7 +1781,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
+          val deleted = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
+          if (deleted == false)
+            return AnyResponseHelper.bad_request("Some items related to the floor could not be deleted.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1774,8 +1816,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val buid = (json \ "buid").as[String]
         try {
-          val buildings = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
-          val res: JsValue = Json.obj("floors" -> buildings.toList)
+          val floors = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
+          val res: JsValue = Json.obj("floors" -> floors.toList)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -2102,8 +2144,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val buid = (json \ "buid").as[String]
         try {
           val pois = ProxyDataSource.getIDatasource.poisByBuildingIDAsJson(buid)
-          val res = JsonObject.empty()
-          res.put("pois", pois)
+          val res: JsValue = Json.obj("pois" -> pois)
           try
             gzippedJSONOk(res.toString)
           catch {
@@ -2202,8 +2243,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val pois_b = (json \ "pois_b").as[String]
         try {
           val weight = calculateWeightOfConnection(pois_a, pois_b)
-          // ASK:PM
-//          JsonObject.fromJson(json.toString()).put("weight", java.lang.Double.toString(weight))
+          json = json.as[JsObject] + ("weight" -> JsString(java.lang.Double.toString(weight)))
           if (edge_type == Connection.EDGE_TYPE_ELEVATOR || edge_type == Connection.EDGE_TYPE_STAIR) {
           }
           val conn = new Connection(json)
@@ -2219,6 +2259,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  /**
+   * DEPRECATED: NN: Possibly because edges/connection are added or deleted.
+   * If the coordinates of a poi (pointed by an edge) change the connection is still unaffected.
+   * @return
+   */
+  @deprecated("NotInUse")
   def connectionUpdate() = Action {
     implicit request =>
 
@@ -2391,8 +2437,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val buid = (json \ "buid").as[String]
         try {
           val pois = ProxyDataSource.getIDatasource.connectionsByBuildingAllFloorsAsJson(buid)
-          val res = JsonObject.empty()
-          res.put("connections", pois)
+          val res: JsValue = Json.obj("connections" -> pois)
           try
             gzippedJSONOk(res.toString)
           catch {
@@ -2502,8 +2547,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
         if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
           floor_number)
-        val res = JsonObject.empty()
-        res.put("tiles_archive", AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
+        val res: JsValue = Json.obj("tiles_archive" -> AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
         return AnyResponseHelper.ok(res, "Successfully fetched link for the tiles archive!")
       }
 
@@ -2616,8 +2660,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             z - 1
           }
         }
-        val res = JsonObject.empty()
-        res.put("all_floors", all_floors)
+        val res: JsValue = Json.obj("all_floors" -> all_floors.toList)
         try
           gzippedJSONOk(res.toString)
         catch {
@@ -2654,10 +2697,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     bytes
   }
 
+  @deprecated("NotInUse")
   def floorPlanUpload() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+
+        return AnyResponseHelper.DEPRECATED("Invalid request type - Not Multipart!")
+
+
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
@@ -2672,7 +2720,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         } catch {
           case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
         }
-        LPLogger.debug("upload")
         LPLogger.info("Floorplan Request[json]: " + json.toString)
         LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
         val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
@@ -2692,7 +2739,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           stored_floor = stored_floor.as[JsObject] + ("bottom_left_lng" -> JsString(bottom_left_lng))
           stored_floor = stored_floor.as[JsObject] + ("top_right_lat" -> JsString(top_right_lat))
           stored_floor = stored_floor.as[JsObject] + ("top_right_lng" -> JsString(top_right_lng))
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument("floorplans", fuid, "fuid", stored_floor.toString))
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument("floorplans", "fuid", fuid, stored_floor.toString))
             return AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
@@ -2721,6 +2768,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+        LPLogger.D2("floorPlanUploadWithZoom")
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
@@ -3073,6 +3121,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  @deprecated("NotNeeded")
   def maintenance() = Action {
     implicit request =>
 
@@ -3279,9 +3328,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
     val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
     // BUG CHECK this
-    if (!rm.createRadioMap()) {
-      LPLogger.error("Error while creating Radio Map on-the-fly!")
-      throw new Exception("Error while creating Radio Map on-the-fly!")
+    val resCreate = rm.createRadioMap()
+    if (resCreate != null) {
+      throw new Exception("getRadioMapMeanByBuildingFloor: Error: on-the-fly radioMap: " + resCreate)
     }
     val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
     rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))

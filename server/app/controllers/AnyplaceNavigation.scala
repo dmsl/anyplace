@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -37,12 +38,10 @@ package controllers
 
 import java.util.{ArrayList, HashMap, List}
 
-import com.couchbase.client.java.document.json.JsonObject
-import utils.JsonUtils.{toCouchList, toCouchObject}
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models.NavResultPoint
 import oauth.provider.v2.models.OAuth2Request
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Action
 import utils._
 //remove if not needed
@@ -119,30 +118,29 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         AnyResponseHelper.bad_request("Destination and Source is the same!")
       }
       try {
-        val poiFrom = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_from))
+        val poiFrom = ProxyDataSource.getIDatasource.getFromKeyAsJson("pois", "puid", puid_from)
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
         }
-        val poiTo = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to))
+        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson("pois", "puid",puid_to)
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }
-        val buid_from = poiFrom.getString("buid")
-        val floor_from = poiFrom.getString("floor_number")
-        val buid_to = poiTo.getString("buid")
-        val floor_to = poiTo.getString("floor_number")
-        var points: List[JsonObject] = null
+        val buid_from = (poiFrom \ "buid").as[String]
+        val floor_from = (poiFrom \ "floor_number").as[String]
+        val buid_to = (poiTo \ "buid").as[String]
+        val floor_to = (poiTo \ "floor_number").as[String]
+        var points: List[JsValue] = null
         if (buid_from.equalsIgnoreCase(buid_to)) {
-          if (floor_from.equalsIgnoreCase(floor_to))
+          if (floor_from.equalsIgnoreCase(floor_to)) {
             points = navigateSameFloor(poiFrom, poiTo)
-          else
+          } else {
             points = navigateSameBuilding(poiFrom, poiTo)
+          }
         } else {
           AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
         }
-        val res = JsonObject.empty()
-        res.put("num_of_pois", points.size)
-        res.put("pois", points)
+        val res: JsValue = Json.obj("num_of_pois" -> points.size, "pois" -> points.toList)
         AnyResponseHelper.ok(res, "Successfully plotted navigation.")
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -168,26 +166,26 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       val floor_number = (json \ "floor_number").as[String]
       val puid_to = (json \ "pois_to").as[String]
       try {
-        val poiTo = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(puid_to))
+        val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson("pois", "puid", puid_to)
         if (poiTo == null) {
           AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
         }
-        val buid_to = poiTo.getString("buid")
-        val floor_to = poiTo.getString("floor_number")
+        val buid_to = (poiTo\"buid").as[String]
+        val floor_to = (poiTo\"floor_number").as[String]
         val dlat = java.lang.Double.parseDouble(coordinates_lat)
         val dlon = java.lang.Double.parseDouble(coordinates_lon)
-        val floorPois = toCouchList(ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number))
+        val floorPois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
         if (0 == floorPois.size) {
           AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
         }
-        var poiFrom: JsonObject = null
+        var poiFrom: JsValue = null
         var dlat2: Double = 0.0
         var dlon2: Double = 0.0
         var min_distance = java.lang.Double.POSITIVE_INFINITY
         var cdist: Double = 0.0
         for (poi <- floorPois) {
-          dlat2 = java.lang.Double.parseDouble(poi.getString("coordinates_lat"))
-          dlon2 = java.lang.Double.parseDouble(poi.getString("coordinates_lon"))
+          dlat2 = java.lang.Double.parseDouble((poi\"coordinates_lat").as[String])
+          dlon2 = java.lang.Double.parseDouble((poi\"coordinates_lon").as[String])
           cdist = GeoPoint.getDistanceBetweenPoints(dlon, dlat, dlon2, dlat2, "K")
           if (cdist < min_distance) {
             min_distance = cdist
@@ -197,36 +195,34 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (poiFrom == null) {
           AnyResponseHelper.bad_request("Navigation is not supported from your position!")
         }
-        val buid_from = poiFrom.getString("buid")
-        val floor_from = poiFrom.getString("floor_number")
-        var points: List[JsonObject] = null
+        val buid_from = (poiFrom\"buid").as[String]
+        val floor_from = (poiFrom\"floor_number").as[String]
+        var points: List[JsValue] = null
         if (buid_from.equalsIgnoreCase(buid_to)) {
           points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(poiFrom, poiTo) else navigateSameBuilding(poiFrom,
             poiTo)
         } else {
           AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
         }
-        val result = JsonObject.empty()
-        result.put("num_of_pois", points.size)
-        result.put("pois", points)
-        AnyResponseHelper.ok(result, "Successfully plotted navigation.")
+        val res: JsValue = Json.obj("num_of_pois" -> points.size, "pois" -> points.toList)
+        AnyResponseHelper.ok(res, "Successfully plotted navigation.")
       } catch {
         case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
       }
   }
 
-  private def navigateSameFloor(from: JsonObject, to: JsonObject): List[JsonObject] = {
-    navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap(from.getString("buid"),
-      from.getString("floor_number")))
+  private def navigateSameFloor(from: JsValue, to: JsValue): List[JsValue] = {
+    navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap((from\"buid").as[String],
+      (from\"floor_number").as[String]))
   }
 
-  private def navigateSameFloor(from: JsonObject, to: JsonObject, floorPois: List[HashMap[String, String]]): List[JsonObject] = {
+  private def navigateSameFloor(from: JsValue, to: JsValue, floorPois: List[HashMap[String, String]]): List[JsValue] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
-    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
-    val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
+    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from\"buid").as[String]))
+    val routePois = Dijkstra.getShortestPath(graph, (from\"puid").as[String], (to\"puid").as[String])
 
-    val final_points = new ArrayList[JsonObject]()
+    val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
     for (poi <- routePois) {
       p = new NavResultPoint()
@@ -236,17 +232,17 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       p.buid = poi.get("buid")
       p.floor_number = poi.get("floor_number")
       p.pois_type = poi.get("pois_type")
-      final_points.add(p.toValidCouchJson())
+      final_points.add(p.toValidMongoJson())
     }
     final_points
   }
 
-  private def navigateSameBuilding(from: JsonObject, to: JsonObject): List[JsonObject] = {
+  private def navigateSameBuilding(from: JsValue, to: JsValue): List[JsValue] = {
     val graph = new Dijkstra.Graph()
-    graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap(from.getString("buid")))
-    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap(from.getString("buid")))
-    val routePois = Dijkstra.getShortestPath(graph, from.getString("puid"), to.getString("puid"))
-    val final_points = new ArrayList[JsonObject]()
+    graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap((from\"buid").as[String]))
+    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from\"buid").as[String]))
+    val routePois = Dijkstra.getShortestPath(graph, (from\"puid").as[String], (to\"puid").as[String])
+    val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
     for (poi <- routePois) {
       p = new NavResultPoint()
@@ -255,7 +251,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       p.puid = poi.get("puid")
       p.buid = poi.get("buid")
       p.floor_number = poi.get("floor_number")
-      final_points.add(p.toValidCouchJson())
+      final_points.add(p.toValidMongoJson())
     }
     final_points
   }

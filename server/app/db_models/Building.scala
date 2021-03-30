@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -43,7 +44,7 @@ import com.couchbase.client.java.document.json.JsonObject
 import play.api.libs.json._
 import play.twirl.api.TemplateMagic.javaCollectionToScala
 import utils.JsonUtils.convertToInt
-import utils.{GeoJSONPoint, LPLogger, LPUtils}
+import utils.{GeoJSONPoint, LPUtils}
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 
@@ -137,15 +138,11 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
   def appendCoOwners(jsonReq: JsValue): String = {
     val sb = new StringBuilder()
     var json = toValidMongoJson()
-    LPLogger.debug("json = "+ json)
     try {
       if ((json \ "owner_id") == null || ((json \ "owner_id").as[String] != (jsonReq \ "owner_id").as[String])) {
         return json.toString
       }
       val ja = new java.util.ArrayList[String]
-      for (i <- 0 until admins.length) {
-        ja.add(admins(i))
-      }
       if ((jsonReq \ "co_owners").get.toString().contains("[")) {
         val co_owners = (jsonReq \ "co_owners").as[List[String]].toArray
         for (co_owner <- co_owners) {
@@ -157,6 +154,8 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
       }
       val arr = Json.toJson(ja.toList)
       json = Json.toJson(json.as[JsObject] + ("co_owners" -> arr))
+      json = json.as[JsObject] + ("geometry" -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
+        java.lang.Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON()))
 
     } catch {
       case e: IOException => e.printStackTrace()

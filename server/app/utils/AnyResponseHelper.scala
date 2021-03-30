@@ -160,6 +160,10 @@ object AnyResponseHelper {
         createResultResponse(Response.OK, null, msg)
     }
 
+    def DEPRECATED(msg: String): Result = {
+        createResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
+    }
+
     def bad_request(msg: String): Result = {
         createResultResponse(Response.BAD_REQUEST, null, msg)
     }

@@ -319,6 +319,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         $('#input-floor-plan').prop('disabled', false);
         $scope.isCanvasOverlayActive = false;
 
+        // This if is never true (?) CHECK
         if (_floorNoExists($scope.newFloorNumber)) {
             for (var i = 0; i < $scope.xFloors.length; i++) {
                 var f = $scope.xFloors[i];
@@ -487,6 +488,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         return n;
     };
 
+    // TODO:NN rename to uploadWithZoom
     $scope.uploadFloorPlanBase64 = function (sb, sf, flData) {
         if (LPUtils.isNullOrUndefined(canvasOverlay)) {
             return;

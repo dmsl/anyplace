@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -46,7 +47,7 @@ import utils.GeoPoint // TODO: Will use play.json
 trait IDatasource {
   def getAllPoisTypesByOwner(owner_id: String): List[JsValue]
 
-  def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject]
+  def poisByBuildingIDAsJson(buid: String): List[JsValue]
 
   def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject]
 
@@ -77,6 +78,8 @@ trait IDatasource {
 
   def getFromKeyAsJson(collection: String,key: String, value: String): JsValue
 
+  def fingerprintExists(collection: String, buid: String, floor: String, x: String, y: String, heading: String): Boolean
+
   def buildingFromKeyAsJson(key: String): JsValue
 
   def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue
@@ -91,15 +94,15 @@ trait IDatasource {
 
   def floorsByBuildingAsJson(buid: String): java.util.List[JsValue]
 
-  def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject]
+  def connectionsByBuildingAsJson(buid: String): List[JsValue]
 
   def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
   def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue]
 
-  def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject]
+  def connectionsByBuildingAllFloorsAsJson(buid: String): List[JsValue]
 
-  def deleteAllByBuilding(buid: String)
+  def deleteAllByBuilding(buid: String): Boolean
 
   def deleteAllByFloor(buid: String, floor_number: String): Boolean
 
@@ -153,6 +156,13 @@ trait IDatasource {
 
   def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long
 
+  /**
+   * Populates rss-log per buid:floor.
+   * @param outFile rss-log file in frozen dir. It is filled per floor
+   * @param buid
+   * @param floor_number
+   * @return
+   */
   def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
 
   def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
@@ -173,7 +183,7 @@ trait IDatasource {
 
   def getBuildingSet(cuid: String): List[JsValue]
 
-  def getAllBuildingsetsByOwner(owner_id: String) : java.util.List[JsonObject]
+  def getAllBuildingsetsByOwner(owner_id: String) : List[JsValue]
 
   def deleteNotValidDocuments(): Boolean
 

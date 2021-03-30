@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -135,6 +136,11 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getFromKeyAsJson(collection, key, value)
   }
 
+  override def fingerprintExists(collection: String,buid: String, floor: String, x: String, y:String, heading:String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.fingerprintExists(collection, buid, floor, x, y, heading)
+  }
+
   override def getFromKeyAsJson(key: String): JsValue = {
     _checkActiveDatasource()
     mActiveDatabase.getFromKeyAsJson(key)
@@ -155,7 +161,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingFloorAsMap(buid, floor_number)
+    mongoDB.poisByBuildingFloorAsMap(buid, floor_number)
   }
 
   override def poisByBuildingAsJson(buid: String): java.util.List[JsValue] = {
@@ -165,7 +171,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingAsMap(buid)
+    mongoDB.poisByBuildingAsMap(buid)
   }
 
   override def floorsByBuildingAsJson(buid: String): java.util.List[JsValue] = {
@@ -173,14 +179,14 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.floorsByBuildingAsJson(buid)
   }
 
-  override def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  override def connectionsByBuildingAsJson(buid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingAsJson(buid)
+    mongoDB.connectionsByBuildingAsJson(buid)
   }
 
   override def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingAsMap(buid)
+    mongoDB.connectionsByBuildingAsMap(buid)
   }
 
   override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = {
@@ -188,7 +194,7 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.connectionsByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def deleteAllByBuilding(buid: String) {
+  override def deleteAllByBuilding(buid: String):Boolean = {
     _checkActiveDatasource()
     mongoDB.deleteAllByBuilding(buid)
   }
@@ -320,7 +326,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     _checkActiveDatasource()
-    mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
+    mongoDB.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
   }
 
   override def getAllAccounts(): List[JsValue] = {
@@ -360,9 +366,9 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getAllPoisTypesByOwner(owner_id)
   }
 
-  override def poisByBuildingIDAsJson(buid: String): util.List[JsonObject] = {
+  override def poisByBuildingIDAsJson(buid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingIDAsJson(buid)
+    mongoDB.poisByBuildingIDAsJson(buid)
   }
 
   override def poisByBuildingAsJson2(cuid: String, letters: String): util.List[JsonObject] = {
@@ -380,9 +386,9 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.poisByBuildingAsJson3(buid,letters)
   }
 
-  override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = {
+  override def connectionsByBuildingAllFloorsAsJson(buid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingAllFloorsAsJson(buid)
+    mongoDB.connectionsByBuildingAllFloorsAsJson(buid)
   }
 
   override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = {
@@ -402,7 +408,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def BuildingSetsCuids(cuid: String): Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.BuildingSetsCuids(cuid)
+    mongoDB.BuildingSetsCuids(cuid)
   }
 
   override def getBuildingSet(cuid: String): List[JsValue] = {
@@ -410,9 +416,9 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getBuildingSet(cuid)
   }
 
-  override def getAllBuildingsetsByOwner(owner_id: String): util.List[JsonObject] = {
+  override def getAllBuildingsetsByOwner(owner_id: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsetsByOwner(owner_id)
+    mongoDB.getAllBuildingsetsByOwner(owner_id)
   }
 
   override def deleteNotValidDocuments(): Boolean ={
