@@ -33,8 +33,8 @@ lfolders="$LFOLDER"
 
 
 function pushCode() {
-  echo "Pushing code to: $rfolder .."
   rfolder=$1
+  echo "Syncing code to: '$rfolder'"
   output=$(rsync $FLAGS $LFOLDER $REMOTE:$rfolder $excludes)
   
   if [[ $DBG != "" ]]; then
