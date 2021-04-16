@@ -45,7 +45,6 @@ import play.api.libs.json.JsValue
 import utils.GeoPoint // TODO: Will use play.json
 
 trait IDatasource {
-  def getAllPoisTypesByOwner(owner_id: String): List[JsValue]
 
   def poisByBuildingIDAsJson(buid: String): List[JsValue]
 
@@ -89,6 +88,8 @@ trait IDatasource {
   def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]]
 
   def poisByBuildingAsJson(buid: String): java.util.List[JsValue]
+
+  def poiByBuidFloorPuid(buid: String, floor_number: String, puid: String): Boolean
 
   def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 

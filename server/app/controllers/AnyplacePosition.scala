@@ -163,7 +163,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon",
+        val requiredMissing = JsonUtils.hasProperties(json, "coordinates_lat", "coordinates_lon",
           "floor_number")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -252,7 +252,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, "floor", "buid")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -376,7 +376,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, "floor", "buid")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -840,7 +840,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon",
+        val requiredMissing = JsonUtils.hasProperties(json, "coordinates_lat", "coordinates_lon",
           "floor_number", "range")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -927,7 +927,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMagnetic::pathAdd(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "lat_a", "lng_a", "lat_b", "lng_b",
+        val requiredMissing = JsonUtils.hasProperties(json, "lat_a", "lng_a", "lat_b", "lng_b",
           "buid", "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -962,7 +962,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMagnetic::magneticPathDelete(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "mpuid")
+        val requiredMissing = JsonUtils.hasProperties(json, "mpuid")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -990,7 +990,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_num")
+        val requiredMissing = JsonUtils.hasProperties(json, "buid", "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -1018,7 +1018,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::mpsByBuilding(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, "buid")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -1045,7 +1045,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::mpsByBuilding(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_num", "mpuid", "milestones")
+        val requiredMissing = JsonUtils.hasProperties(json, "buid", "floor_num", "mpuid", "milestones")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -1083,7 +1083,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::milestonesByFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_num")
+        val requiredMissing = JsonUtils.hasProperties(json, "buid", "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }

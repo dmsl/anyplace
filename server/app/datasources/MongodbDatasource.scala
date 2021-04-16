@@ -114,7 +114,8 @@ object MongodbDatasource {
   def convertJson(list: List[Document]): List[JsValue] = {
     val jsList = ListBuffer[JsValue]()
     for (doc <- list) {
-      jsList.append(convertJson(doc))
+      if (doc != null)
+        jsList.append(convertJson(doc))
     }
     jsList.toList
   }
@@ -130,19 +131,6 @@ class MongodbDatasource() extends IDatasource {
     //    LPLogger.info("Mongodb: connecting to: " + mHostname + ":" + mPort + " bucket[" +
     //      mBucket + "]")
     false
-  }
-
-  override def getAllPoisTypesByOwner(owner_id: String): List[JsValue] = {
-    val collection = mdb.getCollection("pois")
-    val query = BsonDocument("owner_id" -> owner_id)
-    val pois = collection.find(query)
-    val awaited = Await.result(pois.toFuture, Duration.Inf)
-    val res = awaited.toList
-    val listJson = convertJson(res)
-    val poisArray = new java.util.ArrayList[JsValue]()
-    for (poi <- listJson)
-      poisArray.add(poi.as[JsObject] - "owner_id")
-    poisArray.toList
   }
 
   override def poisByBuildingIDAsJson(buid: String): List[JsValue] = {
@@ -213,7 +201,10 @@ class MongodbDatasource() extends IDatasource {
     val buildingLookUp = collection.find(equal(key, value)).first()
     val awaited = Await.result(buildingLookUp.toFuture, Duration.Inf)
     val res = awaited.asInstanceOf[Document]
-    convertJson(res)
+    if (res != null)
+      convertJson(res)
+    else
+      null
   }
 
   override def getFromKeyAsJson(key: String) = ???
@@ -310,6 +301,17 @@ class MongodbDatasource() extends IDatasource {
       }
     }
     pois
+  }
+
+  override def poiByBuidFloorPuid(buid: String, floor_number: String, puid: String): Boolean = {
+    val collection = mdb.getCollection("pois")
+    val query = BsonDocument("buid" -> buid, "floor_number" -> floor_number, "puid" -> puid)
+    val poisLookUp = collection.find(query)
+    val awaited = Await.result(poisLookUp.toFuture, Duration.Inf)
+    val res = awaited.toList
+    if (res.size > 0)
+      return true
+    false
   }
 
   override def poisByBuildingAsMap(buid: String): java.util.List[java.util.HashMap[String, String]] = {

@@ -39,16 +39,11 @@ import java.util
 
 import com.google.gson.JsonParseException
 import datasources.{DatasourceException, InfluxdbDatasource}
-import db_models.DevicePoint
 import io.razem.influxdbclient.Point
 import oauth.provider.v2.models.OAuth2Request
-import play.api.http.Writeable
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent}
 import utils.{AnyResponseHelper, _}
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Json.JsValueWrapper
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -68,9 +63,9 @@ object AnyplaceInfluxdb extends play.api.mvc.Controller {
 
 				var gp1: GeoPoint = new GeoPoint()
 				var gp2: GeoPoint = new GeoPoint()
-				val base = JsonUtils.requirePropertiesInJson(json, "deviceID", "beginTime", "endTime")
-				val twoPoints = JsonUtils.requirePropertiesInJson(json, "point1", "point2")
-				val onePoint = JsonUtils.requirePropertiesInJson(json, "point", "distance")
+				val base = JsonUtils.hasProperties(json, "deviceID", "beginTime", "endTime")
+				val twoPoints = JsonUtils.hasProperties(json, "point1", "point2")
+				val onePoint = JsonUtils.hasProperties(json, "point", "distance")
 
 				(
 					base isEmpty,
@@ -128,7 +123,7 @@ object AnyplaceInfluxdb extends play.api.mvc.Controller {
 					throw new JsonParseException("OATH parse error.")
 				val json = anyReq.getJsonBody()
 
-				notFound = JsonUtils.requirePropertiesInJson(json, "point","deviceID","timestamp")
+				notFound = JsonUtils.hasProperties(json, "point","deviceID","timestamp")
 				if (!notFound.isEmpty)
 					throw new NoSuchFieldException()
 

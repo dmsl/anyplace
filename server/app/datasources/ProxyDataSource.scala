@@ -169,6 +169,11 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.poisByBuildingAsJson(buid)
   }
 
+  override def poiByBuidFloorPuid(buid: String, floor_number: String, puid: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.poiByBuidFloorPuid(buid, floor_number, puid)
+  }
+
   override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
     mongoDB.poisByBuildingAsMap(buid)
@@ -359,11 +364,6 @@ class ProxyDataSource private() extends IDatasource {
   override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     _checkActiveDatasource()
     mActiveDatabase.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
-  }
-
-  override def getAllPoisTypesByOwner(owner_id: String): List[JsValue] = {
-    _checkActiveDatasource()
-    mongoDB.getAllPoisTypesByOwner(owner_id)
   }
 
   override def poisByBuildingIDAsJson(buid: String): List[JsValue] = {

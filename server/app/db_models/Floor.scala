@@ -80,8 +80,14 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
             fields.put("is_published", (json\"is_published").as[String])
         if ((json\"floor_name").toOption.isDefined)
             fields.put("floor_name", (json\"floor_name").as[String])
-        if ((json\"description").toOption.isDefined)
-            fields.put("description", (json\"description").as[String])
+        if ((json\"description").toOption.isDefined) {
+            val temp = (json\"description").as[String]
+            if (temp != "" && temp != "-")
+                fields.put("description", (json\"description").as[String])
+            else
+                fields.remove("description")
+        } else
+            fields.remove("description")
         if ((json\"floor_number").toOption.isDefined)
             fields.put("floor_number", (json\"floor_number").as[String])
         this.json = json

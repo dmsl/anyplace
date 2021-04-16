@@ -139,7 +139,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         //_suc('Successfully logged in.');
         $scope.fetchAllBuildings();
         $scope.fetchAllCampus();
-        //$scope.fetchAllPoisTypes();
     });
 
     $scope.$on("loggedOff", function (event, mass) {
@@ -233,10 +232,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 localStorage.setItem("lastBuilding", newVal.buid);
             }
         }
-        //if (newVal && newVal.buid && newVal.poistypeid) {
-        // $scope.fetchAllPoisTypes(newVal.poistypeid);
-        // }
-        // else {
         $scope.poisTypes = [
             "Disabled Toilets",
             "Elevator",
@@ -252,7 +247,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             "Toilets",
             "Other"
         ];
-        //}
     });
 
     $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {
@@ -284,33 +278,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         }
         return undefined;
     };
-
-    $scope.fetchAllPoisTypes = function () {
-
-        var jsonReq = {};
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-        jsonReq.access_token = $scope.gAuth.access_token;
-
-        jsonReq.owner_id = $scope.owner_id;
-
-        if (!jsonReq.owner_id) {
-            _err($scope, ERR_USER_AUTH);
-            return;
-        }
-        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
-        promise.then(
-            function (resp) {
-                var data = resp.data;
-                $scope.catTypes = data.poistypes;
-            },
-            function (resp) {
-              ShowError($scope, resp, "Something went wrong while fetching POIs types", true);
-            }
-        );
-    };
-
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = {};

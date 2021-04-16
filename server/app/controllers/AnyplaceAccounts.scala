@@ -56,7 +56,7 @@ object AnyplaceAccounts extends Controller {
     *
     * @return
     */
-  def fetchAllAccounts() = Action {
+  def   fetchAllAccounts() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -108,7 +108,7 @@ object AnyplaceAccounts extends Controller {
         LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
         // check if there is any required parameter missing
         val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -157,7 +157,7 @@ object AnyplaceAccounts extends Controller {
         LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
         // check if there is any required parameter missing
         val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -201,7 +201,7 @@ object AnyplaceAccounts extends Controller {
         LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
         // check if there is any required parameter missing
         val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -270,7 +270,7 @@ object AnyplaceAccounts extends Controller {
         LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
         // check if there is any required parameter missing
         val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -320,7 +320,7 @@ object AnyplaceAccounts extends Controller {
         LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
         // check if there is any required parameter missing
         val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid", "grant_type")
+          JsonUtils.hasProperties(json, "auid", "grant_type")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }

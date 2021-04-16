@@ -86,7 +86,7 @@ object JsonUtils {
     notFound
   }
 
-  def requirePropertiesInJson(json: JsValue, keys: String*): util.List[String] = {
+  def hasProperties(json: JsValue, keys: String*): util.List[String] = {
     if (json == null) {
       throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
     }

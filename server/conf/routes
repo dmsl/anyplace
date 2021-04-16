@@ -1,51 +1,9 @@
-# Routes
-
 #####################################################################################################
-###########
-### GET ###
-###########
-### DEVELOPERS WEBSITE ###
-GET         /developers/*file                                                          controllers.Assets.at(path="/public/anyplace_developers", file)
-GET         /developers/                                                               controllers.AnyplaceWebApps.serveDevelopers(file="index.html")
-GET         /developers                                                                controllers.AnyplaceWebApps.AddTrailingSlash()
-
-### ARCHITECT WEBSITE ###
-GET         /architect/*file                                                           controllers.Assets.at(path="/public/anyplace_architect", file)
-GET         /architect/                                                                controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
-GET         /architect                                                                 controllers.AnyplaceWebApps.AddTrailingSlash()
-POST        /anyplace/version                                                          controllers.ApplicationAnyplace.Version
-
-### VIEWER WEBSITE ###
-GET         /viewer/index.html                                                         controllers.AnyplaceWebApps.serveViewer(file="index.html")
-GET         /viewer/*file                                                              controllers.AnyplaceAssets.at(path="/public", file)
-GET         /viewer/                                                                   controllers.AnyplaceWebApps.serveViewer(file="index.html")
-GET         /viewer                                                                    controllers.AnyplaceWebApps.AddTrailingSlash()
-
-# Map static resources
-GET         /floortiles/zip/*file                                                      controllers.ExternalAssets.at(path="/floor_plans", file)
-
-# ADMIN WEBSITE
-GET         /admin/*file                                                               controllers.AnyplaceWebApps.serveAdmin(file: String)
-GET         /admin                                                                     controllers.AnyplaceWebApps.AddTrailingSlash()
-
-# Android
-POST         /android                                                                  controllers.AnyplaceAndroid.getApks()
-GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
-
-# Root
-GET         /                                                                          controllers.ApplicationAnyplace.index()
-# Redirect all unknown routes to the index page
-GET         /*any                                                                      controllers.ApplicationAnyplace.indexAny(any)
-
-#####################################################################################################
-#######################################
-########   MONGODB MIGRATION   ########
-#######################################
-
-#==================#
-###   VERIFIED   ###
-#==================#
-
+# This file defines all application routes (Higher priority routes first)
+######################################
+########   VERIFIED MONGODB   ########
+######################################
+# TODO: Sort at the end (by category)
 POST        /anyplace/mapping/accounts/sign                                            controllers.AnyplaceMapping.addAccount()
 
 POST        /anyplace/mapping/building/add                                             controllers.AnyplaceMapping.buildingAdd()
@@ -82,10 +40,9 @@ POST        /anyplace/mapping/campus/delete                                     
 POST        /anyplace/mapping/campus/all_cucode                                        controllers.AnyplaceMapping.buildingSetAll()
 POST        /anyplace/mapping/campus/all_owner                                         controllers.AnyplaceMapping.buildingsetAllByOwner()
 
-#=========================#
-###   VERIFIED UNUSED   ###
-#=========================#
-
+###############################
+###   VERIFIED:MDB UNUSED   ###
+###############################
 POST        /anyplace/mapping/building/coowners                                        controllers.AnyplaceMapping.buildingUpdateCoOwners()
 # Fetches all buildings that matches bucode.
 POST        /anyplace/mapping/building/all_bucode                                      controllers.AnyplaceMapping.buildingByBucode()
@@ -100,13 +57,7 @@ POST        /anyplace/mapping/connection/update                                 
 # ASK:DZ : called by updateFloor(js) which is never called.
 POST        /anyplace/mapping/floor/update                                             controllers.AnyplaceMapping.floorUpdate()
 
-#####################################################################################################
-####################
-###   INFLUXDB   ###
-####################
-POST        /anyplace/geolocation/insert                                               controllers.AnyplaceInfluxdb.insertInfluxdb()
-POST        /anyplace/geolocation/range_lookup                                         controllers.AnyplaceInfluxdb.locationLookup()
-POST        /anyplace/geolocation/distance_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
+
 
 #####################################################################################################
 ###############
@@ -125,7 +76,7 @@ POST        /anyplace/geolocation/distance_lookup                               
 
 #####################################################################################################
 ##################
-### BLUEPRINTS ###
+### BLUEPRINTS ### OK
 ##################
 POST        /anyplace/floortiles/:buid/:floor_number                                   controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
 GET         /anyplace/floortiles/:buid/:floor_number/*file                             controllers.AnyplaceMapping.serveFloorPlanTilesStatic( buid: String, floor_number: String, file: String )
@@ -135,6 +86,9 @@ POST        /anyplace/floortiles/zip/:buid/:floor_number                        
 POST        /anyplace/floorplans64/:buid/:floor_number                                 controllers.AnyplaceMapping.serveFloorPlanBase64( buid: String, floor_number: String )
 POST        /anyplace/floorplans64all/:buid/:floor_number                              controllers.AnyplaceMapping.serveFloorPlanBase64all( buid: String, floor_number: String )
 #POST        /anyplace/floorplans/:buid/:floor_number                                   controllers.AnyplaceMapping.serveFloorPlanBinary( buid: String, floor_number: String )
+
+POST        /anyplace/radiomaps_frozen/:building/:floor/:filename                      controllers.AnyplacePosition.serveFrozenRadioMap(building: String, floor: String, filename: String)
+POST        /anyplace/radiomaps/:radio_folder/:filename                                controllers.AnyplacePosition.serveRadioMap( radio_folder: String, filename: String )
 
 #####################################################################################################
 #############
@@ -148,38 +102,64 @@ POST        /anyplace/debug/accounts_all                                        
 ### DEBUG ###
 #############
 
-#####################################################################################################
-############
-### MISC ###
-############
-GET          /favicon.ico                                                               controllers.Assets.at(path="/public/images", file="favicon.png")
 
 #####################################################################################################
-##############
-### UNUSED ###
-##############
+#####################################
+### UNUSED AND UNCONVERTED TO MDB ###
+#####################################
+# TODO:NN Rerun silver search ../x if not_used deprecate
+POST        /anyplace/position/path_add                                                controllers.AnyplacePosition.magneticPathAdd()
+POST        /anyplace/position/path_delete                                             controllers.AnyplacePosition.magneticPathDelete()
+POST        /anyplace/position/paths_by_floor                                          controllers.AnyplacePosition.magneticPathByFloor()
+POST        /anyplace/position/paths_by_buid                                           controllers.AnyplacePosition.magneticPathByBuilding()
+POST        /anyplace/position/milestones_add                                          controllers.AnyplacePosition.magneticMilestoneUpload()
+POST        /anyplace/position/milestones_by_floor                                     controllers.AnyplacePosition.magneticMilestoneByFloor()
+
 POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
 GET         /login                                                                     controllers.ApplicationAnyplace.login()
 GET         /logout                                                                    controllers.ApplicationAnyplace.logout()
 POST        /authenticate                                                              controllers.ApplicationAnyplace.authenticate()
 
-#####################################################################################################
-##############
-### DELETE ###
-##############
+POST        /anyplace/mapping/maintenance                                              controllers.AnyplaceMapping.maintenance()
+
 
 
 #####################################################################################################
+###############
+### DELETED ###
+###############
+#POST        /anyplace/mapping/pois/types                                               controllers.AnyplaceMapping.poisTypes()
+#POST        /anyplace/mapping/pois/add_category                                        controllers.AnyplaceMapping.categoryAdd()
 
-# Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                                                              controllers.Assets.at(path="/public", file)
+#####################################################################################################
 
 # Anyplace API - Mapping
 #POST           /anyplace/mapping/radio/addbuids                             controllers.AnyplaceMapping.addBuidInRssLogs()
 #POST           /anyplace/mapping/pois/temp_url                              controllers.AnyplaceMapping.tempAllPoisWithoutUrl()
 
-POST        /anyplace/mapping/radio/heatmap_building_floor_avarage                     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage()
 
+# Anyplace API - Position
+## XXX CHANGED:ENDPOINT access_token will be a regular parameter
+# NOT a parameter named 'json' that has embedded a json object
+POST        /anyplace/position/radio_upload                                            controllers.AnyplacePosition.radioUpload()
+POST        /anyplace/position/radio/delete                                            controllers.AnyplaceMapping.FingerPrintsDelete()
+POST        /anyplace/position/radio/delete/time                                       controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
+# should not work
+POST        /anyplace/position/radio_download_floor                                    controllers.AnyplacePosition.radioDownloadFloor()
+POST        /anyplace/position/radio_by_building_floor                                 controllers.AnyplacePosition.radioDownloadByBuildingFloor()
+POST        /anyplace/position/radio_by_building_floor_all                             controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
+POST        /anyplace/position/radio_by_floor_bbox                                     controllers.AnyplacePosition.radioDownloadFloorBbox()
+POST        /anyplace/position/radio/time                                              controllers.AnyplaceMapping.FingerPrintsTime()
+POST        /anyplace/position/radio/APs_building_floor                                controllers.AnyplaceMapping.getAPsByBuildingFloor()
+POST        /anyplace/position/radio/aps_ids                                           controllers.AnyplaceMapping.getAPsIds()
+POST        /anyplace/position/predictFloorAlgo1                                       controllers.AnyplacePosition.predictFloorAlgo1()
+
+POST        /anyplace/position/estimate_position                                       controllers.AnyplaceMapping.findPosition()
+POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
+
+# TODO: MDB computed
+POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
+POST        /anyplace/mapping/radio/heatmap_building_floor_avarage                     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage()
 POST        /anyplace/position/radio/heatmap_building_floor_average_1                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage1()
 POST        /anyplace/position/radio/heatmap_building_floor_average_2                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage2()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3                  controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
@@ -195,70 +175,89 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1 
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage2()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3        controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
 
-POST        /anyplace/position/radio/APs_building_floor                                controllers.AnyplaceMapping.getAPsByBuildingFloor()
-POST        /anyplace/position/radio/aps_ids                                           controllers.AnyplaceMapping.getAPsIds()
-POST        /anyplace/position/radio/delete                                            controllers.AnyplaceMapping.FingerPrintsDelete()
-POST        /anyplace/position/radio/delete/time                                       controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
-POST        /anyplace/position/radio/time                                              controllers.AnyplaceMapping.FingerPrintsTime()
+# Acces Map might be removed
 POST        /anyplace/position/radio/acces                                             controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
 
-
-POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
 #POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
 
-
-# Anyplace API - Position
-## XXX CHANGED:ENDPOINT access_token will be a regular parameter
-# NOT a parameter named 'json' that has embedded a json object
-POST        /anyplace/position/radio_upload                                            controllers.AnyplacePosition.radioUpload()
-POST        /anyplace/position/radio_download_floor                                    controllers.AnyplacePosition.radioDownloadFloor()
-POST        /anyplace/position/radio_by_building_floor                                 controllers.AnyplacePosition.radioDownloadByBuildingFloor()
-POST        /anyplace/position/radio_by_building_floor_all                             controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
-
-POST        /anyplace/position/radio_by_floor_bbox                                     controllers.AnyplacePosition.radioDownloadFloorBbox()
-
-POST        /anyplace/position/predictFloorAlgo1                                       controllers.AnyplacePosition.predictFloorAlgo1()
-POST        /anyplace/radiomaps_frozen/:building/:floor/:filename                      controllers.AnyplacePosition.serveFrozenRadioMap(building: String, floor: String, filename: String)
-POST        /anyplace/radiomaps/:radio_folder/:filename                                controllers.AnyplacePosition.serveRadioMap( radio_folder: String, filename: String )
-
-POST        /anyplace/position/path_add                                                controllers.AnyplacePosition.magneticPathAdd()
-POST        /anyplace/position/path_delete                                             controllers.AnyplacePosition.magneticPathDelete()
-POST        /anyplace/position/paths_by_floor                                          controllers.AnyplacePosition.magneticPathByFloor()
-POST        /anyplace/position/paths_by_buid                                           controllers.AnyplacePosition.magneticPathByBuilding()
-POST        /anyplace/position/milestones_add                                          controllers.AnyplacePosition.magneticMilestoneUpload()
-POST        /anyplace/position/milestones_by_floor                                     controllers.AnyplacePosition.magneticMilestoneByFloor()
-POST        /anyplace/position/estimate_position                                       controllers.AnyplaceMapping.findPosition()
-
-
 #####################################################################################################
-
 ##### TO REVIEW with PM
-
 # Anyplace API - Navigation
 POST        /anyplace/navigation/route_xy                                              controllers.AnyplaceNavigation.getNavigationRouteXY()
 POST        /anyplace/navigation/route                                                 controllers.AnyplaceNavigation.getNavigationRoute()
 
 #### TESTING
 
-# implemented(possibly wrong) but not sure what it does (???)
-POST        /anyplace/mapping/pois/types                                               controllers.AnyplaceMapping.poisTypes()
 # CHECK:PM CHECK:NN
 POST        /anyplace/mapping/building/get                                             controllers.AnyplaceMapping.buildingGetOne()
 
-
 # DEVELOPING
-POST        /anyplace/mapping/pois/add_category                                        controllers.AnyplaceMapping.categoryAdd()
 POST        /anyplace/mapping/pois/all_pois                                            controllers.AnyplaceMapping.poisAll()
-
-POST        /anyplace/mapping/maintenance                                              controllers.AnyplaceMapping.maintenance()
-
 POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
 
-# HARD
-# computed pattern in mongo
-POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
+# TODO:
 
-# BLOCKED
+## TODO: FOR EACH ENDPOINT
+# 1) Must have inner method and return at relevant points
+# 2) Must always return a json object (no crashes, no html 500 page)
 
 
+#####################################################################################################
+#####################
+### CHECK IF USED ###
+#####################
+# ADMIN WEBSITE
+GET         /admin/*file                                                               controllers.AnyplaceWebApps.serveAdmin(file: String)
+GET         /admin                                                                     controllers.AnyplaceWebApps.AddTrailingSlash()
 
+# Android
+POST        /android                                                                   controllers.AnyplaceAndroid.getApks()
+GET         /android/apk/:file                                                         controllers.AnyplaceAndroid.downloadApk(file: String)
+
+#####################################################################################################
+####################
+###   INFLUXDB   ###
+####################
+# CHECK: Make it obsolete?
+POST        /anyplace/geolocation/insert                                               controllers.AnyplaceInfluxdb.insertInfluxdb()
+POST        /anyplace/geolocation/range_lookup                                         controllers.AnyplaceInfluxdb.locationLookup()
+POST        /anyplace/geolocation/distance_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
+
+#####################################################################################################
+###########
+### GET ###
+###########
+### DEVELOPERS WEB APP:
+GET         /developers/*file                                                          controllers.Assets.at(path="/public/anyplace_developers", file)
+GET         /developers/                                                               controllers.AnyplaceWebApps.serveDevelopers(file="index.html")
+GET         /developers                                                                controllers.AnyplaceWebApps.AddTrailingSlash()
+
+### ARCHITECT WEB APP:
+GET         /architect/*file                                                           controllers.Assets.at(path="/public/anyplace_architect", file)
+GET         /architect/                                                                controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+GET         /architect                                                                 controllers.AnyplaceWebApps.AddTrailingSlash()
+POST        /anyplace/version                                                          controllers.ApplicationAnyplace.Version
+
+### VIEWER WEB APP:
+GET /viewer/index.html                                                         controllers.AnyplaceWebApps.serveViewer(file="index.html")
+GET /viewer/*file                                                              controllers.AnyplaceAssets.at(path="/public", file)
+GET /viewer/                                                                   controllers.AnyplaceWebApps.serveViewer(file="index.html")
+GET /viewer                                                                    controllers.AnyplaceWebApps.AddTrailingSlash()
+
+### RESOURCES:
+GET /favicon.ico                                                               controllers.Assets.at(path="/public/images", file="favicon.png")
+# must match application.conf
+GET /floortiles/zip/*file                                                      controllers.ExternalAssets.at(path="/floor_plans", file)
+# maps from /public to /assets
+GET /assets/*file                                                              controllers.Assets.at(path="/public", file)
+# root
+GET /                                                                          controllers.ApplicationAnyplace.index()
+# REDIRECT REMAINING TO INDEX
+GET /*any                                                                      controllers.ApplicationAnyplace.indexAny(any)
+
+###############
+###   AnyplaceNEW   ###
+###############
+#POST         /user/register                                                                    controllers.AnyplaceAccounts.register()
+#POST         /user/login                                                                     controllers.AnyplaceAccounts.login()
+#POST         /user/logout                                                                    controllers.AnyplaceAccounts.logout()

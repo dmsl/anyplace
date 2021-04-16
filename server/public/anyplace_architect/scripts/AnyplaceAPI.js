@@ -113,10 +113,6 @@ AnyplaceAPI.Mapping.CAMPUS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Ma
 AnyplaceAPI.Mapping.BUILDINGSET_ADD = "/mapping/campus/add";
 AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDINGSET_ADD;
 
-AnyplaceAPI.Mapping.POISCATEGORY_ADD = "/mapping/pois/add_category";
-AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POISCATEGORY_ADD;
-
-
 AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/building/update";
 AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_UPDATE;
 
@@ -154,10 +150,6 @@ AnyplaceAPI.Mapping.POIS_ALL_FLOOR = "/mapping/pois/all_floor";
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
-
-//POIS_TYPES_URL
-AnyplaceAPI.Mapping.POIS_TYPES = "/mapping/pois/types";
-AnyplaceAPI.Mapping.POIS_TYPES_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_TYPES;
 
 AnyplaceAPI.Mapping.CONNECTION_ADD = "/mapping/connection/add";
 AnyplaceAPI.Mapping.CONNECTION_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CONNECTION_ADD;
@@ -424,23 +416,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
-
-
-//retrievePoisTypes
-
-    apiService.retrievePoisTypes = function (json_req) {
-
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.POIS_TYPES_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-
     apiService.retrievePoisByBuilding = function (json_req) {
         return $http({
             method: "POST",
@@ -511,19 +486,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-
-    apiService.addCategory = function (json_req) {
-        //alert( "make the request: " + json_req );
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
