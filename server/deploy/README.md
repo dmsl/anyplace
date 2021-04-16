@@ -14,3 +14,12 @@ Also makes a curl request to trigger an automatic recompilation of the sources (
 ## push_code.sh
 Pushes any relevant Scala or JS code.
 
+# TROUBLESHOOTING 
+## \r windows issue
+```
+sed -i 's/\r$//' *.sh
+# ignore new changes in commits 
+git update-index --assume-unchanged *.sh
+```
+
+

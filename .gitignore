@@ -74,3 +74,5 @@ clients/android-new/secure.properties
 clients/android-new/navigator/release/output-metadata.json
 clients/bin/Anyplace.jar
 clients/core/bin/Anyplace.jar
+
+*.swp
