@@ -8,7 +8,7 @@ REMOTE=$USER@$DOMAIN
 
 # L: Local
 # R: Remote
-LFOLDER=.
+LFOLDER=..
 
 RFOLDER='~/alpha-deploy/'
 RPORT=9001

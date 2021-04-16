@@ -31,9 +31,7 @@ excludes+="--exclude=test " # scala testing
 
 lfolders="$LFOLDER"
 
-cd .. # go to parent directory
-rsync $FLAGS $LFOLDER $REMOTE:$RFOLDER $excludes
-# output=$(rsync $FLAGS $LFOLDER $REMOTE:$RFOLDER $excludes)
+output=$(rsync $FLAGS $LFOLDER $REMOTE:$RFOLDER $excludes)
 
 if [[ $DBG != "" ]]; then
   echo ""
@@ -41,6 +39,8 @@ if [[ $DBG != "" ]]; then
   echo rsync $FLAGS $LFOLDER $REMOTE:$RFOLDER $excludes
   echo "FULL OUTPUT:"
   echo -e $output
+else 
+  echo $output
 fi
 
 output=$(echo "$output" | egrep -v "building file")
