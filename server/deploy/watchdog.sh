@@ -5,4 +5,5 @@
 watchmedo shell-command \
       --patterns="*.scala;*.js;*.css;*.vue;*.html;*.htm" \
       --recursive \
-      --command="./sync.sh"
+      --command="./sync.sh" \
+      ..
