@@ -34,7 +34,7 @@ lfolders="$LFOLDER"
 
 function pushCode() {
   rfolder=$1
-  echo "Syncing code to: '$rfolder'"
+  echo "Syncing code to: '$rfolder':"
   output=$(rsync $FLAGS $LFOLDER $REMOTE:$rfolder $excludes)
   
   if [[ $DBG != "" ]]; then
@@ -44,7 +44,7 @@ function pushCode() {
     echo "FULL OUTPUT:"
     echo -e $output
   else 
-    echo $output
+    echo -e $output
   fi
   
   output=$(echo "$output" | egrep -v "building file")
