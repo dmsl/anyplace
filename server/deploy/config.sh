@@ -13,6 +13,10 @@ LFOLDER=..
 RFOLDER='~/alpha-deploy/'
 RPORT=9001
 
+# optionally send to a second folder
+RFOLDER2=''
+RPORT2=
+
 ## COMPILATION NOTIFICATIONS:
 # macOS: terminal-notifier
 # Ubuntu/Windows: ?

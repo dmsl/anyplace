@@ -6,3 +6,7 @@ source $__dir/config.sh
 
 # trigger immediate recompilation
 curl $DOMAIN:$RPORT --max-time  1
+
+if [[ $RPORT2 != "" ]]; then
+  curl $DOMAIN:$RPORT2 --max-time  1
+fi

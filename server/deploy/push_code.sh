@@ -31,22 +31,32 @@ excludes+="--exclude=test " # scala testing
 
 lfolders="$LFOLDER"
 
-output=$(rsync $FLAGS $LFOLDER $REMOTE:$RFOLDER $excludes)
 
-if [[ $DBG != "" ]]; then
-  echo ""
-  echo "DRY RUN:"
-  echo rsync $FLAGS $LFOLDER $REMOTE:$RFOLDER $excludes
-  echo "FULL OUTPUT:"
-  echo -e $output
-else 
-  echo $output
-fi
+function pushCode() {
+  rfolder=$1
+  output=$(rsync $FLAGS $LFOLDER $REMOTE:$rfolder $excludes)
+  
+  if [[ $DBG != "" ]]; then
+    echo ""
+    echo "DRY RUN:"
+    echo rsync $FLAGS $LFOLDER $REMOTE:$rfolder $excludes
+    echo "FULL OUTPUT:"
+    echo -e $output
+  else 
+    echo $output
+  fi
+  
+  output=$(echo "$output" | egrep -v "building file")
+  output=$(echo "$output" | egrep -v "sent")
+  output=$(echo "$output" | egrep -v "total")
+  
+  if [[ $NOTIFIER != "" ]]; then
+    $NOTIFIER -title "Synced" -message "$output"
+  fi
+}
 
-output=$(echo "$output" | egrep -v "building file")
-output=$(echo "$output" | egrep -v "sent")
-output=$(echo "$output" | egrep -v "total")
+pushCode $RFOLDER
 
-if [[ $NOTIFIER != "" ]]; then
-  $NOTIFIER -title "Synced" -message "$output"
+if [[ $RFOLDER2 != "" ]]; then
+  pushCode $RFOLDER2
 fi
