@@ -43,7 +43,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.GoogleMap
 import com.google.maps.android.clustering.ClusterManager
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.WifiReceiver
@@ -54,9 +53,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.sensors.MovementDetector
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel
 import com.google.maps.android.heatmaps.HeatmapTileProvider
 import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi
-import cy.ac.ucy.cs.anyplace.lib.android.cache.AnyplaceCache
+import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask
 import com.google.android.gms.maps.CameraUpdateFactory
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug
 import android.content.pm.PackageManager
@@ -71,9 +69,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MyBuildingsRenderer
 import android.content.Intent
 import android.app.AlertDialog
 import android.content.Context
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.DeleteFolderBackgroundTask
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask.FetchFloorPlanTaskListener
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MapTileProvider
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid.DownloadRadioMapListener
@@ -87,39 +83,46 @@ import cy.ac.ucy.cs.anyplace.lib.android.sensors.MovementDetector.MovementListen
 import android.os.*
 import android.preference.PreferenceManager  // UPDATE
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.UploadRSSLogTask
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.UploadRSSLogTask.UploadRSSLogTaskListener
 import android.text.Html
 import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GooglePlayServicesUtil
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.heatmaps.WeightedLatLng
-import cy.ac.ucy.cs.anyplace.lib.android.cv.FlirUtils
+import cy.ac.ucy.cs.anyplace.lib.android.DBG
+import cy.ac.ucy.cs.anyplace.lib.android.consts.MSG
+import cy.ac.ucy.cs.anyplace.lib.android.sensors.thermal.FlirUtils
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.FileUtils
-import cy.ac.ucy.cs.anyplace.logger.databinding.ActivityLoggerBinding
+import cy.ac.ucy.cs.anyplace.logger.databinding.ActivityLoggerOldBinding
 import java.io.File
 import java.lang.Exception
 import java.lang.RuntimeException
 import java.lang.StringBuilder
 import java.util.*
 
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 // TODO: REMOVE logic from here! just the lifecycle management. How?
 // CHECK: LoggerActivityBase class (to put in lib) search:activities in android libraries?
-class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
+class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         // UPDATE: https://android-developers.googleblog.com/2017/11/moving-past-googleapiclient_21.html
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         // LocationListener,
         OnMapClickListener, OnMapReadyCallback {
 
   private val TAG = "ap-logger"
-  private lateinit var app: AnyplaceApp
-  private lateinit var _b: ActivityLoggerBinding
+  private lateinit var app: LoggerApp
+  private lateinit var _b: ActivityLoggerOldBinding
 
   private val LOCATION_CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000
   private val PLAY_SERVICES_RESOLUTION_REQUEST = 9001
@@ -138,7 +141,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // Define an object that holds accuracy and frequency parameters
   // private var mLocationRequest: LocationRequest? = null
   private lateinit var mLocationRequest: LocationRequest
-  private var mMap: GoogleMap? = null  // TODO: maps need a refresh..
+  private var gmap: GoogleMap? = null  // TODO: maps need a refresh..
   private var marker: Marker? =null
   // XXX curLocation and mLastLocation?!?
   private var curLocation: LatLng? = null
@@ -148,10 +151,10 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // private lateinit var locationRequest: LocationRequest
   private lateinit var locationCallback: LocationCallback
   // private lateinit var mFusedLocationClient: FusedLocationProviderClient // CLR
-  //  private var mFusedLocationClient: FusedLocationProviderClient? = null // CLR
+  // private var mFusedLocationClient: FusedLocationProviderClient? = null // CLR
 
-  // <Load Building and Marker>
-  private lateinit var mClusterManager: ClusterManager<BuildingModel>
+  // Load Building and Marker
+  private lateinit var clusterManager: ClusterManager<BuildingModel>
   private lateinit var downloadRadioMapTaskBuid: DownloadRadioMapTaskBuid
   private var searchType: SearchTypes? = null
   private var gpsMarker: Marker? = null
@@ -159,11 +162,9 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
   private lateinit var btnTrackme: ImageButton
 
-  // </Load Building and Marker>
-  // UI Elements
-
-  private lateinit var wifi: SimpleWifiManager
-  private lateinit var receiverWifi: WifiReceiver
+  // Load Building and Marker
+  private lateinit var wifiManager: SimpleWifiManager
+  private lateinit var wifiReceiver: WifiReceiver
   // private lateinit var textFloor: TextView // showing the current floor
   private var scanResults: TextView? = null // showing current scan results
   private var mSamplingProgressDialog: ProgressDialog? = null
@@ -185,7 +186,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private var upInProgress = false
   private val upInProgressLock = Any()  // CHECK:XXX PM Kotlin Any?
   private var userIsNearby = false
-  private var mCurrentBuilding: BuildingModel? = null
+  private var buildingCurrent: BuildingModel? = null
   private var mCurrentFloor: FloorModel? = null
   private var mProvider: HeatmapTileProvider? = null
 
@@ -201,8 +202,18 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     LOG.D(TAG, "onCreate")
-    app = application as AnyplaceApp
-    setContentView(R.layout.activity_logger)
+    app = application as LoggerApp
+
+    lifecycleScope.launch { // CLR
+      LOG.D2("COROUTINE LAUNCHED")
+      delay(4000L)
+      LOG.D2("COROUTINE AFTER DELAY")
+      // laMarker.remove()
+    }
+
+    // setContentView(R.layout.activity_logger_old)
+    _b = ActivityLoggerOldBinding.inflate(layoutInflater)
+    setContentView(_b.root)
 
     PermUtils.checkLoggerPermissionsAndSettings(this)
 
@@ -210,7 +221,8 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     getLocationUpdates()
     getLastKnownLocation()
 
-    FlirUtils.initialize(this)
+    FlirUtils.initialize(app)
+
 
     // TODO move these above
     scanResults = findViewById<View>(R.id.detectedAPs) as TextView
@@ -223,9 +235,8 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     btnTrackme = findViewById<View>(R.id.btnTrackme) as ImageButton
     btnTrackme.setOnClickListener {
       if (gpsMarker != null) {  // XXX FIX-FLOW
-        Log.d(TAG, " gpsMarker is not null")
-        val mAnyplaceCache = AnyplaceCache.getInstance(this@LoggerActivity)
-        mAnyplaceCache.loadWorldBuildings(object : FetchBuildingsTaskListener {
+        val mAnyplaceCache = ObjectCache.getInstance(app)
+        mAnyplaceCache.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
           override fun onSuccess(result: String, buildings: List<BuildingModel>) {
             val nearest = FetchNearBuildingsTask()
             nearest.run(buildings.iterator(), gpsMarker!!.position.latitude, gpsMarker!!.position.longitude, 100)
@@ -233,21 +244,21 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
               bypassSelectBuildingActivity(nearest.buildings[0])
             } else {
               // mMap.getCameraPosition().zoom
-              mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
+              gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
             }
           }
 
           override fun onErrorOrCancel(result: String) {
             Toast.makeText(baseContext, "Error localizing", Toast.LENGTH_SHORT).show()
           }
-        }, this@LoggerActivity, false)
+        }, false)
       } else {
         LOG.W(TAG, "GPS Marker is null!. skip loading buildings")
       }
     }
     val btnFloorUp = findViewById<View>(R.id.btnFloorUp) as ImageButton
     btnFloorUp.setOnClickListener(View.OnClickListener {
-      if (mCurrentBuilding == null) {
+      if (buildingCurrent == null) {
         Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show()
         return@OnClickListener
       }
@@ -257,14 +268,14 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
       }
 
       // Move one floor up
-      val index = mCurrentBuilding!!.selectedFloorIndex
-      if (mCurrentBuilding!!.checkIndex(index + 1)) {
-        bypassSelectBuildingActivity(mCurrentBuilding!!, mCurrentBuilding!!.floors[index + 1])
+      val index = buildingCurrent!!.selectedFloorIndex
+      if (buildingCurrent!!.checkIndex(index + 1)) {
+        bypassSelectBuildingActivity(buildingCurrent!!, buildingCurrent!!.loadedFloors[index + 1])
       }
     })
     val btnFloorDown = findViewById<View>(R.id.btnFloorDown) as ImageButton
     btnFloorDown.setOnClickListener(View.OnClickListener {
-      if (mCurrentBuilding == null) {
+      if (buildingCurrent == null) {
         Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show()
         return@OnClickListener
       }
@@ -274,9 +285,9 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
       }
 
       // Move one floor down
-      val index = mCurrentBuilding!!.selectedFloorIndex
-      if (mCurrentBuilding!!.checkIndex(index - 1)) {
-        bypassSelectBuildingActivity(mCurrentBuilding!!, mCurrentBuilding!!.floors[index - 1])
+      val index = buildingCurrent!!.selectedFloorIndex
+      if (buildingCurrent!!.checkIndex(index - 1)) {
+        bypassSelectBuildingActivity(buildingCurrent!!, buildingCurrent!!.loadedFloors[index - 1])
       }
     })
 
@@ -310,11 +321,11 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     }
 
     // WiFi manager to manage scans
-    wifi = SimpleWifiManager.getInstance(applicationContext)
+    wifiManager = SimpleWifiManager.getInstance(applicationContext)
     // Create new receiver to get broadcasts
-    receiverWifi = SimpleWifiReceiver()
-    wifi.registerScan(receiverWifi)
-    wifi.startScan(preferences.getString("samples_interval", "1000"))
+    wifiReceiver = SimpleWifiReceiver()
+    wifiManager.registerScan(wifiReceiver)
+    wifiManager.startScan(preferences.getString("samples_interval", "1000"))
     positioning = SensorsMain(this)
     movementDetector = MovementDetector()
     positioning.addListener(movementDetector)
@@ -340,6 +351,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
   public override fun onResume() {
     LOG.D3(TAG, "onResume")
+
     super.onResume()
     startLocationUpdates()
 
@@ -352,7 +364,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   override fun onDestroy() {
     super.onDestroy()
     if(TODO__) {
-      wifi.unregisterScan(receiverWifi)
+      wifiManager.unregisterScan(wifiReceiver)
     }
   }
 
@@ -363,7 +375,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
       val max = resources.getString(R.string.walk_bar_max).toInt()
       MovementDetector.setSensitivity((max - sensitivity).toFloat())
     } else if (key == "samples_interval") {
-      wifi.startScan(sharedPreferences.getString("samples_interval", "1000"))
+      wifiManager.startScan(sharedPreferences.getString("samples_interval", "1000"))
     }
   }
 
@@ -384,7 +396,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
                 // mLastLocation = location
                 updateLocation(location)
               } else {
-                LOG.E("Location: LastKnown: <null>")
+                LOG.D2("Location: LastKnown: <null>")
               }
             }
   }
@@ -407,9 +419,9 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
     locationCallback = object : LocationCallback() {
       override fun onLocationResult(locationResult: LocationResult?) {
-        LOG.E("onLocationResult()")
+        LOG.D2("onLocationResult()")
         if(locationResult==null) {
-          LOG.E("Location: Update: <null>")
+          LOG.D2("Location: Update: <null>")
           return
         }
         if (locationResult.locations.isNotEmpty()) {
@@ -417,10 +429,10 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
           // mLastLocation = location // XXX either set this here OK... make it asynchronous..
 
           val prettyLoc = LocationUtils.prettyLocation(location, applicationContext)
-          LOG.E("Location: Update: $prettyLoc")
+          LOG.D2("Location: Update: $prettyLoc")
             updateLocation(location)
         } else {
-          LOG.E("Location: Update: <empty>")
+          LOG.D2("Location: Update: <empty>")
         }
       }
     }
@@ -464,7 +476,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private fun setUpMapIfNeeded() {
     // Do a null check to confirm that we have not already instantiated the
     // map.
-    if (mMap != null) {
+    if (gmap != null) {
       return
     }
     val mapFragment = supportFragmentManager
@@ -473,9 +485,9 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   }
 
   override fun onMapReady(googleMap: GoogleMap) {
-    mMap = googleMap
-    mMap!!.mapType = GoogleMap.MAP_TYPE_NORMAL
-    mClusterManager = ClusterManager(this, mMap)
+    gmap = googleMap
+    gmap!!.mapType = GoogleMap.MAP_TYPE_NORMAL
+    clusterManager = ClusterManager<BuildingModel>(this, gmap)
     initListeners()
   }
 
@@ -500,11 +512,11 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         marker.title("User").snippet("Estimated Position")
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
         marker.rotation(raw_heading - bearing)
-        gpsMarker = mMap!!.addMarker(marker)
+        gpsMarker = gmap!!.addMarker(marker)
 
         //move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-        mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.getPosition(), mInitialZoomLevel))
+        gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.getPosition(), mInitialZoomLevel))
       }
       fusedLocationClient.removeLocationUpdates(this)
     }
@@ -530,7 +542,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         marker.title("User").snippet("Estimated Position")
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
         marker.rotation(raw_heading - bearing)
-        gpsMarker = mMap!!.addMarker(marker)
+        gpsMarker = gmap!!.addMarker(marker)
 
         // move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
@@ -566,12 +578,12 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         marker.title("User").snippet("Estimated Position")
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
         marker.rotation(raw_heading - bearing)
-        gpsMarker = mMap!!.addMarker(marker)
+        gpsMarker = gmap!!.addMarker(marker)
         // Log.d(TAG, "Should have a marker");
 
         //move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-        mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
+        gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
       }
       // fusedLocationClient.removeLocationUpdates(this)  XXX
       // checkLocationPermission() // TODO
@@ -605,8 +617,9 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
      */
   }
 
+  @SuppressLint("PotentialBehaviorOverride")
   private fun initListeners() {
-    mMap!!.setOnCameraChangeListener { position -> // change search box message and clear pois
+    gmap!!.setOnCameraChangeListener { position -> // change search box message and clear pois
       if (searchType != null) {
         if (searchType != AnyPlaceSeachingHelper.getSearchType(position.zoom)) {
           searchType = AnyPlaceSeachingHelper.getSearchType(position.zoom)
@@ -629,16 +642,16 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
       }
       bearing = position.bearing
-      mClusterManager.onCameraChange(position)
+      // mClusterManager.onCameraChange(position) // XXX:PM CHECK:PM
+      gmap!!.setOnCameraIdleListener(clusterManager)
+      gmap!!.setOnMarkerClickListener(clusterManager)  // warn: PotentialBehaviourOverride
     }
-    mMap!!.setOnMapClickListener(this)
-    mMap!!.setOnMarkerDragListener(object : OnMarkerDragListener {
-      override fun onMarkerDragStart(arg0: Marker) {
-        // TODO Auto-generated method stub
-      }
+    gmap!!.setOnMapClickListener(this)
+    gmap!!.setOnMarkerDragListener(object : OnMarkerDragListener {
+      override fun onMarkerDragStart(arg0: Marker) {}
 
       override fun onMarkerDragEnd(arg0: Marker) {
-        // TODO Auto-generated method stub
+        LOG.D2("onMarkerDragEnd: ${arg0.title}")
         val dragPosition = arg0.position
         if (mIsSamplingActive) {
           saveRecordingToLine(dragPosition)
@@ -646,12 +659,10 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         curLocation = dragPosition
       }
 
-      override fun onMarkerDrag(arg0: Marker) {
-        // TODO Auto-generated method stub
-      }
+      override fun onMarkerDrag(arg0: Marker) {}
     })
-    mMap!!.setOnMarkerClickListener(mClusterManager)
-    mClusterManager.setOnClusterItemClickListener { b ->
+    gmap!!.setOnMarkerClickListener(clusterManager)
+    clusterManager.setOnClusterItemClickListener { b ->
       b?.let { bypassSelectBuildingActivity(it) }
       // Prevent Popup dialog
       true
@@ -659,7 +670,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   }
 
   private fun checkReady(): Boolean {
-    if (mMap == null) {
+    if (gmap == null) {
       Toast.makeText(this, "Map not ready!", Toast.LENGTH_SHORT).show()
       return false
     }
@@ -731,7 +742,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     if (checkPlayServices()) {  // CHECK
       initCamera()
       // CHECK:PM Is this a BUG? it is not initialized even in legacy app
-      searchType = AnyPlaceSeachingHelper.getSearchType(mMap!!.cameraPosition.zoom)
+      searchType = AnyPlaceSeachingHelper.getSearchType(gmap!!.cameraPosition.zoom)
       // CLR:PM ?
       // if (type == SearchTypes.INDOOR_MODE) {
       // } else if (type == SearchTypes.OUTDOOR_MODE) {
@@ -766,7 +777,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     }
 
     val prettyLoc = LocationUtils.prettyLocation(loc, this)
-    LOG.E("Location: LastKnown: $prettyLoc")
+    LOG.D2("Location: LastKnown: $prettyLoc")
 
     if (gpsMarker != null) {
       // draw the location of the new position
@@ -777,32 +788,34 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     marker.title("User").snippet("Estimated Position")
     marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
     marker.rotation(raw_heading - bearing)
-    gpsMarker = mMap!!.addMarker(marker)
+    gpsMarker = gmap!!.addMarker(marker)
   }
 
   private fun handleBuildingsOnMap() {
-    val mAnyplaceCache = AnyplaceCache.getInstance(this@LoggerActivity)
-    mAnyplaceCache.loadWorldBuildings(object : FetchBuildingsTaskListener {
+    val mAnyplaceCache = ObjectCache.getInstance(app)
+    mAnyplaceCache.loadWorldBuildings(this@LoggerActivityOLD, object : FetchBuildingsTaskListener {
       override fun onSuccess(result: String, buildings: List<BuildingModel>) {
-        var collection: MutableList<BuildingModel> = ArrayList(buildings)
-        mClusterManager.clearItems()
-        if (mCurrentBuilding != null) collection.remove(mCurrentBuilding!!)
-        mClusterManager.addItems(collection)
-        mClusterManager.cluster()
+        val collection: MutableList<BuildingModel> = ArrayList(buildings)
+        clusterManager.clearItems()
+        if (buildingCurrent != null) collection.remove(buildingCurrent!!)
+        clusterManager.addItems(collection)
+        clusterManager.cluster()
         // HACK. This dumps all the cached icons & recreates everything.
-        mClusterManager.setRenderer(MyBuildingsRenderer(this@LoggerActivity, mMap, mClusterManager))
+        clusterManager.renderer = MyBuildingsRenderer(this@LoggerActivityOLD, gmap, clusterManager)
       }
 
       override fun onErrorOrCancel(result: String) {}
-    }, this, false)
+    },  false)
   }
 
   /** Called when we want to clear the map overlays  */
-  private fun clearMap() {
+  private fun mapClear() {
+    LOG.D2("mapClear")
     if (!checkReady()) {
       return
     }
-    mMap!!.clear()
+    clusterManager.clearItems()
+    gmap!!.clear()
   }
 
 
@@ -820,34 +833,8 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
       }
 
     val msg = "Permission $status ($permType)"
-    Toast.makeText(this@LoggerActivity, msg, Toast.LENGTH_SHORT).show();
+    Toast.makeText(this@LoggerActivityOLD, msg, Toast.LENGTH_SHORT).show();
   }
-
-
-
-
-  // private void showExplanation(String title,
-  // String message,
-  // final String permission,
-  // final int permissionRequestCode) {
-  //   AlertDialog.Builder builder = new AlertDialog.Builder(this);
-  //   builder.setTitle(title)
-  //           .setMessage(message)
-  //           .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-  //             public void onClick(DialogInterface dialog, int id) {
-  //               requestPermission(permission, permissionRequestCode);
-  //             }
-  //           });
-  //   builder.create().show();
-  // }
-  //
-  // private void requestPermission(String permissionName, int permissionRequestCode) {
-  //   ActivityCompat.requestPermissions(this,
-  //           new String[]{permissionName}, permissionRequestCode);
-  // }
-
-
-
 
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -860,23 +847,22 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
         val fpf = data.getStringExtra("floor_plan_path")
         if (fpf == null) {
-          Toast.makeText(baseContext, "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show()
+          Toast.makeText(baseContext, MSG.WARN_SELECT_BUILDING_DOOR, Toast.LENGTH_SHORT).show()
           return
         }
         try {
-          val b = AnyplaceCache.getInstance(this).spinnerBuildings[data.getIntExtra("bmodel", 0)]
-          val f = b.floors[data.getIntExtra("fmodel", 0)]
+          val b = ObjectCache.getInstance(app).spinnerBuildings[data.getIntExtra("bmodel", 0)]
+          val f = b.loadedFloors[data.getIntExtra("fmodel", 0)]
           bypassSelectBuildingActivity(b, f)
-        } catch (ex: Exception) {
-          Toast.makeText(baseContext, "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+          Toast.makeText(baseContext, MSG.WARN_SELECT_BUILDING_DOOR, Toast.LENGTH_SHORT).show()
+          LOG.E(e)
         }
       } else if (resultCode == RESULT_CANCELED) {
         // CANCELLED
-        if (data == null) {
-          return
-        }
+        if (data == null) { return }
         val msg = data.getSerializableExtra("message") as String
-        if (msg != null) {
+        if (msg != null && msg.isNotEmpty()) {
           Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
         }
       }
@@ -884,7 +870,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         val result = data!!.getSerializableExtra("action") as LoggerPrefs.Action
         when (result) {
           LoggerPrefs.Action.REFRESH_BUILDING -> {
-            if (mCurrentBuilding == null) {
+            if (buildingCurrent == null) {
               Toast.makeText(baseContext, "Load a map before performing this action!", Toast.LENGTH_SHORT).show()
             } else if (_b.progressBar.visibility == View.VISIBLE) {
               Toast.makeText(baseContext, "Building Loading in progress. Please Wait!", Toast.LENGTH_SHORT).show()
@@ -892,16 +878,20 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
               try {
 
                 // clear_floorplans
-                val floorsRoot = File(AnyplaceUtils.getFloorPlansRootFolder(this), mCurrentBuilding!!.buid)
+                val floorsRoot = File(AnyplaceUtils.getFloorPlansRootFolder(this), buildingCurrent!!.buid)
                 // clear radiomaps
                 val radiomapsRoot = AnyplaceUtils.getRadioMapsRootFolder(this)
-                val radiomaps = radiomapsRoot.list { dir, filename -> if (filename.startsWith(mCurrentBuilding!!.buid)) true else false }
+                val radiomaps = radiomapsRoot.list { dir, filename -> if (filename.startsWith(buildingCurrent!!.buid)) true else false }
                 var i = 0
-                while (i < radiomaps.size) {
+                while (i < radiomaps!!.size) {
                   radiomaps[i] = radiomapsRoot.absolutePath + File.separator + radiomaps[i]
                   i++
                 }
-                val task = DeleteFolderBackgroundTask({ bypassSelectBuildingActivity(mCurrentBuilding!!, mCurrentBuilding!!.selectedFloor) }, this, true)
+
+                val task = DeleteFolderBackgroundTask(
+                        // kotlin SAM
+                        {bypassSelectBuildingActivity(buildingCurrent!!, buildingCurrent!!.selectedFloor)},
+                        this, true)
                 task.setFiles(floorsRoot)
                 task.setFiles(radiomaps)
                 task.execute()
@@ -917,37 +907,39 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     }
   }
 
-  private fun bypassSelectBuildingActivity(b: BuildingModel?) {
-    if (b != null) {
+  private fun bypassSelectBuildingActivity(building: BuildingModel?) {
+    if (building != null) {
       if (mIsSamplingActive) {
-        Toast.makeText(baseContext, "Invalid during logging.", Toast.LENGTH_LONG).show()
+        val msg = "SamplingActive: invalid during logging."
+        LOG.W("SamplingActive: invalid during logging.")
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
         return
       }
 
       // Load Building
-      b.loadFloors(object : FetchFloorsByBuidTaskListener {
-        override fun onSuccess(result: String, floors: List<FloorModel>) {
-          val mAnyplaceCache = AnyplaceCache.getInstance(this@LoggerActivity)
+      building.loadFloors(this, object : FetchFloorsByBuidTaskListener {
+        override fun onSuccess(result: String?, floors: List<FloorModel>?) {
+          val mAnyplaceCache = ObjectCache.getInstance(app)
           val list = ArrayList<BuildingModel>(1)
-          list.add(b)
+          list.add(building)
           mAnyplaceCache.selectedBuildingIndex = 0
-          mAnyplaceCache.setSpinnerBuildings(applicationContext, list)
-          var floor: FloorModel
-          if (b.getFloorFromNumber("0").also { floor = it } == null) {
-            floor = b.selectedFloor
+          mAnyplaceCache.setSpinnerBuildings(app, list)
+          var floor: FloorModel?
+          if (building.getFloorFromNumber("0").also { floor = it } == null) {
+            floor = building.selectedFloor
           }
-          bypassSelectBuildingActivity(b, floor)
+          bypassSelectBuildingActivity(building, floor)
         }
 
-        override fun onErrorOrCancel(result: String) {
+        override fun onErrorOrCancel(result: String?) {
           Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
         }
-      }, this@LoggerActivity, false, true)
+      }, forceReload = false, showDialog = true)
     }
   }
 
-  private fun bypassSelectBuildingActivity(b: BuildingModel, f: FloorModel) {
-    val fetchFloorPlanTask = FetchFloorPlanTask(applicationContext, b.buid, f.floor_number)
+  private fun bypassSelectBuildingActivity(b: BuildingModel, f: FloorModel?) {
+    val fetchFloorPlanTask = FetchFloorPlanTask(applicationContext, b.buid, f!!.floor_number)
     fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTaskListener {
       private val dialog: ProgressDialog? = null
       override fun onSuccess(result: String, floor_plan_file: File) {
@@ -990,23 +982,23 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
   private fun loadMapBasicLayer(b: BuildingModel, f: FloorModel?) {
     // remove the previous GroundOverlay or TileOverlay
-    mMap!!.clear()
+    gmap!!.clear()
     // load the floorplan
     // add the Tile Provider that uses our Building tiles over
     // Google Maps
-    val mTileOverlay = mMap!!.addTileOverlay(TileOverlayOptions().tileProvider(MapTileProvider(baseContext, b.buid, f!!.floor_number)).zIndex(0f))
+    val mTileOverlay = gmap!!.addTileOverlay(TileOverlayOptions().tileProvider(MapTileProvider(baseContext, b.buid, f!!.floor_number)).zIndex(0f))
   }
 
-  private fun selectPlaceActivityResult(b: BuildingModel, f: FloorModel) {
+  private fun selectPlaceActivityResult(b: BuildingModel, f: FloorModel?) {
     // set the newly selected floor
-    b.setSelectedFloor(f.floor_number)
-    mCurrentBuilding = b
+    b.setSelectedFloor(f!!.floor_number)
+    buildingCurrent = b
     mCurrentFloor = f
     curLocation = null
     userIsNearby = false
     _b.textFloor.text = f.floor_name
     loadMapBasicLayer(b, f)
-    mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(b.position, 19.0f), object : CancelableCallback {
+    gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(b.position, 19.0f), object : CancelableCallback {
       override fun onFinish() {
         handleBuildingsOnMap()
       }
@@ -1025,15 +1017,15 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
         val root: File
         try {
-          root = AnyplaceUtils.getRadioMapFolder(this@LoggerActivity, mCurrentBuilding!!.buid, mCurrentFloor!!.floor_number)
+          root = AnyplaceUtils.getRadioMapFolder(this@LoggerActivityOLD, buildingCurrent!!.buid, mCurrentFloor!!.floor_number)
           val file = File(root, AnyplaceUtils.getRadioMapFileName(mCurrentFloor!!.floor_number))
-          LOG.D3(TAG, "inside the Callback class before heatmaptask")
-          HeatmapTask().execute(file)
+          // LOG.D3(TAG, "inside the Callback class before heatmaptask") // CLR?
+          HeatmapTask(this@LoggerActivityOLD, mProvider!!, gmap!!).execute(file)
         } catch (e: Exception) {
         }
         if (AnyplaceDebug.PLAY_STORE) {
-          val mAnyplaceCache = AnyplaceCache.getInstance(this@LoggerActivity)
-          mAnyplaceCache.fetchAllFloorsRadiomapsRun(this@LoggerActivity, object : BackgroundFetchListener {
+          val mAnyplaceCache = ObjectCache.getInstance(app)
+          mAnyplaceCache.fetchAllFloorsRadiomapsRun(this@LoggerActivityOLD, object : BackgroundFetchListener {
             override fun onSuccess(result: String) {
               hideProgressBar()
               if (AnyplaceDebug.DEBUG_MESSAGES) {
@@ -1056,12 +1048,12 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
             override fun onPrepareLongExecute() {
               showProgressBar()
             }
-          }, mCurrentBuilding)
+          }, buildingCurrent)
         }
       }
 
       override fun onErrorOrCancel(result: String) {
-        if (LOG.DEBUG_CALLBACK) {
+        if (DBG.CALLBACK) {
           Log.d(TAG, "Callback onErrorOrCancel with $result")
         }
         if (progressBarEnabled) {
@@ -1073,7 +1065,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         progressBarEnabled = true
         showProgressBar()
         // Set a smaller percentage than fetchAllFloorsRadiomapsOfBUID
-        _b.progressBar.progress = (1.0f / (b.floors.size * 2) * _b.progressBar!!.max).toInt()
+        _b.progressBar.progress = (1.0f / (b.loadedFloors.size * 2) * _b.progressBar!!.max).toInt()
       }
 
       override fun disableSuccess() {
@@ -1141,13 +1133,13 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
           // XXX WHAT IS THIS?!?! and WHY here?!?!
           LOG.E(TAG, "XXX: onLocationChanged(currentLocation)")
           // onLocationChanged(currentLocation)
-          val placeIntent = Intent(this@LoggerActivity, SelectBuildingActivity::class.java)
+          val placeIntent = Intent(this@LoggerActivityOLD, SelectBuildingActivity::class.java)
           val b = Bundle()
           if (currentLocation != null) {
             b.putString("coordinates_lat", currentLocation.latitude.toString())
             b.putString("coordinates_lon", currentLocation.longitude.toString())
           }
-          if (mCurrentBuilding == null) {
+          if (buildingCurrent == null) {
             b.putSerializable("mode", SelectBuildingActivity.Mode.NEAREST)
           }
           placeIntent.putExtras(b)
@@ -1156,8 +1148,8 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         return true
       }
       R.id.main_menu_clear_logging -> {
-        if (mCurrentBuilding == null) Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show() else {
-          loadMapBasicLayer(mCurrentBuilding!!, mCurrentFloor)
+        if (buildingCurrent == null) Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show() else {
+          loadMapBasicLayer(buildingCurrent!!, mCurrentFloor)
           handleBuildingsOnMap()
           if (curLocation != null) updateMarker(curLocation!!)
         }
@@ -1175,7 +1167,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         return true
       }
       R.id.main_menu_about -> {
-        startActivity(Intent(this@LoggerActivity, AnyplaceAboutActivity::class.java))
+        startActivity(Intent(this@LoggerActivityOLD, AnyplaceAboutActivity::class.java))
         return true
       }
     }
@@ -1186,7 +1178,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     if (marker != null) {
       marker!!.remove()
     }
-    marker = mMap!!.addMarker(MarkerOptions().position(latlng).draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
+    marker = gmap!!.addMarker(MarkerOptions().position(latlng).draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
     curLocation = latlng
   }
 
@@ -1272,7 +1264,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
       options.strokeWidth(3f)
       // Display above floor image
       options.zIndex(2f)
-      mMap!!.addCircle(options)
+      gmap!!.addCircle(options)
     }
 
     override fun onFinish(logger: LoggerWiFi, function: LoggerWiFi.Function) {
@@ -1284,7 +1276,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         val mSamples = logger.mSamples
         runOnUiThread(Runnable {
           if (exceptionOccured) {
-            Toast.makeText(this@LoggerActivity, msg, Toast.LENGTH_LONG).show()
+            Toast.makeText(this@LoggerActivityOLD, msg, Toast.LENGTH_LONG).show()
             return@Runnable
           } else {
             if (!(mSamples == null || mSamples.size == 0)) {
@@ -1306,7 +1298,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
               val latlng = LatLng(prevSample[0].lat, prevSample[0].lng)
               draw(latlng, sum)
             }
-            Toast.makeText(this@LoggerActivity, mSamples!!.size.toString() + " Samples Recorded Successfully!", Toast.LENGTH_LONG).show()
+            Toast.makeText(this@LoggerActivityOLD, mSamples!!.size.toString() + " Samples Recorded Successfully!", Toast.LENGTH_LONG).show()
           }
           mCurrentSamplesTaken -= mSamples.size
           if (mSamplingProgressDialog != null) {
@@ -1327,7 +1319,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     override fun onReceive(c: Context, intent: Intent) {
       try {
         if (intent == null || c == null || intent.action == null) return
-        val wifiList = wifi!!.scanResults
+        val wifiList = wifiManager!!.scanResults
         scanResults!!.text = "AP : " + wifiList.size
 
         // If we are not in an active sampling session we have to skip
@@ -1357,7 +1349,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private fun btnRecordingInfo() {
     if (mIsSamplingActive) {
       mIsSamplingActive = false
-      mSamplingProgressDialog = ProgressDialog(this@LoggerActivity)
+      mSamplingProgressDialog = ProgressDialog(this@LoggerActivityOLD)
       mSamplingProgressDialog!!.setProgressStyle(ProgressDialog.STYLE_SPINNER)
       mSamplingProgressDialog!!.setMessage("Saving...")
       mSamplingProgressDialog!!.setCancelable(false)
@@ -1403,21 +1395,23 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
               try {
                 val location = task.result
                 val gps = location?.let { GeoPoint(it.latitude, location.longitude) }
-                userIsNearby = if (GeoPoint.getDistanceBetweenPoints(mCurrentBuilding!!.longitude, mCurrentBuilding!!.latitude, gps!!.dlon, gps.dlat, "") > 200) {
-                  Toast.makeText(baseContext, "You are only allowed to use the logger for a building you are currently at or physically nearby.", Toast.LENGTH_SHORT).show()
-                  false
+                if (GeoPoint.getDistanceBetweenPoints(buildingCurrent!!.lon, buildingCurrent!!.lat, gps!!.dlon, gps.dlat, "") > 200) {
+                  val msg = "Logging is only allowed when your are within vicinity with the building."
+                  Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                  LOG.D(msg)
+                  userIsNearby = false
                 } else {
-                  true
+                  userIsNearby = true
                 }
               } catch (e: Exception) {
-                Log.d(TAG, e.message)
+                e.message?.let { LOG.D(TAG, it) }
               }
             }
             if (!userIsNearby) {
               return
             }
           } catch (e: Exception) {
-            Log.d(TAG, e.message)
+            e.message?.let { LOG.D(TAG, it) }
           }
         }
         userIsNearby = true
@@ -1445,7 +1439,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   }
 
   private fun saveRecordingToLine(latlng: LatLng?) {
-    logger!!.save(latlng!!.latitude.toString() + "," + latlng.longitude, folder_path, filename_rss, mCurrentFloor!!.floor_number, mCurrentBuilding!!.buid)
+    logger!!.save(latlng!!.latitude.toString() + "," + latlng.longitude, folder_path, filename_rss, mCurrentFloor!!.floor_number, buildingCurrent!!.buid)
   }
 
   // ****************************************************************
@@ -1468,7 +1462,7 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private fun uploadRSSLog() {
     synchronized(upInProgressLock) {
       if (!upInProgress) {
-        if (!NetworkUtils.isOnline(this@LoggerActivity)) {
+        if (!NetworkUtils.isOnline(this@LoggerActivityOLD)) {
           Toast.makeText(applicationContext, "No Internet Connection", Toast.LENGTH_SHORT).show()
           return
         }
@@ -1487,8 +1481,9 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         upInProgress = false
         val file = File(file_path)
         file.delete()
-        val builder = AlertDialog.Builder(this@LoggerActivity)
-        if (mCurrentBuilding == null) builder.setMessage("Thank you for improving the location quality of Anyplace") else builder.setMessage("Thank you for improving the location quality for building " + mCurrentBuilding!!.name)
+        val builder = AlertDialog.Builder(this@LoggerActivityOLD)
+        if (buildingCurrent == null) builder.setMessage("Thank you for improving the location quality of Anyplace")
+        else builder.setMessage("Thank you for improving the location quality for building " + buildingCurrent!!.name)
         builder.setCancelable(false).setPositiveButton("OK") { dialog, id ->
           // do things
         }
@@ -1500,7 +1495,8 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
         upInProgress = false
         Toast.makeText(applicationContext, result, Toast.LENGTH_LONG).show()
       }
-    }, this, file_path, preferences!!.getString("username", ""), preferences!!.getString("password", "")).execute()
+    }, this, file_path, preferences.getString("username", ""),
+            preferences.getString("password", "")).execute()
   }
 
   private fun showProgressBar() {
@@ -1541,46 +1537,6 @@ class LoggerActivity : AppCompatActivity(), OnSharedPreferenceChangeListener,
     })
     val skipMessage = preferences.getBoolean("skipHelpMessage", false)
     if (!skipMessage) adb.show()
-  }
-
-  // TODO PM: KT coroutine
-  private inner class HeatmapTask : AsyncTask<File?, Int?, Collection<WeightedLatLng>?>() {
-    protected override fun doInBackground(vararg params: File?): Collection<WeightedLatLng>? {
-      if (LOG.D1()) {
-        LOG.D(TAG, "HeatmapTask doInBackground")
-        if (params[0] == null) {
-          LOG.D(TAG, "HeatmapTask params is null")
-        } else {
-          LOG.D(TAG, "HeatmapTask params is not null and is : " + params[0]!!.absolutePath)
-        }
-      }
-      val res = MapTileProvider.readRadioMapLocations(params[0])
-      if (LOG.D1() && res == null) {
-        LOG.E(TAG, "HeatmapTask doInBackground has a null result")
-      }
-      return res
-    }
-
-    override fun onPostExecute(result: Collection<WeightedLatLng>?) {
-      // Check if need to instantiate (avoid setData etc twice)
-      if (mProvider == null) {
-        if (result == null) {
-          Log.d(TAG, "No radiomap for selected building")
-          Toast.makeText(applicationContext, "This building has no radiomap", Toast.LENGTH_SHORT).show()
-          return
-        }
-        mProvider = HeatmapTileProvider.Builder().weightedData(result).build()
-      } else {
-        mProvider!!.setWeightedData(result)
-      }
-      LOG.D3(TAG, "Setting heatmap, " + result!!.size)
-
-      val mHeapOverlay = mMap!!.addTileOverlay(TileOverlayOptions().tileProvider(mProvider).zIndex(1f)) // CHECK
-    }
-  }
-
-  internal interface PreviousRunningTask {
-    fun disableSuccess()
   }
 }
 

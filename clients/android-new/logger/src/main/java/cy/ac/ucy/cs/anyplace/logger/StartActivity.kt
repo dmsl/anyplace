@@ -1,5 +1,5 @@
 /*
-* AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
 * localization, navigation and search inside buildings using ordinary smartphones.
@@ -37,17 +37,24 @@ package cy.ac.ucy.cs.anyplace.logger
 
 import android.app.Activity
 import android.os.Bundle
-import cy.ac.ucy.cs.anyplace.logger.R
 import android.content.pm.PackageInfo
 import android.widget.TextView
 import android.content.pm.PackageManager
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import android.os.CountDownTimer
 import android.content.Intent
 import android.view.View
-import cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+// import cy.ac.ucy.cs.anyplace.logger.R // CHECK ?
+// import cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity
 
 class StartActivity : Activity() {
+
+  private val SPLASH_TIME_OUT = 2000L
+
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.start_screen_layout)
@@ -59,13 +66,13 @@ class StartActivity : Activity() {
     } catch (e: PackageManager.NameNotFoundException) {
       LOG.E("Cannot get version name.")
     }
-    object : CountDownTimer(1000, 10000) {
-      override fun onTick(millisUntilFinished: Long) {}
-      override fun onFinish() {
-        val intent = Intent(this@StartActivity, AnyplaceLoggerActivity::class.java)
-        startActivity(intent)
-        finish()
-      }
-    }.start()
+
+    CoroutineScope(Main).launch {
+      delay(SPLASH_TIME_OUT)
+      // startActivity(Intent(this@StartActivity, TestActivity::class.java))
+      startActivity(Intent(this@StartActivity, LoggerActivityOLD::class.java))
+      LOG.E("STARTING LOGGER OLD")
+      finish()
+    }
   }
 }

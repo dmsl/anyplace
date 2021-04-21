@@ -3,34 +3,46 @@
     package="cy.ac.ucy.cs.anyplace.logger">
 
 
+ <!-- FLIR attachable usb unit -->
+  <uses-feature android:name="android.hardware.usb.host" android:required="true" />
 
+  <!-- CHECK: FLIR requires gles3.0. is yolo ok with that? anyplace? -->
+  <!-- <uses-feature android:glEsVersion="0x00020000" android:required="true" />-->
+  <uses-feature android:glEsVersion="0x00030000" android:required="true" />
 
-<!--  <permission-->
-<!--      android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"-->
-<!--      android:protectionLevel="signature" />-->
-
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <!--  TODO XXX FIX external access.. -->
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
   <!--
        The following two permissions are not required to use
        Google Maps Android API v2, but are recommended.
   -->
-  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-  <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-  <uses-feature
-      android:glEsVersion="0x00020000"
-      android:required="true" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+  <!--  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+  <permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+
+  <!--  <permission-->
+  <!--      android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"-->
+  <!--      android:protectionLevel="signature" />-->
+
+
+
+
+  <!-- android:requestLegacyExternalStorage="true"-->
   <application
+      android:name=".LoggerApp"
       android:allowBackup="true"
       android:icon="@drawable/anyplace_logo_icon_bg"
       android:label="@string/app_name"
@@ -50,11 +62,10 @@
         android:name="cy.ac.ucy.cs.anyplace.logger.AnyplaceAboutActivity"
         android:label="@string/app_name_about"
         android:theme="@android:style/Theme.Dialog" >
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
+      <!--      <intent-filter>-->
+      <!--        <action android:name="android.intent.action.MAIN" />-->
+      <!--        <category android:name="android.intent.category.DEFAULT" />-->
+      <!--      </intent-filter>-->
     </activity>
 
     <!-- singleTop before <0.8 ! -->
@@ -86,16 +97,21 @@
       </intent-filter>
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity"
+        android:name="cy.ac.ucy.cs.anyplace.logger.LoggerActivityOLD"
         android:configChanges="keyboardHidden|orientation"
         android:icon="@drawable/anyplace_logo_icon_actionbar_white"
         android:label="@string/app_name_logger"
         android:screenOrientation="nosensor" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
+
+      <intent-filter>
+        <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+      </intent-filter>
+      <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+          android:resource="@xml/flir_usb_device_filter" />
     </activity>
     <activity
         android:name="AnyplacePrefs"

@@ -2,19 +2,15 @@ package cy.ac.ucy.cs.anyplace.logger
 
 import android.app.Application
 import cy.ac.ucy.cs.anyplace.lib.Anyplace
+import cy.ac.ucy.cs.anyplace.lib.Preferences
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
+import cy.ac.ucy.cs.anyplace.lib.android.LOG
 
-class AnyplaceApp : Application() {
-  lateinit var client: Anyplace
+class LoggerApp : AnyplaceApp() {
+  private val TAG = LoggerApp::class.java.simpleName
 
   override fun onCreate() {
     super.onCreate()
-    // TODO where is the client used?
-    // TODO: initialize with shared preferences
-    client = Anyplace("ap-dev.cs.ucy.ac.cy", "443",
-            applicationContext.cacheDir.absolutePath)
+    LOG.D2(TAG, "LoggerApp: onCreate")
   }
-
-
-  // fileCache.initDirs(); // TODO this in App class
-
 }
