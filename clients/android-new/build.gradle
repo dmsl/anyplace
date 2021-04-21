@@ -1,34 +1,45 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+// Top-level build file:  configuration common to all sub-projects/modules.
 
 buildscript {
-    
-    repositories {
-        google()
-        jcenter()
-        
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.2'
-        
+  ext {
+    ver_android_gradle_plugin = '4.2.0-rc01'
+    ver_kotlin= '1.4.32' // kapt fails with higher version (w/ hilt)
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+    // ver_hilt= '2.33-beta' // CHECK::PM remove this
+    nav_version = "2.3.5"
+    ver_lifecycle = "2.3.1"
+    ver_coroutines = '1.4.3-native-mt'
+    ver_nav_ui ="2.3.5"
+  }
+
+  repositories {
+    google()
+    mavenCentral()
+    jcenter()  // DEPRECATE (easypermissions)
+  }
+
+  dependencies {  // No app dependencies here (those in individual modules)
+    classpath "com.android.tools.build:gradle:${ver_android_gradle_plugin}"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$ver_kotlin"
+
+    // Navigation
+    classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
+    // Dependency injection
+    // classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
+  }
 }
 
 allprojects {
-    repositories {
-        google()
-        jcenter()
-      maven {
-        url 'https://jitpack.io'
-      }
-        
+  repositories {
+    google()
+    mavenCentral()
+    jcenter()  // DEPRECATE (easypermissions)
+    maven {
+      url 'https://jitpack.io'
     }
+  }
 }
 
-
-
 task clean(type: Delete) {
-    delete rootProject.buildDir
+  delete rootProject.buildDir
 }

@@ -33,44 +33,39 @@
 * DEALINGS IN THE SOFTWARE.
 *
 */
+package cy.ac.ucy.cs.anyplace.logger
 
-package cy.ac.ucy.cs.anyplace.logger;
+import android.app.Activity
+import android.os.Bundle
+import cy.ac.ucy.cs.anyplace.logger.R
+import android.content.pm.PackageInfo
+import android.widget.TextView
+import android.content.pm.PackageManager
+import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import android.os.CountDownTimer
+import android.content.Intent
+import android.view.View
+import cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.util.Log;
-import android.widget.TextView;
-
-public class StartActivity extends Activity {
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.start_screen_layout);
-
-		PackageInfo pinfo;
-		try {
-			pinfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-			String versionName = pinfo.versionName;
-			((TextView) findViewById(R.id.tvVersion)).setText(versionName);
-		} catch (NameNotFoundException e) {
-			Log.d("anyplace start screen", "Cannot get version name!");
-		}
-
-		new CountDownTimer(1000, 10000) {
-			public void onTick(long millisUntilFinished) {
-			}
-
-			public void onFinish() {
-				Intent intent = new Intent(StartActivity.this, AnyplaceLoggerActivity.class);
-				startActivity(intent);
-				StartActivity.this.finish();
-			}
-		}.start();
-	}
-
+class StartActivity : Activity() {
+  public override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.start_screen_layout)
+    val pinfo: PackageInfo
+    try {
+      pinfo = packageManager.getPackageInfo(packageName, 0)
+      val versionName = pinfo.versionName
+      (findViewById<View>(R.id.tvVersion) as TextView).text = versionName
+    } catch (e: PackageManager.NameNotFoundException) {
+      LOG.E("Cannot get version name.")
+    }
+    object : CountDownTimer(1000, 10000) {
+      override fun onTick(millisUntilFinished: Long) {}
+      override fun onFinish() {
+        val intent = Intent(this@StartActivity, AnyplaceLoggerActivity::class.java)
+        startActivity(intent)
+        finish()
+      }
+    }.start()
+  }
 }

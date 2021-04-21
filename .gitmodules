@@ -3,5 +3,5 @@
 	path = clients/core/lib
 	url = git@github.com:dmsl/anyplace-lib-core.git
 [submodule "clients/android-new/lib"]
-	path = clients/android-new/lib
+	path = clients/android-new/lib-android
 	url = git@github.com:dmsl/anyplace-lib-android.git
