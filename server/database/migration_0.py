@@ -124,6 +124,7 @@ def pushFingerprintsWifi(database):
             print(len(visited), "FingerprintsWifi were pushed for building" + fileP +"\n")
         for j in visited:
             col.insert_one(j)
+            createAndPushFingerprintsHeatmap(database, j)
             countAll += 1
     print(countAll, "FingerprintsWifi were pushed in total.")
     # print("visited length = ", len(visited))
@@ -143,6 +144,21 @@ def updateExistingFingerprint(old, new):
     updFin = old
     newMeasurement = new["measurements"]
     updFin["measurements"] += newMeasurement
+
+
+def createAndPushFingerprintsHeatmap(database, obj):
+    finHeatmap = obj
+    del finHeatmap["x"]
+    del finHeatmap["y"]
+    del finHeatmap["heading"]
+    finHeatmap["total"] = len(finHeatmap["measurements"])
+    del finHeatmap["measurements"]
+    if "strongestWifi" in obj.keys():
+        del finHeatmap["strongestWifi"]
+    finHeatmap["location"] = finHeatmap["geometry"]
+    del finHeatmap["geometry"]
+    col = database["fingerprintsHeatmap"]
+    col.insert_one(finHeatmap)
 
 
 def pushFingerprintsBle(database):
@@ -251,11 +267,11 @@ collections = db.collection_names()
 countCollections = len(collections)
 print("Current number of collections: ", countCollections)
 # dropAllCollections(db, collections);  exit()
-if countCollections == 8:  # if database has 8 collections
+if countCollections == 9:  # if database has 8 collections
     print("Checking collections..")
     for x in collections:  # are those the correct colletions?
         if x != "buildings" and x != "campuses" and x != "edges" and x != "fingerprintsBle" and x != "fingerprintsWifi" \
-                and x != "floorplans" and x != "pois" and x != "users":
+                and x != "floorplans" and x != "pois" and x != "users" and x != "accessPointsWifi" and x != "fingerprintsHeatmap":
             print("Collection ", x, "has wrong name.")
             print("Exiting..")
             exit()
@@ -265,8 +281,13 @@ if countCollections == 8:  # if database has 8 collections
     if value == "y" or value == "Y" or value == "yes" or value == "YES":
         dropAllCollections(db, collections)
     else:
-        print("Exiting..")
-        exit()
+        print("Do you want to check fingerprintsWifi? [Y/N]. (Recommended if the script crashed before adding all fingerprints)")
+        value = input()
+        if value == "y" or value == "Y" or value == "yes" or value == "YES":
+            pushFingerprintsWifi(db)
+        else:
+            print("Exiting..")
+            exit()
 elif countCollections < 8:
     buildings = False
     campuses = False
@@ -304,10 +325,14 @@ elif countCollections < 8:
         pushEdges(db)
     else:
         print("Edges already exists.")
-    #if fingerprintsWifi == False:
-    # pushFingerprintsWifi(db)
-    #else:
-    #    print("Fingerprints Wifi already exists.")
+    if fingerprintsWifi == False:
+        pushFingerprintsWifi(db)
+    else:
+        print("Fingerprints Wifi already exists.")
+        print("Do you want to check them anyway? [Y/N]. (Recommended if the script crashed before adding all fingerprins)")
+        value = input()
+        if value == "y" or value == "Y" or value == "yes" or value == "YES":
+            pushFingerprintsWifi(db)
     if fingerprintsBle == False:
         pushFingerprintsBle(db)  # creating empty collection for now
     else:

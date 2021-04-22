@@ -112,7 +112,7 @@ def defineCollections(file):
     u = open(pathU, "w")
     und = open(pathUND, "w")
     i = 0
-    keepIt = False
+    keepIt = True
     while True:
         line = file.readline()
         if not line:
