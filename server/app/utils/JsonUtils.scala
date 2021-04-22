@@ -113,6 +113,17 @@ object JsonUtils {
     notFound
   }
 
+  def hasProperty(json: JsValue, key: String): Boolean = {
+    if (json == null) {
+      throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
+    }
+    if (key == null) {
+      return false
+    }
+    val value = json \ key
+    return value.toOption.isDefined
+  }
+
   def convertToInt(key: String, json: JsValue): JsValue = {
     var value = "0"
     if ((json \ key).toOption.isDefined)

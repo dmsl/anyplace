@@ -79,6 +79,11 @@ object LPUtils {
         }
     }
 
+    def MD5(text: String) : String = {
+        java.security.MessageDigest.getInstance("MD5").digest(text.getBytes()).map(0xFF & _)
+          .map { "%02x".format(_) }.foldLeft(""){_ + _}
+    }
+
     def hashStringBase64(input: String) = new String(Base64.encodeBase64(hashString(input)))
 
     def hashStringHex(input: String): String = binaryToHex(hashString(input))

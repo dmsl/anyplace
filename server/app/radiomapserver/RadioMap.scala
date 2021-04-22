@@ -49,6 +49,7 @@ import scala.collection.JavaConversions._
 
 
 object RadioMap {
+  val RBF_ENABLED = false
 
   /**
    * Verifies rss-log file and returns a map of buid:list of floors.
@@ -470,7 +471,6 @@ object RadioMap {
      */
     private def writeRadioMap(): String = {
       LPLogger.debug("writing radio map to files")
-      //
       val AP = new ArrayList[String]()
       val orientations = 4
       val radiomap_file = new File(radiomap_filename)
@@ -500,7 +500,7 @@ object RadioMap {
         if (res != null) return res
 
         // BUG:DZ BUG:PM BUG:NN below methods fail
-        if (LPLogger.D1()) {
+        if (RBF_ENABLED == true) {
           LPLogger.D1("BUG: writeParameters, writeRBFWeights")
           res = writeParameters(orientations)
           if (res != null) return res
@@ -508,11 +508,6 @@ object RadioMap {
           if (res != null) return res
         }
       } catch {
-        // CLR:NN
-        //case cce: ClassCastException => return "writeRadioMap:CCE: " + cce.getClass + ": " + cce.getMessage
-        //case nfe: NumberFormatException => return "writeRadioMap:NFE: " + nfe.getClass + ": "  + nfe.getMessage
-        //case fnfe: FileNotFoundException => return "writeRadioMap:FNFE: " + fnfe.getClass + ": "  + fnfe.getMessage
-        //case ioe: IOException => return "writeRadioMap:IOE: " + ioe.getClass + ": "  + ioe.getMessage
         case e: Exception =>
           e.printStackTrace()
           return "writeRadioMap:"  + e.getClass + ": " + e.getMessage

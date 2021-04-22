@@ -265,29 +265,33 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
   }
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAPsByBuildingFloor(buid, floor)
+    mongoDB.getAPsByBuildingFloor(buid, floor)
   }
 
+  override def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue = {
+    _checkActiveDatasource()
+    mongoDB.getCachedAPsByBuildingFloor(buid, floor)
+  }
 
   override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByXsYs(buid,floor,x,y)
   }
 
-    override def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = {
+  override def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
+    mongoDB.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
   }
-  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = {
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String)
+    mongoDB.getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String)
   }
 
-  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
+  override def getFingerPrintsTime(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getFingerPrintsTime(buid,floor)
+    mongoDB.getFingerPrintsTime(buid,floor)
   }
 
 
@@ -314,14 +318,18 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getBuildingByAlias(alias)
   }
 
-  override def getAllBuildingsNearMe(ownerid:String,lat: Double, lng: Double): java.util.List[JsonObject] = {
+  override def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsNearMe(ownerid,lat, lng)
+    mongoDB.getAllBuildingsNearMe(lat, lng, range, owner_id)
   }
 
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
     _checkActiveDatasource()
-    mActiveDatabase.dumpRssLogEntriesSpatial(outFile, bbox, floor_number)
+    mongoDB.dumpRssLogEntriesSpatial(outFile, bbox, floor_number)
+  }
+
+  override def dumpRssLogEntriesWithCoordinates (floor_number: String, lat: Double, lon: Double): String = {
+    mongoDB.dumpRssLogEntriesWithCoordinates(floor_number: String, lat, lon)
   }
 
   override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {

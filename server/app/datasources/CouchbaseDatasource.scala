@@ -792,39 +792,40 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor)
-    val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
+  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = ???
+  //override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val startkey = JsonArray.from(buid, floor)
+  //  val endkey = JsonArray.from(buid, floor, "90", "180")
+  //  val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //  var json: JsonObject = null
+  //  var jsonCheck: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      jsonCheck = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      jsonCheck.put("buid", array.get(0))
+  //      jsonCheck.put("floor", array.get(1))
+  //      json.put("x", array.get(2))
+  //      json.put("y", array.get(3))
+  //      json.put("AP", array.get(4))
+  //      json.put("RSS", row.value())
+  //      if ((jsonCheck.getString("buid").compareTo(buid) == 0) && (jsonCheck.getString("floor").compareTo(floor) == 0)) {
+  //        if (json.getObject("RSS").getDouble("average") >= -70) {
+  //          points.add(json)
+  //        }
+  //      }
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  points
+  //}
 
-    var json: JsonObject = null
-    var jsonCheck: JsonObject = null
-
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        jsonCheck = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        jsonCheck.put("buid", array.get(0))
-        jsonCheck.put("floor", array.get(1))
-        json.put("x", array.get(2))
-        json.put("y", array.get(3))
-        json.put("AP", array.get(4))
-        json.put("RSS", row.value())
-        if ((jsonCheck.getString("buid").compareTo(buid) == 0) && (jsonCheck.getString("floor").compareTo(floor) == 0)) {
-          if (json.getObject("RSS").getDouble("average") >= -70) {
-            points.add(json)
-          }
-        }
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
+  override def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue = ???
 
   override def deleteAllByXsYs(id: String, floor: String, x: String, y: String): java.util.List[String] = {
     val all_items_failed = new ArrayList[String]()
@@ -847,100 +848,103 @@ class CouchbaseDatasource private(hostname: String,
     all_items_failed
   }
 
-  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject] = {
 
-    val points = new java.util.ArrayList[JsonObject]
+  override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): List[JsValue] = ???
+  //override def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject] = {
+  //
+  //  val points = new java.util.ArrayList[JsonObject]
+  //
+  //  val couchbaseClient = getConnection
+  //
+  //  val bbox = GeoPoint.getGeoBoundingBoxByRange(lat1.toDouble, lon1.toDouble, lat2.toDouble, lon2.toDouble)
+  //
+  //  val viewQuery = SpatialViewQuery.from("radio_spatial", "radio_buid_floor")
+  //    .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //    .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //
+  // LPLogger.debug("couchbase results: " + res.size)  // CHECK
+  //
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) { // handle each building entry
+  //    try {
+  //      val document = row.document()
+  //      json = document.content()
+  //      if ((json.getString("buid").compareTo(buid) == 0) && (json.getString("floor").compareTo(floor) == 0)) {
+  //        points.add(JsonObject.create().put("id", document.id()))
+  //      }
+  //    } catch {
+  //      case e: IOException =>
+  //
+  //      // skip this NOT-JSON document
+  //    }
+  //  }
+  //
+  //  points
+  //}
 
-    val couchbaseClient = getConnection
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsValue] = ???
+  //override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  //
+  //  val points = new java.util.ArrayList[JsonObject]
+  //
+  //  val couchbaseClient = getConnection
+  //
+  //  val bbox = GeoPoint.getGeoBoundingBoxByRange(lat1.toDouble, lon1.toDouble, lat2.toDouble, lon2.toDouble)
+  //
+  //  val viewQuery = SpatialViewQuery.from("radio_spatial", "radio_buid_floor")
+  //    .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //    .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //
+  //  //LPLogger.debug("couchbase results: " + res.size)
+  //
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) { // handle each building entry
+  //    try {
+  //      val document = row.document()
+  //      json = document.content()
+  //      if ((json.getString("buid").compareTo(buid) == 0) && (json.getString("floor").compareTo(floor) == 0)) {
+  //        if((json.getString("timestamp").compareTo(timestampX)>=0) && (json.getString("timestamp").compareTo(timestampY)<=0))
+  //          points.add(JsonObject.create().put("id", document.id()))
+  //
+  //      }
+  //    } catch {
+  //      case e: IOException =>
+  //
+  //      // skip this NOT-JSON document
+  //    }
+  //  }
+  //
+  //  points
+  //}
 
-    val bbox = GeoPoint.getGeoBoundingBoxByRange(lat1.toDouble, lon1.toDouble, lat2.toDouble, lon2.toDouble)
-
-    val viewQuery = SpatialViewQuery.from("radio_spatial", "radio_buid_floor")
-      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-
-
-   LPLogger.debug("couchbase results: " + res.size)  // CHECK
-
-    var json: JsonObject = null
-    for (row <- res.allRows()) { // handle each building entry
-      try {
-        val document = row.document()
-        json = document.content()
-        if ((json.getString("buid").compareTo(buid) == 0) && (json.getString("floor").compareTo(floor) == 0)) {
-          points.add(JsonObject.create().put("id", document.id()))
-        }
-      } catch {
-        case e: IOException =>
-
-        // skip this NOT-JSON document
-      }
-    }
-
-    points
-  }
-
-  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
-
-    val points = new java.util.ArrayList[JsonObject]
-
-    val couchbaseClient = getConnection
-
-    val bbox = GeoPoint.getGeoBoundingBoxByRange(lat1.toDouble, lon1.toDouble, lat2.toDouble, lon2.toDouble)
-
-    val viewQuery = SpatialViewQuery.from("radio_spatial", "radio_buid_floor")
-      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-
-
-    //LPLogger.debug("couchbase results: " + res.size)
-
-    var json: JsonObject = null
-    for (row <- res.allRows()) { // handle each building entry
-      try {
-        val document = row.document()
-        json = document.content()
-        if ((json.getString("buid").compareTo(buid) == 0) && (json.getString("floor").compareTo(floor) == 0)) {
-          if((json.getString("timestamp").compareTo(timestampX)>=0) && (json.getString("timestamp").compareTo(timestampY)<=0))
-            points.add(JsonObject.create().put("id", document.id()))
-
-        }
-      } catch {
-        case e: IOException =>
-
-        // skip this NOT-JSON document
-      }
-    }
-
-    points
-  }
-
-
-  override def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor,"000000000000000")
-    val endkey = JsonArray.from(buid, floor,"999999999999999")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    LPLogger.debug("couchbase results: " + res.totalRows())
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("date", array.get(2))
-        json.put("count", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
+  override def getFingerPrintsTime(buid: String, floor: String): List[JsValue] = ???
+  //override def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val startkey = JsonArray.from(buid, floor,"000000000000000")
+  //  val endkey = JsonArray.from(buid, floor,"999999999999999")
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  LPLogger.debug("couchbase results: " + res.totalRows())
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      json.put("date", array.get(2))
+  //      json.put("count", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  points
+  //}
 
 
 //  override def getAllBuildings(): List[JsValue] = ???
@@ -1015,36 +1019,37 @@ class CouchbaseDatasource private(hostname: String,
 //    buildings
 //  }
 
-  override def getAllBuildingsNearMe(owner_id: String, lat: Double, lng: Double): java.util.List[JsonObject] = {
-    val buildings = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-
-    val bbox = GeoPoint.getGeoBoundingBox(lat, lng, 50)
-    val viewQuery = SpatialViewQuery.from("nav_spatial", "building_coordinates")
-      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    LPLogger.debug("couchbase results: " + res.size)
-    var json: JsonObject = null
-    if (res.nonEmpty)
-      for (row <- res) {
-        try {
-          json = row.document().content()
-          val pub = json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
-          val owner = json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").toList.contains(owner_id)
-          if (pub || owner) {
-            json.removeKey("geometry")
-            json.removeKey("owner_id")
-            json.removeKey("co_owners")
-            buildings.add(json)
-          }
-        } catch {
-          case e: IOException =>
-        }
-      }
-    buildings
-  }
+  override def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue] = ???
+  //override def getAllBuildingsNearMe(owner_id: String, lat: Double, lng: Double): java.util.List[JsonObject] = {
+  //  val buildings = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //
+  //  val bbox = GeoPoint.getGeoBoundingBox(lat, lng, 50)
+  //  val viewQuery = SpatialViewQuery.from("nav_spatial", "building_coordinates")
+  //    .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //    .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  LPLogger.debug("couchbase results: " + res.size)
+  //  var json: JsonObject = null
+  //  if (res.nonEmpty)
+  //    for (row <- res) {
+  //      try {
+  //        json = row.document().content()
+  //        val pub = json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
+  //        val owner = json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").toList.contains(owner_id)
+  //        if (pub || owner) {
+  //          json.removeKey("geometry")
+  //          json.removeKey("owner_id")
+  //          json.removeKey("co_owners")
+  //          buildings.add(json)
+  //        }
+  //      } catch {
+  //        case e: IOException =>
+  //      }
+  //    }
+  //  buildings
+  //}
 
   var allPoisSide = new java.util.HashMap[String, java.util.List[JsonObject]]()
 
@@ -1167,7 +1172,6 @@ class CouchbaseDatasource private(hostname: String,
    */
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
     val writer = new PrintWriter(outFile)
-    var view = null
     val floorLimit = 100000
     val queryLimit = 5000
     var totalFetched = 0
@@ -1199,11 +1203,12 @@ class CouchbaseDatasource private(hostname: String,
       writer.flush()
       writer.close()
     } catch {
-      case e: Exception => //continue
+      case e: Exception => LPLogger.error("dumpRssLogEntriesSpatial: " + e.getClass + ": " + e.getMessage)//continue
     }
     floorFetched
   }
 
+  override def dumpRssLogEntriesWithCoordinates(floor_number: String, lat: Double, lon: Double): String = ???
 
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     val writer = new PrintWriter(outFile)
@@ -1372,7 +1377,7 @@ class CouchbaseDatasource private(hostname: String,
               val value = row.value().asInstanceOf[JsonObject]
               if (_timestamp != timestamp) {
                 if (_timestamp != "") {
-                  algo.proccess(bucket, _floor)
+                  //algo.proccess(bucket, _floor)
                 }
                 bucket.clear()
                 _timestamp = timestamp

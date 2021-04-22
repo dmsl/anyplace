@@ -52,7 +52,6 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
   private var lat: Double = _
   private var lng: Double = _
-  private var admins: Array[String] = Array("112997031510415584062_google")
   private var co_owners = JsArray()
   this.fields = hm
 
@@ -107,6 +106,13 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
       this.json.as[JsObject] + ("buid" -> Json.toJson(buid))
     }
     buid
+  }
+
+  def hasAccess(ownerId: String): Boolean = {
+    if (fields.get("owner_id") == ownerId) return true
+    co_owners.value.foreach(coOwner => if (coOwner == ownerId) return true)
+
+    false
   }
 
   def toGeoJSON(): String = {

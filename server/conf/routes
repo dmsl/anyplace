@@ -12,6 +12,8 @@ POST        /anyplace/mapping/building/update                                   
 POST        /anyplace/mapping/building/delete                                          controllers.AnyplaceMapping.buildingDelete()
 POST        /anyplace/mapping/building/all                                             controllers.AnyplaceMapping.buildingAll()
 POST        /anyplace/mapping/building/all_owner                                       controllers.AnyplaceMapping.buildingAllByOwner()
+# CHANGES: removed owner_id, added optional range
+POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
 POST        /anyplace/navigation/building/id                                           controllers.AnyplaceNavigation.getBuildingById()
 
 POST        /anyplace/mapping/pois/add                                                 controllers.AnyplaceMapping.poisAdd()
@@ -68,6 +70,8 @@ POST        /anyplace/mapping/floor/update                                      
 ##################
 ### NAVIGATION ###
 ##################
+POST        /anyplace/navigation/route_xy                                              controllers.AnyplaceNavigation.getNavigationRouteXY()
+POST        /anyplace/navigation/route                                                 controllers.AnyplaceNavigation.getNavigationRoute()
 
 #####################################################################################################
 ################
@@ -115,6 +119,9 @@ POST        /anyplace/position/paths_by_buid                                    
 POST        /anyplace/position/milestones_add                                          controllers.AnyplacePosition.magneticMilestoneUpload()
 POST        /anyplace/position/milestones_by_floor                                     controllers.AnyplacePosition.magneticMilestoneByFloor()
 
+POST        /anyplace/position/estimate_position                                       controllers.AnyplaceMapping.findPosition()
+POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
+
 POST        /accounts/oauth2/token                                                     oauth.provider.v2.controllers.AnyplaceOAuth.token()
 GET         /login                                                                     controllers.ApplicationAnyplace.login()
 GET         /logout                                                                    controllers.ApplicationAnyplace.logout()
@@ -137,25 +144,8 @@ POST        /anyplace/mapping/maintenance                                       
 #POST           /anyplace/mapping/radio/addbuids                             controllers.AnyplaceMapping.addBuidInRssLogs()
 #POST           /anyplace/mapping/pois/temp_url                              controllers.AnyplaceMapping.tempAllPoisWithoutUrl()
 
-
-# Anyplace API - Position
-## XXX CHANGED:ENDPOINT access_token will be a regular parameter
-# NOT a parameter named 'json' that has embedded a json object
-POST        /anyplace/position/radio_upload                                            controllers.AnyplacePosition.radioUpload()
-POST        /anyplace/position/radio/delete                                            controllers.AnyplaceMapping.FingerPrintsDelete()
-POST        /anyplace/position/radio/delete/time                                       controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
-# should not work
-POST        /anyplace/position/radio_download_floor                                    controllers.AnyplacePosition.radioDownloadFloor()
-POST        /anyplace/position/radio_by_building_floor                                 controllers.AnyplacePosition.radioDownloadByBuildingFloor()
-POST        /anyplace/position/radio_by_building_floor_all                             controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
-POST        /anyplace/position/radio_by_floor_bbox                                     controllers.AnyplacePosition.radioDownloadFloorBbox()
-POST        /anyplace/position/radio/time                                              controllers.AnyplaceMapping.FingerPrintsTime()
-POST        /anyplace/position/radio/APs_building_floor                                controllers.AnyplaceMapping.getAPsByBuildingFloor()
-POST        /anyplace/position/radio/aps_ids                                           controllers.AnyplaceMapping.getAPsIds()
+# ASK:PM (PARAMETERS)
 POST        /anyplace/position/predictFloorAlgo1                                       controllers.AnyplacePosition.predictFloorAlgo1()
-
-POST        /anyplace/position/estimate_position                                       controllers.AnyplaceMapping.findPosition()
-POST        /anyplace/mapping/radio/radio_buid_floor                                   controllers.AnyplaceMapping.getRadioHeatmapBbox()
 
 # TODO: MDB computed
 POST        /anyplace/mapping/radio/heatmap_building_floor                             controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
@@ -180,12 +170,35 @@ POST        /anyplace/position/radio/acces                                      
 
 #POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
 
-#####################################################################################################
-##### TO REVIEW with PM
-# Anyplace API - Navigation
-POST        /anyplace/navigation/route_xy                                              controllers.AnyplaceNavigation.getNavigationRouteXY()
-POST        /anyplace/navigation/route                                                 controllers.AnyplaceNavigation.getNavigationRoute()
 
+#####################################################################################################
+##### Test with mobile app
+## TODO:PM XXX CHANGED:ENDPOINT access_token will be a regular parameter
+# NOT a parameter named 'json' that has embedded a json object
+POST        /anyplace/position/radio_upload                                            controllers.AnyplacePosition.radioUpload()
+
+##### TO REVIEW with PM
+# Anyplace API - Position
+# TODO: delete all computed heatmaps for each level
+# TODO: verify with fingerprints eg: a few measurements in multiple rooms (use bbox for only 1 room)
+# make fingerprints with fixed coordinates for testing purpose
+POST        /anyplace/position/radio/delete                                            controllers.AnyplaceMapping.FingerPrintsDelete()
+# testing with dummy timestamps
+POST        /anyplace/position/radio/delete/time                                       controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
+
+
+POST        /anyplace/position/radio_download_floor                                    controllers.AnyplacePosition.radioDownloadFloor()
+# optimized: caching same lat+lon+floor+range radiomaps (instead of re-saving) (TESTED-OKAY)
+POST        /anyplace/position/radio_by_floor_bbox                                     controllers.AnyplacePosition.radioDownloadFloorBbox()
+##############
+
+
+# check with scripts
+POST        /anyplace/position/radio/time                                              controllers.AnyplaceMapping.FingerPrintsTime()
+POST        /anyplace/position/radio_by_building_floor                                 controllers.AnyplacePosition.radioDownloadByBuildingFloor()
+POST        /anyplace/position/radio_by_building_floor_all                             controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
+POST        /anyplace/position/radio/APs_building_floor                                controllers.AnyplaceMapping.getAPsByBuildingFloor()
+POST        /anyplace/position/radio/aps_ids                                           controllers.AnyplaceMapping.getAPsIds()
 #### TESTING
 
 # CHECK:PM CHECK:NN
@@ -193,13 +206,6 @@ POST        /anyplace/mapping/building/get                                      
 
 # DEVELOPING
 POST        /anyplace/mapping/pois/all_pois                                            controllers.AnyplaceMapping.poisAll()
-POST        /anyplace/mapping/building/coordinates                                     controllers.AnyplaceMapping.buildingCoordinates()
-
-# TODO:
-
-## TODO: FOR EACH ENDPOINT
-# 1) Must have inner method and return at relevant points
-# 2) Must always return a json object (no crashes, no html 500 page)
 
 
 #####################################################################################################
@@ -255,9 +261,9 @@ GET /                                                                          c
 # REDIRECT REMAINING TO INDEX
 GET /*any                                                                      controllers.ApplicationAnyplace.indexAny(any)
 
-###############
+#######################
 ###   AnyplaceNEW   ###
-###############
+#######################
 #POST         /user/register                                                                    controllers.AnyplaceAccounts.register()
 #POST         /user/login                                                                     controllers.AnyplaceAccounts.login()
 #POST         /user/logout                                                                    controllers.AnyplaceAccounts.logout()

@@ -139,7 +139,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
             return AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
           }
           val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson("pois", "puid", puid_to)
-          if (poiFrom == null) {
+          if (poiTo == null) {
             return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
           }
           val buid_from = (poiFrom \ "buid").as[String]

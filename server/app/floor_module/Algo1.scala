@@ -35,35 +35,31 @@
  */
 package floor_module
 
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.{ArrayList, HashMap}
 
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import play.api.libs.json.{JsValue, Json}
+import utils.LPLogger
 //remove if not needed
 import scala.collection.JavaConversions._
 
-class Algo1(json: JsonObject) extends IAlgo {
+class Algo1(json: JsValue) extends IAlgo {
 
     val a = 10
-
     val b = 10
-
     val l1 = 10
-
     var input: HashMap[String, Wifi] = new HashMap[String, Wifi]()
-
     var mostSimilar: ArrayList[Score] = new ArrayList[Score](10)
+    val listenList = (json\"wifi").as[List[String]]
 
-    val listenList = json.getArray("wifi")
-
-    if (listenList==null) {
+    if (listenList == null) {
         throw new Exception("Wifi parameter is not array")
     }
 
-    for (listenObject <- listenList.iterator()) {
-        val obj=listenObject.asInstanceOf[JsonObject]
-        val mac = obj.getString("MAC")
-        val rss = obj.getInt("rss")
+    for (listenObject <- listenList) {
+        LPLogger.debug("im in the loop")
+        val obj = Json.parse(listenObject)
+        val mac = (obj\"MAC").as[String]
+        val rss = (obj\"rss").as[String].toInt
         if (mac == null || rss == null) {
             throw new Exception("Invalid array wifi:: require mac,rss")
         }
@@ -71,14 +67,14 @@ class Algo1(json: JsonObject) extends IAlgo {
         input.put(mac, new Wifi(mac, rss))
     }
 
-    private def compare(bucket: ArrayList[JsonObject]): Double = {
+    private def compare(bucket: ArrayList[JsValue]): Double = {
         var score = 0
         var nNCM = 0
         var nCM = 0
         for (wifiDatabase <- bucket) {
-            val mac = wifiDatabase.getString("MAC")
+            val mac = (wifiDatabase\"MAC").as[String]
             if (input.containsKey(mac)) {
-                val diff = java.lang.Integer.parseInt(wifiDatabase.getString("rss")) -
+                val diff = java.lang.Integer.parseInt((wifiDatabase\"rss").as[String]) -
                   input.get(mac).rss
                 score += diff * diff
                 nCM += 1
@@ -106,7 +102,7 @@ class Algo1(json: JsonObject) extends IAlgo {
         }
     }
 
-    def proccess(bucket: ArrayList[JsonObject], floor: String) {
+    def proccess(bucket: ArrayList[JsValue], floor: String) {
         val similarity = compare(bucket)
         checkScore(similarity, floor)
     }

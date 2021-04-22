@@ -27,7 +27,7 @@
 
 
 var heatMap = [];
-var heatMap_Location = [];
+var heatMapAcces = [];
 var APmap = [];
 var heatmap;
 var heatmapFingerprints = [];
@@ -38,7 +38,7 @@ var connectionsMap = {};
 var POIsMap = {};
 var drawingManager;
 var _HEATMAP_RSS_IS_ON = false;
-var _HEATMAP_Localization = false; //lsolea01
+var _HEATMAP_ACCES = false; //lsolea01
 var _APs_IS_ON = false;
 var _FINGERPRINTS_IS_ON = false;
 var _DELETE_FINGERPRINTS_IS_ON = false;
@@ -65,7 +65,7 @@ function clearLocalization() { //lsolea01
     }
     heatMap = [];
     document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
-    _HEATMAP_Localization = false;
+    _HEATMAP_ACCES = false;
     setColorClicked('g', false);
     setColorClicked('y', false);
     setColorClicked('o', false);
@@ -421,13 +421,13 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
 
             }
 
-          if (_HEATMAP_Localization) {
-            var i = heatMap_Location.length;
+          if (_HEATMAP_ACCES) {
+            var i = heatMapAcces.length;
             while (i--) {
-              heatMap_Location[i].setMap(null);
-              heatMap_Location[i] = null;
+              heatMapAcces[i].setMap(null);
+              heatMapAcces[i] = null;
             }
-            heatMap_Location = [];
+            heatMapAcces = [];
             $scope.showLocalizationAccHeatmap();
           }
 
@@ -897,17 +897,17 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
    * */
   $scope.toggleLocalizationAccuracy = function () {
     var check = 0;
-    if ((heatMap_Location[check] !== undefined &&
-      heatMap_Location[check] !== null) ||
+    if ((heatMapAcces[check] !== undefined &&
+      heatMapAcces[check] !== null) ||
       $scope.radioHeatmapLocalization) {
-      var i = heatMap_Location.length;
+      var i = heatMapAcces.length;
       while (i--) {
-        heatMap_Location[i].setMap(null);
-        heatMap_Location[i] = null;
+        heatMapAcces[i].setMap(null);
+        heatMapAcces[i] = null;
       }
-      heatMap_Location = [];
+      heatMapAcces = [];
 
-      _HEATMAP_Localization = false;
+      _HEATMAP_ACCES = false;
       // CHECK what is this?
       setColorClicked('g', false);
       setColorClicked('y', false);
@@ -1375,6 +1375,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         }
       }
       i = heatmapFingerprints.length;
+      // CHECK:PM CHECK:NN what are heatmapFingerprints?
       while (i--) {
         if (heatmapFingerprints[i].getPosition().lat() <= start.lat() &&
           heatmapFingerprints[i].getPosition().lng() <= start.lng() &&
@@ -1447,22 +1448,23 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         promise.then(
           function (resp) {
             // on success
-            data = resp.data.radioPoints;
-            console.log("fingerPrints deleted ");
+            data = resp.data.fingerprints;
 
             // delete the fingerPrints from the loaded FingerPrints
             if (data.length > 0) {
-              var i = fingerPrintsMap.length;
+                console.log("Deleted " + data.length + " fingerprints.");
+                var i = fingerPrintsMap.length;
               while (i--) {
                 if (fingerPrintsMap[i].getPosition().lat() <= start.lat() &&
                   fingerPrintsMap[i].getPosition().lng() <= start.lng() &&
                   fingerPrintsMap[i].getPosition().lat() >= end.lat() &&
                   fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
-                  // delete the fingerPrints from the loaded FingerPrints
+                  // hide the successfully deleted fingerprints
                   fingerPrintsMap[i].setMap(null);
                 }
               }
 
+              // CHECK:PM CHECK:NN how heatmapFingerprints change??
               if (_HEATMAP_F_IS_ON) {
                 heatmap.setMap(null);
                 var heatMapData = [];
@@ -1484,7 +1486,8 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                 });
                 heatmap.setMap($scope.gmapService.gmap);
               }
-              if (_HEATMAP_RSS_IS_ON) {
+                // CHECK:PM CHECK:NN how heatmap change??
+                if (_HEATMAP_RSS_IS_ON) {
                 i = heatMap.length;
 
                 while (i--) {
@@ -1496,22 +1499,23 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
                   }
                 }
               }
-
-              if (_HEATMAP_Localization) { //lsolea01
-                i = heatMap_Location.length;
+              // CHECK:PM CHECK:NN how heatMap_Location change??
+              if (_HEATMAP_ACCES) { //lsolea01
+                i = heatMapAcces.length;
 
                 while (i--) {
-                  if (heatMap_Location[i].location.lat() <= start.lat() &&
-                  heatMap_Location[i].location.lng() <= start.lng() &&
-                    heatMap_Location[i].location.lat() >= end.lat() &&
-                    heatMap_Location[i].location.lng() >= end.lng()) {
-                    heatMap_Location[i].setMap(null);
+                  if (heatMapAcces[i].location.lat() <= start.lat() &&
+                  heatMapAcces[i].location.lng() <= start.lng() &&
+                    heatMapAcces[i].location.lat() >= end.lat() &&
+                    heatMapAcces[i].location.lng() >= end.lng()) {
+                    heatMapAcces[i].setMap(null);
                   }
                 }
               }
+              _suc($scope, "Successfully deleted " + data.length + " fingerPrints.");
+            } else {
+                _warn($scope, "No fingerprints deleted.");
             }
-
-            _suc($scope, "Successfully deleted " + data.length + " fingerPrints.");
           },
           function (resp) {
             ShowError($scope, resp,
@@ -2412,7 +2416,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
             radius: circleRadius
           });
 
-          heatMap_Location.push(circle);
+          heatMapAcces.push(circle);
           data.splice(i, 1);
           j++;
         }
@@ -2425,7 +2429,7 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
           localStorage.setItem('localizationAccMode', 'YES');
         }
 
-        _HEATMAP_Localization = true;
+        _HEATMAP_ACCES = true;
         $scope.radioHeatmapLocalization = true;
 
         laButtonProgress.addClass("hidden");
@@ -2503,18 +2507,18 @@ app.controller('WiFiController', ['$cookieStore','$scope', 'AnyplaceService', 'G
         }
 
 
-      if (_HEATMAP_Localization) {
+      if (_HEATMAP_ACCES) {
         // zoom in
         if ((_PREV_ZOOM == MIN_ZOOM_FOR_HEATMAPS && _NOW_ZOOM > _PREV_ZOOM) ||
           (_PREV_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _PREV_ZOOM < MAX_ZOOM_FOR_HEATMAPS &&
             (_NOW_ZOOM <= MIN_ZOOM_FOR_HEATMAPS || _NOW_ZOOM >= MAX_ZOOM_FOR_HEATMAPS)) ||
           (_PREV_ZOOM == MAX_ZOOM_FOR_HEATMAPS && _NOW_ZOOM < _PREV_ZOOM)) {
-          var i = heatMap_Location.length;
+          var i = heatMapAcces.length;
           while (i--) {
-            heatMap_Location[i].setMap(null);
-            heatMap_Location[i] = null;
+            heatMapAcces[i].setMap(null);
+            heatMapAcces[i] = null;
           }
-          heatMap_Location = [];
+          heatMapAcces = [];
 
           $scope.showLocalizationAccHeatmap();
         }
