@@ -112,28 +112,29 @@ def defineCollections(file):
     u = open(pathU, "w")
     und = open(pathUND, "w")
     i = 0
+    keepIt = False
     while True:
         line = file.readline()
         if not line:
             break
         obj = json.loads(line)
         count += 1
-        if isBuilding(obj):
+        if isBuilding(obj) and keepIt:
             fixed_obj = fixBUILDING(obj)
             b.write(json.dumps(fixed_obj))
             b.write("\n")
             buildings += 1
-        elif isCampus(obj):
+        elif isCampus(obj) and keepIt:
             fixed_obj = fixCAMPUS(obj)
             c.write(json.dumps(fixed_obj))
             c.write("\n")
             campus += 1
-        elif isEdge(obj):
+        elif isEdge(obj) and keepIt:
             fixed_obj = fixEDGES(obj)
             e.write(json.dumps(fixed_obj))
             e.write("\n")
             edges +=1 
-        elif isFingerprint(obj):
+        elif isFingerprint(obj) and keepIt:
             fixed_obj = fixFINGERPRINT(obj)
             splitToBuid(fixed_obj, fingPath)
             fingerprints += 1
@@ -142,12 +143,12 @@ def defineCollections(file):
             fl.write(json.dumps(fixed_obj))
             fl.write("\n")
             floorplans += 1
-        elif isPois(obj):
+        elif isPois(obj) and keepIt:
             fixed_obj = fixPOIS(obj)
             p.write(json.dumps(fixed_obj))
             p.write("\n")
             pois += 1
-        elif isUser(obj):
+        elif isUser(obj) and keepIt:
             fixed_obj = fixUSER(obj)
             u.write(json.dumps(fixed_obj))
             u.write("\n")

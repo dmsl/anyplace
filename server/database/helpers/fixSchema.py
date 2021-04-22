@@ -91,16 +91,15 @@ def fixRectangle(obj):
         y1 = obj["bottom_left_lat"]
         x2 = obj["top_right_lng"]
         y2 = obj["top_right_lat"]
-
-        obj["area"] = {"coordinates": [[[x1, y1], [x2, y1], [x2, y2], [x1, y2]]], "type": "Polygon"}
+        obj['location'] = {"coordinates": [[[float(x1), float(y1)], [float(x2), float(y1)], [float(x2), float(y2)], [float(x1), float(y2)]]], "type": "Polygon"}
 
         # obj["location_bottom_left"] = {"coordinates": [x1, y1], "type": "Point"}
         # obj["location_top_right"] = {"coordinates": [x2, y2], "type": "Point"}
 
-        del obj["bottom_left_lng"]
-        del obj["bottom_left_lat"]
-        del obj["top_right_lng"]
-        del obj["top_right_lat"]
+        #del obj["bottom_left_lng"]
+        #del obj["bottom_left_lat"]
+        #del obj["top_right_lng"]
+        #del obj["top_right_lat"]
 
 
 def fixBooleans(obj):
