@@ -89,7 +89,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
       co_owners = (json \ "co_owners").as[JsArray]
     this.json = cleanupJson(json)
     this.lat = java.lang.Double.parseDouble((json \ "coordinates_lat").as[String])
-    this.lng = java.lang.Double.parseDouble((json \"coordinates_lon").as[String])
+    this.lng = java.lang.Double.parseDouble((json \ "coordinates_lon").as[String])
   }
 
   def this(json: JsValue, owner: String) {
@@ -121,7 +121,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     try {
       json = json.as[JsObject] + ("geometry" -> Json.toJson(
         new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
-        java.lang.Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON()))
+          java.lang.Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -133,7 +133,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
   def toValidJson(): JsonObject = {
     // initialize id if not initialized
     getId()
-    JsonObject.from(this.getFields()).put("co_owners",co_owners)
+    JsonObject.from(this.getFields()).put("co_owners", co_owners)
   }
 
   def toValidMongoJson(): JsValue = {
@@ -174,7 +174,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     val sb = new StringBuilder()
     var json = cleanupJson(toValidMongoJson())
     try {
-      val newCoOwners:util.ArrayList[String] = new util.ArrayList[String]()
+      val newCoOwners: util.ArrayList[String] = new util.ArrayList[String]()
       this.fields.put("owner_id", newOwnerId)
       if ((json \ "co_owners").toOption.isDefined) {
         if ((json \ "co_owners").as[List[String]].length > 0) {
@@ -182,7 +182,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
           for (co_owner <- co_owners) {
             newCoOwners.add(co_owner)
           }
-          for (i <- 0 until newCoOwners.size()){
+          for (i <- 0 until newCoOwners.size()) {
             if (newCoOwners.get(i) == newOwnerId) {
               newCoOwners.remove(i)
             }
@@ -200,9 +200,9 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  def cleanupJsonKey(json:JsValue, key: String): JsValue = {
-    if ((json\key).toOption.isDefined){
-      val str = (json\key).as[String]
+  def cleanupJsonKey(json: JsValue, key: String): JsValue = {
+    if ((json \ key).toOption.isDefined) {
+      val str = (json \ key).as[String]
       if (str == "" || str == "-") {
         fields.remove(key)
         return json.as[JsObject] - key
@@ -211,7 +211,7 @@ class Building(hm: HashMap[String, String]) extends AbstractModel {
     json
   }
 
-  def cleanupJson(json: JsValue):JsValue = {
+  def cleanupJson(json: JsValue): JsValue = {
     var ret = json
     ret = cleanupJsonKey(ret, "bucode")
     ret = cleanupJsonKey(ret, "address")

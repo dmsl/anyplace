@@ -46,84 +46,84 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 object Floor {
 
-    def getId(buid: String, floor_number: String): String = buid + "_" + floor_number
+  def getId(buid: String, floor_number: String): String = buid + "_" + floor_number
 
-    def checkFloorNumberFormat(floor_number: String): Boolean = {
-        floor_number.toCharArray().find(java.lang.Character.isWhitespace(_))
-          .map(_ => false)
-          .getOrElse(true)
-    }
+  def checkFloorNumberFormat(floor_number: String): Boolean = {
+    floor_number.toCharArray().find(java.lang.Character.isWhitespace(_))
+      .map(_ => false)
+      .getOrElse(true)
+  }
 }
 
 class Floor(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsValue = _
+  private var json: JsValue = _
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new HashMap[String, String])
-        fields.put("buid", "")
-        fields.put("is_published", "")
-        fields.put("floor_name", "")
-        fields.put("floor_number", "")
-        fields.put("description", "")
-    }
+  def this() {
+    this(new HashMap[String, String])
+    fields.put("buid", "")
+    fields.put("is_published", "")
+    fields.put("floor_name", "")
+    fields.put("floor_number", "")
+    fields.put("description", "")
+  }
 
-    def this(json: JsValue) {
-        this()
-        if ((json\"fuid").toOption.isDefined)
-            fields.put("fuid", (json\"fuid").as[String])
-        if ((json\"buid").toOption.isDefined)
-            fields.put("buid", (json\"buid").as[String])
-        if ((json\"is_published").toOption.isDefined)
-            fields.put("is_published", (json\"is_published").as[String])
-        if ((json\"floor_name").toOption.isDefined)
-            fields.put("floor_name", (json\"floor_name").as[String])
-        if ((json\"description").toOption.isDefined) {
-            val temp = (json\"description").as[String]
-            if (temp != "" && temp != "-")
-                fields.put("description", (json\"description").as[String])
-            else
-                fields.remove("description")
-        } else
-            fields.remove("description")
-        if ((json\"floor_number").toOption.isDefined)
-            fields.put("floor_number", (json\"floor_number").as[String])
-        this.json = json
-    }
+  def this(json: JsValue) {
+    this()
+    if ((json \ "fuid").toOption.isDefined)
+      fields.put("fuid", (json \ "fuid").as[String])
+    if ((json \ "buid").toOption.isDefined)
+      fields.put("buid", (json \ "buid").as[String])
+    if ((json \ "is_published").toOption.isDefined)
+      fields.put("is_published", (json \ "is_published").as[String])
+    if ((json \ "floor_name").toOption.isDefined)
+      fields.put("floor_name", (json \ "floor_name").as[String])
+    if ((json \ "description").toOption.isDefined) {
+      val temp = (json \ "description").as[String]
+      if (temp != "" && temp != "-")
+        fields.put("description", (json \ "description").as[String])
+      else
+        fields.remove("description")
+    } else
+      fields.remove("description")
+    if ((json \ "floor_number").toOption.isDefined)
+      fields.put("floor_number", (json \ "floor_number").as[String])
+    this.json = json
+  }
 
-    def getId(): String = {
-        var fuid = (this.json\"fuid")
-        var newFuid = ""
-        if (!fuid.toOption.isDefined) {
-            newFuid = Floor.getId(fields.get("buid"), fields.get("floor_number"))
-            fields.put("fuid", newFuid)
-            this.json = this.json.as[JsObject] + ("fuid" -> JsString(newFuid))
-        } else
-            newFuid = fuid.as[String]
-        newFuid
-    }
+  def getId(): String = {
+    var fuid = (this.json \ "fuid")
+    var newFuid = ""
+    if (!fuid.toOption.isDefined) {
+      newFuid = Floor.getId(fields.get("buid"), fields.get("floor_number"))
+      fields.put("fuid", newFuid)
+      this.json = this.json.as[JsObject] + ("fuid" -> JsString(newFuid))
+    } else
+      newFuid = fuid.as[String]
+    newFuid
+  }
 
-    def toValidJson(): JsonObject = {
-        null
-    }
+  def toValidJson(): JsonObject = {
+    null
+  }
 
-    def toValidMongoJson(): JsValue = {
-        // initialize id if not initialized
-        getId()
-        fields.remove("username")
-        toJson()
-    }
+  def toValidMongoJson(): JsValue = {
+    // initialize id if not initialized
+    getId()
+    fields.remove("username")
+    toJson()
+  }
 
-    def toJson(): JsValue = {
-        val sMap: Map[String, String] = this.getFields().asScala.toMap
-        val res = Json.toJson(sMap)
-        // convert some keys to primitive types
-        convertToInt("_schema", res)
-    }
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt("_schema", res)
+  }
 
-    override def toGeoJSON(): String = toJson().toString
+  override def toGeoJSON(): String = toJson().toString
 
-    override def toString(): String = this.toJson().toString
+  override def toString(): String = this.toJson().toString
 }

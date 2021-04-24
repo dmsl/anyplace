@@ -226,28 +226,27 @@ class ProxyDataSource private() extends IDatasource {
 
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-//    mActiveDatabase.getRadioHeatmapByBuildingFloor(buid, floor)
     mongoDB.getRadioHeatmapByBuildingFloor(buid, floor)
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = {
+   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
   }
 
   override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {

@@ -56,18 +56,18 @@ class NavResultPoint {
   def toValidCouchJson(): JsonObject = {
 
     val p = JsonObject.empty()
-    p.put("lat",lat)
-    p.put("lon",lon)
+    p.put("lat", lat)
+    p.put("lon", lon)
     p.put("puid", puid)
-    p.put("buid",buid)
-    p.put("floor_number",floor_number)
-    p.put("pois_type",pois_type)
+    p.put("buid", buid)
+    p.put("floor_number", floor_number)
+    p.put("pois_type", pois_type)
     p
   }
 
   def toValidMongoJson(): JsValue = {
-    Json.obj(("lat"->lat), ("lon"->lon), ("puid"-> puid), ("buid"->buid), ("floor_number"->floor_number),
-      ("pois_type"->pois_type))
+    Json.obj(("lat" -> lat), ("lon" -> lon), ("puid" -> puid), ("buid" -> buid), ("floor_number" -> floor_number),
+      ("pois_type" -> pois_type))
   }
 
 }

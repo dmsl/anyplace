@@ -212,8 +212,8 @@ object RadioMapRaw {
       "timestamp" -> (rss \ "timestamp").as[String], "MAC" -> measurement(0), "rss" -> measurement(1),
       ("geometry" -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble((rss \ "x").as[String]),
         java.lang.Double.parseDouble((rss \ "y").as[String])).toGeoJSON())))
-    if ((rss\"strongestWifi").toOption.isDefined)
-      json = json.as[JsObject] + ("strongestWifi" -> JsString((rss\"strongestWifi").as[String]))
+    if ((rss \ "strongestWifi").toOption.isDefined)
+      json = json.as[JsObject] + ("strongestWifi" -> JsString((rss \ "strongestWifi").as[String]))
     return json
   }
 }

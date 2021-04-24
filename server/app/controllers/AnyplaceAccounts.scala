@@ -37,7 +37,6 @@
 package controllers
 
 
-
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.{DatasourceException, ProxyDataSource}
 import oauth.provider.v2.granttype.GrantHandlerFactory
@@ -52,11 +51,11 @@ import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 object AnyplaceAccounts extends Controller {
 
   /**
-    * Retrieve all the accounts.
-    *
-    * @return
-    */
-  def   fetchAllAccounts() = Action {
+   * Retrieve all the accounts.
+   *
+   * @return
+   */
+  def fetchAllAccounts() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -88,11 +87,11 @@ object AnyplaceAccounts extends Controller {
 
 
   /**
-    * Fetches the account with the AUID passed in.
-    * The account document is returned in the Json response.
-    *
-    * @return
-    */
+   * Fetches the account with the AUID passed in.
+   * The account document is returned in the Json response.
+   *
+   * @return
+   */
   def fetchAccount(auid_in: String) = Action {
     implicit request =>
 
@@ -107,7 +106,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
+        val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -137,11 +136,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Deletes the account with the AUID passed in.
-    * The result of the action is returned in the Json response.
-    *
-    * @return
-    */
+   * Deletes the account with the AUID passed in.
+   * The result of the action is returned in the Json response.
+   *
+   * @return
+   */
   def deleteAccount(auid_in: String) = Action {
     implicit request =>
 
@@ -156,7 +155,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
+        val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -181,11 +180,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Updates the account specified by the AUID.
-    * The result of the update is returned in the Json response.
-    *
-    * @return
-    */
+   * Updates the account specified by the AUID.
+   * The result of the update is returned in the Json response.
+   *
+   * @return
+   */
   def UpdateAccount(auid: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -200,7 +199,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
+        val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -250,11 +249,11 @@ object AnyplaceAccounts extends Controller {
   // check if there is any required parameter missing
 
   /**
-    * Returns the list of clients for this account
-    *
-    * @param auid The account for which the clients are to be returned
-    * @return
-    */
+   * Returns the list of clients for this account
+   *
+   * @param auid The account for which the clients are to be returned
+   * @return
+   */
   def fetchAccountClients(auid: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -269,7 +268,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
+        val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -300,11 +299,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Adds a new client for this account
-    *
-    * @param auid The account the new account belongs to
-    * @return
-    */
+   * Adds a new client for this account
+   *
+   * @param auid The account the new account belongs to
+   * @return
+   */
   def addAccountClient(auid: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -319,7 +318,7 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
+        val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid", "grant_type")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -362,11 +361,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Fetches the account  client with the AUID and client_id passed in.
-    * The client document is returned in the Json response.
-    *
-    * @return
-    */
+   * Fetches the account  client with the AUID and client_id passed in.
+   * The client document is returned in the Json response.
+   *
+   * @return
+   */
   def fetchAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -412,11 +411,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Fetches the account  client with the AUID and client_id passed in.
-    * The client document is returned in the Json response.
-    *
-    * @return
-    */
+   * Fetches the account  client with the AUID and client_id passed in.
+   * The client document is returned in the Json response.
+   *
+   * @return
+   */
   def deleteAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
     implicit request =>
 

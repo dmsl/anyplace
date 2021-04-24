@@ -48,68 +48,68 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 
 object ExternalType extends Enumeration {
-    type ExternalType = Value
-    val GOOGLE, LOCAL = Value
+  type ExternalType = Value
+  val GOOGLE, LOCAL = Value
 }
 
 class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsValue = _
+  private var json: JsValue = _
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new java.util.HashMap[String, String]())
-        fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
-        fields.put("owner_id", "")
-        fields.put("name", "")
-        fields.put("type", "")
+  def this() {
+    this(new java.util.HashMap[String, String]())
+    fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
+    fields.put("owner_id", "")
+    fields.put("name", "")
+    fields.put("type", "")
+  }
+
+
+  // TODO make it follow new version of User Json
+  def this(json: JsValue) {
+    this()
+    fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
+    fields.put("owner_id", (json \ "owner_id").as[String])
+    fields.put("name", (json \ "name").as[String])
+    fields.put("type", (json \ "type").as[String])
+    if ((json \ "external").toOption.isDefined)
+      fields.put("external", (json \ "external").as[String])
+    this.json = json
+  }
+
+  def getId(): String = fields.get("owner_id")
+
+  @deprecated
+  def toValidJson(): JsonObject = {
+    JsonObject.from(this.getFields())
+  }
+
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt("_schema", res)
+  }
+
+
+  // TODO: replace with mongo
+  def toGeoJSON(): String = {
+    LPLogger.error("TODO:nn convert to mdb")
+    val sb = new StringBuilder()
+    var json: JsonObject = null
+    try {
+      json = JsonObject.empty()
+    } catch {
+      case e: IOException => e.printStackTrace()
     }
+    sb.append(json.toString)
+    sb.toString
+  }
 
+  @deprecated
+  def _toString(): String = toValidJson().toString
 
-    // TODO make it follow new version of User Json
-    def this(json: JsValue) {
-        this()
-        fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
-        fields.put("owner_id", (json \ "owner_id").as[String])
-        fields.put("name", (json \ "name").as[String])
-        fields.put("type", (json \ "type").as[String])
-        if ((json \ "external").toOption.isDefined)
-            fields.put("external", (json \ "external").as[String])
-        this.json = json
-    }
-
-    def getId(): String = fields.get("owner_id")
-
-    @deprecated
-    def toValidJson(): JsonObject = {
-        JsonObject.from(this.getFields())
-    }
-
-    def toJson(): JsValue = {
-        val sMap: Map[String, String] = this.getFields().asScala.toMap
-        val res = Json.toJson(sMap)
-        // convert some keys to primitive types
-        convertToInt("_schema", res)
-    }
-
-
-    // TODO: replace with mongo
-    def toGeoJSON(): String = {
-        LPLogger.error("TODO:nn convert to mdb")
-        val sb = new StringBuilder()
-        var json: JsonObject = null
-        try {
-            json = JsonObject.empty()
-        } catch {
-            case e: IOException => e.printStackTrace()
-        }
-        sb.append(json.toString)
-        sb.toString
-    }
-
-    @deprecated
-    def _toString(): String = toValidJson().toString
-
-    override def toString(): String = toJson().toString()
+  override def toString(): String = toJson().toString()
 }

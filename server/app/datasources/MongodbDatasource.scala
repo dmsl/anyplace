@@ -50,7 +50,7 @@ import org.mongodb.scala.model.Aggregates
 import org.mongodb.scala.model.Aggregates.project
 import org.mongodb.scala.model.Filters._
 import play.Play
-import play.api.libs.json.{JsNumber, JsObject, JsValue, Json}
+import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue, Json}
 import play.twirl.api.TemplateMagic.javaCollectionToScala
 import utils.JsonUtils.cleanupMongoJson
 import utils.{GeoPoint, JsonUtils, LPLogger}
@@ -60,6 +60,7 @@ import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.text.Document.break
+
 
 object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
@@ -517,33 +518,111 @@ class MongodbDatasource() extends IDatasource {
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     val collection = mdb.getCollection("fingerprintsWifi")
     val query = BsonDocument("buid" -> buid, "floor" -> floor)
-
     val radioPoints = collection.aggregate(Seq(
       Aggregates.filter(query),
       project(
         Document("x" -> "$x", "y" -> "$y", "measurements" -> "$measurements")
       )))
-
     val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
     val res = awaited.toList
-    LPLogger.debug(s"Res on complete Length:${res.length}")
     val listJson = convertJson(res)
-    var points = new util.ArrayList[JsValue]
-    for (x <- listJson) {
-      val y = (x \ "measurements").as[List[List[String]]]
-      val temp: JsValue = x
-      points.add(temp.as[JsObject] - "_id")
+    val points = new util.ArrayList[JsValue]
+    val visited = new util.ArrayList[String]
+
+    for (json <- listJson) {
+      val x = (json \ "x").as[String]
+      val y = (json \ "y").as[String]
+      val w = (json \ "measurements").as[List[List[String]]].size
+      if (visited.contains(x + y)) {
+        var delete: JsValue = null
+        var newPoint: JsValue = null
+        for (point <- points) {
+          if ((point \ "x").as[String] == x && (point \ "y").as[String] == y && point != json) {
+            newPoint = json.as[JsObject] + ("w" -> JsNumber((point \ "w").as[Int] + w)) - "measurements"
+            delete = point
+          }
+        }
+        if (delete != null && newPoint != null) {
+          points.remove(delete)
+          points.add(newPoint)
+        }
+      } else {
+        points.add(json.as[JsObject] - "measurements" + ("w" -> JsNumber(w)))
+        visited.add(x + y)
+      }
     }
     points.toList
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue] = {
+    val collection = mdb.getCollection("fingerprintsHeatmap")
+    val query = BsonDocument("buid" -> buid, "floor" -> floor)
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(query),
+      project(
+        Document("location" -> "$location", "total" -> "$total", "count" -> "$count", "average" -> "$average")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
 
-  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = ???
+    val heatmaps = new util.ArrayList[JsValue]()
+    for (heatmap <- convertJson(res)) {
+      heatmaps.add(Json.obj("x" -> (heatmap \ "location" \ "coordinates").get(0).as[Double].toString,
+        "y" -> (heatmap \ "location" \ "coordinates").get(1).as[Double].toString,
+        "w" -> JsString("{\"count\":" + (heatmap \ "count").as[Int] +
+          ",\"average\":" + (heatmap \ "average").as[Double] +
+          ",\"total\":" + (heatmap \ "total").as[Int] + "}")))
+    }
+    return heatmaps.toList
+  }
 
-  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = {
+    val collection = mdb.getCollection("fingerprintsHeatmap")
+    val query = BsonDocument("buid" -> buid, "floor" -> floor)
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(query),
+      project(
+        Document("location" -> "$location", "total" -> "$total", "count" -> "$count", "average" -> "$average")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
 
-  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = ???
+    val heatmaps = new util.ArrayList[JsValue]()
+    for (heatmap <- convertJson(res)) {
+      heatmaps.add(Json.obj("x" -> (heatmap \ "location" \ "coordinates").get(0).as[Double].toString.dropRight(5),
+        "y" -> (heatmap \ "location" \ "coordinates").get(1).as[Double].toString.dropRight(5),
+        "w" -> JsString("{\"count\":" + (heatmap \ "count").as[Int] +
+          ",\"average\":" + (heatmap \ "average").as[Double] +
+          ",\"total\":" + (heatmap \ "total").as[Int] + "}")))
+    }
+    return heatmaps.toList
+  }
+
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = {
+    val collection = mdb.getCollection("fingerprintsHeatmap")
+    val query = BsonDocument("buid" -> buid, "floor" -> floor)
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(query),
+      project(
+        Document("location" -> "$location", "total" -> "$total", "count" -> "$count", "average" -> "$average")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
+
+    val heatmaps = new util.ArrayList[JsValue]()
+    for (heatmap <- convertJson(res)) {
+      heatmaps.add(Json.obj("x" -> (heatmap \ "location" \ "coordinates").get(0).as[Double].toString.dropRight(4),
+        "y" -> (heatmap \ "location" \ "coordinates").get(1).as[Double].toString.dropRight(4),
+        "w" -> JsString("{\"count\":" + (heatmap \ "count").as[Int] +
+          ",\"average\":" + (heatmap \ "average").as[Double] +
+          ",\"total\":" + (heatmap \ "total").as[Int] + "}")))
+    }
+    return heatmaps.toList
+  }
+
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = {
+    return getRadioHeatmapByBuildingFloorAverage(buid, floor)
+  }
 
   override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
@@ -551,7 +630,6 @@ class MongodbDatasource() extends IDatasource {
 
   override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
 
-  //override def getAPsByBuildingFloor(buid: String, floor: String): util.List[JsonObject] = ???
   override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     val collection = mdb.getCollection("fingerprintsWifi")
     val query = BsonDocument("buid" -> buid, "floor" -> floor)

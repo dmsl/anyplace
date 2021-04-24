@@ -78,6 +78,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
         }
       }
+
       inner(request)
   }
 
@@ -108,6 +109,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
         }
       }
+
       inner(request)
   }
 
@@ -162,10 +164,11 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
+
       inner(request)
   }
 
-  def getNavigationRouteXY()= Action {
+  def getNavigationRouteXY() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -243,19 +246,20 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           case e: Exception => return AnyResponseHelper.internal_server_error(e.getClass + ": " + e.getMessage)
         }
       }
+
       inner(request)
   }
 
   private def navigateSameFloor(from: JsValue, to: JsValue): List[JsValue] = {
-    navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap((from\"buid").as[String],
-      (from\"floor_number").as[String]))
+    navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap((from \ "buid").as[String],
+      (from \ "floor_number").as[String]))
   }
 
   private def navigateSameFloor(from: JsValue, to: JsValue, floorPois: List[HashMap[String, String]]): List[JsValue] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
-    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from\"buid").as[String]))
-    val routePois = Dijkstra.getShortestPath(graph, (from\"puid").as[String], (to\"puid").as[String])
+    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from \ "buid").as[String]))
+    val routePois = Dijkstra.getShortestPath(graph, (from \ "puid").as[String], (to \ "puid").as[String])
 
     val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
@@ -274,9 +278,9 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
 
   private def navigateSameBuilding(from: JsValue, to: JsValue): List[JsValue] = {
     val graph = new Dijkstra.Graph()
-    graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap((from\"buid").as[String]))
-    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from\"buid").as[String]))
-    val routePois = Dijkstra.getShortestPath(graph, (from\"puid").as[String], (to\"puid").as[String])
+    graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap((from \ "buid").as[String]))
+    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from \ "buid").as[String]))
+    val routePois = Dijkstra.getShortestPath(graph, (from \ "puid").as[String], (to \ "puid").as[String])
     val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
     for (poi <- routePois) {

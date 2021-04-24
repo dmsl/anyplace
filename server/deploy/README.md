@@ -19,7 +19,7 @@ Pushes any relevant Scala or JS code.
 ```
 sed -i 's/\r$//' *.sh
 # ignore new changes in commits 
-git update-index --assume-unchanged *.sh
+git update-index --assume-unchanged config.sh push_code.sh watchdog.sh sync.sh
 ```
 
 

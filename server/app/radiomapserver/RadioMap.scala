@@ -36,12 +36,12 @@
  */
 package radiomapserver
 
-import Jama.Matrix
 import java.io._
 import java.text.DecimalFormat
 import java.util
 import java.util.{ArrayList, HashMap, LinkedList}
 
+import Jama.Matrix
 import utils.LPLogger
 
 //remove if not needed

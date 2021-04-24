@@ -117,13 +117,13 @@ trait IDatasource {
 
   def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
 

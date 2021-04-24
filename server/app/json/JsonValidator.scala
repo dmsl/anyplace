@@ -42,6 +42,7 @@ object JsonValidator {
 
   /**
    * Validates if the json contains a value according to a key as String.
+   *
    * @param json
    * @return json if value is validated otherwise null.
    */
@@ -65,6 +66,7 @@ object JsonValidator {
 
   /**
    * Validates if a value according to a key is type of String containing a number
+   *
    * @param json
    * @param key
    * @return json if value is validated otherwise null.
@@ -74,7 +76,7 @@ object JsonValidator {
     var temp = (json \ key).as[String]
     if (temp.charAt(0) == '-') // ignore - if the number is negative
       temp = temp.substring(1)
-    if (isAllDigits(temp) && temp.size > 0 )
+    if (isAllDigits(temp) && temp.size > 0)
       return json
     null
   }
@@ -86,6 +88,15 @@ object JsonValidator {
       temp.toFloat
     } catch {
       case e: NumberFormatException => return null
+    }
+    json
+  }
+
+  def validateInt(json: JsValue, key: String): JsValue = {
+    try {
+      (json \ key).as[Int]
+    } catch {
+      case e: JsResultException => return null
     }
     json
   }

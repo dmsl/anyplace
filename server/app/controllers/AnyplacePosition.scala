@@ -59,13 +59,11 @@ import utils._
 import scala.collection.JavaConversions._
 
 
-
-
 object AnyplacePosition extends play.api.mvc.Controller {
   val BBOX_MAX = 500
 
 
-    def   radioUpload() = Action {
+  def radioUpload() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -121,6 +119,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
   /**
    * Fetch floorNum + bbox from floorplans then check that result is one then get buid from floorplan
    * and return rss from radioMapRawDir (getRadioMapRawFile)
+   *
    * @return
    */
   def radioDownloadFloor() = Action {
@@ -163,7 +162,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
         var range = (json \ "range").as[String].toInt
         if (range > BBOX_MAX) range = BBOX_MAX
         return findRadioBbox(json, range)
-        }
+      }
+
       inner(request)
   }
 
@@ -214,7 +214,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
             if (RBF_ENABLED) {
               res = Json.obj("map_url_mean" -> radiomap_mean_filename,
                 "map_url_weights" -> radiomap_rbf_weights_filename,
-                "map_url_parameters"-> radiomap_parameters_filename)
+                "map_url_parameters" -> radiomap_parameters_filename)
             } else {
               res = Json.obj("map_url_mean" -> radiomap_mean_filename)
             }
@@ -233,7 +233,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           LPLogger.debug(radio.toPath().getFileName.toString)
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
-              "Cannot create radiomap:2: " + e.getMessage)
+            "Cannot create radiomap:2: " + e.getMessage)
         }
         var floorFetched: Long = 0l
         try {
@@ -270,7 +270,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
           val res: JsValue = Json.obj("map_url_mean" -> radiomap_mean_filename,
             "map_url_weights" -> radiomap_rbf_weights_filename,
-            "map_url_parameters"-> radiomap_parameters_filename)
+            "map_url_parameters" -> radiomap_parameters_filename)
           return AnyResponseHelper.ok(res, "Successfully created radio map.")
         } catch {
           case e: Exception => return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage)
@@ -283,10 +283,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
 
   /**
-    * Returns a link to the radio map that needs to be downloaded according to the specified buid and floor
-    *
-    * @return a link to the radio_map file
-    */
+   * Returns a link to the radio map that needs to be downloaded according to the specified buid and floor
+   *
+   * @return a link to the radio_map file
+   */
   def radioDownloadByBuildingFloorall() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -336,9 +336,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
             }
           }
           if (!rmapDir.exists())
-          if (!rmapDir.mkdirs()) {
-            return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
-          }
+            if (!rmapDir.mkdirs()) {
+              return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+            }
           val radio = new File(rmapDir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
           var fout: FileOutputStream = null
           try {
@@ -346,7 +346,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
             LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
-                "Cannot create radiomap:3:" + e.getMessage)
+              "Cannot create radiomap:3:" + e.getMessage)
           }
           var floorFetched: Long = 0l
           try {
@@ -498,6 +498,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
   /**
    * Processes a row rss log file (the one that was uploaded)
    * This is a raw rss window (optimised by mongoDB)
+   *
    * @param values
    * @return
    */
@@ -621,7 +622,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody
-        val watch  = new StopWatch()
+        val watch = new StopWatch()
         watch.start()
         LPLogger.info("AnyplacePosition::predictFloor(): ")
         var alg1: Algo1 = null
@@ -658,6 +659,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
 
   /**
    * Now this is synchronously called.
+   *
    * @param buid
    * @param floor_number
    * @return a status regarding the frozen radio_map creation.
@@ -691,7 +693,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       fout.close()
     } catch {
       case e: DatasourceException => return cls + e.getClass + ": " + e.getMessage
-      case e: IOException => return cls +  e.getClass + " Error while closing rss-log: " + e.getMessage
+      case e: IOException => return cls + e.getClass + " Error while closing rss-log: " + e.getMessage
     }
     if (floorFetched == 0) {
       return null

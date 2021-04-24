@@ -611,104 +611,112 @@ class CouchbaseDatasource private(hostname: String,
   //  points
   //}
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor)
-    val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
+  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue] = ???
+  //override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val startkey = JsonArray.from(buid, floor)
+  //  val endkey = JsonArray.from(buid, floor, "90", "180")
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  LPLogger.debug("couchbase results: " + res.totalRows())
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      json.put("x", array.get(2))
+  //      json.put("y", array.get(3))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  points
+  //}
 
-    LPLogger.debug("couchbase results: " + res.totalRows())
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(2))
-        json.put("y", array.get(3))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = ???
+  //override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val startkey = JsonArray.from(buid, floor)
+  //  val endkey = JsonArray.from(buid, floor, "90", "180")
+  //  LPLogger.debug("endkey = " + endkey)
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  LPLogger.debug("couchbase results: " + res.totalRows())
+  //  var coun = 0
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    coun += 1
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      json.put("x", array.get(2))
+  //      json.put("y", array.get(3))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  LPLogger.debug("total = " + coun)
+  //  points
+  //}
 
-  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor)
-    val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = ???
+  //override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val startkey = JsonArray.from(buid, floor)
+  //  val endkey = JsonArray.from(buid, floor, "90", "180")
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  LPLogger.debug("couchbase results: " + res.totalRows())
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      json.put("x", array.get(2))
+  //      json.put("y", array.get(3))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  points
+  //}
 
-    LPLogger.debug("couchbase results: " + res.totalRows())
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(2))
-        json.put("y", array.get(3))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
-
-  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor)
-    val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_2").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    LPLogger.debug("couchbase results: " + res.totalRows())
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(2))
-        json.put("y", array.get(3))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
-
-  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor)
-    val endkey = JsonArray.from(buid, floor, "90", "180")
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(2))
-        json.put("y", array.get(3))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = ???
+  //override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val startkey = JsonArray.from(buid, floor)
+  //  val endkey = JsonArray.from(buid, floor, "90", "180")
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_level_3").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      json.put("x", array.get(2))
+  //      json.put("y", array.get(3))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  points
+  //}
 
   override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
     LPLogger.info("Couchbase:: getRadioHeatmapByBuildingFloorTimestamp")
