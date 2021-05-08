@@ -36,9 +36,6 @@ AnyplaceAPI.Mapping = {};
 AnyplaceAPI.Mapping.RADIO_HEATMAP = "/mapping/radio/heatmap_building_floor";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS = "/mapping/radio/heatmap_building_floor_avarage";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS;
-
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/position/radio/heatmap_building_floor_average_1";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1 = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1;
 
@@ -191,20 +188,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-
-
-    apiService.getRadioHeatmapRSS = function (json_req) {
-        //alert( "make the request: " + json_req );
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

@@ -48,12 +48,11 @@ trait IDatasource {
 
   def poisByBuildingIDAsJson(buid: String): List[JsValue]
 
-  def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject]
+  def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue]
 
-  def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject]
+  def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsValue]
 
-  def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject]
-
+  def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue]
 
   def init(): Boolean
 
@@ -117,21 +116,21 @@ trait IDatasource {
 
   def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue]
-
   def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
   def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue]
+
+  def getAPsByBuildingFloorcdb(buid: String, floor: String): java.util.List[JsonObject]
 
   def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue
 
@@ -161,7 +160,15 @@ trait IDatasource {
 
   def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long
 
-  def dumpRssLogEntriesWithCoordinates (floor_number: String, lat: Double, lon: Double): String
+  /**
+   * Goes through each floor and finds the one that contains lat and lon.
+   *
+   * @param floor_number
+   * @param lat
+   * @param lon
+   * @return the buid of the unique floor otherwise null.
+   */
+  def dumpRssLogEntriesWithCoordinates(floor_number: String, lat: Double, lon: Double): String
 
   /**
    * Populates rss-log per buid:floor.
@@ -192,6 +199,8 @@ trait IDatasource {
   def getBuildingSet(cuid: String): List[JsValue]
 
   def getAllBuildingsetsByOwner(owner_id: String): List[JsValue]
+
+  def generateHeatmaps(): Boolean
 
   def deleteNotValidDocuments(): Boolean
 

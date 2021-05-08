@@ -92,7 +92,7 @@ object HelperMethods {
         }
         val name = generateRandomRssLogFileName()
         //FeatureAdd : Configuring location for server generated files
-        val dest_f = new File(radio_dir + AnyplaceServerAPI.URL_SEPARATOR + name)
+        val dest_f = new File(radio_dir + AnyplaceServerAPI.URL_SEP + name)
         var fout: FileOutputStream = null
         try {
             fout = new FileOutputStream(dest_f)

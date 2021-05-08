@@ -36,6 +36,7 @@
 package datasources
 
 import java.io.{FileOutputStream, IOException, PrintWriter}
+import java.util
 import java.util.concurrent.TimeUnit
 import java.util.{ArrayList, Collections, HashMap}
 
@@ -51,13 +52,12 @@ import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
 import play.Play
 import play.api.libs.json.{JsValue, Json}
-import utils.JsonUtils.{fromCouchList, fromCouchObject, toCouchList, toCouchObject}
+import utils.JsonUtils.{fromCouchList, fromCouchObject, toCouchObject}
 import utils.{GeoPoint, JsonUtils, LPLogger}
 
 import scala.collection.mutable.ListBuffer
 //remove if not needed
 import scala.collection.JavaConversions._
-import scala.util.control._
 
 
 object CouchbaseDatasource {
@@ -334,7 +334,8 @@ class CouchbaseDatasource private(hostname: String,
     result
   }
 
-  override def poisByBuildingAsJson(buid: String): java.util.List[JsValue] = {
+  override def poisByBuildingAsJson(buid: String): util.List[JsValue] = ???
+  def poisByBuildingAsJson2(buid: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
     val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
 
@@ -352,7 +353,7 @@ class CouchbaseDatasource private(hostname: String,
         case e: IOException =>
       }
     }
-    fromCouchList(pois)
+    pois
   }
 
   override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
@@ -611,7 +612,6 @@ class CouchbaseDatasource private(hostname: String,
   //  points
   //}
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue] = ???
   //override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
   //  val points = new ArrayList[JsonObject]()
   //  val couchbaseClient = getConnection
@@ -718,120 +718,120 @@ class CouchbaseDatasource private(hostname: String,
   //  points
   //}
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
-    LPLogger.info("Couchbase:: getRadioHeatmapByBuildingFloorTimestamp")
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val startkey = JsonArray.from(buid, floor,timestampX,"","")
-    val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
-
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
-   // LPLogger.debug("couchbase results: " + res.size)
-   // LPLogger.info("Timestamp results length: " + res.allRows().length)
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-       // LPLogger.info("array.size: " + array.size())
-        json.put("x", array.get(3))
-        json.put("y", array.get(4))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-          // BUG CHECK COSTA: let this fail?
-          // case ioobe: IndexOutOfBoundsException => LPLogger.error("IndexOutOfBoundsException: " + ioobe.getMessage) // CHECK COSTA
-      }
-    }
-    points
-  }
-
-   override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-     val startkey = JsonArray.from(buid, floor,timestampX,"","")
-    val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
-
-
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(3))
-        json.put("y", array.get(4))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
-
-   override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
-    val points = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-     val startkey = JsonArray.from(buid, floor,timestampX,"","")
-    val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
-
-    val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp_level_2")
-      .startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    var json: JsonObject = null
-    for (row <- res.allRows()) {
-      try {
-        json = JsonObject.empty()
-        val array = row.key().asInstanceOf[JsonArray]
-        json.put("x", array.get(3))
-        json.put("y", array.get(4))
-        json.put("w", row.value().toString)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    points
-  }
-
-  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = ???
-  //override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = ???
+  //override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  //  LPLogger.info("Couchbase:: getRadioHeatmapByBuildingFloorTimestamp")
   //  val points = new ArrayList[JsonObject]()
   //  val couchbaseClient = getConnection
-  //  val startkey = JsonArray.from(buid, floor)
-  //  val endkey = JsonArray.from(buid, floor, "90", "180")
-  //  val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val startkey = JsonArray.from(buid, floor,timestampX,"","")
+  //  val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
+  //
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
   //  val res = couchbaseClient.query(viewQuery)
   //  var json: JsonObject = null
-  //  var jsonCheck: JsonObject = null
   //  for (row <- res.allRows()) {
   //    try {
   //      json = JsonObject.empty()
-  //      jsonCheck = JsonObject.empty()
   //      val array = row.key().asInstanceOf[JsonArray]
-  //      jsonCheck.put("buid", array.get(0))
-  //      jsonCheck.put("floor", array.get(1))
-  //      json.put("x", array.get(2))
-  //      json.put("y", array.get(3))
-  //      json.put("AP", array.get(4))
-  //      json.put("RSS", row.value())
-  //      if ((jsonCheck.getString("buid").compareTo(buid) == 0) && (jsonCheck.getString("floor").compareTo(floor) == 0)) {
-  //        if (json.getObject("RSS").getDouble("average") >= -70) {
-  //          points.add(json)
-  //        }
-  //      }
+  //      //json.put("x", array.get(3))
+  //      //json.put("y", array.get(4))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //        // BUG CHECK COSTA: let this fail?
+  //        // case ioobe: IndexOutOfBoundsException => LPLogger.error("IndexOutOfBoundsException: " + ioobe.getMessage) // CHECK COSTA
+  //    }
+  //  }
+  //  points
+  //}
+
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = ???
+  // override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //   val startkey = JsonArray.from(buid, floor,timestampX,"","")
+  //  val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
+  //
+  //
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp_level_1").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      //json.put("x", array.get(3))
+  //      //json.put("y", array.get(4))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
   //    } catch {
   //      case e: IOException =>
   //    }
   //  }
   //  points
   //}
+
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = ???
+  // override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  //  val points = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //   val startkey = JsonArray.from(buid, floor,timestampX,"","")
+  //  val endkey = JsonArray.from(buid, floor,timestampY,"90", "180")
+  //
+  //  val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building_timestamp_level_2")
+  //    .startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  var json: JsonObject = null
+  //  for (row <- res.allRows()) {
+  //    try {
+  //      json = JsonObject.empty()
+  //      val array = row.key().asInstanceOf[JsonArray]
+  //      json.put("x", array.get(3))
+  //      json.put("y", array.get(4))
+  //      json.put("w", row.value().toString)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  points
+  //}
+
+  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = ???
+  override def getAPsByBuildingFloorcdb(buid: String, floor: String): java.util.List[JsonObject] = {
+    val points = new ArrayList[JsonObject]()
+    val couchbaseClient = getConnection
+    val startkey = JsonArray.from(buid, floor)
+    val endkey = JsonArray.from(buid, floor, "90", "180")
+    val viewQuery = ViewQuery.from("heatmaps", "accessPoint_by_floor_building").startKey(startkey).endKey(endkey).group(true).reduce(true).inclusiveEnd(true)
+    val res = couchbaseClient.query(viewQuery)
+    var json: JsonObject = null
+    var jsonCheck: JsonObject = null
+    for (row <- res.allRows()) {
+      try {
+        json = JsonObject.empty()
+        jsonCheck = JsonObject.empty()
+        val array = row.key().asInstanceOf[JsonArray]
+        jsonCheck.put("buid", array.get(0))
+        jsonCheck.put("floor", array.get(1))
+        json.put("x", array.get(2))
+        json.put("y", array.get(3))
+        json.put("AP", array.get(4))
+        json.put("RSS", row.value())
+        if ((jsonCheck.getString("buid").compareTo(buid) == 0) && (jsonCheck.getString("floor").compareTo(floor) == 0)) {
+          if (json.getObject("RSS").getDouble("average") >= -70) {
+            points.add(json)
+          }
+        }
+      } catch {
+        case e: IOException =>
+      }
+    }
+    points
+  }
 
   override def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue = ???
 
@@ -1734,148 +1734,152 @@ class CouchbaseDatasource private(hostname: String,
   var lastletters = ""
   var wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
 
-  override def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject] = {
-    var pois = allPoisbycuid.get(cuid)
-    val pois2 = new java.util.ArrayList[JsonObject]
-    val words = letters.split(" ")
-    var flag = false
-    var flag2 = false
-    var flag3 = false
+  override def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsValue] = ???
+  //override def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject] = {
+  //  var pois = allPoisbycuid.get(cuid)
+  //  val pois2 = new java.util.ArrayList[JsonObject]
+  //  val words = letters.split(" ")
+  //  var flag = false
+  //  var flag2 = false
+  //  var flag3 = false
+  //
+  //  if (letters.compareTo(lastletters) != 0) {
+  //    lastletters = letters
+  //    wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
+  //    var j = 0
+  //    for (word <- words) {
+  //      wordsELOT.add(greeklishTogreekList(word.toLowerCase))
+  //    }
+  //  }
+  //  for (json <- pois) {
+  //    flag = true
+  //    flag2 = true
+  //    flag3 = true
+  //    var j = 0
+  //    // create a Breaks object as follows
+  //    val loop = new Breaks
+  //
+  //    val ex_loop = new Breaks
+  //    ex_loop.breakable {
+  //      for (w <- words) {
+  //        if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
+  //        val greeklish = greeklishTogreek(w.toLowerCase)
+  //        if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
+  //        if (wordsELOT.size != 0) {
+  //          var wordsELOT2 = new java.util.ArrayList[String]
+  //          wordsELOT2 = wordsELOT.get({
+  //            j += 1
+  //            j - 1
+  //          })
+  //          if (wordsELOT2.size == 0) flag3 = false
+  //          else {
+  //            loop.breakable {
+  //              for (greeklishELOT <- wordsELOT2) {
+  //                if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
+  //                else {
+  //                  flag3 = true
+  //                  loop.break()
+  //                }
+  //              }
+  //            }
+  //          }
+  //        }
+  //        else flag3 = false
+  //        if (!flag3 && !flag && !flag2) ex_loop.break()
+  //        if (flag || flag2 || flag3) pois2.add(json)
+  //      }
+  //    }
+  //  }
+  //
+  //  pois2
+  //}
 
-    if (letters.compareTo(lastletters) != 0) {
-      lastletters = letters
-      wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
-      var j = 0
-      for (word <- words) {
-        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
-      }
-    }
-    for (json <- pois) {
-      flag = true
-      flag2 = true
-      flag3 = true
-      var j = 0
-      // create a Breaks object as follows
-      val loop = new Breaks
+  override def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue] = ???
+  //@throws[DatasourceException]
+  //override def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject] = {
+  //  var pois: java.util.List[JsonObject] = null
+  //  val pois2 = new java.util.ArrayList[JsonObject]
+  //  pois = allPoisbycuid.get(cuid)
+  //  LPLogger.debug("pois = " + pois)
+  //  val words = letters.split(" ")
+  //  var flag = false
+  //  for (json <- pois) {
+  //    flag = true
+  //    val j = 0
+  //    for (w <- words if flag) {
+  //      if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase)))
+  //        flag = false
+  //    }
+  //    if (flag) pois2.add(json)
+  //  }
+  //  pois2
+  //}
 
-      val ex_loop = new Breaks
-      ex_loop.breakable {
-        for (w <- words) {
-          if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
-          val greeklish = greeklishTogreek(w.toLowerCase)
-          if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
-          if (wordsELOT.size != 0) {
-            var wordsELOT2 = new java.util.ArrayList[String]
-            wordsELOT2 = wordsELOT.get({
-              j += 1
-              j - 1
-            })
-            if (wordsELOT2.size == 0) flag3 = false
-            else {
-              loop.breakable {
-                for (greeklishELOT <- wordsELOT2) {
-                  if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
-                  else {
-                    flag3 = true
-                    loop.break()
-                  }
-                }
-              }
-            }
-          }
-          else flag3 = false
-          if (!flag3 && !flag && !flag2) ex_loop.break()
-          if (flag || flag2 || flag3) pois2.add(json)
-        }
-      }
-    }
-
-    pois2
-  }
-
-  @throws[DatasourceException]
-  override def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject] = {
-    var pois: java.util.List[JsonObject] = null
-    val pois2 = new java.util.ArrayList[JsonObject]
-    pois = allPoisbycuid.get(cuid)
-    val words = letters.split(" ")
-    var flag = false
-
-    for (json <- pois) {
-      flag = true
-      val j = 0
-      for (w <- words if flag) {
-        if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase)))
-          flag = false
-      }
-      if (flag) pois2.add(json)
-    }
-    pois2
-  }
-
-  @throws[DatasourceException]
-  override def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject] = {
-    var pois: java.util.List[JsonObject] = null
-    val pois2 = new java.util.ArrayList[JsonObject]
-    if (allPoisSide.get(buid) != null) pois = allPoisSide.get(buid)
-    else pois = toCouchList(poisByBuildingAsJson(buid))
-
-    val words = letters.split(" ")
-
-    var flag = false
-    var flag2 = false
-    var flag3 = false
-
-    if (letters.compareTo(lastletters) != 0) {
-      lastletters = letters
-      wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
-      var j = 0
-      for (word <- words) {
-        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
-      }
-    }
-    for (json <- pois) {
-      flag = true
-      flag2 = true
-      flag3 = true
-      var j = 0
-      // create a Breaks object as follows
-      val loop = new Breaks
-
-      val ex_loop = new Breaks
-      ex_loop.breakable {
-        for (w <- words) {
-          if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
-          val greeklish = greeklishTogreek(w.toLowerCase)
-          if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
-          if (wordsELOT.size != 0) {
-            var wordsELOT2 = new java.util.ArrayList[String]
-            wordsELOT2 = wordsELOT.get({
-              j += 1
-              j - 1
-            })
-            if (wordsELOT2.size == 0) flag3 = false
-            else {
-              loop.breakable {
-                for (greeklishELOT <- wordsELOT2) {
-                  if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
-                  else {
-                    flag3 = true
-                    loop.break()
-                  }
-                }
-              }
-            }
-          }
-          else flag3 = false
-          if (!flag3 && !flag && !flag2) ex_loop.break()
-          if (flag || flag2 || flag3) pois2.add(json)
-        }
-      }
-    }
-
-    pois2
-  }
+  override def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue] = ???
+  //@throws[DatasourceException]
+  //override def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject] = {
+  //  var pois: java.util.List[JsonObject] = null
+  //  val pois2 = new java.util.ArrayList[JsonObject]
+  //  import java.util
+  //  if (allPoisSide.get(buid) != null) pois = allPoisSide.get(buid)
+  //  else pois = poisByBuildingAsJson2(buid)
+  //
+  //  val words = letters.split(" ")
+  //
+  //  var flag = false
+  //  var flag2 = false
+  //  var flag3 = false
+  //
+  //  if (letters.compareTo(lastletters) != 0) {
+  //    lastletters = letters
+  //    wordsELOT = new util.ArrayList[util.ArrayList[String]]
+  //    var j = 0
+  //    for (word <- words) {
+  //      wordsELOT.add(greeklishTogreekList(word.toLowerCase))
+  //    }
+  //  }
+  //  for (json <- pois) {
+  //    flag = true
+  //    flag2 = true
+  //    flag3 = true
+  //    var j = 0
+  //    // create a Breaks object as follows
+  //    val loop = new Breaks
+  //
+  //    val ex_loop = new Breaks
+  //    ex_loop.breakable {
+  //      for (w <- words) {
+  //        if (!(json.get("name").toString.toLowerCase.contains(w.toLowerCase) || json.get("description").toString.toLowerCase.contains(w.toLowerCase))) flag = false
+  //        val greeklish = greeklishTogreek(w.toLowerCase)
+  //        if (!(json.get("name").toString.toLowerCase.contains(greeklish) || json.get("description").toString.toLowerCase.contains(greeklish))) flag2 = false
+  //        if (wordsELOT.size != 0) {
+  //          var wordsELOT2 = new util.ArrayList[String]
+  //          wordsELOT2 = wordsELOT.get({
+  //            j += 1
+  //            j - 1
+  //          })
+  //          if (wordsELOT2.size == 0) flag3 = false
+  //          else {
+  //            loop.breakable {
+  //              for (greeklishELOT <- wordsELOT2) {
+  //                if (!(json.get("name").toString.toLowerCase.contains(greeklishELOT) || json.get("description").toString.toLowerCase.contains(greeklishELOT))) flag3 = false
+  //                else {
+  //                  flag3 = true
+  //                  loop.break()
+  //                }
+  //              }
+  //            }
+  //          }
+  //        }
+  //        else flag3 = false
+  //        if (!flag3 && !flag && !flag2) ex_loop.break()
+  //        if (flag || flag2 || flag3) pois2.add(json)
+  //      }
+  //    }
+  //  }
+  //
+  //  pois2
+  //}
 
   def greeklishTogreek(greeklish: String) = {
     val myChars = greeklish.toCharArray
@@ -2109,7 +2113,7 @@ class CouchbaseDatasource private(hostname: String,
 //    result
 //  }
 
-
+  override def generateHeatmaps(): Boolean = ???
 
   override def deleteNotValidDocuments(): Boolean = {
     val couchbaseClient = getConnection

@@ -144,17 +144,22 @@ object RadioMap {
     // CHECK:PM CHECK:NN all calls of createRadioMap
     // maybe some use hardcoded frozen dir
     /**
+     * Creates radiomap files
      *
-     * @return error message otherwise null
+     * @return error message otherwise null on success
      */
     def createRadioMap(): String = {
       if (!rss_folder.exists() || !rss_folder.isDirectory) {
         return "createRadioMap: Folder does not exist."
       }
-      RadioMap.clear()
-      createRadioMapFromPath(rss_folder)
-
-      writeRadioMap()
+      try {
+        RadioMap.clear()
+        createRadioMapFromPath(rss_folder)
+        writeRadioMap()
+      } catch {
+        case e: Exception => return "ERROR: " + e.getClass + ": " + e.getMessage
+      }
+      null
     }
 
     private def createRadioMapFromPath(inFile: File) {

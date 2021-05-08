@@ -42,12 +42,13 @@ import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
 import controllers.AnyplacePosition.BBOX_MAX
-import datasources.{DatasourceException, ProxyDataSource}
-import json.JsonValidator.{validateCoordinate, validateStringNumber}
+import datasources.ProxyDataSource
+import json.VALIDATE.{Coordinate, StringNumber}
 import play.Play
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc.Result
 import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
+import utils.AnyplaceServerAPI._
 import utils.FileUtils.getDirFrozenFloor
 import utils.JsonUtils.convertToInt
 import utils.LPUtils.MD5
@@ -103,13 +104,13 @@ object RadioMapRaw {
    * @return
    */
   def findRadioBbox(json: JsValue, range: Int): Result = {
-    if (validateCoordinate(json, "coordinates_lat") == null)
+    if (Coordinate(json, "coordinates_lat") == null)
       return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
     val lat = (json \ "coordinates_lat").as[String]
-    if (validateCoordinate(json, "coordinates_lon") == null)
+    if (Coordinate(json, "coordinates_lon") == null)
       return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
     val lon = (json \ "coordinates_lon").as[String]
-    if (validateStringNumber(json, "floor_number") == null)
+    if (StringNumber(json, "floor_number") == null)
       return AnyResponseHelper.bad_request("floor_number field must be String, containing a number!")
     val floorNumber = (json \ "floor_number").as[String]
     if (!Floor.checkFloorNumberFormat(floorNumber)) {
@@ -117,74 +118,60 @@ object RadioMapRaw {
     } else {
       val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
         range)
-      LPLogger.info("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
+      LPLogger.D4("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
+
+      // create unique name for cached file based on coordinates, floor_number, range
       val pathName = "radiomaps"
       val hashKey = lat + lon + floorNumber
-      val bbox_token = MD5(hashKey) + "-" + range.toString
+      val bboxRadioDir = MD5(hashKey) + "-" + range.toString
       LPLogger.debug("hashkey = " + hashKey)
-      LPLogger.debug("bbox_token = " + bbox_token)
+      LPLogger.debug("bbox_token = " + bboxRadioDir)
       // store in radioMapRawDir/tmp/buid/floor/bbox_token
-      val fullPath = Play.application().configuration().getString("radioMapRawDir") + "/bbox/" + bbox_token
+      val fullPath = Play.application().configuration().getString("radioMapRawDir") + "/bbox/" + bboxRadioDir
       val dir = new File(fullPath)
-      val radiomap_filename = new File(fullPath + AnyplaceServerAPI.URL_SEPARATOR + "indoor-radiomap.txt")
+      val radiomap_filename = new File(fullPath + URL_SEP + "indoor-radiomap.txt")
         .getAbsolutePath
       var msg = ""
-      if (dir.exists()) {
-        msg = "Cached bbox dir: " + fullPath
-        LPLogger.debug("findRadioBbox: " + msg)
-      } else {
+      if (!dir.exists()) {
         // if the range is maximum then we are looking for the entire floor
         if (range == BBOX_MAX) {
-          msg = "findRadioBbox: Retrieving floor according coordinates."
           val buid = ProxyDataSource.getIDatasource.dumpRssLogEntriesWithCoordinates(floorNumber, lat.toDouble, lon.toDouble)
-          // if found the floor return the already existing file
-          if (buid != null) {
-            val radiomap_mean_filename = AnyplaceServerAPI.SERVER_API_ROOT
+          if (buid != null) {  // building found. return path to file
+            val radiomap_mean_filename = SERVER_API_ROOT
             val path = radiomap_mean_filename.dropRight(1) + getDirFrozenFloor(buid, floorNumber) + "/indoor-radiomap-mean.txt"
             val res = Json.obj("map_url_mean" -> path)
-            return AnyResponseHelper.ok(res, "Successfully retrieved radio map.\n" + msg)
+            return AnyResponseHelper.ok(res, "Successfully retrieved radiomap: full-floor (according to lat lon)")
           }
         }
-        msg = "findRadioBbox: Creating bbox dir: " + fullPath
-        LPLogger.debug("findRadioBbox: " + msg)
+        msg = "created bbox: " + fullPath
         if (!dir.mkdirs()) {
-          null
+          return AnyResponseHelper.internal_server_error("Failed to create bbox dir: " + fullPath)
         }
-        val radio = new File(dir.getAbsolutePath + AnyplaceServerAPI.URL_SEPARATOR + "rss-log")
+        val rssLog = new File(dir.getAbsolutePath + URL_SEP + "rss-log")
         var fout: FileOutputStream = null
-        try {
-          fout = new FileOutputStream(radio)
-          LPLogger.debug(radio.toPath().getFileName.toString)
-        } catch {
-          case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
-            "Cannot create radiomap:4:" + e.getMessage)
-        }
         var floorFetched: Long = 0l
         try {
+          fout = new FileOutputStream(rssLog)
+          LPLogger.D5("RSS path: " + rssLog.toPath().getFileName.toString)
           floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floorNumber)
-          try {
-            fout.close()
-          } catch {
-            case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
+          fout.close()
+          if (floorFetched == 0) {
+            return AnyResponseHelper.bad_request("Area not supported yet!")
           }
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-        }
-        if (floorFetched == 0) {
-          return AnyResponseHelper.bad_request("Area not supported yet!")
-        }
-        try {
-
           val rm = new RadioMap(new File(fullPath), radiomap_filename, "", -110)
           val resCreate = rm.createRadioMap()
           if (resCreate != null) {
-            return AnyResponseHelper.internal_server_error("radioDownloadFloorBbox: Error: on-the-fly radioMap: " + resCreate)
+            return AnyResponseHelper.internal_server_error("findRadioBbox: radiomap on-the-fly: " + resCreate)
           }
         } catch {
-          case e: Exception => return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage)
+          case fnfe: FileNotFoundException => return AnyResponseHelper.internal_server_error("findRadioBbox: " +
+            "rssLog: " + rssLog, fnfe)
+          case e: Exception =>  return AnyResponseHelper.internal_server_error("findRadioBbox" , e)
         }
+      } else {
+        msg = "cached-bbox: " + fullPath
+        LPLogger.debug("findRadioBbox: " + msg)
       }
-
       var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
       var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
       var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
@@ -202,7 +189,8 @@ object RadioMapRaw {
       } else {
         res = Json.obj("map_url_mean" -> radiomap_mean_filename)
       }
-      return AnyResponseHelper.ok(res, "Successfully retrieved radio map.\n" + msg)
+
+      AnyResponseHelper.ok(res, "Successfully retrieved radiomap: " + msg)
     }
   }
 

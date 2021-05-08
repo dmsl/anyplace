@@ -41,6 +41,7 @@ import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.MongodbDatasource.{__geometry, admins, convertJson, mdb}
+import datasources.SCHEMA._
 import db_models.RadioMapRaw.unrollFingerprint
 import db_models.{Connection, Poi, RadioMapRaw}
 import floor_module.IAlgo
@@ -50,16 +51,17 @@ import org.mongodb.scala.model.Aggregates
 import org.mongodb.scala.model.Aggregates.project
 import org.mongodb.scala.model.Filters._
 import play.Play
-import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue, Json}
+import play.api.libs.json.{JsNumber, JsObject, JsValue, Json}
 import play.twirl.api.TemplateMagic.javaCollectionToScala
 import utils.JsonUtils.cleanupMongoJson
-import utils.{GeoPoint, JsonUtils, LPLogger}
+import utils.{GeoJSONPoint, GeoPoint, JsonUtils, LPLogger}
 
 import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.text.Document.break
+import scala.util.control.Breaks
 
 
 object MongodbDatasource {
@@ -151,11 +153,404 @@ class MongodbDatasource() extends IDatasource {
     poisArray.toList
   }
 
-  override def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject] = ???
+  def greeklishTogreekList(greeklish: String) = {
+    val words = new java.util.ArrayList[String]
+    words.add("")
+    val myChars = greeklish.toCharArray
+    var i = 0
+    for (i <- 0 until greeklish.length) {
+      val size = words.size
+      var j = 0
+      for (j <- 0 until size) {
+        var myword = ""
+        myword = words.get(j)
+        if (myChars(i) == 'a') words.add(myword + "α")
+        else if (myChars(i) == 'b') {
+          words.add(myword + "β")
+          words.add(myword + "μπ")
+        }
+        else if (myChars(i) == 'c') {
+          if (i < greeklish.length - 1) if (myChars(i + 1) == 'h') words.add(myword + "χ")
+          words.add(myword + "γ")
+        }
+        else if (myChars(i) == 'd') {
+          words.add(myword + "δ")
+          words.add(myword + "ντ")
+        }
+        else if (myChars(i) == 'e') {
+          words.add(myword + "ε")
+          words.add(myword + "αι")
+          words.add(myword + "ι")
+          words.add(myword + "η")
+        }
+        else if (myChars(i) == 'f') words.add(myword + "φ")
+        else if (myChars(i) == 'g') {
+          words.add(myword + "γ")
+          words.add(myword + "γγ")
+          words.add(myword + "γκ")
+        }
+        else if (myChars(i) == 'h') {
+          if (myword.length > 0 && myword.charAt(myword.length - 1) == 'θ') {
+            words.add(myword)
 
-  override def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject] = ???
+          }
+          else if (myword.length > 0 && myword.charAt(myword.length - 1) == 'χ') {
+            words.add(myword)
 
-  override def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject] = ???
+          } else {
+            words.add(myword + "χ")
+            words.add(myword + "η")
+          }
+        }
+        else if (myChars(i) == 'i') {
+          words.add(myword + "ι")
+          words.add(myword + "η")
+          words.add(myword + "υ")
+          words.add(myword + "οι")
+          words.add(myword + "ει")
+        }
+        else if (myChars(i) == 'j') words.add(myword + "ξ")
+        else if (myChars(i) == 'k') {
+          if (i < greeklish.length - 1) if (myChars(i + 1) == 's') words.add(myword + "ξ")
+          words.add(myword + "κ")
+        }
+        else if (myChars(i) == 'l') words.add(myword + "λ")
+        else if (myChars(i) == 'm') words.add(myword + "μ")
+        else if (myChars(i) == 'n') words.add(myword + "ν")
+        else if (myChars(i) == 'o') {
+          words.add(myword + "ο")
+          words.add(myword + "ω")
+        }
+        else if (myChars(i) == 'p') {
+          if (i < greeklish.length - 1) if (myChars(i + 1) == 's') words.add(myword + "ψ")
+          words.add(myword + "π")
+        }
+        else if (myChars(i) == 'q') words.add(myword + ";")
+        else if (myChars(i) == 'r') words.add(myword + "ρ")
+        else if (myChars(i) == 's') {
+          if (myword.length > 0 && myword.charAt(myword.length - 1) == 'ξ') {
+            words.add(myword)
+
+          } else if (myword.length > 0 && myword.charAt(myword.length - 1) == 'ψ') {
+            words.add(myword)
+          }
+          else {
+            words.add(myword + "σ")
+            words.add(myword + "ς")
+          }
+        }
+        else if (myChars(i) == 't') {
+          if (i < greeklish.length - 1) if (myChars(i + 1) == 'h') words.add(myword + "θ")
+          words.add(myword + "τ")
+        }
+        else if (myChars(i) == 'u') {
+          words.add(myword + "υ")
+          words.add(myword + "ου")
+        }
+        else if (myChars(i) == 'v') words.add(myword + "β")
+        else if (myChars(i) == 'w') words.add(myword + "ω")
+        else if (myChars(i) == 'x') {
+          words.add(myword + "χ")
+          words.add(myword + "ξ")
+        }
+        else if (myChars(i) == 'y') words.add(myword + "υ")
+        else if (myChars(i) == 'z') words.add(myword + "ζ")
+
+      }
+
+      for (k <- 0 until size) {
+        words.remove(0)
+      }
+    }
+    words
+  }
+
+  def greeklishTogreek(greeklish: String) = {
+    val myChars = greeklish.toCharArray
+    var i = 0
+    while ( {
+      i < greeklish.length
+    }) {
+      myChars(i) match {
+        case 'a' =>
+          myChars(i) = 'α'
+
+        case 'b' =>
+          myChars(i) = 'β'
+
+        case 'c' =>
+          myChars(i) = 'ψ'
+
+        case 'd' =>
+          myChars(i) = 'δ'
+
+        case 'e' =>
+          myChars(i) = 'ε'
+
+        case 'f' =>
+          myChars(i) = 'φ'
+
+        case 'g' =>
+          myChars(i) = 'γ'
+
+        case 'h' =>
+          myChars(i) = 'η'
+
+        case 'i' =>
+          myChars(i) = 'ι'
+
+        case 'j' =>
+          myChars(i) = 'ξ'
+
+        case 'k' =>
+          myChars(i) = 'κ'
+
+        case 'l' =>
+          myChars(i) = 'λ'
+
+        case 'm' =>
+          myChars(i) = 'μ'
+
+        case 'n' =>
+          myChars(i) = 'ν'
+
+        case 'o' =>
+          myChars(i) = 'ο'
+
+        case 'p' =>
+          myChars(i) = 'π'
+
+        case 'q' =>
+          myChars(i) = ';'
+
+        case 'r' =>
+          myChars(i) = 'ρ'
+
+        case 's' =>
+          myChars(i) = 'σ'
+
+        case 't' =>
+          myChars(i) = 'τ'
+
+        case 'u' =>
+          myChars(i) = 'θ'
+
+        case 'v' =>
+          myChars(i) = 'ω'
+
+        case 'w' =>
+          myChars(i) = 'ς'
+
+        case 'x' =>
+          myChars(i) = 'χ'
+
+        case 'y' =>
+          myChars(i) = 'υ'
+
+        case 'z' =>
+          myChars(i) = 'ζ'
+
+        case _ =>
+
+      }
+
+      {
+        i += 1;
+        i - 1
+      }
+    }
+    String.valueOf(myChars)
+  }
+
+  var wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
+  var allPoisSide = new java.util.HashMap[String, java.util.List[JsValue]]()
+  var allPoisbycuid = new java.util.HashMap[String, java.util.List[JsValue]]()
+  var lastletters = ""
+
+
+  override def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue] = {
+    var pois: java.util.List[JsValue] = null
+    val pois2 = new java.util.ArrayList[JsValue]
+    pois = allPoisbycuid.get(cuid)
+    if (pois == null) {
+      val buids = getBuildingSet(cuid)
+      val tempPois = new java.util.ArrayList[JsValue]
+      for (buid <- (buids(0) \ "buids").as[List[String]]) {
+        for (poi <- poisByBuildingAsJson(buid)) {
+          if (poi != null) {
+            tempPois.add(poi)
+          }
+        }
+      }
+      pois = tempPois
+    }
+    val words = letters.split(" ")
+    var flag = false
+    for (json <- pois) {
+      flag = true
+      for (w <- words if flag) {
+        var name = ""
+        var description = ""
+        if ((json \ "name").toOption.isDefined)
+          name = (json \ "name").as[String].toLowerCase
+        if ((json \ "description").toOption.isDefined)
+          description = (json \ "description").as[String].toLowerCase
+        if (!(name.contains(w.toLowerCase) || description.contains(w.toLowerCase)))
+          flag = false
+      }
+      if (flag) pois2.add(json)
+    }
+    pois2.toList
+  }
+
+  override def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsValue] = {
+    var pois = allPoisbycuid.get(cuid)
+    if (pois == null) {
+      val buids = getBuildingSet(cuid)
+      val tempPois = new java.util.ArrayList[JsValue]
+      for (buid <- (buids(0) \ "buids").as[List[String]]) {
+        for (poi <- poisByBuildingAsJson(buid)) {
+          if (poi != null) {
+            tempPois.add(poi)
+          }
+        }
+      }
+      pois = tempPois
+    }
+    val pois2 = new java.util.ArrayList[JsValue]
+    val words = letters.split(" ")
+    var flag = false
+    var flag2 = false
+    var flag3 = false
+
+    if (letters.compareTo(lastletters) != 0) {
+      lastletters = letters
+      wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
+      var j = 0
+      for (word <- words) {
+        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
+      }
+    }
+    for (json <- pois) {
+      flag = true
+      flag2 = true
+      flag3 = true
+      var j = 0
+      // create a Breaks object as follows
+      val loop = new Breaks
+
+      val ex_loop = new Breaks
+      ex_loop.breakable {
+        for (w <- words) {
+          var name = ""
+          var description = ""
+          if ((json \ "name").toOption.isDefined)
+            name = (json \ "name").as[String].toLowerCase
+          if ((json \ "description").toOption.isDefined)
+            description = (json \ "description").as[String].toLowerCase
+          if (!(name.contains(w.toLowerCase) || description.contains(w.toLowerCase))) flag = false
+          val greeklish = greeklishTogreek(w.toLowerCase)
+          if (!(name.contains(greeklish) || description.contains(greeklish))) flag2 = false
+          if (wordsELOT.size != 0) {
+            var wordsELOT2 = new java.util.ArrayList[String]
+            wordsELOT2 = wordsELOT.get({
+              j += 1
+              j - 1
+            })
+            if (wordsELOT2.size == 0) flag3 = false
+            else {
+              loop.breakable {
+                for (greeklishELOT <- wordsELOT2) {
+                  if (!(name.contains(greeklishELOT) || description.contains(greeklishELOT))) flag3 = false
+                  else {
+                    flag3 = true
+                    loop.break()
+                  }
+                }
+              }
+            }
+          }
+          else flag3 = false
+          if (!flag3 && !flag && !flag2) ex_loop.break()
+          if (flag || flag2 || flag3) pois2.add(json)
+        }
+      }
+    }
+
+    pois2.toList
+  }
+
+  override def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue] = {
+    LPLogger.info("poisByBuildingAsJson3")
+    var pois: java.util.List[JsValue] = null
+    val pois2 = new java.util.ArrayList[JsValue]
+    if (allPoisSide.get(buid) != null)
+      pois = allPoisSide.get(buid)
+    else
+      pois = poisByBuildingAsJson(buid)
+
+    val words = letters.split(" ")
+
+    var flag = false
+    var flag2 = false
+    var flag3 = false
+
+    if (letters.compareTo(lastletters) != 0) {
+      lastletters = letters
+      wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
+      var j = 0
+      for (word <- words) {
+        wordsELOT.add(greeklishTogreekList(word.toLowerCase))
+      }
+    }
+    for (json <- pois) {
+      flag = true
+      flag2 = true
+      flag3 = true
+      var j = 0
+      // create a Breaks object as follows
+      val loop = new Breaks
+
+      val ex_loop = new Breaks
+      ex_loop.breakable {
+        for (w <- words) {
+          var name = ""
+          var description = ""
+          if ((json \ "name").toOption.isDefined)
+            name = (json \ "name").as[String].toLowerCase
+          if ((json \ "description").toOption.isDefined)
+            description = (json \ "description").as[String].toLowerCase
+          if (!(name.contains(w.toLowerCase) || description.contains(w.toLowerCase))) flag = false
+          val greeklish = greeklishTogreek(w.toLowerCase)
+          if (!(name.contains(greeklish) || description.contains(greeklish))) flag2 = false
+          if (wordsELOT.size != 0) {
+            var wordsELOT2 = new java.util.ArrayList[String]
+            wordsELOT2 = wordsELOT.get({
+              j += 1
+              j - 1
+            })
+            if (wordsELOT2.size == 0) flag3 = false
+            else {
+              loop.breakable {
+                for (greeklishELOT <- wordsELOT2) {
+                  if (!(name.contains(greeklishELOT) || description.contains(greeklishELOT))) flag3 = false
+                  else {
+                    flag3 = true
+                    loop.break()
+                  }
+                }
+              }
+            }
+          }
+          else flag3 = false
+          if (!flag3 && !flag && !flag2) ex_loop.break()
+          if (flag || flag2 || flag3) pois2.add(json)
+        }
+      }
+    }
+
+    pois2.toList
+  }
 
   override def init(): Boolean = ???
 
@@ -298,11 +693,7 @@ class MongodbDatasource() extends IDatasource {
     val listJson = convertJson(res)
     val pois = new java.util.ArrayList[JsValue]()
     for (floor <- listJson) {
-      try {
-        pois.add(floor.as[JsObject] - "owner_id" - __geometry - "_id" - "_schema")
-      } catch {
-        case e: IOException =>
-      }
+      pois.add(floor.as[JsObject] - "owner_id" - __geometry - "_id" - "_schema")
     }
     pois
   }
@@ -516,119 +907,124 @@ class MongodbDatasource() extends IDatasource {
   override def getRadioHeatmap(): java.util.List[JsonObject] = ???
 
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
-    val collection = mdb.getCollection("fingerprintsWifi")
+    val collection = mdb.getCollection("heatmapWifi3")
     val query = BsonDocument("buid" -> buid, "floor" -> floor)
     val radioPoints = collection.aggregate(Seq(
       Aggregates.filter(query),
       project(
-        Document("x" -> "$x", "y" -> "$y", "measurements" -> "$measurements")
+        Document("location" -> "$location", "w" -> "$count")
       )))
     val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
     val res = awaited.toList
-    val listJson = convertJson(res)
-    val points = new util.ArrayList[JsValue]
-    val visited = new util.ArrayList[String]
-
-    for (json <- listJson) {
-      val x = (json \ "x").as[String]
-      val y = (json \ "y").as[String]
-      val w = (json \ "measurements").as[List[List[String]]].size
-      if (visited.contains(x + y)) {
-        var delete: JsValue = null
-        var newPoint: JsValue = null
-        for (point <- points) {
-          if ((point \ "x").as[String] == x && (point \ "y").as[String] == y && point != json) {
-            newPoint = json.as[JsObject] + ("w" -> JsNumber((point \ "w").as[Int] + w)) - "measurements"
-            delete = point
-          }
-        }
-        if (delete != null && newPoint != null) {
-          points.remove(delete)
-          points.add(newPoint)
-        }
-      } else {
-        points.add(json.as[JsObject] - "measurements" + ("w" -> JsNumber(w)))
-        visited.add(x + y)
-      }
-    }
-    points.toList
-  }
-
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): List[JsValue] = {
-    val collection = mdb.getCollection("fingerprintsHeatmap")
-    val query = BsonDocument("buid" -> buid, "floor" -> floor)
-    val radioPoints = collection.aggregate(Seq(
-      Aggregates.filter(query),
-      project(
-        Document("location" -> "$location", "total" -> "$total", "count" -> "$count", "average" -> "$average")
-      )))
-    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
-    val res = awaited.toList
-
-    val heatmaps = new util.ArrayList[JsValue]()
-    for (heatmap <- convertJson(res)) {
-      heatmaps.add(Json.obj("x" -> (heatmap \ "location" \ "coordinates").get(0).as[Double].toString,
-        "y" -> (heatmap \ "location" \ "coordinates").get(1).as[Double].toString,
-        "w" -> JsString("{\"count\":" + (heatmap \ "count").as[Int] +
-          ",\"average\":" + (heatmap \ "average").as[Double] +
-          ",\"total\":" + (heatmap \ "total").as[Int] + "}")))
-    }
-    return heatmaps.toList
+    return convertJson(res)
   }
 
   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = {
-    val collection = mdb.getCollection("fingerprintsHeatmap")
+    val collection = mdb.getCollection("heatmapWifi1")
     val query = BsonDocument("buid" -> buid, "floor" -> floor)
     val radioPoints = collection.aggregate(Seq(
       Aggregates.filter(query),
       project(
-        Document("location" -> "$location", "total" -> "$total", "count" -> "$count", "average" -> "$average")
+        Document("location" -> "$location", "sum" -> "$sum", "count" -> "$count")
       )))
     val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
     val res = awaited.toList
 
     val heatmaps = new util.ArrayList[JsValue]()
     for (heatmap <- convertJson(res)) {
-      heatmaps.add(Json.obj("x" -> (heatmap \ "location" \ "coordinates").get(0).as[Double].toString.dropRight(5),
-        "y" -> (heatmap \ "location" \ "coordinates").get(1).as[Double].toString.dropRight(5),
-        "w" -> JsString("{\"count\":" + (heatmap \ "count").as[Int] +
-          ",\"average\":" + (heatmap \ "average").as[Double] +
-          ",\"total\":" + (heatmap \ "total").as[Int] + "}")))
+      val count = (heatmap \ "count").as[Int]
+      val sum = (heatmap \ "sum").as[Int]
+      val average = sum.toDouble / count.toDouble
+      heatmaps.add(Json.obj("location" -> (heatmap \ "location" \ "coordinates").as[List[Double]],
+        "count" -> count, "sum" -> sum, "average" -> average))
     }
     return heatmaps.toList
   }
 
   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = {
-    val collection = mdb.getCollection("fingerprintsHeatmap")
+    val collection = mdb.getCollection("heatmapWifi2")
     val query = BsonDocument("buid" -> buid, "floor" -> floor)
     val radioPoints = collection.aggregate(Seq(
       Aggregates.filter(query),
       project(
-        Document("location" -> "$location", "total" -> "$total", "count" -> "$count", "average" -> "$average")
+        Document("location" -> "$location", "sum" -> "$sum", "count" -> "$count", "average" -> "$average")
       )))
     val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
     val res = awaited.toList
 
     val heatmaps = new util.ArrayList[JsValue]()
     for (heatmap <- convertJson(res)) {
-      heatmaps.add(Json.obj("x" -> (heatmap \ "location" \ "coordinates").get(0).as[Double].toString.dropRight(4),
-        "y" -> (heatmap \ "location" \ "coordinates").get(1).as[Double].toString.dropRight(4),
-        "w" -> JsString("{\"count\":" + (heatmap \ "count").as[Int] +
-          ",\"average\":" + (heatmap \ "average").as[Double] +
-          ",\"total\":" + (heatmap \ "total").as[Int] + "}")))
+      val count = (heatmap \ "count").as[Int]
+      val sum = (heatmap \ "sum").as[Int]
+      val average = sum.toDouble / count.toDouble
+      heatmaps.add(Json.obj("location" -> (heatmap \ "location" \ "coordinates").as[List[Double]],
+        "count" -> count, "sum" -> sum, "average" -> average))
     }
     return heatmaps.toList
   }
 
   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = {
-    return getRadioHeatmapByBuildingFloorAverage(buid, floor)
+    val collection = mdb.getCollection("heatmapWifi3")
+    val query = BsonDocument("buid" -> buid, "floor" -> floor)
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(query),
+      project(
+        Document("location" -> "$location", "sum" -> "$sum", "count" -> "$count", "average" -> "$average")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
+
+    val heatmaps = new util.ArrayList[JsValue]()
+    for (heatmap <- convertJson(res)) {
+      val count = (heatmap \ "count").as[Int]
+      val sum = (heatmap \ "sum").as[Int]
+      val average = sum.toDouble / count.toDouble
+      heatmaps.add(Json.obj("location" -> (heatmap \ "location" \ "coordinates").as[List[Double]],
+        "count" -> count, "sum" -> sum, "average" -> average))
+    }
+    return heatmaps.toList
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
+    val collection = mdb.getCollection("heatmapWifiTimestamp3")
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(and(gt("timestamp", timestampX), lt("timestamp", timestampY),
+        equal("buid", buid), equal("floor", floor))),
+      project(
+        Document("location" -> "$location.coordinates", "w" -> "$count")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
+    return convertJson(res)
+  }
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
+    val collection = mdb.getCollection("heatmapWifiTimestamp1")
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(and(gt("timestamp", timestampX), lt("timestamp", timestampY),
+        equal("buid", buid), equal("floor", floor))),
+      project(
+        Document("location" -> "$location.coordinates", "w" -> "$count")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
+    return convertJson(res)
+  }
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = ???
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
+    val collection = mdb.getCollection("heatmapWifiTimestamp2")
+    val radioPoints = collection.aggregate(Seq(
+      Aggregates.filter(and(gt("timestamp", timestampX), lt("timestamp", timestampY),
+        equal("buid", buid), equal("floor", floor))),
+      project(
+        Document("location" -> "$location.coordinates", "w" -> "$count")
+      )))
+    val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
+    val res = awaited.toList
+    return convertJson(res)
+  }
+
+  override def getAPsByBuildingFloorcdb(buid: String, floor: String): util.List[JsonObject] = ???
 
   override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     val collection = mdb.getCollection("fingerprintsWifi")
@@ -639,26 +1035,24 @@ class MongodbDatasource() extends IDatasource {
     val listJson = convertJson(res)
     val hm = new util.HashMap[JsValue, Array[Double]]()
     for (f <- listJson) {
-      if ((f \ "buid").as[String] == buid && (f \ "floor").as[String] == floor) {
-        val measurements = (f \ "measurements").as[List[List[String]]]
-        for (measurement <- measurements) {
-          val json = unrollFingerprint(f, measurement)
-          var key = Json.obj("x" -> (json \ "x").as[String], "y" -> (json \ "y").as[String],
-            "AP" -> (json \ "MAC").as[String])
-          if (!hm.containsKey(key)) {
-            // count / average / total
-            val tArray = new Array[Double](3)
-            tArray(0) = 1
-            tArray(1) = (json \ "rss").as[String].toDouble
-            tArray(2) = (json \ "rss").as[String].toDouble
-            hm.put(key, tArray)
-          } else {
-            val tArray = hm.get(key)
-            tArray(0) += 1
-            tArray(1) = (tArray(1) / tArray(0))
-            tArray(2) += hm.get(key)(2)
-            hm.put(key, tArray)
-          }
+      val measurements = (f \ "measurements").as[List[List[String]]]
+      for (measurement <- measurements) {
+        val json = unrollFingerprint(f, measurement)
+        val key = Json.obj("x" -> (json \ "x").as[String], "y" -> (json \ "y").as[String],
+          "AP" -> (json \ "MAC").as[String])
+        if (!hm.containsKey(key)) {
+          // count / average / total
+          val tArray = new Array[Double](3)
+          tArray(0) = 1
+          tArray(1) = (json \ "rss").as[String].toDouble
+          tArray(2) = (json \ "rss").as[String].toDouble
+          hm.put(key, tArray)
+        } else {
+          val tArray = hm.get(key)
+          tArray(0) += 1
+          tArray(1) = (tArray(1) / tArray(0))
+          tArray(2) += hm.get(key)(2)
+          hm.put(key, tArray)
         }
       }
     }
@@ -670,7 +1064,7 @@ class MongodbDatasource() extends IDatasource {
         "total" -> JsNumber(h._2(1)))
       tempJson = tempJson.as[JsObject] + ("RSS" -> rss)
       if ((rss \ "average").as[Double] >= -70)
-        points.add(tempJson.as[JsObject] - "x" - "y")
+        points.add(tempJson.as[JsObject])
     }
     points.toList
   }
@@ -735,7 +1129,7 @@ class MongodbDatasource() extends IDatasource {
     val points = new util.ArrayList[JsValue]()
     for (f <- listJson) {
       points.add(Json.obj("date" -> (f \ "timestamp").as[String],
-        "count" -> (f \ "measurements").as[List[List[String]]].size))
+        "count" -> (f \ "count").as[Int]))
     }
     points.toList
   }
@@ -767,7 +1161,8 @@ class MongodbDatasource() extends IDatasource {
 
   override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
     val collection = mdb.getCollection("buildings")
-    var buildingLookUp = collection.find(or(equal("owner_id", oid), equal("co_owners", oid)))
+    var buildingLookUp = collection.find(or(equal("owner_id", oid),
+      equal("co_owners", oid)))
     if (admins.contains(oid)) {
       buildingLookUp = collection.find()
     }
@@ -776,11 +1171,8 @@ class MongodbDatasource() extends IDatasource {
     val listJson = convertJson(res)
     val buildings = new java.util.ArrayList[JsValue]()
     for (building <- listJson) {
-      try {
-        buildings.add(building.as[JsObject] - "co_owners" - __geometry - "owner_id" - "_id" - "_schema")
-      } catch {
-        case e: IOException =>
-      }
+      buildings.add(building.as[JsObject] - "co_owners" - __geometry
+        - "owner_id" - "_id" - "_schema")
     }
     buildings.toList
   }
@@ -869,7 +1261,7 @@ class MongodbDatasource() extends IDatasource {
     var unique = 0
     var uniqBuid = ""
     for (floorplan <- floorplans) {
-      val lat1 = (floorplan \ "bottom_left_lat")
+      val lat1 = (floorplan \ fLatBottomLeft)
       val lon1 = (floorplan \ "bottom_left_lng")
       val lat2 = (floorplan \ "top_right_lat")
       val lon2 = (floorplan \ "top_right_lng")
@@ -883,6 +1275,7 @@ class MongodbDatasource() extends IDatasource {
     }
     if (unique == 1)
       return uniqBuid
+    LPLogger.error("Coordinates were found in two floors.")
     return null
   }
 
@@ -964,6 +1357,162 @@ class MongodbDatasource() extends IDatasource {
     val awaited = Await.result(campus.toFuture, Duration.Inf)
     val res = awaited.toList
     convertJson(res)
+  }
+
+  def trimCoordinates(fingerprint: JsValue, level: Int): util.ArrayList[Double] = {
+    if ((fingerprint \ "geometry" \ "coordinates").toOption.isEmpty) {
+      LPLogger.debug("trimCoordinates: " + fingerprint + ".No field coordinates.")
+      return null
+    }
+    val location = new util.ArrayList[Double]
+    try {
+      val lat = (fingerprint \ "geometry" \ "coordinates").get(0).as[Double]
+      val lon = (fingerprint \ "geometry" \ "coordinates").get(1).as[Double]
+      if (level == 1) {
+        location.add(lat.toString.dropRight(5).toDouble)
+        location.add(lon.toString.dropRight(5).toDouble)
+      } else if (level == 2) {
+        location.add(lat.toString.dropRight(4).toDouble)
+        location.add(lon.toString.dropRight(4).toDouble)
+      } else if (level == 3) {
+        location.add(lat)
+        location.add(lon)
+      }
+      return location
+    } catch {
+      case e: Exception => LPLogger.debug("fingerprint" + fingerprint)
+    }
+    null
+  }
+
+  def createHeatmap(fingerprint: JsValue, level: Int, timestamp: Boolean): JsValue = {
+    var heatmap: JsValue = fingerprint.as[JsObject] - "_id" - "strongestWifi" - "heading" - "x" - "y" - __geometry -
+      "measurements"
+    if (!timestamp)
+      heatmap = heatmap.as[JsObject] - "timestamp"
+    val location = trimCoordinates(fingerprint, level)
+    if (location == null) return null
+    heatmap = heatmap.as[JsObject] + ("location" -> Json.toJson(new GeoJSONPoint(location.get(0),
+      location.get(1)).toGeoJSON()))
+    return heatmap
+  }
+
+  def fetchStoredHeatmap(collection: String, fingerprint: JsValue, level: Int, timestamp: Boolean): JsValue = {
+    val heatmap = mdb.getCollection(collection)
+    val location = trimCoordinates(fingerprint, level)
+    if (location == null) return null
+    var query: BsonDocument = null
+    if (!timestamp) {
+      query = BsonDocument("buid" -> (fingerprint \ "buid").as[String], "floor" -> (fingerprint \ "floor").as[String],
+        "location.coordinates" -> location.toList)
+    } else {
+      query = BsonDocument("buid" -> (fingerprint \ "buid").as[String], "floor" -> (fingerprint \ "floor").as[String],
+        "location.coordinates" -> location.toList, "timestamp" -> (fingerprint \ "timestamp").as[String])
+    }
+    val heatmapLookup = heatmap.find(query).first()
+    val awaited = Await.result(heatmapLookup.toFuture, Duration.Inf)
+    val res = awaited.asInstanceOf[Document]
+    if (res != null)
+      return convertJson(res)
+    null
+  }
+
+  def replaceStoredHeatmap(collection: String, newHeatmap: JsValue, fingerprint: JsValue, level: Int, timestamp: Boolean): Boolean = {
+    val heatmap = mdb.getCollection(collection)
+    val location = trimCoordinates(fingerprint, level)
+    if (location == null) return false
+    var query: BsonDocument = null
+    if (!timestamp) {
+      query = BsonDocument("buid" -> (fingerprint \ "buid").as[String], "floor" -> (fingerprint \ "floor").as[String],
+        "location.coordinates" -> location.toList)
+    } else {
+      query = BsonDocument("buid" -> (fingerprint \ "buid").as[String], "floor" -> (fingerprint \ "floor").as[String],
+        "location.coordinates" -> location.toList, "timestamp" -> (fingerprint \ "timestamp").as[String])
+    }
+    val update = BsonDocument(newHeatmap.toString())
+    val heatmapReplace = heatmap.replaceOne(query, update)
+    val awaited = Await.result(heatmapReplace.toFuture, Duration.Inf)
+    val res = awaited
+    if (res.getModifiedCount == 0)
+      false
+    else
+      true
+  }
+
+  def confirmNegativity(number: Int): Int = {
+    if (number > 0)
+      return number * (-1)
+    return number
+  }
+
+  def updateHeatmap(fingerprint: JsValue, level: Int, timestamp: Boolean): Boolean = {
+    var collectionName = "heatmapWifi"
+    if (timestamp)
+      collectionName = collectionName + "Timestamp"
+    collectionName = collectionName + level
+    val storedHeatmap = fetchStoredHeatmap(collectionName, fingerprint, level, timestamp)
+    if (storedHeatmap == null) {
+      val heatmap = createHeatmap(fingerprint, level, timestamp)
+      ProxyDataSource.getIDatasource().addJsonDocument(collectionName, heatmap.toString())
+    } else {
+      val newSum = confirmNegativity((fingerprint \ "sum").as[Int]) + confirmNegativity((storedHeatmap \ "sum").as[Int])
+      val newCount = (fingerprint \ "count").as[Int] + (storedHeatmap \ "count").as[Int]
+      val newHeatmap: JsValue = storedHeatmap.as[JsObject] + ("sum" -> JsNumber(newSum)) + ("count" -> JsNumber(newCount))
+      replaceStoredHeatmap(collectionName, newHeatmap, fingerprint, level, timestamp)
+    }
+  }
+
+  override def generateHeatmaps(): Boolean = {
+    LPLogger.debug("generateHeatmaps: Generating Heatmaps")
+    val bCollection = mdb.getCollection("buildings")
+    val flCollection = mdb.getCollection("floorplans")
+    val fiCollection = mdb.getCollection("fingerprintsWifi")
+    //val tempQuery: BsonDocument = BsonDocument("buid" -> "username_1373876832005")
+    val buildingsLookup = bCollection.find()
+    val awaitedB = Await.result(buildingsLookup.toFuture, Duration.Inf)
+    val resB = awaitedB.toList
+    val buildings = convertJson(resB)
+    for (building <- buildings) {
+      val floorsLookup = flCollection.find(equal("buid", (building \ "buid").as[String]))
+      val awaitedFl = Await.result(floorsLookup.toFuture, Duration.Inf)
+      val resFl = awaitedFl.toList
+      val floors = convertJson(resFl)
+      for (floor <- floors) {
+        val query: BsonDocument = BsonDocument("buid" -> (building \ "buid").as[String], "floor" -> (floor \ "floor_number").as[String])
+        val fingerprintsLookup = fiCollection.find(query)
+        val awaitedFi = Await.result(fingerprintsLookup.toFuture, Duration.Inf)
+        val resFi = awaitedFi.toList
+        val fingerprints = convertJson(resFi)
+        for (fingerprint <- fingerprints) {
+          if (!updateHeatmap(fingerprint, 1, false)) {
+            LPLogger.debug("error at level 1")
+            return false
+          }
+          //if (!updateHeatmap(fingerprint, 2, false)) {
+          //  LPLogger.debug("error at level 2")
+          //  return false
+          //}
+          //if (!updateHeatmap(fingerprint, 3,false)) {
+          //  LPLogger.debug("error at level 3")
+          //  return false
+          //}
+          //if (!updateHeatmap(fingerprint, 1, true)) {
+          //  LPLogger.debug("error at level 1 timestamp")
+          //  return false
+          //}
+          //if (!updateHeatmap(fingerprint, 2, true)) {
+          //  LPLogger.debug("error at level 2 timestamp")
+          //  return false
+          //}
+          //if (!updateHeatmap(fingerprint, 3, true)) {
+          //  LPLogger.debug("error at level 3 timestamp")
+          //  return false
+          //}
+        }
+      }
+    }
+    LPLogger.debug("generateHeatmaps: Generated Heatmaps")
+    true
   }
 
   override def deleteNotValidDocuments(): Boolean = ???

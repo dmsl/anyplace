@@ -40,7 +40,7 @@ import java.util.{ArrayList, HashMap, List}
 
 import datasources.{DatasourceException, ProxyDataSource}
 import db_models.NavResultPoint
-import json.JsonValidator.{validateCoordinate, validateString, validateStringNumber}
+import json.VALIDATE.{Coordinate, String, StringNumber}
 import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, Request, Result}
@@ -65,7 +65,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!notFound.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
-        if (validateString(json, "buid") == null)
+        if (String(json, "buid") == null)
           return AnyResponseHelper.bad_request("Buid field must be String!")
         val buid = (json \ "buid").as[String]
         try {
@@ -95,7 +95,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!notFound.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
-        if (validateString(json, "pois") == null)
+        if (String(json, "pois") == null)
           return AnyResponseHelper.bad_request("Puid field must be String!")
         val puid = (json \ "pois").as[String]
         try {
@@ -126,10 +126,10 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        if (validateString(json, "pois_from") == null)
+        if (String(json, "pois_from") == null)
           return AnyResponseHelper.bad_request("pois_from field must be String!")
         val puid_from = (json \ "pois_from").as[String]
-        if (validateString(json, "pois_to") == null)
+        if (String(json, "pois_to") == null)
           return AnyResponseHelper.bad_request("pois_to field must be String!")
         val puid_to = (json \ "pois_to").as[String]
         if (puid_from.equalsIgnoreCase(puid_to)) {
@@ -178,16 +178,16 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         val notFound = JsonUtils.hasProperties(json, "coordinates_lat", "coordinates_lon", "floor_number",
           "pois_to")
         if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
-        if (validateCoordinate(json, "coordinates_lat") == null)
+        if (Coordinate(json, "coordinates_lat") == null)
           return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
         val coordinates_lat = (json \ "coordinates_lat").as[String]
-        if (validateCoordinate(json, "coordinates_lon") == null)
+        if (Coordinate(json, "coordinates_lon") == null)
           return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
         val coordinates_lon = (json \ "coordinates_lon").as[String]
-        if (validateStringNumber(json, "floor_number") == null)
+        if (StringNumber(json, "floor_number") == null)
           return AnyResponseHelper.bad_request("Floor_number field must be String, containing a number!")
         val floor_number = (json \ "floor_number").as[String]
-        if (validateString(json, "pois_to") == null)
+        if (String(json, "pois_to") == null)
           return AnyResponseHelper.bad_request("pois_to field must be String!")
         val puid_to = (json \ "pois_to").as[String]
         var res: Result = null

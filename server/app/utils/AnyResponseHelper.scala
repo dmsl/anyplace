@@ -179,6 +179,9 @@ object AnyResponseHelper {
     def internal_server_error(msg: String): Result = {
         createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
     }
+    def internal_server_error(msg: String, e: Exception): Result = {
+        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg + ": " + e.getClass + ": " + e.getMessage)
+    }
 
     def not_found(msg: String): Result = {
         createResultResponse(Response.NOT_FOUND, null, msg)
