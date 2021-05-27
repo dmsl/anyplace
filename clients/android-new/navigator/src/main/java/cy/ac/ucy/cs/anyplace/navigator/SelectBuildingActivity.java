@@ -62,8 +62,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
-import cy.ac.ucy.cs.anyplace.lib.android.cache.AnyplaceCache;
+import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
 import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Server;
@@ -112,17 +113,21 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 	private boolean isBuildingsJobRunning = false;
 	private boolean isFloorsJobRunning = false;
 
-	private AnyplaceCache mAnyplaceCache = null;
+	private ObjectCache mAnyplaceCache = null;
+
+	private AnyplaceApp app;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		app = (AnyplaceApp) getApplication();
+
 		requestWindowFeature((int) Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_select_building);
 
 		// get the AnyplaceCache instance
-		mAnyplaceCache = AnyplaceCache.getInstance(this);
+		mAnyplaceCache = ObjectCache.getInstance(app);
 
 		btnRefreshWorldBuildings = (Button) findViewById(R.id.btnWorldBuildingsRefresh);
 		btnRefreshWorldBuildings.setOnClickListener(new View.OnClickListener() {
@@ -175,12 +180,12 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 				BuildingModel build = mAnyplaceCache.getSelectedBuilding();
 
 				if (build != null && build.isFloorsLoaded()) {
-					setFloorSpinner(build.getFloors());
+					setFloorSpinner(build.getLoadedFloors());
 					try {
 						spinnerFloors.setSelection(build.getSelectedFloorIndex());
 					} catch (IndexOutOfBoundsException ex) {
 					}
-					onFloorsLoaded(build.getFloors());
+					onFloorsLoaded(build.getLoadedFloors());
 				} else {
 					startFloorFetch();
 				}
@@ -390,7 +395,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 		btnRefreshNearmeBuildings.setEnabled(false);
 		isBuildingsJobRunning = true;
 
-		mAnyplaceCache.loadWorldBuildings(new FetchBuildingsTaskListener() {
+		mAnyplaceCache.loadWorldBuildings(this, new FetchBuildingsTaskListener() {
 
 			@Override
 			public void onSuccess(String result, List<BuildingModel> buildings) {
@@ -432,7 +437,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 				btnRefreshNearmeBuildings.setEnabled(btnRefreshNearmeBuildingsState);
 				isBuildingsJobRunning = false;
 			}
-		}, this, forceReload);
+		}, forceReload);
 	}
 
 	private void startFloorFetch() throws IndexOutOfBoundsException {
@@ -442,12 +447,12 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
 			spinnerBuildings.setEnabled(false);
 
-			building.loadFloors(new FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener() {
+			building.loadFloors(app, new FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener() {
 
 				@Override
-				public void onSuccess(String result, List<FloorModel> floors) {
-					finishJob(floors);
-					onFloorsLoaded(floors);
+				public void onSuccess(String result, List<? extends FloorModel> floors) {
+					finishJob((List<FloorModel>) floors);
+					onFloorsLoaded((List<FloorModel>) floors);
 				}
 
 				@Override
@@ -463,7 +468,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 					isFloorsJobRunning = false;
 				}
 
-			}, this, true, true);
+			}, true, true);
 
 		}
 	}
@@ -475,19 +480,19 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
 	private void setBuildingSpinner(List<BuildingModel> buildings, List<Double> distance) {
 		if (!buildings.isEmpty()) {
-			mAnyplaceCache.setSpinnerBuildings(getApplicationContext(),buildings);
+			mAnyplaceCache.setSpinnerBuildings(app,buildings);
 			List<String> list = new ArrayList<String>();
 			if (distance == null) {
 				for (BuildingModel building : buildings) {
-					list.add(building.name);
+					list.add(building.getName());
 				}
 			} else {
 				for (int i = 0; i < buildings.size(); i++) {
 					double value = distance.get(i);
 					if (value < 1000) {
-						list.add(String.format("[%.0f m] %s", value, buildings.get(i).name));
+						list.add(String.format("[%.0f m] %s", value, buildings.get(i).getName()));
 					} else {
-						list.add(String.format("[%.1f km] %s", value / 1000, buildings.get(i).name));
+						list.add(String.format("[%.1f km] %s", value / 1000, buildings.get(i).getName()));
 					}
 				}
 			}
@@ -607,7 +612,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 				return;
 			}
 
-			final FloorModel f = b.getFloors().get(selectedFloorIndex);
+			final FloorModel f = b.getLoadedFloors().get(selectedFloorIndex);
 
 			final FetchFloorPlanTask fetchFloorPlanTask = new FetchFloorPlanTask(this, b.buid, f.floor_number);
 			fetchFloorPlanTask.setCallbackInterface(new FetchFloorPlanTask.FetchFloorPlanTaskListener() {

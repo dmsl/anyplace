@@ -1,6 +1,12 @@
+rootProject.name='AnyplaceClients'
+// LIBRARIES
+//// CORE: JAVA
+include ':lib-core'
+// CHECK:PM is this needed? since it is done anyway in module gradle files.
+project(':lib-core').projectDir = new File(settingsDir, '../core/lib')
+//// ANDROID
+include ':lib-android'
+
+// APPLICATIONS
 include ':navigator'
 include ':logger'
-rootProject.name='Anyplace'
-include ':lib'
-include ':lib-core'
-project(':lib-core').projectDir = new File(settingsDir, '../core/lib')
