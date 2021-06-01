@@ -18,8 +18,11 @@ def pushBuilding(database):
         line = file.readline()
         if not line:
             break
-        count += 1
-        col.insert_one(json.loads(line))
+        try:
+            col.insert_one(json.loads(line))
+            count += 1
+        except:
+            print("Failed validation: ", json.loads(line))
     if count == 0:
         print("File is empty.")
     else:
@@ -111,7 +114,7 @@ def pushFingerprintsWifi(database):
             else:
                 for jsonFingeprint in visited:  # for every visited json
                     if obj["timestamp"] == jsonFingeprint["timestamp"] and obj["buid"] == jsonFingeprint["buid"] \
-                            and obj["floor"] == jsonFingeprint["floor"] and obj["geometry"] == jsonFingeprint["geometry"] \
+                            and obj["floor"] == jsonFingeprint["floor"] and obj["x"] == jsonFingeprint["x"] and obj["y"] == jsonFingeprint["y"] \
                             and obj["heading"] == jsonFingeprint["heading"]:  # locate visited
                         # dupes += 1
                         found = True
@@ -123,9 +126,11 @@ def pushFingerprintsWifi(database):
         else:
             print(len(visited), "FingerprintsWifi were pushed for building" + fileP +"\n")
         for j in visited:
-            col.insert_one(j)
-            createAndPushFingerprintsHeatmap(database, j)
-            countAll += 1
+            try:
+                col.insert_one(addCountSum(j))
+                countAll += 1
+            except:
+                print("Failed validation: ", json.loads(line))
     print(countAll, "FingerprintsWifi were pushed in total.")
     # print("visited length = ", len(visited))
     # print("dupes = ", dupes)
@@ -146,19 +151,13 @@ def updateExistingFingerprint(old, new):
     updFin["measurements"] += newMeasurement
 
 
-def createAndPushFingerprintsHeatmap(database, obj):
-    finHeatmap = obj
-    del finHeatmap["x"]
-    del finHeatmap["y"]
-    del finHeatmap["heading"]
-    finHeatmap["total"] = len(finHeatmap["measurements"])
-    del finHeatmap["measurements"]
-    if "strongestWifi" in obj.keys():
-        del finHeatmap["strongestWifi"]
-    finHeatmap["location"] = finHeatmap["geometry"]
-    del finHeatmap["geometry"]
-    col = database["fingerprintsHeatmap"]
-    col.insert_one(finHeatmap)
+def addCountSum(obj):
+    obj["count"] = len(obj["measurements"])
+    total = 0
+    for measurement in obj["measurements"]:
+        total -= int(measurement[1]) * -1
+    obj["sum"] = total
+    return obj
 
 
 def pushFingerprintsBle(database):
@@ -267,11 +266,13 @@ collections = db.collection_names()
 countCollections = len(collections)
 print("Current number of collections: ", countCollections)
 # dropAllCollections(db, collections);  exit()
-if countCollections == 9:  # if database has 8 collections
+if countCollections >= 9:  
     print("Checking collections..")
     for x in collections:  # are those the correct colletions?
         if x != "buildings" and x != "campuses" and x != "edges" and x != "fingerprintsBle" and x != "fingerprintsWifi" \
-                and x != "floorplans" and x != "pois" and x != "users" and x != "accessPointsWifi" and x != "fingerprintsHeatmap":
+                and x != "floorplans" and x != "pois" and x != "users" and x != "accessPointsWifi" and x != "fingerprintsHeatmap" \
+                and x != "heatmapWifi1" and x != "heatmapWifi2" and x != "heatmapWifi3" \
+                and x != "heatmapWifiTimestamp1" and x != "heatmapWifiTimestamp2" and x != "heatmapWifiTimestamp3":
             print("Collection ", x, "has wrong name.")
             print("Exiting..")
             exit()
@@ -288,7 +289,7 @@ if countCollections == 9:  # if database has 8 collections
         else:
             print("Exiting..")
             exit()
-elif countCollections < 8:
+elif countCollections < 9:
     buildings = False
     campuses = False
     edges = False
@@ -313,6 +314,7 @@ elif countCollections < 8:
         pois = True
     if "users" in collections:
         users = True
+    buildings = False
     if buildings == False:
         pushBuilding(db)
     else: 
