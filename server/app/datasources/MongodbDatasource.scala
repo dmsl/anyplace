@@ -1488,26 +1488,26 @@ class MongodbDatasource() extends IDatasource {
             LPLogger.debug("error at level 1")
             return false
           }
-          //if (!updateHeatmap(fingerprint, 2, false)) {
-          //  LPLogger.debug("error at level 2")
-          //  return false
-          //}
-          //if (!updateHeatmap(fingerprint, 3,false)) {
-          //  LPLogger.debug("error at level 3")
-          //  return false
-          //}
-          //if (!updateHeatmap(fingerprint, 1, true)) {
-          //  LPLogger.debug("error at level 1 timestamp")
-          //  return false
-          //}
-          //if (!updateHeatmap(fingerprint, 2, true)) {
-          //  LPLogger.debug("error at level 2 timestamp")
-          //  return false
-          //}
-          //if (!updateHeatmap(fingerprint, 3, true)) {
-          //  LPLogger.debug("error at level 3 timestamp")
-          //  return false
-          //}
+          if (!updateHeatmap(fingerprint, 2, false)) {
+            LPLogger.debug("error at level 2")
+            return false
+          }
+          if (!updateHeatmap(fingerprint, 3,false)) {
+            LPLogger.debug("error at level 3")
+            return false
+          }
+          if (!updateHeatmap(fingerprint, 1, true)) {
+            LPLogger.debug("error at level 1 timestamp")
+            return false
+          }
+          if (!updateHeatmap(fingerprint, 2, true)) {
+            LPLogger.debug("error at level 2 timestamp")
+            return false
+          }
+          if (!updateHeatmap(fingerprint, 3, true)) {
+            LPLogger.debug("error at level 3 timestamp")
+            return false
+          }
         }
       }
     }
