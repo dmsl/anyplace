@@ -1,5 +1,5 @@
 # CHANGELOG: nneofy01 thesis:  
-You can use the Anyplace service or [Postman](./POSTMAN.md) in some cases to evaluate the bellow endpoints.
+You can use the Anyplace service or Postman [Instructions](./POSTMAN.md) in some cases to evaluate the bellow endpoints.
 
 ### Icon map:
 - BUGFIX: <img src="https://www.iconsdb.com/icons/preview/green/bug-2-xxl.png" height="20" />
