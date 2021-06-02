@@ -11,6 +11,7 @@ class SettingsActivity : AppCompatActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    LOG.D("$TAG: onCreate")
     super.onCreate(savedInstanceState)
     setContentView(R.layout.settings_activity)
     supportFragmentManager
@@ -22,10 +23,10 @@ class SettingsActivity : AppCompatActivity() {
   }
 
   class SettingsFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String) {
-      LOG.D(TAG, "root key: $rootKey")
-      //setPreferencesFromResource(R.xml.root_preferences, rootKey);
-      setPreferencesFromResource(R.xml.preferences_anyplace, rootKey)
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+      LOG.E(TAG, "root key: $rootKey")
+      //setPreferencesFromResource(R.xml.root_preferences, rootKey); // ANYPLACE
+      setPreferencesFromResource(R.xml.preferences_anyplace, rootKey) // LOGGER
     }
   }
 }

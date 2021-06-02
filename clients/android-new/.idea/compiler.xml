@@ -2,6 +2,9 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.8">
+      <module name="android-new.AnyplaceClients.lib-android" target="11" />
+      <module name="android-new.AnyplaceClients.logger" target="11" />
+      <module name="android-new.AnyplaceClients.navigator" target="11" />
       <module name="Anyplace.lib" target="11" />
       <module name="Anyplace.logger" target="11" />
       <module name="Anyplace.navigator" target="11" />

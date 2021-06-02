@@ -66,7 +66,7 @@ public class StartActivity extends Activity {
 			}
 
 			public void onFinish() {
-				Intent intent = new Intent(StartActivity.this, UnifiedNavigationActivity.class);
+				Intent intent = new Intent(StartActivity.this, NavigatorActivityOLD.class);
 				startActivity(intent);
 				StartActivity.this.finish();
 			}

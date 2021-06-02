@@ -63,8 +63,6 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
-import com.google.android.material.progressindicator.BaseProgressIndicator;
-
 import org.jetbrains.annotations.Nullable;
 
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
@@ -259,7 +257,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
       floorSelectorDialog.setMessage("Please be patient...");
       floorSelectorDialog.setCancelable(true);
       floorSelectorDialog.setCanceledOnTouchOutside(false);
-      floorSelector = new Algo1Server(getApplicationContext());
+      floorSelector = new Algo1Server(app);
       floorSelector.addListener((FloorSelector.FloorAnyplaceFloorListener) this);
       floorSelector.addListener((FloorSelector.ErrorAnyplaceFloorListener) this);
       isBuildingsLoadingFinished = false;
@@ -621,7 +619,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
       final FloorModel f = b.getLoadedFloors().get(selectedFloorIndex);
 
       final FetchFloorPlanTask fetchFloorPlanTask = new FetchFloorPlanTask(this, b.buid, f.floor_number);
-      fetchFloorPlanTask.setCallbackInterface(new FetchFloorPlanTask.FetchFloorPlanTaskListener() {
+      fetchFloorPlanTask.setCallbackInterface(new FetchFloorPlanTask.Callback() {
 
         private ProgressDialog dialog;
 

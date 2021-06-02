@@ -62,7 +62,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
@@ -81,6 +80,11 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
 
 
+/**
+ * TODO:PM competely redo this.
+ * A recycler view, that can pull all buildings, owner buldings, etc, based on design.
+ * AND reuse this on Navigator and Logger. the same activity.
+ */
 public class SelectBuildingActivity extends FragmentActivity implements FloorAnyplaceFloorListener,
         ErrorAnyplaceFloorListener {
 
@@ -115,13 +119,13 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
 	private ObjectCache mAnyplaceCache = null;
 
-	private AnyplaceApp app;
+	private NavigatorApp app;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		app = (AnyplaceApp) getApplication();
+		app = (NavigatorApp) getApplication();
 
 		requestWindowFeature((int) Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_select_building);
@@ -253,7 +257,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 			floorSelectorDialog.setMessage("Please be patient...");
 			floorSelectorDialog.setCancelable(true);
 			floorSelectorDialog.setCanceledOnTouchOutside(false);
-			floorSelector = new Algo1Server(getApplicationContext());
+			floorSelector = new Algo1Server(app);
 			floorSelector.addListener((FloorSelector.FloorAnyplaceFloorListener) this);
 			floorSelector.addListener((FloorSelector.ErrorAnyplaceFloorListener) this);
 			isBuildingsLoadingFinished = false;
@@ -447,7 +451,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
 			spinnerBuildings.setEnabled(false);
 
-			building.loadFloors(app, new FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener() {
+			building.loadFloors(this, new FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener() {
 
 				@Override
 				public void onSuccess(String result, List<? extends FloorModel> floors) {
@@ -615,7 +619,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 			final FloorModel f = b.getLoadedFloors().get(selectedFloorIndex);
 
 			final FetchFloorPlanTask fetchFloorPlanTask = new FetchFloorPlanTask(this, b.buid, f.floor_number);
-			fetchFloorPlanTask.setCallbackInterface(new FetchFloorPlanTask.FetchFloorPlanTaskListener() {
+			fetchFloorPlanTask.setCallbackInterface(new FetchFloorPlanTask.Callback() {
 
 				private ProgressDialog dialog;
 

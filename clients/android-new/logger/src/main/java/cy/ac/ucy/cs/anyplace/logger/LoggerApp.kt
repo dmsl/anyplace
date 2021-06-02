@@ -9,8 +9,11 @@ import cy.ac.ucy.cs.anyplace.lib.android.LOG
 class LoggerApp : AnyplaceApp() {
   private val TAG = LoggerApp::class.java.simpleName
 
+  override val navigator = false
+  override val logger = true
+
   override fun onCreate() {
     super.onCreate()
-    LOG.D2(TAG, "LoggerApp: onCreate")
+    LOG.D2(TAG, "onCreate")
   }
 }

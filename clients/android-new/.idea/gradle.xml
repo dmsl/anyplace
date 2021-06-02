@@ -10,11 +10,11 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/lib-android" />
-            <option value="$PROJECT_DIR$/logger" />
-            <option value="$PROJECT_DIR$/navigator" />
-            <option value="$PROJECT_DIR$/../core/lib" />
+            <option value="$PROJECT_DIR$/../../../git.clients.latest/clients/android-new" />
+            <option value="$PROJECT_DIR$/../../../git.clients.latest/clients/android-new/lib-android" />
+            <option value="$PROJECT_DIR$/../../../git.clients.latest/clients/android-new/logger" />
+            <option value="$PROJECT_DIR$/../../../git.clients.latest/clients/android-new/navigator" />
+            <option value="$PROJECT_DIR$/../../../git.clients.latest/clients/core/lib" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

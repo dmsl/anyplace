@@ -70,9 +70,7 @@ import android.content.Intent
 import android.app.AlertDialog
 import android.content.Context
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask.FetchFloorPlanTaskListener
 import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MapTileProvider
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid.DownloadRadioMapListener
 import cy.ac.ucy.cs.anyplace.lib.android.cache.BackgroundFetchListener
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -94,7 +92,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.*
-import com.google.maps.android.heatmaps.WeightedLatLng
 import cy.ac.ucy.cs.anyplace.lib.android.DBG
 import cy.ac.ucy.cs.anyplace.lib.android.consts.MSG
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.thermal.FlirUtils
@@ -109,7 +106,6 @@ import java.lang.StringBuilder
 import java.util.*
 
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // TODO: REMOVE logic from here! just the lifecycle management. How?
@@ -122,11 +118,11 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
   private val TAG = "ap-logger"
   private lateinit var app: LoggerApp
-  private lateinit var _b: ActivityLoggerOldBinding
+  private lateinit var VB: ActivityLoggerOldBinding
 
   private val LOCATION_CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000
   private val PLAY_SERVICES_RESOLUTION_REQUEST = 9001
-  private val PREFERENCES_ACTIVITY_RESULT = 1114
+  private val PREFS_LOGGER_RESULT = 1114
   private val SELECT_PLACE_ACTIVITY_RESULT = 1112
 
   val mInitialZoomLevel = 18.0f
@@ -141,7 +137,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // Define an object that holds accuracy and frequency parameters
   // private var mLocationRequest: LocationRequest? = null
   private lateinit var mLocationRequest: LocationRequest
-  private var gmap: GoogleMap? = null  // TODO: maps need a refresh..
+  private lateinit var gmap: GoogleMap  // TODO: maps need a refresh..
   private var marker: Marker? =null
   // XXX curLocation and mLastLocation?!?
   private var curLocation: LatLng? = null
@@ -156,17 +152,14 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // Load Building and Marker
   private lateinit var clusterManager: ClusterManager<BuildingModel>
   private lateinit var downloadRadioMapTaskBuid: DownloadRadioMapTaskBuid
-  private var searchType: SearchTypes? = null
+  private var searchType: SearchTypes = SearchTypes.UNKNOWN
   private var gpsMarker: Marker? = null
   private var bearing = 0f
 
-  private lateinit var btnTrackme: ImageButton
 
   // Load Building and Marker
   private lateinit var wifiManager: SimpleWifiManager
   private lateinit var wifiReceiver: WifiReceiver
-  // private lateinit var textFloor: TextView // showing the current floor
-  private var scanResults: TextView? = null // showing current scan results
   private var mSamplingProgressDialog: ProgressDialog? = null
 
   private var folder_path: String? = null   // Path to store rss file
@@ -174,8 +167,6 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // Filename to store rss records
   private var filename_rss: String? = null
 
-  private lateinit var btnRecord: Button  // record access points
-  private lateinit var mTrackingInfoView: TextView // current position and heading
   private lateinit var preferences: SharedPreferences
 
   // Positioning
@@ -204,62 +195,25 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     LOG.D(TAG, "onCreate")
     app = application as LoggerApp
 
-    lifecycleScope.launch { // CLR
-      LOG.D2("COROUTINE LAUNCHED")
-      delay(4000L)
-      LOG.D2("COROUTINE AFTER DELAY")
-      // laMarker.remove()
+    // ViewBinding
+    VB = ActivityLoggerOldBinding.inflate(layoutInflater)
+    setContentView(VB.root)
+
+    // init map
+    val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+    mapFragment!!.getMapAsync(this) // onMapReady
+
+    PermUtils.checkLoggerPermissionsAndSettings(this) // TODO proper permissions..
+
+    lifecycleScope.launch {
+      FlirUtils.initialize(app)
     }
 
-    // setContentView(R.layout.activity_logger_old)
-    _b = ActivityLoggerOldBinding.inflate(layoutInflater)
-    setContentView(_b.root)
+    VB.btnRecord.setOnClickListener { btnRecordingInfo() }
 
-    PermUtils.checkLoggerPermissionsAndSettings(this)
-
-    // should be called after locations are enabled..??
-    getLocationUpdates()
-    getLastKnownLocation()
-
-    FlirUtils.initialize(app)
-
-
-    // TODO move these above
-    scanResults = findViewById<View>(R.id.detectedAPs) as TextView
-    mTrackingInfoView = findViewById<View>(R.id.trackingInfoData) as TextView
-
-    btnRecord = findViewById<View>(R.id.recordBtn) as Button
-    btnRecord.setOnClickListener { btnRecordingInfo() }
-
-    // setup the trackme button overlaid in the map
-    btnTrackme = findViewById<View>(R.id.btnTrackme) as ImageButton
-    btnTrackme.setOnClickListener {
-      if (gpsMarker != null) {  // XXX FIX-FLOW
-        val mAnyplaceCache = ObjectCache.getInstance(app)
-        mAnyplaceCache.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
-          override fun onSuccess(result: String, buildings: List<BuildingModel>) {
-            val nearest = FetchNearBuildingsTask()
-            nearest.run(buildings.iterator(), gpsMarker!!.position.latitude, gpsMarker!!.position.longitude, 100)
-            if (nearest.buildings.size > 0) {
-              bypassSelectBuildingActivity(nearest.buildings[0])
-            } else {
-              // mMap.getCameraPosition().zoom
-              gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
-            }
-          }
-
-          override fun onErrorOrCancel(result: String) {
-            Toast.makeText(baseContext, "Error localizing", Toast.LENGTH_SHORT).show()
-          }
-        }, false)
-      } else {
-        LOG.W(TAG, "GPS Marker is null!. skip loading buildings")
-      }
-    }
-    val btnFloorUp = findViewById<View>(R.id.btnFloorUp) as ImageButton
-    btnFloorUp.setOnClickListener(View.OnClickListener {
+    VB.btnFloorUp.setOnClickListener(View.OnClickListener {
       if (buildingCurrent == null) {
-        Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(baseContext, "Open a building first!", Toast.LENGTH_SHORT).show()
         return@OnClickListener
       }
       if (mIsSamplingActive) {
@@ -273,8 +227,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         bypassSelectBuildingActivity(buildingCurrent!!, buildingCurrent!!.loadedFloors[index + 1])
       }
     })
-    val btnFloorDown = findViewById<View>(R.id.btnFloorDown) as ImageButton
-    btnFloorDown.setOnClickListener(View.OnClickListener {
+
+    VB.btnFloorDown.setOnClickListener(View.OnClickListener {
       if (buildingCurrent == null) {
         Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show()
         return@OnClickListener
@@ -291,12 +245,6 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
       }
     })
 
-
-
-
-
-    // TODO:PM update
-    // What is folder browser?
     // get settings
     // TODO:PM preferences specific to logger-wifi, to logger-cv, and generic to anyplace
     PreferenceManager.setDefaultValues(this, getString(R.string.preferences_file), MODE_PRIVATE,
@@ -333,7 +281,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     movementDetector.addStepListener(WalkingListener())
     val mSamplingAnyplaceLoggerReceiver = AnyplaceLoggerReceiver()
     logger = LoggerWiFi(mSamplingAnyplaceLoggerReceiver)
-    setUpMapIfNeeded()
+    // setUpMapIfNeeded()
   }
 
 
@@ -351,11 +299,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
   public override fun onResume() {
     LOG.D3(TAG, "onResume")
-
     super.onResume()
-    startLocationUpdates()
-
-    setUpMapIfNeeded()
+    // setUpMapIfNeeded()
     if (!mIsSamplingActive) {
       positioning.resume()
     }
@@ -401,7 +346,6 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
             }
   }
 
-
   private fun getLocationUpdates() {
     LOG.I("getLocationUpdates()")
     // TODO use static values for this!!!!
@@ -430,7 +374,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
           val prettyLoc = LocationUtils.prettyLocation(location, applicationContext)
           LOG.D2("Location: Update: $prettyLoc")
-            updateLocation(location)
+          updateLocation(location)
         } else {
           LOG.D2("Location: Update: <empty>")
         }
@@ -476,19 +420,58 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private fun setUpMapIfNeeded() {
     // Do a null check to confirm that we have not already instantiated the
     // map.
-    if (gmap != null) {
-      return
-    }
-    val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment?
-    mapFragment!!.getMapAsync(this)
+    // if (gmap != null) {
+    //   return
+    // }
+
   }
 
   override fun onMapReady(googleMap: GoogleMap) {
+    LOG.D2(TAG, "onMapReady")
     gmap = googleMap
-    gmap!!.mapType = GoogleMap.MAP_TYPE_NORMAL
+    gmap.mapType = GoogleMap.MAP_TYPE_NORMAL
+
+    getLocationUpdates()
+    getLastKnownLocation()
+    startLocationUpdates()
+
     clusterManager = ClusterManager<BuildingModel>(this, gmap)
     initListeners()
+
+    // setup the trackme button overlaid in the map
+    VB.btnTrackme.setOnClickListener {
+      LOG.D("Track me clicked!")
+      if (gpsMarker != null) {  // XXX FIX-FLOW
+        LOG.D("gpsMarker: not null")
+        val mAnyplaceCache = ObjectCache.getInstance(app)
+        mAnyplaceCache.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
+          override fun onSuccess(result: String, buildings: List<BuildingModel>) {
+            LOG.E(TAG, "loadWorldBuildings: onSuccess")
+            LOG.E(TAG, "onSuccess: finding nearest buildings")
+            val nearest = FetchNearBuildingsTask()
+            nearest.run(buildings.iterator(),
+                    gpsMarker!!.position.latitude, gpsMarker!!.position.longitude,
+                    100)
+
+            LOG.E(TAG, "nearby buildigns: ${nearest.buildings.size}")
+            if (nearest.buildings.size > 0) {
+              LOG.E(TAG, "chosen: ${nearest.buildings[0].name}")
+              bypassSelectBuildingActivity(nearest.buildings[0])
+            } else {
+              // LOG.E(TAG, "animating camera: no nearest building found!")
+              gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
+            }
+          }
+
+          override fun onErrorOrCancel(result: String) {
+            Toast.makeText(baseContext, "Error localizing", Toast.LENGTH_SHORT).show()
+          }
+        }, false)
+      } else {
+        LOG.W(TAG, "GPS Marker is null! skip loading buildings")
+      }
+    }
+
   }
 
   // CHECK?!?
@@ -512,11 +495,11 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         marker.title("User").snippet("Estimated Position")
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
         marker.rotation(raw_heading - bearing)
-        gpsMarker = gmap!!.addMarker(marker)
+        gpsMarker = gmap.addMarker(marker)
 
         //move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-        gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.getPosition(), mInitialZoomLevel))
+        gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.getPosition(), mInitialZoomLevel))
       }
       fusedLocationClient.removeLocationUpdates(this)
     }
@@ -542,7 +525,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         marker.title("User").snippet("Estimated Position")
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
         marker.rotation(raw_heading - bearing)
-        gpsMarker = gmap!!.addMarker(marker)
+        gpsMarker = gmap.addMarker(marker)
 
         // move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
@@ -578,12 +561,12 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         marker.title("User").snippet("Estimated Position")
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
         marker.rotation(raw_heading - bearing)
-        gpsMarker = gmap!!.addMarker(marker)
+        gpsMarker = gmap.addMarker(marker)
         // Log.d(TAG, "Should have a marker");
 
         //move map camera
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
-        gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
+        gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
       }
       // fusedLocationClient.removeLocationUpdates(this)  XXX
       // checkLocationPermission() // TODO
@@ -619,35 +602,43 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
   @SuppressLint("PotentialBehaviorOverride")
   private fun initListeners() {
-    gmap!!.setOnCameraChangeListener { position -> // change search box message and clear pois
-      if (searchType != null) {
-        if (searchType != AnyPlaceSeachingHelper.getSearchType(position.zoom)) {
-          searchType = AnyPlaceSeachingHelper.getSearchType(position.zoom)
-          if (searchType == SearchTypes.INDOOR_MODE) {
-            btnTrackme.visibility = View.INVISIBLE
-            btnRecord.visibility = View.VISIBLE
-            if (gpsMarker != null) {
-              // draw the location of the new position
-              gpsMarker!!.remove()
-            }
-          } else if (searchType == SearchTypes.OUTDOOR_MODE) {
-            btnTrackme.visibility = View.VISIBLE
-            btnRecord.visibility = View.INVISIBLE
-            // checkLocationPermission() // XXX
-            // fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallbackConnected, Looper.myLooper())
-            handleBuildingsOnMap()
+    LOG.D2("loadBuildingsOnMap: initListeners")
+    loadBuildingsOnMap() // load buildings anyway?
 
-            // mMap.setMyLocationEnabled(true);
+    gmap.setOnCameraIdleListener {
+      val position = gmap.cameraPosition
+      if (searchType == SearchTypes.UNKNOWN) {
+        LOG.D2("Search type was null. initializing..")
+        searchType = AnyPlaceSeachingHelper.getSearchType(position.zoom)
+      }
+      LOG.E("initListeners: searchType")
+      if (searchType != AnyPlaceSeachingHelper.getSearchType(position.zoom)) {
+        searchType = AnyPlaceSeachingHelper.getSearchType(position.zoom)
+        if (searchType == SearchTypes.INDOOR_MODE) {
+          LOG.E("initListeners: searchType: indoor")
+          VB.btnTrackme.visibility = View.INVISIBLE
+          VB.btnRecord.visibility = View.VISIBLE
+          if (gpsMarker != null) {
+            // draw the location of the new position
+            gpsMarker!!.remove()
           }
+        } else if (searchType == SearchTypes.OUTDOOR_MODE) {
+          LOG.E("initListeners: searchType: outdoor")
+          VB.btnTrackme.visibility = View.VISIBLE
+          VB.btnRecord.visibility = View.INVISIBLE
+          // checkLocationPermission() // XXX
+          // fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallbackConnected, Looper.myLooper())
+          // mMap.setMyLocationEnabled(true);
         }
       }
+
       bearing = position.bearing
       // mClusterManager.onCameraChange(position) // XXX:PM CHECK:PM
-      gmap!!.setOnCameraIdleListener(clusterManager)
-      gmap!!.setOnMarkerClickListener(clusterManager)  // warn: PotentialBehaviourOverride
+      gmap.setOnCameraIdleListener(clusterManager)
+      gmap.setOnMarkerClickListener(clusterManager)  // warn: PotentialBehaviourOverride
     }
-    gmap!!.setOnMapClickListener(this)
-    gmap!!.setOnMarkerDragListener(object : OnMarkerDragListener {
+    gmap.setOnMapClickListener(this)
+    gmap.setOnMarkerDragListener(object : OnMarkerDragListener {
       override fun onMarkerDragStart(arg0: Marker) {}
 
       override fun onMarkerDragEnd(arg0: Marker) {
@@ -661,7 +652,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
       override fun onMarkerDrag(arg0: Marker) {}
     })
-    gmap!!.setOnMarkerClickListener(clusterManager)
+    gmap.setOnMarkerClickListener(clusterManager)
     clusterManager.setOnClusterItemClickListener { b ->
       b?.let { bypassSelectBuildingActivity(it) }
       // Prevent Popup dialog
@@ -669,13 +660,13 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     }
   }
 
-  private fun checkReady(): Boolean {
-    if (gmap == null) {
-      Toast.makeText(this, "Map not ready!", Toast.LENGTH_SHORT).show()
-      return false
-    }
-    return true
-  }
+  // private fun checkReady(): Boolean {
+  //   if (gmap == null) {
+  //     Toast.makeText(this, "Map not ready!", Toast.LENGTH_SHORT).show()
+  //     return false
+  //   }
+  //   return true
+  // }
 
   /******************************************************************************************************************
    * LOCATION API FUNCTIONS
@@ -742,7 +733,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     if (checkPlayServices()) {  // CHECK
       initCamera()
       // CHECK:PM Is this a BUG? it is not initialized even in legacy app
-      searchType = AnyPlaceSeachingHelper.getSearchType(gmap!!.cameraPosition.zoom)
+      searchType = AnyPlaceSeachingHelper.getSearchType(gmap.cameraPosition.zoom)
       // CLR:PM ?
       // if (type == SearchTypes.INDOOR_MODE) {
       // } else if (type == SearchTypes.OUTDOOR_MODE) {
@@ -768,7 +759,6 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // }
 
   private fun updateLocation(loc: Location) {
-
     val gps: GeoPoint
     if (AnyplaceDebug.DEBUG_WIFI) {
       gps = AnyUserData.fakeGPS()
@@ -786,17 +776,19 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     val marker = MarkerOptions()
     marker.position(LatLng(gps.dlat, gps.dlon))
     marker.title("User").snippet("Estimated Position")
-    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
+    marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.user_location))
     marker.rotation(raw_heading - bearing)
-    gpsMarker = gmap!!.addMarker(marker)
+    gpsMarker = gmap.addMarker(marker)
   }
 
-  private fun handleBuildingsOnMap() {
+  private fun loadBuildingsOnMap() {
+    LOG.D2("loadBuildingsOnMap")
     val mAnyplaceCache = ObjectCache.getInstance(app)
     mAnyplaceCache.loadWorldBuildings(this@LoggerActivityOLD, object : FetchBuildingsTaskListener {
       override fun onSuccess(result: String, buildings: List<BuildingModel>) {
         val collection: MutableList<BuildingModel> = ArrayList(buildings)
-        clusterManager.clearItems()
+        LOG.D2("loadBuildingsOnMap: clearing cluster/gmap")
+        mapClear()
         if (buildingCurrent != null) collection.remove(buildingCurrent!!)
         clusterManager.addItems(collection)
         clusterManager.cluster()
@@ -811,11 +803,9 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   /** Called when we want to clear the map overlays  */
   private fun mapClear() {
     LOG.D2("mapClear")
-    if (!checkReady()) {
-      return
-    }
+    // if (!checkReady()) { return }
     clusterManager.clearItems()
-    gmap!!.clear()
+    gmap.clear()
   }
 
 
@@ -830,7 +820,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     when (requestCode) {
       PermUtils.REQ_LOC_FINE_GRAIN -> permType = "location/fine"
       PermUtils.REQ_LOC_BG-> permType = "location/bg"
-      }
+    }
 
     val msg = "Permission $status ($permType)"
     Toast.makeText(this@LoggerActivityOLD, msg, Toast.LENGTH_SHORT).show();
@@ -866,21 +856,23 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
           Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
         }
       }
-      PREFERENCES_ACTIVITY_RESULT -> if (resultCode == RESULT_OK) {
+      PREFS_LOGGER_RESULT -> if (resultCode == RESULT_OK) {
         val result = data!!.getSerializableExtra("action") as LoggerPrefs.Action
         when (result) {
           LoggerPrefs.Action.REFRESH_BUILDING -> {
+            LOG.D(TAG, "Refreshing buildings..")
             if (buildingCurrent == null) {
               Toast.makeText(baseContext, "Load a map before performing this action!", Toast.LENGTH_SHORT).show()
-            } else if (_b.progressBar.visibility == View.VISIBLE) {
+            } else if (VB.progressBar.visibility == View.VISIBLE) {
               Toast.makeText(baseContext, "Building Loading in progress. Please Wait!", Toast.LENGTH_SHORT).show()
             } else {
               try {
-
                 // clear_floorplans
-                val floorsRoot = File(AnyplaceUtils.getFloorPlansRootFolder(this), buildingCurrent!!.buid)
+                // val floorsRoot = File(AnyplaceUtils!.getFloorPlansRootFolder(this), buildingCurrent!!.buid)
+                val floorsRoot = File(app.fileCache.floorplansFolder(), buildingCurrent!!.buid)
                 // clear radiomaps
-                val radiomapsRoot = AnyplaceUtils.getRadioMapsRootFolder(this)
+                // val radiomapsRoot = AnyplaceUtils!.getRadioMapsRootFolder(this)
+                val radiomapsRoot = app.fileCache.radiomapsFolder();
                 val radiomaps = radiomapsRoot.list { dir, filename -> if (filename.startsWith(buildingCurrent!!.buid)) true else false }
                 var i = 0
                 while (i < radiomaps!!.size) {
@@ -919,6 +911,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
       // Load Building
       building.loadFloors(this, object : FetchFloorsByBuidTaskListener {
         override fun onSuccess(result: String?, floors: List<FloorModel>?) {
+          LOG.E("loadFloors: onSuccess")
           val mAnyplaceCache = ObjectCache.getInstance(app)
           val list = ArrayList<BuildingModel>(1)
           list.add(building)
@@ -932,6 +925,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
 
         override fun onErrorOrCancel(result: String?) {
+          LOG.E(TAG, "loadFloors: errorOrCancel")
           Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
         }
       }, forceReload = false, showDialog = true)
@@ -939,20 +933,23 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   }
 
   private fun bypassSelectBuildingActivity(b: BuildingModel, f: FloorModel?) {
-    val fetchFloorPlanTask = FetchFloorPlanTask(applicationContext, b.buid, f!!.floor_number)
-    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTaskListener {
+    val fetchFloorPlanTask = FetchFloorPlanTask(this, b.buid, f!!.floor_number)
+    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
       private val dialog: ProgressDialog? = null
-      override fun onSuccess(result: String, floor_plan_file: File) {
+      override fun onSuccess(result: String?, floor_plan_file: File?) {
+        LOG.D(TAG, "bypassSelectBuildingActivity: onSuccess(FetchFloorPlanTask)")
         dialog?.dismiss()
         selectPlaceActivityResult(b, f)
       }
 
-      override fun onErrorOrCancel(result: String) {
+      override fun onErrorOrCancel(result: String?) {
         dialog?.dismiss()
         Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
       }
 
-      override fun onPrepareLongExecute() {
+      override fun onPrepareLongExecute() { // CLR
+        LOG.E("onPrepareLongExecute: wanted to add large progress bar")
+        VB.progressBar.visibility = View.VISIBLE
         // CHECK who disabled this?
         // dialog = new ProgressDialog(getApplicationContext());
         // dialog.setIndeterminate(true);
@@ -967,26 +964,26 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         //   }
         // });
         // dialog.show();
-        LOG.E("onPrepareLongExecute: wanted to add large progress bar")
         // val layout = findViewById<RelativeLayout>(R.id.loggerView)
         // CHECK THIS:
         // val progressBar = ProgressBar(this@LoggerActivity, null, android.R.attr.progressBarStyleLarge)
         // val params = RelativeLayout.LayoutParams(100, 100)
         // params.addRule(RelativeLayout.CENTER_IN_PARENT)
         // layout.addView(progressBar, params)
-        _b.progressBar.visibility = View.VISIBLE
       }
     })
     fetchFloorPlanTask.execute()
   }
 
   private fun loadMapBasicLayer(b: BuildingModel, f: FloorModel?) {
+    LOG.E(TAG, "loadMapBasicLayer")
     // remove the previous GroundOverlay or TileOverlay
-    gmap!!.clear()
+    mapClear()
     // load the floorplan
     // add the Tile Provider that uses our Building tiles over
     // Google Maps
-    val mTileOverlay = gmap!!.addTileOverlay(TileOverlayOptions().tileProvider(MapTileProvider(baseContext, b.buid, f!!.floor_number)).zIndex(0f))
+    val mTileOverlay = gmap.addTileOverlay(
+            TileOverlayOptions().tileProvider(MapTileProvider(app, b.buid, f!!.floor_number)).zIndex(0f))
   }
 
   private fun selectPlaceActivityResult(b: BuildingModel, f: FloorModel?) {
@@ -996,31 +993,35 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     mCurrentFloor = f
     curLocation = null
     userIsNearby = false
-    _b.textFloor.text = f.floor_name
+    VB.textFloor.text = f.floor_name
     loadMapBasicLayer(b, f)
-    gmap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(b.position, 19.0f), object : CancelableCallback {
+    gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(b.position, 19.0f), object : CancelableCallback {
       override fun onFinish() {
-        handleBuildingsOnMap()
+        LOG.D2("loadBuildingsOnMap: selectPlaceActivityResult")
+        loadBuildingsOnMap()
       }
 
       override fun onCancel() {}
     })
 
-    class Callback : DownloadRadioMapListener, PreviousRunningTask {
-      // XXX Progressbar here should be given AS argument
-      var progressBarEnabled = false
+    class CallbackDownloadRadiomap : DownloadRadioMapTaskBuid.Callback, PreviousRunningTask {
+      var progressBarEnabled = false  // XXX Progressbar here should be given AS argument
       var disableSuccess = false
-      override fun onSuccess(result: String) {
+      override fun onSuccess(result: String?) {
         if (disableSuccess) {
           onErrorOrCancel("")
           return
         }
         val root: File
         try {
-          root = AnyplaceUtils.getRadioMapFolder(this@LoggerActivityOLD, buildingCurrent!!.buid, mCurrentFloor!!.floor_number)
-          val file = File(root, AnyplaceUtils.getRadioMapFileName(mCurrentFloor!!.floor_number))
+          // root = AnyplaceUtils1.getRadioMapFolder(this@LoggerActivityOLD, buildingCurrent!!.buid, mCurrentFloor!!.floor_number)
+          root = app.fileCache.radiomapsFolder(buildingCurrent!!.buid, mCurrentFloor!!.floor_number)
+          LOG.D(TAG, "callback: DownloadRadioMapTaskBuid: root: $root")
+          // val file = File(root, AnyplaceUtils.getRadioMapFileName(mCurrentFloor!!.floor_number))
+          val file = File(root, app.fileCache.radiomapFilename(mCurrentFloor!!.floor_number))
+          LOG.D(TAG, "callback: DownloadRadioMapTaskBuid: file: $root")
           // LOG.D3(TAG, "inside the Callback class before heatmaptask") // CLR?
-          HeatmapTask(this@LoggerActivityOLD, mProvider!!, gmap!!).execute(file)
+          HeatmapTask(this@LoggerActivityOLD, mProvider!!, gmap).execute(file)
         } catch (e: Exception) {
         }
         if (AnyplaceDebug.PLAY_STORE) {
@@ -1029,12 +1030,12 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
             override fun onSuccess(result: String) {
               hideProgressBar()
               if (AnyplaceDebug.DEBUG_MESSAGES) {
-                btnTrackme.setBackgroundColor(Color.YELLOW)
+                VB.btnTrackme.setBackgroundColor(Color.YELLOW)
               }
             }
 
             override fun onProgressUpdate(progress_current: Int, progress_total: Int) {
-              _b.progressBar.progress = (progress_current.toFloat() / progress_total * _b.progressBar.max).toInt()
+              VB.progressBar.progress = (progress_current.toFloat() / progress_total * VB.progressBar.max).toInt()
             }
 
             override fun onErrorOrCancel(result: String, error: BackgroundFetchListener.ErrorType) {
@@ -1052,7 +1053,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
       }
 
-      override fun onErrorOrCancel(result: String) {
+      override fun onErrorOrCancel(result: String?) {
         if (DBG.CALLBACK) {
           Log.d(TAG, "Callback onErrorOrCancel with $result")
         }
@@ -1065,7 +1066,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         progressBarEnabled = true
         showProgressBar()
         // Set a smaller percentage than fetchAllFloorsRadiomapsOfBUID
-        _b.progressBar.progress = (1.0f / (b.loadedFloors.size * 2) * _b.progressBar!!.max).toInt()
+        VB.progressBar.progress = (1.0f / (b.loadedFloors.size * 2) * VB.progressBar!!.max).toInt()
       }
 
       override fun disableSuccess() {
@@ -1076,17 +1077,17 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     // if (downloadRadioMapTaskBuid != null) {
     //   (downloadRadioMapTaskBuid!!.callbackInterface as PreviousRunningTask).disableSuccess()
     // }
-    downloadRadioMapTaskBuid = DownloadRadioMapTaskBuid(Callback(), this, b.latitudeString, b.longitudeString, b.buid, f.floor_number, false)
-    val currentapiVersion = Build.VERSION.SDK_INT
+
+    // b.latitudeString, b.longitudeString : INFO:PM removed those as the task did not utilize them
+    downloadRadioMapTaskBuid = DownloadRadioMapTaskBuid(this@LoggerActivityOLD,
+            CallbackDownloadRadiomap(),
+            b.buid, f.floor_number, false)
     // TODO:PM KT coroutine
-    if (currentapiVersion >= Build.VERSION_CODES.HONEYCOMB) {
-      // Execute task parallel with others and multiple instances of
-      // itself
-      downloadRadioMapTaskBuid.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-    } else {
-      downloadRadioMapTaskBuid.execute()
-    }
-    showHelp("Help", "<b>1.</b> Select your floor (using arrows on the right).<br><b>2.</b> Click on the map (to identify your location).")
+    // Execute task parallel with others and multiple instances of
+    // itself
+    downloadRadioMapTaskBuid.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+    showHelp("Help", "<b>1.</b> Select your floor (using arrows on the right).<br>" +
+            "<b>2.</b> Click on the map (to identify your location).")
   }
 
   override fun onConfigurationChanged(newConfig: Configuration) {
@@ -1150,19 +1151,19 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
       R.id.main_menu_clear_logging -> {
         if (buildingCurrent == null) Toast.makeText(baseContext, "Load a map before tracking can be used!", Toast.LENGTH_SHORT).show() else {
           loadMapBasicLayer(buildingCurrent!!, mCurrentFloor)
-          handleBuildingsOnMap()
+          loadBuildingsOnMap()
           if (curLocation != null) updateMarker(curLocation!!)
         }
         return true
       }
       R.id.logger_menu_preferences -> {
         val i = Intent(this, LoggerPrefs::class.java)
-        startActivityForResult(i, PREFERENCES_ACTIVITY_RESULT)
+        startActivityForResult(i, PREFS_LOGGER_RESULT)
         return true
       }
       R.id.main_menu_preferences -> {
-        val i = Intent(this, SettingsActivity::class.java)
-        // startActivityForResult(i, PREFERENCES_ACTIVITY_RESULT);
+        val i = Intent(this, AnyplacePrefs::class.java)
+        // startActivityForResult(i, PREFERENCES_ACTIVITY_RESULT)
         startActivity(i)
         return true
       }
@@ -1178,7 +1179,9 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     if (marker != null) {
       marker!!.remove()
     }
-    marker = gmap!!.addMarker(MarkerOptions().position(latlng).draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
+    LOG.E(TAG, "updateMarker")
+    marker = gmap.addMarker(MarkerOptions().position(latlng).draggable(true).icon(
+            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
     curLocation = latlng
   }
 
@@ -1200,7 +1203,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     sb.append("  Samples[ ")
     sb.append(mCurrentSamplesTaken)
     sb.append(" ]")
-    mTrackingInfoView!!.text = sb.toString()
+    VB.trackingInfoData.text = sb.toString()
   }
 
   /*
@@ -1264,7 +1267,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
       options.strokeWidth(3f)
       // Display above floor image
       options.zIndex(2f)
-      gmap!!.addCircle(options)
+      gmap.addCircle(options)
     }
 
     override fun onFinish(logger: LoggerWiFi, function: LoggerWiFi.Function) {
@@ -1302,6 +1305,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
           }
           mCurrentSamplesTaken -= mSamples.size
           if (mSamplingProgressDialog != null) {
+            LOG.E(TAG, "will enable record btn")
             mSamplingProgressDialog!!.dismiss()
             mSamplingProgressDialog = null
             enableRecordButton()
@@ -1319,8 +1323,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     override fun onReceive(c: Context, intent: Intent) {
       try {
         if (intent == null || c == null || intent.action == null) return
-        val wifiList = wifiManager!!.scanResults
-        scanResults!!.text = "AP : " + wifiList.size
+        val wifiList = wifiManager.scanResults
+        VB.scanResults.text = "AP : " + wifiList.size
 
         // If we are not in an active sampling session we have to skip
         // this intent
@@ -1433,6 +1437,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
       toastPrint("Filename of RSS log not specified\nGo to Menu::Preferences::Storing Settings::Filename", Toast.LENGTH_LONG)
       return
     }
+    LOG.E(TAG, "DISABLING RECORD..")
     disableRecordButton()
     // start the TASK
     mIsSamplingActive = true
@@ -1500,24 +1505,26 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   }
 
   private fun showProgressBar() {
-    _b.progressBar.visibility = View.VISIBLE
+    VB.progressBar.visibility = View.VISIBLE
   }
 
   private fun hideProgressBar() {
-    _b.progressBar.visibility = View.GONE
+    VB.progressBar.visibility = View.GONE
   }
 
   // *****************************************************************************
   // HELPERS
   // *****************************************************************************
   private fun enableRecordButton() {
-    btnRecord.text = "Start WiFi Recording"
-    btnRecord.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.presence_invisible, 0, 0, 0)
+    LOG.E(TAG, "enableRecordButton")
+    VB.btnRecord.text = "Start WiFi Recording"
+    VB.btnRecord.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.presence_invisible, 0, 0, 0)
   }
 
   private fun disableRecordButton() {
-    btnRecord.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.presence_online, 0, 0, 0)
-    btnRecord.text = "Stop WiFi Recording"
+    LOG.E(TAG, "disableRecordButton")
+    VB.btnRecord.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.presence_online, 0, 0, 0)
+    VB.btnRecord.text = "Stop WiFi Recording"
   }
 
 

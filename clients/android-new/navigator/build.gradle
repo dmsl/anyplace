@@ -1,4 +1,9 @@
-apply plugin: 'com.android.application'
+plugins {
+  id 'com.android.application'
+  id 'kotlin-android'
+
+  id 'androidx.navigation.safeargs'
+}
 
 android {
   compileSdkVersion 30
@@ -28,6 +33,10 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
+  }
+
+  buildFeatures {
+    viewBinding true
   }
 
   packagingOptions {
@@ -83,7 +92,7 @@ dependencies {
   //  implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'   // JitPack
   // During development, local inclusion of the libraries can be used.
   // This requires pulling the all submodules (see README.md)
-  // implementation project(path: ':lib-core')
+   implementation project(path: ':lib-core')
     implementation project(path: ':lib-android')
 
   // Testing:

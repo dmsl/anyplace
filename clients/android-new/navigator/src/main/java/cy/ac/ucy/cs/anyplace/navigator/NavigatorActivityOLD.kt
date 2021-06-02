@@ -74,10 +74,6 @@ import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.clustering.ClusterManager
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug
-import cy.ac.ucy.cs.anyplace.lib.android.LOG.Companion.D
-import cy.ac.ucy.cs.anyplace.lib.android.LOG.Companion.D3
-import cy.ac.ucy.cs.anyplace.lib.android.LOG.Companion.E
-import cy.ac.ucy.cs.anyplace.lib.android.LOG.Companion.I
 import cy.ac.ucy.cs.anyplace.lib.android.cache.BackgroundFetchListener
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout
@@ -93,15 +89,13 @@ import cy.ac.ucy.cs.anyplace.lib.android.googlemap.VisiblePois
 import cy.ac.ucy.cs.anyplace.lib.android.nav.*
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.HTMLCursorAdapter
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes
-import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel.FetchBuildingTaskListener
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.MovementDetector
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsMain
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsStepCounter
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.*
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.AnyplaceSuggestionsTask.AnyplaceSuggestionsListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid.DownloadRadioMapListener
+import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid.Callback
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask.FetchFloorPlanTaskListener
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchPoiByPuidTask.FetchPoiListener
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.NavIndoorTask.NavRouteListener
@@ -113,17 +107,29 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint
 import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils
 import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager
-import cy.ac.ucy.cs.anyplace.navigator.NavigatorActivityOLD
+import cy.ac.ucy.cs.anyplace.navigator.databinding.ActivityNavigatorOldBinding
 import java.io.File
 import java.util.*
 
-//import com.flurry.android.FlurryAgent;
+//import com.flurry.android.FlurryAgent; CLR:PM
 //import com.google.android.gms.common.GooglePlayServicesClient;
 //import com.google.android.gms.location.LocationClient;
-class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListener, WifiResultsAnyplaceTrackerListener, ErrorAnyplaceTrackerListener, LocationListener, FloorAnyplaceFloorListener, ErrorAnyplaceFloorListener, OnSharedPreferenceChangeListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
-  private val mLocationListener: LocationListener = this
+
+class NavigatorActivityOLD : AppCompatActivity(),
+        TrackedLocAnyplaceTrackerListener,
+        WifiResultsAnyplaceTrackerListener,
+        ErrorAnyplaceTrackerListener,
+        LocationListener,
+        FloorAnyplaceFloorListener,
+        ErrorAnyplaceFloorListener,
+        OnSharedPreferenceChangeListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        OnMapReadyCallback {
+  // private val mLocationListener: LocationListener = this
+  // private val raw_heading = 0.0f
+
   private var mLastLocation: Location? = null
-  private val raw_heading = 0.0f
   private var builds: List<BuildingModel>? = null
   private var mFusedLocationClient: FusedLocationProviderClient? = null
   private val REQUEST_PERMISSION_LOCATION = 1
@@ -133,23 +139,22 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
   // Define an object that holds accuracy and frequency parameters
   private var mLocationRequest: LocationRequest? = null
 
-  // UI Elements
-  private var progressBar: ProgressBar? = null
-  private var btnFloorUp: ImageButton? = null
-  private var btnFloorDown: ImageButton? = null
-  private var textFloor: TextView? = null
-  private var detectedAPs: TextView? = null
-  private var btnTrackme: ImageButton? = null
-  private var textDebug: TextView? = null
-  private var searchType = SearchTypes.OUTDOOR_MODE
-  private var searchView: SearchView? = null
+  private lateinit var _b: ActivityNavigatorOldBinding
+  // UI Elements TODO:PM relace with binding?
+  private lateinit var progressBar: ProgressBar
+  private lateinit var btnFloorUp: ImageButton
+  private lateinit var btnFloorDown: ImageButton
+  private lateinit var textFloor: TextView
+  private lateinit var detectedAPs: TextView
+  private lateinit var btnTrackme: ImageButton
+  private lateinit var textDebug: TextView
+  private lateinit var searchView: SearchView
   private var mSuggestionsTask: AnyplaceSuggestionsTask? = null
+  private var searchType = SearchTypes.OUTDOOR_MODE
 
   // <Tasks>
   private var downloadRadioMapTaskBuid: DownloadRadioMapTaskBuid? = null
   private var floorChangeRequestDialog = false
-
-  // </Tasks>
   private var mAutomaticGPSBuildingSelection = false
 
   /**
@@ -184,11 +189,17 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
   private var lastFloor: String? = null
   private var isTrackingErrorBackground = false
   private var userMarker: Marker? = null
-  private var app: NavigatorApp? = null
+
+  private lateinit var app: NavigatorApp
+
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     app = application as NavigatorApp
-    setContentView(R.layout.activity_unifiednav)
+
+    _b = ActivityNavigatorOldBinding.inflate(layoutInflater)
+    setContentView(_b.root)
+    // setContentView(R.layout.activity_unifiednav)
+
     mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     detectedAPs = findViewById<View>(R.id.detectedAPs) as TextView
     textFloor = findViewById<View>(R.id.textFloor) as TextView
@@ -976,7 +987,7 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
 
   private fun bypassSelectBuildingActivity(b: BuildingModel?, f: FloorModel?) {
     val fetchFloorPlanTask = FetchFloorPlanTask(this@NavigatorActivityOLD, b!!.buid, f!!.floor_number)
-    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTaskListener {
+    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
       private var dialog: ProgressDialog? = null
       override fun onSuccess(result: String, floor_plan_file: File) {
         if (dialog != null) dialog!!.dismiss()
@@ -1004,7 +1015,7 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
 
   private fun bypassSelectBuildingActivity(b: BuildingModel?, f: FloorModel?, pm: PoisModel) {
     val fetchFloorPlanTask = FetchFloorPlanTask(this@NavigatorActivityOLD, b!!.buid, f!!.floor_number)
-    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTaskListener {
+    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
       private var dialog: ProgressDialog? = null
       override fun onSuccess(result: String, floor_plan_file: File) {
         if (dialog != null) dialog!!.dismiss()
@@ -1113,7 +1124,7 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
 
     // first we should disable the tracker if it's working
     disableAnyplaceTracker()
-    class Callback : DownloadRadioMapListener, PreviousRunningTask {
+    class Callback : DownloadRadioMapTaskBuid.Callback, PreviousRunningTask {
       var progressBarEnabled = false
       var disableSuccess = false
       override fun onSuccess(result: String) {
@@ -1805,7 +1816,7 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
                 Toast.makeText(baseContext, "Buid parameter expected", Toast.LENGTH_SHORT).show()
               } else {
                 mAutomaticGPSBuildingSelection = false
-                mAnyplaceCache!!.loadBuilding(this, buid, object : FetchBuildingTaskListener {
+                mAnyplaceCache!!.loadBuilding(this, buid, object : Callback {
                   override fun onSuccess(result: String?, b: BuildingModel?) {
                     bypassSelectBuildingActivity(b, uri.getQueryParameter("floor"), true)
                   }
@@ -1827,7 +1838,7 @@ class NavigatorActivityOLD : AppCompatActivity(), TrackedLocAnyplaceTrackerListe
                     startNavigationTask(poi.puid)
                   } else {
                     // Load Building
-                    mAnyplaceCache!!.loadBuilding(this@NavigatorActivityOLD, poi.buid, object : FetchBuildingTaskListener {
+                    mAnyplaceCache!!.loadBuilding(this@NavigatorActivityOLD, poi.buid, object : Callback {
                       override fun onSuccess(result: String?, b: BuildingModel?) {
                         bypassSelectBuildingActivity(b, poi.floor_number, true, poi)
                       }

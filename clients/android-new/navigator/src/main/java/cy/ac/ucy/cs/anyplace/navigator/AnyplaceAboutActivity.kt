@@ -73,6 +73,7 @@ class AnyplaceAboutActivity : Activity() {
     // make the logo images clickable and send the user to the clicked website
     var img = findViewById<View>(R.id.viewLogoAnyplace) as ImageView
     img.setOnClickListener {
+      // TODO:PM CONST...
       val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://anyplace.cs.ucy.ac.cy/"))
       startActivity(browserIntent)
     }

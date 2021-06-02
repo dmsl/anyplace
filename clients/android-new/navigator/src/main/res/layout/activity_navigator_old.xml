@@ -131,18 +131,35 @@
             android:scaleType="fitCenter"
             />
 
-        <ImageButton
-            android:id="@+id/btnFloorDown"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/btnFloorUp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/arrow"
-            android:contentDescription="Go one floor down"
-            android:scaleType="fitCenter"
-            />
+
+      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
+          android:id="@+id/btnFloorDown"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/fas_arrow_circle_up"
+          android:rotation="180"
+          android:contentDescription="Go one floor down"
+          android:textColor="#000"
+          android:scaleType="fitCenter"
+          android:textSize="50sp"
+          android:layout_alignParentEnd="true"
+          android:layout_below="@+id/btnFloorUp"
+          android:layout_marginRight="20dp"
+          android:layout_marginTop="8dp"
+          />
+
+
+<!--      <ImageButton-->
+<!--            android:id="@+id/btnFloorDownx"-->
+<!--            android:layout_width="50dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_below="@+id/btnFloorUp"-->
+<!--            android:layout_marginRight="20dp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:background="@drawable/arrow"-->
+<!--            android:scaleType="fitCenter"-->
+<!--            />-->
 
       <com.google.android.material.floatingactionbutton.FloatingActionButton
           android:id="@+id/btnTrackme"

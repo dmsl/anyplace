@@ -2,10 +2,10 @@
 
 buildscript {
   ext {
-    ver_android_gradle_plugin = '4.2.0-rc01'
+    ver_android_gradle_plugin = '4.2.1'
     ver_kotlin= '1.4.32' // kapt fails with higher version (w/ hilt)
 
-    // ver_hilt= '2.33-beta' // CHECK::PM remove this
+    // ver_hilt= '2.33-beta' // TODO::PM This is out of beta! Use it!
     nav_version = "2.3.5"
     ver_lifecycle = "2.3.1"
     ver_coroutines = '1.4.3-native-mt'

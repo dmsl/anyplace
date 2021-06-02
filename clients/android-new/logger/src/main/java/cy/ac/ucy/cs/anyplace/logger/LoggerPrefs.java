@@ -51,8 +51,8 @@ import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.MediaStore.MediaColumns;
 
-public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-
+public class LoggerPrefs extends PreferenceActivity
+        implements OnSharedPreferenceChangeListener {
 	private static final int SELECT_IMAGE = 7;
 	private static final int SELECT_PATH = 8;
 
@@ -66,31 +66,14 @@ public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenc
 		super.onCreate(savedInstanceState);
 
 		getPreferenceManager().setSharedPreferencesName(getString(R.string.preferences_file));
-
 		addPreferencesFromResource(cy.ac.ucy.cs.anyplace.lib.R.xml.preferences_logger);
-
 		getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
-		// getPreferenceManager().findPreference("image_custom").setOnPreferenceClickListener(new
-		// OnPreferenceClickListener() {
-		//
-		// @Override
-		// public boolean onPreferenceClick(Preference preference) {
-		// Intent i = new Intent(Intent.ACTION_PICK,
-		// android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-		// i.setType("image/*");
-		// startActivityForResult(i, SELECT_IMAGE);
-		// return true;
-		// }
-		// });
 
 		getPreferenceManager().findPreference("folder_browser").setOnPreferenceClickListener(new OnPreferenceClickListener() {
 
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-
 				Intent i = new Intent(getBaseContext(), AndroidFileBrowser.class);
-
 				Bundle extras = new Bundle();
 				extras.putBoolean("selectFolder", true);
 				SharedPreferences preferences = getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
@@ -130,13 +113,10 @@ public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenc
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		super.onActivityResult(requestCode, resultCode, data);
-
 		SharedPreferences customSharedPreference;
-
 		customSharedPreference = getSharedPreferences("LoggerPreferences", MODE_PRIVATE);
 
 		switch (requestCode) {
-
 		case SELECT_IMAGE:
 			if (resultCode == Activity.RESULT_OK) {
 				Uri selectedImage = data.getData();
@@ -189,8 +169,6 @@ public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenc
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-	}
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) { }
 
 }
