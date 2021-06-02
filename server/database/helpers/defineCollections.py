@@ -98,6 +98,7 @@ def defineCollections(file):
     pathU = collectionsPath + "/users.json"
     pathUND = collectionsPath + "/undefined.json"
     fingPath = collectionsPath + "/fingerprintsWifi"
+    outrangedCoords = collectionsPath + "/outrangedCoordinates.json"
 	#  create or clear fingerprints path if exists 
     if not os.path.exists(fingPath):  
         os.makedirs(fingPath)
@@ -111,6 +112,7 @@ def defineCollections(file):
     p = open(pathP, "w")
     u = open(pathU, "w")
     und = open(pathUND, "w")
+    orc = open(outrangedCoords, "w")
     i = 0
     keepIt = True
     while True:
@@ -120,7 +122,7 @@ def defineCollections(file):
         obj = json.loads(line)
         count += 1
         if isBuilding(obj) and keepIt:
-            fixed_obj = fixBUILDING(obj)
+            fixed_obj = fixBUILDING(obj, orc)
             b.write(json.dumps(fixed_obj))
             b.write("\n")
             buildings += 1
@@ -135,16 +137,16 @@ def defineCollections(file):
             e.write("\n")
             edges +=1 
         elif isFingerprint(obj) and keepIt:
-            fixed_obj = fixFINGERPRINT(obj)
+            fixed_obj = fixFINGERPRINT(obj, orc)
             splitToBuid(fixed_obj, fingPath)
             fingerprints += 1
         elif isFloorPlan(obj):
-            fixed_obj = fixFLOORPLAN(obj)
+            fixed_obj = fixFLOORPLAN(obj, orc)
             fl.write(json.dumps(fixed_obj))
             fl.write("\n")
             floorplans += 1
         elif isPois(obj) and keepIt:
-            fixed_obj = fixPOIS(obj)
+            fixed_obj = fixPOIS(obj, orc)
             p.write(json.dumps(fixed_obj))
             p.write("\n")
             pois += 1
@@ -163,6 +165,7 @@ def defineCollections(file):
     fl.close()
     p.close()
     u.close()
+    orc.close()
     print("OBJECT REPORT:\n", "Buildinds: ", buildings, 
 		"\nCampus:", campus, "\nEdge: ", edges, "\nFingerprints: ", fingerprints,
         "\nFloorplans: ", floorplans, "\nPois: ", pois, "\nUsers: ", users, "\nUndefined: ", undefined)

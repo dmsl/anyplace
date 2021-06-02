@@ -1,11 +1,14 @@
+import json
 from helpers.config import *
 
 
-def fixBUILDING(obj):
+def fixBUILDING(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
     #fixLocation(fixed)
     #  fixBooleans(fixed)
+    fixCoordinateTypo(fixed, obj)
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     fixDashesOrNulls(fixed)
     return fixed
 
@@ -30,9 +33,10 @@ def fixEDGES(obj):
     return fixed
 
 
-def fixFINGERPRINT(obj):
+def fixFINGERPRINT(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     #  fixed['timestamp'] = int(fixed['timestamp'])
     #  fixed['heading'] = float(fixed['heading'])
     #  fixed['rss'] = int(fixed['rss'])
@@ -41,9 +45,10 @@ def fixFINGERPRINT(obj):
     return fixed
 
 
-def fixFLOORPLAN(obj):
+def fixFLOORPLAN(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     # fixFloorNumber(fixed)
@@ -53,9 +58,15 @@ def fixFLOORPLAN(obj):
     return fixed
 
 
-def fixPOIS(obj):
+def fixPOIS(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
+    fixCoordinateTypo(fixed, obj)
+    if "coordinate" in obj['geometry'].keys():
+        fixed['geometry']['coordinates'] = obj['geometry']['coordinate']
+        del fixed['geometry']['coordinate']
+        print(obj['geometry'], " -> ", fixed['geometry'])
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     #fixLocation(fixed)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
@@ -129,6 +140,45 @@ def fixFloorNumber(obj):
     if "floor_a" in obj.keys() and "floor_b" in obj.keys():
         obj["floor_a"] = int(obj["floor_a"])
         obj["floor_b"] = int(obj["floor_b"])
+
+
+def fixCoordinateTypo(fixed, obj):
+    if "geometry" in obj.keys():
+        if "coordinate" in obj['geometry'].keys():
+            fixed['geometry']['coordinates'] = obj['geometry']['coordinate']
+            del fixed['geometry']['coordinate']
+
+
+def markOutrangedCoordinates(obj, fileP):
+    if "geometry" in obj.keys():
+        if float(obj['geometry']['coordinates'][0]) >= 90 or float(obj['geometry']['coordinates'][0]) <= -90:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+        if float(obj['geometry']['coordinates'][1]) >= 180 or float(obj['geometry']['coordinates'][1]) <= -180:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "bottom_left_lat" in obj.keys():
+        if float(obj['bottom_left_lat']) >= 90 or  float(obj['bottom_left_lat']) <= -90:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "bottom_left_lng" in obj.keys():
+        if float(obj['bottom_left_lng']) >= 180 or  float(obj['bottom_left_lng']) <= -180:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "top_right_lat" in obj.keys():
+        if float(obj['top_right_lat']) >= 90 or  float(obj['top_right_lat']) <= -90:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "top_right_lng" in obj.keys():
+        if float(obj['top_right_lng']) >= 180 or  float(obj['top_right_lng']) <= -180:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
 
 
 def fixLocation(obj):
