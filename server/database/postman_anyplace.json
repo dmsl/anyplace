@@ -161,28 +161,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"coordinates_lat\":\"35.14447778163889\",\r\n    \"coordinates_lon\":\"33.41125577688217\",\r\n    \"access_token\": {{ACCESS_TOKEN}},\r\n    \"range\": 100\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/coordinates",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"coordinates"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"coordinates_lat\":\"35.14447778163889\",\r\n    \"coordinates_lon\":\"33.41125577688217\",\r\n    \"access_token\": "{{ACCESS_TOKEN}}",\r\n    \"range\": 100\r\n}",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/coordinates",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"coordinates"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/building/all_owner",
@@ -262,28 +262,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access_token\": {{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/all_owner",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"all_owner"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"access_token\": "{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/all_owner",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"all_owner"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/building/coowners",
@@ -363,28 +363,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"buid\": \"building_20a3ee74-5675-4d6a-a6a4-4815c899d9d1_1616539070258\",\r\n    \"co_owners\": [\"109090781494994775652_google\"],\r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/coowners",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"coowners"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"buid\": \"building_20a3ee74-5675-4d6a-a6a4-4815c899d9d1_1616539070258\",\r\n    \"co_owners\": [\"109090781494994775652_google\"],\r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/coowners",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"coowners"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/building/newowner",
@@ -464,28 +464,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"buid\": \"building_e6e72a5e-60d5-44ee-9643-4585db4076c5_1615968990775\",\r\n    \"new_owner\": \"109090781494994775652_google\",\r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/newowner",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"newowner"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"buid\": \"building_e6e72a5e-60d5-44ee-9643-4585db4076c5_1615968990775\",\r\n    \"new_owner\": \"109090781494994775652_google\",\r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/newowner",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"newowner"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/building/update",
@@ -565,28 +565,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"buid\": \"building_0a37134a-3974-4d03-8a24-ee741d286df2_1615630027918\",\r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/update",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"update"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"buid\": \"building_0a37134a-3974-4d03-8a24-ee741d286df2_1615630027918\",\r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/update",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"update"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/building/add",
@@ -666,28 +666,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"is_published\": \"true\",\r\n    \"name\": \"NNtest\",\r\n    \"description\": \"Forest in an island. address is empty for testing purposes\",\r\n    \"url\": \"www.llll.com\",\r\n    \"address\": \"aaa\",\r\n    \"coordinates_lat\":\"0.21381303439131277\",\r\n    \"coordinates_lon\": \"6.552397582569619\", \r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/add",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"add"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"is_published\": \"true\",\r\n    \"name\": \"NNtest\",\r\n    \"description\": \"Forest in an island. address is empty for testing purposes\",\r\n    \"url\": \"www.llll.com\",\r\n    \"address\": \"aaa\",\r\n    \"coordinates_lat\":\"0.21381303439131277\",\r\n    \"coordinates_lon\": \"6.552397582569619\", \r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/add",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"add"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/building/get",
@@ -868,28 +868,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"buid\": \"building_030f43c3-1d53-4216-9deb-e1a6c1d8cae7_1617440072688\",\r\n    \"access_token\": {{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/delete",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"building",
-						"delete"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"buid\": \"building_030f43c3-1d53-4216-9deb-e1a6c1d8cae7_1617440072688\",\r\n    \"access_token\": "{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/building/delete",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"building",
+				"delete"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/floor/all",
@@ -1070,28 +1070,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"is_published\":\"true\",\r\n    \"buid\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\",\r\n    \"floor_name\":\"k\",\r\n    \"description\":\"\",\r\n    \"floor_number\":\"-1\",\r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/floor/add",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"floor",
-						"add"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"is_published\":\"true\",\r\n    \"buid\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\",\r\n    \"floor_name\":\"k\",\r\n    \"description\":\"\",\r\n    \"floor_number\":\"-1\",\r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/floor/add",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"floor",
+				"add"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/floor/delete",
@@ -1171,28 +1171,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"buid\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\",\r\n    \"floor_number\":\"-1\",\r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/floor/delete",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"floor",
-						"delete"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"buid\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\",\r\n    \"floor_number\":\"-1\",\r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/floor/delete",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"floor",
+				"delete"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/pois/delete",
@@ -1272,28 +1272,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"puid\": \"\",\r\n    \"buid\": \"\",\r\n    \"access_token\": {{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/pois/delete",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"pois",
-						"delete"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"puid\": \"\",\r\n    \"buid\": \"\",\r\n    \"access_token\": "{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/pois/delete",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"pois",
+				"delete"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/pois/all_building",
@@ -1781,28 +1781,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access_token\": {{ACCESS_TOKEN}}\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/pois/types",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"pois",
-						"types"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"access_token\": "{{ACCESS_TOKEN}}"\r\n}",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/pois/types",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"pois",
+				"types"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/connection/add",
@@ -1882,28 +1882,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"is_published\": \"false\",\r\n    \"pois_a\":\"poi_4e9806d4-a0a7-4107-87ff-485b80570472\",\r\n    \"floor_a\":\"0\",\r\n    \"buid_a\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\", \r\n    \"pois_b\":\"poi_df0d7a25-b6f6-400f-926f-1791ebe6a959\", \r\n    \"floor_b\":\"0\", \r\n    \"buid_b\":\"building_24be70ea-df13-4586-b398-a27dc2cb8272_1617443156313\", \r\n    \"buid\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\", \r\n    \"edge_type\":\"hallway\", \r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/connection/add",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"connection",
-						"add"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"is_published\": \"false\",\r\n    \"pois_a\":\"poi_4e9806d4-a0a7-4107-87ff-485b80570472\",\r\n    \"floor_a\":\"0\",\r\n    \"buid_a\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\", \r\n    \"pois_b\":\"poi_df0d7a25-b6f6-400f-926f-1791ebe6a959\", \r\n    \"floor_b\":\"0\", \r\n    \"buid_b\":\"building_24be70ea-df13-4586-b398-a27dc2cb8272_1617443156313\", \r\n    \"buid\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\", \r\n    \"edge_type\":\"hallway\", \r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/connection/add",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"connection",
+				"add"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/connection/delete",
@@ -1983,28 +1983,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"pois_a\":\"poi_4e9806d4-a0a7-4107-87ff-485b80570472\",\r\n    \"buid_a\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\", \r\n    \"pois_b\":\"poi_df0d7a25-b6f6-400f-926f-1791ebe6a959\", \r\n    \"buid_b\":\"building_24be70ea-df13-4586-b398-a27dc2cb8272_1617443156313\", \r\n    \"access_token\":{{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/connection/delete",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"connection",
-						"delete"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"pois_a\":\"poi_4e9806d4-a0a7-4107-87ff-485b80570472\",\r\n    \"buid_a\":\"building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149726\", \r\n    \"pois_b\":\"poi_df0d7a25-b6f6-400f-926f-1791ebe6a959\", \r\n    \"buid_b\":\"building_24be70ea-df13-4586-b398-a27dc2cb8272_1617443156313\", \r\n    \"access_token\":"{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/connection/delete",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"connection",
+				"delete"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/connection/all_floors",
@@ -2387,28 +2387,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access_token\" : {{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/campus/all_owner",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"campus",
-						"all_owner"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"access_token\" : "{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/campus/all_owner",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"campus",
+				"all_owner"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/campus/update",
@@ -2488,28 +2488,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"cuid\": \"\",\r\n    \"access_token\" : {{ACCESS_TOKEN}}\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/campus/update",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"mapping",
-						"campus",
-						"update"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"cuid\": \"\",\r\n    \"access_token\" : "{{ACCESS_TOKEN}}"\r\n}\r\n",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/mapping/campus/update",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"mapping",
+				"campus",
+				"update"
+			]
+		}
+		},
+		"response": []
 		},
 		{
 			"name": "mapping/radio/heatmap_building_floor",
@@ -4768,28 +4768,28 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access_token\": {{ACCESS_TOKEN}}\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{HOST}}:{{PORT}}/anyplace/position/radio/generateHeatmaps",
-					"host": [
-						"{{HOST}}"
-					],
-					"port": "{{PORT}}",
-					"path": [
-						"anyplace",
-						"position",
-						"radio",
-						"generateHeatmaps"
-					]
-				}
-			},
-			"response": []
+					"raw": "{\r\n    \"access_token\": "{{ACCESS_TOKEN}}"\r\n}",
+		"options": {
+			"raw": {
+				"language": "json"
+			}
+		}
+		},
+		"url": {
+			"raw": "{{HOST}}:{{PORT}}/anyplace/position/radio/generateHeatmaps",
+			"host": [
+				"{{HOST}}"
+			],
+			"port": "{{PORT}}",
+			"path": [
+				"anyplace",
+				"position",
+				"radio",
+				"generateHeatmaps"
+			]
+		}
+		},
+		"response": []
 		}
 	],
 	"event": [
