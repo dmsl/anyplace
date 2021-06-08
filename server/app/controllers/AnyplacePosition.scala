@@ -42,7 +42,7 @@ import java.util.ArrayList
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import controllers.AnyplaceMapping.{appendGoogleIdIfNeeded, verifyId}
 import datasources.SCHEMA._
-import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource}
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import db_models.RadioMapRaw.findRadioBbox
 import db_models.{Floor, MagneticMilestone, MagneticPath, RadioMapRaw}
 import floor_module.Algo1
@@ -83,10 +83,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
         if (body_form == null) {
           return AnyResponseHelper.bad_request("Invalid request type - Cannot be parsed as form data!")
         }
-        if (!body_form.contains("access_token")) {
+        if (!body_form.contains(SCHEMA.fAccessToken)) {
           return AnyResponseHelper.bad_request("Cannot find access_token in the request!")
         }
-        val access_token = body_form.get("access_token").get.head
+        val access_token = body_form.get(SCHEMA.fAccessToken).get.head
         if (verifyId(access_token) == null) return AnyResponseHelper.forbidden("Unauthorized")
         var ret: String = ""
         val newBuildingsFloors = RadioMap.verifyRssLogAndGetBuildingFloors(rssLog)
@@ -101,7 +101,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
             for (floor_num <- newBuildingsFloors.get(buid)) {
               val res = updateFrozenRadioMap(buid, floor_num)
               if (res != null) {
-                val js = Json.obj("buid" -> buid, "floor_num" -> floor_num, "error" -> res)
+                val js = Json.obj(SCHEMA.fBuid -> buid, "floor_num" -> floor_num, "error" -> res)
                 errors.add(js)
               }
             }
@@ -133,7 +133,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("radioDownloadFloor: " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "coordinates_lat", "coordinates_lon", "floor_number")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -153,8 +153,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "coordinates_lat", "coordinates_lon",
-          "floor_number", "range")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
+          SCHEMA.fFloorNumber, "range")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -183,15 +183,15 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("radioDownloadByBuildingFloor: " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "floor", "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
         val validation = VALIDATE.fields(json, fFloor, fBuid)
         if (validation.failed()) return validation.response()
 
-        val floor_number = (json \ "floor").as[String]
-        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
 
 
         if (!Floor.checkFloorNumberFormat(floor_number)) {
@@ -291,16 +291,16 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "floor", "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        if (StringNumber(json, "floor") == null)
+        if (StringNumber(json, SCHEMA.fFloor) == null)
           return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
-        val floor_number = (json \ "floor").as[String]
-        if (String(json, "buid") == null)
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        if (String(json, SCHEMA.fBuid) == null)
           return AnyResponseHelper.bad_request("buid field must be String!")
-        val buid = (json \ "buid").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
 
         val floors = floor_number.split(" ")
         val radiomap_mean_filename = new java.util.ArrayList[String]()
@@ -540,12 +540,12 @@ object AnyplacePosition extends play.api.mvc.Controller {
       }
 
       // Before add check if already exists, if exists ignore and notify
-      if (ProxyDataSource.getIDatasource().fingerprintExists("fingerprintsWifi", fingerprintToks(7),
+      if (ProxyDataSource.getIDatasource().fingerprintExists(SCHEMA.cFingerprintsWifi, fingerprintToks(7),
         fingerprintToks(6), fingerprintToks(1), fingerprintToks(2), fingerprintToks(3))) {
         return 1 + ""
       } else {
         try {
-          ProxyDataSource.getIDatasource.addJsonDocument("fingerprintsWifi", rmr.addMeasurements(measurements))
+          ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cFingerprintsWifi, rmr.addMeasurements(measurements))
         } catch {
           case e: DatasourceException => return "Internal server error while trying to save rss entry."
         }
@@ -632,13 +632,13 @@ object AnyplacePosition extends play.api.mvc.Controller {
           val bbox = GeoPoint.getGeoBoundingBox(lat, lot, 100)
           val strongestMAC = new ArrayList[String](2)
           if (json.\("first").getOrElse(null) != null) return AnyResponseHelper.bad_request("Sent first Wifi")
-          strongestMAC.add(json.\("first").\("MAC").as[String])
-          if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\("MAC").as[String])
+          strongestMAC.add(json.\("first").\(SCHEMA.fMac).as[String])
+          if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\(SCHEMA.fMac).as[String])
           val res = JsonObject.empty()
           if (ProxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
-            res.put("floor", alg1.getFloor)
+            res.put(SCHEMA.fFloor, alg1.getFloor)
           } else {
-            res.put("floor", "")
+            res.put(SCHEMA.fFloor, "")
           }
           watch.stop()
           LPLogger.info("Time for Algo1 is millis: " + watch.getNanoTime / 1000000)
@@ -710,7 +710,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMagnetic::pathAdd(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, "lat_a", "lng_a", "lat_b", "lng_b",
-          "buid", "floor_num")
+          SCHEMA.fBuid, "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
@@ -772,11 +772,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "buid", "floor_num")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        val buid = (json \ "buid").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ "floor_num").as[String]
         try {
           val mpaths = ProxyDataSource.getIDatasource.magneticPathsByBuildingFloorAsJson(buid, floor_number)
@@ -800,11 +800,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::mpsByBuilding(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        val buid = (json \ "buid").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
           val mpaths = ProxyDataSource.getIDatasource.magneticPathsByBuildingAsJson(buid)
           val res = JsonObject.empty()
@@ -827,11 +827,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::mpsByBuilding(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "buid", "floor_num", "mpuid", "milestones")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "floor_num", "mpuid", "milestones")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        val buid = (json \ "buid").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_num = (json \ "floor_num").as[String]
         val mpuid = (json \ "mpuid").as[String]
         var milestones: JsonArray = JsonArray.empty()
@@ -865,11 +865,11 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::milestonesByFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "buid", "floor_num")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        val buid = (json \ "buid").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ "floor_num").as[String]
         try {
           val mpaths = ProxyDataSource.getIDatasource.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
@@ -891,10 +891,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        val requiredMissing = JsonUtils.hasProperties(json, "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if ((json \ "access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        val owner_id = verifyId((json \ "access_token").as[String])
+        if ((json \ SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        val owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
         if (!MongodbDatasource.loadAdmins().contains(appendGoogleIdIfNeeded(owner_id))) {
           return AnyResponseHelper.forbidden("Unauthorized. Only admins can generate heatmaps.")

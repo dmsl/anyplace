@@ -38,7 +38,7 @@ package controllers
 import java.util
 
 import com.google.gson.JsonParseException
-import datasources.{DatasourceException, InfluxdbDatasource}
+import datasources.{DatasourceException, InfluxdbDatasource, SCHEMA}
 import io.razem.influxdbclient.Point
 import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json._
@@ -123,21 +123,21 @@ object AnyplaceInfluxdb extends play.api.mvc.Controller {
 					throw new JsonParseException("OATH parse error.")
 				val json = anyReq.getJsonBody()
 
-				notFound = JsonUtils.hasProperties(json, "point","deviceID","timestamp")
+				notFound = JsonUtils.hasProperties(json, "point","deviceID",SCHEMA.fTimestamp)
 				if (!notFound.isEmpty)
 					throw new NoSuchFieldException()
 
 
 				val infdb = InfluxdbDatasource.getStaticInstance
 				val deviceID = (json \ "deviceID").as[String]
-				val timestamp = (json \ "timestamp").as[Float]
+				val timestamp = (json \ SCHEMA.fTimestamp).as[Float]
 				val gp =  (json \ "point").as[GeoPoint]
 
-				val point = Point("location")
+				val point = Point(SCHEMA.fLocation)
 					.addTag("deviceID", deviceID)
 					// using config defined (or default) precision
 					.addTag("geohash", gp asGeohash infdb.stored_precision)
-					.addField("timestamp", timestamp)
+					.addField(SCHEMA.fTimestamp, timestamp)
 					.addField("latitude", gp dlat)
 					.addField("longitude", gp dlon)
 				infdb.write(point) map { _ => AnyResponseHelper.ok("Point Written") }

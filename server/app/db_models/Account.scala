@@ -39,7 +39,7 @@ package db_models
 import java.io.IOException
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.MongodbDatasource
+import datasources.{MongodbDatasource, SCHEMA}
 import play.api.libs.json._
 import utils.JsonUtils.convertToInt
 import utils.LPLogger
@@ -60,26 +60,26 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
   def this() {
     this(new java.util.HashMap[String, String]())
-    fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
-    fields.put("owner_id", "")
-    fields.put("name", "")
-    fields.put("type", "")
+    fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
+    fields.put(SCHEMA.fOwnerId, "")
+    fields.put(SCHEMA.fName, "")
+    fields.put(SCHEMA.fType, "")
   }
 
 
   // TODO make it follow new version of User Json
   def this(json: JsValue) {
     this()
-    fields.put("_schema", MongodbDatasource.__SCHEMA.toString)
-    fields.put("owner_id", (json \ "owner_id").as[String])
-    fields.put("name", (json \ "name").as[String])
-    fields.put("type", (json \ "type").as[String])
-    if ((json \ "external").toOption.isDefined)
-      fields.put("external", (json \ "external").as[String])
+    fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
+    fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])
+    fields.put(SCHEMA.fName, (json \ SCHEMA.fName).as[String])
+    fields.put(SCHEMA.fType, (json \ SCHEMA.fType).as[String])
+    if ((json \ SCHEMA.fExternal).toOption.isDefined)
+      fields.put(SCHEMA.fExternal, (json \ SCHEMA.fExternal).as[String])
     this.json = json
   }
 
-  def getId(): String = fields.get("owner_id")
+  def getId(): String = fields.get(SCHEMA.fOwnerId)
 
   @deprecated
   def toValidJson(): JsonObject = {
@@ -90,7 +90,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     val sMap: Map[String, String] = this.getFields().asScala.toMap
     val res = Json.toJson(sMap)
     // convert some keys to primitive types
-    convertToInt("_schema", res)
+    convertToInt(SCHEMA.fSchema, res)
   }
 
 

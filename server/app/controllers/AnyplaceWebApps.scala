@@ -35,6 +35,7 @@
  */
 package controllers
 
+import datasources.SCHEMA
 import play.mvc.{Http, Security}
 import play.api.mvc.{Action, Result}
 import play.Play
@@ -76,8 +77,8 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
     if (mode == null || !mode.equalsIgnoreCase("widget")) {
       var bid = request.getQueryString("buid").getOrElse("")
       var pid = request.getQueryString("selected").getOrElse("")
-      var floor = request.getQueryString("floor").getOrElse("")
-      var campus = request.getQueryString("cuid").orNull
+      var floor = request.getQueryString(SCHEMA.fFloor).getOrElse("")
+      var campus = request.getQueryString(SCHEMA.fCampusCuid).orNull
 
       if (null == campus) {
         campus = ""
@@ -95,7 +96,7 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
     if (mode == null || !mode.equalsIgnoreCase("widget")) {
       var bid = request.getQueryString("buid").getOrElse("")
       var pid = request.getQueryString("selected").getOrElse("")
-      var floor = request.getQueryString("floor").getOrElse("")
+      var floor = request.getQueryString(SCHEMA.fFloor).getOrElse("")
     }
     val viewerDir = "public/anyplace_viewer_campus"
     serveFile(viewerDir, file)

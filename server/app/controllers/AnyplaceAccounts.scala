@@ -38,7 +38,7 @@ package controllers
 
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.{DatasourceException, ProxyDataSource}
+import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import oauth.provider.v2.granttype.GrantHandlerFactory
 import oauth.provider.v2.models.{AccountModel, OAuth2Request}
 import play.api.libs.json._
@@ -65,13 +65,14 @@ object AnyplaceAccounts extends Controller {
           return AnyResponseHelper.bad_request(
             AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
-        //val json = JsonObject.empty()
+
         LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ")
         try {
+          return AnyResponseHelper.bad_request("User is not admin.")
           val users: List[JsValue] = ProxyDataSource.getIDatasource().getAllAccounts()
           val res: JsValue = Json.obj(
             "users_num" -> users.length,
-            "users" -> Json.arr(users)
+            SCHEMA.cUsers -> Json.arr(users)
           )
           AnyResponseHelper.ok(res, "Successfully retrieved all accounts!")
         } catch {

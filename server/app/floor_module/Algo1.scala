@@ -37,6 +37,7 @@ package floor_module
 
 import java.util.{ArrayList, HashMap}
 
+import datasources.SCHEMA
 import play.api.libs.json.{JsValue, Json}
 import utils.LPLogger
 //remove if not needed
@@ -56,10 +57,9 @@ class Algo1(json: JsValue) extends IAlgo {
     }
 
     for (listenObject <- listenList) {
-        LPLogger.debug("im in the loop")
         val obj = Json.parse(listenObject)
-        val mac = (obj\"MAC").as[String]
-        val rss = (obj\"rss").as[String].toInt
+        val mac = (obj\SCHEMA.fMac).as[String]
+        val rss = (obj\SCHEMA.fRSS).as[String].toInt
         if (mac == null || rss == null) {
             throw new Exception("Invalid array wifi:: require mac,rss")
         }
@@ -72,9 +72,9 @@ class Algo1(json: JsValue) extends IAlgo {
         var nNCM = 0
         var nCM = 0
         for (wifiDatabase <- bucket) {
-            val mac = (wifiDatabase\"MAC").as[String]
+            val mac = (wifiDatabase\SCHEMA.fMac).as[String]
             if (input.containsKey(mac)) {
-                val diff = java.lang.Integer.parseInt((wifiDatabase\"rss").as[String]) -
+                val diff = java.lang.Integer.parseInt((wifiDatabase\SCHEMA.fRSS).as[String]) -
                   input.get(mac).rss
                 score += diff * diff
                 nCM += 1

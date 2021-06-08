@@ -39,6 +39,7 @@ package db_models
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import utils.JsonUtils.convertToInt
 
@@ -63,43 +64,43 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
 
   def this() {
     this(new HashMap[String, String])
-    fields.put("buid", "")
-    fields.put("is_published", "")
-    fields.put("floor_name", "")
-    fields.put("floor_number", "")
-    fields.put("description", "")
+    fields.put(SCHEMA.fBuid, "")
+    fields.put(SCHEMA.fIsPublished, "")
+    fields.put(SCHEMA.fFloorName, "")
+    fields.put(SCHEMA.fFloorNumber, "")
+    fields.put(SCHEMA.fDescription, "")
   }
 
   def this(json: JsValue) {
     this()
-    if ((json \ "fuid").toOption.isDefined)
-      fields.put("fuid", (json \ "fuid").as[String])
-    if ((json \ "buid").toOption.isDefined)
-      fields.put("buid", (json \ "buid").as[String])
-    if ((json \ "is_published").toOption.isDefined)
-      fields.put("is_published", (json \ "is_published").as[String])
-    if ((json \ "floor_name").toOption.isDefined)
-      fields.put("floor_name", (json \ "floor_name").as[String])
-    if ((json \ "description").toOption.isDefined) {
-      val temp = (json \ "description").as[String]
+    if ((json \ SCHEMA.fFuid).toOption.isDefined)
+      fields.put(SCHEMA.fFuid, (json \ SCHEMA.fFuid).as[String])
+    if ((json \ SCHEMA.fBuid).toOption.isDefined)
+      fields.put(SCHEMA.fBuid, (json \ SCHEMA.fBuid).as[String])
+    if ((json \ SCHEMA.fIsPublished).toOption.isDefined)
+      fields.put(SCHEMA.fIsPublished, (json \ SCHEMA.fIsPublished).as[String])
+    if ((json \ SCHEMA.fFloorName).toOption.isDefined)
+      fields.put(SCHEMA.fFloorName, (json \ SCHEMA.fFloorName).as[String])
+    if ((json \ SCHEMA.fDescription).toOption.isDefined) {
+      val temp = (json \ SCHEMA.fDescription).as[String]
       if (temp != "" && temp != "-")
-        fields.put("description", (json \ "description").as[String])
+        fields.put(SCHEMA.fDescription, (json \ SCHEMA.fDescription).as[String])
       else
-        fields.remove("description")
+        fields.remove(SCHEMA.fDescription)
     } else
-      fields.remove("description")
-    if ((json \ "floor_number").toOption.isDefined)
-      fields.put("floor_number", (json \ "floor_number").as[String])
+      fields.remove(SCHEMA.fDescription)
+    if ((json \ SCHEMA.fFloorNumber).toOption.isDefined)
+      fields.put(SCHEMA.fFloorNumber, (json \ SCHEMA.fFloorNumber).as[String])
     this.json = json
   }
 
   def getId(): String = {
-    var fuid = (this.json \ "fuid")
+    var fuid = (this.json \ SCHEMA.fFuid)
     var newFuid = ""
     if (!fuid.toOption.isDefined) {
-      newFuid = Floor.getId(fields.get("buid"), fields.get("floor_number"))
-      fields.put("fuid", newFuid)
-      this.json = this.json.as[JsObject] + ("fuid" -> JsString(newFuid))
+      newFuid = Floor.getId(fields.get(SCHEMA.fBuid), fields.get(SCHEMA.fFloorNumber))
+      fields.put(SCHEMA.fFuid, newFuid)
+      this.json = this.json.as[JsObject] + (SCHEMA.fFuid -> JsString(newFuid))
     } else
       newFuid = fuid.as[String]
     newFuid
@@ -120,7 +121,7 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
     val sMap: Map[String, String] = this.getFields().asScala.toMap
     val res = Json.toJson(sMap)
     // convert some keys to primitive types
-    convertToInt("_schema", res)
+    convertToInt(SCHEMA.fSchema, res)
   }
 
   override def toGeoJSON(): String = toJson().toString

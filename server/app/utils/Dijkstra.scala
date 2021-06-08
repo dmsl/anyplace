@@ -39,6 +39,8 @@ import play.Logger
 import java.text.NumberFormat
 import java.text.ParseException
 import java.util._
+
+import datasources.SCHEMA
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -54,14 +56,14 @@ object Dijkstra {
       for (p <- pois) {
         val dv = new DVertex(p)
         this.vertices.add(dv)
-        hmp.put(p.get("puid"), dv)
+        hmp.put(p.get(SCHEMA.fPuid), dv)
       }
     }
 
     def addPoi(p: HashMap[String, String]) {
       val dv = new DVertex(p)
       this.vertices.add(dv)
-      hmp.put(p.get("puid"), dv)
+      hmp.put(p.get(SCHEMA.fPuid), dv)
     }
 
     def addEdges(conns: List[HashMap[String, String]]) {
@@ -69,14 +71,14 @@ object Dijkstra {
       var w = 0.0
       for (e <- conns) {
         try {
-          val weight = e.getOrElse("weight",null)
+          val weight = e.getOrElse(SCHEMA.fWeight,null)
           if (weight != null)
             w = nf.parse(weight).doubleValue()
         } catch {
           case e1: ParseException =>
         }
-        val a = hmp.getOrElse(e.get("pois_a"), null)
-        val b = hmp.getOrElse(e.get("pois_b"), null)
+        val a = hmp.getOrElse(e.get(SCHEMA.fPoisA), null)
+        val b = hmp.getOrElse(e.get(SCHEMA.fPoisB), null)
         if (!(a == null || b == null)) {
           a.adjacencies.add(new DEdge(w, b))
           b.adjacencies.add(new DEdge(w, a))
@@ -88,12 +90,12 @@ object Dijkstra {
       val nf = NumberFormat.getInstance(Locale.ENGLISH)
       var w = 0.0
       try {
-        w = nf.parse(conn.get("weight")).doubleValue()
+        w = nf.parse(conn.get(SCHEMA.fWeight)).doubleValue()
       } catch {
         case e1: ParseException =>
       }
-      val a = hmp.getOrElse(conn.get("pois_a"), null)
-      val b = hmp.getOrElse(conn.get("pois_b"), null)
+      val a = hmp.getOrElse(conn.get(SCHEMA.fPoisA), null)
+      val b = hmp.getOrElse(conn.get(SCHEMA.fPoisB), null)
       if (a == null || b == null) {
         return
       }
@@ -114,7 +116,7 @@ object Dijkstra {
 
     var adjacencies: List[DEdge] = new ArrayList[DEdge]()
 
-    var puid: String = this.poi.get("puid")
+    var puid: String = this.poi.get(SCHEMA.fPuid)
 
     override def compareTo(o: Any): Int = {
       java.lang.Double.compare(this.minDistance, o.asInstanceOf[DVertex].minDistance)

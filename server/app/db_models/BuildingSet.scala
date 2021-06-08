@@ -40,6 +40,7 @@ import java.io.IOException
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JsonUtils.convertToInt
 import utils.LPUtils
@@ -61,32 +62,32 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
   def this() {
     this(new HashMap[String, String])
-    fields.put("owner_id", "")
-    fields.put("cuid", "")
-    fields.put("name", "")
-    fields.put("description", "")
-    fields.put("greeklish", "")
-    fields.put("buids", "[]")
+    fields.put(SCHEMA.fOwnerId, "")
+    fields.put(SCHEMA.fCampusCuid, "")
+    fields.put(SCHEMA.fName, "")
+    fields.put(SCHEMA.fDescription, "")
+    fields.put(SCHEMA.fGreeklish, "")
+    fields.put(SCHEMA.fBuids, "[]")
   }
 
   def this(json: JsValue) = {
     this()
-    if ((json \ "owner_id").toOption.isDefined)
-      fields.put("owner_id", (json \ "owner_id").as[String])
-    if ((json \ "cuid").toOption.isDefined)
-      fields.put("cuid", (json \ "cuid").as[String])
-    if ((json \ "name").toOption.isDefined)
-      isEmptyDeleteElseAdd(json, "name")
+    if ((json \ SCHEMA.fOwnerId).toOption.isDefined)
+      fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])
+    if ((json \ SCHEMA.fCampusCuid).toOption.isDefined)
+      fields.put(SCHEMA.fCampusCuid, (json \ SCHEMA.fCampusCuid).as[String])
+    if ((json \ SCHEMA.fName).toOption.isDefined)
+      isEmptyDeleteElseAdd(json, SCHEMA.fName)
     else
-      fields.remove("name")
-    if ((json \ "greeklish").toOption.isDefined)
-      isEmptyDeleteElseAdd(json, "greeklish")
+      fields.remove(SCHEMA.fName)
+    if ((json \ SCHEMA.fGreeklish).toOption.isDefined)
+      isEmptyDeleteElseAdd(json, SCHEMA.fGreeklish)
     else
-      fields.remove("greeklish")
-    if ((json \ "description").toOption.isDefined) {
-      isEmptyDeleteElseAdd(json, "description")
+      fields.remove(SCHEMA.fGreeklish)
+    if ((json \ SCHEMA.fDescription).toOption.isDefined) {
+      isEmptyDeleteElseAdd(json, SCHEMA.fDescription)
     } else {
-      fields.remove("description")
+      fields.remove(SCHEMA.fDescription)
     }
     this.json = json
 
@@ -94,7 +95,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
   def this(json: JsValue, owner: String) = {
     this(json)
-    fields.put("owner_id", owner)
+    fields.put(SCHEMA.fOwnerId, owner)
   }
 
   def isEmptyDeleteElseAdd(json: JsValue, key: String) {
@@ -107,13 +108,13 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   def getId(): String = {
-    var cuid: String = fields.get("cuid")
+    var cuid: String = fields.get(SCHEMA.fCampusCuid)
     if (cuid.isEmpty || cuid.==("")) {
       val finalId: String = LPUtils.getRandomUUID + "_" + System
         .currentTimeMillis()
-      fields.put("cuid", "cuid_" + finalId)
-      cuid = fields.get("cuid")
-      this.json.as[JsObject] + ("cuid" -> Json.toJson(cuid))
+      fields.put(SCHEMA.fCampusCuid, "cuid_" + finalId)
+      cuid = fields.get(SCHEMA.fCampusCuid)
+      this.json.as[JsObject] + (SCHEMA.fCampusCuid -> Json.toJson(cuid))
     }
     cuid
   }
@@ -132,18 +133,18 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
   def toGeoJSON(): String = {
     val sb: StringBuilder = new StringBuilder()
-    json = json.as[JsObject] - "access_token"
+    json = json.as[JsObject] - SCHEMA.fAccessToken
     sb.append(this.json.toString)
     sb.toString
   }
 
   def addBuids(): String = {
     val sb: StringBuilder = new StringBuilder()
-    if ((this.json \ "description").as[String] == "" || (this.json \ "description").as[String] == "-")
-      this.json = this.json.as[JsObject] - "description"
-    if ((this.json \ "name").as[String] == "" || (this.json \ "name").as[String] == "-")
-      this.json = this.json.as[JsObject] - "name"
-    this.json = convertToInt("_schema", this.json)
+    if ((this.json \ SCHEMA.fDescription).as[String] == "" || (this.json \ SCHEMA.fDescription).as[String] == "-")
+      this.json = this.json.as[JsObject] - SCHEMA.fDescription
+    if ((this.json \ SCHEMA.fName).as[String] == "" || (this.json \ SCHEMA.fName).as[String] == "-")
+      this.json = this.json.as[JsObject] - SCHEMA.fName
+    this.json = convertToInt(SCHEMA.fSchema, this.json)
     sb.append(this.json.toString())
     sb.toString
   }
@@ -153,7 +154,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     val sb: StringBuilder = new StringBuilder()
     var json: JsonObject = null
     try {
-      this.fields.put("owner_id", newOwnerId)
+      this.fields.put(SCHEMA.fOwnerId, newOwnerId)
       json = toValidJson()
     } catch {
       case e: IOException => e.printStackTrace()
@@ -166,7 +167,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     val sMap: Map[String, String] = this.getFields().asScala.toMap
     val res = Json.toJson(sMap)
     // convert some keys to primitive types
-    convertToInt("_schema", res)
+    convertToInt(SCHEMA.fSchema, res)
   }
 
   @deprecated()

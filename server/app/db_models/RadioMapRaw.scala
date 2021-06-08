@@ -42,7 +42,7 @@ import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
 import controllers.AnyplacePosition.BBOX_MAX
-import datasources.ProxyDataSource
+import datasources.{ProxyDataSource, SCHEMA}
 import json.VALIDATE.{Coordinate, StringNumber}
 import play.Play
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
@@ -60,37 +60,37 @@ object RadioMapRaw {
 
   def toRawRadioMapRecord(hm: HashMap[String, String]): String = {
     val sb = new StringBuilder()
-    sb.append(hm.get("timestamp"))
+    sb.append(hm.get(SCHEMA.fTimestamp))
     sb.append(" ")
-    sb.append(hm.get("x"))
+    sb.append(hm.get(SCHEMA.fX))
     sb.append(" ")
-    sb.append(hm.get("y"))
+    sb.append(hm.get(SCHEMA.fY))
     sb.append(" ")
-    sb.append(hm.get("heading"))
+    sb.append(hm.get(SCHEMA.fHeading))
     sb.append(" ")
-    sb.append(hm.get("MAC"))
+    sb.append(hm.get(SCHEMA.fMac))
     sb.append(" ")
-    sb.append(hm.get("rss"))
+    sb.append(hm.get(SCHEMA.fRSS))
     sb.append(" ")
-    sb.append(hm.get("floor"))
+    sb.append(hm.get(SCHEMA.fFloor))
     sb.toString
   }
 
   def toRawRadioMapRecord(json: JsValue): String = {
     val sb = new StringBuilder()
-    sb.append((json \ "timestamp").as[String])
+    sb.append((json \ SCHEMA.fTimestamp).as[String])
     sb.append(" ")
-    sb.append((json \ "x").as[String])
+    sb.append((json \ SCHEMA.fX).as[String])
     sb.append(" ")
-    sb.append((json \ "y").as[String])
+    sb.append((json \ SCHEMA.fY).as[String])
     sb.append(" ")
-    sb.append((json \ "heading").as[String])
+    sb.append((json \ SCHEMA.fHeading).as[String])
     sb.append(" ")
-    sb.append((json \ "MAC").as[String])
+    sb.append((json \ SCHEMA.fMac).as[String])
     sb.append(" ")
-    sb.append((json \ "rss").as[String])
+    sb.append((json \ SCHEMA.fRSS).as[String])
     sb.append(" ")
-    sb.append((json \ "floor").as[String])
+    sb.append((json \ SCHEMA.fFloor).as[String])
     sb.toString
   }
 
@@ -104,15 +104,15 @@ object RadioMapRaw {
    * @return
    */
   def findRadioBbox(json: JsValue, range: Int): Result = {
-    if (Coordinate(json, "coordinates_lat") == null)
+    if (Coordinate(json, SCHEMA.fCoordinatesLat) == null)
       return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
-    val lat = (json \ "coordinates_lat").as[String]
-    if (Coordinate(json, "coordinates_lon") == null)
+    val lat = (json \ SCHEMA.fCoordinatesLat).as[String]
+    if (Coordinate(json, SCHEMA.fCoordinatesLon) == null)
       return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
-    val lon = (json \ "coordinates_lon").as[String]
-    if (StringNumber(json, "floor_number") == null)
+    val lon = (json \ SCHEMA.fCoordinatesLon).as[String]
+    if (StringNumber(json, SCHEMA.fFloorNumber) == null)
       return AnyResponseHelper.bad_request("floor_number field must be String, containing a number!")
-    val floorNumber = (json \ "floor_number").as[String]
+    val floorNumber = (json \ SCHEMA.fFloorNumber).as[String]
     if (!Floor.checkFloorNumberFormat(floorNumber)) {
       return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
     } else {
@@ -195,13 +195,13 @@ object RadioMapRaw {
   }
 
   def unrollFingerprint(rss: JsValue, measurement: List[String]): JsValue = {
-    var json = Json.obj("buid" -> (rss \ "buid").as[String], "floor" -> (rss \ "floor").as[String],
-      "x" -> (rss \ "x").as[String], "y" -> (rss \ "y").as[String], "heading" -> (rss \ "heading").as[String],
-      "timestamp" -> (rss \ "timestamp").as[String], "MAC" -> measurement(0), "rss" -> measurement(1),
-      ("geometry" -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble((rss \ "x").as[String]),
-        java.lang.Double.parseDouble((rss \ "y").as[String])).toGeoJSON())))
-    if ((rss \ "strongestWifi").toOption.isDefined)
-      json = json.as[JsObject] + ("strongestWifi" -> JsString((rss \ "strongestWifi").as[String]))
+    var json = Json.obj(SCHEMA.fBuid -> (rss \ SCHEMA.fBuid).as[String], SCHEMA.fFloor -> (rss \ SCHEMA.fFloor).as[String],
+      SCHEMA.fX -> (rss \ SCHEMA.fX).as[String], SCHEMA.fY -> (rss \ SCHEMA.fY).as[String], SCHEMA.fHeading -> (rss \ SCHEMA.fHeading).as[String],
+      SCHEMA.fTimestamp -> (rss \ SCHEMA.fTimestamp).as[String], SCHEMA.fMac -> measurement(0), SCHEMA.fRSS -> measurement(1),
+      (SCHEMA.fGeometry -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble((rss \ SCHEMA.fX).as[String]),
+        java.lang.Double.parseDouble((rss \ SCHEMA.fY).as[String])).toGeoJSON())))
+    if ((rss \ SCHEMA.fStrongestWifi).toOption.isDefined)
+      json = json.as[JsObject] + (SCHEMA.fStrongestWifi -> JsString((rss \ SCHEMA.fStrongestWifi).as[String]))
     return json
   }
 }
@@ -216,11 +216,11 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            heading: String
           ) {
     this(new HashMap[String, String])
-    fields.put("timestamp", timestamp)
-    fields.put("x", x)
-    fields.put("y", y)
-    fields.put("heading", heading)
-    fields.put("floor", "-")
+    fields.put(SCHEMA.fTimestamp, timestamp)
+    fields.put(SCHEMA.fX, x)
+    fields.put(SCHEMA.fY, y)
+    fields.put(SCHEMA.fHeading, heading)
+    fields.put(SCHEMA.fFloor, "-")
   }
 
   def this(timestamp: String,
@@ -230,11 +230,11 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
 
            floor: String) {
     this(new HashMap[String, String])
-    fields.put("timestamp", timestamp)
-    fields.put("x", x)
-    fields.put("y", y)
-    fields.put("heading", heading)
-    fields.put("floor", floor)
+    fields.put(SCHEMA.fTimestamp, timestamp)
+    fields.put(SCHEMA.fX, x)
+    fields.put(SCHEMA.fY, y)
+    fields.put(SCHEMA.fHeading, heading)
+    fields.put(SCHEMA.fFloor, floor)
   }
 
   def this(timestamp: String,
@@ -244,12 +244,12 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            floor: String,
            strongestWifi: String) {
     this(new HashMap[String, String])
-    fields.put("timestamp", timestamp)
-    fields.put("x", x)
-    fields.put("y", y)
-    fields.put("heading", heading)
-    fields.put("floor", floor)
-    fields.put("strongestWifi", strongestWifi)
+    fields.put(SCHEMA.fTimestamp, timestamp)
+    fields.put(SCHEMA.fX, x)
+    fields.put(SCHEMA.fY, y)
+    fields.put(SCHEMA.fHeading, heading)
+    fields.put(SCHEMA.fFloor, floor)
+    fields.put(SCHEMA.fStrongestWifi, strongestWifi)
   }
 
   def this(timestamp: String,
@@ -260,19 +260,19 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            strongestWifi: String,
            buid: String) {
     this(new HashMap[String, String])
-    fields.put("timestamp", timestamp)
-    fields.put("x", x)
-    fields.put("y", y)
-    fields.put("heading", heading)
-    fields.put("floor", floor)
-    fields.put("strongestWifi", strongestWifi)
-    fields.put("buid", buid)
+    fields.put(SCHEMA.fTimestamp, timestamp)
+    fields.put(SCHEMA.fX, x)
+    fields.put(SCHEMA.fY, y)
+    fields.put(SCHEMA.fHeading, heading)
+    fields.put(SCHEMA.fFloor, floor)
+    fields.put(SCHEMA.fStrongestWifi, strongestWifi)
+    fields.put(SCHEMA.fBuid, buid)
   }
 
   def getId(): String = {
-    fields.get("x") + fields.get("y") + fields.get("heading") +
-      fields.get("timestamp") +
-      fields.get("MAC")
+    fields.get(SCHEMA.fX) + fields.get(SCHEMA.fY) + fields.get(SCHEMA.fHeading) +
+      fields.get(SCHEMA.fTimestamp) +
+      fields.get(SCHEMA.fMac)
   }
 
   def toValidJson(): JsonObject = {
@@ -287,10 +287,10 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     val sb = new StringBuilder()
     var json = toValidMongoJson()
     try {
-      json = json.as[JsObject] + ("measurements" -> Json.toJson(measurements))
-      json = json.as[JsObject] + ("geometry" -> Json.toJson(
-        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("x")),
-          java.lang.Double.parseDouble(fields.get("y"))).toGeoJSON()))
+      json = json.as[JsObject] + (SCHEMA.fMeasurements -> Json.toJson(measurements))
+      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
+        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).toGeoJSON()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -302,9 +302,9 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     val sb = new StringBuilder()
     var json = toValidMongoJson()
     try {
-      json = json.as[JsObject] + ("geometry" -> Json.toJson(
-        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("x")),
-          java.lang.Double.parseDouble(fields.get("y"))).toGeoJSON()))
+      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
+        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).toGeoJSON()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -315,7 +315,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
   def toJson(): JsValue = {
     val sMap: Map[String, String] = this.getFields().asScala.toMap
     val res = Json.toJson(sMap)
-    convertToInt("_schema", res)
+    convertToInt(SCHEMA.fSchema, res)
   }
 
   @deprecated("")
@@ -325,19 +325,19 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
 
   def toRawRadioMapRecord(): String = {
     val sb = new StringBuilder()
-    sb.append(fields.get("timestamp"))
+    sb.append(fields.get(SCHEMA.fTimestamp))
     sb.append(" ")
-    sb.append(fields.get("x"))
+    sb.append(fields.get(SCHEMA.fX))
     sb.append(" ")
-    sb.append(fields.get("y"))
+    sb.append(fields.get(SCHEMA.fY))
     sb.append(" ")
-    sb.append(fields.get("heading"))
+    sb.append(fields.get(SCHEMA.fHeading))
     sb.append(" ")
-    sb.append(fields.get("MAC"))
+    sb.append(fields.get(SCHEMA.fMac))
     sb.append(" ")
-    sb.append(fields.get("rss"))
+    sb.append(fields.get(SCHEMA.fRSS))
     sb.append(" ")
-    sb.append(fields.get("floor"))
+    sb.append(fields.get(SCHEMA.fFloor))
     sb.toString
   }
 

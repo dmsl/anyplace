@@ -402,8 +402,6 @@ class AccesRBF(
     val x_normed = if (normalize_x) {
       normalize_X(x.toDenseMatrix, this._X_min, this._X_max).toDenseVector
     } else x
-    //    LPLogger.debug("x", x)
-    //    LPLogger.debug("x_normed", x_normed)
     val X_normed = this._X_normed
     val Y_normed = this._Y_normed(::, this._selected_features).toDenseMatrix
     val m = Y_normed.cols

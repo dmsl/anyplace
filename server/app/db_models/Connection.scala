@@ -39,6 +39,7 @@ package db_models
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import utils.JsonUtils.convertToInt
 
@@ -47,13 +48,9 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
 object Connection {
 
   val EDGE_TYPE_STAIR = "stair"
-
   val EDGE_TYPE_ELEVATOR = "elevator"
-
   val EDGE_TYPE_HALLWAY = "hallway"
-
   val EDGE_TYPE_ROOM = "room"
-
   val EDGE_TYPE_OUTDOOR = "outdoor"
 
   def getId(pois_a: String, pois_b: String): String = "conn_" + pois_a + "_" + pois_b
@@ -67,52 +64,52 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
 
   def this() {
     this(new HashMap[String, String])
-    fields.put("is_published", "")
-    fields.put("edge_type", "")
-    fields.put("pois_a", "")
-    fields.put("pois_b", "")
-    fields.put("weight", "")
-    fields.put("buid", "")
-    fields.put("floor_a", "")
-    fields.put("floor_b", "")
-    fields.put("buid_a", "")
-    fields.put("buid_b", "")
-    fields.put("cuid", "")
+    fields.put(SCHEMA.fIsPublished, "")
+    fields.put(SCHEMA.fEdgeType, "")
+    fields.put(SCHEMA.fPoisA, "")
+    fields.put(SCHEMA.fPoisB, "")
+    fields.put(SCHEMA.fWeight, "")
+    fields.put(SCHEMA.fBuid, "")
+    fields.put(SCHEMA.fFloorA, "")
+    fields.put(SCHEMA.fFloorB, "")
+    fields.put(SCHEMA.fBuidA, "")
+    fields.put(SCHEMA.fBuidB, "")
+    fields.put(SCHEMA.fConCuid, "")
   }
 
   def this(json: JsValue) {
     this()
-    if ((json \ "is_published").toOption.isDefined)
-      fields.put("is_published", (json \ "is_published").as[String])
-    if ((json \ "edge_type").toOption.isDefined)
-      fields.put("edge_type", (json \ "edge_type").as[String])
-    if ((json \ "pois_a").toOption.isDefined)
-      fields.put("pois_a", (json \ "pois_a").as[String])
-    if ((json \ "pois_b").toOption.isDefined)
-      fields.put("pois_b", (json \ "pois_b").as[String])
-    if ((json \ "weight").toOption.isDefined)
-      fields.put("weight", (json \ "weight").as[String])
-    if ((json \ "buid").toOption.isDefined)
-      fields.put("buid", (json \ "buid").as[String])
-    if ((json \ "floor_a").toOption.isDefined)
-      fields.put("floor_a", (json \ "floor_a").as[String])
-    if ((json \ "floor_b").toOption.isDefined)
-      fields.put("floor_b", (json \ "floor_b").as[String])
-    if ((json \ "buid_a").toOption.isDefined)
-      fields.put("buid_a", (json \ "buid_a").as[String])
-    if ((json \ "buid_b").toOption.isDefined)
-      fields.put("buid_b", (json \ "buid_b").as[String])
-    if ((json \ "cuid").toOption.isDefined)
-      fields.put("cuid", (json \ "cuid").as[String])
+    if ((json \ SCHEMA.fIsPublished).toOption.isDefined)
+      fields.put(SCHEMA.fIsPublished, (json \ SCHEMA.fIsPublished).as[String])
+    if ((json \ SCHEMA.fEdgeType).toOption.isDefined)
+      fields.put(SCHEMA.fEdgeType, (json \ SCHEMA.fEdgeType).as[String])
+    if ((json \ SCHEMA.fPoisA).toOption.isDefined)
+      fields.put(SCHEMA.fPoisA, (json \ SCHEMA.fPoisA).as[String])
+    if ((json \ SCHEMA.fPoisB).toOption.isDefined)
+      fields.put(SCHEMA.fPoisB, (json \ SCHEMA.fPoisB).as[String])
+    if ((json \ SCHEMA.fWeight).toOption.isDefined)
+      fields.put(SCHEMA.fWeight, (json \ SCHEMA.fWeight).as[String])
+    if ((json \ SCHEMA.fBuid).toOption.isDefined)
+      fields.put(SCHEMA.fBuid, (json \ SCHEMA.fBuid).as[String])
+    if ((json \ SCHEMA.fFloorA).toOption.isDefined)
+      fields.put(SCHEMA.fFloorA, (json \ SCHEMA.fFloorA).as[String])
+    if ((json \ SCHEMA.fFloorB).toOption.isDefined)
+      fields.put(SCHEMA.fFloorB, (json \ SCHEMA.fFloorB).as[String])
+    if ((json \ SCHEMA.fBuidA).toOption.isDefined)
+      fields.put(SCHEMA.fBuidA, (json \ SCHEMA.fBuidA).as[String])
+    if ((json \ SCHEMA.fBuidB).toOption.isDefined)
+      fields.put(SCHEMA.fBuidB, (json \ SCHEMA.fBuidB).as[String])
+    if ((json \ SCHEMA.fConCuid).toOption.isDefined)
+      fields.put(SCHEMA.fConCuid, (json \ SCHEMA.fConCuid).as[String])
     this.json = json
   }
 
   def getId(): String = {
-    var cuid: String = fields.get("cuid")
+    var cuid: String = fields.get(SCHEMA.fConCuid)
     if (cuid == null || cuid.isEmpty || cuid == "") {
-      cuid = Connection.getId((json \ "pois_a").as[String], (json \ "pois_b").as[String])
-      fields.put("cuid", cuid)
-      this.json = this.json.as[JsObject] + ("cuid" -> JsString(cuid))
+      cuid = Connection.getId((json \ SCHEMA.fPoisA).as[String], (json \ SCHEMA.fPoisB).as[String])
+      fields.put(SCHEMA.fConCuid, cuid)
+      this.json = this.json.as[JsObject] + (SCHEMA.fConCuid -> JsString(cuid))
     }
     cuid
   }
@@ -132,7 +129,7 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
     val sMap: Map[String, String] = this.getFields().asScala.toMap
     val res = Json.toJson(sMap)
     // convert some keys to primitive types
-    convertToInt("_schema", res)
+    convertToInt(SCHEMA.fSchema, res)
   }
 
   override def toGeoJSON(): String = toJson().toString
