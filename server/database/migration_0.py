@@ -266,7 +266,7 @@ collections = db.collection_names()
 countCollections = len(collections)
 print("Current number of collections: ", countCollections)
 # dropAllCollections(db, collections);  exit()
-if countCollections >= 9:  
+if countCollections >= 11:  
     print("Checking collections..")
     for x in collections:  # are those the correct colletions?
         if x != "spaces" and x != "campuses" and x != "edges" and x != "fingerprintsBle" and x != "fingerprintsWifi" \
@@ -314,7 +314,6 @@ elif countCollections < 9:
         pois = True
     if "users" in collections:
         users = True
-    buildings = False
     if buildings == False:
         pushBuilding(db)
     else: 

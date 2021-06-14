@@ -114,7 +114,7 @@ def defineCollections(file):
     und = open(pathUND, "w")
     orc = open(outrangedCoords, "w")
     i = 0
-    keepIt = True
+    keepIt = False
     while True:
         line = file.readline()
         if not line:
@@ -140,7 +140,7 @@ def defineCollections(file):
             fixed_obj = fixFINGERPRINT(obj, orc)
             splitToBuid(fixed_obj, fingPath)
             fingerprints += 1
-        elif isFloorPlan(obj):
+        elif isFloorPlan(obj) and keepIt:
             fixed_obj = fixFLOORPLAN(obj, orc)
             fl.write(json.dumps(fixed_obj))
             fl.write("\n")
