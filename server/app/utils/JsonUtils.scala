@@ -41,6 +41,7 @@ import java.util.{ArrayList, Collections, HashMap}
 
 import com.couchbase.client.java.document.json.JsonObject
 import com.google.gson.Gson
+import datasources.SCHEMA
 import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 
 object JsonUtils {
@@ -140,7 +141,7 @@ object JsonUtils {
   }
 
   def cleanupMongoJson(json: JsValue): JsValue = {
-    return json.as[JsObject] - "_id" - "_schema"
+    return json.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema
   }
   @deprecated("mdb")
   def toCouchObject(json: JsValue): JsonObject = {

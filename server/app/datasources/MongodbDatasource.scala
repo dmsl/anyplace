@@ -51,7 +51,7 @@ import org.mongodb.scala.model.Aggregates
 import org.mongodb.scala.model.Aggregates.project
 import org.mongodb.scala.model.Filters._
 import play.Play
-import play.api.libs.json.{JsNumber, JsObject, JsValue, Json}
+import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue, Json}
 import play.twirl.api.TemplateMagic.javaCollectionToScala
 import utils.JsonUtils.cleanupMongoJson
 import utils.{GeoJSONPoint, GeoPoint, JsonUtils, LPLogger}
@@ -70,7 +70,6 @@ object MongodbDatasource {
   private var admins: List[String] = List[String]()
   val __SCHEMA: Int = 0
 
-
   def getMDB: MongoDatabase = mdb
 
   def getStaticInstance: MongodbDatasource = {
@@ -83,9 +82,6 @@ object MongodbDatasource {
     sInstance = createInstance(hostname, database, username, password, port)
     sInstance
   }
-
-
-
 
   def createInstance(hostname: String, database: String, username: String, password: String, port: String): MongodbDatasource = {
     val uri: String = "mongodb://" + username + ":" + password + "@" + hostname + ":" + port
@@ -369,7 +365,6 @@ class MongodbDatasource() extends IDatasource {
   var allPoisbycuid = new java.util.HashMap[String, java.util.List[JsValue]]()
   var lastletters = ""
 
-
   override def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue] = {
     var pois: java.util.List[JsValue] = null
     val pois2 = new java.util.ArrayList[JsValue]
@@ -440,7 +435,6 @@ class MongodbDatasource() extends IDatasource {
       var j = 0
       // create a Breaks object as follows
       val loop = new Breaks
-
       val ex_loop = new Breaks
       ex_loop.breakable {
         for (w <- words) {
@@ -595,6 +589,7 @@ class MongodbDatasource() extends IDatasource {
     res.wasAcknowledged()
   }
 
+
   override def getFromKey(key: String) = ???
 
   override def getFromKey(col: String, key: String, value: String): JsValue = {
@@ -640,7 +635,7 @@ class MongodbDatasource() extends IDatasource {
   }
 
   override def buildingFromKeyAsJson(value: String): JsValue = {
-    var building = getFromKeyAsJson(SCHEMA.cBuildings, SCHEMA.fBuid, value)
+    var building = getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, value)
     if (building == null) {
       return null
     }
@@ -658,7 +653,6 @@ class MongodbDatasource() extends IDatasource {
     }
     building.as[JsObject] + ("floors" -> Json.toJson(floors.toList)) +
       (SCHEMA.cPOIS -> Json.toJson(pois.toList))
-
   }
 
   override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = {
@@ -801,7 +795,7 @@ class MongodbDatasource() extends IDatasource {
 
     // deleting building
     var query = BsonDocument(SCHEMA.fBuid -> buid)
-    var collection = mdb.getCollection(SCHEMA.cBuildings)
+    var collection = mdb.getCollection(SCHEMA.cSpaces)
     val objects = collection.deleteOne(query)
     val awaited = Await.result(objects.toFuture, Duration.Inf)
     val res = awaited
@@ -915,6 +909,7 @@ class MongodbDatasource() extends IDatasource {
       )))
     val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
     val res = awaited.toList
+
     return convertJson(res)
   }
 
@@ -934,8 +929,11 @@ class MongodbDatasource() extends IDatasource {
       val count = (heatmap \ "count").as[Int]
       val sum = (heatmap \ "sum").as[Int]
       val average = sum.toDouble / count.toDouble
-      heatmaps.add(Json.obj(SCHEMA.fLocation -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]],
-        "count" -> count, "sum" -> sum, "average" -> average))
+      //heatmaps.add(Json.obj(SCHEMA.fLocation -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]],
+      //  "count" -> count, "sum" -> sum, "average" -> average))
+      heatmaps.add(Json.obj(SCHEMA.fX -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].head,
+        SCHEMA.fY -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].tail.head,
+        "w" -> JsString("{\"count\":" + count+ ",\"average\":" + average + ",\"total\":" + sum + "}")))
     }
     return heatmaps.toList
   }
@@ -956,8 +954,11 @@ class MongodbDatasource() extends IDatasource {
       val count = (heatmap \ "count").as[Int]
       val sum = (heatmap \ "sum").as[Int]
       val average = sum.toDouble / count.toDouble
-      heatmaps.add(Json.obj(SCHEMA.fLocation -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]],
-        "count" -> count, "sum" -> sum, "average" -> average))
+      //heatmaps.add(Json.obj(SCHEMA.fLocation -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]],
+      //  "count" -> count, "sum" -> sum, "average" -> average))
+      heatmaps.add(Json.obj(SCHEMA.fX -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].head,
+        SCHEMA.fY -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].tail.head,
+        "w" -> JsString("{\"count\":" + count+ ",\"average\":" + average + ",\"total\":" + sum + "}")))
     }
     return heatmaps.toList
   }
@@ -978,8 +979,11 @@ class MongodbDatasource() extends IDatasource {
       val count = (heatmap \ "count").as[Int]
       val sum = (heatmap \ "sum").as[Int]
       val average = sum.toDouble / count.toDouble
-      heatmaps.add(Json.obj(SCHEMA.fLocation -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]],
-        "count" -> count, "sum" -> sum, "average" -> average))
+      //heatmaps.add(Json.obj(SCHEMA.fLocation -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]],
+      //  "count" -> count, "sum" -> sum, "average" -> average))
+      heatmaps.add(Json.obj(SCHEMA.fX -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].head,
+        SCHEMA.fY -> (heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].tail.head,
+        "w" -> JsString("{\"count\":" + count+ ",\"average\":" + average + ",\"total\":" + sum + "}")))
     }
     return heatmaps.toList
   }
@@ -1140,7 +1144,7 @@ class MongodbDatasource() extends IDatasource {
   override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
   override def getAllBuildings(): List[JsValue] = {
-    val collection = mdb.getCollection(SCHEMA.cBuildings)
+    val collection = mdb.getCollection(SCHEMA.cSpaces)
     val query = BsonDocument(SCHEMA.fIsPublished -> "true")
     val buildings = collection.find(query)
     val awaited = Await.result(buildings.toFuture, Duration.Inf)
@@ -1158,7 +1162,7 @@ class MongodbDatasource() extends IDatasource {
 
 
   override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
-    val collection = mdb.getCollection(SCHEMA.cBuildings)
+    val collection = mdb.getCollection(SCHEMA.cSpaces)
     var buildingLookUp = collection.find(or(equal(SCHEMA.fOwnerId, oid),
       equal(SCHEMA.fCoOwners, oid)))
     if (admins.contains(oid)) {
@@ -1177,7 +1181,7 @@ class MongodbDatasource() extends IDatasource {
 
 
   override def getAllBuildingsByBucode(bucode: String): List[JsValue] = {
-    val collection = mdb.getCollection(SCHEMA.cBuildings)
+    val collection = mdb.getCollection(SCHEMA.cSpaces)
     val buildingLookUp = collection.find(equal(SCHEMA.fBuCode, bucode))
     val awaited = Await.result(buildingLookUp.toFuture, Duration.Inf)
     val res = awaited.toList
@@ -1197,7 +1201,7 @@ class MongodbDatasource() extends IDatasource {
 
   override def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue] = {
     val bbox = GeoPoint.getGeoBoundingBox(lat, lng, range)
-    val collection = mdb.getCollection(SCHEMA.cBuildings)
+    val collection = mdb.getCollection(SCHEMA.cSpaces)
     val buildingLookUp = collection.find(and(geoWithinBox(SCHEMA.fGeometry, bbox(0).dlat, bbox(0).dlon, bbox(1).dlat,
       bbox(1).dlon),
       or(equal(SCHEMA.fIsPublished, "true"),
@@ -1443,10 +1447,16 @@ class MongodbDatasource() extends IDatasource {
     return number
   }
 
+  /**
+   * TODO:NN write doc
+   * @param fingerprint
+   * @param level
+   * @param timestamp
+   * @return
+   */
   def updateHeatmap(fingerprint: JsValue, level: Int, timestamp: Boolean): Boolean = {
     var collectionName = "heatmapWifi" // concatenating rest of the Collection name
-    if (timestamp)
-      collectionName = collectionName + SCHEMA.fTimestamp
+    if (timestamp) collectionName = collectionName + SCHEMA.fTimestamp
     collectionName = collectionName + level
     val storedHeatmap = fetchStoredHeatmap(collectionName, fingerprint, level, timestamp)
     if (storedHeatmap == null) {
@@ -1462,7 +1472,7 @@ class MongodbDatasource() extends IDatasource {
 
   override def generateHeatmaps(): Boolean = {
     LPLogger.debug("generateHeatmaps: Generating Heatmaps")
-    val bCollection = mdb.getCollection(SCHEMA.cBuildings)
+    val bCollection = mdb.getCollection(SCHEMA.cSpaces)
     val flCollection = mdb.getCollection(SCHEMA.cFloorplans)
     val fiCollection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
     //val tempQuery: BsonDocument = BsonDocument(SCHEMA.fBuid -> "username_1373876832005")
@@ -1470,6 +1480,7 @@ class MongodbDatasource() extends IDatasource {
     val awaitedB = Await.result(buildingsLookup.toFuture, Duration.Inf)
     val resB = awaitedB.toList
     val buildings = convertJson(resB)
+
     for (building <- buildings) {
       val floorsLookup = flCollection.find(equal(SCHEMA.fBuid, (building \ SCHEMA.fBuid).as[String]))
       val awaitedFl = Await.result(floorsLookup.toFuture, Duration.Inf)

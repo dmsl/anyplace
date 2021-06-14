@@ -25,8 +25,10 @@
  THE SOFTWARE.
  */
 
+// TODO:NN rename FULL_SERVER to BASE_URL
+// TODO:NN AnyplaceAPI .js move to ../js/api.js
 var AnyplaceAPI = {};
-AnyplaceAPI.FULL_SERVER ="../anyplace";
+AnyplaceAPI.FULL_SERVER = "../anyplace";
 AnyplaceAPI.VERSION = AnyplaceAPI.FULL_SERVER + "/version";
 
 /**
@@ -95,7 +97,7 @@ AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + 
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
 
-AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/building/add";
+AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/space/add";
 AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ADD;
 
 AnyplaceAPI.Mapping.CAMPUS_ALL = "/mapping/campus/all_owner";
@@ -110,16 +112,16 @@ AnyplaceAPI.Mapping.CAMPUS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Ma
 AnyplaceAPI.Mapping.BUILDINGSET_ADD = "/mapping/campus/add";
 AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDINGSET_ADD;
 
-AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/building/update";
+AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/space/update";
 AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_UPDATE;
 
-AnyplaceAPI.Mapping.BUILDING_DELETE = "/mapping/building/delete";
+AnyplaceAPI.Mapping.BUILDING_DELETE = "/mapping/space/delete";
 AnyplaceAPI.Mapping.BUILDING_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_DELETE;
 
 AnyplaceAPI.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
 AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIOMAP_DELETE;
 
-AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/building/all_owner";
+AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/space/all_owner";
 AnyplaceAPI.Mapping.BUILDING_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ALL;
 
 AnyplaceAPI.Mapping.FLOOR_ADD = "/mapping/floor/add";

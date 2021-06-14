@@ -61,7 +61,6 @@ class AccessTokenModel(private var access_token: String,
   var tuid: String = generateTokenId(this.access_token)
 
   def getAccessToken(): String = access_token
-
   def getTokenType(): String = token_type
 
   def getExpiresIn(): Long = expires_in

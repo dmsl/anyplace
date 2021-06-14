@@ -104,6 +104,7 @@ object TokenService { // Used by the secure encryption/decryption algorithms
   }
 
   /**
+    * TODO:NN rename createUserId
     * Return a new Client Id
     */
   def createNewClientId: String = LPUtils.getRandomUUID

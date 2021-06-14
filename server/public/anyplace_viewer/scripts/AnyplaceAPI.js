@@ -50,7 +50,7 @@ AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL = "https://www.googleapis.com/urlshort
 AnyplaceAPI.Mapping.BUILDING_ONE = "/mapping/building/get";
 AnyplaceAPI.Mapping.BUILDING_ONE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ONE;
 
-AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/building/all";
+AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/space/all";
 AnyplaceAPI.Mapping.BUILDING_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ALL;
 
 AnyplaceAPI.Mapping.FLOOR_ALL = "/mapping/floor/all";

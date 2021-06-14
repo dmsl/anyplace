@@ -6,14 +6,15 @@
 # TODO: Sort at the end (by category)
 POST        /anyplace/mapping/accounts/sign                                         controllers.AnyplaceMapping.addAccount()
 
-POST        /anyplace/mapping/building/add                                          controllers.AnyplaceMapping.buildingAdd()
-POST        /anyplace/mapping/building/update                                       controllers.AnyplaceMapping.buildingUpdate()
+# TODO:NN add type
+POST        /anyplace/mapping/space/add                                          controllers.AnyplaceMapping.spaceAdd()
+POST        /anyplace/mapping/space/update                                       controllers.AnyplaceMapping.spaceUpdate()
 # verified all except fingerprints
-POST        /anyplace/mapping/building/delete                                       controllers.AnyplaceMapping.buildingDelete()
-POST        /anyplace/mapping/building/all                                          controllers.AnyplaceMapping.buildingAll()
-POST        /anyplace/mapping/building/all_owner                                    controllers.AnyplaceMapping.buildingAllByOwner()
+POST        /anyplace/mapping/space/delete                                       controllers.AnyplaceMapping.spaceDelete()
+POST        /anyplace/mapping/space/all                                          controllers.AnyplaceMapping.spaceAll()
+POST        /anyplace/mapping/space/all_owner                                    controllers.AnyplaceMapping.spaceAllByOwner()
 # CHANGES: removed owner_id, added optional range
-POST        /anyplace/mapping/building/coordinates                                  controllers.AnyplaceMapping.buildingCoordinates()
+POST        /anyplace/mapping/space/coordinates                                  controllers.AnyplaceMapping.spaceCoordinates()
 
 POST        /anyplace/mapping/pois/add                                              controllers.AnyplaceMapping.poisAdd()
 POST        /anyplace/mapping/pois/delete                                           controllers.AnyplaceMapping.poisDelete()
@@ -44,11 +45,11 @@ POST        /anyplace/mapping/campus/all_owner                                  
 ###############################
 ###   VERIFIED:MDB UNUSED   ###
 ###############################
-POST        /anyplace/mapping/building/coowners                                     controllers.AnyplaceMapping.buildingUpdateCoOwners()
+POST        /anyplace/mapping/building/coowners                                     controllers.AnyplaceMapping.spaceUpdateCoOwners()
 # Fetches all buildings that matches bucode.
-POST        /anyplace/mapping/building/all_bucode                                   controllers.AnyplaceMapping.buildingByBucode()
+POST        /anyplace/mapping/building/all_bucode                                   controllers.AnyplaceMapping.spaceByBucode()
 # CHECK:NN:geometry
-POST        /anyplace/mapping/building/newowner                                     controllers.AnyplaceMapping.buildingUpdateOwner()
+POST        /anyplace/mapping/building/newowner                                     controllers.AnyplaceMapping.spaceUpdateOwner()
 # Not in use by anyplace API. Used by Rayzit
 POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.AnyplaceMapping.poisByBuidincConnectors()
 # Not in use. (Replaced JsonObject with JsValue, didnt test)
@@ -99,9 +100,11 @@ POST        /anyplace/radiomaps/:radio_folder/:filename                         
 #############
 ### ADMIN ###
 #############
-# TODO Only for admin
-POST        /anyplace/debug/accounts_all                                            controllers.AnyplaceAccounts.fetchAllAccounts()
-POST        /anyplace/position/radio/generateHeatmaps                               controllers.AnyplacePosition.generateHeatmaps()
+# TODO Only for admin (add access_token)
+# TODO:NN apply to postman "/anyplace/debug/accounts_all"
+POST        /admin/accounts_all                                            controllers.AnyplaceAccounts.fetchAllAccounts()
+# TODO:NN apply to postman "/anyplace/position/radio/generateHeatmaps"
+POST        /admin/migration/run                                           controllers.Admin.migrateToMongoDB()
 
 #####################################################################################################
 #############
@@ -131,8 +134,6 @@ POST        /authenticate                                                       
 
 POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
-
-
 #####################################################################################################
 ###############
 ### DELETED ###
@@ -144,17 +145,15 @@ POST        /anyplace/mapping/maintenance                                       
 ################
 ### DISABLED ###
 ################
+# ???? who disabled those????? CHECK:NN
 #POST           /anyplace/mapping/radio/addbuids                             controllers.AnyplaceMapping.addBuidInRssLogs()
 #POST           /anyplace/mapping/pois/temp_url                              controllers.AnyplaceMapping.tempAllPoisWithoutUrl()
 #POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
 
-
 #####################################################################################################
-# REVIEWLS lsolea01: radio maps delete crlbs_file and the radiomaps_frozen folder by floor building
-POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.radiomapDelete()
-
-# Acces Map might be removed
+# ACCES MAP
 POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
+POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
 
 #####################################################################################################
 ##### NEED EXTRA TEST
@@ -185,35 +184,48 @@ POST        /anyplace/position/radio/delete/time                                
 # TODO:NN sort by time ascending
 # TEST: with 2 buildings (cs and mine) shows date ranges okay in crossfilter bar chart
 POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerPrintsTime()
-# couchbase bug
+# BUG:NN  ??????????
+# TODO:NN present the problem to PM. Which endpoints have bugs?
 POST        /anyplace/position/radio_by_building_floor_all                          controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
 POST        /anyplace/position/radio/APs_building_floor                             controllers.AnyplaceMapping.getAPsByBuildingFloor()
 POST        /anyplace/position/radio/aps_ids                                        controllers.AnyplaceMapping.getAPsIds()
 
+
+# TODO:NN compare couch avg3 with mongodb
+# who is using them in architect?
+# show-compare with mongo
+POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
+# TODO:NN like above
+POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
+# fix return values
+# TODO:NN what is it?
 POST        /anyplace/mapping/radio/heatmap_building_floor                          controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
 # TODO: change return location
 # Todo: make a list of all the changed endpoints
-POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage1()
+POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
 POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage2()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
 
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
 
+# where is it used? VERIFY:NN
 POST        /anyplace/mapping/pois/all_pois                                         controllers.AnyplaceMapping.poisAll()
 
 # DEVELOPING
-POST        /anyplace/mapping/building/get                                          controllers.AnyplaceMapping.buildingGetOne()
+# ?????
+POST        /anyplace/mapping/building/get                                          controllers.AnyplaceMapping.spaceGetOne()
 POST        /anyplace/position/predictFloorAlgo1                                    controllers.AnyplacePosition.predictFloorAlgo1()
 
 # den iparxei to view
+# TODO:NN fix crossfilter (?)
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage1()
 # den iparxei to view
+# TODO:NN fix crossfilter (?)
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage2()
 
-
+# TODO:NN fix crossfilter
+# blocked by heatmaps
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
 
 
 
@@ -243,22 +255,27 @@ POST        /anyplace/geolocation/distance_lookup                               
 ###########
 ### GET ###
 ###########
-### DEVELOPERS WEB APP:
+
+POST        /anyplace/version                                                       controllers.ApplicationAnyplace.Version
+
+### WEB APPS:
+##### DEVELOPERS:
 GET         /developers/*file                                                       controllers.Assets.at(path="/public/anyplace_developers", file)
 GET         /developers/                                                            controllers.AnyplaceWebApps.serveDevelopers(file="index.html")
 GET         /developers                                                             controllers.AnyplaceWebApps.AddTrailingSlash()
-
-### ARCHITECT WEB APP:
+##### ARCHITECT:
 GET         /architect/*file                                                        controllers.Assets.at(path="/public/anyplace_architect", file)
 GET         /architect/                                                             controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
 GET         /architect                                                              controllers.AnyplaceWebApps.AddTrailingSlash()
-POST        /anyplace/version                                                       controllers.ApplicationAnyplace.Version
-
-### VIEWER WEB APP:
+##### VIEWER:
 GET /viewer/index.html                                                              controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
 GET /viewer/                                                                        controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET /viewer                                                                         controllers.AnyplaceWebApps.AddTrailingSlash()
+##### NEW ANGULAR WEB APP (Login, register) :
+GET         /new2/*file                                                             controllers.Assets.at(path="/public/new2", file)
+GET         /new2/                                                                  controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+GET         /new2                                                                   controllers.AnyplaceWebApps.AddTrailingSlash()
 
 ### RESOURCES:
 GET /favicon.ico                                                                    controllers.Assets.at(path="/public/images", file="favicon.png")

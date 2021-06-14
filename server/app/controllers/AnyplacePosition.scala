@@ -40,9 +40,9 @@ import java.io._
 import java.util.ArrayList
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import controllers.AnyplaceMapping.{appendGoogleIdIfNeeded, verifyId}
+import controllers.AnyplaceMapping.verifyId
 import datasources.SCHEMA._
-import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
+import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import db_models.RadioMapRaw.findRadioBbox
 import db_models.{Floor, MagneticMilestone, MagneticPath, RadioMapRaw}
 import floor_module.Algo1
@@ -884,25 +884,4 @@ object AnyplacePosition extends play.api.mvc.Controller {
       inner(request)
   }
 
-
-  def generateHeatmaps() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        val json = anyReq.getJsonBody
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fAccessToken)
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if ((json \ SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        val owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
-        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        if (!MongodbDatasource.loadAdmins().contains(appendGoogleIdIfNeeded(owner_id))) {
-          return AnyResponseHelper.forbidden("Unauthorized. Only admins can generate heatmaps.")
-        }
-        if (!ProxyDataSource.getIDatasource().generateHeatmaps())
-          return AnyResponseHelper.internal_server_error("Couldn't generate Heatmaps")
-        return AnyResponseHelper.ok("Generated heatmaps successfully")
-      }
-      inner(request)
-  }
 }

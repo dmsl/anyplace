@@ -195,7 +195,7 @@ object AnyResponseHelper {
 
         //val res: JsValue = Json.obj(
         //    "users_num" -> users.length,
-        //    "users" -> Json.arr(users)
+        //    SCHEMA.cUsers -> Json.arr(users)
         //)
         // TODO Convert to Json (example above)
         val error_messages = JsonArray.empty()

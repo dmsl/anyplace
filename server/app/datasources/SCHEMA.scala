@@ -4,7 +4,7 @@ object SCHEMA {
 
   // COLLECTIONS
   val cAccessPointsWifi = "accessPointsWifi"
-  val cBuildings = "buildings"
+  val cSpaces = "spaces"
   val cCampuses = "campuses"
   val cEdges = "edges"
   val cFingerprintsWifi = "fingerprintsWifi"

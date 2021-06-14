@@ -36,6 +36,10 @@
  */
 package db_models
 
+/**
+ *
+ */
+
 import java.io.IOException
 import java.util
 import java.util.HashMap
@@ -49,7 +53,9 @@ import utils.{GeoJSONPoint, LPUtils}
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 
-class Building(hm: HashMap[String, String]) extends AbstractModel {
+// TODO:NN refactor building to space
+
+class Space(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
   private var lat: Double = _
   private var lng: Double = _

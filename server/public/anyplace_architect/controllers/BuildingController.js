@@ -503,12 +503,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                 $scope.setCrudTabSelected(1);
 
-                _suc($scope, "Successfully deleted building.");
+                _suc($scope, "Successfully deleted indoor space.");
             },
             function (resp) {
               ShowError($scope, resp,
                 "Something went wrong." +"" +
-                "It's likely that everything related to the building is deleted " +
+                "It's likely that everything related to the indoor space is deleted " +
                 "but please refresh to make sure or try again.", true)
             }
         );

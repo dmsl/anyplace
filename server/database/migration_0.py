@@ -13,7 +13,7 @@ def pushBuilding(database):
         return
     count = 0
     print("Pushing Buildings..")
-    col = database["buildings"]
+    col = database["spaces"]
     while True:
         line = file.readline()
         if not line:
@@ -250,7 +250,7 @@ def dropAllCollections(database, colls):
 def createCollections(database):
     print("\nCreating collections..")
     temp = {"created": True}
-    colList = ["buildings", "campuses", "edges", "fingerprintsBle", "fingerprintsWifi", "floorplans", "pois", "users"]
+    colList = ["spaces", "campuses", "edges", "fingerprintsBle", "fingerprintsWifi", "floorplans", "pois", "users"]
     for x in colList:
         coll = database[x]
         coll.insert_one(temp)
@@ -269,7 +269,7 @@ print("Current number of collections: ", countCollections)
 if countCollections >= 9:  
     print("Checking collections..")
     for x in collections:  # are those the correct colletions?
-        if x != "buildings" and x != "campuses" and x != "edges" and x != "fingerprintsBle" and x != "fingerprintsWifi" \
+        if x != "spaces" and x != "campuses" and x != "edges" and x != "fingerprintsBle" and x != "fingerprintsWifi" \
                 and x != "floorplans" and x != "pois" and x != "users" and x != "accessPointsWifi" and x != "fingerprintsHeatmap" \
                 and x != "heatmapWifi1" and x != "heatmapWifi2" and x != "heatmapWifi3" \
                 and x != "heatmapWifiTimestamp1" and x != "heatmapWifiTimestamp2" and x != "heatmapWifiTimestamp3":
@@ -298,7 +298,7 @@ elif countCollections < 9:
     floorplans = False
     pois = False
     users = False
-    if "buildings" in collections:
+    if "spaces" in collections:
         buildings = True
     if "campuses" in collections:
         campuses = True

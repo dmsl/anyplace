@@ -76,23 +76,17 @@ object OAuth2Constant {
 
     // Response Type final values
     final val RESPONSE_TYPE_CODE: String = "code"
-
     final val RESPONSE_TYPE_TOKEN: String = "token"
 
     // Token Type final values
     final val TOKEN_TYPE_BEARER: String = "bearer"
-
     final val TOKEN_TYPE_MAC: String = "mac"
-
     final val TOKEN_TYPE_JWT: String = "jwt"
 
     // Grant Type
     final val GRANT_TYPE_AUTHORIZATION_CODE: String = "authorization_code"
-
     final val GRANT_TYPE_PASSWORD: String = "password"
-
     final val GRANT_TYPE_CLIENT_CREDENTIALS: String = "client_credentials"
-
     final val GRANT_TYPE_REFRESH_TOKEN: String = "refresh_token"
 
     // Error parameters
