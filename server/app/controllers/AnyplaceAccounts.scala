@@ -39,6 +39,7 @@ package controllers
 
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
+import json.VALIDATE
 import oauth.provider.v2.granttype.GrantHandlerFactory
 import oauth.provider.v2.models.{AccountModel, OAuth2Request}
 import play.api.libs.json._
@@ -463,6 +464,74 @@ object AnyplaceAccounts extends Controller {
               "500: " + e.getMessage)
 
         }
+      }
+
+      inner(request)
+  }
+
+  def login() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.D2("json = " + json)
+
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fUsername, SCHEMA.fPassword)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fUsername, SCHEMA.fPassword)
+        if (validation.failed()) return validation.response()
+
+        val username = (json \ SCHEMA.fUsername).as[String]
+        val password = (json \ SCHEMA.fPassword).as[String]
+        val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
+        if (storedUser == null) return AnyResponseHelper.bad_request("User doesn't exist!")
+        if (storedUser.size > 1) return AnyResponseHelper.bad_request("More than one users were found!")
+        val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
+        if (accessToken == null) return AnyResponseHelper.bad_request("User doesn't have access token!")
+
+        val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
+        val res = Json.obj("user" -> user)
+        return AnyResponseHelper.ok(res, "Successfully found user.")
+      }
+
+    inner(request)
+  }
+
+  def register() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.D2("json = " + json)
+
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
+        if (validation.failed()) return validation.response()
+
+        val name = (json \ SCHEMA.fName).as[String]
+        val email = (json \ SCHEMA.fEmail).as[String]
+        val username = (json \ SCHEMA.fUsername).as[String]
+        val password = (json \ SCHEMA.fPassword).as[String]
+
+
+        // TODO: check username uniqueness
+        val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
+        if (storedUser != null) return AnyResponseHelper.bad_request("User already exist!")
+
+        val newUser = ProxyDataSource.getIDatasource().register(SCHEMA.cUsers, name, email, username, password)
+
+        return AnyResponseHelper.ok("Succefully registered!")
       }
 
       inner(request)

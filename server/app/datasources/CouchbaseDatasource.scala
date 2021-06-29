@@ -718,7 +718,7 @@ class CouchbaseDatasource private(hostname: String,
   //  points
   //}
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = ???
+  override def getRadioHeatmapByFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = ???
   //override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
   //  LPLogger.info("Couchbase:: getRadioHeatmapByBuildingFloorTimestamp")
   //  val points = new ArrayList[JsonObject]()
@@ -929,7 +929,7 @@ class CouchbaseDatasource private(hostname: String,
   //  points
   //}
 
-  override def getFingerPrintsTime(buid: String, floor: String): List[JsValue] = ???
+  override def getFingerprintsByTime(buid: String, floor: String): List[JsValue] = ???
   //override def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject] = {
   //  val points = new ArrayList[JsonObject]()
   //  val couchbaseClient = getConnection
@@ -2152,5 +2152,13 @@ class CouchbaseDatasource private(hostname: String,
 
   def convertJson(doc: JsonObject) = Json.parse(doc.toString)
 
+  override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = ???
 
+  override def deleteFingerprint(fingerprint: JsValue): Boolean = ???
+
+  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) = ???
+
+  override def login(collection: String, username: String, password: String): List[JsValue] = ???
+
+  override def register(collection: String, name: String, email: String, username: String, password: String): Boolean = ???
 }

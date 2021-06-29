@@ -165,7 +165,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
         promise.then(
             function (resp) {
                 var data = resp.data;
-                var b = data.building;
+                var b = data.space;
 
                 $scope.myBuildings.push(b);
 

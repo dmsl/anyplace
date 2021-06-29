@@ -114,8 +114,33 @@ object VALIDATE {
     null
   }
 
+  def credentials(json: JsValue, key: String): String = {
+    if (String(json, key) == null) return "Credentials must be String."
+    null
+  }
+
   def floor(json: JsValue): String = {
     if (StringNumber(json, fFloor) == null) return "floor field must be String, containing a number."
+    null
+  }
+
+  def newOwner(json: JsValue): String = {
+    if (String(json, "newOwner") == null) return "new_owner field must be String!"
+    null
+  }
+
+  def timestamp(json: JsValue, key: String): String = {
+    if (StringNumber(json, key) == null) return "timestamp field must be String, containing a number."
+    null
+  }
+
+  def xyz(json: JsValue, key: String): String = {
+    if (Int(json, key) == null) return "timestamp field must be String, containing a number."
+    null
+  }
+
+  def coordinates(json: JsValue, key: String): String = {
+    if (Coordinate(json, key) == null) return "timestamp field must be String, containing a number."
     null
   }
 
@@ -130,6 +155,21 @@ object VALIDATE {
         if (r != null) errors.add(r)
       } else if (k == fFloor) {
         val r = floor(json)
+        if (r != null) errors.add(r)
+      } else if (k == fTimestampY || k == fTimestampX || k == fTimestampY) {
+        val r = timestamp(json, k)
+        if (r != null) errors.add(r)
+      } else if (k == fY || k == fX || k == fY) {
+        val r = xyz(json, k)
+        if (r != null) errors.add(r)
+      } else if (k == "lat1" || k == "lat2" || k == "lon1" || k == "lon2" || k == fCoordinatesLat || k == fCoordinatesLon) {
+        val r = coordinates(json, k)
+        if (r != null) errors.add(r)
+      } else if (k == "new_owner") {
+        val r = newOwner(json)
+        if (r != null) errors.add(r)
+      } else if (k == fUsername || k == fPassword) {
+        val r = credentials(json, k)
         if (r != null) errors.add(r)
       }
     }

@@ -33,9 +33,17 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.person = undefined;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        fullName: undefined,
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined
+    }
 
     $scope.owner_id = undefined;
     $scope.displayName = undefined;
@@ -120,7 +128,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             $scope.$broadcast('loggedIn', []);
         }
 
-        // TODO console.log(scope.person) tell PM if has email
         var promise = AnyplaceAPIService.signGoogleAccount({
             name: $scope.person.displayName,
             external: "google"
@@ -151,7 +158,68 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.owner_id = undefined;
         $scope.person = undefined;
 
+        clearFingerprintCoverage();
+        clearFingerprintHeatmap();
     };
+
+    function clearFingerprintCoverage() {
+        var check = 0;
+        if (heatMap[check] !== undefined && heatMap[check] !== null) {
+
+            var i = heatMap.length;
+            while (i--) {
+                heatMap[i].rectangle.setMap(null);
+                heatMap[i] = null;
+            }
+            heatMap = [];
+            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+            _HEATMAP_FINGERPRINT_COVERAGE = false;
+            setColorClicked('g', false);
+            setColorClicked('y', false);
+            setColorClicked('o', false);
+            setColorClicked('p', false);
+            setColorClicked('r', false);
+            $scope.radioHeatmapRSSMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'NO');
+            }
+            $scope.anyService.radioHeatmapRSSMode = false;
+            $scope.radioHeatmapRSSHasGreen = false;
+            $scope.radioHeatmapRSSHasYellow = false;
+            $scope.radioHeatmapRSSHasOrange = false;
+            $scope.radioHeatmapRSSHasPurple = false;
+            $scope.radioHeatmapRSSHasRed = false;
+            $cookieStore.put('RSSClicked', 'NO');
+
+        }
+    }
+
+    function clearFingerprintHeatmap() {
+        var check = 0;
+        if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
+            var i = fingerPrintsMap.length;
+            //hide fingerPrints
+            while (i--) {
+                fingerPrintsMap[i].setMap(null);
+                fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        }
+
+        if (heatmap && heatmap.getMap()) { //hide fingerPrints heatmap
+            heatmap.setMap(null);
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+            _HEATMAP_F_IS_ON = false;
+            var i = heatmapFingerprints.length;
+            while (i--) {
+                heatmapFingerprints[i] = null;
+            }
+            heatmapFingerprints = [];
+        }
+    }
 
     $scope.getCookie = function (cname) {
         var name = cname + "=";

@@ -45,7 +45,8 @@ import controllers.AnyplacePosition.BBOX_MAX
 import datasources.{ProxyDataSource, SCHEMA}
 import json.VALIDATE.{Coordinate, StringNumber}
 import play.Play
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import play.api.libs
+import play.api.libs.json._
 import play.api.mvc.Result
 import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
 import utils.AnyplaceServerAPI._
@@ -287,10 +288,19 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     val sb = new StringBuilder()
     var json = toValidMongoJson()
     try {
-      json = json.as[JsObject] + (SCHEMA.fMeasurements -> Json.toJson(measurements))
+      val timestampToSec = (json \ SCHEMA.fTimestamp).as[String].toLong / 1000 // milliseconds to seconds
+      val roundTimestamp = (timestampToSec - (timestampToSec % 86400)) * 1000 // rounds down to day
+      json = json.as[JsObject] + (SCHEMA.fMeasurements -> Json.toJson(measurements)) +
+        (SCHEMA.fTimestamp -> JsString(roundTimestamp + ""))
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
         new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
           java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).toGeoJSON()))
+      var sum = 0
+      for (measurement <- measurements) {
+        sum = sum + measurement(1).toInt
+      }
+      json = json.as[JsObject] + ("count" -> JsNumber(measurements.size))
+      json = json.as[JsObject] + ("sum" -> JsNumber(sum))
     } catch {
       case e: IOException => e.printStackTrace()
     }

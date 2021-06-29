@@ -228,24 +228,24 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getRadioHeatmapByBuildingFloor(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = {
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
     mongoDB.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = {
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
     mongoDB.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = {
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
     mongoDB.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
+  override def getRadioHeatmapByFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
     _checkActiveDatasource()
-    mongoDB.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+    mongoDB.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
   }
 
   override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
@@ -287,11 +287,10 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String)
   }
 
-  override def getFingerPrintsTime(buid: String, floor: String): List[JsValue] = {
+  override def getFingerprintsByTime(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mongoDB.getFingerPrintsTime(buid,floor)
+    mongoDB.getFingerprintsByTime(buid,floor)
   }
-
 
   override def getAllBuildings(): List[JsValue] = {
     _checkActiveDatasource()
@@ -435,4 +434,28 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.deleteNotValidDocuments()
   }
 
+  override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.deleteAffectedHeatmaps(buid, floor_number)
+  }
+
+  override def deleteFingerprint(fingerprint: JsValue): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.deleteFingerprint(fingerprint)
+  }
+
+  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) {
+    _checkActiveDatasource()
+    mongoDB.createTimestampHeatmap(col, buid, floor, level)
+  }
+
+  override def login(collection: String, username: String, password: String): List[JsValue] = {
+    _checkActiveDatasource()
+    mongoDB.login(collection, username, password)
+  }
+
+  override def register(collection: String, name: String, email: String, username: String, password: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.register(collection, name, email, username, password)
+  }
 }

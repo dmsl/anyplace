@@ -64,7 +64,10 @@ import scala.collection.JavaConversions._
 object AnyplacePosition extends play.api.mvc.Controller {
   val BBOX_MAX = 500
 
-
+  /**
+   * Upload fingerprints to server and database. 
+   * @return
+   */
   def radioUpload() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -184,9 +187,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val json = anyReq.getJsonBody
         LPLogger.info("radioDownloadByBuildingFloor: " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
-        if (!requiredMissing.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        }
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val validation = VALIDATE.fields(json, fFloor, fBuid)
         if (validation.failed()) return validation.response()
 
@@ -290,7 +291,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
+        LPLogger.info("radioDownloadByBuildingFloorall: " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -337,7 +338,6 @@ object AnyplacePosition extends play.api.mvc.Controller {
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
-            LPLogger.debug(radio.toPath().getFileName.toString)
           } catch {
             case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
               "Cannot create radiomap:3:" + e.getMessage)
@@ -546,6 +546,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       } else {
         try {
           ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cFingerprintsWifi, rmr.addMeasurements(measurements))
+          ProxyDataSource.getIDatasource().deleteAffectedHeatmaps(fingerprintToks(7), fingerprintToks(6))
         } catch {
           case e: DatasourceException => return "Internal server error while trying to save rss entry."
         }

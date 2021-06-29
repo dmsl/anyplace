@@ -46,6 +46,14 @@ import utils.GeoPoint // TODO: Will use play.json
 
 trait IDatasource {
 
+  def register(collection: String, name: String, email: String, username: String, password: String): Boolean
+
+  def login(collection: String, username: String, password: String): List[JsValue]
+
+  def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int)
+
+  def deleteFingerprint(fingerprint: JsValue): Boolean
+
   def poisByBuildingIDAsJson(buid: String): List[JsValue]
 
   def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue]
@@ -120,9 +128,16 @@ trait IDatasource {
 
   def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue]
 
+  /**
+   * if heatmap do not exist, it creates them (heatmapWifi3).
+   *
+   * @param buid
+   * @param floor
+   * @return
+   */
   def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
+  def getRadioHeatmapByFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
@@ -136,11 +151,13 @@ trait IDatasource {
 
   def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String]
 
+  def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = ???
+
   def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): List[JsValue]
 
   def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsValue]
 
-  def getFingerPrintsTime(buid: String, floor: String): List[JsValue]
+  def getFingerprintsByTime(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
@@ -203,5 +220,4 @@ trait IDatasource {
   def generateHeatmaps(): Boolean
 
   def deleteNotValidDocuments(): Boolean
-
 }

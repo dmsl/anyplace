@@ -53,7 +53,8 @@ import datasources.MongodbDatasource.convertJson
 import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import db_models.ExternalType.ExternalType
 import db_models._
-import json.VALIDATE.{Coordinate, Int, String, StringNumber}
+import json.VALIDATE
+import json.VALIDATE.{Coordinate, String, StringNumber}
 import location.Algorithms
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
@@ -177,11 +178,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("getRadioHeatmapByBuildingFloor: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor(buid, floor)
@@ -210,14 +210,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("getHeatmapByFloorAVG1: " + stripJson(json))
-        // TODO:NN use new method for json check
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
         // ---
         try {
@@ -238,7 +236,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
 
-  def getRadioHeatmapByBuildingFloorAverage2() = Action {
+  def getHeatmapByFloorAVG2() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -248,11 +246,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.D2("getRadioHeatmapRSS2(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
@@ -277,21 +274,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
    *
    * @return a json list of count, total, average
    */
-  def getRadioHeatmapByBuildingFloorAverage3() = Action {
+  def getHeatmapByFloorAVG3() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.D2("getRadioHeatmapRSS3(): " + stripJson(json))
+        LPLogger.D2("getHeatmapByFloorAVG3: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
@@ -311,53 +306,41 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   /**
-   * Reads from level3 (all fingerprints) and returns
+   * Reads from level3 (all fingerprints), clusters them into tiles and return them.
    *
    * @return
    */
-  def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
+  def getHeatmapByFloorAVG3Tiles() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + stripJson(json))
+        LPLogger.D2("getHeatmapByFloorAVG3Tiles: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fX, SCHEMA.fY, "z")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fX, SCHEMA.fY, "z")
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
-        if (Int(json, SCHEMA.fX) == null)
-          return AnyResponseHelper.bad_request("x field must be Integer!")
         val tileX = (json \ SCHEMA.fX).as[Int]
-        if (Int(json, SCHEMA.fY) == null)
-          return AnyResponseHelper.bad_request("y field must be Integer!")
         val tileY = (json \ SCHEMA.fY).as[Int]
-        if (Int(json, "z") == null)
-          return AnyResponseHelper.bad_request("z field must be Integer!")
         val zoomLevel = (json \ "z").as[Int]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
 
           val radioPointsInXY: util.ArrayList[JsValue] = new util.ArrayList[JsValue]()
+          // assigns fingerprints to map tiles because its overkill to load everything at once.
           for (radioPoint <- radioPoints) {
-            //val lat = (radioPoint \ SCHEMA.fLocation).get(0).as[Double]
-            //val lon = (radioPoint \ SCHEMA.fLocation).get(1).as[Double]
             val lat = (radioPoint \ "x").as[Double]
             val lon = (radioPoint \ "y").as[Double]
             val xyConverter = convertToXY(lat, lon, zoomLevel)
             if (xyConverter(0) == tileX && xyConverter(1) == tileY) {
               radioPointsInXY.add(radioPoint)
-              LPLogger.debug("ADD: x = " + xyConverter(0) + " y = " + xyConverter(1) + "lat = " + lat + " lon = " + lon)
-            } else {
-              LPLogger.debug("     x = " + xyConverter(0) + " y = " + xyConverter(1) + "lat = " + lat + " lon = " + lon)
             }
-
           }
           val res = Json.obj("radioPoints" -> radioPointsInXY.toList)
           try {
@@ -373,32 +356,29 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-
-  def getRadioHeatmapByBuildingFloorTimestamp() = Action {
+  /**
+   * Called by crossfilter when on zoom level 21.
+   */
+  def heatmapByFloorTimestampAVG3() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("getRadioHeatmapByBuildingFloorTimestamp: " + stripJson(json))
+        LPLogger.D2("heatmapByFloorTimestampAVG3: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampX) == null)
-          return AnyResponseHelper.bad_request("timestampX field must be String, containing a number!")
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampY) == null)
-          return AnyResponseHelper.bad_request("timestampY field must be String, containing a number!")
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
 
         try {
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
@@ -430,48 +410,41 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     Array[Int](sxtile, sytile)
   }
 
-  def getRadioHeatmapByBuildingFloorTimestampTiles() = Action {
+  /**
+   * Called by crossfilter when on maximum zoom level (22).
+   * Called many times from clients, for each tile.
+   */
+  def heatmapByFloorTimestampTiles() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("getRadioHeatmapByBuildingFloorTimestampTiles: " + stripJson(json))
+        LPLogger.D3("heatmapByFloorTimestampTiles: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY, SCHEMA.fX, SCHEMA.fY, "z")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY,
+          SCHEMA.fX, SCHEMA.fY, "z")
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampX) == null)
-          return AnyResponseHelper.bad_request("timestampX field must be String, containing a number!")
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampY) == null)
-          return AnyResponseHelper.bad_request("timestampY field must be String, containing a number!")
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
-        if (Int(json, SCHEMA.fX) == null)
-          return AnyResponseHelper.bad_request("x field must be Integer!")
         val x = (json \ SCHEMA.fX).as[Int]
-        if (Int(json, SCHEMA.fY) == null)
-          return AnyResponseHelper.bad_request("y field must be Integer!")
         val y = (json \ SCHEMA.fY).as[Int]
-        if (Int(json, "z") == null)
-          return AnyResponseHelper.bad_request("z field must be Integer!")
         val z = (json \ "z").as[Int]
 
         try {
-
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
           val radioPointsInXY: util.ArrayList[JsValue] = new util.ArrayList[JsValue]()
 
           for (radioPoint <- radioPoints) {
-            var radioX = (radioPoint \ SCHEMA.fLocation).get(0).as[Double]
-            var radioY = (radioPoint \ SCHEMA.fLocation).get(1).as[Double]
-            var xyConverter = convertToXY(radioX, radioY, z)
+            val radioX = (radioPoint \ "x").as[Double]
+            val radioY = (radioPoint \ "y").as[Double]
+            val xyConverter = convertToXY(radioX, radioY, z)
             if (xyConverter(0) == x && xyConverter(1) == y)
               radioPointsInXY.add(radioPoint)
           }
@@ -490,31 +463,24 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage1() = Action {
+  def heatmapByFloorTimestampAVG1() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + stripJson(json))
+        LPLogger.info("heatmapByFloorTimestampAVG1: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampX) == null)
-          return AnyResponseHelper.bad_request("timestampX field must be String, containing a number!")
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampY) == null)
-          return AnyResponseHelper.bad_request("timestampY field must be String, containing a number!")
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
-
         try {
-
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
@@ -532,27 +498,22 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage2() = Action {
+  def heatmapByFloorTimestampAVG2() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + stripJson(json))
+        LPLogger.info("heatmapByFloorTimestampAVG2: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampX) == null)
-          return AnyResponseHelper.bad_request("timestampX field must be String, containing a number!")
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampY) == null)
-          return AnyResponseHelper.bad_request("timestampY field must be String, containing a number!")
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
@@ -585,11 +546,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("AnyplaceMapping::getAPs(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor = (json \ SCHEMA.fFloor).as[String]
         val APs = ProxyDataSource.getIDatasource().getCachedAPsByBuildingFloor(buid, floor)
         // if cached return it
@@ -759,6 +719,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   /**
+   * Delete fingeprints within a bounding-box. Also delete heatmap caches.
    *
    * @return deleted fingerprints (so JS update UI)
    */
@@ -769,32 +730,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + stripJson(json))
+        LPLogger.info("FingerPrintsDelete: " + stripJson(json))
         // add owner_id
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fOwnerId)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, "lat1", "lon1", "lat2", "lon2")
+        if (validation.failed()) return validation.response()
 
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
         val buid = (json \ SCHEMA.fBuid).as[String]
-        // TODO: get building if building not exist bad req
-        // TODO: make a building model
-        // TODO: if !model.hasAccess bad request (user has no access for the building)
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor_number = (json \ SCHEMA.fFloor).as[String]
-        if (Coordinate(json, "lat1") == null)
-          return AnyResponseHelper.bad_request("lat1 field must be String containing a float!")
         val lat1 = (json \ "lat1").as[String]
-        if (Coordinate(json, "lon1") == null)
-          return AnyResponseHelper.bad_request("lon1 field must be String containing a float!")
         val lon1 = (json \ "lon1").as[String]
-        if (Coordinate(json, "lat2") == null)
-          return AnyResponseHelper.bad_request("lat2 field must be String containing a float!")
         val lat2 = (json \ "lat2").as[String]
-        if (Coordinate(json, "lon2") == null)
-          return AnyResponseHelper.bad_request("lon2 field must be String containing a float!")
         val lon2 = (json \ "lon2").as[String]
         try {
           val fingerprints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerPrintsBBox(
@@ -803,29 +751,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
 
           LPLogger.D2("FingerPrintsDelete: will delete " + fingerprints.size + " fingerprints.")
-          for (fingerprint <- fingerprints)
-            ProxyDataSource.getIDatasource.deleteFromKey(SCHEMA.cFingerprintsWifi, SCHEMA.fBuid, (fingerprint \ SCHEMA.fBuid).as[String])
+          for (fingerprint <- fingerprints) {
+            ProxyDataSource.getIDatasource.deleteFingerprint(fingerprint)
+          }
+          ProxyDataSource.getIDatasource().deleteAffectedHeatmaps(buid,floor_number)
           val res: JsValue = Json.obj("fingerprints" -> fingerprints)
-          //try {
-          //Regenerate the radiomap files
-          // TODO: findout if asychronous (using print)
           val strPromise = F.Promise.pure("10")
           val intPromise = strPromise.map(new F.Function[String, Integer]() {
             override def apply(arg0: String): java.lang.Integer = {
               AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
-              // TODO: update heatmaps for each level
               0
             }
           })
-
           return gzippedJSONOk(res, "Deleted " + fingerprints.size + " fingerprints and returning them.")
-
-          //return AnyResponseHelper.ok(res, "Deleted " + fingerprints.size + " fingerprints and returning them.")
-          //} catch {
-          // CHECK:PM CHECK:NN XXX we might have to enable this workaround?
-          //  case ioe: IOException =>
-          //    return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
-          //}
         } catch {
           case e: Exception =>
             return AnyResponseHelper.internal_server_error("FingerPrintsDelete: " + e.getClass + ": " + e.getMessage)
@@ -844,40 +782,31 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::FingerPrintsTimestampDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fTimestampX, SCHEMA.fTimestampY)
-        if (!requiredMissing.isEmpty)
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2",
+          SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2",
+          SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor_number = (json \ SCHEMA.fFloor).as[String]
-        if (Coordinate(json, "lat1") == null)
-          return AnyResponseHelper.bad_request("lat1 field must be String containing a float!")
         val lat1 = (json \ "lat1").as[String]
-        if (Coordinate(json, "lon1") == null)
-          return AnyResponseHelper.bad_request("lon1 field must be String containing a float!")
         val lon1 = (json \ "lon1").as[String]
-        if (Coordinate(json, "lat2") == null)
-          return AnyResponseHelper.bad_request("lat2 field must be String containing a float!")
         val lat2 = (json \ "lat2").as[String]
-        if (Coordinate(json, "lon2") == null)
-          return AnyResponseHelper.bad_request("lon2 field must be String containing a float!")
         val lon2 = (json \ "lon2").as[String]
-        if (StringNumber(json, SCHEMA.fTimestampX) == null)
-          return AnyResponseHelper.bad_request("timestampX field must be String, containing a number!")
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
-        if (StringNumber(json, SCHEMA.fTimestampY) == null)
-          return AnyResponseHelper.bad_request("timestampY field must be String, containing a number!")
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-          val radioPoints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerPrintsTimestampBBox(buid, floor_number, lat1, lon1, lat2, lon2, timestampX, timestampY)
-          if (radioPoints.isEmpty)
+          val fingerprints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerPrintsTimestampBBox(buid, floor_number, lat1, lon1, lat2, lon2, timestampX, timestampY)
+          if (fingerprints.isEmpty)
             return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
-          for (radioPoint <- radioPoints)
-            ProxyDataSource.getIDatasource.deleteFromKey(SCHEMA.cFingerprintsWifi, SCHEMA.fBuid, (radioPoint \ SCHEMA.fBuid).as[String])
-          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
+          for (fingerprint <- fingerprints)
+            ProxyDataSource.getIDatasource.deleteFingerprint(fingerprint)
+          ProxyDataSource.getIDatasource().deleteAffectedHeatmaps(buid,floor_number)
+          // TODO:do also 1 and 2
+          ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floor_number, 3)
+          val res: JsValue = Json.obj("radioPoints" -> fingerprints)
           try {
             //Regenerate the radiomap files
             val strPromise = F.Promise.pure("10")
@@ -903,40 +832,40 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   /**
-   * TODO:NN:SUMMER cache object (collection: cFingerprintTime)
-   *   - delete on: buid/floor deletion, fingerprints upload
-   *   - on request:
-   *      + query.mdb if exists return else create
+   * Called when "Show Fingerprints By Time" (Architect: toggleFingerPrintsTime) is clicked.
    *
-   * @return a list of timestamps and number of fingerprints
+   * @return a list of the number of fingerprints stored, and date.
    */
-  def FingerPrintsTime() = Action {
+  def FingerprintsByTime() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsTime(): " + stripJson(json))
+        LPLogger.D2("FingerprintsByTime: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, SCHEMA.fFloor)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
         val floor_number = (json \ SCHEMA.fFloor).as[String]
+
+        ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp1, buid, floor_number, 1)
+        ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp2, buid, floor_number, 2)
+        ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floor_number, 3)
+
         try {
-          val radioPoints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerPrintsTime(buid, floor_number)
-          if (radioPoints.isEmpty)
-            return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
+          val radioPoints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerprintsByTime(buid, floor_number)
+          if (radioPoints.isEmpty) return AnyResponseHelper.bad_request("Fingerprints do not exist.")
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
             case ioe: IOException =>
-              return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+              return AnyResponseHelper.ok(res, "Successfully retrieved all Fingerprints!")
           }
         } catch {
           case e: DatasourceException =>
@@ -1116,7 +1045,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::spaceAdd(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fIsPublished, SCHEMA.fName, SCHEMA.fDescription,
-          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken)
+          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken, SCHEMA.fType)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if ((json \ SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
         var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
@@ -1157,8 +1086,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
         owner_id = appendGoogleIdIfNeeded(owner_id)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
           val stored_space: JsValue = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
@@ -1190,11 +1120,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
         owner_id = appendGoogleIdIfNeeded(owner_id)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, "new_owner")
+        if (validation.failed()) return validation.response()
+
         val buid = (json \ SCHEMA.fBuid).as[String]
-        if (String(json, "new_owner") == null)
-          return AnyResponseHelper.bad_request("new_owner field must be String!")
         var newOwner = (json \ "new_owner").as[String]
         newOwner = appendGoogleIdIfNeeded(newOwner)
         try {
@@ -1226,9 +1155,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
         owner_id = appendGoogleIdIfNeeded(owner_id)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
         val buid = (json \ SCHEMA.fBuid).as[String]
+
         try {
           var stored_space = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_space == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -1342,7 +1272,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::spaceAll(): " + stripJson(json))
+        LPLogger.info("spaceAll: " + stripJson(json))
         try {
           val spaces = ProxyDataSource.getIDatasource.getAllBuildings
           val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
@@ -1375,6 +1305,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.info("AnyplaceMapping::spaceGet(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
           var space = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
@@ -1407,7 +1339,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::spaceAll(): " + stripJson(json))
+        LPLogger.info("spaceAllByOwner: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1419,7 +1351,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         try {
           LPLogger.debug("owner_id = " + owner_id)
           val spaces = ProxyDataSource.getIDatasource.getAllBuildingsByOwner(owner_id)
-          val res: JsValue = Json.obj("buildings" -> spaces)
+          val res: JsValue = Json.obj("spaces" -> spaces)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -1441,7 +1373,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::spaceAll(): " + stripJson(json))
+        LPLogger.info("spaceByBucode: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuCode)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val bucode = (json \ SCHEMA.fBuCode).as[String]
@@ -1531,7 +1463,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper
             .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + stripJson(json))
+        LPLogger.info("buildingSetAll: " + stripJson(json))
         var cuid = request.getQueryString(SCHEMA.fCampusCuid).orNull
         if (String(json, SCHEMA.fCampusCuid) == null)
           return AnyResponseHelper.bad_request("cuid field must be String!")
@@ -2226,17 +2158,20 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   /**
    * Retrieve all the pois of a cuid combination.
+   * Called by: viewer, viewerCampus, BuildingSearchController.js, LocationSearchController.js
+   * search ston viewercampus e.g. toilets, toualeta
    *
    * @return
    */
-  def poisAll = Action {
+  def searchPois = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.info("PoisAll")
+        LPLogger.D2("searchPois") // ALWAYS: a D2 on the endpoint method with method name
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
+        val json = anyReq.getJsonBody
+        LPLogger.debug("json = " + json)
         var cuid = request.getQueryString(SCHEMA.fConCuid).orNull
         if (cuid == null) cuid = (json \ SCHEMA.fConCuid).as[String]
         var letters = request.getQueryString("letters").orNull
@@ -2244,6 +2179,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         var buid = request.getQueryString(SCHEMA.fBuid).orNull
         if (buid == null) buid = (json \ SCHEMA.fBuid).as[String]
         var greeklish = request.getQueryString(SCHEMA.fGreeklish).orNull
+        LPLogger.debug("greeklish = " + greeklish)
         if (greeklish == null) greeklish = (json \ SCHEMA.fGreeklish).as[String]
         try {
           var result: List[JsValue] = null

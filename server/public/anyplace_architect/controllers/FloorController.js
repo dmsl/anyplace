@@ -570,15 +570,16 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     };
 
-    $scope.toggleRadioHeatmap = function () {
+    $scope.toggleRadioHeatmap = function () { // CHECK:DZ CHECK:PM CHECK:NN if not used, delete
+        LOG.D1("ERROR: toggleRadioHeatmap");
+        _err($scope, "toggleRadioHeatmap.");
         if (heatmap && heatmap.getMap()) {
             heatmap.setMap(null);
+            LOG.D2("returning");
             return;
         }
-
         $scope.showRadioHeatmap();
     };
-
 
     $scope.showRadioHeatmapPoi = function () {
         var jsonReq = {
@@ -630,51 +631,41 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         );
     }
 
-    $scope.showRadioHeatmap = function () {
-        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
-        var promise = $scope.anyAPI.getRadioHeatmap(jsonReq);
-        promise.then(
-            function (resp) {
-                // on success
-                var data = resp.data;
-
-                var heatMapData = [];
-
-                var i = resp.data.radioPoints.length;
-
-                if (i <= 0) {
-                    _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    return;
-                }
-
-                while (i--) {
-                    var rp = resp.data.radioPoints[i];
-                    heatMapData.push(
-                        {location: new google.maps.LatLng(rp.x, rp.y), weight: 1}
-                    );
-                    resp.data.radioPoints.splice(i, 1);
-                }
-
-                if (heatmap && heatmap.getMap()) {
-                    heatmap.setMap(null);
-                }
-
-                heatmap = new google.maps.visualization.HeatmapLayer({
-                    data: heatMapData
-                });
-                heatmap.setMap($scope.gmapService.gmap);
-            },
-            function (resp) {
-                // on error
-                var data = resp.data;
-                ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
-            }
-        );
-    }
+    // CHEC:DZ CHEDKPM
+    // $scope.showRadioHeatmap = function () {
+    //     Logger.D1("FloorController: showRadioHeatmap: WHO CALLS HTIS?!?!")
+    //     var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
+    //     // jsonReq.username = $scope.creds.username;
+    //     // jsonReq.password = $scope.creds.password;
+    //
+    //     var promise = $scope.anyAPI.getRadioHeatmap(jsonReq);
+    //     promise.then(
+    //         function (resp) {// on success
+    //             var data = resp.data;
+    //             var heatMapData = [];
+    //             var i = resp.data.radioPoints.length;
+    //             if (i <= 0) {
+    //                 _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
+    //                 return;
+    //             }
+    //
+    //             while (i--) {
+    //                 var rp = resp.data.radioPoints[i];
+    //                 heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: 1});
+    //                 resp.data.radioPoints.splice(i, 1);
+    //             }
+    //
+    //             if (heatmap && heatmap.getMap()) {heatmap.setMap(null);}
+    //             heatmap = new google.maps.visualization.HeatmapLayer({data: heatMapData});
+    //             heatmap.setMap($scope.gmapService.gmap);
+    //         },
+    //         function (resp) {
+    //             // on error
+    //             var data = resp.data;
+    //             ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
+    //         }
+    //     );
+    // }
 
 }
 ]);

@@ -40,9 +40,16 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
     $scope.anyAPI = AnyplaceAPIService;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined
+    }
 
 
     $scope.myBuildings = [];
@@ -86,7 +93,12 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
     $scope.fetchAllPoi = function (letters , cuid) {
 
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus, "letters":letters, "greeklish":$scope.greeklish };
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",
+            "access-control-allow-credentials": "true",    "content-length": "17516",
+            "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus,
+            "letters":letters, "greeklish":$scope.greeklish };
+        if (jsonReq.greeklish == null) jsonReq.greeklish = "true";
+
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {

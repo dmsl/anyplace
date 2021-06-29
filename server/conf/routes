@@ -4,6 +4,7 @@
 ########   VERIFIED MONGODB   ########
 ######################################
 # TODO: Sort at the end (by category)
+#  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
 POST        /anyplace/mapping/accounts/sign                                         controllers.AnyplaceMapping.addAccount()
 
 # TODO:NN add type
@@ -15,6 +16,8 @@ POST        /anyplace/mapping/space/all                                         
 POST        /anyplace/mapping/space/all_owner                                    controllers.AnyplaceMapping.spaceAllByOwner()
 # CHANGES: removed owner_id, added optional range
 POST        /anyplace/mapping/space/coordinates                                  controllers.AnyplaceMapping.spaceCoordinates()
+POST        /anyplace/mapping/space/get                                          controllers.AnyplaceMapping.spaceGetOne()
+
 
 POST        /anyplace/mapping/pois/add                                              controllers.AnyplaceMapping.poisAdd()
 POST        /anyplace/mapping/pois/delete                                           controllers.AnyplaceMapping.poisDelete()
@@ -66,6 +69,12 @@ POST        /anyplace/mapping/floor/update                                      
 ### MAPPING ###
 ###############
 
+
+# RENAMED: all_pois -> search
+# TODO:NN fix javadoc
+POST        /anyplace/mapping/pois/search                                           controllers.AnyplaceMapping.searchPois()
+
+
 #####################################################################################################
 ##################
 ### NAVIGATION ###
@@ -79,6 +88,16 @@ POST        /anyplace/navigation/pois/id                                        
 ################
 ### POSITION ###
 ################
+POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getHeatmapByFloorAVG3()
+POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getHeatmapByFloorAVG3Tiles()
+POST        /anyplace/position/radio/delete                                         controllers.AnyplaceMapping.FingerPrintsDelete()
+# OPTIMIZED: caching same lat+lon+floor+range radiomaps (instead of re-saving)
+POST        /anyplace/position/radio_by_floor_bbox                                  controllers.AnyplacePosition.radioDownloadFloorBbox()
+POST        /anyplace/position/radio/aps_ids                                        controllers.AnyplaceMapping.getAPsIds()
+# BuildingController.js -> DownloadBackup()
+POST        /anyplace/position/radio_by_building_floor_all                          controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
+
+
 
 #####################################################################################################
 ##################
@@ -116,7 +135,6 @@ POST        /admin/migration/run                                           contr
 #####################################
 ### UNUSED AND UNCONVERTED TO MDB ###
 #####################################
-# TODO:NN Rerun silver search ../x if not_used deprecate
 POST        /anyplace/position/path_add                                             controllers.AnyplacePosition.magneticPathAdd()
 POST        /anyplace/position/path_delete                                          controllers.AnyplacePosition.magneticPathDelete()
 POST        /anyplace/position/paths_by_floor                                       controllers.AnyplacePosition.magneticPathByFloor()
@@ -159,75 +177,62 @@ POST        /anyplace/position/radio/heatmap_building_floor_delete              
 ##### NEED EXTRA TEST
 
 # TESTED: TEST:NN TEST:PM test on mobile app
-## TODO:PM XXX CHANGED:ENDPOINT access_token will be a regular parameter
-# NOT a parameter named 'json' that has embedded a json object
 POST        /anyplace/position/radio_upload                                         controllers.AnyplacePosition.radioUpload()
 
 # TESTED: TEST:NN TEST:PM test on mobile app
 POST        /anyplace/position/radio_download_floor                                 controllers.AnyplacePosition.radioDownloadFloor()
 
 POST        /anyplace/position/radio_by_building_floor                              controllers.AnyplacePosition.radioDownloadByBuildingFloor()
-# OPTIMIZED: caching same lat+lon+floor+range radiomaps (instead of re-saving) (TESTED-OKAY)
-POST        /anyplace/position/radio_by_floor_bbox                                  controllers.AnyplacePosition.radioDownloadFloorBbox()
+
 
 # Anyplace API - Position
-# TODO: delete all computed heatmaps for each level
-# TODO: verify with fingerprints eg: a few measurements in multiple rooms (use bbox for only 1 room)
-# make fingerprints with fixed coordinates for testing purpose
-POST        /anyplace/position/radio/delete                                         controllers.AnyplaceMapping.FingerPrintsDelete()
-# testing with dummy timestamps
-POST        /anyplace/position/radio/delete/time                                    controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
 
 ##### TO REVIEW with PM
 
-# TEST:NN with timestamp bar
-# TODO:NN sort by time ascending
-# TEST: with 2 buildings (cs and mine) shows date ranges okay in crossfilter bar chart
-POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerPrintsTime()
-# BUG:NN  ??????????
-# TODO:NN present the problem to PM. Which endpoints have bugs?
-POST        /anyplace/position/radio_by_building_floor_all                          controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
+# bug mdb: fails to identify access points location
+# TODO:NN fix bug NEXT MEETING
 POST        /anyplace/position/radio/APs_building_floor                             controllers.AnyplaceMapping.getAPsByBuildingFloor()
-POST        /anyplace/position/radio/aps_ids                                        controllers.AnyplaceMapping.getAPsIds()
-
-
-# TODO:NN compare couch avg3 with mongodb
-# who is using them in architect?
-# show-compare with mongo
-POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3()
-# TODO:NN like above
-POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage3Tiles()
-# fix return values
-# TODO:NN what is it?
+# TODO:NN what is it? NEXT MEETING
+# FloorController.js 639
+# FloorController.js 573 its not used CHECK: NEXT...
 POST        /anyplace/mapping/radio/heatmap_building_floor                          controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
-# TODO: change return location
-# Todo: make a list of all the changed endpoints
-POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorAverage2()
-
-
-# where is it used? VERIFY:NN
-POST        /anyplace/mapping/pois/all_pois                                         controllers.AnyplaceMapping.poisAll()
 
 # DEVELOPING
-# ?????
-POST        /anyplace/mapping/building/get                                          controllers.AnyplaceMapping.spaceGetOne()
+
+# used by android
 POST        /anyplace/position/predictFloorAlgo1                                    controllers.AnyplacePosition.predictFloorAlgo1()
 
-# den iparxei to view
-# TODO:NN fix crossfilter (?)
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage1()
-# den iparxei to view
-# TODO:NN fix crossfilter (?)
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampAverage2()
 
-# TODO:NN fix crossfilter
-# blocked by heatmaps
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp               controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestamp()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloorTimestampTiles()
+# TODO: ti prepei na gini sto js gia na ta kalesi? NEXT MEETING
+# called by "Wi-Fi Coverage -> Show Wi-Fi Map"
+# WifiController.js 1591:: 1622
+POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
+POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getHeatmapByFloorAVG2()
 
+########################
+# TIME BASED ENDPOINTS #
+########################
 
+# CHECK:PM CHECK:DZ remove "building" from endpoints
+# INFO: Timestamp endpoints did not work (at all) in couchbase/old code
+
+POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerprintsByTime()
+POST        /anyplace/position/radio/delete/time                                    controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
+
+# CROSSFILTER TODO: NN: bold date, reset. reset colours. on reset, show again...
+# TODO:NN for all avg check/VerifyHeatmapTimestamp(...)
+
+# TODO:NN NEXT: AVG1: LEAVE first 4 deciaml points AVG2: LEAAVLE 6 ASVG4: ALL
+# 53.3453       AVG1
+# 53.34525353 AVG2
+# AVG# AS IT WAS (FULL)
+# CHECK:PM CHECK:DZ the old code does not group the heatmaps on higher levels
+# called by "Wi-Fi Coverage -> Show Wi-Fi Map"
+# WifiController.js 1591:: 1610
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG1()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG2()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG3()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.heatmapByFloorTimestampTiles()
 
 
 #####################################################################################################
@@ -291,6 +296,6 @@ GET /*any                                                                       
 #######################
 ###   AnyplaceNEW   ###
 #######################
-#POST         /user/register                                                                    controllers.AnyplaceAccounts.register()
-#POST         /user/login                                                                     controllers.AnyplaceAccounts.login()
+POST         /user/register                                                         controllers.AnyplaceAccounts.register()
+POST         /user/login                                                            controllers.AnyplaceAccounts.login()
 #POST         /user/logout                                                                    controllers.AnyplaceAccounts.logout()

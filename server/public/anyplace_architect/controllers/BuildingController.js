@@ -249,6 +249,21 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         ];
     });
 
+    $scope.$watch('anyService.selectedBuilding', function () {
+        $scope.poisTypes = [
+            "Building",
+            "Vessel"
+        ];
+        $scope.poicategories = [{
+            poicat: "Building",
+            id: "type1"
+        },{
+            poicat: "Vessel",
+            id: "type2"
+        }
+        ];
+    });
+
     $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {
         if (newVal && newVal.cuid) {
             // Pan map to selected building
@@ -290,13 +305,13 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             return;
         }
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
 
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',
@@ -384,7 +399,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 return;
             }
 
-
             building.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
             building.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
 
@@ -408,7 +422,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 building.description = "-";
             }
 
-            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address) {
+            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address && building.type) {
 
                 var promise = $scope.anyAPI.addBuilding(building);
 
@@ -884,7 +898,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 is_published: true,
                 address: "-",
                 url: "-",
-                bucode: ""
+                bucode: "",
+                type: undefined
             };
             $scope.myMarkers[marker.myId].marker = marker;
             $scope.myMarkers[marker.myId].infowindow = infowindow;
@@ -901,6 +916,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             + '<fieldset class="form-group">'
             + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
             + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<select ng-model="myMarkers[' + marker.myId + '].model.type" class="form-control" ng-options="type for type in buildingTypes" title="Building Types" tabindex="2">'
+            + '<option value="">Select Building Type</option>'
+            + '</select>'
+            + '</fieldset class="form-group">'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
             + '</fieldset>'
@@ -1741,6 +1761,46 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             },
             function (resp) {
                 console.log(resp.data.message);
+            }
+        );
+    };
+
+    $scope.signLocalAccount = function () {
+        var jsonReq = {};
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+
+        var promise = $scope.anyAPI.signLocalAccount(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                $scope.$broadcast('loggedIn', []);
+                _suc($scope, "Successfully logged in.");
+            },
+            function (resp) {
+                ShowError($scope, resp,"Something went wrong at login.", true)
+            }
+        );
+    };
+
+    $scope.registerLocalAccount = function () {
+        var jsonReq = {};
+        jsonReq.name = $scope.user.name;
+        jsonReq.email = $scope.user.email;
+        jsonReq.username = $scope.user.username;
+        jsonReq.password = $scope.user.password;
+
+        var promise = $scope.anyAPI.registerLocalAccount(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                _suc($scope, "Successfully registered!");
+            },
+            function (resp) {
+                ShowError($scope, resp,"Something went wrong at registration.", true)
             }
         );
     };

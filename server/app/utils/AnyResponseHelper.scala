@@ -199,7 +199,7 @@ object AnyResponseHelper {
         //)
         // TODO Convert to Json (example above)
         val error_messages = JsonArray.empty()
-        val json =JsonObject.empty()
+        val json = JsonObject.empty()
 
         for (s <- missing) {
             error_messages.add(String.format("Missing or Invalid parameter:: [%s]", s))
