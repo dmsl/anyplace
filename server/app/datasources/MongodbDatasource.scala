@@ -1203,6 +1203,35 @@ class MongodbDatasource() extends IDatasource {
       true
   }
 
+  /**
+   * Groupping for coverage zoom level 1 with range around 3.5 meters.
+   * @param fullDecimal
+   * @param digits_5_6 5th digit = 11.1m, 6th digit = 0.11m
+   * @return
+   */
+  def trimDegreesLevel1(fullDecimal: String, digits_5_6: Int): String = {
+    var useDecimal = fullDecimal
+    //if(digits_5_6>75) useDecimal=(fullDecimal.substring(0,4)+"75").toLong
+    //else if(digits_5_6>50) useDecimal=(fullDecimal.substring(0,4)+"50").toLong
+    //else if(digits_5_6>25) useDecimal=(fullDecimal.substring(0,4)+"25").toLong
+    //else useDecimal=(fullDecimal.substring(0,4)+"0").toLong
+
+    //if (digits_5_6 > 40) useDecimal = (fullDecimal.substring(0, 4) + "40")
+    //else useDecimal = (fullDecimal.substring(0, 4) + "00")
+
+    if (digits_5_6 > 70) useDecimal = (fullDecimal.substring(0, 4) + "70")
+    else if (digits_5_6 > 40) useDecimal = (fullDecimal.substring(0, 4) + "40")
+    else useDecimal = (fullDecimal.substring(0, 4) + "00")
+
+    useDecimal
+  }
+
+  /**
+   *
+   * @param fingerprint
+   * @param level
+   * @return
+   */
   def trimCoordinates(fingerprint: JsValue, level: Int): util.ArrayList[Double] = {
     if ((fingerprint \ SCHEMA.fGeometry \ SCHEMA.fCoordinates).toOption.isEmpty) {
       LPLogger.debug("trimCoordinates: " + fingerprint + ".No field coordinates.")
@@ -1212,22 +1241,33 @@ class MongodbDatasource() extends IDatasource {
     try {
       val lat = (fingerprint \ SCHEMA.fGeometry \ SCHEMA.fCoordinates).get(0).as[Double]
       val lon = (fingerprint \ SCHEMA.fGeometry \ SCHEMA.fCoordinates).get(1).as[Double]
-      //LPLogger.D2("(LAT, LON) = " + lat + ", " + lon)
+      // LPLogger.D2("(LAT, LON) = " + lat + ", " + lon)
       val tokLat = lat.toString.split("\\.")
       val tokLon = lon.toString.split("\\.")
-      if (level == 1) {
-        location.add((tokLat(0) + "." + tokLat(1).substring(0, 5)).toDouble)
-        location.add((tokLon(0) + "." + tokLon(1).substring(0, 5)).toDouble)
-      } else if (level == 2) {
-        location.add((tokLat(0) + "." + tokLat(1).substring(0, 6)).toDouble)
-        location.add((tokLon(0) + "." + tokLon(1).substring(0, 6)).toDouble)
+      val latInt = tokLat(0)
+      val latDecimal = tokLat(1)
+      val lonInt = tokLon(0)
+      val lonDecimal = tokLon(1)
+      // TODO:NN: use LatLon
+
+      if (level == 1) { // keep 5 digits which is 1.11m
+        val latDigits5_6 = latDecimal.substring(4, 6).toInt
+        val lonDigits5_6 = lonDecimal.substring(4, 6).toInt
+        val useLatDecimal = trimDegreesLevel1(latDecimal, latDigits5_6)
+        val useLonDecimal = trimDegreesLevel1(lonDecimal, lonDigits5_6)
+        location.add((latInt + "." + useLatDecimal).toDouble)
+        location.add((lonInt + "." + useLonDecimal).toDouble)
+      } else if (level == 2) { // keep 6 digits which is 11cm
+        // 1 meters
+        location.add((latInt + "." + latDecimal.substring(0, 5)).toDouble)
+        location.add((lonInt + "." + lonDecimal.substring(0, 5)).toDouble)
       } else if (level == 3) {
         location.add(lat)
         location.add(lon)
       }
       return location
     } catch {
-      case e: Exception => LPLogger.error("trimCoordinates", "" ,e)
+      case e: Exception => LPLogger.error("trimCoordinates", e)
     }
     null
   }
@@ -1685,11 +1725,14 @@ class MongodbDatasource() extends IDatasource {
     return convertJson(res)
   }
 
-  override def register(col: String, name: String, email: String, username: String, password: String): Boolean = {
+  override def register(col: String, name: String, email: String, username: String, password: String, external: String,
+                        accType: String): Boolean = {
     val accessToken = "autoEinaitoAccessToken"
-    val json: JsValue =  Json.obj("name" -> JsString(name), SCHEMA.fEmail -> JsString(email),
+    val owner_id = "local_" + "owner_id"
+    val json: JsValue = Json.obj("name" -> JsString(name), SCHEMA.fEmail -> JsString(email),
       SCHEMA.fUsername -> JsString(username), SCHEMA.fPassword -> JsString(password),
-      SCHEMA.fAccessToken -> JsString(accessToken))
+      SCHEMA.fAccessToken -> JsString(accessToken), SCHEMA.fExternal -> JsString(external),
+      SCHEMA.fType -> JsString(accType), SCHEMA.fOwnerId -> JsString(owner_id))
     return addJsonDocument(SCHEMA.cUsers, json.toString())
   }
 

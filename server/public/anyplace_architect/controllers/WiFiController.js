@@ -643,7 +643,20 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     });
 
     $scope.toggleRadioHeatmapRSS = function () {
-
+        // if coverage map is combined with timestamp, on hide remove crossfilter bar
+        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
+            $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
+            if ($scope.fingerPrintsTimeMode) {
+                if (typeof (Storage) !== "undefined" && localStorage) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'YES');
+                }
+            } else {
+                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioCoverageTimeMode) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                }
+            }
+            $scope.anyService.fingerPrintsTimeMode = !$scope.anyService.fingerPrintsTimeMode;
+        }
         var check = 0;
         if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioCoverageTimeMode) {
 
@@ -880,15 +893,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     };
 
 
-    // BUG: does not work
     $scope.toggleFingerPrintsTime = function () {
         LOG.D2("toggleFingerPrintsTime");
-
-        // CHECK:NN clearAll so crossfilter is clean
-        // clearLocalization
-        // clear...
-        // clear..
-
 
         if ($scope.fingerPrintsMode) {
             $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
@@ -917,7 +923,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             }
             $scope.anyService.radioHeatmapRSSTimeMode = !$scope.anyService.radioCoverageTimeMode;
         }
-        if ($scope.radioHeatmapLocalization) { // TODO:NN ? wifi coverage?
+        if ($scope.radioHeatmapLocalization) {
             clearLocalization();
             $scope.showFingerprintCoverage();
             $scope.radioHeatmapRSSMode = true;
@@ -1219,7 +1225,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         if (!_FINGERPRINTS_IS_ON && (!heatmap || !heatmap.getMap())) {
-            _err($scope, "You have to press show fingerPrints button first");
+            _warn_autohide($scope, "Press 'Show Fingerprints' button first");
             return;
         }
 
@@ -1491,27 +1497,23 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     $scope.hideRSSExcept = function (color) {
 
         if (color === 'g' && !$scope.radioHeatmapRSSHasGreen) {
-            _err($scope, "Wi-Fi coverage map has no green squares");
+            _warn_autohide($scope, "Coverage map has no green squares");
             return;
         }
-
         if (color === 'y' && !$scope.radioHeatmapRSSHasYellow) {
-            _err($scope, "Wi-Fi coverage map has no yellow squares");
+            _warn_autohide($scope, "Coverage map has no yellow squares");
             return;
         }
-
         if (color === 'o' && !$scope.radioHeatmapRSSHasOrange) {
-            _err($scope, "Wi-Fi coverage map has no orange squares");
+            _warn_autohide($scope, "Coverage map has no orange squares");
             return;
         }
-
         if (color === 'p' && !$scope.radioHeatmapRSSHasPurple) {
-            _err($scope, "Wi-Fi coverage map has no purple squares");
+            _warn_autohide($scope, "Coverage map has no purple squares");
             return;
         }
-
         if (color === 'r' && !$scope.radioHeatmapRSSHasRed) {
-            _err($scope, "Wi-Fi coverage map has no red squares");
+            _warn_autohide($scope, "Coverage map has no red squares");
             return;
         }
         var i = heatMap.length;
@@ -1540,6 +1542,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     $scope.showFingerprintCoverage = function () {
         clearFingerprintCoverage();
         clearFingerprintHeatmap();
+        $scope.fingerPrintsMode = false;
         var jsonReq;
         var promise;
         _currentZoomLevel = GMapService.gmap.getZoom();
@@ -1596,7 +1599,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                 localStorage.setItem('radioHeatmapRSSMode', 'NO');
                             }
                         } else {
-                            _warn_autohide($scope, "No fingerprints at this period.\n Please choose another one.");
+                            _warn_autohide($scope, "No fingerprints at this period.");
                         }
                         return;
                     }
@@ -2007,7 +2010,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                 localStorage.setItem('fingerprintsMode', 'NO');
                             }
                         } else {
-                            _warn_autohide($scope, "No fingerprints at this period.\n Please choose another one.");
+                            _warn_autohide($scope, "No fingerprints at this period.");
                         }
                         return;
                     }
@@ -2444,7 +2447,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             LOG.D2("Charts: " + charts.length);
             charts[i].filter(null)
             renderAll();
-
+            $scope.toggleFingerPrintsTime();
+            $scope.toggleFingerPrintsTime();
             // TODO1: find if button SHow Fingerprints by time is enabled OR button Show WifiMap is enabled
             // and disable it and enable it... (click... twice..)
             // TODO:NN

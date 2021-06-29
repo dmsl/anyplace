@@ -88,8 +88,18 @@ POST        /anyplace/navigation/pois/id                                        
 ################
 ### POSITION ###
 ################
+POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
+POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getHeatmapByFloorAVG2()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getHeatmapByFloorAVG3()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getHeatmapByFloorAVG3Tiles()
+
+# AVG# AS IT WAS (FULL)
+# CHECK:PM CHECK:DZ the old code does not group the heatmaps on higher levels
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG1()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG2()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG3()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.heatmapByFloorTimestampTiles()
+
 POST        /anyplace/position/radio/delete                                         controllers.AnyplaceMapping.FingerPrintsDelete()
 # OPTIMIZED: caching same lat+lon+floor+range radiomaps (instead of re-saving)
 POST        /anyplace/position/radio_by_floor_bbox                                  controllers.AnyplacePosition.radioDownloadFloorBbox()
@@ -202,13 +212,6 @@ POST        /anyplace/mapping/radio/heatmap_building_floor                      
 # used by android
 POST        /anyplace/position/predictFloorAlgo1                                    controllers.AnyplacePosition.predictFloorAlgo1()
 
-
-# TODO: ti prepei na gini sto js gia na ta kalesi? NEXT MEETING
-# called by "Wi-Fi Coverage -> Show Wi-Fi Map"
-# WifiController.js 1591:: 1622
-POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getHeatmapByFloorAVG2()
-
 ########################
 # TIME BASED ENDPOINTS #
 ########################
@@ -219,20 +222,7 @@ POST        /anyplace/position/radio/heatmap_building_floor_average_2           
 POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerprintsByTime()
 POST        /anyplace/position/radio/delete/time                                    controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
 
-# CROSSFILTER TODO: NN: bold date, reset. reset colours. on reset, show again...
-# TODO:NN for all avg check/VerifyHeatmapTimestamp(...)
 
-# TODO:NN NEXT: AVG1: LEAVE first 4 deciaml points AVG2: LEAAVLE 6 ASVG4: ALL
-# 53.3453       AVG1
-# 53.34525353 AVG2
-# AVG# AS IT WAS (FULL)
-# CHECK:PM CHECK:DZ the old code does not group the heatmaps on higher levels
-# called by "Wi-Fi Coverage -> Show Wi-Fi Map"
-# WifiController.js 1591:: 1610
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG2()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG3()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.heatmapByFloorTimestampTiles()
 
 
 #####################################################################################################

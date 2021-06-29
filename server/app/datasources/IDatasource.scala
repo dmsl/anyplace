@@ -46,7 +46,8 @@ import utils.GeoPoint // TODO: Will use play.json
 
 trait IDatasource {
 
-  def register(collection: String, name: String, email: String, username: String, password: String): Boolean
+  def register(collection: String, name: String, email: String, username: String, password: String,
+               external: String, accType: String): Boolean
 
   def login(collection: String, username: String, password: String): List[JsValue]
 

@@ -2160,5 +2160,6 @@ class CouchbaseDatasource private(hostname: String,
 
   override def login(collection: String, username: String, password: String): List[JsValue] = ???
 
-  override def register(collection: String, name: String, email: String, username: String, password: String): Boolean = ???
+  override def register(collection: String, name: String, email: String, username: String, password: String,
+                        external: String, accType: String): Boolean = ???
 }

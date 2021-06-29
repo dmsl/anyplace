@@ -523,13 +523,18 @@ object AnyplaceAccounts extends Controller {
         val email = (json \ SCHEMA.fEmail).as[String]
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
+        val external = "anyplace"
+        val accType = "user"
 
+        val storedUsername = ???
+
+        val storedEmail = ???
 
         // TODO: check username uniqueness
         val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
         if (storedUser != null) return AnyResponseHelper.bad_request("User already exist!")
 
-        val newUser = ProxyDataSource.getIDatasource().register(SCHEMA.cUsers, name, email, username, password)
+        val newUser = ProxyDataSource.getIDatasource().register(SCHEMA.cUsers, name, email, username, password, external, accType)
 
         return AnyResponseHelper.ok("Succefully registered!")
       }

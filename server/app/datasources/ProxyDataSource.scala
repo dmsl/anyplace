@@ -454,8 +454,9 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.login(collection, username, password)
   }
 
-  override def register(collection: String, name: String, email: String, username: String, password: String): Boolean = {
+  override def register(collection: String, name: String, email: String, username: String, password: String,
+                        external: String, accType: String): Boolean = {
     _checkActiveDatasource()
-    mongoDB.register(collection, name, email, username, password)
+    mongoDB.register(collection, name, email, username, password, external, accType)
   }
 }
