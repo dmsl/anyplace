@@ -99,7 +99,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     $scope.deleteButtonWarning = false;
     $scope.radioHeatmapRSSMode = false;
     $scope.radioHeatmapLocalization = false; //lsolea01
-    $scope.radioCoverageTimeMode = false;
+    $scope.radioHeatmapRSSTimeMode = false;
     $scope.fingerPrintsMode = false;
     $scope.fingerPrintsTimeMode = false;
     $scope.APsMode = false;
@@ -258,7 +258,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
-        LOG.D2("anyService.selectedBuidling: watch");
         if (newVal) {
             if (localStorage.getItem('fingerprintsMode') !== undefined) {
                 if (localStorage.getItem('fingerprintsMode') === 'YES') {
@@ -366,7 +365,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 }
                 heatMap = [];
                 $scope.showFingerprintCoverage();
-                if ($scope.radioCoverageTimeMode) {
+                if ($scope.radioHeatmapRSSTimeMode) {
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
                     $scope.getFingerPrintsTime();
@@ -413,7 +412,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 }
                 fingerPrintsMap = [];
                 $scope.showFingerprintHeatmap();
-                if ($scope.fingerPrintsTimeMode && !$scope.radioCoverageTimeMode) {
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
                     $scope.getFingerPrintsTime();
@@ -430,7 +429,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 _HEATMAP_F_IS_ON = false;
                 $scope.showFingerprintHeatmap();
 
-                if ($scope.fingerPrintsTimeMode && !$scope.radioCoverageTimeMode) {
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
                     $scope.getFingerPrintsTime();
@@ -495,7 +494,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     });
 
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
-        LOG.D2("anyService.selectedFloor");
         if (newVal !== undefined && newVal !== null && !_.isEqual(newVal, oldVal)) {
             if (typeof (Storage) !== "undefined" && localStorage) {
                 localStorage.setItem("lastFloor", newVal.floor_number);
@@ -509,7 +507,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 }
                 heatMap = [];
                 $scope.showFingerprintCoverage();
-                if ($scope.radioCoverageTimeMode) {
+                if ($scope.radioHeatmapRSSTimeMode) {
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
                     $scope.getFingerPrintsTime();
@@ -551,7 +549,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 fingerPrintsMap = [];
 
                 $scope.showFingerprintHeatmap();
-                if ($scope.fingerPrintsTimeMode && !$scope.radioCoverageTimeMode) {
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
 
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
@@ -572,7 +570,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 _HEATMAP_F_IS_ON = false;
 
                 $scope.showFingerprintHeatmap();
-                if ($scope.fingerPrintsTimeMode && !$scope.radioCoverageTimeMode) {
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
 
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
@@ -642,7 +640,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     });
 
-    $scope.toggleRadioHeatmapRSS = function () {
+    $scope.toggleCoverage = function () {
+        LOG.D2("toggleCoverage");
+
         // if coverage map is combined with timestamp, on hide remove crossfilter bar
         if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
             $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
@@ -651,14 +651,17 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     localStorage.setItem('fingerPrintsTimeMode', 'YES');
                 }
             } else {
-                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioCoverageTimeMode) {
+                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
                     localStorage.setItem('fingerPrintsTimeMode', 'NO');
                 }
             }
             $scope.anyService.fingerPrintsTimeMode = !$scope.anyService.fingerPrintsTimeMode;
         }
+
+        // if ()
+
         var check = 0;
-        if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioCoverageTimeMode) {
+        if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioHeatmapRSSTimeMode) {
 
             var i = heatMap.length;
             while (i--) {
@@ -709,7 +712,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             localStorage.setItem('radioHeatmapRSSMode', 'YES');
         }
         $scope.anyService.radioHeatmapRSSMode = true;
-
         $scope.showFingerprintCoverage();
         return;
     };
@@ -766,6 +768,13 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     $scope.toggleFingerPrints = function () {
         LOG.D2("toggleFingerPrints");
+        // if coverage and time are pressed, remove them when heatmaps are requested.
+        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) { //
+            $scope.toggleCoverage();
+            $scope.toggleFingerPrints();
+            return
+        }
+
         $scope.fingerPrintsMode = !$scope.fingerPrintsMode;
         if ($scope.fingerPrintsMode) {
             document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
@@ -797,7 +806,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 localStorage.setItem('fingerprintsMode', 'NO');
             }
             $scope.fingerPrintsTimeMode = false;
-            if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioCoverageTimeMode) {
+            if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
                 localStorage.setItem('fingerPrintsTimeMode', 'NO');
             }
             $scope.anyService.fingerPrintsTimeMode = false;
@@ -819,7 +828,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 localStorage.setItem('fingerprintsMode', 'NO');
             }
             $scope.fingerPrintsTimeMode = false;
-            if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioCoverageTimeMode) {
+            if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
                 localStorage.setItem('fingerPrintsTimeMode', 'NO');
             }
             $scope.anyService.fingerPrintsTimeMode = false;
@@ -840,7 +849,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         if (typeof (Storage) !== "undefined" && localStorage) {
             localStorage.setItem('fingerprintsMode', 'YES');
         }
-        if ($scope.radioCoverageTimeMode) {
+        if ($scope.radioHeatmapRSSTimeMode) {
             $scope.fingerPrintsTimeMode = true;
             if (typeof (Storage) !== "undefined" && localStorage) {
                 localStorage.setItem('fingerPrintsTimeMode', 'YES');
@@ -895,7 +904,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     $scope.toggleFingerPrintsTime = function () {
         LOG.D2("toggleFingerPrintsTime");
-
         if ($scope.fingerPrintsMode) {
             $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
             if ($scope.fingerPrintsTimeMode) {
@@ -903,7 +911,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     localStorage.setItem('fingerPrintsTimeMode', 'YES');
                 }
             } else {
-                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioCoverageTimeMode) {
+                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
                     localStorage.setItem('fingerPrintsTimeMode', 'NO');
                 }
             }
@@ -911,8 +919,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         if ($scope.radioHeatmapRSSMode) {
-            $scope.radioHeatmapRSSTimeMode = !$scope.radioCoverageTimeMode;
-            if ($scope.radioCoverageTimeMode) {
+            $scope.radioHeatmapRSSTimeMode = !$scope.radioHeatmapRSSTimeMode;
+            if ($scope.radioHeatmapRSSTimeMode) {
                 if (typeof (Storage) !== "undefined" && localStorage) {
                     localStorage.setItem('fingerPrintsTimeMode', 'YES');
                 }
@@ -921,8 +929,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     localStorage.setItem('fingerPrintsTimeMode', 'NO');
                 }
             }
-            $scope.anyService.radioHeatmapRSSTimeMode = !$scope.anyService.radioCoverageTimeMode;
+            $scope.anyService.radioHeatmapRSSTimeMode = !$scope.anyService.radioHeatmapRSSTimeMode;
         }
+
         if ($scope.radioHeatmapLocalization) {
             clearLocalization();
             $scope.showFingerprintCoverage();
@@ -942,7 +951,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
         }
 
-        if (!$scope.radioCoverageTimeMode && $scope.radioHeatmapRSSMode) {
+        if (!$scope.radioHeatmapRSSTimeMode && $scope.radioHeatmapRSSMode) {
             clearFingerprintCoverage();
             $scope.showFingerprintCoverage();
             $scope.radioHeatmapRSSMode = true;
@@ -954,10 +963,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
         }
 
-        if ($scope.radioCoverageTimeMode || $scope.fingerPrintsTimeMode) {
+        if ($scope.radioHeatmapRSSTimeMode || $scope.fingerPrintsTimeMode) {
             $scope.getFingerPrintsTime();
         }
-
     };
 
     $scope.togglePOIs = function () {
@@ -1075,7 +1083,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     $scope.getHeatMapTimeButtonText = function () {
 
-        return $scope.radioCoverageTimeMode ? "Hide WiFi Map By Time" : "Show WiFi Map By Time";
+        return $scope.radioHeatmapRSSTimeMode ? "Hide WiFi Map By Time" : "Show WiFi Map By Time";
     };
 
     $scope.getLocalizationAccuracyText = function () {
@@ -1194,7 +1202,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     };
 
     $scope.getFingerPrintsTimeModeText = function () {
-        return $scope.fingerPrintsTimeMode || $scope.radioCoverageTimeMode ? "ON" : "OFF";
+        return $scope.fingerPrintsTimeMode || $scope.radioHeatmapRSSTimeMode ? "ON" : "OFF";
 
     };
 
@@ -1265,7 +1273,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 }
             }
             i = heatmapFingerprints.length;
-            // CHECK:PM CHECK:NN what are heatmapFingerprints?
             while (i--) {
                 if (heatmapFingerprints[i].getPosition().lat() <= start.lat() &&
                     heatmapFingerprints[i].getPosition().lng() <= start.lng() &&
@@ -1296,9 +1303,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     _err($scope, "Could not identify user. Please refresh and sign in again.");
                     return;
                 }
-
                 reqObj.owner_id = $scope.owner_id;
-
                 if (!b || !b.buid) {
                     _err($scope, "No building selected");
                     return;
@@ -1312,8 +1317,11 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 reqObj.lon2 = end.lng() + "";
 
                 var promise;
-
                 if ($scope.fingerPrintsTimeMode) {
+                    if (userTimeData[0] == undefined)
+                        userTimeData[0] = 0
+                    if (userTimeData[1] == undefined)
+                        userTimeData[1] = Number.MAX_SAFE_INTEGER
                     reqObj.timestampX = userTimeData[0] + "";
                     reqObj.timestampY = userTimeData[1] + "";
                     promise = $scope.anyAPI.deleteFingerprintsByTime(reqObj);
@@ -1322,7 +1330,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 }
 
                 var data = [];
-
                 if (!_HEATMAP_F_IS_ON && !_HEATMAP_FINGERPRINT_COVERAGE)
                     _suc($scope, "The fingerprints are scheduled to be deleted.");
                 else if (_HEATMAP_F_IS_ON && !_HEATMAP_FINGERPRINT_COVERAGE)
@@ -1334,12 +1341,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 else if (_HEATMAP_F_IS_ON && _HEATMAP_FINGERPRINT_COVERAGE)
                     _suc($scope, "The fingerprints are scheduled to be deleted. " +
                         "New radiomaps for fingerprints and Wi-Fi coverage will be regenerated shortly after.");
-
                 promise.then(
                     function (resp) { // on success
-                        data = resp.data.fingerprints;
-
-                        // delete the fingerPrints from the loaded FingerPrints
+                        data = resp.data.fingerprints; // delete the fingerPrints from the loaded FingerPrints
                         if (data.length > 0) {
                             console.log("Deleted " + data.length + " fingerprints.");
                             var i = fingerPrintsMap.length;
@@ -1352,8 +1356,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                     fingerPrintsMap[i].setMap(null);
                                 }
                             }
-
-                            // CHECK:PM CHECK:NN how heatmapFingerprints change??
                             if (_HEATMAP_F_IS_ON) {
                                 heatmap.setMap(null);
                                 var heatMapData = [];
@@ -1378,7 +1380,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                 });
                                 heatmap.setMap($scope.gmapService.gmap);
                             }
-                            // CHECK:PM CHECK:NN how heatmap change??
                             if (_HEATMAP_FINGERPRINT_COVERAGE) {
                                 i = heatMap.length;
 
@@ -1391,7 +1392,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                     }
                                 }
                             }
-                            // CHECK:PM CHECK:NN how heatMap_Location change??
                             if (_HEATMAP_ACCES) { //lsolea01
                                 i = heatMapAcces.length;
 
@@ -1543,6 +1543,15 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         clearFingerprintCoverage();
         clearFingerprintHeatmap();
         $scope.fingerPrintsMode = false;
+
+        // if coverage map is combine with timestamp on zoom level 3, remove timestampTiles
+        // this only works for the first time..
+        if (!_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode && _currentZoomLevel >= _MAX_ZOOM_LEVEL) {
+            LOG.D2("REMOVE TILES");
+            // try while (--i)
+            $scope.fingerPrintsTimeMode = false;
+        }
+
         var jsonReq;
         var promise;
         _currentZoomLevel = GMapService.gmap.getZoom();
@@ -1730,21 +1739,18 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 i = resp.data.accessPoints.length;
 
                 if (i <= 0) {
-                    _err($scope, "This floor seems not to be Access Point mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    _warn_autohide($scope, "This floor seems not to be Access Point mapped. Download the Anyplace app from the Google Play store to map the floor.");
                     $scope.APsMode = false;
                     document.getElementById("APs-mode").classList.remove('quickaction-selected');
                     return;
                 }
 
-
                 //algorithm to find the location of each AP
                 var values = resp.data.accessPoints;
-
                 i = values.length;
 
                 var _ACCESS_POINT_IMAGE = IMG_ACCESS_POINT_ARCHITECT;
                 var imgType = _ACCESS_POINT_IMAGE;
-
                 var size = new google.maps.Size(40, 40);
 
                 i = values.length;
@@ -2423,13 +2429,11 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
         // Renders the specified chart or list.
         function render(method) {
-            LOG.D2("render");
             d3.select(this).call(method);
         }
 
         // Whenever the brush moves, re-rendering everything.
         function renderAll() {
-            LOG.D2("renderAll");
             chart.each(render);
             d3.select("#active").text(formatNumber(all.value()));
         }
@@ -2444,16 +2448,14 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
         window.reset = function (i) {
             LOG.D2("window.reset");
-            LOG.D2("Charts: " + charts.length);
             charts[i].filter(null)
             renderAll();
+            if ($scope.radioHeatmapRSSTimeMode) {
+                $scope.toggleCoverage(); // remove crossfilter and coverage squares
+                $scope.toggleCoverage(); // fetch coverage squares
+            }
             $scope.toggleFingerPrintsTime();
             $scope.toggleFingerPrintsTime();
-            // TODO1: find if button SHow Fingerprints by time is enabled OR button Show WifiMap is enabled
-            // and disable it and enable it... (click... twice..)
-            // TODO:NN
-
-
         };
 
         function barChart() {
@@ -2577,7 +2579,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             });
 
             brush.on("brush.chart", function () {
-                LOG.D2("crossfilter:brush_chart");
                 var g = d3.select(this.parentNode),
                     extent = brush.extent();
                 if (round) g.select(".brush")

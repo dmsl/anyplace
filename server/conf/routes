@@ -7,7 +7,6 @@
 #  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
 POST        /anyplace/mapping/accounts/sign                                         controllers.AnyplaceMapping.addAccount()
 
-# TODO:NN add type
 POST        /anyplace/mapping/space/add                                          controllers.AnyplaceMapping.spaceAdd()
 POST        /anyplace/mapping/space/update                                       controllers.AnyplaceMapping.spaceUpdate()
 # verified all except fingerprints
@@ -51,7 +50,6 @@ POST        /anyplace/mapping/campus/all_owner                                  
 POST        /anyplace/mapping/building/coowners                                     controllers.AnyplaceMapping.spaceUpdateCoOwners()
 # Fetches all buildings that matches bucode.
 POST        /anyplace/mapping/building/all_bucode                                   controllers.AnyplaceMapping.spaceByBucode()
-# CHECK:NN:geometry
 POST        /anyplace/mapping/building/newowner                                     controllers.AnyplaceMapping.spaceUpdateOwner()
 # Not in use by anyplace API. Used by Rayzit
 POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.AnyplaceMapping.poisByBuidincConnectors()
@@ -71,7 +69,6 @@ POST        /anyplace/mapping/floor/update                                      
 
 
 # RENAMED: all_pois -> search
-# TODO:NN fix javadoc
 POST        /anyplace/mapping/pois/search                                           controllers.AnyplaceMapping.searchPois()
 
 
@@ -93,7 +90,7 @@ POST        /anyplace/position/radio/heatmap_building_floor_average_2           
 POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getHeatmapByFloorAVG3()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getHeatmapByFloorAVG3Tiles()
 
-# AVG# AS IT WAS (FULL)
+POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerprintsByTime()
 # CHECK:PM CHECK:DZ the old code does not group the heatmaps on higher levels
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG1()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG2()
@@ -101,6 +98,7 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3 
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.heatmapByFloorTimestampTiles()
 
 POST        /anyplace/position/radio/delete                                         controllers.AnyplaceMapping.FingerPrintsDelete()
+
 # OPTIMIZED: caching same lat+lon+floor+range radiomaps (instead of re-saving)
 POST        /anyplace/position/radio_by_floor_bbox                                  controllers.AnyplacePosition.radioDownloadFloorBbox()
 POST        /anyplace/position/radio/aps_ids                                        controllers.AnyplaceMapping.getAPsIds()
@@ -129,10 +127,7 @@ POST        /anyplace/radiomaps/:radio_folder/:filename                         
 #############
 ### ADMIN ###
 #############
-# TODO Only for admin (add access_token)
-# TODO:NN apply to postman "/anyplace/debug/accounts_all"
-POST        /admin/accounts_all                                            controllers.AnyplaceAccounts.fetchAllAccounts()
-# TODO:NN apply to postman "/anyplace/position/radio/generateHeatmaps"
+POST        /admin/accounts_all                                            controllers.Admin.fetchAllAccounts()
 POST        /admin/migration/run                                           controllers.Admin.migrateToMongoDB()
 
 #####################################################################################################
@@ -145,6 +140,7 @@ POST        /admin/migration/run                                           contr
 #####################################
 ### UNUSED AND UNCONVERTED TO MDB ###
 #####################################
+# CHECK:NN search last part
 POST        /anyplace/position/path_add                                             controllers.AnyplacePosition.magneticPathAdd()
 POST        /anyplace/position/path_delete                                          controllers.AnyplacePosition.magneticPathDelete()
 POST        /anyplace/position/paths_by_floor                                       controllers.AnyplacePosition.magneticPathByFloor()
@@ -152,6 +148,7 @@ POST        /anyplace/position/paths_by_buid                                    
 POST        /anyplace/position/milestones_add                                       controllers.AnyplacePosition.magneticMilestoneUpload()
 POST        /anyplace/position/milestones_by_floor                                  controllers.AnyplacePosition.magneticMilestoneByFloor()
 
+# CHECK:NN
 POST        /anyplace/position/estimate_position                                    controllers.AnyplaceMapping.findPosition()
 POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.AnyplaceMapping.getRadioHeatmapBbox()
 
@@ -173,13 +170,13 @@ POST        /anyplace/mapping/maintenance                                       
 ################
 ### DISABLED ###
 ################
-# ???? who disabled those????? CHECK:NN
 #POST           /anyplace/mapping/radio/addbuids                             controllers.AnyplaceMapping.addBuidInRssLogs()
 #POST           /anyplace/mapping/pois/temp_url                              controllers.AnyplaceMapping.tempAllPoisWithoutUrl()
 #POST           /anyplace/mapping/radio/heatmap                              controllers.AnyplaceMapping.getRadioHeatmap()
 
 #####################################################################################################
 # ACCES MAP
+# TODO:NN na epistrefi deprecated kai bad request "will be removed"
 POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
 POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
 
@@ -197,19 +194,14 @@ POST        /anyplace/position/radio_by_building_floor                          
 
 # Anyplace API - Position
 
-##### TO REVIEW with PM
-
 # bug mdb: fails to identify access points location
 # TODO:NN fix bug NEXT MEETING
+# where is it called (we want to rename)
 POST        /anyplace/position/radio/APs_building_floor                             controllers.AnyplaceMapping.getAPsByBuildingFloor()
-# TODO:NN what is it? NEXT MEETING
-# FloorController.js 639
-# FloorController.js 573 its not used CHECK: NEXT...
-POST        /anyplace/mapping/radio/heatmap_building_floor                          controllers.AnyplaceMapping.getRadioHeatmapByBuildingFloor()
 
 # DEVELOPING
-
 # used by android
+## very complicated
 POST        /anyplace/position/predictFloorAlgo1                                    controllers.AnyplacePosition.predictFloorAlgo1()
 
 ########################
@@ -219,10 +211,7 @@ POST        /anyplace/position/predictFloorAlgo1                                
 # CHECK:PM CHECK:DZ remove "building" from endpoints
 # INFO: Timestamp endpoints did not work (at all) in couchbase/old code
 
-POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerprintsByTime()
 POST        /anyplace/position/radio/delete/time                                    controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
-
-
 
 
 #####################################################################################################

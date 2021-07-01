@@ -56,6 +56,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.poisTypes = {};
     $scope.catTypes = {};
+    $scope.spaceTypes = {};
 
     $scope.pageLoad = false;
 
@@ -212,7 +213,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 var f = $scope.xFloors[i];
                 if (!LPUtils.isNullOrUndefined(f)) {
                     if (f.floor_number === String($scope.newFloorNumber)) {
-                        $scope.uploadFloorPlanBase64($scope.anyService.selectedBuilding, f, $scope.data);
+                        $scope.uploadWithZoom($scope.anyService.selectedBuilding, f, $scope.data);
                         break;
                     }
                 }
@@ -250,15 +251,15 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     });
 
     $scope.$watch('anyService.selectedBuilding', function () {
-        $scope.poisTypes = [
+        $scope.spaceTypes = [
             "Building",
             "Vessel"
         ];
-        $scope.poicategories = [{
-            poicat: "Building",
+        $scope.spacecategories = [{
+            spacecat: "Building",
             id: "type1"
         },{
-            poicat: "Vessel",
+            spacecat: "Vessel",
             id: "type2"
         }
         ];
@@ -386,46 +387,33 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.addNewBuilding = function (id) {
-
         if ($scope.myMarkers[id] && $scope.myMarkers[id].marker) {
-
             var building = $scope.myMarkers[id].model;
-
-            // set owner id
-            building.owner_id = $scope.owner_id;
-
+            building.owner_id = $scope.owner_id; // set owner id
             if (!building.owner_id) {
                 _err($scope, ERR_USER_AUTH);
                 return;
             }
-
             building.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
             building.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
-
             if (building.coordinates_lat === undefined || building.coordinates_lat === null) {
                 _err($scope, "Invalid building latitude.");
                 return;
             }
-
             if (building.coordinates_lon === undefined || building.coordinates_lon === null) {
                 _err($scope, "Invalid building longitude.");
                 return;
             }
-
             if (building.is_published === true) {
                 building.is_published = "true";
             } else {
                 building.is_published = "false";
             }
-
             if (!building.description) {
                 building.description = "-";
             }
-
-            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address && building.type) {
-
+            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address && building.space_type) {
                 var promise = $scope.anyAPI.addBuilding(building);
-
                 promise.then(
                     function (resp) {
                         // on success
@@ -917,8 +905,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
             + '</fieldset>'
             + '<fieldset class="form-group">'
-            + '<select ng-model="myMarkers[' + marker.myId + '].model.type" class="form-control" ng-options="type for type in buildingTypes" title="Building Types" tabindex="2">'
-            + '<option value="">Select Building Type</option>'
+            + '<select ng-model="myMarkers[' + marker.myId + '].model.space_type" class="form-control" ng-options="type for type in spaceTypes" title="Space Types" tabindex="2">'
+            + '<option value="">Select Space Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
             + '<fieldset class="form-group">'

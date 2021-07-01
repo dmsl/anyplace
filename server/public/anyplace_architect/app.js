@@ -471,7 +471,7 @@ app.factory('myInterceptor', [function () {
         request: function (config) {
 
             if (config.url !== undefined)
-                if (config.url.indexOf(AnyplaceAPI.FULL_SERVER) !== 0) {
+                if (config.url.indexOf(AnyplaceAPI.BASE_URL) !== 0) {
                     return config;
                 }
 
