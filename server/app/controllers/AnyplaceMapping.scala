@@ -126,7 +126,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     null
   }
 
-  // TODO:NN see usages and make it specific only for google.
   def appendGoogleIdIfNeeded(id: String) = {
     if (id.contains("_local"))
       id
@@ -167,39 +166,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
       inner(request)
   }
-
-  def getRadioHeatmapByBuildingFloor() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        val json = anyReq.getJsonBody()
-        LPLogger.info("getRadioHeatmapByBuildingFloor: " + stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
-        if (validation.failed()) return validation.response()
-
-        val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor = (json \ SCHEMA.fFloor).as[String]
-        try {
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor(buid, floor)
-          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
-          try {
-            gzippedJSONOk(res.toString)
-          } catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
-          }
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-        }
-      }
-
-      inner(request)
-  }
-
 
   def getHeatmapByFloorAVG1() = Action {
     implicit request =>
@@ -602,7 +568,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
             if (accessPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
             val newAccessPoint = Json.obj(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor, "accessPoints" -> uniqueAPs.values().toList)
-            ProxyDataSource.getIDatasource().addJsonDocument("accessPointsWifi", newAccessPoint.toString())
+            ProxyDataSource.getIDatasource().addJsonDocument(SCHEMA.cAccessPointsWifi, newAccessPoint.toString())
             val res: JsValue = Json.obj("accessPoints" -> new util.ArrayList[JsValue](uniqueAPs.values()).toList)
             try {
               gzippedJSONOk(res, "Generated precompute of accessPointsWifi")
@@ -730,7 +696,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("FingerPrintsDelete: " + stripJson(json))
-        // add owner_id
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fOwnerId)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -832,6 +797,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   /**
    * Called when "Show Fingerprints By Time" (Architect: toggleFingerPrintsTime) is clicked.
+   * Used to return the data that will be shown in the crossfilter bar.
    *
    * @return a list of the number of fingerprints stored, and date.
    */
@@ -1043,12 +1009,14 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::spaceAdd(): " + stripJson(json))
+
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fIsPublished, SCHEMA.fName, SCHEMA.fDescription,
-          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken, SCHEMA.fType)
+          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken, SCHEMA.fSpaceType)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if ((json \ SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
         var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
+
         owner_id = appendGoogleIdIfNeeded(owner_id)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
@@ -2157,8 +2125,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   /**
    * Retrieve all the pois of a cuid combination.
-   * Called by: viewer, viewerCampus, BuildingSearchController.js, LocationSearchController.js
-   * search ston viewercampus e.g. toilets, toualeta
+   * Available searchs in english and greeklish.
    *
    * @return
    */

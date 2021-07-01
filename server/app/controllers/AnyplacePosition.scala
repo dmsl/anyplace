@@ -609,9 +609,14 @@ object AnyplacePosition extends play.api.mvc.Controller {
     return totalExists + "/" + totalRss
   }
 
+  /**
+   *
+   * @return
+   */
   def predictFloorAlgo1() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
+        LPLogger.D2("predictFloorAlgo1:")
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -619,14 +624,12 @@ object AnyplacePosition extends play.api.mvc.Controller {
         val json = anyReq.getJsonBody
         val watch = new StopWatch()
         watch.start()
-        LPLogger.info("AnyplacePosition::predictFloor(): ")
         var alg1: Algo1 = null
         try {
           alg1 = new Algo1(json)
         } catch {
           case ex: Exception => return AnyResponseHelper.bad_request(ex.getMessage)
         }
-        LPLogger.debug("im here")
         try {
           val lat = json.\("dlat").as[Double]
           val lot = json.\("dlong").as[Double]
