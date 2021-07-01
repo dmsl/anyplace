@@ -70,6 +70,7 @@ object SCHEMA {
   val fPuid = "puid"
   val fRSS = "rss"
   val fSchema = "_schema"
+  val fSpaceType = "space_type"
   val fSum = "sum"
   val fStrongestWifi = "strongestWifi"
   val fTimestamp = "timestamp"

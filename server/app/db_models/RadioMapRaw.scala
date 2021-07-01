@@ -45,7 +45,6 @@ import controllers.AnyplacePosition.BBOX_MAX
 import datasources.{ProxyDataSource, SCHEMA}
 import json.VALIDATE.{Coordinate, StringNumber}
 import play.Play
-import play.api.libs
 import play.api.libs.json._
 import play.api.mvc.Result
 import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
@@ -96,7 +95,6 @@ object RadioMapRaw {
   }
 
   /**
-   * CHECK:DZ CHECK:PM CHECK:NN
    * Every time it creates a new radiomap file
    * We have only coordinates and floor. We dont have a building so we download from a bounding box
    *

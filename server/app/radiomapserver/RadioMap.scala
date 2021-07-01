@@ -141,8 +141,6 @@ object RadioMap {
 
     private var MAX_RSS: Int = java.lang.Integer.MIN_VALUE
 
-    // CHECK:PM CHECK:NN all calls of createRadioMap
-    // maybe some use hardcoded frozen dir
     /**
      * Creates radiomap files
      *

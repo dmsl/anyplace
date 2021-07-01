@@ -40,7 +40,7 @@ import java.io.{FileOutputStream, IOException, PrintWriter}
 import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.MongodbDatasource.{admins, convertJson, mdb}
+import datasources.MongodbDatasource.{admins, convertJson, mdb, mongoClient}
 import datasources.SCHEMA._
 import db_models.RadioMapRaw.unrollFingerprint
 import db_models.{Connection, Poi, RadioMapRaw}
@@ -70,6 +70,7 @@ object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
   private var mdb: MongoDatabase = null
   private var admins: List[String] = List[String]()
+  private var mongoClient: MongoClient = null
 
   def getMDB: MongoDatabase = mdb
 
@@ -86,7 +87,7 @@ object MongodbDatasource {
 
   def createInstance(hostname: String, database: String, username: String, password: String, port: String): MongodbDatasource = {
     val uri: String = "mongodb://" + username + ":" + password + "@" + hostname + ":" + port
-    val mongoClient: MongoClient = MongoClient(uri)
+    mongoClient = MongoClient(uri)
     // TODO check if database anyplace exists
     mdb = mongoClient.getDatabase(database)
     val collections = mdb.listCollectionNames()
@@ -129,9 +130,12 @@ object MongodbDatasource {
   def convertJson(doc: Document) = cleanupMongoJson(Json.parse(doc.toJson()))
 }
 
-// TODO getAllAccounts()
-
 class MongodbDatasource() extends IDatasource {
+
+  def disconnect() = {
+    val res = mongoClient.close()
+  }
+
 
   var wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
   var allPoisSide = new java.util.HashMap[String, java.util.List[JsValue]]()
@@ -768,8 +772,11 @@ class MongodbDatasource() extends IDatasource {
     val floors = floorsByBuildingAsJson(buid)
     for (floor <- floors) {
       if ((floor \ SCHEMA.fFloorNumber).toOption.isDefined) {
-        val tempBool = deleteAllByFloor(buid, (floor \ SCHEMA.fFloorNumber).as[String])
+        val f = (floor \ SCHEMA.fFloorNumber).as[String]
+        val tempBool = deleteAllByFloor(buid, f)
         ret = ret && tempBool
+        val cachedColBool = deleteAffectedHeatmaps(buid, f)
+        ret = ret && cachedColBool
       }
     }
 
@@ -911,8 +918,14 @@ class MongodbDatasource() extends IDatasource {
       )))
     val awaited = Await.result(radioPoints.toFuture, Duration.Inf)
     val res = awaited.toList
+    var foundHeatmaps = convertJson(res)
+    if (foundHeatmaps.size == 0) { // cache-collection could be empty
+      foundHeatmaps = generateHeatmapsOnFly(SCHEMA.cHeatmapWifi3, buid, floor, query, 3, false)
+      if (foundHeatmaps == null)
+        return null
+    }
     val heatmaps = new util.ArrayList[JsValue]()
-    for (heatmap <- convertJson(res)) {
+    for (heatmap <- foundHeatmaps) {
       val count = (heatmap \ "count").as[Int]
       heatmaps.add(Json.obj(SCHEMA.fX -> JsString((heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].head + ""),
         SCHEMA.fY -> JsString((heatmap \ SCHEMA.fLocation \ SCHEMA.fCoordinates).as[List[Double]].tail.head + ""),
@@ -1126,7 +1139,7 @@ class MongodbDatasource() extends IDatasource {
   }
 
   /**
-   * TODO:NN write doc
+   * Updates sum and count of cache-collections.
    *
    * @param fingerprint
    * @param level
@@ -1248,7 +1261,6 @@ class MongodbDatasource() extends IDatasource {
       val latDecimal = tokLat(1)
       val lonInt = tokLon(0)
       val lonDecimal = tokLon(1)
-      // TODO:NN: use LatLon
 
       if (level == 1) { // keep 5 digits which is 1.11m
         val latDigits5_6 = latDecimal.substring(4, 6).toInt
@@ -1667,7 +1679,7 @@ class MongodbDatasource() extends IDatasource {
   override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
     LPLogger.D2("Deleting generated heatmaps..")
     val collections = Array(cHeatmapWifi1, cHeatmapWifi2, cHeatmapWifi3, cHeatmapWifiTimestamp1,
-      cHeatmapWifiTimestamp2, cHeatmapWifiTimestamp3)
+      cHeatmapWifiTimestamp2, cHeatmapWifiTimestamp3, cAccessPointsWifi)
     val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor_number)
     var ret = true
     for (colName <- collections) {

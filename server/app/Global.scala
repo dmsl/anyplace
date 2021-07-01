@@ -70,7 +70,7 @@ class Global extends GlobalSettings {
     try {
       InfluxdbDatasource.getStaticInstance.disconnect()
       CouchbaseDatasource.getStaticInstance.disconnect()
-      // TODO:nneof disconnect mdb?
+      MongodbDatasource.getStaticInstance.disconnect()
     } catch {
       case e: DatasourceException => Logger.error("Global::onStop():: Exception while disconnecting from the couchbase server: " +
         e.getMessage)

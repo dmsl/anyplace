@@ -48,7 +48,7 @@ import scala.collection.JavaConversions._
 
 object AccountModel {
 
-  /** TODO:NN no need for separate accountModel. we have db_models/Account
+  /**
     * Defines a registered client for this account
     */
   class ClientModel(var client_id: String,

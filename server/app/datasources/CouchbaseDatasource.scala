@@ -1399,7 +1399,7 @@ class CouchbaseDatasource private(hostname: String,
           }
         }
     }
-    LPLogger.info("total fetched: " + totalFetched)
+    LPLogger.D3("predictFloorFast fetched: " + totalFetched)
     if (totalFetched > 10) {
       true
     } else {

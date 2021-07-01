@@ -53,8 +53,6 @@ import utils.{GeoJSONPoint, LPUtils}
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 
-// TODO:NN refactor building to space
-
 class Space(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
   private var lat: Double = _
@@ -73,7 +71,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fCoordinatesLat, "")
     fields.put(SCHEMA.fCoordinatesLon, "")
     fields.put(SCHEMA.fBuCode, "")
-    fields.put(SCHEMA.fType, "")
+    fields.put(SCHEMA.fSpaceType, "")
   }
 
   def this(json: JsValue) {
@@ -86,7 +84,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
       if (!temp.equals(""))
         fields.put(SCHEMA.fIsPublished, temp)
     }
-    fields.put(SCHEMA.fType, (json \ SCHEMA.fType).as[String])
+    fields.put(SCHEMA.fSpaceType, (json \ SCHEMA.fSpaceType).as[String])
     fields.put(SCHEMA.fName, (json \ SCHEMA.fName).as[String])
     cleanupFieldKey(json, SCHEMA.fDescription)
     cleanupFieldKey(json, SCHEMA.fURL)
