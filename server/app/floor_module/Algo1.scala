@@ -39,7 +39,6 @@ import java.util.{ArrayList, HashMap}
 
 import datasources.SCHEMA
 import play.api.libs.json.{JsValue, Json}
-import utils.LPLogger
 //remove if not needed
 import scala.collection.JavaConversions._
 
@@ -51,6 +50,8 @@ class Algo1(json: JsValue) extends IAlgo {
     var input: HashMap[String, Wifi] = new HashMap[String, Wifi]()
     var mostSimilar: ArrayList[Score] = new ArrayList[Score](10)
     val listenList = (json\"wifi").as[List[String]]
+    //val listenList = json.getArray("wifi")
+
 
     if (listenList == null) {
         throw new Exception("Wifi parameter is not array")
@@ -60,6 +61,10 @@ class Algo1(json: JsValue) extends IAlgo {
         val obj = Json.parse(listenObject)
         val mac = (obj\SCHEMA.fMac).as[String]
         val rss = (obj\SCHEMA.fRSS).as[String].toInt
+    //for (listenObject <- listenList.iterator()) {
+    //    val obj=listenObject.asInstanceOf[JsonObject]
+    //    val mac = obj.getString("MAC")
+    //    val rss = obj.getInt("rss")
         if (mac == null || rss == null) {
             throw new Exception("Invalid array wifi:: require mac,rss")
         }
@@ -72,10 +77,11 @@ class Algo1(json: JsValue) extends IAlgo {
         var nNCM = 0
         var nCM = 0
         for (wifiDatabase <- bucket) {
+            //val mac = wifiDatabase.getString("MAC")
             val mac = (wifiDatabase\SCHEMA.fMac).as[String]
             if (input.containsKey(mac)) {
-                val diff = java.lang.Integer.parseInt((wifiDatabase\SCHEMA.fRSS).as[String]) -
-                  input.get(mac).rss
+                //val diff = java.lang.Integer.parseInt(wifiDatabase.getString("rss")) - input.get(mac).rss
+                val diff = java.lang.Integer.parseInt((wifiDatabase\SCHEMA.fRSS).as[String]) - input.get(mac).rss
                 score += diff * diff
                 nCM += 1
             } else {

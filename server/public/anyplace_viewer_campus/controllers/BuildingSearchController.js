@@ -48,9 +48,10 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
         name: undefined,
         email: undefined,
         username: undefined,
-        password: undefined
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
     }
-
 
     $scope.myBuildings = [];
 
@@ -104,13 +105,10 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
             function (resp) {
                 var data = resp.data;
                 $scope.myallPois = data.pois;
-
                 var sz = $scope.myallPois.length;
-
                 for (var i = sz - 1; i >= 0; i--) {
                     $scope.myallPois[i].buname=$scope.myBuildingsnames[$scope.myallPois[i].buid];
                 }
-
             },
             function (resp) {
                 var data = resp.data;
@@ -134,11 +132,9 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
         var promise = $scope.anyAPI.allBuildings(jsonReq);
         promise.then(
-            function (resp) {
-                // on success
+            function (resp) { // on success
                 var data = resp.data;
-                //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
                 $scope.greeklish = data.greeklish;
 
                 for (var i = 0; i < $scope.myBuildings.length; i++) {

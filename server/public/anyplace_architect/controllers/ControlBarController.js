@@ -24,25 +24,24 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
-
     $scope.isAuthenticated = false;
-
     $scope.signInType = "google";
-
     $scope.gAuth = {};
     $scope.person = undefined;
 
-    $scope.creds = {
+    $scope.creds = { //TODO:NN delete eventually..
         fullName: undefined,
         username: undefined,
         password: undefined
     };
 
-    $scope.user = {
+    $scope.user = { // TODO:NN make it compatible with google account...
         name: undefined,
         email: undefined,
         username: undefined,
-        password: undefined
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
     }
 
     $scope.owner_id = undefined;
@@ -50,7 +49,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.userType = undefined;
 
     var self = this; //to be able to reference to it in a callback, you could use $scope instead
-
 
     $scope.setAuthenticated = function (bool) {
         $scope.isAuthenticated = bool;
@@ -88,21 +86,14 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.onSignIn = function (googleUser) {
-
         if ($scope.getCookie("username") === "") {
             $scope.setCookie("username", "true", 365);
             location.reload();
         }
-
         //location.reload();
         $scope.setAuthenticated(true);
-
         $scope.gAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
-
-        $scope.gAuth.access_token = $scope.gAuth.id_token;
-
         app.access_token = $scope.gAuth.id_token;
-
         $scope.personLookUp(googleUser);
     };
 
@@ -124,10 +115,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
         $scope.displayName = $scope.person.displayName;
 
-        if ($scope.person && $scope.person.id) {
-            $scope.$broadcast('loggedIn', []);
-        }
-
         var promise = AnyplaceAPIService.signGoogleAccount({
             name: $scope.person.displayName,
             external: "google"
@@ -137,6 +124,11 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             function (resp) {
                 // console.log(resp)
                 $scope.userType = resp.data.type;
+                $scope.gAuth.access_token = resp.data.access_token;
+                app.access_token = resp.data.access_token;
+                if ($scope.person && $scope.person.id) {
+                    $scope.$broadcast('loggedIn', []);
+                }
             },
             function (resp) {
                 console.log("error: personLookUp")

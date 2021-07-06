@@ -127,7 +127,7 @@ AnyplaceAPI.Mapping.POIS_ALL_FLOOR = "/mapping/pois/all_floor";
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
-AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/all_pois";
+AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/search";
 AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.ALL_POIS;
 
 AnyplaceAPI.Mapping.CONNECTION_ADD = "/mapping/connection/add";

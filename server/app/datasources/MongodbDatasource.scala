@@ -37,16 +37,18 @@
 package datasources
 
 import java.io.{FileOutputStream, IOException, PrintWriter}
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.MongodbDatasource.{admins, convertJson, mdb, mongoClient}
+import datasources.MongodbDatasource.{admins, convertJson, generateAccessToken, mdb, mongoClient}
 import datasources.SCHEMA._
 import db_models.RadioMapRaw.unrollFingerprint
 import db_models.{Connection, Poi, RadioMapRaw}
 import floor_module.IAlgo
 import org.mongodb.scala._
-import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.bson.{BsonDocument, conversions}
 import org.mongodb.scala.model.Aggregates
 import org.mongodb.scala.model.Aggregates.project
 import org.mongodb.scala.model.Filters._
@@ -61,7 +63,7 @@ import scala.collection.JavaConversions.mapAsScalaMap
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.text.Document.break
+import scala.util.Random
 import scala.util.control.Breaks
 
 
@@ -128,6 +130,16 @@ object MongodbDatasource {
   }
 
   def convertJson(doc: Document) = cleanupMongoJson(Json.parse(doc.toJson()))
+
+  def generateAccessToken(local: Boolean): String = {
+    var start = ""
+    if (local)
+      start = "apLocal_"
+    else
+      start = "apGoogle_"
+    val end = "ap"
+    start + Random.alphanumeric.take(500).mkString("") + end
+  }
 }
 
 class MongodbDatasource() extends IDatasource {
@@ -611,6 +623,16 @@ class MongodbDatasource() extends IDatasource {
       (SCHEMA.cPOIS -> Json.toJson(pois.toList))
   }
 
+  override def isAdmin(col: String): Boolean = {
+    val collection = mdb.getCollection(col)
+    val userLookUp = collection.find().first()
+    val awaited = Await.result(userLookUp.toFuture, Duration.Inf)
+    val res = awaited.asInstanceOf[Document]
+    if (res == null)
+      return true
+    return false
+  }
+
   override def getFromKeyAsJson(collection: String, key: String, value: String): JsValue = {
     if (key == null || key.trim().isEmpty) {
       throw new IllegalArgumentException("No null or empty string allowed as key!")
@@ -623,7 +645,7 @@ class MongodbDatasource() extends IDatasource {
       db_res
     } catch {
       case e: IOException => {
-        LPLogger.error("CouchbaseDatasource::getFromKeyAsJson():: Could not convert document from Couchbase into JSON!")
+        LPLogger.error("Couldn't find the document.")
         null
       }
     }
@@ -775,8 +797,6 @@ class MongodbDatasource() extends IDatasource {
         val f = (floor \ SCHEMA.fFloorNumber).as[String]
         val tempBool = deleteAllByFloor(buid, f)
         ret = ret && tempBool
-        val cachedColBool = deleteAffectedHeatmaps(buid, f)
-        ret = ret && cachedColBool
       }
     }
 
@@ -834,8 +854,8 @@ class MongodbDatasource() extends IDatasource {
   }
 
   override def deleteAllByFloor(buid: String, floor_number: String): Boolean = {
-    LPLogger.debug("deleteAllByFloor::")
-    LPLogger.debug("Cascade deletion: edges reaching this floor, edges of this floor," +
+    LPLogger.D3("deleteAllByFloor::")
+    LPLogger.D3("Cascade deletion: edges reaching this floor, edges of this floor," +
       " pois of this floor, floorplan(mongoDB), floorplan image(server)")
     var collection = mdb.getCollection(SCHEMA.cEdges)
 
@@ -864,14 +884,24 @@ class MongodbDatasource() extends IDatasource {
     val bool3 = res.wasAcknowledged()
     LPLogger.debug("pois in building with buid: " + buid + " " + res.toString)
 
+    // delets 7 cached collections
+    val queryCached = BsonDocument(SCHEMA.fBuid -> buid)
+    collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
+    deleted = collection.deleteMany(queryCached)
+    awaited = Await.result(deleted.toFuture, Duration.Inf)
+    res = awaited
+    val bool4 = res.wasAcknowledged()
+    LPLogger.debug("fingerprints with buid " + buid + " " + res.toString)
+    val bool5 = deleteAffectedHeatmaps(buid, floor_number)
+
     // this query will delete the floor it self
     collection = mdb.getCollection(SCHEMA.cFloorplans)
     deleted = collection.deleteMany(queryFloor)
     awaited = Await.result(deleted.toFuture, Duration.Inf)
     res = awaited
-    val bool4 = res.wasAcknowledged()
+    val bool6 = res.wasAcknowledged()
     LPLogger.debug("floorplan with buid " + buid + " " + res.toString)
-    bool1 && bool2 && bool3 && bool4
+    bool1 && bool2 && bool3 && bool4 && bool5 & bool6
   }
 
   override def deleteAllByConnection(cuid: String): java.util.List[String] = {
@@ -1496,8 +1526,8 @@ class MongodbDatasource() extends IDatasource {
     val res = awaited.toList
     val listJson = convertJson(res)
     for (rss <- listJson) {
-      if (floorFetched > floorLimit)
-        break
+      //if (floorFetched > floorLimit)
+      //  break
       totalFetched += 1
       if ((rss \ SCHEMA.fFloor).as[String] == floor_number) {
         floorFetched += 1
@@ -1589,7 +1619,47 @@ class MongodbDatasource() extends IDatasource {
     ret.toList
   }
 
-  override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = ???
+  override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
+    predictFloorFast(algo, bbox, strongestMACs)
+  }
+
+  private def predictFloorFast(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
+    val collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
+    var totalFetched = 0
+
+    for (strongestMAC <- strongestMACs) {
+      val query: conversions.Bson = and(geoWithinBox(SCHEMA.fGeometry, bbox(0).dlat, bbox(0).dlon, bbox(1).dlat, bbox(1).dlon),
+        equal(SCHEMA.fStrongestWifi, strongestMAC))
+      val fingerprintLookup = collection.find(query)
+      val awaited = Await.result(fingerprintLookup.toFuture, Duration.Inf)
+      val res = awaited.toList
+      val listJson = convertJson(res)
+      LPLogger.D2("size = " + listJson.size)
+      if (listJson.size != 0) {
+        val bucket = new java.util.ArrayList[JsValue](10)
+        var _floor = "0"
+        for (json <- listJson) {
+          val measurements = (json \ SCHEMA.fMeasurements).as[List[List[String]]]
+          for (measurement <- measurements) {
+            val fingerprint = unrollFingerprint(json, measurement)
+            val MAC = (fingerprint \ SCHEMA.fMac).as[String]
+            if (MAC == strongestMAC) {
+              algo.proccess(bucket, _floor)
+              bucket.clear()
+              _floor = (fingerprint \ SCHEMA.fFloor).as[String]
+              bucket.add(fingerprint)
+              totalFetched += 1
+            }
+          }
+        }
+      }
+    }
+
+    if (totalFetched > 10)
+      true
+    else
+      false
+  }
 
   override def deleteRadiosInBox(): Boolean = ???
 
@@ -1737,15 +1807,23 @@ class MongodbDatasource() extends IDatasource {
     return convertJson(res)
   }
 
+
+
+  def createOwnerId(username: String): String = {
+    username + "_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYYYMMdd_HHmmss"))
+  }
+
   override def register(col: String, name: String, email: String, username: String, password: String, external: String,
-                        accType: String): Boolean = {
-    val accessToken = "autoEinaitoAccessToken"
-    val owner_id = "local_" + "owner_id"
+                        accType: String): JsValue = {
+
+    val accessToken = generateAccessToken(true)
+    val owner_id = createOwnerId(username) + "_local"
     val json: JsValue = Json.obj("name" -> JsString(name), SCHEMA.fEmail -> JsString(email),
       SCHEMA.fUsername -> JsString(username), SCHEMA.fPassword -> JsString(password),
       SCHEMA.fAccessToken -> JsString(accessToken), SCHEMA.fExternal -> JsString(external),
       SCHEMA.fType -> JsString(accType), SCHEMA.fOwnerId -> JsString(owner_id))
-    return addJsonDocument(SCHEMA.cUsers, json.toString())
+    addJsonDocument(SCHEMA.cUsers, json.toString())
+    return json.as[JsObject] - SCHEMA.fPassword
   }
 
 }

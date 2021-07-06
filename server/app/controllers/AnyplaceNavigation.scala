@@ -40,7 +40,7 @@ import java.util.{ArrayList, HashMap, List}
 
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import db_models.NavResultPoint
-import json.VALIDATE.{Coordinate, String, StringNumber}
+import json.VALIDATE
 import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, Request, Result}
@@ -61,12 +61,8 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceNavigation::getBuildingById():: " + json.toString)
-        val notFound = JsonUtils.hasProperties(json, SCHEMA.fBuid)
-        if (!notFound.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(notFound)
-        }
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
+        if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
           val doc = ProxyDataSource.getIDatasource.buildingFromKeyAsJson(buid)
@@ -91,12 +87,8 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceNavigation::getPoisById():: " + json.toString)
-        val notFound = JsonUtils.hasProperties(json, SCHEMA.cPOIS)
-        if (!notFound.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(notFound)
-        }
-        if (String(json, SCHEMA.cPOIS) == null)
-          return AnyResponseHelper.bad_request("Puid field must be String!")
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.cPOIS)
+        if (checkRequirements != null) return checkRequirements
         val puid = (json \ SCHEMA.cPOIS).as[String]
         try {
           var doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
@@ -122,15 +114,9 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceNavigation::getNavigationRoute(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, "pois_from", "pois_to")
-        if (!requiredMissing.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        }
-        if (String(json, "pois_from") == null)
-          return AnyResponseHelper.bad_request("pois_from field must be String!")
+        val checkRequirements = VALIDATE.checkRequirements(json, "pois_from", "pois_to")
+        if (checkRequirements != null) return checkRequirements
         val puid_from = (json \ "pois_from").as[String]
-        if (String(json, "pois_to") == null)
-          return AnyResponseHelper.bad_request("pois_to field must be String!")
         val puid_to = (json \ "pois_to").as[String]
         if (puid_from.equalsIgnoreCase(puid_to)) {
           return AnyResponseHelper.bad_request("Destination and Source is the same!")
@@ -175,20 +161,12 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceNavigation::getNavigationRouteXY():: " + json.toString)
-        val notFound = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
           "pois_to")
-        if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
-        if (Coordinate(json, SCHEMA.fCoordinatesLat) == null)
-          return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
+        if (checkRequirements != null) return checkRequirements
         val coordinates_lat = (json \ SCHEMA.fCoordinatesLat).as[String]
-        if (Coordinate(json, SCHEMA.fCoordinatesLon) == null)
-          return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
         val coordinates_lon = (json \ SCHEMA.fCoordinatesLon).as[String]
-        if (StringNumber(json, SCHEMA.fFloorNumber) == null)
-          return AnyResponseHelper.bad_request("Floor_number field must be String, containing a number!")
         val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
-        if (String(json, "pois_to") == null)
-          return AnyResponseHelper.bad_request("pois_to field must be String!")
         val puid_to = (json \ "pois_to").as[String]
         var res: Result = null
         try {

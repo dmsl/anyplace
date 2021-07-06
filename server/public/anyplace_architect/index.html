@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html ng-app="anyArchitect">
 <head>
-    <script type='text/javascript'>
-        $(document).ready(function () {
-            if ($("[rel=tooltip]").length) {
-                $("[rel=tooltip]").tooltip();
-            }
-        });
-    </script>
     <!--<script>-->
     <!--   if (window.location.protocol != "https:")-->
     <!--       window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);-->
@@ -77,6 +70,14 @@
 
     <!--<script src="/bower_components/angular-cookies/angular-cookies.js"></script>-->
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular-cookies.js"></script>
+
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            if ($("[rel=tooltip]").length) {
+                $("[rel=tooltip]").tooltip();
+            }
+        });
+    </script>
 
 </head>
 <body>
@@ -163,11 +164,11 @@
                         </div>
 
                         <div class="cntnr" ng-controller="BuildingController as buildingCtrl">
-                            <label for="uname"><b>Email</b></label>
-                            <input ng-model="creds.username" type="text" placeholder="Enter Email" name="uname" required>
+                            <label for="uname"><b>Username</b></label>
+                            <input ng-model="user.username" type="text" placeholder="Enter Username" name="uname" maxlength="32" required>
 
                             <label for="psw"><b>Password</b></label>
-                            <input ng-model="creds.password" type="password" placeholder="Enter Password" id="sPsw" required>
+                            <input ng-model="user.password" type="password" placeholder="Enter Password" id="sPsw" maxlength="32" required>
                             <label>
                                 <input type="checkbox" onclick="showPassword('sPsw')"> Show password
                             </label>
@@ -194,16 +195,16 @@
 
                         <div class="cntnr" ng-controller="BuildingController as buildingCtrl">
                             <label for="name"><b>Full Name</b></label>
-                            <input ng-model="user.name" type="text" placeholder="Enter Name" name="name" required>
+                            <input ng-model="user.name" type="text" placeholder="Enter Name and Surname" name="name" maxlength="32" required>
 
                             <label for="mail"><b>Email</b></label>
-                            <input ng-model="user.email" type="email" placeholder="Enter Email" name="mail" required>
+                            <input ng-model="user.email" type="email" placeholder="Enter Email" name="mail" maxlength="128" required>
 
                             <label for="uname"><b>Username</b></label>
-                            <input ng-model="user.username" type="text" placeholder="Enter Username" name="uname" required>
+                            <input ng-model="user.username" type="text" placeholder="Enter Username" name="uname" maxlength="32" required>
 
                             <label for="psw"><b>Password</b></label>
-                            <input ng-model="user.password" type="password" placeholder="Enter Password" id="rPsw" required>
+                            <input ng-model="user.password" type="password" placeholder="Enter Password" id="rPsw" maxlength="32" required>
                             <label>
                                 <input type="checkbox" onclick="showPassword('rPsw')"> Show password
                             </label>

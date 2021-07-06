@@ -75,20 +75,20 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
     }
 
     $scope.fetchAllPoiBasedOnLocation = function (letters , location) {
-
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus, "letters":letters, "greeklish":$scope.greeklish };
+        var jsonReq = { "access-control-allow-origin": "", "content-encoding": "gzip",
+            "access-control-allow-credentials": "true", "content-length": "17516",
+            "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus,
+            "letters":letters, "greeklish":$scope.greeklish };
+        if (jsonReq.greeklish == null) jsonReq.greeklish = "true";
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
                 var data = resp.data;
                 $scope.myallPois = data.pois;
-
                 var sz = $scope.myallPois.length;
-
                 for (var i = sz - 1; i >= 0; i--) {
                     $scope.myallPois[i].buname=$scope.myBuildingsnames[$scope.myallPois[i].buid];
                 }
-
             },
             function (resp) {
                 if (letters=="") {
@@ -236,7 +236,7 @@ app.controller('LocationSearchController', ['$scope', '$compile', 'GMapService',
                 // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
                 $scope.greeklish = data.greeklish;
 
                 var infowindow = new google.maps.InfoWindow({

@@ -47,7 +47,7 @@ import utils.GeoPoint // TODO: Will use play.json
 trait IDatasource {
 
   def register(collection: String, name: String, email: String, username: String, password: String,
-               external: String, accType: String): Boolean
+               external: String, accType: String): JsValue
 
   def login(collection: String, username: String, password: String): List[JsValue]
 
@@ -221,4 +221,6 @@ trait IDatasource {
   def generateHeatmaps(): Boolean
 
   def deleteNotValidDocuments(): Boolean
+
+  def isAdmin(col: String): Boolean
 }

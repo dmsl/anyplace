@@ -351,7 +351,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.predictFloor(algo, bbox, strongestMACs)
+    mongoDB.predictFloor(algo, bbox, strongestMACs)
   }
 
   override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
@@ -455,8 +455,13 @@ class ProxyDataSource private() extends IDatasource {
   }
 
   override def register(collection: String, name: String, email: String, username: String, password: String,
-                        external: String, accType: String): Boolean = {
+                        external: String, accType: String): JsValue = {
     _checkActiveDatasource()
     mongoDB.register(collection, name, email, username, password, external, accType)
+  }
+
+  override def isAdmin(col: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.isAdmin(col)
   }
 }

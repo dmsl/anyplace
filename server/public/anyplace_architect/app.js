@@ -138,14 +138,13 @@ app.service('GMapService', function () {
         return tile;
     };
 
-    var mapTypeId = "roadmap";
+    var mapTypeId = DEFAULT_MAP_TILES;
     if (typeof(Storage) !== "undefined" && localStorage) {
         if (localStorage.getItem('mapTypeId'))
             mapTypeId = localStorage.getItem('mapTypeId');
         else
-            localStorage.setItem("mapTypeId", "roadmap");
+            localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);
     }
-
 
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
@@ -161,6 +160,7 @@ app.service('GMapService', function () {
         zoom: 3,
         mapTypeId: mapTypeId,
         mapTypeControlOptions: {
+            // TODO:NN if cartodark exists un-comment
             mapTypeIds: ['OSM', /* 'CartoDark',*/ 'CartoLight', /* 'coordinate',*/ 'roadmap', 'satellite'],
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             position: google.maps.ControlPosition.LEFT_CENTER

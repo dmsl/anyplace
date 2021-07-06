@@ -220,18 +220,80 @@ function getMapsIconFingerprint(gmaps, fingerPrintsData) {
     });
 }
 
+function clearFingerprintCoverage() {
+    var check = 0;
+    if (heatMap[check] !== undefined && heatMap[check] !== null) {
+
+        var i = heatMap.length;
+        while (i--) {
+            heatMap[i].rectangle.setMap(null);
+            heatMap[i] = null;
+        }
+        heatMap = [];
+        document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+        _HEATMAP_FINGERPRINT_COVERAGE = false;
+        setColorClicked('g', false);
+        setColorClicked('y', false);
+        setColorClicked('o', false);
+        setColorClicked('p', false);
+        setColorClicked('r', false);
+        $scope.radioHeatmapRSSMode = false;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('radioHeatmapRSSMode', 'NO');
+        }
+        $scope.anyService.radioHeatmapRSSMode = false;
+        $scope.radioHeatmapRSSHasGreen = false;
+        $scope.radioHeatmapRSSHasYellow = false;
+        $scope.radioHeatmapRSSHasOrange = false;
+        $scope.radioHeatmapRSSHasPurple = false;
+        $scope.radioHeatmapRSSHasRed = false;
+        $cookieStore.put('RSSClicked', 'NO');
+
+    }
+}
+
+function clearFingerprintHeatmap() {
+    var check = 0;
+    if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
+        var i = fingerPrintsMap.length;
+        //hide fingerPrints
+        while (i--) {
+            fingerPrintsMap[i].setMap(null);
+            fingerPrintsMap[i] = null;
+        }
+        fingerPrintsMap = [];
+        _FINGERPRINTS_IS_ON = false;
+        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+    }
+
+    if (heatmap && heatmap.getMap()) { //hide fingerPrints heatmap
+        heatmap.setMap(null);
+        _FINGERPRINTS_IS_ON = false;
+        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        _HEATMAP_F_IS_ON = false;
+        var i = heatmapFingerprints.length;
+        while (i--) {
+            heatmapFingerprints[i] = null;
+        }
+        heatmapFingerprints = [];
+    }
+}
+
 function isNullOrEmpty(value){
     return (value == null || value == undefined || value == "" || value == "-");
 }
 
+// TODO:NN class problem: already defined
 class LOG {
     static level = 3;
     static DBG1() { return 1 <= LOG.level; }
     static DBG2() { return 2 <= LOG.level; }
     static DBG3() { return 3 <= LOG.level; }
+    static DBG4() { return 4 <= LOG.level; }
 
     static D1(msg) { if (LOG.DBG1()) console.log(msg);}
     static D2(msg) { if (LOG.DBG2()) console.log(msg);}
     static D3(msg) { if (LOG.DBG3()) console.log(msg);}
+    static D4(msg) { if (LOG.DBG4()) console.log(msg);}
 }
 

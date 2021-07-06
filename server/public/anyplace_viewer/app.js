@@ -141,12 +141,12 @@ app.service('GMapService', function () {
     };
 
 
-    var mapTypeId = "roadmap";
+    var mapTypeId = DEFAULT_MAP_TILES;
     if (typeof(Storage) !== "undefined" && localStorage) {
         if (localStorage.getItem('mapTypeId'))
             mapTypeId = localStorage.getItem('mapTypeId');
         else
-            localStorage.setItem("mapTypeId", "roadmap");
+            localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);
     }
 
 

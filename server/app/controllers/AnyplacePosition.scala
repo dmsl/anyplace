@@ -40,14 +40,12 @@ import java.io._
 import java.util.ArrayList
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import controllers.AnyplaceMapping.verifyId
-import datasources.SCHEMA._
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import db_models.RadioMapRaw.findRadioBbox
 import db_models.{Floor, MagneticMilestone, MagneticPath, RadioMapRaw}
 import floor_module.Algo1
 import json.VALIDATE
-import json.VALIDATE.{String, StringNumber}
+import json.VALIDATE.StringNumber
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.lang3.time.StopWatch
 import play.Play
@@ -65,7 +63,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
   val BBOX_MAX = 500
 
   /**
-   * Upload fingerprints to server and database. 
+   * Upload fingerprints to server and database.
+   *
    * @return
    */
   def radioUpload() = Action {
@@ -73,9 +72,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
-        if (body == null) {
-          return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
-        }
+        if (body == null) {return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")}
         var rssLog: File = null
         try {
           rssLog = body.file("radiomap").get.ref.file
@@ -90,7 +87,7 @@ object AnyplacePosition extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request("Cannot find access_token in the request!")
         }
         val access_token = body_form.get(SCHEMA.fAccessToken).get.head
-        if (verifyId(access_token) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        if (anyReq.authorize(Json.obj(SCHEMA.fAccessToken -> access_token)) == null) return AnyResponseHelper.forbidden("Unauthorized")
         var ret: String = ""
         val newBuildingsFloors = RadioMap.verifyRssLogAndGetBuildingFloors(rssLog)
         if (newBuildingsFloors == null) {
@@ -136,10 +133,8 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("radioDownloadFloor: " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber)
-        if (!requiredMissing.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        }
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber)
+        if (checkRequirements != null) return checkRequirements
         // range is large enough to cover the entire floor
         return findRadioBbox(json, BBOX_MAX)
       }
@@ -156,11 +151,9 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
           SCHEMA.fFloorNumber, "range")
-        if (!requiredMissing.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        }
+        if (checkRequirements != null) return checkRequirements
         if (StringNumber(json, "range") == null) {
           return AnyResponseHelper.bad_request("range field must be String, containing a number!")
         }
@@ -186,19 +179,13 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("radioDownloadByBuildingFloor: " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val validation = VALIDATE.fields(json, fFloor, fBuid)
-        if (validation.failed()) return validation.response()
-
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (checkRequirements != null) return checkRequirements
         val floor_number = (json \ SCHEMA.fFloor).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
-
-
         if (!Floor.checkFloorNumberFormat(floor_number)) {
           return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         }
-
         //FeatureAdd : Configuring location for server generated files
         val rmapDir = getDirFrozenFloor(buid, floor_number)
         val radiomapFile = getRadiomapFile(buid, floor_number)
@@ -292,17 +279,10 @@ object AnyplacePosition extends play.api.mvc.Controller {
         }
         val json = anyReq.getJsonBody
         LPLogger.info("radioDownloadByBuildingFloorall: " + json.toString)
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
-        if (!requiredMissing.isEmpty) {
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        }
-        if (StringNumber(json, SCHEMA.fFloor) == null)
-          return AnyResponseHelper.bad_request("floor field must be String, containing a number!")
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (checkRequirements != null) return checkRequirements
         val floor_number = (json \ SCHEMA.fFloor).as[String]
-        if (String(json, SCHEMA.fBuid) == null)
-          return AnyResponseHelper.bad_request("buid field must be String!")
         val buid = (json \ SCHEMA.fBuid).as[String]
-
         val floors = floor_number.split(" ")
         val radiomap_mean_filename = new java.util.ArrayList[String]()
         val rss_log_files = new java.util.ArrayList[String]()
@@ -628,27 +608,33 @@ object AnyplacePosition extends play.api.mvc.Controller {
         try {
           alg1 = new Algo1(json)
         } catch {
-          case ex: Exception => return AnyResponseHelper.bad_request(ex.getMessage)
+          case ex: Exception => {
+            return AnyResponseHelper.bad_request(ex.getClass + ": " + ex.getMessage + ": " + ex.getCause)
+          }
         }
         try {
           val lat = json.\("dlat").as[Double]
           val lot = json.\("dlong").as[Double]
           val bbox = GeoPoint.getGeoBoundingBox(lat, lot, 100)
           val strongestMAC = new ArrayList[String](2)
-          if (json.\("first").getOrElse(null) != null) return AnyResponseHelper.bad_request("Sent first Wifi")
+          if (json.\("first").getOrElse(null) == null) return AnyResponseHelper.bad_request("Sent first Wifi")
           strongestMAC.add(json.\("first").\(SCHEMA.fMac).as[String])
           if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\(SCHEMA.fMac).as[String])
+          LPLogger.D2("strongestMAC " + strongestMAC)
           val res = JsonObject.empty()
+          var msg = ""
           if (ProxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
             res.put(SCHEMA.fFloor, alg1.getFloor)
+            msg = "Successfully predicted floor."
           } else {
             res.put(SCHEMA.fFloor, "")
+            msg = "Could not predict floor."
           }
           watch.stop()
           LPLogger.info("Time for Algo1 is millis: " + watch.getNanoTime / 1000000)
-          AnyResponseHelper.ok(res, "Successfully predicted Floor.")
+          AnyResponseHelper.ok(res, msg)
         } catch {
-          case e: Exception => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: Exception => AnyResponseHelper.internal_server_error("500: " + e.getMessage + ": " + e.getCause)
         }
       }
 

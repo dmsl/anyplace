@@ -64,6 +64,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fOwnerId, "")
     fields.put(SCHEMA.fName, "")
     fields.put(SCHEMA.fType, "")
+    fields.put(SCHEMA.fAccessToken, "")
   }
 
 
@@ -76,6 +77,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fType, (json \ SCHEMA.fType).as[String])
     if ((json \ SCHEMA.fExternal).toOption.isDefined)
       fields.put(SCHEMA.fExternal, (json \ SCHEMA.fExternal).as[String])
+    fields.put(SCHEMA.fAccessToken, MongodbDatasource.generateAccessToken(false))
     this.json = json
   }
 

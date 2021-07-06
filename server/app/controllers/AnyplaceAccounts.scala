@@ -436,23 +436,18 @@ object AnyplaceAccounts extends Controller {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+
         val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(
-            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        }
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.D2("json = " + json)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
+        if (checkRequirements != null) return checkRequirements
 
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fUsername, SCHEMA.fPassword)
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val validation = VALIDATE.fields(json, SCHEMA.fUsername, SCHEMA.fPassword)
-        if (validation.failed()) return validation.response()
-
+        LPLogger.D2("login = " + json)
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
         val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
-        if (storedUser == null) return AnyResponseHelper.bad_request("User doesn't exist!")
+        if (storedUser == null) return AnyResponseHelper.bad_request("Incorrect username or password!")
         if (storedUser.size > 1) return AnyResponseHelper.bad_request("More than one users were found!")
         val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
         if (accessToken == null) return AnyResponseHelper.bad_request("User doesn't have access token!")
@@ -467,39 +462,31 @@ object AnyplaceAccounts extends Controller {
 
   def register() = Action {
     implicit request =>
-
       def inner(request: Request[AnyContent]): Result = {
         val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(
-            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        }
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.D2("json = " + json)
-
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val validation = VALIDATE.fields(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
-        if (validation.failed()) return validation.response()
-
+        LPLogger.D2("register: " + json)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
+        if (checkRequirements != null) return checkRequirements
         val name = (json \ SCHEMA.fName).as[String]
         val email = (json \ SCHEMA.fEmail).as[String]
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
         val external = "anyplace"
-        val accType = "user"
-
-        val storedUsername = ???
-
-        val storedEmail = ???
-
-        // TODO: check username uniqueness
-        val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
-        if (storedUser != null) return AnyResponseHelper.bad_request("User already exist!")
-
+        var accType = "user"
+        if (ProxyDataSource.getIDatasource().isAdmin(SCHEMA.cUsers)) // if first user then assign as admin
+          accType = "admin"
+        // Check if the email is unique
+        val storedEmail = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
+        if (storedEmail != null) return AnyResponseHelper.bad_request("There is already an account with this email.")
+        // Check if the username is unique
+        val storedUsername = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
+        if (storedUsername != null) return AnyResponseHelper.bad_request("Username is already taken.")
         val newUser = ProxyDataSource.getIDatasource().register(SCHEMA.cUsers, name, email, username, password, external, accType)
-
-        return AnyResponseHelper.ok("Succefully registered!")
+        if (newUser == null) return AnyResponseHelper.bad_request("Please try again.")
+        val res: JsValue = Json.obj("newUser" -> newUser)
+        return AnyResponseHelper.ok(res,"Succefully registered!")
       }
 
       inner(request)

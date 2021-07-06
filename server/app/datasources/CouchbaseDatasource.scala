@@ -501,7 +501,7 @@ class CouchbaseDatasource private(hostname: String,
         case e: Exception => all_items_failed.add(id)
       }
     }
-    all_items_failed
+    //all_items_failed
     false
   }
 
@@ -1360,46 +1360,44 @@ class CouchbaseDatasource private(hostname: String,
     val viewName = "group_wifi"
     val couchbaseClient = getConnection
     var totalFetched = 0
-    for (strongestMAC <- strongestMACs) {
+    var count = 0
 
+    for (strongestMAC <- strongestMACs) {
+      LPLogger.debug("strongestMAC = " + strongestMAC)
       /**
         * val startkey: ComplexKey = ComplexKey.of(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon), null)
         * val endkey: ComplexKey = ComplexKey.of(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon), "࿿")
         *query.setRange(startkey, endkey)
         */
-
       val viewQuery = ViewQuery.from(designDoc, viewName)
         .startKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
         .endKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
       val response = couchbaseClient.query(viewQuery)
 
-
-      var _timestamp = ""
       var _floor = "0"
-      val bucket = new ArrayList[JsonObject](10)
-      if (response.nonEmpty)
-        for (row <- response) {
-          try {
-            val timestamp = row.key.toString
-            if (timestamp == strongestMAC || timestamp == "࿿") {
-              val value = row.value().asInstanceOf[JsonObject]
-              if (_timestamp != timestamp) {
-                if (_timestamp != "") {
-                  //algo.proccess(bucket, _floor)
-                }
-                bucket.clear()
-                _timestamp = timestamp
-                _floor = value.getString("floor")
-              }
-              bucket.add(value)
+      val bucket = new ArrayList[JsValue](10)
+
+      for (row <- response) {
+        try {
+
+            val value = row.value().asInstanceOf[JsonObject]
+            val MAC = value.getString(SCHEMA.fMac)
+
+            if (MAC == strongestMAC) {
+              count = count +1
+              algo.proccess(bucket, _floor)
+              bucket.clear()
+              _floor = value.getString("floor")
+              bucket.add(Json.parse(value.toString()))
               totalFetched += 1
             }
-          } catch {
-            case e: IOException => //continue
-          }
+        } catch {
+          case e: IOException => LPLogger.D2("" + e.getClass + ": " + e.getMessage + ": " + e.getCause)
         }
+      }
     }
-    LPLogger.D3("predictFloorFast fetched: " + totalFetched)
+    LPLogger.D2("predictFloorFast fetched: " + totalFetched)
+    LPLogger.D2("COUNt = " + count)
     if (totalFetched > 10) {
       true
     } else {
@@ -2161,5 +2159,7 @@ class CouchbaseDatasource private(hostname: String,
   override def login(collection: String, username: String, password: String): List[JsValue] = ???
 
   override def register(collection: String, name: String, email: String, username: String, password: String,
-                        external: String, accType: String): Boolean = ???
+                        external: String, accType: String): JsValue = ???
+
+  override def isAdmin(col: String): Boolean = ???
 }

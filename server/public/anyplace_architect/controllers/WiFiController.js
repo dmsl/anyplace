@@ -131,10 +131,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         $scope.crudTabSelected = n;
     };
     $scope.isCrudTabSelected = function (n) {
-
         return $scope.crudTabSelected === n;
     };
-
 
     $scope.data = {
         floor_plan_coords: {},
@@ -1297,13 +1295,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             if (confirmation) {
                 var b = $scope.anyService.getBuilding();
                 var f = $scope.anyService.getFloorNumber();
-                var reqObj = $scope.creds;
-
-                if (!$scope.owner_id) {
-                    _err($scope, "Could not identify user. Please refresh and sign in again.");
-                    return;
-                }
-                reqObj.owner_id = $scope.owner_id;
+                var reqObj = {};
                 if (!b || !b.buid) {
                     _err($scope, "No building selected");
                     return;
@@ -2219,7 +2211,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     // REVIEWLS using lsolea code
     GMapService.gmap.addListener('zoom_changed', function () {
-        LOG.D2("GMapService:on_zoom_changed");
+        LOG.D4("GMapService:on_zoom_changed");
 
         _currentZoomLevel = GMapService.gmap.getZoom();
 
