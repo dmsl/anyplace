@@ -1,4 +1,4 @@
-# Anyplace v4.2.beta (MongoDB)
+# Anyplace v4.2 (MongoDB)
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
