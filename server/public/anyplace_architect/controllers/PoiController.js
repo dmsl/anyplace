@@ -82,10 +82,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     });
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
-        //if (newVal && newVal.buid && newVal.poistypeid) {
-        //$scope.fetchAllPoisTypes(newVal.poistypeid);
-        //}
-        //else {
         $scope.poisTypes = [
             "Disabled Toilets",
             "Elevator",
@@ -223,96 +219,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 break;
             }
         }
-    };
-
-    $scope.addcategory = function () {
-
-        var name_element = document.getElementById("poistype");
-        var name = "\"poistype\":\"" + name_element.value + "\"";
-
-        function S4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
-
-        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
-        var d = new Date();
-
-
-        var poistypeid = "poistypeid_" + guid + "_" + d.getTime();
-        poistypeid = "\"poistypeid\":\"" + poistypeid + "\"";
-
-        var sz = $scope.poicategories.length;
-
-        if (sz == 0) {
-            _err($scope, "No categories added.");
-            return;
-        }
-
-        var types = "\"types\":[";
-        for (var i = sz - 1; i > 0; i--) {
-            if ($scope.poicategories[i].poicat != "") {
-                types = types + "\"" + $scope.poicategories[i].poicat + "\",";
-            }
-        }
-        types = types + "\"" + $scope.poicategories[0].poicat + "\"]";
-
-        var jreq = "{" + name + "," + poistypeid + "," + types + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
-
-        var promise = $scope.anyAPI.addCategory(jreq);
-        promise.then(
-            function (resp) {
-                // on success
-                var data = resp.data;
-                _suc($scope, "Successfully added category.");
-            },
-            function (resp) {
-                ShowError($scope, resp, "Something went wrong while adding the category.", true);
-            }
-        );
-
-    };
-
-
-    $scope.fetchAllPoisTypes = function (poistypeid) {
-
-        //TODO: validation
-
-        var jsonReq = $scope.anyService.jsonReq;
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-        jsonReq.owner_id = $scope.owner_id;
-        jsonReq.access_token = $scope.gAuth.access_token;
-        jsonReq.poistypeid = poistypeid;
-
-        if (!jsonReq.owner_id) {
-            _err($scope, ERR_USER_AUTH);
-            return;
-        }
-        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
-        promise.then(
-            function (resp) {
-                var data = resp.data;
-
-                var poistypes = data.poistypes;
-
-                var sz = poistypes.length;
-                for (var i = sz - 1; i >= 0; i--) {
-                    if (poistypes[i].poistypeid == poistypeid) {
-                        var types = poistypes[i].types;
-                        break;
-                    }
-                }
-
-                var sz = types.length;
-                for (var i = sz - 1; i >= 0; i--) {
-                    $scope.poisTypes[i] = types[i];
-                }
-            },
-            function (resp) {
-                ShowError($scope, resp,"Something went wrong while fetching POIs types", true);
-            }
-        );
     };
 
 
@@ -1515,7 +1421,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
-            + '<fieldset class="form-group">Or ender your one type name:'
+            + '<fieldset class="form-group">Or enter your one type name:'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
             + '</fieldset>'
             + '<fieldset class="form-group">'
@@ -1555,7 +1461,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
-            + '<fieldset class="form-group">Or ender your one type name:'
+            + '<fieldset class="form-group">Or enter your one type name:'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
             + '</fieldset>'
             + '<fieldset class="form-group">'

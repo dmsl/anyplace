@@ -52,7 +52,7 @@ abstract class AbstractModel {
 
     def getId(): String
 
-    def toValidCouchJson(): JsonObject
+    def toValidJson(): JsonObject
 
-    def toCouchGeoJSON(): String
+    def toGeoJSON(): String
 }

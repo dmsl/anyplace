@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -38,76 +39,100 @@ package db_models
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import utils.JsonUtils.convertToInt
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 object Connection {
 
-    val EDGE_TYPE_STAIR = "stair"
+  val EDGE_TYPE_STAIR = "stair"
+  val EDGE_TYPE_ELEVATOR = "elevator"
+  val EDGE_TYPE_HALLWAY = "hallway"
+  val EDGE_TYPE_ROOM = "room"
+  val EDGE_TYPE_OUTDOOR = "outdoor"
 
-    val EDGE_TYPE_ELEVATOR = "elevator"
-
-    val EDGE_TYPE_HALLWAY = "hallway"
-
-    val EDGE_TYPE_ROOM = "room"
-
-    val EDGE_TYPE_OUTDOOR = "outdoor"
-
-    def getId(pois_a: String, pois_b: String): String = "conn_" + pois_a + "_" + pois_b
+  def getId(pois_a: String, pois_b: String): String = "conn_" + pois_a + "_" + pois_b
 }
 
 class Connection(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsonObject = _
+  private var json: JsValue = _
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new HashMap[String, String])
-        fields.put("is_published", "")
-        fields.put("edge_type", "")
-        fields.put("pois_a", "")
-        fields.put("pois_b", "")
-        fields.put("weight", "")
-        fields.put("buid", "")
-        fields.put("floor_a", "")
-        fields.put("floor_b", "")
-        fields.put("buid_a", "")
-        fields.put("buid_b", "")
-        fields.put("cuid", "")
+  def this() {
+    this(new HashMap[String, String])
+    fields.put(SCHEMA.fIsPublished, "")
+    fields.put(SCHEMA.fEdgeType, "")
+    fields.put(SCHEMA.fPoisA, "")
+    fields.put(SCHEMA.fPoisB, "")
+    fields.put(SCHEMA.fWeight, "")
+    fields.put(SCHEMA.fBuid, "")
+    fields.put(SCHEMA.fFloorA, "")
+    fields.put(SCHEMA.fFloorB, "")
+    fields.put(SCHEMA.fBuidA, "")
+    fields.put(SCHEMA.fBuidB, "")
+    fields.put(SCHEMA.fConCuid, "")
+  }
+
+  def this(json: JsValue) {
+    this()
+    if ((json \ SCHEMA.fIsPublished).toOption.isDefined)
+      fields.put(SCHEMA.fIsPublished, (json \ SCHEMA.fIsPublished).as[String])
+    if ((json \ SCHEMA.fEdgeType).toOption.isDefined)
+      fields.put(SCHEMA.fEdgeType, (json \ SCHEMA.fEdgeType).as[String])
+    if ((json \ SCHEMA.fPoisA).toOption.isDefined)
+      fields.put(SCHEMA.fPoisA, (json \ SCHEMA.fPoisA).as[String])
+    if ((json \ SCHEMA.fPoisB).toOption.isDefined)
+      fields.put(SCHEMA.fPoisB, (json \ SCHEMA.fPoisB).as[String])
+    if ((json \ SCHEMA.fWeight).toOption.isDefined)
+      fields.put(SCHEMA.fWeight, (json \ SCHEMA.fWeight).as[String])
+    if ((json \ SCHEMA.fBuid).toOption.isDefined)
+      fields.put(SCHEMA.fBuid, (json \ SCHEMA.fBuid).as[String])
+    if ((json \ SCHEMA.fFloorA).toOption.isDefined)
+      fields.put(SCHEMA.fFloorA, (json \ SCHEMA.fFloorA).as[String])
+    if ((json \ SCHEMA.fFloorB).toOption.isDefined)
+      fields.put(SCHEMA.fFloorB, (json \ SCHEMA.fFloorB).as[String])
+    if ((json \ SCHEMA.fBuidA).toOption.isDefined)
+      fields.put(SCHEMA.fBuidA, (json \ SCHEMA.fBuidA).as[String])
+    if ((json \ SCHEMA.fBuidB).toOption.isDefined)
+      fields.put(SCHEMA.fBuidB, (json \ SCHEMA.fBuidB).as[String])
+    if ((json \ SCHEMA.fConCuid).toOption.isDefined)
+      fields.put(SCHEMA.fConCuid, (json \ SCHEMA.fConCuid).as[String])
+    this.json = json
+  }
+
+  def getId(): String = {
+    var cuid: String = fields.get(SCHEMA.fConCuid)
+    if (cuid == null || cuid.isEmpty || cuid == "") {
+      cuid = Connection.getId((json \ SCHEMA.fPoisA).as[String], (json \ SCHEMA.fPoisB).as[String])
+      fields.put(SCHEMA.fConCuid, cuid)
+      this.json = this.json.as[JsObject] + (SCHEMA.fConCuid -> JsString(cuid))
     }
+    cuid
+  }
 
-    def this(json: JsonObject) {
-        this()
-        fields.put("is_published", json.getString("is_published"))
-        fields.put("edge_type", json.getString("edge_type"))
-        fields.put("pois_a", json.getString("pois_a"))
-        fields.put("pois_b", json.getString("pois_b"))
-        fields.put("weight", json.getString("weight"))
-        fields.put("buid", json.getString("buid"))
-        fields.put("floor_a", json.getString("floor_a"))
-        fields.put("floor_b", json.getString("floor_b"))
-        fields.put("buid_a", json.getString("buid_a"))
-        fields.put("buid_b", json.getString("buid_b"))
-        fields.put("cuid", json.getString("cuid"))
-        this.json = json
-    }
+  def toValidJson(): JsonObject = {
+    // initialize id if not initialized
+    getId()
+    JsonObject.from(this.getFields())
+  }
 
-    def getId(): String = {
-        var cuid: String = fields.get("cuid")
-        if (cuid == null || cuid.isEmpty  || cuid == "") {
-            cuid = Connection.getId(json.getString("pois_a"), json.getString("pois_b"))
-            fields.put("cuid", cuid)
-            this.json.put("cuid", cuid)
-        }
-        cuid
-    }
+  def toValidMongoJson(): JsValue = {
+    getId()
+    toJson()
+  }
 
-    def toValidCouchJson(): JsonObject = {
-        // initialize id if not initialized
-        getId()
-        JsonObject.from(this.getFields())
-    }
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt(SCHEMA.fSchema, res)
+  }
 
-    override def toCouchGeoJSON(): String = toValidCouchJson().toString
+  override def toGeoJSON(): String = toJson().toString
 
-    override def toString(): String = this.toValidCouchJson().toString
+  override def toString(): String = this.toJson().toString
 }

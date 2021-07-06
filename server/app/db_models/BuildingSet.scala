@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -35,88 +36,142 @@
  */
 package db_models
 
-import utils.LPUtils
 import java.io.IOException
 import java.util.HashMap
+
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
+import play.api.libs.json.{JsObject, JsValue, Json}
+import utils.JsonUtils.convertToInt
+import utils.LPUtils
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 
 class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsonObject = _
+  private var json: JsValue = _
 
-    private var lat: Double = _
+  private var lat: Double = _
 
-    private var lng: Double = _
+  private var lng: Double = _
 
-    private var admins: Array[String] = Array("112997031510415584062_google")
+  private var admins: Array[String] = Array("112997031510415584062_google")
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new HashMap[String, String])
-        fields.put("owner_id", "")
-        fields.put("cuid", "")
-        fields.put("name", "")
-        fields.put("description", "")
-        fields.put("greeklish", "")
-        fields.put("buids", "[]")
+  def this() {
+    this(new HashMap[String, String])
+    fields.put(SCHEMA.fOwnerId, "")
+    fields.put(SCHEMA.fCampusCuid, "")
+    fields.put(SCHEMA.fName, "")
+    fields.put(SCHEMA.fDescription, "")
+    fields.put(SCHEMA.fGreeklish, "")
+    fields.put(SCHEMA.fBuids, "[]")
+  }
+
+  def this(json: JsValue) = {
+    this()
+    if ((json \ SCHEMA.fOwnerId).toOption.isDefined)
+      fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])
+    if ((json \ SCHEMA.fCampusCuid).toOption.isDefined)
+      fields.put(SCHEMA.fCampusCuid, (json \ SCHEMA.fCampusCuid).as[String])
+    if ((json \ SCHEMA.fName).toOption.isDefined)
+      isEmptyDeleteElseAdd(json, SCHEMA.fName)
+    else
+      fields.remove(SCHEMA.fName)
+    if ((json \ SCHEMA.fGreeklish).toOption.isDefined)
+      isEmptyDeleteElseAdd(json, SCHEMA.fGreeklish)
+    else
+      fields.remove(SCHEMA.fGreeklish)
+    if ((json \ SCHEMA.fDescription).toOption.isDefined) {
+      isEmptyDeleteElseAdd(json, SCHEMA.fDescription)
+    } else {
+      fields.remove(SCHEMA.fDescription)
     }
+    this.json = json
 
-    def this(json: JsonObject) = {
-        this()
-        fields.put("owner_id", json.getString("owner_id"))
-        fields.put("cuid", json.getString("cuid"))
-        fields.put("name", json.getString("name"))
-        fields.put("greeklish", json.getString("greeklish"))
-        fields.put("description", json.getString("description"))
-        this.json = json
+  }
+
+  def this(json: JsValue, owner: String) = {
+    this(json)
+    fields.put(SCHEMA.fOwnerId, owner)
+  }
+
+  def isEmptyDeleteElseAdd(json: JsValue, key: String) {
+    val temp = (json \ key).as[String]
+    if (temp != "" && temp != null && temp != "-") {
+      fields.put(key, temp)
+    } else {
+      fields.remove(key)
     }
+  }
 
-    def this(json: JsonObject, owner: String) = {
-        this(json)
-        fields.put("owner_id", owner)
+  def getId(): String = {
+    var cuid: String = fields.get(SCHEMA.fCampusCuid)
+    if (cuid.isEmpty || cuid.==("")) {
+      val finalId: String = LPUtils.getRandomUUID + "_" + System
+        .currentTimeMillis()
+      fields.put(SCHEMA.fCampusCuid, "cuid_" + finalId)
+      cuid = fields.get(SCHEMA.fCampusCuid)
+      this.json.as[JsObject] + (SCHEMA.fCampusCuid -> Json.toJson(cuid))
     }
+    cuid
+  }
 
-    def getId(): String = {
-        var cuid: String = fields.get("cuid")
-        if (cuid.isEmpty || cuid.==("")) {
-            val finalId: String = LPUtils.getRandomUUID + "_" + System
-              .currentTimeMillis()
-            fields.put("cuid", "cuid_" + finalId)
-            cuid = fields.get("cuid")
-            this.json.asInstanceOf[JsonObject].put("cuid", cuid)
-        }
-        cuid
+  def toValidJson(): JsonObject = {
+    // initialize id if not initialized
+    getId()
+    JsonObject.from(this.getFields())
+  }
+
+  def toValidMongoJson(): JsValue = {
+    getId()
+    toJson()
+  }
+
+
+  def toGeoJSON(): String = {
+    val sb: StringBuilder = new StringBuilder()
+    json = json.as[JsObject] - SCHEMA.fAccessToken
+    sb.append(this.json.toString)
+    sb.toString
+  }
+
+  def addBuids(): String = {
+    val sb: StringBuilder = new StringBuilder()
+    if ((this.json \ SCHEMA.fDescription).as[String] == "" || (this.json \ SCHEMA.fDescription).as[String] == "-")
+      this.json = this.json.as[JsObject] - SCHEMA.fDescription
+    if ((this.json \ SCHEMA.fName).as[String] == "" || (this.json \ SCHEMA.fName).as[String] == "-")
+      this.json = this.json.as[JsObject] - SCHEMA.fName
+    this.json = convertToInt(SCHEMA.fSchema, this.json)
+    sb.append(this.json.toString())
+    sb.toString
+  }
+
+  @deprecated("unused")
+  def _changeOwner(newOwnerId: String): String = {
+    val sb: StringBuilder = new StringBuilder()
+    var json: JsonObject = null
+    try {
+      this.fields.put(SCHEMA.fOwnerId, newOwnerId)
+      json = toValidJson()
+    } catch {
+      case e: IOException => e.printStackTrace()
     }
+    sb.append(json.toString)
+    sb.toString
+  }
 
-    def toValidCouchJson(): JsonObject = {
-        // initialize id if not initialized
-        getId()
-        JsonObject.from(this.getFields())
-    }
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt(SCHEMA.fSchema, res)
+  }
 
-    def toCouchGeoJSON(): String = {
-        val sb: StringBuilder = new StringBuilder()
-        json.removeKey("access_token")
-        sb.append(this.json.toString)
-        sb.toString
-    }
+  @deprecated()
+  def _toString(): String = toValidJson().toString
 
-    def changeOwner(newOwnerId: String): String = {
-        val sb: StringBuilder = new StringBuilder()
-        var json: JsonObject = null
-        try {
-            this.fields.put("owner_id", newOwnerId)
-            json = toValidCouchJson()
-        } catch {
-            case e: IOException => e.printStackTrace()
-
-        }
-        sb.append(json.toString)
-        sb.toString
-    }
-
-    override def toString(): String = toValidCouchJson().toString
-
+  override def toString(): String = toJson().toString()
 }

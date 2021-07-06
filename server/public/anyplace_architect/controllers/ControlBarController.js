@@ -33,13 +33,21 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.person = undefined;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        fullName: undefined,
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined
+    }
 
     $scope.owner_id = undefined;
     $scope.displayName = undefined;
-
+    $scope.userType = undefined;
 
     var self = this; //to be able to reference to it in a callback, you could use $scope instead
 
@@ -120,15 +128,20 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             $scope.$broadcast('loggedIn', []);
         }
 
-        // TODO console.log(scope.person) tell PM if has email
         var promise = AnyplaceAPIService.signGoogleAccount({
             name: $scope.person.displayName,
             external: "google"
         });
 
         promise.then(
-            function (resp) {},
-            function (resp) {}
+            function (resp) {
+                // console.log(resp)
+                $scope.userType = resp.data.type;
+            },
+            function (resp) {
+                console.log("error: personLookUp")
+                console.log(resp)
+            }
         );
     };
 
@@ -145,7 +158,68 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.owner_id = undefined;
         $scope.person = undefined;
 
+        clearFingerprintCoverage();
+        clearFingerprintHeatmap();
     };
+
+    function clearFingerprintCoverage() {
+        var check = 0;
+        if (heatMap[check] !== undefined && heatMap[check] !== null) {
+
+            var i = heatMap.length;
+            while (i--) {
+                heatMap[i].rectangle.setMap(null);
+                heatMap[i] = null;
+            }
+            heatMap = [];
+            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+            _HEATMAP_FINGERPRINT_COVERAGE = false;
+            setColorClicked('g', false);
+            setColorClicked('y', false);
+            setColorClicked('o', false);
+            setColorClicked('p', false);
+            setColorClicked('r', false);
+            $scope.radioHeatmapRSSMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'NO');
+            }
+            $scope.anyService.radioHeatmapRSSMode = false;
+            $scope.radioHeatmapRSSHasGreen = false;
+            $scope.radioHeatmapRSSHasYellow = false;
+            $scope.radioHeatmapRSSHasOrange = false;
+            $scope.radioHeatmapRSSHasPurple = false;
+            $scope.radioHeatmapRSSHasRed = false;
+            $cookieStore.put('RSSClicked', 'NO');
+
+        }
+    }
+
+    function clearFingerprintHeatmap() {
+        var check = 0;
+        if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
+            var i = fingerPrintsMap.length;
+            //hide fingerPrints
+            while (i--) {
+                fingerPrintsMap[i].setMap(null);
+                fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        }
+
+        if (heatmap && heatmap.getMap()) { //hide fingerPrints heatmap
+            heatmap.setMap(null);
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+            _HEATMAP_F_IS_ON = false;
+            var i = heatmapFingerprints.length;
+            while (i--) {
+                heatmapFingerprints[i] = null;
+            }
+            heatmapFingerprints = [];
+        }
+    }
 
     $scope.getCookie = function (cname) {
         var name = cname + "=";
@@ -179,17 +253,25 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         return $scope.tab === num;
     };
 
-
-    $scope.tab = 1;
-
-    $scope.setTab = function (num) {
-        $scope.tab = num;
-
+    $scope.isUserAdmin = function () {
+        if ($scope.userType == null) {
+            return false;
+        } else if ($scope.userType == undefined) {
+            return false;
+        } else if ($scope.userType == "admin") {
+            return true;
+        }
     };
-
-    $scope.isTabSet = function (num) {
-        return $scope.tab === num;
-    };
+    // CLR:NN REVIEW:PM
+    // $scope.tab = 1;
+    //
+    // $scope.setTab = function (num) {
+    //     $scope.tab = num;
+    // };
+    //
+    // $scope.isTabSet = function (num) {
+    //     return $scope.tab === num;
+    // };
 
     var _err = function (msg) {
         $scope.anyService.addAlert('danger', msg);

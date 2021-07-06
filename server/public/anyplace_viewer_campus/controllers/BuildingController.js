@@ -40,9 +40,16 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.anyAPI = AnyplaceAPIService;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined
+    }
 
     $scope.myBuildings = [];
 
@@ -169,7 +176,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) {
                 var data = resp.data;
-                var b = data.building;
+                var b = data.space;
 
                 $scope.myBuildings.push(b);
 
@@ -232,13 +239,13 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.allCucodeCampus(jsonReq);
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
                 $scope.anyService.selectedCampus = data.name;
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',

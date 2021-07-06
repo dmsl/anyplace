@@ -220,3 +220,18 @@ function getMapsIconFingerprint(gmaps, fingerPrintsData) {
     });
 }
 
+function isNullOrEmpty(value){
+    return (value == null || value == undefined || value == "" || value == "-");
+}
+
+class LOG {
+    static level = 3;
+    static DBG1() { return 1 <= LOG.level; }
+    static DBG2() { return 2 <= LOG.level; }
+    static DBG3() { return 3 <= LOG.level; }
+
+    static D1(msg) { if (LOG.DBG1()) console.log(msg);}
+    static D2(msg) { if (LOG.DBG2()) console.log(msg);}
+    static D3(msg) { if (LOG.DBG3()) console.log(msg);}
+}
+

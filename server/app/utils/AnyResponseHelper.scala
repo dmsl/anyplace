@@ -48,6 +48,7 @@ import scala.collection.JavaConversions._
 object AnyResponseHelper {
 
     val CANNOT_PARSE_BODY_AS_JSON = "Cannot parse request body as Json object!"
+    val WRONG_API_USAGE = "Wrong API usage!"
 
     object Response extends Enumeration {
 
@@ -68,7 +69,6 @@ object AnyResponseHelper {
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
 
-    // TODO: json of play
     def ok(json: JsValue, msg: String) = CreateResultResponse(Response.OK, json, msg)
     def bad_request(json: JsValue, msg: String) = CreateResultResponse(Response.BAD_REQUEST, json, msg)
 
@@ -160,6 +160,10 @@ object AnyResponseHelper {
         createResultResponse(Response.OK, null, msg)
     }
 
+    def DEPRECATED(msg: String): Result = {
+        createResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
+    }
+
     def bad_request(msg: String): Result = {
         createResultResponse(Response.BAD_REQUEST, null, msg)
     }
@@ -175,6 +179,9 @@ object AnyResponseHelper {
     def internal_server_error(msg: String): Result = {
         createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
     }
+    def internal_server_error(msg: String, e: Exception): Result = {
+        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg + ": " + e.getClass + ": " + e.getMessage)
+    }
 
     def not_found(msg: String): Result = {
         createResultResponse(Response.NOT_FOUND, null, msg)
@@ -188,11 +195,11 @@ object AnyResponseHelper {
 
         //val res: JsValue = Json.obj(
         //    "users_num" -> users.length,
-        //    "users" -> Json.arr(users)
+        //    SCHEMA.cUsers -> Json.arr(users)
         //)
         // TODO Convert to Json (example above)
         val error_messages = JsonArray.empty()
-        val json =JsonObject.empty()
+        val json = JsonObject.empty()
 
         for (s <- missing) {
             error_messages.add(String.format("Missing or Invalid parameter:: [%s]", s))

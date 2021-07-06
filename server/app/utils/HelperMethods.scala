@@ -35,17 +35,15 @@
  */
 package utils
 
-import org.apache.commons.codec.binary.Base64
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.{File, FileOutputStream, IOException}
 import java.nio.file.Files
 import java.util.HashMap
-import play.Play
 
 import com.couchbase.client.java.document.json.JsonObject
+import org.apache.commons.codec.binary.Base64
+import play.Play
+import utils.LPUtils.generateRandomRssLogFileName
 //remove if not needed
-import scala.collection.JavaConversions._
 
 object HelperMethods {
 
@@ -81,7 +79,7 @@ object HelperMethods {
 
     def base64ToString(base64_in: String): String = new String(decodeBase64(base64_in))
 
-    def storeRadioMapToServer(file: File): Boolean = {
+    def storeRadioMapRawToServer(file: File): Boolean = {
         /*
         * FeatureAdd : Configuring location for server generated files
         */
@@ -92,14 +90,15 @@ object HelperMethods {
         if (!dir.isDirectory || !dir.canWrite() || !dir.canExecute()) {
             return false
         }
-        val name = "radiomap_" + LPUtils.generateRandomToken() + System.currentTimeMillis()
+        val name = generateRandomRssLogFileName()
         //FeatureAdd : Configuring location for server generated files
-        val dest_f = new File(radio_dir + AnyplaceServerAPI.URL_SEPARATOR + name)
+        val dest_f = new File(radio_dir + AnyplaceServerAPI.URL_SEP + name)
         var fout: FileOutputStream = null
         try {
             fout = new FileOutputStream(dest_f)
             Files.copy(file.toPath(), fout)
             fout.close()
+            LPLogger.D1("storeRadioMapToServer: Stored raw rss-log: " + name)
         } catch {
             case e: IOException => {
                 e.printStackTrace()

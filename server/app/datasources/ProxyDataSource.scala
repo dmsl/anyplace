@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -90,9 +91,9 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.addJsonDocument(key, expiry, document)
   }
 
-  override def addJsonDocument(document: String, col: String) {
+  override def addJsonDocument(col: String, document: String): Boolean = {
     _checkActiveDatasource()
-    mongoDB.addJsonDocument(document, col)
+    mongoDB.addJsonDocument(col, document)
   }
 
   override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = {
@@ -100,9 +101,24 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.replaceJsonDocument(key, expiry, document)
   }
 
+  override def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.replaceJsonDocument(col, key, value, document)
+  }
+
+  def deleteFromKey(col: String, key: String, value:String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.deleteFromKey(col, key, value)
+  }
+
   override def deleteFromKey(key: String): Boolean = {
     _checkActiveDatasource()
     mActiveDatabase.deleteFromKey(key)
+  }
+
+  override def getFromKey(collection:String, key: String, value: String):JsValue = {
+    _checkActiveDatasource()
+    mongoDB.getFromKey(collection, key, value)
   }
 
   override def getFromKey(key: String): AnyRef = {
@@ -115,76 +131,91 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.deleteRadiosInBox()
   }
 
-  override def getFromKeyAsJson(key: String): JsonObject = {
+  override def getFromKeyAsJson(collection: String,key: String, value: String): JsValue = {
+    _checkActiveDatasource()
+    mongoDB.getFromKeyAsJson(collection, key, value)
+  }
+
+  override def fingerprintExists(collection: String,buid: String, floor: String, x: String, y:String, heading:String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.fingerprintExists(collection, buid, floor, x, y, heading)
+  }
+
+  override def getFromKeyAsJson(key: String): JsValue = {
     _checkActiveDatasource()
     mActiveDatabase.getFromKeyAsJson(key)
   }
 
-  override def buildingFromKeyAsJson(key: String): JsonObject = {
+  override def buildingFromKeyAsJson(key: String): JsValue = {
     _checkActiveDatasource()
-    mActiveDatabase.buildingFromKeyAsJson(key)
+    mongoDB.buildingFromKeyAsJson(key)
   }
 
-  override def poiFromKeyAsJson(key: String): JsonObject = getFromKeyAsJson(key)
+  override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = getFromKeyAsJson(collection, key, value)
 
-  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
+  override def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingFloorAsJson(buid, floor_number)
+    mongoDB.poisByBuildingFloorAsJson(buid, floor_number)
   }
 
   override def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingFloorAsMap(buid, floor_number)
+    mongoDB.poisByBuildingFloorAsMap(buid, floor_number)
   }
 
-  override def poisByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  override def poisByBuildingAsJson(buid: String): java.util.List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingAsJson(buid)
+    mongoDB.poisByBuildingAsJson(buid)
+  }
+
+  override def poiByBuidFloorPuid(buid: String, floor_number: String, puid: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.poiByBuidFloorPuid(buid, floor_number, puid)
   }
 
   override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingAsMap(buid)
+    mongoDB.poisByBuildingAsMap(buid)
   }
 
-  override def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  override def floorsByBuildingAsJson(buid: String): java.util.List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.floorsByBuildingAsJson(buid)
+    mongoDB.floorsByBuildingAsJson(buid)
   }
 
-  override def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  override def connectionsByBuildingAsJson(buid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingAsJson(buid)
+    mongoDB.connectionsByBuildingAsJson(buid)
   }
 
   override def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
     _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingAsMap(buid)
+    mongoDB.connectionsByBuildingAsMap(buid)
   }
 
-  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
+  override def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingFloorAsJson(buid, floor_number)
+    mongoDB.connectionsByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def deleteAllByBuilding(buid: String): java.util.List[String] = {
+  override def deleteAllByBuilding(buid: String):Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.deleteAllByBuilding(buid)
+    mongoDB.deleteAllByBuilding(buid)
   }
 
-  override def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String] = {
+  override def deleteAllByFloor(buid: String, floor_number: String): Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.deleteAllByFloor(buid, floor_number)
+    mongoDB.deleteAllByFloor(buid, floor_number)
   }
 
   override def deleteAllByConnection(cuid: String): java.util.List[String] = {
     _checkActiveDatasource()
-    mActiveDatabase.deleteAllByConnection(cuid)
+    mongoDB.deleteAllByConnection(cuid)
   }
 
   override def deleteAllByPoi(puid: String): java.util.List[String] = {
     _checkActiveDatasource()
-    mActiveDatabase.deleteAllByPoi(puid)
+    mongoDB.deleteAllByPoi(puid)
   }
 
   override def getRadioHeatmap(): java.util.List[JsonObject] = {
@@ -192,85 +223,88 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getRadioHeatmap
   }
 
-  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloor(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloor(buid, floor)
   }
 
-  override def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
+    mongoDB.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
   }
 
-   override def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+    mongoDB.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+    mongoDB.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
+    mongoDB.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
   }
 
-  override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject] = {
+  override def getAPsByBuildingFloorcdb(buid: String, floor: String): util.List[JsonObject] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
+    mActiveDatabase.getAPsByBuildingFloorcdb(buid, floor)
   }
 
-  override def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject] = {
+  override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAPsByBuildingFloor(buid, floor)
+    mongoDB.getAPsByBuildingFloor(buid, floor)
   }
 
+  override def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue = {
+    _checkActiveDatasource()
+    mongoDB.getCachedAPsByBuildingFloor(buid, floor)
+  }
 
   override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String] = {
     _checkActiveDatasource()
     mActiveDatabase.deleteAllByXsYs(buid,floor,x,y)
   }
 
-    override def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): util.List[JsonObject] = {
+  override def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
+    mongoDB.getFingerPrintsBBox(buid,floor,lat1,lon1,lat2,lon2)
   }
-  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): util.List[JsonObject] = {
+  override def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String)
-  }
-
-  override def getFingerPrintsTime(buid: String, floor: String): util.List[JsonObject] = {
-    _checkActiveDatasource()
-    mActiveDatabase.getFingerPrintsTime(buid,floor)
+    mongoDB.getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String)
   }
 
-
-  override def getAllBuildings(): java.util.List[JsonObject] = {
+  override def getFingerprintsByTime(buid: String, floor: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildings
+    mongoDB.getFingerprintsByTime(buid,floor)
   }
 
-  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = {
+  override def getAllBuildings(): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsByOwner(oid)
+    mongoDB.getAllBuildings()
   }
 
-  override def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject] = {
+  override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsByBucode(bucode)
+    mongoDB.getAllBuildingsByOwner(oid)
+  }
+
+  override def getAllBuildingsByBucode(bucode: String): List[JsValue] = {
+    _checkActiveDatasource()
+    mongoDB.getAllBuildingsByBucode(bucode)
   }
 
   override def getBuildingByAlias(alias: String): JsonObject = {
@@ -278,14 +312,19 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.getBuildingByAlias(alias)
   }
 
-  override def getAllBuildingsNearMe(ownerid:String,lat: Double, lng: Double): java.util.List[JsonObject] = {
+  override def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsNearMe(ownerid,lat, lng)
+    mongoDB.getAllBuildingsNearMe(lat, lng, range, owner_id)
   }
 
   override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
     _checkActiveDatasource()
-    mActiveDatabase.dumpRssLogEntriesSpatial(outFile, bbox, floor_number)
+    mongoDB.dumpRssLogEntriesSpatial(outFile, bbox, floor_number)
+  }
+
+  override def dumpRssLogEntriesWithCoordinates (floor_number: String, lat: Double, lon: Double): String = {
+    _checkActiveDatasource()
+    mongoDB.dumpRssLogEntriesWithCoordinates(floor_number: String, lat, lon)
   }
 
   override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
@@ -295,7 +334,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     _checkActiveDatasource()
-    mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
+    mongoDB.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
   }
 
   override def getAllAccounts(): List[JsValue] = {
@@ -330,34 +369,29 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
   }
 
-  override def getAllPoisTypesByOwner(owner_id: String): util.List[JsonObject] = {
+  override def poisByBuildingIDAsJson(buid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllPoisTypesByOwner(owner_id)
+    mongoDB.poisByBuildingIDAsJson(buid)
   }
 
-  override def poisByBuildingIDAsJson(buid: String): util.List[JsonObject] = {
+  override def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingIDAsJson(buid)
+    mongoDB.poisByBuildingAsJson2(cuid, letters)
   }
 
-  override def poisByBuildingAsJson2(cuid: String, letters: String): util.List[JsonObject] = {
+  override def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingAsJson2(cuid, letters)
+    mongoDB.poisByBuildingAsJson2GR(cuid, letters)
   }
 
-  override def poisByBuildingAsJson2GR(cuid: String, letters: String): util.List[JsonObject] = {
+  override def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingAsJson2GR(cuid, letters)
+    mongoDB.poisByBuildingAsJson3(buid,letters)
   }
 
-  override def poisByBuildingAsJson3(buid: String, letters: String): util.List[JsonObject] = {
+  override def connectionsByBuildingAllFloorsAsJson(buid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.poisByBuildingAsJson3(buid,letters)
-  }
-
-  override def connectionsByBuildingAllFloorsAsJson(buid: String): util.List[JsonObject] = {
-    _checkActiveDatasource()
-    mActiveDatabase.connectionsByBuildingAllFloorsAsJson(buid)
+    mongoDB.connectionsByBuildingAllFloorsAsJson(buid)
   }
 
   override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = {
@@ -377,17 +411,22 @@ class ProxyDataSource private() extends IDatasource {
 
   override def BuildingSetsCuids(cuid: String): Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.BuildingSetsCuids(cuid)
+    mongoDB.BuildingSetsCuids(cuid)
   }
 
-  override def getBuildingSet(cuid: String): util.List[JsonObject] = {
+  override def getBuildingSet(cuid: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getBuildingSet(cuid)
+    mongoDB.getBuildingSet(cuid)
   }
 
-  override def getAllBuildingsetsByOwner(owner_id: String): util.List[JsonObject] = {
+  override def getAllBuildingsetsByOwner(owner_id: String): List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getAllBuildingsetsByOwner(owner_id)
+    mongoDB.getAllBuildingsetsByOwner(owner_id)
+  }
+
+  override def generateHeatmaps(): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.generateHeatmaps()
   }
 
   override def deleteNotValidDocuments(): Boolean ={
@@ -395,4 +434,29 @@ class ProxyDataSource private() extends IDatasource {
     mActiveDatabase.deleteNotValidDocuments()
   }
 
+  override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.deleteAffectedHeatmaps(buid, floor_number)
+  }
+
+  override def deleteFingerprint(fingerprint: JsValue): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.deleteFingerprint(fingerprint)
+  }
+
+  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) {
+    _checkActiveDatasource()
+    mongoDB.createTimestampHeatmap(col, buid, floor, level)
+  }
+
+  override def login(collection: String, username: String, password: String): List[JsValue] = {
+    _checkActiveDatasource()
+    mongoDB.login(collection, username, password)
+  }
+
+  override def register(collection: String, name: String, email: String, username: String, password: String,
+                        external: String, accType: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.register(collection, name, email, username, password, external, accType)
+  }
 }

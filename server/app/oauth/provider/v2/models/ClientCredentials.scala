@@ -36,11 +36,8 @@
 package oauth.provider.v2.models
 
 //remove if not needed
-import scala.collection.JavaConversions._
 
 class ClientCredentials(id: String, secret: String) {
-
     var client_id: String = id
-
     var client_secret: String = secret
 }

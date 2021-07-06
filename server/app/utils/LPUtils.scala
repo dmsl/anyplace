@@ -35,24 +35,14 @@
  */
 package utils
 
-import javax.crypto.SecretKey
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
-import javax.crypto.spec.SecretKeySpec
-import java.security.MessageDigest
-import java.security.SecureRandom
+import java.io.UnsupportedEncodingException
+import java.security.{InvalidAlgorithmParameterException, MessageDigest, NoSuchAlgorithmException, SecureRandom}
 import java.security.spec.InvalidKeySpecException
 import java.util.UUID
+
+import javax.crypto._
+import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
 import org.apache.commons.codec.binary.Base64
-import javax.crypto.BadPaddingException
-import javax.crypto.Cipher
-import javax.crypto.IllegalBlockSizeException
-import javax.crypto.NoSuchPaddingException
-import javax.crypto.SecretKey
-import javax.crypto.spec.IvParameterSpec
-import java.io.UnsupportedEncodingException
-import java.security.InvalidAlgorithmParameterException
-import java.security.NoSuchAlgorithmException
 
 object LPUtils {
 
@@ -69,6 +59,10 @@ object LPUtils {
         "x" + UUID.randomUUID().toString.split("-").last.toUpperCase
     }
 
+    def generateRandomRssLogFileName(): String = {
+        return "rss-log-" + System.currentTimeMillis() + "-" + LPUtils.generateRandomToken()
+    }
+
     def generateRandomToken(): String = {
         var secureRandom: SecureRandom = null
         try {
@@ -83,6 +77,11 @@ object LPUtils {
                 null
             }
         }
+    }
+
+    def MD5(text: String) : String = {
+        java.security.MessageDigest.getInstance("MD5").digest(text.getBytes()).map(0xFF & _)
+          .map { "%02x".format(_) }.foldLeft(""){_ + _}
     }
 
     def hashStringBase64(input: String) = new String(Base64.encodeBase64(hashString(input)))
@@ -145,8 +144,9 @@ object LPUtils {
         ba
     }
 
-    import org.apache.commons.codec.binary.Base64
     import java.io.UnsupportedEncodingException
+
+    import org.apache.commons.codec.binary.Base64
 
     def encodeBase64String(s: String): String = try {
         val binary = s.getBytes("UTF-8")

@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -44,55 +45,77 @@ import play.api.libs.json.JsValue
 import utils.GeoPoint // TODO: Will use play.json
 
 trait IDatasource {
-  def getAllPoisTypesByOwner(owner_id: String): java.util.List[JsonObject]
 
-  def poisByBuildingIDAsJson(buid: String): java.util.List[JsonObject]
+  def register(collection: String, name: String, email: String, username: String, password: String,
+               external: String, accType: String): Boolean
 
-  def poisByBuildingAsJson2(cuid: String, letters: String): java.util.List[JsonObject]
+  def login(collection: String, username: String, password: String): List[JsValue]
 
-  def poisByBuildingAsJson2GR(cuid: String, letters: String): java.util.List[JsonObject]
+  def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int)
 
-  def poisByBuildingAsJson3(buid: String, letters: String): java.util.List[JsonObject]
+  def deleteFingerprint(fingerprint: JsValue): Boolean
 
+  def poisByBuildingIDAsJson(buid: String): List[JsValue]
+
+  def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue]
+
+  def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsValue]
+
+  def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue]
 
   def init(): Boolean
 
   def addJsonDocument(key: String, expiry: Int, document: String): Boolean
-  def addJsonDocument(document: String, col: String)
+
+  def addJsonDocument(col: String, document: String): Boolean
 
   def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean
 
+  def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean
+
+  def deleteFromKey(col: String, key: String, value: String): Boolean
+
   def deleteFromKey(key: String): Boolean
 
+  @deprecated("mdb")
   def getFromKey(key: String): AnyRef
 
-  def getFromKeyAsJson(key: String): JsonObject
+  def getFromKey(collection: String, key: String, value: String): JsValue
 
-  def buildingFromKeyAsJson(key: String): JsonObject
+  @deprecated("mdb")
+  def getFromKeyAsJson(key: String): JsValue
 
-  def poiFromKeyAsJson(key: String): JsonObject
+  def getFromKeyAsJson(collection: String, key: String, value: String): JsValue
 
-  def poisByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
+  def fingerprintExists(collection: String, buid: String, floor: String, x: String, y: String, heading: String): Boolean
+
+  def buildingFromKeyAsJson(key: String): JsValue
+
+  def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue
+
+  def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue]
 
   def poisByBuildingFloorAsMap(buid: String, floor_number: String): java.util.List[HashMap[String, String]]
 
-  def poisByBuildingAsJson(buid: String): java.util.List[JsonObject]
+  def poisByBuildingAsJson(buid: String): java.util.List[JsValue]
+
+  def poiByBuidFloorPuid(buid: String, floor_number: String, puid: String): Boolean
 
   def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
-  def floorsByBuildingAsJson(buid: String): java.util.List[JsonObject]
+  def floorsByBuildingAsJson(buid: String): java.util.List[JsValue]
 
-  def connectionsByBuildingAsJson(buid: String): java.util.List[JsonObject]
+  def connectionsByBuildingAsJson(buid: String): List[JsValue]
 
   def connectionsByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]]
 
-  def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
+  def connectionsByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue]
 
-  def connectionsByBuildingAllFloorsAsJson(buid: String): java.util.List[JsonObject]
+  def connectionsByBuildingAllFloorsAsJson(buid: String): List[JsValue]
 
-  def deleteAllByBuilding(buid: String): java.util.List[String]
+  def deleteAllByBuilding(buid: String): Boolean
 
-  def deleteAllByFloor(buid: String, floor_number: String): java.util.List[String]
+  def deleteAllByFloor(buid: String, floor_number: String): Boolean
 
   def deleteAllByConnection(cuid: String): java.util.List[String]
 
@@ -100,31 +123,42 @@ trait IDatasource {
 
   def getRadioHeatmap(): java.util.List[JsonObject]
 
-  def getRadioHeatmapByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): java.util.List[JsonObject]
+  /**
+   * if heatmap do not exist, it creates them (heatmapWifi3).
+   *
+   * @param buid
+   * @param floor
+   * @return
+   */
+  def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorAverage3(buid: String, floor: String): java.util.List[JsonObject]
+  def getRadioHeatmapByFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestamp(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage1(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue]
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue]
 
-  def getAPsByBuildingFloor(buid: String, floor: String): java.util.List[JsonObject]
+  def getAPsByBuildingFloorcdb(buid: String, floor: String): java.util.List[JsonObject]
 
-  def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String]
+  def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue
 
-  def getFingerPrintsBBox(buid: String, floor: String,lat1: String, lon1: String, lat2: String, lon2: String): java.util.List[JsonObject]
+  def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String]
 
-  def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): java.util.List[JsonObject]
+  def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = ???
 
-  def getFingerPrintsTime(buid: String, floor: String): java.util.List[JsonObject]
+  def getFingerPrintsBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String): List[JsValue]
+
+  def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsValue]
+
+  def getFingerprintsByTime(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
@@ -132,18 +166,36 @@ trait IDatasource {
 
   def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
-  def getAllBuildings(): java.util.List[JsonObject]
+  def getAllBuildings(): List[JsValue]
 
-  def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject]
+  def getAllBuildingsByOwner(oid: String): List[JsValue]
 
-  def getAllBuildingsByBucode(bucode: String): java.util.List[JsonObject]
+  def getAllBuildingsByBucode(bucode: String): List[JsValue]
 
   def getBuildingByAlias(alias: String): JsonObject
 
-  def getAllBuildingsNearMe(oid: String,lat: Double, lng: Double): java.util.List[JsonObject]
+  def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue]
 
   def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long
 
+  /**
+   * Goes through each floor and finds the one that contains lat and lon.
+   *
+   * @param floor_number
+   * @param lat
+   * @param lon
+   * @return the buid of the unique floor otherwise null.
+   */
+  def dumpRssLogEntriesWithCoordinates(floor_number: String, lat: Double, lon: Double): String
+
+  /**
+   * Populates rss-log per buid:floor.
+   *
+   * @param outFile rss-log file in frozen dir. It is filled per floor
+   * @param buid
+   * @param floor_number
+   * @return
+   */
   def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
 
   def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long
@@ -162,10 +214,11 @@ trait IDatasource {
 
   def BuildingSetsCuids(cuid: String): Boolean
 
-  def getBuildingSet(cuid: String): java.util.List[JsonObject]
+  def getBuildingSet(cuid: String): List[JsValue]
 
-  def getAllBuildingsetsByOwner(owner_id: String) : java.util.List[JsonObject]
+  def getAllBuildingsetsByOwner(owner_id: String): List[JsValue]
+
+  def generateHeatmaps(): Boolean
 
   def deleteNotValidDocuments(): Boolean
-
-  }
+}

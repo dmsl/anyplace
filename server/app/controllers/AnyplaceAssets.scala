@@ -35,6 +35,7 @@
  */
 package controllers
 
+import datasources.SCHEMA
 import play.api.mvc.Action
 
 object AnyplaceAssets extends play.api.mvc.Controller {
@@ -44,7 +45,7 @@ object AnyplaceAssets extends play.api.mvc.Controller {
       //    Assets.at(path+"/anyplace_viewer_campus", file)
       val uri = request.headers.get("referer").getOrElse("")
       var viewerDir = "/anyplace_viewer/"
-      val campus = !uri.contains("cuid")
+      val campus = !uri.contains(SCHEMA.fCampusCuid)
       if (campus) {
         viewerDir = "/anyplace_viewer/"
       } else {

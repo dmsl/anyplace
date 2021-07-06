@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -35,12 +36,12 @@
  */
 package radiomapserver
 
-import Jama.Matrix
 import java.io._
 import java.text.DecimalFormat
 import java.util
 import java.util.{ArrayList, HashMap, LinkedList}
 
+import Jama.Matrix
 import utils.LPLogger
 
 //remove if not needed
@@ -48,8 +49,16 @@ import scala.collection.JavaConversions._
 
 
 object RadioMap {
+  val RBF_ENABLED = false
 
-  def authenticateRSSlogFileAndReturnBuildingsFloors(inFile: File): HashMap[String, LinkedList[String]] = {
+  /**
+   * Verifies rss-log file and returns a map of buid:list of floors.
+   * Weird: The list always contains one floor
+   *
+   * @param inFile
+   * @return
+   */
+  def verifyRssLogAndGetBuildingFloors(inFile: File): HashMap[String, LinkedList[String]] = {
     var line_num = 0
     var reader: BufferedReader = null
     val buildingsFloors = new HashMap[String, LinkedList[String]]()
@@ -75,11 +84,13 @@ object RadioMap {
             throw new Exception("Line " + line_num + " MAC Address is not valid.")
           }
           java.lang.Integer.parseInt(temp(5))
-          java.lang.Integer.parseInt(temp(6))
-          if (!buildingsFloors.containsKey(temp(7))) {
+          val sfloor = temp(6)
+          val sbuid = temp(7)
+          java.lang.Integer.parseInt(sfloor)
+          if (!buildingsFloors.containsKey(sbuid)) {
             val tempList = new LinkedList[String]()
-            tempList.add(temp(6))
-            buildingsFloors.put(temp(7), tempList)
+            tempList.add(sfloor)
+            buildingsFloors.put(sbuid, tempList)
           }
         }
       }
@@ -130,20 +141,28 @@ object RadioMap {
 
     private var MAX_RSS: Int = java.lang.Integer.MIN_VALUE
 
-    def createRadioMap(): Boolean = {
+    /**
+     * Creates radiomap files
+     *
+     * @return error message otherwise null on success
+     */
+    def createRadioMap(): String = {
       if (!rss_folder.exists() || !rss_folder.isDirectory) {
-        return false
+        return "createRadioMap: Folder does not exist."
       }
-      RadioMap.clear()
-      createRadioMapFromPath(rss_folder)
-      if (!writeRadioMap()) {
-        return false
+      try {
+        RadioMap.clear()
+        createRadioMapFromPath(rss_folder)
+        writeRadioMap()
+      } catch {
+        case e: Exception => return "ERROR: " + e.getClass + ": " + e.getMessage
       }
-      true
+      null
     }
 
     private def createRadioMapFromPath(inFile: File) {
       if (inFile.exists()) {
+        // how is this if working... ??
         if (inFile.canExecute() && inFile.isDirectory) {
           val list = inFile.list()
           if (list != null) {
@@ -164,7 +183,7 @@ object RadioMap {
       var orientationList: ArrayList[Any] = null
       val f = inFile
       var reader: BufferedReader = null
-      if (!authenticateRSSlogFile(f)) {
+      if (!verifyFloorRawRss(f)) {
         return
       }
       var group = 0
@@ -248,7 +267,7 @@ object RadioMap {
     }
 
 
-    def authenticateRSSlogFile(inFile: File): Boolean = {
+    def verifyFloorRawRss(inFile: File): Boolean = {
       var line_num = 0
       var reader: BufferedReader = null
       try {
@@ -297,34 +316,26 @@ object RadioMap {
       true
     }
 
-
-
-    def writeParameters(orientations: Int): Boolean = {
+    def writeParameters(orientations: Int): String = {
       for (i <- 0 until orientations) {
         val group = i * 360 / orientations
         var fos: FileOutputStream = null
         val RM = new RadioMapMean(this.isIndoor, this.defaultNaNValue)
-        if (!RM.ConstructRadioMap(new File(radiomap_mean_filename))) {
-          return false
-        }
-        if (!find_MIN_MAX_Values(group)) {
-          return false
-        }
+        if (!RM.ConstructRadioMap(new File(radiomap_mean_filename))) return "writeParameters: Failed to ConstructRadioMap"
+        if (!find_MIN_MAX_Values(group)) return "writeParameters: Failed to find_MIN_MAX_Values"
+        if (!(RM.getOrderList().size >= 2)) return "writeParameters: RBF: RM orderList is small: " + RM.getOrderList().size
         LPLogger.debug("Calculating RBF parameter...")
         S_RBF = calculateSGreek(RM, group)
-        if (S_RBF == -1) {
-          return false
-        }
-          LPLogger.debug("RBF calculation Done!")
+        if (S_RBF == -1) return "writeParameters: S_RBF == -1"
+        LPLogger.debug("RBF calculation Done!")
         val radiomap_parameters_file = new File(radiomap_parameters_filename)
         try {
           fos = if (i == 0) new FileOutputStream(radiomap_parameters_file, false) else new FileOutputStream(radiomap_parameters_file,
             true)
         } catch {
           case e: Exception => {
-            LPLogger.error("Error while writing parameters: " + e.getMessage)
             radiomap_parameters_file.delete()
-            return false
+            return "writeParameters: " + e.getClass + ": " + "Error while writing parameters: " + e.getMessage
           }
         }
         try {
@@ -337,14 +348,13 @@ object RadioMap {
           fos.close()
         } catch {
           case e: Exception => {
-            LPLogger.error("Error while writing parameters: " + e.getMessage)
             radiomap_parameters_file.delete()
-            return false
+            return "writeParameters: " + e.getClass + ": " + "Error while writing RBF parameters: " + e.getMessage
           }
         }
       }
       LPLogger.debug("Written Parameters!")
-      true
+      null
     }
 
     private def find_MIN_MAX_Values(group: Int): Boolean = {
@@ -407,12 +417,12 @@ object RadioMap {
     }
 
     private def calculateSGreek(RM: RadioMapMean, group: Int): java.lang.Float = {
-      if (RM == null) {
-        return -1f
-      }
+      if (RM == null) return -1f
+
       var maximumDistance = 0.0f
-      val allDistances= new util.ArrayList[Float]()
+      val allDistances = new util.ArrayList[Float]()
       var result: Float = 0.0f
+      // must have size >= 2
       for (i <- 0 until RM.getOrderList().size; j <- i + 1 until RM.getOrderList().size) {
         val RadioMapFile = RM.getLocationRSS_HashMap(group)
         if (RadioMapFile != null && RadioMapFile.get(RM.getOrderList.get(i)) != null &&
@@ -453,23 +463,22 @@ object RadioMap {
       pos_error
     }
 
-    private def writeRadioMap(): Boolean
-
-    = {
+    /**
+     * Stores the following radiomap frozen files:
+     *  - indoor-radiomap.txt
+     *  - indoor-radiomap-mean.txt
+     *  - indoor-radiomap-parameters.txt
+     *  - indoor-radiomap-weights.txt
+     *
+     * @return
+     */
+    private def writeRadioMap(): String = {
       LPLogger.debug("writing radio map to files")
-      val dec = new DecimalFormat("###.#")
-      var MACAddressMap: HashMap[String, ArrayList[Integer]] = null
-      val RSS_Values: ArrayList[Integer] = null
       val AP = new ArrayList[String]()
-      var fos: FileOutputStream = null
-      var fos_mean: FileOutputStream = null
-      val out: String = null
       val orientations = 4
       val radiomap_file = new File(radiomap_filename)
       val radiomap_mean_file = new File(radiomap_mean_filename)
-      if (NewRadioMap.isEmpty) {
-        return false
-      }
+      if (NewRadioMap.isEmpty) return "writeRadioMap: NewRadioMap is empty"
       val f = new File(radiomap_AP)
       var reader: BufferedReader = null
       if (f.exists()) {
@@ -477,32 +486,57 @@ object RadioMap {
           var line: String = null
           val fr = new FileReader(f)
           reader = new BufferedReader(fr)
-          while ( {
-            line = reader.readLine;
-            line != null
-          }) {
+          while ( {line = reader.readLine; line != null }) {
             AP.add(line.toLowerCase())
           }
           fr.close()
           reader.close()
         } catch {
-          case e: Exception => LPLogger.error("Error while parsing AP txt file " + f.getAbsolutePath +
-            ": " +
-            e.getMessage)
+          case e: Exception => return "Error while parsing AP txt file " + f.getAbsolutePath +
+            ": " + e.getMessage
         }
       }
+
       try {
-        fos = new FileOutputStream(radiomap_file, false)
-        fos_mean = new FileOutputStream(radiomap_mean_file, false)
+        var res: String = null
+        res = createRadioMapFrozenAndMean(radiomap_file, radiomap_mean_file, AP, orientations)
+        if (res != null) return res
+
+        // BUG:DZ BUG:PM BUG:NN below methods fail
+        if (RBF_ENABLED == true) {
+          LPLogger.D1("BUG: writeParameters, writeRBFWeights")
+          res = writeParameters(orientations)
+          if (res != null) return res
+          res = writeRBFWeights(orientations)
+          if (res != null) return res
+        }
       } catch {
-        case e: FileNotFoundException => {
-          LPLogger.error("Error while writing radio map: " + e.getMessage)
-          radiomap_file.delete()
-          radiomap_mean_file.delete()
-          return false
-        }
+        case e: Exception =>
+          e.printStackTrace()
+          return "writeRadioMap:"  + e.getClass + ": " + e.getMessage
       }
+      LPLogger.debug("Finished writing radio map to files!")
+      null
+    }
+
+    /**
+     * Populates these two files:
+     *  - indoor-radiomap.txt
+     *  - indoor-radiomap-mean.txt
+     *
+     * @param radiomap_file
+     * @param radiomap_mean_file
+     * @param AP
+     * @param orientations
+     * @return error message otherwise null
+     */
+    def createRadioMapFrozenAndMean(radiomap_file: File, radiomap_mean_file: File, AP: ArrayList[String],
+                                    orientations: Int): String = {
       try {
+        val dec = new DecimalFormat("###.#")
+        var MACAddressMap: HashMap[String, ArrayList[Integer]] = null
+        val fos = new FileOutputStream(radiomap_file, false)
+        val fos_mean = new FileOutputStream(radiomap_mean_file, false)
         var count = 0
         var max_values = 0
         var first = 0
@@ -557,7 +591,7 @@ object RadioMap {
               fos.write(("\n").getBytes)
               fos_mean.write(("\n").getBytes)
             }
-            MRSS_Values =new Array[Int](MACKeys.size)
+            MRSS_Values = new Array[Int](MACKeys.size)
             for (v <- 0 until max_values) {
               fos.write((x_y + ", " + heading).getBytes)
               for (i <- 0 until MACKeys.size) {
@@ -590,67 +624,42 @@ object RadioMap {
             count += 1
           }
         }
-        if (!writeParameters(orientations)) {
-          return false
-        }
-        if (!writeRBFWeights(orientations)) {
-        }
+        fos_mean.close()
         fos.close()
       } catch {
-        case cce: ClassCastException => {
-          LPLogger.error("Error1: " + cce.getMessage)
-          return false
+        case e: FileNotFoundException => {
+          radiomap_file.delete()
+          radiomap_mean_file.delete()
+          return "Error while writing radio map: " + e.getMessage
         }
-        case nfe: NumberFormatException => {
-          LPLogger.error("Error2: " + nfe.getMessage)
-          return false
-        }
-        case fnfe: FileNotFoundException => {
-          LPLogger.error("Error3: " + fnfe.getMessage)
-          return false
-        }
-        case ioe: IOException => {
-          LPLogger.error("Error4: " + ioe.getMessage)
-          return false
-        }
-        case e: Exception => {
-          LPLogger.error("Error5: " + e.getMessage)
-          return false
+        case e: Exception =>{
+          e.printStackTrace()
+          return "writeRadioMap:" + e.getClass + ": " + e.getMessage
         }
       }
-      LPLogger.debug("Finished writing radio map to files!")
-      true
+
+      null
     }
 
-    def writeRBFWeights(orientation: Int): Boolean = {
+    def writeRBFWeights(orientation: Int): String = {
       val start = System.currentTimeMillis()
       LPLogger.debug("Writing RBF weights!")
       for (x <- 0 until orientation) {
         val group = x * 360 / orientation
         val MatrixU = create_U_matrix(group)
-        if (MatrixU == null) {
-          return false
-        }
+        if (MatrixU == null) return "writeRBFWeights: MatrixU is null"
         LPLogger.debug("created U matrix! time[ " + (System.currentTimeMillis() - start) +
           "] ms")
         val Matrixd = create_d_matrix(MatrixU.getRowDimension, group)
-        if (Matrixd == null) {
-          return false
-        }
-        LPLogger.debug("created matrix d! time[ " + (System.currentTimeMillis() - start) +
-          "] ms")
+        if (Matrixd == null) return "writeRBFWeights: Matrixd is null"
+        LPLogger.debug("created matrix d! time[ " + (System.currentTimeMillis() - start) + "] ms")
         val UPlus = computeUPlusMatrix(MatrixU)
-        if (UPlus == null) {
-          return false
-        }
+        if (UPlus == null) return "writeRBFWeights: UPlus is null"
         LPLogger.debug("computed Plus matrix! time[ " + (System.currentTimeMillis() - start) +
           "] ms")
         val w = computeWMatrix(UPlus, Matrixd)
-        if (w == null) {
-          return false
-        }
-        LPLogger.debug("computed W matrix! time[ " + (System.currentTimeMillis() - start) +
-          "] ms")
+        if (w == null) return "writeRBFWeights: w is null"
+        LPLogger.debug("computed W matrix! time[ " + (System.currentTimeMillis() - start) + "] ms")
         val dec = new DecimalFormat("###.########")
         var fos: FileOutputStream = null
         val radiomap_rbf_weights_file = new File(radiomap_rbf_weights_filename)
@@ -659,9 +668,8 @@ object RadioMap {
             true)
         } catch {
           case e: FileNotFoundException => {
-            LPLogger.error("Error RBF weights: " + e.getMessage)
             radiomap_rbf_weights_file.delete()
-            return false
+            return "writeRBFWeights: Error RBF weights" + e.getClass + ": " + e.getMessage
           }
         }
         try {
@@ -679,15 +687,14 @@ object RadioMap {
           fos.close()
         } catch {
           case e: Exception => {
-            LPLogger.error("Error RBF weights: " + e.getMessage)
             radiomap_rbf_weights_file.delete()
-            return false
+            return "writeRBFWeights: Error RBF weights" + e.getClass + ": " + e.getMessage
           }
         }
       }
       LPLogger.debug("Written RBF weights! time[ " + (System.currentTimeMillis() - start) +
         "] ms")
-      true
+      null
     }
 
     private def create_U_matrix(orientation: Int): Matrix

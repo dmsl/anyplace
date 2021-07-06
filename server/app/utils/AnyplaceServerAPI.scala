@@ -39,7 +39,7 @@ package utils
 import play.Play
 
 object AnyplaceServerAPI {
-  val URL_SEPARATOR = '/'
+  val URL_SEP = '/'
 
   val SERVER_ADDRESS = Play.application().configuration().getString("server.address")
 
@@ -47,7 +47,7 @@ object AnyplaceServerAPI {
 
   val SERVER_FULL_URL = SERVER_ADDRESS + ":" + SERVER_PORT
 
-  val SERVER_API_ROOT = SERVER_FULL_URL + URL_SEPARATOR + "anyplace" + URL_SEPARATOR
+  val SERVER_API_ROOT = SERVER_FULL_URL + URL_SEP + "anyplace" + URL_SEP
 
-  val ANDROID_API_ROOT = SERVER_FULL_URL + URL_SEPARATOR + "android" + URL_SEPARATOR
+  val ANDROID_API_ROOT = SERVER_FULL_URL + URL_SEP + "android" + URL_SEP
 }

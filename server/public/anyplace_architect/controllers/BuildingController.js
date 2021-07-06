@@ -56,6 +56,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.poisTypes = {};
     $scope.catTypes = {};
+    $scope.spaceTypes = {};
 
     $scope.pageLoad = false;
 
@@ -139,7 +140,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         //_suc('Successfully logged in.');
         $scope.fetchAllBuildings();
         $scope.fetchAllCampus();
-        //$scope.fetchAllPoisTypes();
     });
 
     $scope.$on("loggedOff", function (event, mass) {
@@ -213,7 +213,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 var f = $scope.xFloors[i];
                 if (!LPUtils.isNullOrUndefined(f)) {
                     if (f.floor_number === String($scope.newFloorNumber)) {
-                        $scope.uploadFloorPlanBase64($scope.anyService.selectedBuilding, f, $scope.data);
+                        $scope.uploadWithZoom($scope.anyService.selectedBuilding, f, $scope.data);
                         break;
                     }
                 }
@@ -233,10 +233,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 localStorage.setItem("lastBuilding", newVal.buid);
             }
         }
-        //if (newVal && newVal.buid && newVal.poistypeid) {
-        // $scope.fetchAllPoisTypes(newVal.poistypeid);
-        // }
-        // else {
         $scope.poisTypes = [
             "Disabled Toilets",
             "Elevator",
@@ -252,7 +248,21 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             "Toilets",
             "Other"
         ];
-        //}
+    });
+
+    $scope.$watch('anyService.selectedBuilding', function () {
+        $scope.spaceTypes = [
+            "Building",
+            "Vessel"
+        ];
+        $scope.spacecategories = [{
+            spacecat: "Building",
+            id: "type1"
+        },{
+            spacecat: "Vessel",
+            id: "type2"
+        }
+        ];
     });
 
     $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {
@@ -284,32 +294,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         }
         return undefined;
     };
-    $scope.fetchAllPoisTypes = function () {
-
-        var jsonReq = {};
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-        jsonReq.access_token = $scope.gAuth.access_token;
-
-        jsonReq.owner_id = $scope.owner_id;
-
-        if (!jsonReq.owner_id) {
-            _err($scope, ERR_USER_AUTH);
-            return;
-        }
-        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
-        promise.then(
-            function (resp) {
-                var data = resp.data;
-                $scope.catTypes = data.poistypes;
-            },
-            function (resp) {
-              ShowError($scope, resp, "Something went wrong while fetching POIs types", true);
-            }
-        );
-    };
-
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = {};
@@ -322,13 +306,13 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             return;
         }
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
 
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',
@@ -403,47 +387,33 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.addNewBuilding = function (id) {
-
         if ($scope.myMarkers[id] && $scope.myMarkers[id].marker) {
-
             var building = $scope.myMarkers[id].model;
-
-            // set owner id
-            building.owner_id = $scope.owner_id;
-
+            building.owner_id = $scope.owner_id; // set owner id
             if (!building.owner_id) {
                 _err($scope, ERR_USER_AUTH);
                 return;
             }
-
-
             building.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
             building.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
-
             if (building.coordinates_lat === undefined || building.coordinates_lat === null) {
                 _err($scope, "Invalid building latitude.");
                 return;
             }
-
             if (building.coordinates_lon === undefined || building.coordinates_lon === null) {
                 _err($scope, "Invalid building longitude.");
                 return;
             }
-
             if (building.is_published === true) {
                 building.is_published = "true";
             } else {
                 building.is_published = "false";
             }
-
             if (!building.description) {
                 building.description = "-";
             }
-
-            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address) {
-
+            if (building.owner_id && building.name && building.description && building.is_published && building.url && building.address && building.space_type) {
                 var promise = $scope.anyAPI.addBuilding(building);
-
                 promise.then(
                     function (resp) {
                         // on success
@@ -535,12 +505,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                 $scope.setCrudTabSelected(1);
 
-                _suc($scope, "Successfully deleted building.");
+                _suc($scope, "Successfully deleted indoor space.");
             },
             function (resp) {
               ShowError($scope, resp,
                 "Something went wrong." +"" +
-                "It's likely that everything related to the building is deleted " +
+                "It's likely that everything related to the indoor space is deleted " +
                 "but please refresh to make sure or try again.", true)
             }
         );
@@ -588,8 +558,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         reqObj.buid = b.buid;
 
-        if (b.description) {
-            reqObj.description = b.description;
+        reqObj.description = b.description;
+        if (isNullOrEmpty(b.description)) {
+            reqObj.description = "";
         }
 
         if (b.name) {
@@ -602,8 +573,10 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             reqObj.is_published = "false";
         }
 
-        if (b.bucode) {
-            reqObj.bucode = b.bucode;
+
+        reqObj.bucode = b.bucode;
+        if (isNullOrEmpty(b.bucode)) {
+            reqObj.bucode = "";
         }
 
         var marker = $scope.myBuildingsHashT[b.buid].marker;
@@ -703,12 +676,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         reqObj.cuid = b.cuid;
 
-        if (b.description) {
-            reqObj.description = b.description;
+        reqObj.description = b.description;
+        if (isNullOrEmpty(b.description)) {
+            reqObj.description = "";
         }
 
-        if (b.name) {
-            reqObj.name = b.name;
+        reqObj.name = b.name;
+        if (isNullOrEmpty(b.name)) {
+            reqObj.name = "";
         }
 
         if (b.newcuid) {
@@ -721,7 +696,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             _err($scope, "No buildings selected.");
             return;
         }
-        var buids = "\"buids\":[";
+        var buids = "[";
         for (var i = sz - 1; i > 0; i--) {
             buids = buids + "\"" + $scope.example9modeledit[i].id + "\",";
         }
@@ -911,7 +886,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 is_published: true,
                 address: "-",
                 url: "-",
-                bucode: ""
+                bucode: "",
+                type: undefined
             };
             $scope.myMarkers[marker.myId].marker = marker;
             $scope.myMarkers[marker.myId].infowindow = infowindow;
@@ -928,6 +904,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             + '<fieldset class="form-group">'
             + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
             + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<select ng-model="myMarkers[' + marker.myId + '].model.space_type" class="form-control" ng-options="type for type in spaceTypes" title="Space Types" tabindex="2">'
+            + '<option value="">Select Space Type</option>'
+            + '</select>'
+            + '</fieldset class="form-group">'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
             + '</fieldset>'
@@ -1768,6 +1749,46 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             },
             function (resp) {
                 console.log(resp.data.message);
+            }
+        );
+    };
+
+    $scope.signLocalAccount = function () {
+        var jsonReq = {};
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+
+        var promise = $scope.anyAPI.signLocalAccount(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                $scope.$broadcast('loggedIn', []);
+                _suc($scope, "Successfully logged in.");
+            },
+            function (resp) {
+                ShowError($scope, resp,"Something went wrong at login.", true)
+            }
+        );
+    };
+
+    $scope.registerLocalAccount = function () {
+        var jsonReq = {};
+        jsonReq.name = $scope.user.name;
+        jsonReq.email = $scope.user.email;
+        jsonReq.username = $scope.user.username;
+        jsonReq.password = $scope.user.password;
+
+        var promise = $scope.anyAPI.registerLocalAccount(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                _suc($scope, "Successfully registered!");
+            },
+            function (resp) {
+                ShowError($scope, resp,"Something went wrong at registration.", true)
             }
         );
     };

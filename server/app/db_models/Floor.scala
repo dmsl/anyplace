@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -38,63 +39,92 @@ package db_models
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import utils.JsonUtils.convertToInt
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 object Floor {
 
-    def getId(buid: String, floor_number: String): String = buid + "_" + floor_number
+  def getId(buid: String, floor_number: String): String = buid + "_" + floor_number
 
-    def checkFloorNumberFormat(floor_number: String): Boolean = {
-        floor_number.toCharArray().find(java.lang.Character.isWhitespace(_))
-          .map(_ => false)
-          .getOrElse(true)
-    }
+  def checkFloorNumberFormat(floor_number: String): Boolean = {
+    floor_number.toCharArray().find(java.lang.Character.isWhitespace(_))
+      .map(_ => false)
+      .getOrElse(true)
+  }
 }
 
 class Floor(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsonObject = _
+  private var json: JsValue = _
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new HashMap[String, String])
-        fields.put("username_creator", "")
-        fields.put("buid", "")
-        fields.put("is_published", "")
-        fields.put("floor_name", "")
-        fields.put("floor_number", "")
-        fields.put("description", "")
-    }
+  def this() {
+    this(new HashMap[String, String])
+    fields.put(SCHEMA.fBuid, "")
+    fields.put(SCHEMA.fIsPublished, "")
+    fields.put(SCHEMA.fFloorName, "")
+    fields.put(SCHEMA.fFloorNumber, "")
+    fields.put(SCHEMA.fDescription, "")
+  }
 
-    def this(json: JsonObject) {
-        this()
-        fields.put("username_creator", json.getString("username_creator"))
-        fields.put("fuid", json.getString("fuid"))
-        fields.put("buid", json.getString("buid"))
-        fields.put("is_published", json.getString("is_published"))
-        fields.put("floor_name", json.getString("floor_name"))
-        fields.put("description", json.getString("description"))
-        fields.put("floor_number", json.getString("floor_number"))
-        this.json = json
-    }
+  def this(json: JsValue) {
+    this()
+    if ((json \ SCHEMA.fFuid).toOption.isDefined)
+      fields.put(SCHEMA.fFuid, (json \ SCHEMA.fFuid).as[String])
+    if ((json \ SCHEMA.fBuid).toOption.isDefined)
+      fields.put(SCHEMA.fBuid, (json \ SCHEMA.fBuid).as[String])
+    if ((json \ SCHEMA.fIsPublished).toOption.isDefined)
+      fields.put(SCHEMA.fIsPublished, (json \ SCHEMA.fIsPublished).as[String])
+    if ((json \ SCHEMA.fFloorName).toOption.isDefined)
+      fields.put(SCHEMA.fFloorName, (json \ SCHEMA.fFloorName).as[String])
+    if ((json \ SCHEMA.fDescription).toOption.isDefined) {
+      val temp = (json \ SCHEMA.fDescription).as[String]
+      if (temp != "" && temp != "-")
+        fields.put(SCHEMA.fDescription, (json \ SCHEMA.fDescription).as[String])
+      else
+        fields.remove(SCHEMA.fDescription)
+    } else
+      fields.remove(SCHEMA.fDescription)
+    if ((json \ SCHEMA.fFloorNumber).toOption.isDefined)
+      fields.put(SCHEMA.fFloorNumber, (json \ SCHEMA.fFloorNumber).as[String])
+    this.json = json
+  }
 
-    def getId(): String = {
-        var fuid: String = this.json.getString("fuid")
-        if (fuid==null || fuid.trim().isEmpty) {
-            fuid = Floor.getId(fields.get("buid"), fields.get("floor_number"))
-            fields.put("fuid", fuid)
-            this.json.put("fuid", fuid)
-        }
-        fuid
-    }
-    def toValidCouchJson(): JsonObject = {
-        // initialize id if not initialized
-        getId()
-        fields.remove("username")
-        JsonObject.from(this.getFields())
-    }
+  def getId(): String = {
+    var fuid = (this.json \ SCHEMA.fFuid)
+    var newFuid = ""
+    if (!fuid.toOption.isDefined) {
+      newFuid = Floor.getId(fields.get(SCHEMA.fBuid), fields.get(SCHEMA.fFloorNumber))
+      fields.put(SCHEMA.fFuid, newFuid)
+      this.json = this.json.as[JsObject] + (SCHEMA.fFuid -> JsString(newFuid))
+    } else
+      newFuid = fuid.as[String]
+    newFuid
+  }
 
-    override def toCouchGeoJSON(): String = toValidCouchJson().toString
+  def toValidJson(): JsonObject = {
+    null
+  }
 
-    override def toString(): String = this.toValidCouchJson().toString
+  def toValidMongoJson(): JsValue = {
+    // initialize id if not initialized
+    getId()
+    fields.remove("username")
+    toJson()
+  }
+
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt(SCHEMA.fSchema, res)
+  }
+
+  override def toGeoJSON(): String = toJson().toString
+
+  override def toString(): String = this.toJson().toString
 }

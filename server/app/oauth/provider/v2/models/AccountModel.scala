@@ -35,15 +35,13 @@
  */
 package oauth.provider.v2.models
 
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import utils.JsonUtils
-import utils.LPUtils
-import utils.PasswordService
 import java.util._
 
-import AccountModel._
+import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import oauth.provider.v2.models.AccountModel._
+import utils.{LPUtils, PasswordService}
 
-import scala.beans.{BeanProperty, BooleanBeanProperty}
+import scala.beans.BeanProperty
 
 //remove if not needed
 import scala.collection.JavaConversions._
@@ -60,11 +58,8 @@ object AccountModel {
                     var redirect_uri: String) {
 
     def getClientId(): String = client_id
-
     def getClientSecret(): String = client_secret
-
     def getGrantType(): String = grant_type
-
     def getRedirectUri(): String = redirect_uri
 
     def getScope(): String = scope

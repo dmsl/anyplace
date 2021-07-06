@@ -137,6 +137,7 @@ object AnyplaceOAuth extends Controller{
     *
     * @return
     */
+    @deprecated("")
   def token()=Action {
     implicit request =>
 

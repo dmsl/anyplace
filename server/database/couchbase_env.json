@@ -1,0 +1,24 @@
+{
+	"id": "8187e895-cf76-4085-8b36-25b5d7eac223",
+	"name": "CouchDB",
+	"values": [
+		{
+			"key": "HOST",
+			"value": "http://ap-dev.cs.ucy.ac.cy",
+			"enabled": true
+		},
+		{
+			"key": "PORT",
+			"value": "9001",
+			"enabled": true
+		},
+		{
+			"key": "ACCESS_TOKEN",
+			"value": "",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2021-06-02T16:20:08.525Z",
+	"_postman_exported_using": "Postman/8.5.1"
+}

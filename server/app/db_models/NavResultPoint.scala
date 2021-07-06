@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -36,6 +37,8 @@
 package db_models
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
+import play.api.libs.json.{JsValue, Json}
 
 class NavResultPoint {
 
@@ -54,13 +57,18 @@ class NavResultPoint {
   def toValidCouchJson(): JsonObject = {
 
     val p = JsonObject.empty()
-    p.put("lat",lat)
-    p.put("lon",lon)
-    p.put("puid", puid)
-    p.put("buid",buid)
-    p.put("floor_number",floor_number)
-    p.put("pois_type",pois_type)
+    p.put("lat", lat)
+    p.put("lon", lon)
+    p.put(SCHEMA.fPuid, puid)
+    p.put(SCHEMA.fBuid, buid)
+    p.put(SCHEMA.fFloorNumber, floor_number)
+    p.put(SCHEMA.fPoisType, pois_type)
     p
+  }
+
+  def toValidMongoJson(): JsValue = {
+    Json.obj(("lat" -> lat), ("lon" -> lon), (SCHEMA.fPuid -> puid), (SCHEMA.fBuid -> buid), (SCHEMA.fFloorNumber -> floor_number),
+      (SCHEMA.fPoisType -> pois_type))
   }
 
 }

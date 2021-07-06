@@ -7,3 +7,4 @@ PASSWORD = "ENTER PASSWORD"
 BUCKET = "anyplace"
 PATH = "/home/anyplace/documents.json"
 JSON_FILES = "/home/anyplace/"
+ADMINS = []

@@ -33,9 +33,16 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     $scope.isFirefox = navigator.userAgent.search("Firefox") > -1;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined
+    }
 
     $scope.tab = 1;
 

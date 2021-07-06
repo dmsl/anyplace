@@ -37,11 +37,11 @@ package floor_module
 
 import java.util.ArrayList
 
-import com.couchbase.client.java.document.json.JsonObject
+import play.api.libs.json.JsValue
 
 trait IAlgo {
 
-	def proccess(bucket: ArrayList[JsonObject], floor: String): Unit
+	def proccess(bucket: ArrayList[JsValue], floor: String): Unit
 
 	def getFloor(): String
 }

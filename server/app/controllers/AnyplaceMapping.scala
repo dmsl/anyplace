@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea, Paschalis Mpeis
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Loukas Solea, Paschalis Mpeis
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -48,9 +49,12 @@ import java.util.zip.GZIPOutputStream
 import acces.{AccesRBF, GeoUtils}
 import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource}
+import datasources.MongodbDatasource.convertJson
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import db_models.ExternalType.ExternalType
 import db_models._
+import json.VALIDATE
+import json.VALIDATE.{Coordinate, String, StringNumber}
 import location.Algorithms
 import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
@@ -63,10 +67,10 @@ import play.api.mvc._
 import play.libs.F
 import radiomapserver.RadioMap.RadioMap
 import radiomapserver.RadioMapMean
+import utils.JsonUtils.{isNullOrEmpty, toCouchArray}
 import utils._
 
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -79,29 +83,35 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   private val ADMIN_ID = "112997031510415584062_google"
   val ACCES_RETRY_AMOUNT = 2
   val ACCES_RETRY_UNIT: TemporalUnit = ChronoUnit.HOURS
+  val NEARBY_BUILDINGS_RANGE = 50
+  val NEARBY_BUILDINGS_RANGE_MAX = 500
 
-    // returns a json in a string format, and strips out unnecessary fields for logging, like:
-    // access_token (which is huge), username, and password
-    def stripJson(jsVal: JsValue) = {
-        // if username is needed, then restore it
-        (jsVal.as[JsObject] - "access_token" - "password" - "username").toString()
-    }
+  // returns a json in a string format, and strips out unnecessary fields for logging, like:
+  // access_token (which is huge), username, and password
+  def stripJson(jsVal: JsValue) = {
+    // if username is needed, then restore it
+    (jsVal.as[JsObject] - SCHEMA.fAccessToken - "password" - "username").toString()
+  }
 
-    private def verifyId(authToken: String): String = {
-      // remove the double string quotes due to json processing
-      val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
-      var res = ""
-      try {
-        res = sendGet(gURL)
-      } catch {
-        case e: Exception => {
-          LPLogger.error("verifyId: " + e.toString)
-          null
-        }
+  // TODO:PM TODO:NN local accounts
+  @deprecated("Will use oAuth2.verifyUsers")
+  // query (find) the user by api_key
+  def verifyId(authToken: String): String = {
+    // remove the double string quotes due to json processing
+    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
+    var res = ""
+    try {
+      res = sendGet(gURL)
+    } catch {
+      case e: Exception => {
+        LPLogger.error("verifyId: " + e.toString)
+        null
       }
+    }
     if (res != null)
       try {
 
+        // CHECK:PM CHECK:NN bug on main branch (JsonObject.fromJson())
         val json = Json.parse(res)
         val uid = (json \ "user_id")
         val sub = (json \ "sub")
@@ -111,13 +121,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return sub.as[String]
       } catch {
         case ioe: IOException => null
-        case iae: IllegalArgumentException=> LPLogger.error("verifyId: " + iae.getMessage + "String: '" + res + "'");
+        case iae: IllegalArgumentException => LPLogger.error("verifyId: " + iae.getMessage + "String: '" + res + "'");
       }
     null
   }
 
-  //Make the id to the appropriate format
-  private def appendToId(id: String) = if (id.contains("_google")) id else id + "_google"
+  def appendGoogleIdIfNeeded(id: String) = {
+    if (id.contains("_local"))
+      id
+    else if (id.contains("_google"))
+      id
+    else
+      id + "_google"
+  }
 
   private def sendGet(url: String) = {
     val obj = new URL(url)
@@ -151,83 +167,26 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloor() = Action {
+  def getHeatmapByFloorAVG1() = Action {
     implicit request =>
+
       def inner(request: Request[AnyContent]): Result = {
-
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        try {
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloor(buid, floor)
-          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-          try {
-            gzippedJSONOk(res.toString)
-          } catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
-          }
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-        }
-      }
-
-      inner(request)
-  }
-
-
-  def getRadioHeatmapByBuildingFloorAverage() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
+        // ---
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        LPLogger.info("getHeatmapByFloorAVG1: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        try {
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage(buid, floor)
-          if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-          try {
-            gzippedJSONOk(res.toString)
-          } catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
-          }
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-        }
-      }
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
 
-      inner(request)
-  }
-
-  def getRadioHeatmapByBuildingFloorAverage1() = Action {
-    implicit request =>
-
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS1(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
-        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -242,95 +201,113 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
 
-  def getRadioHeatmapByBuildingFloorAverage2() = Action {
+  def getHeatmapByFloorAVG2() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS2(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        LPLogger.D2("getRadioHeatmapRSS2(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: Exception => return AnyResponseHelper.internal_server_error("getRadioHeatmapByBuildingFloorAverage2: ", e)
         }
       }
 
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloorAverage3() = Action {
+  /**
+   * Gets RSS average of fingerprints on the same:
+   *  - buid, floor, location, heading (? VEFIRY)
+   *
+   * @return a json list of count, total, average
+   */
+  def getHeatmapByFloorAVG3() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        LPLogger.D2("getHeatmapByFloorAVG3: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
             case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
           }
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: Exception => return AnyResponseHelper.internal_server_error("getRadioHeatmapByBuildingFloorAverage3: ", e)
         }
       }
 
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloorAverage3Tiles() = Action {
+  /**
+   * Reads from level3 (all fingerprints), clusters them into tiles and return them.
+   *
+   * @return
+   */
+  def getHeatmapByFloorAVG3Tiles() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSS3(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        LPLogger.D2("getHeatmapByFloorAVG3Tiles: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fX, SCHEMA.fY, "z")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        val x = (json \ "x").as[Int]
-        val y = (json \ "y").as[Int]
-        val z = (json \ "z").as[Int]
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fX, SCHEMA.fY, "z")
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val tileX = (json \ SCHEMA.fX).as[Int]
+        val tileY = (json \ SCHEMA.fY).as[Int]
+        val zoomLevel = (json \ "z").as[Int]
         try {
           val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          val radioPointsInXY: util.ArrayList[JsonObject]= new util.ArrayList[JsonObject]()
 
-          for (radioPoint: JsonObject <- radioPoints) {
-            var radioX = radioPoint.getString("x").toDouble
-            var radioY = radioPoint.getString("y").toDouble
-            var xyConverter=convertToxy(radioX,radioY,z)
-            if(xyConverter(0)==x && xyConverter(1)==y)
+          val radioPointsInXY: util.ArrayList[JsValue] = new util.ArrayList[JsValue]()
+          // assigns fingerprints to map tiles because its overkill to load everything at once.
+          for (radioPoint <- radioPoints) {
+            val lat = (radioPoint \ "x").as[Double]
+            val lon = (radioPoint \ "y").as[Double]
+            val xyConverter = convertToXY(lat, lon, zoomLevel)
+            if (xyConverter(0) == tileX && xyConverter(1) == tileY) {
               radioPointsInXY.add(radioPoint)
+            }
           }
-          res.put("radioPoints", radioPointsInXY)
+          val res = Json.obj("radioPoints" -> radioPointsInXY.toList)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -344,29 +321,31 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-
-  def getRadioHeatmapByBuildingFloorTimestamp()= Action {
+  /**
+   * Called by crossfilter when on zoom level 21.
+   */
+  def heatmapByFloorTimestampAVG3() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        LPLogger.D2("heatmapByFloorTimestampAVG3: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        val timestampX = (json \ "timestampX").as[String]
-        val timestampY = (json \ "timestampY").as[String]
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val timestampX = (json \ SCHEMA.fTimestampX).as[String]
+        val timestampY = (json \ SCHEMA.fTimestampY).as[String]
 
         try {
-
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -374,53 +353,67 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
 
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
+          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getClass + ": " + e.getMessage + "]")
         }
       }
 
       inner(request)
   }
 
-  private def convertToxy(lat: Double, lon: Double, zoom: Int) = {
+  /**
+   * Converts tiles map x, y, z to coordinates(lat, lon)
+   *
+   * @param lat
+   * @param lon
+   * @param zoom
+   * @return
+   */
+  private def convertToXY(lat: Double, lon: Double, zoom: Int) = {
     val sxtile = Math.floor((lon + 180.0) / 360.0 * (1 << zoom).toDouble).toInt
-    val sytile = Math.floor((1.0 - Math.log(Math.tan(Math.toRadians(lat)) + 1.0 / Math.cos(Math.toRadians(lat))) / 3.141592653589793) / 2.0 * (1 << zoom).toDouble).toInt
+    val sytile = Math.floor((1.0 - Math.log(Math.tan(Math.toRadians(lat)) + 1.0 /
+      Math.cos(Math.toRadians(lat))) / Math.PI) / 2.0 * (1 << zoom).toDouble).toInt
     Array[Int](sxtile, sytile)
   }
 
-  def getRadioHeatmapByBuildingFloorTimestampTiles()= Action {
+  /**
+   * Called by crossfilter when on maximum zoom level (22).
+   * Called many times from clients, for each tile.
+   */
+  def heatmapByFloorTimestampTiles() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapByTime(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY","x","y","z")
+        LPLogger.D3("heatmapByFloorTimestampTiles: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY, SCHEMA.fX, SCHEMA.fY, "z")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        val timestampX = (json \ "timestampX").as[String]
-        val timestampY = (json \ "timestampY").as[String]
-        val x = (json \ "x").as[Int]
-        val y = (json \ "y").as[Int]
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY,
+          SCHEMA.fX, SCHEMA.fY, "z")
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val timestampX = (json \ SCHEMA.fTimestampX).as[String]
+        val timestampY = (json \ SCHEMA.fTimestampY).as[String]
+        val x = (json \ SCHEMA.fX).as[Int]
+        val y = (json \ SCHEMA.fY).as[Int]
         val z = (json \ "z").as[Int]
 
         try {
-
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestamp(buid, floor, timestampX, timestampY)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          val radioPointsInXY: util.ArrayList[JsonObject]= new util.ArrayList[JsonObject]()
+          val radioPointsInXY: util.ArrayList[JsValue] = new util.ArrayList[JsValue]()
 
-          for (radioPoint: JsonObject <- radioPoints) {
-            var radioX = radioPoint.getString("x").toDouble
-            var radioY = radioPoint.getString("y").toDouble
-            var xyConverter=convertToxy(radioX,radioY,z)
-            if(xyConverter(0)==x && xyConverter(1)==y)
+          for (radioPoint <- radioPoints) {
+            val radioX = (radioPoint \ "x").as[Double]
+            val radioY = (radioPoint \ "y").as[Double]
+            val xyConverter = convertToXY(radioX, radioY, z)
+            if (xyConverter(0) == x && xyConverter(1) == y)
               radioPointsInXY.add(radioPoint)
           }
-          res.put("radioPoints", radioPointsInXY)
-
+          val res: JsValue = Json.obj("radioPoints" -> radioPointsInXY.toList)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -435,28 +428,27 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage1()= Action {
+  def heatmapByFloorTimestampAVG1() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        LPLogger.info("heatmapByFloorTimestampAVG1: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        val timestampX = (json \ "timestampX").as[String]
-        val timestampY = (json \ "timestampY").as[String]
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
 
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val timestampX = (json \ SCHEMA.fTimestampX).as[String]
+        val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX,timestampY)
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -471,26 +463,27 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def getRadioHeatmapByBuildingFloorTimestampAverage2()= Action {
+  def heatmapByFloorTimestampAVG2() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::getRadioHeatmapRSSByTime(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","timestampX","timestampY")
+        LPLogger.info("heatmapByFloorTimestampAVG2: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        val timestampX = (json \ "timestampX").as[String]
-        val timestampY = (json \ "timestampY").as[String]
-        try {
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
 
-          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX,timestampY)
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val timestampX = (json \ SCHEMA.fTimestampX).as[String]
+        val timestampY = (json \ SCHEMA.fTimestampY).as[String]
+        try {
+          val radioPoints = ProxyDataSource.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
           if (radioPoints == null) return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -505,78 +498,96 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  def deletePrecomputed(): Unit = {
+    // TODO: delete accessPointsWifi: buid, floor
+  }
 
   def getAPsByBuildingFloor() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::getAPs(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor = (json \ "floor").as[String]
-        try {
-          val accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor).asScala
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
 
-          val uniqueAPs: util.HashMap[String, JsonObject] = new util.HashMap()
-          for (accessPoint: JsonObject <- accessPoints) {
-            var id = accessPoint.getString("AP")
-            id = id.substring(0, id.length - 9)
-
-            var ap = uniqueAPs.get(id)
-            var avg = accessPoint.getObject("RSS").getDouble("average")
-            var x = accessPoint.getString("x").toDouble
-            var y = accessPoint.getString("y").toDouble
-            if (ap == null) {
-              if (avg < -60) {
-                accessPoint.put("den", avg)
-                accessPoint.put("x", avg * x)
-                accessPoint.put("y", avg * y)
-              } else {
-                accessPoint.put("den", 0)
-                accessPoint.put("x", x)
-                accessPoint.put("y", y)
-              }
-              ap = accessPoint
-            } else if (ap.getDouble("den") < 0) {
-              if (avg < -60) {
-                var ap_den = ap.getDouble("den")
-                var ap_x = ap.getDouble("x")
-                var ap_y = ap.getDouble("y")
-                accessPoint.put("den", avg + ap_den)
-                accessPoint.put("x", avg * x + ap_x)
-                accessPoint.put("y", avg * y + ap_y)
-              } else {
-                accessPoint.put("den", 0)
-                accessPoint.put("x", x)
-                accessPoint.put("y", y)
-              }
-              ap = accessPoint
-            }
-            //overwrite old object in case that there is one
-            uniqueAPs.put(id, ap)
-          }
-
-          if (accessPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          val res = JsonObject.empty()
-          res.put("accessPoints", new util.ArrayList[JsonObject](uniqueAPs.values()))
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val APs = ProxyDataSource.getIDatasource().getCachedAPsByBuildingFloor(buid, floor)
+        // if cached return it
+        if (APs != null) {
+          val res = Json.obj("accessPoints" -> (APs \ "accessPoints").as[List[JsValue]])
+          return gzippedJSONOk(res, "Fetched precompute of accessPointsWifi")
+        } else {
           try {
-            gzippedJSONOk(res.toString)
+            var accessPoints = ProxyDataSource.getIDatasource.getAPsByBuildingFloor(buid, floor)
+            val apcdb = ProxyDataSource.getIDatasource.getAPsByBuildingFloorcdb(buid, floor)
+
+            LPLogger.debug("mdb " + accessPoints.size)
+            LPLogger.debug("cdb " + apcdb.size())
+            //val newList = new util.ArrayList[JsValue]()
+            //for (ap <- apcdb) {
+            //  val newAP = fromCouchObject(ap)
+            //  newList.add(newAP)
+            //}
+            //accessPoints = newList.toList
+            val uniqueAPs: util.HashMap[String, JsValue] = new util.HashMap()
+            for (accessPoint <- accessPoints) {
+              var tempAP = accessPoint
+              var id = (tempAP \ "AP").as[String]
+              id = id.substring(0, id.length - 9)
+              var ap = uniqueAPs.get(id)
+              val avg = (tempAP \ "RSS" \ "average").as[Double]
+              val x = (tempAP \ SCHEMA.fX).as[String].toDouble
+              val y = (tempAP \ SCHEMA.fY).as[String].toDouble
+              if (ap == null) {
+                if (avg < -60) {
+                  tempAP = tempAP.as[JsObject] + ("den" -> JsNumber(avg)) + (SCHEMA.fX -> JsNumber(avg * x)) + (SCHEMA.fY -> JsNumber(avg * y))
+                } else {
+                  tempAP = tempAP.as[JsObject] + ("den" -> JsNumber(0)) + (SCHEMA.fX -> JsNumber(x)) + (SCHEMA.fY -> JsNumber(y))
+                }
+                ap = tempAP
+              } else if ((ap \ "den").as[Double] < 0) {
+                if (avg < -60) {
+                  val ap_den = (ap \ "den").as[Double]
+                  val ap_x = (ap \ SCHEMA.fX).as[Double]
+                  val ap_y = (ap \ SCHEMA.fY).as[Double]
+                  tempAP = tempAP.as[JsObject] + ("den" -> JsNumber(avg + ap_den)) +
+                    (SCHEMA.fX -> JsNumber(avg * x + ap_x)) + (SCHEMA.fY -> JsNumber(avg * y + ap_y))
+                } else {
+                  tempAP = tempAP.as[JsObject] + ("den" -> JsNumber(0)) + (SCHEMA.fX -> JsNumber(x)) + (SCHEMA.fY -> JsNumber(y))
+                }
+                ap = tempAP
+              }
+              //overwrite old object in case that there is one
+              uniqueAPs.put(id, ap.as[JsObject])
+            }
+
+            if (accessPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+            val newAccessPoint = Json.obj(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor, "accessPoints" -> uniqueAPs.values().toList)
+            ProxyDataSource.getIDatasource().addJsonDocument(SCHEMA.cAccessPointsWifi, newAccessPoint.toString())
+            val res: JsValue = Json.obj("accessPoints" -> new util.ArrayList[JsValue](uniqueAPs.values()).toList)
+            try {
+              gzippedJSONOk(res, "Generated precompute of accessPointsWifi")
+            } catch {
+              case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+            }
           } catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
+            case e: Exception => return AnyResponseHelper.internal_server_error("getAPsByBuildingFloor: ", e)
           }
-        } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
       inner(request)
   }
 
-
+  /**
+   *
+   * @return
+   */
   def getAPsIds() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -584,31 +595,31 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        val accessPointsOfReq= (json\"ids").as[List[String]]
+        val accessPointsOfReq = (json \ "ids").as[List[String]]
         try {
           val reqFile = "public/anyplace_architect/ids.json"
           val file = Play.application().resourceAsStream(reqFile)
 
-          var accessPointsOfFile: List[JsObject]= null
+          var accessPointsOfFile: List[JsObject] = null
           if (file != null) {
             accessPointsOfFile = Json.parse(file).as[List[JsObject]]
-          }else{
+          } else {
             return AnyResponseHelper.not_found(reqFile)
           }
 
-          val APsIDs: util.ArrayList[String]= new util.ArrayList[String]()
+          val APsIDs: util.ArrayList[String] = new util.ArrayList[String]()
           var found = false
           var firstBitFound = false
           var sameBits = 0
           var sameBitsOfReq = 0
-          var idOfReq : String = ""
+          var idOfReq: String = ""
           val loop = new Breaks
 
           val inner_loop = new Breaks
 
 
-          for (accessPointOfReq : String <- accessPointsOfReq) {
-            idOfReq="N/A"
+          for (accessPointOfReq: String <- accessPointsOfReq) {
+            idOfReq = "N/A"
             loop.breakable {
               for (accessPointOfFile: JsObject <- accessPointsOfFile) {
 
@@ -616,7 +627,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                 val bitsA = accessPointOfFile.value("mac").as[String].split(":")
                 if (bitsA(0).equalsIgnoreCase(bitsR(0))) {
 
-                  firstBitFound=true
+                  firstBitFound = true
 
                   var i = 0
                   inner_loop.breakable {
@@ -631,12 +642,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                     }
                   }
 
-                  if(sameBits >= 3)
+                  if (sameBits >= 3)
                     found = true
                 } else {
                   sameBits = 0
                   if (firstBitFound) {
-                    firstBitFound=false
+                    firstBitFound = false
                     loop.break
                   }
                 }
@@ -651,7 +662,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
             APsIDs.add(idOfReq)
             sameBitsOfReq = 0
-            found=false
+            found = false
           }
 
           if (accessPointsOfReq == null) return AnyResponseHelper.bad_request("Access Points does not exist or could not be retrieved!")
@@ -672,6 +683,11 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  /**
+   * Delete fingeprints within a bounding-box. Also delete heatmap caches.
+   *
+   * @return deleted fingerprints (so JS update UI)
+   */
   def FingerPrintsDelete() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -679,33 +695,31 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor", "lat1", "lon1", "lat2", "lon2")
+        LPLogger.info("FingerPrintsDelete: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fOwnerId)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fFloor, SCHEMA.fBuid, "lat1", "lon1", "lat2", "lon2")
+        if (validation.failed()) return validation.response()
 
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
         val lat1 = (json \ "lat1").as[String]
         val lon1 = (json \ "lon1").as[String]
         val lat2 = (json \ "lat2").as[String]
         val lon2 = (json \ "lon2").as[String]
-
-
         try {
-          val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsBBox(buid, floor_number, lat1, lon1, lat2, lon2)
-          if (radioPoints.isEmpty)
-            return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
+          val fingerprints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerPrintsBBox(
+            buid, floor_number, lat1, lon1, lat2, lon2)
+          if (fingerprints.isEmpty)
+            return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
 
-          for (i <- 0 until radioPoints.size())
-            ProxyDataSource.getIDatasource.deleteFromKey(radioPoints.get(i).getString("id"))
-
-
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          {
-          //Regenerate the radiomap files
+          LPLogger.D2("FingerPrintsDelete: will delete " + fingerprints.size + " fingerprints.")
+          for (fingerprint <- fingerprints) {
+            ProxyDataSource.getIDatasource.deleteFingerprint(fingerprint)
+          }
+          ProxyDataSource.getIDatasource().deleteAffectedHeatmaps(buid,floor_number)
+          val res: JsValue = Json.obj("fingerprints" -> fingerprints)
           val strPromise = F.Promise.pure("10")
           val intPromise = strPromise.map(new F.Function[String, Integer]() {
             override def apply(arg0: String): java.lang.Integer = {
@@ -713,16 +727,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               0
             }
           })
-          gzippedJSONOk(res.toString)
-          //                }
-          //                return AnyResponseHelper.ok(res.toString());
-          } catch {
-            case ioe: IOException =>
-              return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
-          }
+          return gzippedJSONOk(res, "Deleted " + fingerprints.size + " fingerprints and returning them.")
         } catch {
-          case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: Exception =>
+            return AnyResponseHelper.internal_server_error("FingerPrintsDelete: " + e.getClass + ": " + e.getMessage)
         }
 
       }
@@ -738,44 +746,41 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::FingerPrintsTimestampDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor", "lat1", "lon1", "lat2", "lon2","timestampX","timestampY")
-        if (!requiredMissing.isEmpty)
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2",
+          SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2",
+          SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        if (validation.failed()) return validation.response()
 
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
         val lat1 = (json \ "lat1").as[String]
         val lon1 = (json \ "lon1").as[String]
         val lat2 = (json \ "lat2").as[String]
         val lon2 = (json \ "lon2").as[String]
-        val timestampX = (json \ "timestampX").as[String]
-        val timestampY = (json \ "timestampY").as[String]
-
-
+        val timestampX = (json \ SCHEMA.fTimestampX).as[String]
+        val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-          val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsTimestampBBox(buid, floor_number, lat1, lon1, lat2, lon2, timestampX, timestampY)
-          if (radioPoints.isEmpty)
+          val fingerprints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerPrintsTimestampBBox(buid, floor_number, lat1, lon1, lat2, lon2, timestampX, timestampY)
+          if (fingerprints.isEmpty)
             return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
-
-          for (i <- 0 until radioPoints.size())
-            ProxyDataSource.getIDatasource.deleteFromKey(radioPoints.get(i).getString("id"))
-
-
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          {
-          //Regenerate the radiomap files
-          val strPromise = F.Promise.pure("10")
-          val intPromise = strPromise.map(new F.Function[String, Integer]() {
-            override def apply(arg0: String): java.lang.Integer = {
-              AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
-              0
-            }
-          })
-          gzippedJSONOk(res.toString)
-          //                }
-          //                return AnyResponseHelper.ok(res.toString());
+          for (fingerprint <- fingerprints)
+            ProxyDataSource.getIDatasource.deleteFingerprint(fingerprint)
+          ProxyDataSource.getIDatasource().deleteAffectedHeatmaps(buid,floor_number)
+          // TODO:do also 1 and 2
+          ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floor_number, 3)
+          val res: JsValue = Json.obj("radioPoints" -> fingerprints)
+          try {
+            //Regenerate the radiomap files
+            val strPromise = F.Promise.pure("10")
+            val intPromise = strPromise.map(new F.Function[String, Integer]() {
+              override def apply(arg0: String): java.lang.Integer = {
+                AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
+                0
+              }
+            })
+            gzippedJSONOk(res.toString)
           } catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
@@ -790,50 +795,51 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def FingerPrintsTime() = Action {
+  /**
+   * Called when "Show Fingerprints By Time" (Architect: toggleFingerPrintsTime) is clicked.
+   * Used to return the data that will be shown in the crossfilter bar.
+   *
+   * @return a list of the number of fingerprints stored, and date.
+   */
+  def FingerprintsByTime() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::FingerPrintsTime(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor")
+        LPLogger.D2("FingerprintsByTime: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, SCHEMA.fFloor)
+        if (validation.failed()) return validation.response()
 
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
 
+        ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp1, buid, floor_number, 1)
+        ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp2, buid, floor_number, 2)
+        ProxyDataSource.getIDatasource().createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floor_number, 3)
 
         try {
-          val radioPoints: util.List[JsonObject] = ProxyDataSource.getIDatasource.getFingerPrintsTime(buid, floor_number)
-          if (radioPoints.isEmpty)
-            return AnyResponseHelper.bad_request("FingerPrints does not exist or could not be retrieved!")
-
-
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
-
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                return AnyResponseHelper.ok(res.toString());
-          catch {
+          val radioPoints: List[JsValue] = ProxyDataSource.getIDatasource.getFingerprintsByTime(buid, floor_number)
+          if (radioPoints.isEmpty) return AnyResponseHelper.bad_request("Fingerprints do not exist.")
+          val res: JsValue = Json.obj("radioPoints" -> radioPoints)
+          try {
+            gzippedJSONOk(res.toString)
+          } catch {
             case ioe: IOException =>
-              return AnyResponseHelper.ok(res, "Successfully retrieved all FingerPrints!")
+              return AnyResponseHelper.ok(res, "Successfully retrieved all Fingerprints!")
           }
         } catch {
           case e: DatasourceException =>
             return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
-
       }
 
       inner(request)
   }
-
-
 
   def findPosition() = Action {
     implicit request =>
@@ -843,23 +849,23 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::findPosition(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor","APs","algorithm_choice")
+        //val requiredMissing = JsonUtils.requirePropertiesInJson(json, SCHEMA.fBuid, SCHEMA.fFloor,"APs","algorithm_choice")
         // LPLogger.debug("json: "+json)
-        if (!requiredMissing.isEmpty)
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        //if (!requiredMissing.isEmpty)
+        //  return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
 
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor").as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
 
         /*
          * BuxFix : Server side localization API
          * Fixing JSON Parse error
          */
-        val accessOpt = Json.parse((json\"APs").as[String]).validate[List[JsValue]] match {
+        val accessOpt = Json.parse((json \ "APs").as[String]).validate[List[JsValue]] match {
           case s: JsSuccess[List[JsValue]] => {
             Some(s.get)
           }
-          case e: JsError => 
+          case e: JsError =>
             LPLogger.error("accessOpt Errors: " + JsError.toJson(e).toString())
             None
         }
@@ -869,7 +875,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
          * BuxFix : Server side localization API
          * Fixing JSON Parse error [String vs Int]
          */
-        val algorithm_choice : Int =  (json\"algorithm_choice").validate[String] match {
+        val algorithm_choice: Int = (json \ "algorithm_choice").validate[String] match {
           case s: JsSuccess[String] => {
             if (s.get != null && s.get.trim != "")
               Integer.parseInt(s.get)
@@ -879,22 +885,22 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: JsError =>
             Play.application().configuration().getInt("defaultPositionAlgorithm")
         }
-        
+
         //FeatureAdd : Configuring location for server generated files
         val radioMapsFrozenDir = Play.application().configuration().getString("radioMapFrozenDir")
-    /*
-     * REVIEWLS . Leaving bugfix from develop
-        val floor_number = (json \ "floor").as[String]
-        val jsonstr=(json\"APs").as[String]
-        val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
-        val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
-        val algorithm_choice = (json\"algorithm_choice").as[String].toInt
-        */
+        /*
+         * REVIEWLS . Leaving bugfix from develop
+            val floor_number = (json \ SCHEMA.fFloor).as[String]
+            val jsonstr=(json\"APs").as[String]
+            val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
+            val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
+            val algorithm_choice = (json\"algorithm_choice").as[String].toInt
+            */
 
-        val rmapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEPARATOR + buid + AnyplaceServerAPI.URL_SEPARATOR +
-          floor_number+AnyplaceServerAPI.URL_SEPARATOR+ "indoor-radiomap-mean.txt")
+        val rmapFile = new File(radioMapsFrozenDir + AnyplaceServerAPI.URL_SEP + buid + AnyplaceServerAPI.URL_SEP +
+          floor_number + AnyplaceServerAPI.URL_SEP + "indoor-radiomap-mean.txt")
 
-        if(!rmapFile.exists()){
+        if (!rmapFile.exists()) {
           //Regenerate the radiomap files if not exist
           AnyplacePosition.updateFrozenRadioMap(buid, floor_number)
         }
@@ -908,35 +914,27 @@ object AnyplaceMapping extends play.api.mvc.Controller {
          * REVIEWLS Leaving bugfix from develop
            val latestScanList = new  util.ArrayList[location.LogRecord]
         */
-        var i=0
+        var i = 0
 
 
         for (i <- 0 until accessPoints.size) {
-          val bssid= (accessPoints(i) \ "bssid").as[String]
-          val rss =(accessPoints(i) \ "rss").as[Int]
-          latestScanList.add(new location.LogRecord(bssid,rss))
+          val bssid = (accessPoints(i) \ "bssid").as[String]
+          val rss = (accessPoints(i) \ SCHEMA.fRSS).as[Int]
+          latestScanList.add(new location.LogRecord(bssid, rss))
         }
 
-        val radioMap:location.RadioMap = new location.RadioMap(rmapFile)
-        var response = Algorithms.ProcessingAlgorithms(latestScanList,radioMap,algorithm_choice)
+        val radioMap: location.RadioMap = new location.RadioMap(rmapFile)
+        var response = Algorithms.ProcessingAlgorithms(latestScanList, radioMap, algorithm_choice)
 
-        /*
-         * BuxFix : Server side localization API
-         * Fixing response error
-         */
         if (response == null) {
           response = "0 0"
         }
         val lat_long = response.split(" ")
 
-        val res = JsonObject.empty()
-        res.put("lat", lat_long(0))
-        res.put("long", lat_long(1))
+        val res = Json.obj("lat" -> lat_long(0), "long" -> lat_long(1))
         return AnyResponseHelper.ok(res, "Successfully found position.")
-
-        // REVIEWLS accepted develop code. lsolea01 code must have been
-        // based on a previous commit of the develop branch
       }
+
       inner(request)
   }
 
@@ -949,15 +947,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
         LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon", "floor", "buid", "range")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloor, SCHEMA.fBuid, "range")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val lat = (json \ "coordinates_lat").as[String]
-        val lon = (json \ "coordinates_lon").as[String]
-        val floor_number = (json \ "floor").as[String]
-        val buid = (json \ "buid").as[String]
+        val lat = (json \ SCHEMA.fCoordinatesLat).as[String]
+        val lon = (json \ SCHEMA.fCoordinatesLon).as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
         val strRange = (json \ "range").as[String]
-        val weight = (json \ "weight").as[String]
+        val weight = (json \ SCHEMA.fWeight).as[String]
         val range = strRange.toInt
         try {
           var radioPoints: util.List[JsonObject] = null
@@ -969,9 +967,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           val res = JsonObject.empty()
           res.put("radioPoints", radioPoints)
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                return AnyResponseHelper.ok(res.toString());
+            gzippedJSONOk(res.toString)
+            //                }
+            //                return AnyResponseHelper.ok(res.toString());
           catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!")
@@ -1004,32 +1002,34 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingAdd() = Action {
+  def spaceAdd() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAdd(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "name", "description",
-          "url", "address", "coordinates_lat", "coordinates_lon", "access_token")
+        LPLogger.info("AnyplaceMapping::spaceAdd(): " + stripJson(json))
+
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fIsPublished, SCHEMA.fName, SCHEMA.fDescription,
+          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken, SCHEMA.fSpaceType)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if ((json \ "access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if ((json \ SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id.toString)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
-          var building: Building = null
+          var space: Space = null
           try {
-            building = new Building(JsonObject.fromJson(json.toString()))
+            json = json.as[JsObject] - SCHEMA.fAccessToken
+            space = new Space(json)
           } catch {
             case e: NumberFormatException => return AnyResponseHelper.bad_request("Building coordinates are invalid!")
           }
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
-          val res = JsonObject.empty()
-          res.put("buid", building.getId)
-          return AnyResponseHelper.ok(res, "Successfully added building!")
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cSpaces, space.toGeoJSON())) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
+          val res: JsValue = Json.obj(SCHEMA.fBuid -> space.getId)
+          return AnyResponseHelper.ok(res, "Successfully added space!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1038,29 +1038,33 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingUpdateCoOwners() = Action {
+  def spaceUpdateCoOwners() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "co_owners")
+        LPLogger.info("AnyplaceMapping::spaceUpdateCoOwners(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken, SCHEMA.fCoOwners)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\\("access_token") == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\\(SCHEMA.fAccessToken) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
-          val building = new Building(stored_building)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.appendCoOwners(json))) return AnyResponseHelper.bad_request("Building could not be updated!")
-          return AnyResponseHelper.ok("Successfully updated building!")
+          val stored_space: JsValue = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_space, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          val space = new Space(stored_space)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId, space.appendCoOwners(json)))
+            return AnyResponseHelper.bad_request("Building could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated space!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1069,30 +1073,33 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingUpdateOwner() = Action {
+  def spaceUpdateOwner() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingUpdateCoOwners(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token", "new_owner")
+        LPLogger.info("AnyplaceMapping::spaceUpdateOwner(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken, "new_owner")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, "new_owner")
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
         var newOwner = (json \ "new_owner").as[String]
-        newOwner = appendToId(newOwner)
+        newOwner = appendGoogleIdIfNeeded(newOwner)
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
-          val building = new Building(stored_building)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.changeOwner(newOwner))) return AnyResponseHelper.bad_request("Building could not be updated!")
-          return AnyResponseHelper.ok("Successfully updated building!")
+          val stored_space = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_space, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          val space = new Space(stored_space)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId, space.changeOwner(newOwner))) return AnyResponseHelper.bad_request("Building could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated space!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1101,40 +1108,50 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingUpdate() = Action {
+  def spaceUpdate() = Action {
     implicit request =>
-
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingUpdate(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
+        LPLogger.info("AnyplaceMapping::spaceUpdateX(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+        val buid = (json \ SCHEMA.fBuid).as[String]
+
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
-          if (json.\("is_published").getOrElse(null) != null) {
-            val is_published = (json \ "is_published").as[String]
-            if (is_published == "true" || is_published == "false") stored_building.put("is_published", (json \ "is_published").as[String])
+          var stored_space = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_space, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
+            val is_published = (json \ SCHEMA.fIsPublished).as[String]
+            if (is_published == "true" || is_published == "false")
+              stored_space = stored_space.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           }
-          if (json.\("name").getOrElse(null) != null) stored_building.put("name", (json \ "name").as[String])
-          if (json.\("bucode").getOrElse(null) != null) stored_building.put("bucode", (json \ "bucode").as[String])
-          if (json.\("description").getOrElse(null) != null) stored_building.put("description", (json \ "description").as[String])
-          if (json.\("url").getOrElse(null) != null) stored_building.put("url", (json \ "url").as[String])
-          if (json.\("address").getOrElse(null) != null) stored_building.put("address", (json \ "address").as[String])
-          if (json.\("coordinates_lat").getOrElse(null) != null) stored_building.put("coordinates_lat", (json \ "coordinates_lat").as[String])
-          if (json.\("coordinates_lon").getOrElse(null) != null) stored_building.put("coordinates_lon", (json \ "coordinates_lon").as[String])
-          val building = new Building(stored_building)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(building.getId, 0, building.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Building could not be updated!")
-          return AnyResponseHelper.ok("Successfully updated building!")
+          if (json.\(SCHEMA.fName).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
+          if (json.\(SCHEMA.fBuCode).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fBuCode -> JsString((json \ SCHEMA.fBuCode).as[String]))
+          if (json.\(SCHEMA.fDescription).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fDescription -> JsString((json \ SCHEMA.fDescription).as[String]))
+          if (json.\(SCHEMA.fURL).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fURL -> JsString((json \ SCHEMA.fURL).as[String]))
+          if (json.\(SCHEMA.fAddress).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fAddress -> JsString((json \ SCHEMA.fAddress).as[String]))
+          if (json.\(SCHEMA.fCoordinatesLat).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fCoordinatesLat -> JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
+          if (json.\(SCHEMA.fCoordinatesLon).getOrElse(null) != null)
+            stored_space = stored_space.as[JsObject] + (SCHEMA.fCoordinatesLon -> JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
+          val space = new Space(stored_space)
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId, space.toGeoJSON())) return AnyResponseHelper.bad_request("Building could not be updated!")
+          return AnyResponseHelper.ok("Successfully updated space!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1143,38 +1160,61 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingDelete() = Action {
+  def spaceDelete() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+
+        // TODO:NN this could be ONE method. with arguments: properties:
+        /*e.g. val reqResult=anyReq.checkAuthRequest(CHEMA.fBUid); // THIS will replace the lines below.. after these comments..
+        if(reqRes not null) return it..;
+
+        // these will be implemneted somewher else...
+        OAht2Request::checkAuthRequest( varargs...): Response {
+          return checkRequest(true, vargargs)
+        }
+
+        Oauth2Request::checkRequest(auth: boolean, varargs...): Response {
+
+        if auth: varargs.append(fAccessToekn)
+        JUtils.HasProperties(varargs)
+
+        if(auth) {
+        vreifyId(..)
+        }
+
+        if all ok: return null
+        }
+        */
+        // TODO:NN if the request is wrong must reply json
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "access_token")
+        LPLogger.info("AnyplaceMapping::spaceDelete(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
-        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
+        if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized") // TODO:NN OAuthReponse::Unauthorized()
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        // up to here will be in the method in the comments....
+
+
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid).asInstanceOf[JsonObject]
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          val stored_space = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_space, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
-          if (all_items_failed.size > 0) {
-            val obj = JsonObject.empty()
-            obj.put("ids", (all_items_failed))
-            return AnyResponseHelper.bad_request(obj, "Some items related to the deleted building could not be deleted: " +
-              all_items_failed.size +
-              " items.")
-          }
+          val deleted = ProxyDataSource.getIDatasource.deleteAllByBuilding(buid)
+          if (deleted == false)
+            return AnyResponseHelper.bad_request("Some items related to the deleted space could not be deleted.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1186,30 +1226,28 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: IOException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "] while deleting floor plans." +
             "\nAll related information is deleted from the database!")
         }
-        return AnyResponseHelper.ok("Successfully deleted everything related to building!")
+        return AnyResponseHelper.ok("Successfully deleted everything related to space!")
       }
 
       inner(request)
   }
 
-  def buildingAll = Action {
+  def spaceAll = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-          val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAll(): " + stripJson(json))
+        val json = anyReq.getJsonBody
+        LPLogger.info("spaceAll: " + stripJson(json))
         try {
-          val buildings = ProxyDataSource.getIDatasource.getAllBuildings
-          val res = JsonObject.empty()
-          res.put("buildings", buildings)
+          val spaces = ProxyDataSource.getIDatasource.getAllBuildings
+          val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
           try {
             gzippedJSONOk(res.toString)
           }
-
           catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all spaces!")
           }
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1224,34 +1262,33 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     response
   }
 
-  def buildingGetOne() = Action {
+  def spaceGetOne() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingGet(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        LPLogger.info("AnyplaceMapping::spaceGet(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
-          if (building != null && building.get("buid") != null && building.get("coordinates_lat") != null &&
-            building.get("coordinates_lon") != null &&
-            building.get("owner_id") != null &&
-            building.get("name") != null &&
-            building.get("description") != null &&
-            building.get("puid") == null &&
-            building.get("floor_number") == null) {
-            building.asInstanceOf[JsonObject].removeKey("owner_id")
-            building.asInstanceOf[JsonObject].removeKey("co_owners")
-            val res = JsonObject.empty()
-            res.put("building", building)
+          var space = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (space != null && (space \ SCHEMA.fBuid) != JsDefined(JsNull) &&
+            (space \ SCHEMA.fCoordinatesLat) != JsDefined(JsNull) &&
+            (space \ SCHEMA.fCoordinatesLon) != JsDefined(JsNull) &&
+            (space \ SCHEMA.fOwnerId) != JsDefined(JsNull) &&
+            (space \ SCHEMA.fName) != JsDefined(JsNull) &&
+            (space \ SCHEMA.fDescription) != JsDefined(JsNull)) {
+            space = space.as[JsObject] - SCHEMA.fOwnerId - SCHEMA.fCoOwners - SCHEMA.fId - SCHEMA.fSchema
+            val res: JsValue = Json.obj("space" -> space)
             try {
-              gzippedJSONOk(res.toString)
+              return gzippedJSONOk(res.toString)
             } catch {
-              case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+              case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved the space!")
             }
           }
           return AnyResponseHelper.not_found("Building not found.")
@@ -1263,29 +1300,29 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingAllByOwner() = Action {
+  def spaceAllByOwner() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAll(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        LPLogger.info("spaceAllByOwner: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         if (owner_id == null || owner_id.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
-          val buildings = ProxyDataSource.getIDatasource.getAllBuildingsByOwner(owner_id)
-          val res = JsonObject.empty()
-          res.put("buildings", (buildings))
+          LPLogger.debug("owner_id = " + owner_id)
+          val spaces = ProxyDataSource.getIDatasource.getAllBuildingsByOwner(owner_id)
+          val res: JsValue = Json.obj("spaces" -> spaces)
           try {
             gzippedJSONOk(res.toString)
           } catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all spaces!")
           }
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1295,7 +1332,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingByBucode() = Action {
+  def spaceByBucode() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -1303,20 +1340,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingAll(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "bucode")
+        LPLogger.info("spaceByBucode: " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuCode)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val bucode = (json \ "bucode").as[String]
+        val bucode = (json \ SCHEMA.fBuCode).as[String]
         try {
-          val buildings = ProxyDataSource.getIDatasource.getAllBuildingsByBucode(bucode)
-          val res = JsonObject.empty()
-          res.put("buildings", buildings)
+          val spaces = ProxyDataSource.getIDatasource.getAllBuildingsByBucode(bucode)
+          val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
           try {
             gzippedJSONOk(res.toString)
-          }
-
-          catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!")
+          } catch {
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all spaces!")
           }
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1326,32 +1360,53 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  def buildingCoordinates() = Action {
+  def spaceCoordinates() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingCoordinates(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        LPLogger.info("spaceCoordinates(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var range = NEARBY_BUILDINGS_RANGE
+        if (JsonUtils.hasProperty(json, "range")) {
+          if ((json \ "range").validate[Int].isError) {
+            return AnyResponseHelper.bad_request("range must be a possitive integer")
+          }
+          range = (json \ "range").as[Int]
+          if (range <= 0) {
+            return AnyResponseHelper.bad_request("range must be a possitive integer")
+          }
+          if (range > NEARBY_BUILDINGS_RANGE_MAX) {
+            range = NEARBY_BUILDINGS_RANGE_MAX
+            LPLogger.info("spaceCoordinates: Maximum range exceeded. Using " + range)
+          }
+        }
+
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) owner_id = ""
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        requiredMissing.addAll(JsonUtils.requirePropertiesInJson(json, "coordinates_lat", "coordinates_lon"))
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        requiredMissing.addAll(JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon))
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
-          val buildings = ProxyDataSource.getIDatasource.getAllBuildingsNearMe(owner_id, java.lang.Double.parseDouble((json \ "coordinates_lat").as[String]),
-            java.lang.Double.parseDouble((json \ "coordinates_lon").as[String]))
-          val res = JsonObject.empty()
-          res.put("buildings", (buildings))
+          if (Coordinate(json, SCHEMA.fCoordinatesLat) == null)
+            return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
+          val lat = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLat).as[String])
+
+          if (Coordinate(json, SCHEMA.fCoordinatesLon) == null)
+            return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
+          val lon = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLon).as[String])
+
+          val spaces = ProxyDataSource.getIDatasource.getAllBuildingsNearMe(lat, lon, range, owner_id)
+          val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
           try {
             gzippedJSONOk(res.toString)
           } catch {
-            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all buildings near your position!")
+            case ioe: IOException => return AnyResponseHelper.ok(res, "Successfully retrieved all spaces near your position!")
           }
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1363,10 +1418,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   /**
-    * Retrieve the building Set.
-    *
-    * @return
-    */
+   * Retrieve the building Set.
+   *
+   * @return
+   */
   def buildingSetAll = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -1375,41 +1430,36 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper
             .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + stripJson(json))
-        var cuid = request.getQueryString("cuid").orNull
-        if (cuid == null) cuid = (json \ "cuid").as[String]
+        LPLogger.info("buildingSetAll: " + stripJson(json))
+        var cuid = request.getQueryString(SCHEMA.fCampusCuid).orNull
+        if (String(json, SCHEMA.fCampusCuid) == null)
+          return AnyResponseHelper.bad_request("cuid field must be String!")
+        if (cuid == null) cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
           val campus = ProxyDataSource.getIDatasource.getBuildingSet(cuid)
-          val buildings = ProxyDataSource.getIDatasource.getAllBuildings
-          val result = new util.ArrayList[JsonObject]
-          var cuname = ""
-          var greeklish = ""
-          var i = 0
-          for (i <- 0 until campus.size) {
-            val temp = campus.get(i)
-            var j = 0
-            for (j <- 0 until temp.getArray("buids").size) {
-              if (j == 0) cuname = temp.get("name").toString
-              if (j == 0) greeklish = temp.get("greeklish").toString
-              var k = 0
-              for (k <- 0 until buildings.size) { //a
-                val temp2 = buildings.get(k)
-                if (temp2.get("buid").toString.compareTo(temp.getArray("buids").get(j).toString) == 0)
-                  result.add(temp2)
-              }
-            }
-
+          if (campus.size == 0) {
+            return AnyResponseHelper.not_found("Campus '" + cuid + "' not found!")
+          } else if (campus.size > 1) {
+            return AnyResponseHelper.not_found("Something went wrong. More than one matches for '" + cuid + "'!")
           }
-          val res = JsonObject.empty()
-          res.put("buildings", result)
-          res.put("name", cuname)
-          LPLogger.debug(greeklish)
-          if (greeklish == null) greeklish = "false"
-          res.put("greeklish", greeklish)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                return AnyResponseHelper.ok(res.toString());
+
+          val buids = new util.ArrayList[String]
+          for (c <- campus) {
+            val cBuildings = (c \ SCHEMA.fBuids).as[List[String]]
+            for (cb <- cBuildings) {
+              buids.add(cb)
+            }
+          }
+          val buildings = new util.ArrayList[JsValue]
+          for (b <- buids) {
+            val building = ProxyDataSource.getIDatasource().getFromKey(SCHEMA.cSpaces, SCHEMA.fBuid, b)
+            if (building != null) // some buildings are deleted but still exist in buids[] of a campus
+              buildings.add(building.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCoOwners - SCHEMA.fGeometry - SCHEMA.fType - SCHEMA.fOwnerId)
+          }
+          val res = campus.get(0).as[JsObject] - SCHEMA.fBuids - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCampusCuid - SCHEMA.fDescription +
+            (SCHEMA.cSpaces -> Json.toJson(buildings.toList))
+          try
+            gzippedJSONOk(res.toString)
           catch {
             case ioe: IOException =>
               AnyResponseHelper.ok(res, "Successfully retrieved all buildings Sets!")
@@ -1425,10 +1475,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   /**
-    * Adds a new building set to the database
-    *
-    * @return the newly created Building ID is included in the response if success
-    */
+   * Adds a new building set to the database
+   *
+   * @return the newly created Building ID is included in the response if success
+   */
   def buildingSetAdd = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -1438,33 +1488,32 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "description", "name", "buids", "greeklish")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fDescription, SCHEMA.fName, SCHEMA.fBuids, SCHEMA.fGreeklish)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         // get access token from url and check it against google's service
-        if (json.\\("access_token") == null)
+        if (json.\\(SCHEMA.fAccessToken) == null)
           return AnyResponseHelper.forbidden("Unauthorized1")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized2")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
         try {
-          val cuid = (json \ "cuid").as[String]
+          val cuid = (json \ SCHEMA.fCampusCuid).as[String]
           val campus = ProxyDataSource.getIDatasource.BuildingSetsCuids(cuid)
           if (campus) return AnyResponseHelper.bad_request("Building set already exists!")
           else {
             var buildingset: BuildingSet = null
-            try
-              buildingset = new BuildingSet(JsonObject.fromJson(json.toString()))
-            catch {
+            try {
+              buildingset = new BuildingSet(json)
+            } catch {
               case e: NumberFormatException =>
                 return AnyResponseHelper.bad_request("Building coordinates are invalid!")
             }
-            if (!ProxyDataSource.getIDatasource.addJsonDocument(buildingset.getId, 0, buildingset.toCouchGeoJSON))
+            if (!ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cCampuses, buildingset.addBuids()))
               return AnyResponseHelper.bad_request("Building set already exists or could not be added!")
-            val res = JsonObject.empty()
-            res.put("cuid", buildingset.getId)
+            val res: JsValue = Json.obj(SCHEMA.fCampusCuid -> buildingset.getId)
             return AnyResponseHelper.ok(res, "Successfully added building Set!")
           }
         } catch {
@@ -1478,10 +1527,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   /**
-    * Update the building information. Building to update is specified by buid
-    *
-    * @return
-    */
+   * Update the building information. Building to update is specified by buid
+   *
+   * @return
+   */
   def campusUpdate = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -1490,30 +1539,59 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::campusUpdate(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCampusCuid, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         // get access token from url and check it against google's service
-        if (json.\\("access_token") == null)
+        if (json.\\(SCHEMA.fAccessToken) == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val cuid = (json \ "cuid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fCampusCuid) == null)
+          return AnyResponseHelper.bad_request("cuid field must be String!")
+        val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
-          val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid)
+          var stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid)
           if (stored_campus == null)
             return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
           if (!isCampusOwner(stored_campus, owner_id))
             return AnyResponseHelper.unauthorized("Unauthorized")
           // check for values to update
-          if (json.\\("name") != null) stored_campus.put("name", (json \ "name").as[String])
-          if (json.\\("description") != null) stored_campus.put("description", (json \ "description").as[String])
-          if (json.\\("cuidnew") != null) stored_campus.put("cuid", (json \ "cuid").as[String])
+          if ((json \ SCHEMA.fName).toOption.isDefined) {
+            val temp = (json \ SCHEMA.fName).as[String]
+            if (temp != "-" && temp != "") {
+              stored_campus = stored_campus.as[JsObject] + (SCHEMA.fName -> JsString(temp))
+            } else {
+              stored_campus = stored_campus.as[JsObject] - SCHEMA.fName
+            }
+          }
+          if ((json \ SCHEMA.fDescription).toOption.isDefined) {
+            val temp = (json \ SCHEMA.fDescription).as[String]
+            if (temp != "-" && temp != "") {
+              stored_campus = stored_campus.as[JsObject] + (SCHEMA.fDescription, JsString(temp))
+            } else
+              stored_campus = stored_campus.as[JsObject] - SCHEMA.fDescription
+          }
+          if ((json \ "cuidnew").toOption.isDefined) {
+            val temp = (json \ SCHEMA.fCampusCuid).as[String]
+            if (temp != "-" && temp != "")
+              stored_campus = stored_campus.as[JsObject] + (SCHEMA.fCampusCuid, JsString(temp))
+          }
+          if ((json \ SCHEMA.fGreeklish).toOption.isDefined) {
+            val temp = (json \ SCHEMA.fGreeklish).as[Boolean]
+            stored_campus = stored_campus.as[JsObject] + (SCHEMA.fGreeklish -> JsString(temp.toString))
+          }
+          if ((json \ SCHEMA.fBuids).toOption.isDefined) {
+            var buids = (json \ SCHEMA.fBuids).as[String]
+            buids = buids.replace("[", "").replace("]", "").replace("\"", "")
+            val buidsList = buids.split(",")
+            stored_campus = stored_campus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buidsList.toList))
+          }
           val campus = new BuildingSet(stored_campus)
-          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(campus.getId(), 0, campus.toCouchGeoJSON()))
+          if (!ProxyDataSource.getIDatasource().replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJSON()))
             return AnyResponseHelper.bad_request("Campus could not be updated!")
           return AnyResponseHelper.ok("Successfully updated campus!")
         } catch {
@@ -1540,27 +1618,24 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::buildingSetAll(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         // get access token from url and check it against google's service
-        if (json.\\("access_token") == null)
+        if (json.\\(SCHEMA.fAccessToken) == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         if (owner_id == null || owner_id.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         try {
           val buildingsets = ProxyDataSource.getIDatasource().getAllBuildingsetsByOwner(owner_id)
-          val res = JsonObject.empty()
-          res.put("buildingsets", buildingsets)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                return AnyResponseHelper.ok(res.toString());
+          val res: JsValue = Json.obj("buildingsets" -> buildingsets)
+          try
+            gzippedJSONOk(res.toString)
           catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all buildingsets!")
@@ -1575,10 +1650,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   /**
-    * Delete the campus specified by cuid.
-    *
-    * @return
-    */
+   * Delete the campus specified by cuid.
+   *
+   * @return
+   */
   def campusDelete = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -1587,25 +1662,27 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::campusDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCampusCuid, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         // get access token from url and check it against google's service
-        if (json.\\("access_token") == null)
+        if (json.\\(SCHEMA.fAccessToken) == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null)
           return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val cuid = (json \ "cuid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fCampusCuid) == null)
+          return AnyResponseHelper.bad_request("cuid field must be String!")
+        val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
-          val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid)
+          val stored_campus = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid)
           if (stored_campus == null)
             return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!")
           if (!isCampusOwner(stored_campus, owner_id))
             return AnyResponseHelper.unauthorized("Unauthorized")
-          if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid))
+          if (!ProxyDataSource.getIDatasource().deleteFromKey(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid))
             return AnyResponseHelper.internal_server_error("500: Failed to delete Campus")
         } catch {
           case e: DatasourceException =>
@@ -1617,12 +1694,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  private def isCampusOwner(campus: JsonObject, userId: String): Boolean = { // Admin
+  private def isCampusOwner(campus: JsValue, userId: String): Boolean = { // Admin
     if (userId.equals(ADMIN_ID))
       return true
     // Check if owner
-    if (campus != null && campus.get("owner_id") != null && campus.getString("owner_id").equals(userId))
-      return true
+    if (campus != null && (campus \ SCHEMA.fOwnerId).toOption.isDefined) {
+      return (campus \ SCHEMA.fOwnerId).as[String].equals(userId)
+    }
     false
   }
 
@@ -1632,28 +1710,33 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::floorAdd(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
-          "description", "floor_number", "access_token")
+        LPLogger.D2("AnyplaceMapping::floorAdd(): " + stripJson(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
+          SCHEMA.fDescription, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        if (StringNumber(json, SCHEMA.fFloorNumber) == null)
+          return AnyResponseHelper.bad_request("floor_number field must be String, containing a number!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
-        val floor_number = (json \ "floor_number").as[String]
+        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         try {
-          val floor = new Floor(JsonObject.fromJson(json.toString()))
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor already exists or could not be added!")
+          json = json.as[JsObject] - SCHEMA.fAccessToken
+          val floor = new Floor(json)
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cFloorplans, stripJson(floor.toValidMongoJson()))) return AnyResponseHelper.bad_request("Floor already exists or could not be added!")
           return AnyResponseHelper.ok("Successfully added floor " + floor_number + "!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1663,6 +1746,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  @deprecated("NotInUse")
   def floorUpdate() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -1670,16 +1754,16 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::floorUpdate(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
@@ -1689,13 +1773,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         try {
           val fuid = Floor.getId(buid, floor_number)
-          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          var stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
           if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
-          if (json.\("is_published").getOrElse(null) != null) stored_floor.put("is_published", (json \ "is_published").as[String])
-          if (json.\("floor_name").getOrElse(null) != null) stored_floor.put("floor_name", (json \ "floor_name").as[String])
-          if (json.\("description").getOrElse(null) != null) stored_floor.put("description", (json \ "description").as[String])
+          if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null)
+            stored_floor = stored_floor.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
+          if (json.\(SCHEMA.fFloorName).getOrElse(null) != null)
+            stored_floor = stored_floor.as[JsObject] + (SCHEMA.fFloorName, JsString((json \ SCHEMA.fFloorName).as[String]))
+          if (json.\(SCHEMA.fDescription).getOrElse(null) != null)
+            stored_floor = stored_floor.as[JsObject] + (SCHEMA.fDescription, JsString((json \ SCHEMA.fDescription).as[String]))
           val floor = new Floor(stored_floor)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(floor.getId, 0, floor.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Floor could not be updated!")
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, floor.getId, floor.toValidMongoJson().toString))
+            return AnyResponseHelper.bad_request("Floor could not be updated!")
           return AnyResponseHelper.ok("Successfully updated floor!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1705,30 +1793,32 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  // REVIEWLS I think this deletes crlbs file (not radiomaps)
-  // also rename the log messages
-  def radiomapDelete()= Action {
-      implicit request =>
-        def inner(request: Request[AnyContent]): Result = {
-          val anyReq = new OAuth2Request(request)
-          if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-          val json = anyReq.getJsonBody
-          val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
-          if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-          val buid = (json \ "buid").as[String]
-          val floor_number=(json \ "floor").as[String]
-          val file_path=new File(
-              Play.application().configuration().getString("crlbsDir") +
-              File.separatorChar+buid+File.separator+"fl_"+floor_number+".txt")
-         if (file_path.exists()){
-              if(file_path.delete){
-                return AnyResponseHelper.ok("Deleted floor :" + floor_number)
-              }
-         }
-          return AnyResponseHelper.bad_request("ERROR: while deleting: " + floor_number)
+  /**
+   * Deletes the ACCES data (CRLB) for a space.
+   */
+  def deleteAccesSpaceData() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        val json = anyReq.getJsonBody
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val file_path = new File(
+          Play.application().configuration().getString("crlbsDir") +
+            File.separatorChar + buid + File.separator + "fl_" + floor_number + ".txt")
+        if (file_path.exists()) {
+          if (file_path.delete) {
+            return AnyResponseHelper.ok("Deleted floor :" + floor_number)
+          }
         }
-        inner(request)
-    }
+        return AnyResponseHelper.bad_request("ERROR: while deleting: " + floor_number)
+      }
+
+      inner(request)
+  }
 
   def floorDelete() = Action {
     implicit request =>
@@ -1737,31 +1827,30 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::floorDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor_name").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        if (StringNumber(json, SCHEMA.fFloorNumber) == null)
+          return AnyResponseHelper.bad_request("floor_number field must be String, containing a number!")
+        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
-          if (all_items_failed.size > 0) {
-            val obj = JsonObject.empty()
-            obj.put("ids", all_items_failed)
-            return AnyResponseHelper.bad_request(obj, "Some items related to the deleted floor could not be deleted: " +
-              all_items_failed.size +
-              " items.")
-          }
+          val deleted = ProxyDataSource.getIDatasource.deleteAllByFloor(buid, floor_number)
+          if (deleted == false)
+            return AnyResponseHelper.bad_request("Some items related to the floor could not be deleted.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -1790,13 +1879,14 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::floorAll(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val buildings = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
-          val res = JsonObject.empty()
-          res.put("floors", buildings)
+          val floors = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
+          val res: JsValue = Json.obj("floors" -> floors.toList)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -1817,77 +1907,32 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisAdd(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "buid", "floor_name",
-          "floor_number", "name", "pois_type", "is_door", "is_building_entrance", "coordinates_lat", "coordinates_lon",
-          "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
+          SCHEMA.fFloorNumber, SCHEMA.fName, SCHEMA.fPoisType, SCHEMA.fIsDoor, SCHEMA.fIsBuildingEntrance, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
+          SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          val poi = new Poi(JsonObject.fromJson(json.toString()))
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Poi already exists or could not be added!")
-          val res = JsonObject.empty()
-          res.put("puid", poi.getId)
+          val poi = new Poi(json)
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cPOIS, poi.toGeoJSON())) return AnyResponseHelper.bad_request("Poi already exists or could not be added!")
+          val res: JsValue = Json.obj(SCHEMA.fPuid -> poi.getId)
           return AnyResponseHelper.ok(res, "Successfully added poi!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-        }
-      }
-
-      inner(request)
-  }
-
-  /**
-    * Adds a new poi category to the database
-    *
-    * @return the newly created cat ID is included in the response if success
-    */
-  def categoryAdd = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody)
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "poistypeid", "poistype", "owner_id", "types")
-        if (!requiredMissing.isEmpty)
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        // get access token from url and check it against google's service
-        if (json.\\("access_token") == null)
-          return AnyResponseHelper.forbidden("Unauthorized1")
-        var owner_id = verifyId((json \ "access_token").as[String])
-        if (owner_id == null)
-          return AnyResponseHelper.forbidden("Unauthorized2")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        try {
-          var poiscategory: PoisCategory = null
-          try
-            poiscategory = new PoisCategory(json.asInstanceOf[JsonObject])
-          catch {
-            case e: NumberFormatException =>
-              return AnyResponseHelper.bad_request("Bad request!")
-          }
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(poiscategory.getId, 0, poiscategory.toCouchGeoJSON))
-            return AnyResponseHelper.bad_request("Building set already exists or could not be added!")
-          val res = JsonObject.empty()
-          res.put("poistypeid", poiscategory.getId)
-          return AnyResponseHelper.ok(res, "Successfully added Pois Category!")
-        } catch {
-          case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -1901,47 +1946,63 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisUpdate(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPuid, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val puid = (json \ "puid").as[String]
-        val buid = (json \ "buid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fPuid) == null)
+          return AnyResponseHelper.bad_request("Puid field must be String!")
+        val puid = (json \ SCHEMA.fPuid).as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) {
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          }
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          val stored_poi = ProxyDataSource.getIDatasource.getFromKeyAsJson(puid)
+          var stored_poi = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
           if (stored_poi == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (json.\("is_published").getOrElse(null) != null) {
-            val is_published = (json \ "is_published").as[String]
-            if (is_published == "true" || is_published == "false") stored_poi.put("is_published", (json \ "is_published").as[String])
+          if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
+            val is_published = (json \ SCHEMA.fIsPublished).as[String]
+            if (is_published == "true" || is_published == "false")
+              stored_poi = stored_poi.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           }
-          if (json.\("name").getOrElse(null) != null) stored_poi.put("name", (json \ "name").as[String])
-          if (json.\("description").getOrElse(null) != null) stored_poi.put("description", (json \ "description").as[String])
-          if (json.\("url").getOrElse(null) != null) stored_poi.put("url", (json \ "url").as[String])
-
-          if (json.\("pois_type").getOrElse(null) != null) stored_poi.put("pois_type", (json \ "pois_type").as[String])
-          if (json.\("is_door").getOrElse(null) != null) {
-            val is_door = (json \ "is_door").as[String]
-            if (is_door == "true" || is_door == "false") stored_poi.put("is_door", (json \ "is_door").as[String])
+          if (json.\(SCHEMA.fName).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
+          if (json.\(SCHEMA.fDescription).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fDescription -> JsString((json \ SCHEMA.fDescription).as[String]))
+          if (json.\(SCHEMA.fURL).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fURL -> JsString((json \ SCHEMA.fURL).as[String]))
+          if (json.\(SCHEMA.fPoisType).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fPoisType -> JsString((json \ SCHEMA.fPoisType).as[String]))
+          if (json.\(SCHEMA.fIsDoor).getOrElse(null) != null) {
+            val is_door = (json \ SCHEMA.fIsDoor).as[String]
+            if (is_door == "true" || is_door == "false")
+              stored_poi = stored_poi.as[JsObject] + (SCHEMA.fIsDoor -> JsString((json \ SCHEMA.fIsDoor).as[String]))
           }
-          if (json.\("is_building_entrance").getOrElse(null) != null) {
-            val is_building_entrance = (json \ "is_building_entrance").as[String]
-            if (is_building_entrance == "true" || is_building_entrance == "false") stored_poi.put("is_building_entrance", (json \ "is_building_entrance").as[String])
+          if (json.\(SCHEMA.fIsBuildingEntrance).getOrElse(null) != null) {
+            val is_building_entrance = (json \ SCHEMA.fIsBuildingEntrance).as[String]
+            if (is_building_entrance == "true" || is_building_entrance == "false")
+              stored_poi = stored_poi.as[JsObject] + (SCHEMA.fIsBuildingEntrance, JsString((json \ SCHEMA.fIsBuildingEntrance).as[String]))
           }
-          if (json.\("image").getOrElse(null) != null) stored_poi.put("image", (json \ "image").as[String])
-          if (json.\("coordinates_lat").getOrElse(null) != null) stored_poi.put("coordinates_lat", (json \ "coordinates_lat").as[String])
-          if (json.\("coordinates_lon").getOrElse(null) != null) stored_poi.put("coordinates_lon", (json \ "coordinates_lon").as[String])
+          if (json.\(SCHEMA.fImage).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fImage, JsString((json \ SCHEMA.fImage).as[String]))
+          if (json.\(SCHEMA.fCoordinatesLat).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fCoordinatesLat, JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
+          if (json.\(SCHEMA.fCoordinatesLon).getOrElse(null) != null)
+            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fCoordinatesLon, JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
           val poi = new Poi(stored_poi)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(poi.getId, 0, poi.toCouchGeoJSON())) return AnyResponseHelper.bad_request("Poi could not be updated!")
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cPOIS, SCHEMA.fPuid, poi.getId, poi.toGeoJSON()))
+            return AnyResponseHelper.bad_request("Poi could not be updated!")
           return AnyResponseHelper.ok("Successfully updated poi!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -1958,19 +2019,24 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poiDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "puid", "buid", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPuid, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid = (json \ "buid").as[String]
-        val puid = (json \ "puid").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        if (String(json, SCHEMA.fPuid) == null)
+          return AnyResponseHelper.bad_request("Puid field must be String!")
+        val puid = (json \ SCHEMA.fPuid).as[String]
         try {
-          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid)
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -2000,14 +2066,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisByFloor(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor_number").as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        if (StringNumber(json, SCHEMA.fFloorNumber) == null)
+          return AnyResponseHelper.bad_request("Floor_number field must be String, containing a number!")
+        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           val pois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid, floor_number)
-          val res = JsonObject.empty()
-          res.put("pois", (pois))
+          val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -2025,18 +2096,20 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def poisByBuid() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
+        val json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisByBuid(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("Buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           val pois = ProxyDataSource.getIDatasource.poisByBuildingAsJson(buid)
-          val res = JsonObject.empty()
-          res.put("pois", (pois))
+          val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois.toList)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -2051,33 +2124,38 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   /**
-    * Retrieve all the pois of a cuid combination.
-    *
-    * @return
-    */
-  def poisAll = Action {
+   * Retrieve all the pois of a cuid combination.
+   * Available searchs in english and greeklish.
+   *
+   * @return
+   */
+  def searchPois = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-
+        LPLogger.D2("searchPois") // ALWAYS: a D2 on the endpoint method with method name
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody)
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        var cuid = request.getQueryString("cuid").orNull
-        if (cuid == null) cuid = (json \ "cuid").as[String]
+        val json = anyReq.getJsonBody
+        LPLogger.debug("json = " + json)
+        var cuid = request.getQueryString(SCHEMA.fConCuid).orNull
+        if (cuid == null) cuid = (json \ SCHEMA.fConCuid).as[String]
         var letters = request.getQueryString("letters").orNull
         if (letters == null) letters = (json \ "letters").as[String]
-        var buid = request.getQueryString("buid").orNull
-        if (buid == null) buid = (json \ "buid").as[String]
-        var greeklish = request.getQueryString("greeklish").orNull
-        if (greeklish == null) greeklish = (json \ "greeklish").as[String]
+        var buid = request.getQueryString(SCHEMA.fBuid).orNull
+        if (buid == null) buid = (json \ SCHEMA.fBuid).as[String]
+        var greeklish = request.getQueryString(SCHEMA.fGreeklish).orNull
+        LPLogger.debug("greeklish = " + greeklish)
+        if (greeklish == null) greeklish = (json \ SCHEMA.fGreeklish).as[String]
         try {
-          var result: util.List[JsonObject] = new util.ArrayList[JsonObject]
-          if (cuid.compareTo("") == 0) result = ProxyDataSource.getIDatasource.poisByBuildingAsJson3(buid, letters)
-          else if (greeklish.compareTo("true") == 0) result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2GR(cuid, letters)
-          else result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2(cuid, letters)
-          val res = JsonObject.empty()
-          res.put("pois", result)
+          var result: List[JsValue] = null
+          if (cuid.compareTo("") == 0)
+            result = ProxyDataSource.getIDatasource.poisByBuildingAsJson3(buid, letters)
+          else if (greeklish.compareTo("true") == 0)
+            result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2GR(cuid, letters)
+          else
+            result = ProxyDataSource.getIDatasource.poisByBuildingAsJson2(cuid, letters)
+          val res: JsValue = Json.obj(SCHEMA.cPOIS -> result)
           try
             gzippedJSONOk(res.toString)
           catch {
@@ -2095,10 +2173,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   /**
-    * Retrieve all the pois of a building/floor combination.
-    *
-    * @return
-    */
+   * Retrieve all the pois of a building/floor combination.
+   *
+   * @return
+   */
   def poisByBuidincConnectors = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -2107,18 +2185,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
           val pois = ProxyDataSource.getIDatasource.poisByBuildingIDAsJson(buid)
-          val res = JsonObject.empty()
-          res.put("pois", pois)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                returnreturn AnyResponseHelper.ok(res.toString());
+          val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois)
+          try
+            gzippedJSONOk(res.toString)
           catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all pois from buid " + buid + "!")
@@ -2132,97 +2209,69 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
-  /**
-    * Retrieve all the pois types by owner.
-    *
-    * @return
-    */
-  def poisTypes = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody)
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
-        LPLogger.info("AnyplaceMapping::poisTypes(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "access_token")
-        if (!requiredMissing.isEmpty)
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        // get access token from url and check it against google's service
-        if (json.\\("access_token") == null)
-          return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
-        if (owner_id == null)
-          return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        if (owner_id == null || owner_id.isEmpty)
-          return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        try {
-          val poistypes = ProxyDataSource.getIDatasource.getAllPoisTypesByOwner(owner_id)
-          val res = JsonObject.empty()
-          res.put("poistypes", poistypes)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                returnreturn AnyResponseHelper.ok(res.toString());
-          catch {
-            case ioe: IOException =>
-              return AnyResponseHelper.ok(res, "Successfully retrieved all poistypes!")
-          }
-        } catch {
-          case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-        }
-      }
-
-      inner(request)
-  }
-
   def connectionAdd() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::connectionAdd(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "is_published", "pois_a", "floor_a",
-          "buid_a", "pois_b", "floor_b", "buid_b", "buid", "edge_type", "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fIsPublished, SCHEMA.fPoisA, SCHEMA.fFloorA,
+          SCHEMA.fBuidA, SCHEMA.fPoisB, SCHEMA.fFloorB, SCHEMA.fBuidB, SCHEMA.fBuid, SCHEMA.fEdgeType, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid1 = (json \ "buid_a").as[String]
-        val buid2 = (json \ "buid_b").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        if (String(json, SCHEMA.fBuidA) == null)
+          return AnyResponseHelper.bad_request("buid_a field must be String!")
+        val buid1 = (json \ SCHEMA.fBuidA).as[String]
+        if (String(json, SCHEMA.fBuidB) == null)
+          return AnyResponseHelper.bad_request("buid_b field must be String!")
+        val buid2 = (json \ SCHEMA.fBuidB).as[String]
+        if (StringNumber(json, SCHEMA.fFloorA) == null)
+          return AnyResponseHelper.bad_request("floor_a field must be String, containing a number!")
+        if (StringNumber(json, SCHEMA.fFloorB) == null)
+          return AnyResponseHelper.bad_request("floor_b field must be String, containing a number!")
         try {
-          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
+          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
-          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
           if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
-        val edge_type = (json \ "edge_type").as[String]
+        val edge_type = (json \ SCHEMA.fEdgeType).as[String]
         if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
-          edge_type != Connection.EDGE_TYPE_ROOM &&
-          edge_type != Connection.EDGE_TYPE_OUTDOOR &&
-          edge_type != Connection.EDGE_TYPE_STAIR) return AnyResponseHelper.bad_request("Invalid edge type specified.")
-        val pois_a = (json \ "pois_a").as[String]
-        val pois_b = (json \ "pois_b").as[String]
+          edge_type != Connection.EDGE_TYPE_ROOM && edge_type != Connection.EDGE_TYPE_OUTDOOR &&
+          edge_type != Connection.EDGE_TYPE_STAIR)
+          return AnyResponseHelper.bad_request("Invalid edge type specified.")
+        val pois_a = (json \ SCHEMA.fPoisA).as[String]
+        val pois_b = (json \ SCHEMA.fPoisB).as[String]
+
+        if (!ProxyDataSource.getIDatasource().poiByBuidFloorPuid(buid1, (json \ SCHEMA.fFloorA).as[String], (json \ SCHEMA.fPoisA).as[String]))
+          return AnyResponseHelper.bad_request("pois_a does not exist or could not be retrieved!")
+        if (!ProxyDataSource.getIDatasource().poiByBuidFloorPuid(buid2, (json \ SCHEMA.fFloorB).as[String], (json \ SCHEMA.fPoisB).as[String]))
+          return AnyResponseHelper.bad_request("pois_b does not exist or could not be retrieved!")
         try {
           val weight = calculateWeightOfConnection(pois_a, pois_b)
-          JsonObject.fromJson(json.toString()).put("weight", java.lang.Double.toString(weight))
+          json = json.as[JsObject] + (SCHEMA.fWeight -> JsString(java.lang.Double.toString(weight)))
           if (edge_type == Connection.EDGE_TYPE_ELEVATOR || edge_type == Connection.EDGE_TYPE_STAIR) {
           }
-          val conn = new Connection(JsonObject.fromJson(json.toString()))
-          if (!ProxyDataSource.getIDatasource.addJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Connection already exists or could not be added!")
-          val res = JsonObject.empty()
-          res.put("cuid", conn.getId)
+          val conn = new Connection(json)
+          if (!ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cEdges, conn.toValidMongoJson().toString))
+            return AnyResponseHelper.bad_request("Connection already exists or could not be added!")
+          val res: JsValue = Json.obj(SCHEMA.fConCuid -> conn.getId)
           return AnyResponseHelper.ok(res, "Successfully added new connection!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -2232,6 +2281,13 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       inner(request)
   }
 
+  /**
+   * DEPRECATED: NN: Possibly because edges/connection are added or deleted.
+   * If the coordinates of a poi (pointed by an edge) change the connection is still unaffected.
+   *
+   * @return
+   */
+  @deprecated("NotInUse")
   def connectionUpdate() = Action {
     implicit request =>
 
@@ -2240,46 +2296,53 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::connectionUpdate(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
-          "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB,
+          SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid1 = (json \ "buid_a").as[String]
-        val buid2 = (json \ "buid_b").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val buid1 = (json \ SCHEMA.fBuidA).as[String]
+        val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
-          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (stored_building == null)
+            return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (stored_building == null)
+            return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
         try {
-          val pois_a = (json \ "pois_a").as[String]
-          val pois_b = (json \ "pois_b").as[String]
+          val pois_a = (json \ SCHEMA.fPoisA).as[String]
+          val pois_b = (json \ SCHEMA.fPoisB).as[String]
           val cuid = Connection.getId(pois_a, pois_b)
-          val stored_conn = ProxyDataSource.getIDatasource.getFromKeyAsJson(cuid)
-          if (stored_conn == null) return AnyResponseHelper.bad_request("Connection does not exist or could not be retrieved!")
-          if (json.\("is_published").getOrElse(null) != null) {
-            val is_published = (json \ "is_published").as[String]
-            if (is_published == "true" || is_published == "false") stored_conn.put("is_published", (json \ "is_published").as[String])
+          var stored_conn = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cEdges, SCHEMA.fConCuid, cuid)
+          if (stored_conn == null)
+            return AnyResponseHelper.bad_request("Connection does not exist or could not be retrieved!")
+          if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
+            val is_published = (json \ SCHEMA.fIsPublished).as[String]
+            if (is_published == "true" || is_published == "false")
+              stored_conn = stored_conn.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           }
-          if (json.\("edge_type").getOrElse(null) != null) {
-            val edge_type = (json \ "edge_type").as[String]
+          if (json.\(SCHEMA.fEdgeType).getOrElse(null) != null) {
+            val edge_type = (json \ SCHEMA.fEdgeType).as[String]
             if (edge_type != Connection.EDGE_TYPE_ELEVATOR && edge_type != Connection.EDGE_TYPE_HALLWAY &&
-              edge_type != Connection.EDGE_TYPE_ROOM &&
-              edge_type != Connection.EDGE_TYPE_OUTDOOR &&
-              edge_type != Connection.EDGE_TYPE_STAIR) return AnyResponseHelper.bad_request("Invalid edge type specified.")
-            stored_conn.put("edge_type", edge_type)
+              edge_type != Connection.EDGE_TYPE_ROOM && edge_type != Connection.EDGE_TYPE_OUTDOOR &&
+              edge_type != Connection.EDGE_TYPE_STAIR)
+              return AnyResponseHelper.bad_request("Invalid edge type specified.")
+            stored_conn = stored_conn.as[JsObject] + (SCHEMA.fEdgeType -> JsString(edge_type))
           }
           val conn = new Connection(stored_conn)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(conn.getId, 0, conn.toValidCouchJson().toString)) return AnyResponseHelper.bad_request("Connection could not be updated!")
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cEdges, SCHEMA.fConCuid, conn.getId, conn.toValidMongoJson().toString))
+            return AnyResponseHelper.bad_request("Connection could not be updated!")
           return AnyResponseHelper.ok("Successfully updated connection!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -2297,28 +2360,38 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poiDelete(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "pois_a", "pois_b", "buid_a", "buid_b",
-          "access_token")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB,
+          SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-        var owner_id = verifyId((json \ "access_token").as[String])
+        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        var owner_id = verifyId((json \ SCHEMA.fAccessToken).as[String])
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
-        owner_id = appendToId(owner_id)
-        json = json.as[JsObject] + ("owner_id" -> Json.toJson(owner_id))
-        val buid1 = (json \ "buid_a").as[String]
-        val buid2 = (json \ "buid_b").as[String]
+        owner_id = appendGoogleIdIfNeeded(owner_id)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        if (String(json, SCHEMA.fBuidA) == null)
+          return AnyResponseHelper.bad_request("buid_a field must be String!")
+        val buid1 = (json \ SCHEMA.fBuidA).as[String]
+        if (String(json, SCHEMA.fBuidB) == null)
+          return AnyResponseHelper.bad_request("buid_b field must be String!")
+        val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid1)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
-          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(buid2)
-          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return AnyResponseHelper.unauthorized("Unauthorized")
+          var stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building_a does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
+          stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building_b does not exist or could not be retrieved!")
+          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
+            return AnyResponseHelper.unauthorized("Unauthorized")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
-        val pois_a = (json \ "pois_a").as[String]
-        val pois_b = (json \ "pois_b").as[String]
+        if (String(json, SCHEMA.fPoisA) == null)
+          return AnyResponseHelper.bad_request("pois_a field must be String!")
+        val pois_a = (json \ SCHEMA.fPoisA).as[String]
+        if (String(json, SCHEMA.fPoisB) == null)
+          return AnyResponseHelper.bad_request("pois_b field must be String!")
+        val pois_b = (json \ SCHEMA.fPoisB).as[String]
         try {
           val cuid = Connection.getId(pois_a, pois_b)
           val all_items_failed = ProxyDataSource.getIDatasource.deleteAllByConnection(cuid)
@@ -2327,11 +2400,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             return AnyResponseHelper.bad_request("POI Connection not found")
           }
           if (all_items_failed.size > 0) {
-            val obj = JsonObject.empty()
-            obj.put("ids", (all_items_failed))
+            val obj: JsValue = Json.obj("ids" -> all_items_failed.toList)
             return AnyResponseHelper.bad_request(obj, "Some items related to the deleted connection could not be deleted: " +
-              all_items_failed.size +
-              " items.")
+              all_items_failed.size + " items.")
           }
           return AnyResponseHelper.ok("Successfully deleted everything related to the connection!")
         } catch {
@@ -2344,21 +2415,31 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   def connectionsByFloor() = Action {
     implicit request =>
-
       def inner(request: Request[AnyContent]): Result = {
-
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::poisByFloor(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
-        val floor_number = (json \ "floor_number").as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        if (StringNumber(json, SCHEMA.fFloorNumber) == null)
+          return AnyResponseHelper.bad_request("Floor_number field must be String, containing a number!")
+        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+          val stored_floors = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid)
+          var floorExists = false
+          for (floor <- stored_floors)
+            if ((floor \ SCHEMA.fFloorNumber).as[String] == floor_number)
+              floorExists = true
+          if (!floorExists) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
+
           val pois = ProxyDataSource.getIDatasource.connectionsByBuildingFloorAsJson(buid, floor_number)
-          val res = JsonObject.empty()
-          res.put("connections", (pois))
+          val res: JsValue = Json.obj("connections" -> pois)
           try {
             gzippedJSONOk(res.toString)
           } catch {
@@ -2380,10 +2461,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
   /**
-    * Retrieve all the pois of a building/floor combination.
-    *
-    * @return
-    */
+   * Retrieve all the pois of a building/floor combination.
+   *
+   * @return
+   */
   def connectionsByallFloors = Action {
     implicit request =>
 
@@ -2393,18 +2474,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody
         LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = (json \ "buid").as[String]
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
         try {
+          val stored_building = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_building == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           val pois = ProxyDataSource.getIDatasource.connectionsByBuildingAllFloorsAsJson(buid)
-          val res = JsonObject.empty()
-          res.put("connections", pois)
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-          gzippedJSONOk(res.toString)
-          //                }
-          //                returnreturn AnyResponseHelper.ok(res.toString());
+          val res: JsValue = Json.obj("connections" -> pois)
+          try
+            gzippedJSONOk(res.toString)
           catch {
             case ioe: IOException =>
               return AnyResponseHelper.ok(res, "Successfully retrieved all pois from all floors !")
@@ -2424,23 +2506,23 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     var lat_b = 0.0
     var lon_b = 0.0
     val nf = NumberFormat.getInstance(Locale.ENGLISH)
-    val pa = ProxyDataSource.getIDatasource.getFromKeyAsJson(pois_a)
+    val pa = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, pois_a)
     if (pa == null) {
       lat_a = 0.0
       lon_a = 0.0
     } else try {
-      lat_a = nf.parse(pa.getString("coordinates_lat")).doubleValue()
-      lon_a = nf.parse(pa.getString("coordinates_lon")).doubleValue()
+      lat_a = nf.parse((pa \ SCHEMA.fCoordinatesLat).as[String]).doubleValue()
+      lon_a = nf.parse((pa \ SCHEMA.fCoordinatesLon).as[String]).doubleValue()
     } catch {
       case e: ParseException => e.printStackTrace()
     }
-    val pb = ProxyDataSource.getIDatasource.getFromKeyAsJson(pois_b)
+    val pb = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, pois_b)
     if (pb == null) {
       lat_b = 0.0
       lon_b = 0.0
     } else try {
-      lat_b = nf.parse(pb.getString("coordinates_lat")).doubleValue()
-      lon_b = nf.parse(pb.getString("coordinates_lon")).doubleValue()
+      lat_b = nf.parse((pb \ SCHEMA.fCoordinatesLat).as[String]).doubleValue()
+      lon_b = nf.parse((pb \ SCHEMA.fCoordinatesLon).as[String]).doubleValue()
     } catch {
       case e: ParseException => e.printStackTrace()
     }
@@ -2512,8 +2594,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
         if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
           floor_number)
-        val res = JsonObject.empty()
-        res.put("tiles_archive", AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
+        val res: JsValue = Json.obj("tiles_archive" -> AnyPlaceTilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
         return AnyResponseHelper.ok(res, "Successfully fetched link for the tiles archive!")
       }
 
@@ -2581,12 +2662,12 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   /**
-    * Returns the floorplan in base64 form. Used by the Anyplace websites
-    *
-    * @param buid
-    * @param floor_number
-    * @return
-    */
+   * Returns the floorplan in base64 form. Used by the Anyplace websites
+   *
+   * @param buid
+   * @param floor_number
+   * @return
+   */
   def serveFloorPlanBase64all(buid: String, floor_number: String) = Action {
     implicit request =>
 
@@ -2606,16 +2687,16 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           LPLogger.info("requested: " + filePath)
           val file = new File(filePath)
           try
-              if (!file.exists || !file.canRead) {
-                all_floors.add("")
-              }
-              else try {
-                val s = encodeFileToBase64Binary(filePath)
-                all_floors.add(s)
-              } catch {
-                case e: IOException =>
-                  return AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" + floors(z) + ")")
-              }
+            if (!file.exists || !file.canRead) {
+              all_floors.add("")
+            }
+            else try {
+              val s = encodeFileToBase64Binary(filePath)
+              all_floors.add(s)
+            } catch {
+              case e: IOException =>
+                return AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" + floors(z) + ")")
+            }
           catch {
             case e: Exception =>
               return AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!")
@@ -2626,8 +2707,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
             z - 1
           }
         }
-        val res = JsonObject.empty()
-        res.put("all_floors", all_floors)
+        val res: JsValue = Json.obj("all_floors" -> all_floors.toList)
         try
           gzippedJSONOk(res.toString)
         catch {
@@ -2664,10 +2744,15 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     bytes
   }
 
+  @deprecated("NotInUse")
   def floorPlanUpload() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+
+        return AnyResponseHelper.DEPRECATED("Invalid request type - Not Multipart!")
+
+
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
@@ -2676,32 +2761,32 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val urlenc = body.asFormUrlEncoded
         val json_str = urlenc.get("json").get(0)
         if (json_str == null) return AnyResponseHelper.bad_request("Cannot find json in the request!")
-        var json: JsonObject = null
+        var json: JsValue = null
         try {
-          json = JsonObject.fromJson(json_str)
+          json = Json.parse(json_str)
         } catch {
           case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
         }
         LPLogger.info("Floorplan Request[json]: " + json.toString)
         LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
-          "bottom_left_lng", "top_right_lat", "top_right_lng")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fLatBottomLeft,
+          SCHEMA.fLonBottomLeft, SCHEMA.fLatTopRight, SCHEMA.fLonTopRight)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = json.getString("buid")
-        val floor_number = json.getString("floor_number")
-        val bottom_left_lat = json.getString("bottom_left_lat")
-        val bottom_left_lng = json.getString("bottom_left_lng")
-        val top_right_lat = json.getString("top_right_lat")
-        val top_right_lng = json.getString("top_right_lng")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val bottom_left_lat = (json \ SCHEMA.fLatBottomLeft).as[String]
+        val bottom_left_lng = (json \ SCHEMA.fLonBottomLeft).as[String]
+        val top_right_lat = (json \ SCHEMA.fLatTopRight).as[String]
+        val top_right_lng = (json \ SCHEMA.fLonTopRight).as[String]
         val fuid = Floor.getId(buid, floor_number)
         try {
-          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          var stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
           if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
-          stored_floor.put("bottom_left_lat", bottom_left_lat)
-          stored_floor.put("bottom_left_lng", bottom_left_lng)
-          stored_floor.put("top_right_lat", top_right_lat)
-          stored_floor.put("top_right_lng", top_right_lng)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatBottomLeft -> JsString(bottom_left_lat))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonBottomLeft -> JsString(bottom_left_lng))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, stored_floor.toString))
             return AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
@@ -2730,47 +2815,51 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
+        LPLogger.D2("floorPlanUploadWithZoom")
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
-        var floorplan = body.file("floorplan").get
+        val floorplan = body.file("floorplan").get
         if (floorplan == null) return AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!")
         val urlenc = body.asFormUrlEncoded
         val json_str = urlenc.get("json").get(0)
         if (json_str == null) return AnyResponseHelper.bad_request("Cannot find json in the request!")
-        var json: JsonObject = null
+        var json: JsValue = null
         try {
-          json = JsonObject.fromJson(json_str)
+          json = Json.parse(json_str)
         } catch {
           case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
         }
         LPLogger.info("Floorplan Request[json]: " + json.toString)
         LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "buid", "floor_number", "bottom_left_lat",
-          "bottom_left_lng", "top_right_lat", "top_right_lng","zoom")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fLatBottomLeft,
+          SCHEMA.fLonBottomLeft, SCHEMA.fLatTopRight, SCHEMA.fLonTopRight, SCHEMA.fZoom)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-        val buid = json.getString("buid")
-        val zoom = json.getString("zoom")
-        val zoom_number = json.getString("zoom").toInt
-        if (zoom_number<20)
-          return AnyResponseHelper.bad_request("You have provided zoom level "+zoom+". You have to zoom at least to level 20 to upload the floorplan.")
+        if (String(json, SCHEMA.fBuid) == null)
+          return AnyResponseHelper.bad_request("buid field must be String!")
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        val zoom = (json \ SCHEMA.fZoom).as[String]
+        val zoom_number = zoom.toInt
+        if (zoom_number < 20)
+          return AnyResponseHelper.bad_request("You have provided zoom level " + zoom + ". You have to zoom at least to level 20 to upload the floorplan.")
 
-        val floor_number = json.getString("floor_number")
-        val bottom_left_lat = json.getString("bottom_left_lat")
-        val bottom_left_lng = json.getString("bottom_left_lng")
-        val top_right_lat = json.getString("top_right_lat")
-        val top_right_lng = json.getString("top_right_lng")
+        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val bottom_left_lat = (json \ SCHEMA.fLatBottomLeft).as[String]
+        val bottom_left_lng = (json \ SCHEMA.fLonBottomLeft).as[String]
+        val top_right_lat = (json \ SCHEMA.fLatTopRight).as[String]
+        val top_right_lng = (json \ SCHEMA.fLonTopRight).as[String]
         val fuid = Floor.getId(buid, floor_number)
         try {
-          val stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(fuid)
+          var stored_floor = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
           if (stored_floor == null) return AnyResponseHelper.bad_request("Floor does not exist or could not be retrieved!")
-          stored_floor.put("zoom", zoom)
-          stored_floor.put("bottom_left_lat", bottom_left_lat)
-          stored_floor.put("bottom_left_lng", bottom_left_lng)
-          stored_floor.put("top_right_lat", top_right_lat)
-          stored_floor.put("top_right_lng", top_right_lng)
-          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(fuid, 0, stored_floor.toString))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fZoom -> JsString(zoom))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatBottomLeft -> JsString(bottom_left_lat))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonBottomLeft -> JsString(bottom_left_lng))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
+          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
+          if (!ProxyDataSource.getIDatasource.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, stored_floor.toString)) {
             return AnyResponseHelper.bad_request("Floor plan could not be updated in the database!")
+          }
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("Error while reading from our backend service!")
         }
@@ -2783,7 +2872,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         val top_left_lat = top_right_lat
         val top_left_lng = bottom_left_lng
         try {
-          AnyPlaceTilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng,zoom)
+          AnyPlaceTilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng, zoom)
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
@@ -2795,7 +2884,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   }
 
   def getAccountType(json: JsValue): ExternalType = {
-    val external = (json \ "external")
+    val external = (json \ SCHEMA.fExternal)
     if (external.toOption.isDefined) {
       val exts = external.as[String]
       if (exts == "google") return ExternalType.GOOGLE
@@ -2805,62 +2894,84 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
 
   def isFirstUser(): Boolean = {
-    val mdb:MongoDatabase = MongodbDatasource.getMDB
-    val collection = mdb.getCollection("users")
+    val mdb: MongoDatabase = MongodbDatasource.getMDB
+    val collection = mdb.getCollection(SCHEMA.cUsers)
     val users = collection.find()
     var awaited = Await.result(users.toFuture, Duration.Inf)
     var res = awaited.toList
     return (res.size == 0)
   }
 
-  def userExists(json: JsValue): Boolean = {
-    val mdb:MongoDatabase = MongodbDatasource.getMDB
-    val collection = mdb.getCollection("users")
+  def getUser(json: JsValue): JsValue = {
+    val mdb: MongoDatabase = MongodbDatasource.getMDB
+    val collection = mdb.getCollection(SCHEMA.cUsers)
+    var user: JsValue = null
     getAccountType(json) match {
       case ExternalType.GOOGLE => {
-        // TODO: query
-        val mdb:MongoDatabase = MongodbDatasource.getMDB
-        val collection = mdb.getCollection("users")
-        val userLookUp = collection.find(equal("owner_id", (json \ "owner_id").as[String]))
+        val mdb: MongoDatabase = MongodbDatasource.getMDB
+        val collection = mdb.getCollection(SCHEMA.cUsers)
+        val ownerId = (json \ SCHEMA.fOwnerId).as[String]
+        val userLookUp = collection.find(equal(SCHEMA.fOwnerId, ownerId))
         val awaited = Await.result(userLookUp.toFuture, Duration.Inf)
         val res = awaited.toList
-        if (res.size != 0) {
-          return true
+        if (res.size == 1) {
+          user = convertJson(res.get(0))
+        } else if (res.size > 1) {
+          LPLogger.error("User exists. More than one user with id: " + ownerId)
         }
-        return false
+
       }
       case ExternalType.LOCAL => LPLogger.debug("TODO: query unique email")
     }
-    val users = collection.find()
-    var awaited = Await.result(users.toFuture, Duration.Inf)
-    var res = awaited.toList
-    return (res.size == 0)
+    //    CLR:NN
+    //    val users = collection.find()
+    //    var awaited = Await.result(users.toFuture, Duration.Inf)
+    //    var res = awaited.toList
+    //    return (res.size == 0)
+    return user
   }
 
+
+  /**
+   *
+   * @return type(admin, user, .. etc) + message
+   */
   def addAccount() = Action {
-      implicit request =>
-        def inner(request: Request[AnyContent]): Result = {
-          val anyReq = new OAuth2Request(request)
-          if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-          var json = anyReq.getJsonBody
-          json = appendUserType(json)
-          val external = (json \ "external")
-          if (external.toOption.isDefined) {
-            addGoogleAccount(json)
-          } else {
-            // addLocalAccount() // TODO
-            LPLogger.error("TODO: Add Local Account")
-            null
-          }
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        LPLogger.D1("AddAccount")
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = anyReq.getJsonBody
+
+        if (isNullOrEmpty(json)) {
+          return AnyResponseHelper.bad_request(AnyResponseHelper.WRONG_API_USAGE)
+        } else {
+          LPLogger.D1("OK")
         }
-        inner(request)
+
+        json = appendUserType(json)
+        val external = (json \ SCHEMA.fExternal)
+        var result: Result = null
+        if (external.toOption.isDefined) {
+          result = addGoogleAccount(json)
+        } else {
+          // addLocalAccount() // TODO
+          LPLogger.error("TODO: Add Local Account")
+          null
+        }
+        //          LPLogger.D2("Logged in user: " + (json \ SCHEMA.fOwnerId))
+        return result
+      }
+
+      inner(request)
   }
 
 
   // TODO if json has not type add type = user
-  def appendUserType(json: JsValue):JsValue = {
-    if ((json \ "type").toOption.isDefined) {
-      LPLogger.info("user type exists: " + (json \ "type").as[String]) // Might crash
+  def appendUserType(json: JsValue): JsValue = {
+    if ((json \ SCHEMA.fType).toOption.isDefined) {
+      LPLogger.info("user type exists: " + (json \ SCHEMA.fType).as[String]) // Might crash
       return json
     } else {
       var userType: String = ""
@@ -2871,7 +2982,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
         LPLogger.D4("AppendUserType: user")
         userType = "user"
       }
-      return json.as[JsObject] + ("type" -> JsString(userType))
+      return json.as[JsObject] + (SCHEMA.fType -> JsString(userType))
     }
   }
 
@@ -2884,8 +2995,8 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     // call appendUserType
     // ----------------------------
     //  requirePropertiesInJson: email, username, password
-    val mdb:MongoDatabase = MongodbDatasource.getMDB
-    val collection = mdb.getCollection("users")
+    val mdb: MongoDatabase = MongodbDatasource.getMDB
+    val collection = mdb.getCollection(SCHEMA.cUsers)
     val userLookUp = collection.find(equal("username", (json \ "username").as[String]))
     val awaited = Await.result(userLookUp.toFuture, Duration.Inf)
     val res = awaited.toList
@@ -2898,22 +3009,27 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def addGoogleAccount(obj: JsValue): Result = {
     LPLogger.info("AnyplaceAccounts::addGoogleAccount()")
     var json = obj
-    val notFound = JsonUtils.requirePropertiesInJson(json, "access_token", "external") // TODO
+    val notFound = JsonUtils.hasProperties(json, SCHEMA.fAccessToken, SCHEMA.fExternal) // TODO
     if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
-    if (json.\("access_token").getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
-    var id = verifyId((json \ "access_token").as[String])
+    if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
+    var id = verifyId((json \ SCHEMA.fAccessToken).as[String])
     if (id == null) return AnyResponseHelper.forbidden("Unauthorized")
-    id = appendToId(id)
-    json = json.as[JsObject] + ("owner_id" -> Json.toJson(id))
-    if (userExists(json)) {
-      LPLogger.debug("User already exists") // CLR:nn
-      AnyResponseHelper.ok("User Exists.") // its not AnyResponseHelperok
+    id = appendGoogleIdIfNeeded(id)
+    json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
+    LPLogger.D2("Logged in user: " + (json \ SCHEMA.fOwnerId))
+    LPLogger.debug("type = " + (json \ SCHEMA.fType).as[String])
+    val user = getUser(json)
+    if (user != null) {
+      val jsonRes = Json.obj(SCHEMA.fType -> JsString((user \ SCHEMA.fType).as[String]))
+      LPLogger.D2("User already exists") // CLR:nn
+      AnyResponseHelper.ok(jsonRes, "User Exists.") // its not AnyResponseHelperok
     } else {
+      val jsonRes = Json.obj(SCHEMA.fType -> JsString((json \ SCHEMA.fType).as[String]))
       val newAccount = new Account(json)
       try {
-        ProxyDataSource.getIDatasource.addJsonDocument(newAccount.toString(), "users")
+        ProxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cUsers, newAccount.toString())
         LPLogger.D2("Added google user") // CLR:nn
-        AnyResponseHelper.ok("Added google user.")
+        AnyResponseHelper.ok(jsonRes, "Added google user.")
       } catch {
         case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
       }
@@ -2921,36 +3037,52 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
   }
 
-  private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
+  //  private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
+  //    // Admin
+  //    if (userId.equals(ADMIN_ID)) return true
+  //    if (building != null && building.get(SCHEMA.fOwnerId) != null &&
+  //      building.getString(SCHEMA.fOwnerId).equals(userId)) return true
+  //    false
+  //  }
+
+  private def isBuildingOwner(building: JsValue, userId: String): Boolean = {
     // Admin
     if (userId.equals(ADMIN_ID)) return true
-    if (building != null && building.get("owner_id") != null &&
-      building.getString("owner_id").equals(userId)) return true
+    if (building != null && (building \ SCHEMA.fOwnerId).toOption.isDefined &&
+      (building \ (SCHEMA.fOwnerId)).as[String].equals(userId)) return true
     false
   }
 
-  private def isBuildingCoOwner(building: JsonObject, userId: String): Boolean = {
+  private def isBuildingCoOwner(building: JsValue, userId: String): Boolean = {
     // Admin
     if (userId.equals(ADMIN_ID)) return true
     if (building != null) {
-      val cws = building.getArray("co_owners")
-      if (cws != null) {
-        val it = cws.iterator()
-        while (it.hasNext) if (it.next().toString.equals(userId)) return true
+      val cws = (building \ SCHEMA.fCoOwners)
+      if (cws.toOption.isDefined) {
+        val co_owners = cws.as[List[String]]
+        for (co_owner <- co_owners) {
+          if (co_owner == userId)
+            return true
+        }
       }
     }
     false
   }
 
+  private def gzippedJSONOk(json: JsValue, message: String): Result = {
+    var tempJson = json.as[JsObject] + ("message" -> JsString(message))
+    gzippedJSONOk(tempJson.toString())
+  }
 
-  private def gzippedJSONOk(body: String) = {
+
+  private def gzippedJSONOk(body: String): Result = {
     val gzipv = gzip(body)
     Ok(gzipv.toByteArray).withHeaders(("Content-Encoding", "gzip"),
       ("Content-Length", gzipv.size + ""),
       ("Content-Type", "application/json"))
   }
 
-  private def gzippedOk(body: String) = {
+  private def gzippedOk(body: String): Result = {
     val gzipv = gzip(body)
     Ok(gzipv.toByteArray).withHeaders(("Content-Encoding", "gzip"), ("Content-Length", gzipv.size + ""))
   }
@@ -2977,17 +3109,17 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-            LPLogger.info("getAccesHeatmapByBuildingFloor: assert json anyreq")
+          LPLogger.info("getAccesHeatmapByBuildingFloor: assert json anyreq")
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody
         LPLogger.info("getAccesHeatmapByBuildingFloor(): " + stripJson(json))
-        val requiredMissing = JsonUtils.requirePropertiesInJson(json, "floor", "buid")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         }
-        val floor_number = (json \ "floor").as[String]
-        val buid = (json \ "buid").as[String]
+        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val buid = (json \ SCHEMA.fBuid).as[String]
         val cut_k_features = (json \ "cut_k_features").asOpt[Int]
         //Default 5 meter grid step
         val h = (json \ "h").asOpt[Double].getOrElse(5.0)
@@ -3004,26 +3136,26 @@ object AnyplaceMapping extends play.api.mvc.Controller {
               cut_k_features = cut_k_features, h = h)
             if (latlon_predict == null) {
 
-                val crlb_filename=Play.application().configuration().getString("crlbsDir") +
-                    File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
-                val crlb_filename_lock=crlb_filename+".lock"
+              val crlb_filename = Play.application().configuration().getString("crlbsDir") +
+                File.separatorChar + buid + File.separatorChar + "fl_" + floor_number + ".txt"
+              val crlb_filename_lock = crlb_filename + ".lock"
 
-                val lockInstant =
-                    Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
-                val requestExpired = lockInstant.
-                    plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
-                var msg=""
-                if(requestExpired) {
-                    // TODO if ACCES generation happens asynchronously we can skip the extra step
-                    // This is just to show a warning message to the user.
-                    val file_lock =new File(crlb_filename_lock)
-                    file_lock.delete()
-                    msg = "Generating ACCES has previously failed. Please retry."
-                } else {
-                    msg = "Generating ACCES map in another background thread!"
-                }
+              val lockInstant =
+                Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
+              val requestExpired = lockInstant.
+                plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
+              var msg = ""
+              if (requestExpired) {
+                // TODO if ACCES generation happens asynchronously we can skip the extra step
+                // This is just to show a warning message to the user.
+                val file_lock = new File(crlb_filename_lock)
+                file_lock.delete()
+                msg = "Generating ACCES has previously failed. Please retry."
+              } else {
+                msg = "Generating ACCES map in another background thread!"
+              }
 
-                return AnyResponseHelper.bad_request(msg)
+              return AnyResponseHelper.bad_request(msg)
             }
 
             val res = JsonObject.empty()
@@ -3033,17 +3165,19 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           }
         } catch {
           case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
-              "Cannot create radiomap:mapping:FNFE:" + e.getMessage)
+            "Cannot create radiomap:mapping:FNFE:" + e.getMessage)
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           case e: IOException => return AnyResponseHelper.internal_server_error(
-              "Cannot create radiomap:IOE:" + e.getMessage)
+            "Cannot create radiomap:IOE:" + e.getMessage)
           case e: Exception => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
           case _: Throwable => return AnyResponseHelper.internal_server_error("500: ")
         }
       }
+
       inner(request)
   }
 
+  @deprecated("NotNeeded")
   def maintenance() = Action {
     implicit request =>
 
@@ -3059,6 +3193,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
+
       inner(request)
   }
 
@@ -3067,42 +3202,42 @@ object AnyplaceMapping extends play.api.mvc.Controller {
                           buid: String, floor_number: String,
                           cut_k_features: Option[Int], h: Double): (GeoJSONMultiPoint, DenseVector[Double]) = {
 
-      // TODO this should be asynchronous. and display warning that it will take time
-      // Especially if it runs on radiomap upload
-    
-    val folder=new File(
-        Play.application().configuration().getString("crlbsDir") +
-    File.separatorChar+buid)
+    // TODO this should be asynchronous. and display warning that it will take time
+    // Especially if it runs on radiomap upload
+
+    val folder = new File(
+      Play.application().configuration().getString("crlbsDir") +
+        File.separatorChar + buid)
     if (!folder.exists()) {
-        LPLogger.debug("getAccesMap: mkdir: " + folder.getCanonicalPath)
-        folder.mkdirs()
+      LPLogger.debug("getAccesMap: mkdir: " + folder.getCanonicalPath)
+      folder.mkdirs()
     }
 
     // REVIEWLS use option for this
-    val crlb_filename=Play.application().configuration().getString("crlbsDir") +
-        File.separatorChar+buid+File.separatorChar+"fl_"+floor_number+".txt"
+    val crlb_filename = Play.application().configuration().getString("crlbsDir") +
+      File.separatorChar + buid + File.separatorChar + "fl_" + floor_number + ".txt"
 
-    val crlb_filename_lock=crlb_filename+".lock"
+    val crlb_filename_lock = crlb_filename + ".lock"
     LPLogger.debug("getAccesMap:" + crlb_filename)
 
-    val file_path=new File(crlb_filename)
-    val file_lock =new File(crlb_filename_lock)
+    val file_path = new File(crlb_filename)
+    val file_lock = new File(crlb_filename_lock)
 
-      if (file_lock.exists()) {
-        val lockInstant =
-            Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
-        val requestExpired = lockInstant.
-            plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
-        if(requestExpired) {
-            // This is to give user some feedback too..
-            LPLogger.info("getAccesMap: Previous request failed and expired." +
-                "Will retry on next request.\nFile: " + crlb_filename)
-            // lock will be deleted at the callsite of this method
-        } else {
-            LPLogger.debug("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
-        }
+    if (file_lock.exists()) {
+      val lockInstant =
+        Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
+      val requestExpired = lockInstant.
+        plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
+      if (requestExpired) {
+        // This is to give user some feedback too..
+        LPLogger.info("getAccesMap: Previous request failed and expired." +
+          "Will retry on next request.\nFile: " + crlb_filename)
+        // lock will be deleted at the callsite of this method
+      } else {
+        LPLogger.debug("getAccesMap: Ignoring request. Another process is already building: " + crlb_filename)
+      }
 
-        return (null, null)
+      return (null, null)
     }
 
     val hm = rm.getGroupLocationRSS_HashMap()
@@ -3136,10 +3271,10 @@ object AnyplaceMapping extends play.api.mvc.Controller {
 
     //LPLogger.info("AnyplaceMapping::getAccesHeatmapByBuildingFloor(): multipoint: " + multipoint.toGeoJSON().toString)
 
-    val floors: Array[JsonObject] = ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
-    val floor = floors.filter((js: JsonObject) => js.getString("floor_number") == floor_number)(0)
-    val bl = new GeoPoint(lat = floor.getString("bottom_left_lat"), lon = floor.getString("bottom_left_lng"))
-    val ur = new GeoPoint(lat = floor.getString("top_right_lat"), lon = floor.getString("top_right_lng"))
+    val floors: Array[JsonObject] = toCouchArray(ProxyDataSource.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray)
+    val floor = floors.filter((js: JsonObject) => js.getString(SCHEMA.fFloorNumber) == floor_number)(0)
+    val bl = new GeoPoint(lat = floor.getString(SCHEMA.fLatBottomLeft), lon = floor.getString(SCHEMA.fLonBottomLeft))
+    val ur = new GeoPoint(lat = floor.getString(SCHEMA.fLatTopRight), lon = floor.getString(SCHEMA.fLonTopRight))
     val X = GeoUtils.latlng2xy(multipoint, bl = bl, ur = ur)
     val Y = DenseMatrix.zeros[Double](n, m)
     for (i <- 0 until n) {
@@ -3160,7 +3295,7 @@ object AnyplaceMapping extends play.api.mvc.Controller {
       cut_k_features = cut_k_features
     )
 
-    
+
     // CLRLS
     //    if (!Files.exists(Paths.get(file_path))) {
     //   acces.fit_gpr(estimate = true, use_default_params = false)
@@ -3173,41 +3308,41 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     val X_predict = GeoUtils.grid_2D(bl = X_min, ur = X_max, h = h)
 
     if (file_path.exists()) {
-        val crl= Source.fromFile(file_path).getLines.toArray
-        val crlbs = DenseVector.zeros[Double](crl.length)
+      val crl = Source.fromFile(file_path).getLines.toArray
+      val crlbs = DenseVector.zeros[Double](crl.length)
 
-        // CLRLS
-        // acces.fit_gpr(estimate = true, use_default_params = false)
-        // LPLogger.debug("crl",crl.length);
+      // CLRLS
+      // acces.fit_gpr(estimate = true, use_default_params = false)
+      // LPLogger.debug("crl",crl.length);
 
-        for (k<-0 until crlbs.length){
-            crlbs(k)=crl(k).toDouble
-        }
-        val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
-            GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+      for (k <- 0 until crlbs.length) {
+        crlbs(k) = crl(k).toDouble
+      }
+      val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+        GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 
-        return (latlon_predict, crlbs)
+      return (latlon_predict, crlbs)
     } else {
-        file_lock.createNewFile();
-        // TODO this should happen in the background.
-        LPLogger.info("Generating ACCES: " + crlb_filename)
-        acces.fit_gpr(estimate = true, use_default_params = false)
+      file_lock.createNewFile();
+      // TODO this should happen in the background.
+      LPLogger.info("Generating ACCES: " + crlb_filename)
+      acces.fit_gpr(estimate = true, use_default_params = false)
 
-        val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
+      val crlbs = acces.get_CRLB(X = X_predict, pinv_cond = 1e-6)
 
-        LPLogger.debug("length:" + crlbs.length)
-        val acces_file = new PrintWriter(file_path)
-        for (i <- 0 until crlbs.length) {
-            acces_file.println(crlbs(i))
-        }
-        acces_file.close()
-        file_lock.delete()
+      LPLogger.debug("length:" + crlbs.length)
+      val acces_file = new PrintWriter(file_path)
+      for (i <- 0 until crlbs.length) {
+        acces_file.println(crlbs(i))
+      }
+      acces_file.close()
+      file_lock.delete()
 
-        LPLogger.debug("Generated ACCES:" + crlb_filename)
-        val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
-            GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
+      LPLogger.debug("Generated ACCES:" + crlb_filename)
+      val latlon_predict = GeoUtils.dm2GeoJSONMultiPoint(
+        GeoUtils.xy2latlng(xy = X_predict, bl = bl, ur = ur))
 
-        return (latlon_predict, crlbs)
+      return (latlon_predict, crlbs)
     }
   }
 
@@ -3250,9 +3385,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
     val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
     // BUG CHECK this
-    if (!rm.createRadioMap()) {
-      LPLogger.error("Error while creating Radio Map on-the-fly!")
-      throw new Exception("Error while creating Radio Map on-the-fly!")
+    val resCreate = rm.createRadioMap()
+    if (resCreate != null) {
+      throw new Exception("getRadioMapMeanByBuildingFloor: Error: on-the-fly radioMap: " + resCreate)
     }
     val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
     rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))

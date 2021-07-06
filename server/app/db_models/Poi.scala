@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -35,120 +36,156 @@
  */
 package db_models
 
-import utils.GeoJSONPoint
-import utils.LPUtils
 import java.io.IOException
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import utils.JsonUtils.convertToInt
+import utils.{GeoJSONPoint, LPUtils}
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 object Poi {
 
-    val POIS_TYPE_NONE = "None"
+  val POIS_TYPE_NONE = "None"
 
-    val POIS_TYPE_ELEVATOR = "elevator"
+  val POIS_TYPE_ELEVATOR = "elevator"
 
-    val POIS_TYPE_STAIR = "stair"
+  val POIS_TYPE_STAIR = "stair"
 
-    def getId(username_creator: String,
-              buid: String,
-              floor_number: String,
-              coordinates_lat: String,
-              coordinates_lon: String): String = "poi_" + LPUtils.getRandomUUID
+  def getId(username_creator: String,
+            buid: String,
+            floor_number: String,
+            coordinates_lat: String,
+            coordinates_lon: String): String = "poi_" + LPUtils.getRandomUUID
 }
 
 class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsonObject = _
+  private var json: JsValue = _
 
-    private var lat: Double = _
+  private var lat: Double = _
 
-    private var lng: Double = _
+  private var lng: Double = _
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new HashMap[String, String])
-        fields.put("username", "")
-        fields.put("username_creator", "")
-        fields.put("puid", "")
-        fields.put("buid", "")
-        fields.put("is_published", "")
-        fields.put("floor_name", "")
-        fields.put("floor_number", "")
-        fields.put("name", "")
-        fields.put("description", "")
-        fields.put("url", "")
-        fields.put("image", "")
-        fields.put("pois_type", "")
-        fields.put("is_door", "")
-        fields.put("coordinates_lat", "")
-        fields.put("coordinates_lon", "")
+  def this() {
+    this(new HashMap[String, String])
+    fields.put(SCHEMA.fPuid, "")
+    fields.put(SCHEMA.fBuid, "")
+    fields.put(SCHEMA.fIsPublished, "")
+    fields.put(SCHEMA.fFloorName, "")
+    fields.put(SCHEMA.fFloorNumber, "")
+    fields.put(SCHEMA.fName, "")
+    fields.put(SCHEMA.fDescription, "")
+    fields.put(SCHEMA.fURL, "")
+    fields.put(SCHEMA.fImage, "")
+    fields.put(SCHEMA.fPoisType, "")
+    fields.put(SCHEMA.fIsDoor, "")
+    fields.put(SCHEMA.fCoordinatesLat, "")
+    fields.put(SCHEMA.fCoordinatesLon, "")
+  }
+
+  def this(json: JsValue) {
+    this()
+    if ((json \ SCHEMA.fPuid).toOption.isDefined)
+      fields.put(SCHEMA.fPuid, (json \ SCHEMA.fPuid).as[String])
+    if ((json \ SCHEMA.fBuid).toOption.isDefined)
+      fields.put(SCHEMA.fBuid, (json \ SCHEMA.fBuid).as[String])
+    if ((json \ SCHEMA.fIsPublished).toOption.isDefined)
+      fields.put(SCHEMA.fIsPublished, (json \ SCHEMA.fIsPublished).as[String])
+    if ((json \ SCHEMA.fFloorName).toOption.isDefined)
+      fields.put(SCHEMA.fFloorName, (json \ SCHEMA.fFloorName).as[String])
+    if ((json \ SCHEMA.fFloorNumber).toOption.isDefined)
+      fields.put(SCHEMA.fFloorNumber, (json \ SCHEMA.fFloorNumber).as[String])
+    if ((json \ SCHEMA.fName).toOption.isDefined) {
+      val temp = (json \ SCHEMA.fName).as[String]
+      if (temp != "" && temp != "-" && temp != null) {
+        fields.put(SCHEMA.fName, temp)
+      } else {
+        fields.remove(SCHEMA.fName)
+      }
     }
+    if ((json \ SCHEMA.fDescription).toOption.isDefined) {
+      val temp = (json \ SCHEMA.fDescription).as[String]
+      if (temp != "" && temp != "-" && temp != null) {
+        fields.put(SCHEMA.fDescription, temp)
+      } else {
+        fields.remove(SCHEMA.fDescription)
+      }
+    } else
+      fields.remove(SCHEMA.fDescription)
+    if ((json \ SCHEMA.fURL).toOption.isDefined) {
+      val temp = (json \ SCHEMA.fURL).as[String]
+      if (temp != "" && temp != "-" && temp != null) {
+        fields.put(SCHEMA.fURL, temp)
+      } else {
+        fields.remove(SCHEMA.fURL)
+      }
+    } else
+      fields.remove(SCHEMA.fURL)
+    if ((json \ SCHEMA.fImage).toOption.isDefined)
+      fields.put(SCHEMA.fImage, (json \ SCHEMA.fImage).as[String])
+    if ((json \ SCHEMA.fPoisType).toOption.isDefined)
+      fields.put(SCHEMA.fPoisType, (json \ SCHEMA.fPoisType).as[String])
+    if ((json \ SCHEMA.fIsDoor).toOption.isDefined)
+      fields.put(SCHEMA.fIsDoor, (json \ SCHEMA.fIsDoor).as[String])
+    if ((json \ SCHEMA.fIsBuildingEntrance).toOption.isDefined)
+      fields.put(SCHEMA.fIsBuildingEntrance, (json \ SCHEMA.fIsBuildingEntrance).as[String])
+    if ((json \ SCHEMA.fCoordinatesLat).toOption.isDefined)
+      fields.put(SCHEMA.fCoordinatesLat, (json \ SCHEMA.fCoordinatesLat).as[String])
+    if ((json \ SCHEMA.fCoordinatesLon).toOption.isDefined)
+      fields.put(SCHEMA.fCoordinatesLon, (json \ SCHEMA.fCoordinatesLon).as[String])
+    this.json = json
+    this.lat = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLat).as[String])
+    this.lng = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLon).as[String])
+  }
 
-    def this(json: JsonObject) {
-        this()
-        fields.put("username_creator", json.getString("username_creator"))
-        fields.put("puid", json.getString("puid"))
-        fields.put("buid", json.getString("buid"))
-        fields.put("is_published", json.getString("is_published"))
-        fields.put("floor_name", json.getString("floor_name"))
-        fields.put("floor_number", json.getString("floor_number"))
-        fields.put("name", json.getString("name"))
-        if (json.getString("description") != null && json.getString("description") != null &&
-          !json.getString("description").isEmpty) {
-            fields.put("description", json.getString("description"))
-        } else {
-            fields.put("description", "-")
-        }
-        if (json.getString("url") != null && json.getString("url") != null &&
-          !json.getString("url").isEmpty) {
-            fields.put("url", json.getString("url"))
-        } else {
-            fields.put("url", "-")
-        }
-        fields.put("image", json.getString("image"))
-        fields.put("pois_type", json.getString("pois_type"))
-        fields.put("is_door", json.getString("is_door"))
-        fields.put("is_building_entrance", json.getString("is_building_entrance"))
-        fields.put("coordinates_lat", json.getString("coordinates_lat"))
-        fields.put("coordinates_lon", json.getString("coordinates_lon"))
-        this.json = json
-        this.lat = java.lang.Double.parseDouble(json.getString("coordinates_lat"))
-        this.lng = java.lang.Double.parseDouble(json.getString("coordinates_lon"))
+  def getId(): String = {
+    var puid: String = fields.get(SCHEMA.fPuid)
+    if (puid == null || puid.isEmpty || puid == "") {
+      fields.put(SCHEMA.fPuid, Poi.getId(fields.get("username_creator"), fields.get(SCHEMA.fBuid), fields.get(SCHEMA.fFloorNumber),
+        fields.get(SCHEMA.fCoordinatesLat), fields.get(SCHEMA.fCoordinatesLon)))
+      this.json = this.json.as[JsObject] + (SCHEMA.fPuid -> JsString(fields.get(SCHEMA.fPuid)))
+      puid = fields.get(SCHEMA.fPuid)
     }
+    puid
+  }
 
-    def getId(): String = {
-        var puid: String = fields.get("puid")
-        if (puid==null || puid.isEmpty || puid == "") {
-            fields.put("puid", Poi.getId(fields.get("username_creator"), fields.get("buid"), fields.get("floor_number"),
-                fields.get("coordinates_lat"), fields.get("coordinates_lon")))
-            this.json.put("puid", fields.get("puid"))
-            puid = fields.get("puid")
-        }
-        puid
+  def toValidJson(): JsonObject = {
+    // initialize id if not initialized
+    getId
+    JsonObject.from(this.getFields())
+  }
+
+  def toValidMongoJson(): JsValue = {
+    getId
+    toJson()
+  }
+
+  def toGeoJSON(): String = {
+    val sb = new StringBuilder()
+    var json = toValidMongoJson()
+    try {
+      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
+        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
+    } catch {
+      case e: IOException => e.printStackTrace()
     }
+    sb.append(json.toString)
+    sb.toString
+  }
 
-    def toValidCouchJson(): JsonObject = {
-        // initialize id if not initialized
-        getId
-        JsonObject.from(this.getFields())
-    }
+  override def toString(): String = toJson().toString
 
-    def toCouchGeoJSON(): String = {
-        val sb = new StringBuilder()
-        val json= toValidCouchJson()
-        try {
-            json.put("geometry", new GeoJSONPoint(java.lang.Double.parseDouble(fields.get("coordinates_lat")),
-                java.lang.Double.parseDouble(fields.get("coordinates_lon")))
-              .toGeoJSON())
-            json.removeKey("username")
-        } catch {
-            case e: IOException => e.printStackTrace()
-        }
-        sb.append(json.toString)
-        sb.toString
-    }
-
-    override def toString(): String = toValidCouchJson().toString
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt(SCHEMA.fSchema, res)
+  }
 }

@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -38,7 +39,7 @@ package db_models
 import java.io.IOException
 
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.MongodbDatasource
+import datasources.{MongodbDatasource, SCHEMA}
 import play.api.libs.json._
 import utils.JsonUtils.convertToInt
 import utils.LPLogger
@@ -47,67 +48,68 @@ import scala.collection.JavaConverters.mapAsScalaMapConverter
 
 
 object ExternalType extends Enumeration {
-    type ExternalType = Value
-    val GOOGLE, LOCAL = Value
+  type ExternalType = Value
+  val GOOGLE, LOCAL = Value
 }
 
 class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
-    private var json: JsValue = _
+  private var json: JsValue = _
 
-    this.fields = hm
+  this.fields = hm
 
-    def this() {
-        this(new java.util.HashMap[String, String]())
-        fields.put("_schema", MongodbDatasource._SCHEMA.toString)
-        fields.put("owner_id", "")
-        fields.put("name", "")
-        fields.put("type", "")
+  def this() {
+    this(new java.util.HashMap[String, String]())
+    fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
+    fields.put(SCHEMA.fOwnerId, "")
+    fields.put(SCHEMA.fName, "")
+    fields.put(SCHEMA.fType, "")
+  }
+
+
+  // TODO make it follow new version of User Json
+  def this(json: JsValue) {
+    this()
+    fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
+    fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])
+    fields.put(SCHEMA.fName, (json \ SCHEMA.fName).as[String])
+    fields.put(SCHEMA.fType, (json \ SCHEMA.fType).as[String])
+    if ((json \ SCHEMA.fExternal).toOption.isDefined)
+      fields.put(SCHEMA.fExternal, (json \ SCHEMA.fExternal).as[String])
+    this.json = json
+  }
+
+  def getId(): String = fields.get(SCHEMA.fOwnerId)
+
+  @deprecated
+  def toValidJson(): JsonObject = {
+    JsonObject.from(this.getFields())
+  }
+
+  def toJson(): JsValue = {
+    val sMap: Map[String, String] = this.getFields().asScala.toMap
+    val res = Json.toJson(sMap)
+    // convert some keys to primitive types
+    convertToInt(SCHEMA.fSchema, res)
+  }
+
+
+  // TODO: replace with mongo
+  def toGeoJSON(): String = {
+    LPLogger.error("TODO:nn convert to mdb")
+    val sb = new StringBuilder()
+    var json: JsonObject = null
+    try {
+      json = JsonObject.empty()
+    } catch {
+      case e: IOException => e.printStackTrace()
     }
+    sb.append(json.toString)
+    sb.toString
+  }
 
+  @deprecated
+  def _toString(): String = toValidJson().toString
 
-    // TODO make it follow new version of User Json
-    def this(json: JsValue) {
-        this()
-        fields.put("_schema", MongodbDatasource._SCHEMA.toString)
-        fields.put("owner_id", (json \ "owner_id").as[String])
-        fields.put("name", (json \ "name").as[String])
-        fields.put("type", (json \ "type").as[String])
-        if ((json \ "external").toOption.isDefined)
-            fields.put("external", (json \ "external").as[String])
-        this.json = json
-    }
-
-    def getId(): String = fields.get("owner_id")
-
-    // DEPRECATE
-    def toValidCouchJson(): JsonObject = {
-        JsonObject.from(this.getFields())
-    }
-
-    def toJson(): JsValue = {
-        val sMap: Map[String, String] = this.getFields().asScala.toMap
-        val res = Json.toJson(sMap)
-        // convert some keys to primitive types
-        convertToInt("_schema", res)
-    }
-
-
-    // TODO: replace with mongo
-    def toCouchGeoJSON(): String = {
-        LPLogger.error("TODO:nn convert to mdb")
-        val sb = new StringBuilder()
-        var json: JsonObject = null
-        try {
-            json = JsonObject.empty()
-        } catch {
-            case e: IOException => e.printStackTrace()
-        }
-        sb.append(json.toString)
-        sb.toString
-    }
-
-    def _toString(): String = toValidCouchJson().toString
-
-    override def toString(): String = toJson().toString()
+  override def toString(): String = toJson().toString()
 }

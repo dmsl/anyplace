@@ -127,7 +127,7 @@ app.controller('BuildingController',
         promise.then(
             function (resp) {
                 var data = resp.data;
-                var b = data.building;
+                var b = data.space;
 
                 $scope.myBuildings.push(b);
 
@@ -198,7 +198,7 @@ app.controller('BuildingController',
                 // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
                 $scope.greeklish = data.greeklish;
 
                 var infowindow = new google.maps.InfoWindow({
@@ -218,7 +218,6 @@ app.controller('BuildingController',
                 }
 
                 var loadBuidFromUrl = -1;
-
                 for (var i = 0; i < $scope.myBuildings.length; i++) {
 
                     var b = $scope.myBuildings[i];

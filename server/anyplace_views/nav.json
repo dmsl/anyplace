@@ -47,9 +47,6 @@
 						},
 						"get_campus": {
 							"map": "function (doc, meta) {\n  if(doc.cuid && doc.owner_id )\n  \temit(meta.id, doc.cuid);\n}"
-						},
-						"all_pois_types": {
-							"map": "function (doc, meta) {\n  if (doc.poistypeid && doc.owner_id && doc.types && !doc.buid) {\n  \temit(doc.owner_id, meta.id);\n  }\n}"
 						}
 					}
 }

@@ -41,11 +41,9 @@ import db_models._
 import io.razem.influxdbclient._
 import play.Play
 import utils.{GeoPoint, LPLogger}
-import play.api.libs.json._
-
-import scala.concurrent.Future
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object InfluxdbDatasource {
 
@@ -155,7 +153,7 @@ class InfluxdbDatasource(host: String, port: Short, database: String, precision:
 	}
 
 	def recordToDevicePoint(record: Record): DevicePoint = new DevicePoint(
-		record("deviceID") toString, record("latitude") toString, record("longitude") toString, record("timestamp") toString, record("time") toString
+		record("deviceID") toString, record("latitude") toString, record("longitude") toString, record(SCHEMA.fTimestamp) toString, record("time") toString
 	)
 
 	def flattenResults(list: List[QueryResult]): List[DevicePoint] = {

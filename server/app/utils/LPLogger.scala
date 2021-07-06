@@ -42,7 +42,13 @@ object LPLogger {
 private val LEVEL:Int = 2
 
     def error(tag: String, message: String, e: Exception) {
-        Logger.error(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
+        // Logger.error(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
+        error(tag+": " + message, e)
+    }
+
+    def error(tag: String, e: Exception) {
+       val msg = String.format("%s: %s: %s\n%s", tag, e.getClass, e.getMessage, e.getStackTrace.toString)
+        Logger.error(msg, e)
     }
 
     def error(message: String) {

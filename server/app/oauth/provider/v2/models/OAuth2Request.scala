@@ -42,16 +42,13 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Request}
 import utils.LPUtils
 
+// TODO:NN method-> verifyUser() verifyAdminUser()
+// notes -> ../spaceDelete
 class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
-
   var mRequest = request
-
   var mBody = this.mRequest.body
-
   var mJsonBody: JsValue = _
-
   var mFormBody: Map[String, Seq[String]] = _
-
 
   if (!assertJsonBody()) {
     assertFormUrlEncodedBody()
@@ -86,8 +83,13 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
 
   def getFormEncodedBody(): Map[String, Seq[String]] = this.mFormBody
 
+
   def getMultipartFormData() = {
-    this.mRequest.body.asMultipartFormData.get
+    try {
+      this.mRequest.body.asMultipartFormData.get
+    } catch {
+      case e: NoSuchElementException => null
+    }
   }
 
   def getHeader(header: String): String = {

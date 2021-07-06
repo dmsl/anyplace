@@ -1,0 +1,4 @@
+sync.*.sh
+push_code.*.sh
+config.*.sh
+watchdog.*.sh

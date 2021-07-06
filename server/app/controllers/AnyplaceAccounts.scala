@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -36,64 +37,26 @@
 package controllers
 
 
-
 import com.couchbase.client.java.document.json.JsonObject
-import datasources.{DatasourceException, ProxyDataSource}
+import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
+import json.VALIDATE
 import oauth.provider.v2.granttype.GrantHandlerFactory
 import oauth.provider.v2.models.{AccountModel, OAuth2Request}
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.mvc.Controller
+import utils.JsonUtils.toCouchObject
 import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
 
 object AnyplaceAccounts extends Controller {
 
   /**
-    * Retrieve all the accounts.
-    *
-    * @return
-    */
-  def fetchAllAccounts() = Action {
-    implicit request =>
-
-      def inner(request: Request[AnyContent]): Result = {
-        // TODO: Only for admin users if not admin return only for admins
-        val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(
-            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        }
-        //val json = JsonObject.empty()
-        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ") // + json.toString)
-        try {
-          val users: List[JsValue] = ProxyDataSource.getIDatasource().getAllAccounts()
-          val res: JsValue = Json.obj(
-            "users_num" -> users.length,
-            "users" -> Json.arr(users)
-          )
-          //res = Json.obj()
-          //res.put("accounts", JsonArray.from(accounts))
-          println("after print")
-          AnyResponseHelper.ok(res, "Successfully retrieved all accounts!")
-        } catch {
-          case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error(
-              "500: " + e.getMessage)
-
-        }
-      }
-
-      inner(request)
-  }
-
-
-  /**
-    * Fetches the account with the AUID passed in.
-    * The account document is returned in the Json response.
-    *
-    * @return
-    */
+   * Fetches the account with the AUID passed in.
+   * The account document is returned in the Json response.
+   *
+   * @return
+   */
   def fetchAccount(auid_in: String) = Action {
     implicit request =>
 
@@ -108,8 +71,8 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+        val notFound: java.util.List[String] =
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -119,7 +82,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(auid))
           if (storedAccount ==
             null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
@@ -138,11 +101,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Deletes the account with the AUID passed in.
-    * The result of the action is returned in the Json response.
-    *
-    * @return
-    */
+   * Deletes the account with the AUID passed in.
+   * The result of the action is returned in the Json response.
+   *
+   * @return
+   */
   def deleteAccount(auid_in: String) = Action {
     implicit request =>
 
@@ -157,8 +120,8 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+        val notFound: java.util.List[String] =
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -182,11 +145,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Updates the account specified by the AUID.
-    * The result of the update is returned in the Json response.
-    *
-    * @return
-    */
+   * Updates the account specified by the AUID.
+   * The result of the update is returned in the Json response.
+   *
+   * @return
+   */
   def UpdateAccount(auid: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -201,8 +164,8 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+        val notFound: java.util.List[String] =
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -212,7 +175,7 @@ object AnyplaceAccounts extends Controller {
         try {
           // fetch the stored object
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request(
               "Account could not be updated! Try again...")
@@ -251,11 +214,11 @@ object AnyplaceAccounts extends Controller {
   // check if there is any required parameter missing
 
   /**
-    * Returns the list of clients for this account
-    *
-    * @param auid The account for which the clients are to be returned
-    * @return
-    */
+   * Returns the list of clients for this account
+   *
+   * @param auid The account for which the clients are to be returned
+   * @return
+   */
   def fetchAccountClients(auid: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -270,8 +233,8 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid")
+        val notFound: java.util.List[String] =
+          JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -281,7 +244,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+            toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -301,11 +264,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Adds a new client for this account
-    *
-    * @param auid The account the new account belongs to
-    * @return
-    */
+   * Adds a new client for this account
+   *
+   * @param auid The account the new account belongs to
+   * @return
+   */
   def addAccountClient(auid: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -320,8 +283,8 @@ object AnyplaceAccounts extends Controller {
         val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
         // check if there is any required parameter missing
-        val notFound:  java.util.List[String] =
-          JsonUtils.requirePropertiesInJson(json, "auid", "grant_type")
+        val notFound: java.util.List[String] =
+          JsonUtils.hasProperties(json, "auid", "grant_type")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
           return AnyResponseHelper.requiredFieldsMissing(notFound)
         }
@@ -336,7 +299,7 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource().getFromKeyAsJson(auid)
+          storedAccount = toCouchObject(ProxyDataSource.getIDatasource().getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -363,11 +326,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Fetches the account  client with the AUID and client_id passed in.
-    * The client document is returned in the Json response.
-    *
-    * @return
-    */
+   * Fetches the account  client with the AUID and client_id passed in.
+   * The client document is returned in the Json response.
+   *
+   * @return
+   */
   def fetchAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -390,7 +353,7 @@ object AnyplaceAccounts extends Controller {
         }
         try {
           var storedAccount: JsonObject = null
-          storedAccount = ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+          storedAccount = toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -413,11 +376,11 @@ object AnyplaceAccounts extends Controller {
   }
 
   /**
-    * Fetches the account  client with the AUID and client_id passed in.
-    * The client document is returned in the Json response.
-    *
-    * @return
-    */
+   * Fetches the account  client with the AUID and client_id passed in.
+   * The client document is returned in the Json response.
+   *
+   * @return
+   */
   def deleteAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
     implicit request =>
 
@@ -441,7 +404,7 @@ object AnyplaceAccounts extends Controller {
         try {
           var storedAccount: JsonObject = null
           storedAccount =
-            ProxyDataSource.getIDatasource.getFromKeyAsJson(auid)
+            toCouchObject(ProxyDataSource.getIDatasource.getFromKeyAsJson(auid))
           if (storedAccount == null) {
             return AnyResponseHelper.bad_request("Account could not be found!")
           }
@@ -469,4 +432,76 @@ object AnyplaceAccounts extends Controller {
       inner(request)
   }
 
+  def login() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.D2("json = " + json)
+
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fUsername, SCHEMA.fPassword)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fUsername, SCHEMA.fPassword)
+        if (validation.failed()) return validation.response()
+
+        val username = (json \ SCHEMA.fUsername).as[String]
+        val password = (json \ SCHEMA.fPassword).as[String]
+        val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
+        if (storedUser == null) return AnyResponseHelper.bad_request("User doesn't exist!")
+        if (storedUser.size > 1) return AnyResponseHelper.bad_request("More than one users were found!")
+        val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
+        if (accessToken == null) return AnyResponseHelper.bad_request("User doesn't have access token!")
+
+        val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
+        val res = Json.obj("user" -> user)
+        return AnyResponseHelper.ok(res, "Successfully found user.")
+      }
+
+    inner(request)
+  }
+
+  def register() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) {
+          return AnyResponseHelper.bad_request(
+            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        }
+        val json = anyReq.getJsonBody
+        LPLogger.D2("json = " + json)
+
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
+        if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+        val validation = VALIDATE.fields(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
+        if (validation.failed()) return validation.response()
+
+        val name = (json \ SCHEMA.fName).as[String]
+        val email = (json \ SCHEMA.fEmail).as[String]
+        val username = (json \ SCHEMA.fUsername).as[String]
+        val password = (json \ SCHEMA.fPassword).as[String]
+        val external = "anyplace"
+        val accType = "user"
+
+        val storedUsername = ???
+
+        val storedEmail = ???
+
+        // TODO: check username uniqueness
+        val storedUser = ProxyDataSource.getIDatasource().login(SCHEMA.cUsers, username, password)
+        if (storedUser != null) return AnyResponseHelper.bad_request("User already exist!")
+
+        val newUser = ProxyDataSource.getIDatasource().register(SCHEMA.cUsers, name, email, username, password, external, accType)
+
+        return AnyResponseHelper.ok("Succefully registered!")
+      }
+
+      inner(request)
+  }
 }

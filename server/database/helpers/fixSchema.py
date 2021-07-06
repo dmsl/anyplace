@@ -1,9 +1,16 @@
-def fixBUILDING(obj):
+import json
+from helpers.config import *
+
+
+def fixBUILDING(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
-    fixLocation(fixed)
+    #fixLocation(fixed)
     #  fixBooleans(fixed)
+    fixCoordinateTypo(fixed, obj)
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     fixDashesOrNulls(fixed)
+    fixed['type'] = "building"
     return fixed
 
 
@@ -27,33 +34,41 @@ def fixEDGES(obj):
     return fixed
 
 
-def fixFINGERPRINT(obj):
+def fixFINGERPRINT(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     #  fixed['timestamp'] = int(fixed['timestamp'])
     #  fixed['heading'] = float(fixed['heading'])
     #  fixed['rss'] = int(fixed['rss'])
-    fixLocation(fixed)
+    #fixLocation(fixed)
     # fixFloorNumber(fixed)
     return fixed
 
 
-def fixFLOORPLAN(obj):
+def fixFLOORPLAN(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     # fixFloorNumber(fixed)
     #  if "zoom" in obj.keys():
     #       obj["zoom"] = int(obj["zoom"])
-    fixRectangle(fixed)
+    #fixRectangle(fixed)
     return fixed
 
 
-def fixPOIS(obj):
+def fixPOIS(obj, outrangedCoordsFile):
     fixed = obj
     updateSchema(fixed)
-    fixLocation(fixed)
+    fixCoordinateTypo(fixed, obj)
+    if "coordinate" in obj['geometry'].keys():
+        fixed['geometry']['coordinates'] = obj['geometry']['coordinate']
+        del fixed['geometry']['coordinate']
+        print(obj['geometry'], " -> ", fixed['geometry'])
+    markOutrangedCoordinates(fixed, outrangedCoordsFile)
+    #fixLocation(fixed)
     #  fixBooleans(fixed)
     fixDashesOrNulls(fixed)
     # fixFloorNumber(fixed)
@@ -65,11 +80,19 @@ def fixUSER(obj):
     updateSchema(fixed)
     if "doc_type" in obj.keys():
         del obj["doc_type"]
+    #if "owner_id" in obj.keys():
+    #    obj["id"] = obj["owner_id"]
+    #    del obj["owner_id"]
     if "type" in obj.keys():
         obj["external"] = obj["type"]
         del obj["type"]
-
-    obj["type"] = "user"
+    if "owner_id" in obj.keys():
+        if obj["owner_id"] in ADMINS:
+            obj["type"] = "admin"
+        else:
+            obj["type"] = "user"
+    else:
+        obj["type"] = "user"
     return fixed
 
 
@@ -80,16 +103,15 @@ def fixRectangle(obj):
         y1 = obj["bottom_left_lat"]
         x2 = obj["top_right_lng"]
         y2 = obj["top_right_lat"]
-
-        obj["area"] = {"coordinates": [[[x1, y1], [x2, y1], [x2, y2], [x1, y2]]], "type": "Polygon"}
+        obj['location'] = {"coordinates": [[[float(x1), float(y1)], [float(x2), float(y1)], [float(x2), float(y2)], [float(x1), float(y2)]]], "type": "Polygon"}
 
         # obj["location_bottom_left"] = {"coordinates": [x1, y1], "type": "Point"}
         # obj["location_top_right"] = {"coordinates": [x2, y2], "type": "Point"}
 
-        del obj["bottom_left_lng"]
-        del obj["bottom_left_lat"]
-        del obj["top_right_lng"]
-        del obj["top_right_lat"]
+        #del obj["bottom_left_lng"]
+        #del obj["bottom_left_lat"]
+        #del obj["top_right_lng"]
+        #del obj["top_right_lat"]
 
 
 def fixBooleans(obj):
@@ -103,7 +125,7 @@ def fixBooleans(obj):
 def fixDashesOrNulls(obj):
     listToDel = []
     for key in obj.keys():
-        if key == "address" or key == "url" or key == "description" or key == "name":
+        if key == "address" or key == "url" or key == "description" or key == "name" or key == "bucode" or key == "username_creator":
             if obj[key] == "-" or obj[key] == "":
                 listToDel.insert(0, key)
     for x in listToDel:
@@ -119,6 +141,45 @@ def fixFloorNumber(obj):
     if "floor_a" in obj.keys() and "floor_b" in obj.keys():
         obj["floor_a"] = int(obj["floor_a"])
         obj["floor_b"] = int(obj["floor_b"])
+
+
+def fixCoordinateTypo(fixed, obj):
+    if "geometry" in obj.keys():
+        if "coordinate" in obj['geometry'].keys():
+            fixed['geometry']['coordinates'] = obj['geometry']['coordinate']
+            del fixed['geometry']['coordinate']
+
+
+def markOutrangedCoordinates(obj, fileP):
+    if "geometry" in obj.keys():
+        if float(obj['geometry']['coordinates'][0]) >= 90 or float(obj['geometry']['coordinates'][0]) <= -90:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+        if float(obj['geometry']['coordinates'][1]) >= 180 or float(obj['geometry']['coordinates'][1]) <= -180:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "bottom_left_lat" in obj.keys():
+        if float(obj['bottom_left_lat']) >= 90 or  float(obj['bottom_left_lat']) <= -90:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "bottom_left_lng" in obj.keys():
+        if float(obj['bottom_left_lng']) >= 180 or  float(obj['bottom_left_lng']) <= -180:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "top_right_lat" in obj.keys():
+        if float(obj['top_right_lat']) >= 90 or  float(obj['top_right_lat']) <= -90:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
+    if "top_right_lng" in obj.keys():
+        if float(obj['top_right_lng']) >= 180 or  float(obj['top_right_lng']) <= -180:
+            fileP.write(json.dumps(obj))
+            fileP.write("\n")
+            return
 
 
 def fixLocation(obj):
