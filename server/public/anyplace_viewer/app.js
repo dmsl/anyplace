@@ -140,15 +140,16 @@ app.service('GMapService', function () {
         return tile;
     };
 
-
-    var mapTypeId = "roadmap";
+    var mapTypeId = "OSM";
     if (typeof(Storage) !== "undefined" && localStorage) {
-        if (localStorage.getItem('mapTypeId'))
-            mapTypeId = localStorage.getItem('mapTypeId');
-        else
-            localStorage.setItem("mapTypeId", "roadmap");
+	if (localStorage.getItem('mapTypeId')) {
+		storedType = localStorage.getItem('mapTypeId');
+		if (storedType === "roadmap")  { storedType = "OSM"; } // force OSM
+		mapTypeId = storedType;
+	} else {
+		localStorage.setItem("mapTypeId", "OSM");
+	}
     }
-
 
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
