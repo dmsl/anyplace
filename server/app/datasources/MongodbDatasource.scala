@@ -143,7 +143,6 @@ object MongodbDatasource {
 }
 
 class MongodbDatasource() extends IDatasource {
-
   def disconnect() = {
     val res = mongoClient.close()
   }

@@ -1,5 +1,6 @@
-#####################################################################################################
 #  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
+
+-> /api api.Routes
 
 ################
 # Accounts
@@ -14,13 +15,13 @@ POST        /user/register                                                      
 POST        /user/login                                                            controllers.AnyplaceAccounts.login()
 #POST         /user/logout                                                                    controllers.AnyplaceAccounts.logout()
 # ADMIN
-POST        /user/admin/accounts_all                                            controllers.Admin.fetchAllAccounts()
-POST        /user/admin/migration/run                                           controllers.Admin.migrateToMongoDB()
+POST        /user/admin/accounts_all                                                controllers.Admin.fetchAllAccounts()
+POST        /user/admin/migration/run                                               controllers.Admin.migrateToMongoDB()
 
 POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
-GET         /login                                                                  controllers.ApplicationAnyplace.login()
-GET         /logout                                                                 controllers.ApplicationAnyplace.logout()
-POST        /authenticate                                                           controllers.ApplicationAnyplace.authenticate()
+#GET         /login                                                                  controllers.ApplicationAnyplace.login()
+#GET         /logout                                                                 controllers.ApplicationAnyplace.logout()
+#POST        /authenticate                                                           controllers.ApplicationAnyplace.authenticate()
 
 POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
@@ -105,12 +106,16 @@ POST        /anyplace/position/radio_by_building_floor                          
 # bug mdb: fails to identify access points location
 # TODO:NN fix bug NEXT MEETING
 # where is it called (we want to rename)
+# TODO:NN access_points/APs..
 POST        /anyplace/position/radio/APs_building_floor                             controllers.AnyplaceMapping.getAPsByBuildingFloor()
 POST        /anyplace/position/radio/aps_ids                                        controllers.AnyplaceMapping.getAPsIds()
 
 ################
 ### HEATMAP DATA
 ################
+# RENAMED:
+# NEW FILE:
+# /anyplace/position/radio/heatmap_building_floor_average_1 -> /heatmap/floor/average/1 /2 /3 /3/tiles .. TODO:NN
 POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
 POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getHeatmapByFloorAVG2()
 POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getHeatmapByFloorAVG3()
@@ -126,10 +131,11 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2 
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG3()
 POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.heatmapByFloorTimestampTiles()
 
+
+
 ###########
 ### RESOURCES:
 ###########
-POST        /anyplace/version                                                       controllers.ApplicationAnyplace.Version
 ## WEB APPS:
 # DEVELOPERS:
 GET         /developers/*file                                                       controllers.Assets.at(path="/public/developers", file)
@@ -138,7 +144,7 @@ GET         /developers                                                         
 
 # ARCHITECT:
 GET         /architect/*file                                                        controllers.Assets.at(path="/public/anyplace_architect", file)
-GET         /architect/                                                             controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+GET         /architect/                                                             controllers.AnyplaceWebApps.serveArchitect(file="index.html")
 GET         /architect                                                              controllers.AnyplaceWebApps.AddTrailingSlash()
 
 # VIEWER:
@@ -148,9 +154,9 @@ GET /viewer/                                                                    
 GET /viewer                                                                         controllers.AnyplaceWebApps.AddTrailingSlash()
 
 # NEW ANGULAR WEB APP (Login, register) :
-GET         /new2/*file                                                             controllers.Assets.at(path="/public/new2", file)
-GET         /new2/                                                                  controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
-GET         /new2                                                                   controllers.AnyplaceWebApps.AddTrailingSlash()
+#GET         /new2/*file                                                             controllers.Assets.at(path="/public/new2", file)
+#GET         /new2/                                                                  controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
+#GET         /new2                                                                   controllers.AnyplaceWebApps.AddTrailingSlash()
 
 ## BLUEPRINTS
 POST        /anyplace/floortiles/:buid/:floor_number                                controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
@@ -178,12 +184,13 @@ GET /*any                                                                       
 ### CHECK:NN IF USED ###
 #####################
 # ADMIN WEBSITE CHECK:NN /admin ... else: delete and report to PM
-GET         /admin/*file                                                            controllers.AnyplaceWebApps.serveAdmin(file: String)
-GET         /admin                                                                  controllers.AnyplaceWebApps.AddTrailingSlash()
+#GET         /admin/*file                                                            controllers.AnyplaceWebApps.serveAdmin(file: String)
+#GET         /admin                                                                  controllers.AnyplaceWebApps.AddTrailingSlash()
 
 # Android
-POST        /android                                                                controllers.AnyplaceAndroid.getApks()
-GET         /android/apk/:file                                                      controllers.AnyplaceAndroid.downloadApk(file: String)
+# CHECK:NN
+#POST        /android                                                                controllers.AnyplaceAndroid.getApks()
+#GET         /android/apk/:file                                                      controllers.AnyplaceAndroid.downloadApk(file: String)
 
 #####################################################################################################
 # ACCES MAP

@@ -46,36 +46,10 @@ import java.util
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
-import acces.{AccesRBF, GeoUtils}
-import breeze.linalg.{DenseMatrix, DenseVector}
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import datasources.MongodbDatasource.convertJson
-import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
-import db_models.ExternalType.ExternalType
-import db_models._
-import json.VALIDATE
-import json.VALIDATE.String
-import location.Algorithms
-import oauth.provider.v2.models.OAuth2Request
 import org.apache.commons.codec.binary.Base64
 import org.mongodb.scala.MongoDatabase
 import org.mongodb.scala.model.Filters.equal
-import play.Play
-import play.api.libs.json.Reads._
-import play.api.libs.json.{JsObject, JsValue, Json, _}
-import play.api.mvc._
-import play.libs.F
-import radiomapserver.RadioMap.RadioMap
-import radiomapserver.RadioMapMean
-import utils.JsonUtils.{isNullOrEmpty, toCouchArray}
-import utils._
-
-import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.io.Source
-import scala.util.control.Breaks
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
@@ -2747,15 +2721,16 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         LPLogger.D1("AddAccount")
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        var json = anyReq.getJsonBody
+        val auth = new OAuth2Request(request)
+        if (!auth.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        var json = auth.getJsonBody
         if (isNullOrEmpty(json)) return AnyResponseHelper.bad_request(AnyResponseHelper.WRONG_API_USAGE)
-        json = appendUserType(json)
+        json = appendUserType(json) //# TODO auth.appendUserType() // update json directly.. inside auth object..
+        // auth.isGoogleUser() // and hide the below functionality....
         val external = (json \ SCHEMA.fExternal)
         var result: Result = null
         if (external.toOption.isDefined) {
-          return addGoogleAccount(json)
+          return addGoogleAccount(auth) // auth.addGoogleAccount()
         } else {
           LPLogger.error("TODO: Add Local Account")
           null
@@ -2806,9 +2781,9 @@ object AnyplaceMapping extends play.api.mvc.Controller {
     null
   }
 
-  def addGoogleAccount(obj: JsValue): Result = {
+  def addGoogleAccount(auth: OAuth2Request): Result = {
     LPLogger.info("addGoogleAccount")
-    var json = obj
+    var json = auth.getJsonBody()
     val notFound = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
     if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
 
