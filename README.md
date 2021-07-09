@@ -29,15 +29,19 @@ If you install Anyplace on your own servers, please record your URL
 
 #### In case you have any publications resulting from the Anyplace platform, please cite the following paper(s):
 
-- [The Anatomy of the Anyplace Indoor Navigation Service**](http://www.sigspatial.org/sigspatial-special-issues/sigspatial-special-volume-9-number-2-july-2017/04-Paper01_Anatomy.pdf)  
-  **Demetrios Zeinalipour-Yazti and Christos Laoudias**  
-  _ACM SIGSPATIAL Special (SIGSPATIAL '17), ACM Press, Vol. 9, pp. 3-10, 201_
+- [**The Anyplace 4.0 IoT Localization Architecture**](https://www.cs.ucy.ac.cy/~dzeina/papers/mdm20-a4iot.pdf)  
+  **Paschalis Mpeis, Thierry Roussel, Manish Kumar, Constantinos Costa, Christos Laoudias, Denis Capot-Ray Demetrios Zeinalipour-Yazti**  
+  _Proceedings of the 21st IEEE International Conference on Mobile Data Management (MDM '20), IEEE Computer Society, ISBN:, pp. 8, June 30 - July 3, 2020, Versailles, France, 2020_
 
-- [Internet-Based Indoor Navigation Services](http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf)  
+- [**The Anatomy of the Anyplace Indoor Navigation Service**](http://www.sigspatial.org/sigspatial-special-issues/sigspatial-special-volume-9-number-2-july-2017/04-Paper01_Anatomy.pdf)  
+  **Demetrios Zeinalipour-Yazti and Christos Laoudias**  
+  _ACM SIGSPATIAL Special (SIGSPATIAL '17), ACM Press, Vol. 9, pp. 3-10, 2017_
+
+- [**Internet-Based Indoor Navigation Services**](http://www.cs.ucy.ac.cy/~dzeina/papers/ic16-iin.pdf)  
   **Demetrios Zeinalipour-Yazti, Christos Laoudias, Kyriakos Georgiou, Georgios Chatzimilioudis**  
   _IEEE Internet Computing, vol. 21, no. , pp. 54-63, July 2017, doi:10.1109/MIC.2017.2911420_
 
-- [Anyplace: A Crowdsourced Indoor Information Service](http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf)  
+- [**Anyplace: A Crowdsourced Indoor Information Service**](http://www.cs.ucy.ac.cy/~dzeina/papers/mdm15-anyplace-demo.pdf)  
   **Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti**  
   _IEEE Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015_
 
