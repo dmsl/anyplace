@@ -78,36 +78,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
     $scope.fetchVersion();
 
-
-//     // Replace this with your URL.
-//     var BUILDING_TILE_URL = AnyplaceAPI.FULL_SERVER + '/floortiles/{building}/{floor}/{z}/z{z}x{x}y{y}.png';
-//
-// // Name the layer anything you like.
-//     var layerID = 'building_layer';
-//
-// // Create a new ImageMapType layer. static_tiles/19/z19x310801y207411.png
-//     var maptiler = new google.maps.ImageMapType({
-//         name: layerID,
-//         getTileUrl: function (coord, zoom) {
-//             var buid = $scope.anyService.getBuildingId();
-//
-//             var floor = $scope.anyService.getFloorNumber();
-//             var url = BUILDING_TILE_URL
-//                 .replace('{building}', buid)
-//                 .replace('{floor}', floor)
-//                 .replace('{z}', zoom)
-//                 .replace('{x}', coord.x)
-//                 .replace('{y}', coord.y)
-//                 .replace('{z}', zoom);
-//             return url;
-//         },
-//         tileSize: new google.maps.Size(256, 256),
-//         isPng: true
-//     });
-//
-//     // Register the new layer, then activate it.
-//     $scope.gmapService.gmap.overlayMapTypes.insertAt(0, maptiler);
-
     $scope.setCrudTabSelected = function (n) {
         $scope.crudTabSelected = n;
         if (!$scope.anyService.getBuilding()) {
