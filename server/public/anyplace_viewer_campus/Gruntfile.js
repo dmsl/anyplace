@@ -8,7 +8,6 @@ module.exports = function (grunt) {
       js: {
         src: [
           'app.js',
-          '../js/shared.js',
           '../js/anyplace-core-js/*.js', // Anyplace JS lib
           'scripts/*.js',
           'controllers/*.js'

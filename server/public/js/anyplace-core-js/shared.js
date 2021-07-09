@@ -42,20 +42,6 @@
  */
 
 
-// Error messages
-ERR_FETCH_BUILDINGS="Something went wrong while fetching buildings.";
-ERR_FETCH_ALL_FLOORS="Something went wrong while fetching all floors.";
-ERR_USER_AUTH="Could not authorize user. Please refresh.";
-ERR_FETCH_FINGERPRINTS="Something went wrong while fetching fingerPrints.";
-// TODO Permission denined
-ERR_GEOLOC_DEVICE_SETTINGS="Please check your device's geolocation settings.";
-ERR_GEOLOC_NET_OR_SATELLITES="Position unavailable. The network is down or the positioning satellites couldn't be contacted.";
-ERR_GEOLOC_TIMEOUT="Timeout. The request for retrieving your Geolocation was timed out.";
-ERR_GEOLOC_UNKNOWN="There was an error while retrieving your Geolocation. Please try again.";
-ERR_GEOLOC_NOT_SUPPORTED="The Geolocation feature is not supported by this browser.";
-
-WARN_NO_FINGERPRINTS="This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.";
-WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
 
 // Activate tooltips
 $('document').ready(function(){
@@ -283,17 +269,14 @@ function isNullOrEmpty(value){
     return (value == null || value == undefined || value == "" || value == "-");
 }
 
-// TODO:NN class problem: already defined
-class LOG {
-    static level = 3;
-    static DBG1() { return 1 <= LOG.level; }
-    static DBG2() { return 2 <= LOG.level; }
-    static DBG3() { return 3 <= LOG.level; }
-    static DBG4() { return 4 <= LOG.level; }
+var LOG = {};
+LOG.level = 3;
+LOG.DBG1 = function() { return 1 <= LOG.level; }
+LOG.DBG2 = function() { return 2 <= LOG.level; }
+LOG.DBG3 = function() { return 3 <= LOG.level; }
+LOG.DBG4 = function() { return 4 <= LOG.level; }
 
-    static D1(msg) { if (LOG.DBG1()) console.log(msg);}
-    static D2(msg) { if (LOG.DBG2()) console.log(msg);}
-    static D3(msg) { if (LOG.DBG3()) console.log(msg);}
-    static D4(msg) { if (LOG.DBG4()) console.log(msg);}
-}
-
+LOG.D1 = function(msg) { if (LOG.DBG1()) console.log(msg);}
+LOG.D2 = function(msg) { if (LOG.DBG2()) console.log(msg);}
+LOG.D3 = function(msg) { if (LOG.DBG3()) console.log(msg);}
+LOG.D4 = function(msg) { if (LOG.DBG4()) console.log(msg);}

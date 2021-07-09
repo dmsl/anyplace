@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-
 var heatMap = [];
 var heatMapAcces = [];
 var APmap = [];

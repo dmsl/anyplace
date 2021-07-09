@@ -27,7 +27,7 @@
 
 var AnyplaceAPI = {};
 AnyplaceAPI.BASE_URL = "../anyplace";
-AnyplaceAPI.VERSION = AnyplaceAPI.BASE_URL + "/version";
+AnyplaceAPI.VERSION = "../api/version";
 
 /**
  * MAPPING API
@@ -160,7 +160,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     apiService.version = function (json_req) {
         return $http({
-            method: "POST",
+            method: "GET",
             url: AnyplaceAPI.VERSION,
             data: json_req
         }).success(function (data, status) {

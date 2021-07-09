@@ -50,10 +50,37 @@ import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import org.apache.commons.codec.binary.Base64
 import org.mongodb.scala.MongoDatabase
 import org.mongodb.scala.model.Filters.equal
+import acces.{AccesRBF, GeoUtils}
+import breeze.linalg.{DenseMatrix, DenseVector}
+import datasources.MongodbDatasource.convertJson
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
+import db_models.ExternalType.ExternalType
+import db_models._
+import json.VALIDATE
+import json.VALIDATE.String
+import location.Algorithms
+import oauth.provider.v2.models.OAuth2Request
+import org.mongodb.scala.MongoDatabase
+import play.Play
+import play.api.libs.json.Reads._
+import play.api.libs.json.{JsObject, JsValue, Json, _}
+import play.api.mvc._
+import play.libs.F
+import radiomapserver.RadioMap.RadioMap
+import radiomapserver.RadioMapMean
+import utils.JsonUtils.{isNullOrEmpty, toCouchArray}
+import utils._
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.io.Source
+import scala.util.control.Breaks
 
 object AnyplaceMapping extends play.api.mvc.Controller {
 
-  // CHECK Why is this hardcoded here?
+  // CHECK:NN CHECK:PM Why is this hardcoded here?
   private val ADMIN_ID = "112997031510415584062_google"
   val ACCES_RETRY_AMOUNT = 2
   val ACCES_RETRY_UNIT: TemporalUnit = ChronoUnit.HOURS
@@ -65,11 +92,6 @@ object AnyplaceMapping extends play.api.mvc.Controller {
   def stripJson(jsVal: JsValue) = {
     // if username is needed, then restore it
     (jsVal.as[JsObject] - SCHEMA.fAccessToken - "password" - "username").toString()
-  }
-
-
-  def verifyUser(accessToken: String): String = {
-    ""
   }
 
   // TODO:PM TODO:NN local accounts
