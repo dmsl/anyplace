@@ -44,8 +44,10 @@ import java.util.{ArrayList, HashMap, LinkedList}
 import Jama.Matrix
 import utils.LPLogger
 
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
+
 //remove if not needed
-import scala.collection.JavaConversions._
+// import scala.collection.JavaConversions._
 
 
 object RadioMap {
@@ -160,7 +162,7 @@ object RadioMap {
       null
     }
 
-    private def createRadioMapFromPath(inFile: File) {
+    private def createRadioMapFromPath(inFile: File): Unit = {
       if (inFile.exists()) {
         // how is this if working... ??
         if (inFile.canExecute() && inFile.isDirectory) {
@@ -176,7 +178,7 @@ object RadioMap {
       }
     }
 
-    def parseLogFileToRadioMap(inFile: File) {
+    def parseLogFileToRadioMap(inFile: File): Unit = {
       var MACAddressMap: HashMap[String, ArrayList[Integer]] = null
       var RSS_Values: ArrayList[Integer] = null
       val MAG_Values: ArrayList[ArrayList[Float]] = null
@@ -215,7 +217,7 @@ object RadioMap {
               num_orientations).toInt
             orientationLists = NewRadioMap.get(key)
             if (orientationLists == null) {
-              orientationLists = new HashMap[Integer, ArrayList[Any]](Math.round(num_orientations))
+              orientationLists = new HashMap[Integer, ArrayList[Any]](Math.round(num_orientations.toFloat))
               orientationList = new ArrayList[Any](2)
               orientationLists.put(group, orientationList)
               MACAddressMap = new HashMap[String, ArrayList[Integer]]()
@@ -407,7 +409,7 @@ object RadioMap {
       true
     }
 
-    private def set_MIN_MAX_RSS(RSS_Value: Int) {
+    private def set_MIN_MAX_RSS(RSS_Value: Int) : Unit = {
       if (MIN_RSS > RSS_Value && RSS_Value != this.defaultNaNValue) {
         MIN_RSS = RSS_Value
       }
@@ -425,7 +427,7 @@ object RadioMap {
       // must have size >= 2
       for (i <- 0 until RM.getOrderList().size; j <- i + 1 until RM.getOrderList().size) {
         val RadioMapFile = RM.getLocationRSS_HashMap(group)
-        if (RadioMapFile != null && RadioMapFile.get(RM.getOrderList.get(i)) != null &&
+        if (RadioMapFile != null && RadioMapFile.get(RM.getOrderList().get(i)) != null &&
           RadioMapFile.get(RM.getOrderList().get(j)) != null) {
           result = calculateEuclideanDistance(RadioMapFile.get(RM.getOrderList().get(i)), RadioMapFile.get(RM.getOrderList().get(j)))
           if (result == java.lang.Float.NEGATIVE_INFINITY) {
@@ -434,8 +436,8 @@ object RadioMap {
           allDistances.add(result)
         }
       }
-      maximumDistance = allDistances.max
-      java.lang.Float.valueOf((maximumDistance / Math.sqrt(2 * RM.getOrderList.size)).toFloat)
+      maximumDistance = allDistances.asScala.max
+      java.lang.Float.valueOf((maximumDistance / Math.sqrt(2 * RM.getOrderList().size())).toFloat)
     }
 
     private def calculateEuclideanDistance(real: String, estimate: String): Double
@@ -551,11 +553,11 @@ object RadioMap {
         var heading = 0
         var x_y = ""
         var group = 0
-        for ((key, value) <- NewRadioMap) {
+        for ((key, value) <- NewRadioMap.asScala) {
           val degrees = 360
-          for ((key, value) <- value) {
+          for ((key, value) <- value.asScala) {
             MACAddressMap = value.get(0).asInstanceOf[HashMap[String, ArrayList[Integer]]]
-            for ((key, value) <- MACAddressMap) {
+            for ((key, value) <- MACAddressMap.asScala) {
               val MACAddress = key
               if (!MACKeys.contains(MACAddress.toLowerCase())) {
                 if (AP.size == 0 || AP.contains(MACAddress.toLowerCase())) {
@@ -573,15 +575,15 @@ object RadioMap {
             }
           }
         }
-        for ((key, value) <- NewRadioMap) {
+        for ((key, value) <- NewRadioMap.asScala) {
           val degrees = 360
           group = degrees / orientations
           x_y = key
-          for ((key, value) <- value) {
+          for ((key, value) <- value.asScala) {
             max_values = 0
             heading = key * group
             MACAddressMap = value.get(0).asInstanceOf[HashMap[String, ArrayList[Integer]]]
-            for ((key, value) <- MACAddressMap) {
+            for ((key, value) <- MACAddressMap.asScala) {
               val wifi_rss_values = value
               if (wifi_rss_values.size > max_values) {
                 max_values = wifi_rss_values.size
@@ -675,7 +677,7 @@ object RadioMap {
         try {
           if (x == 0) fos.write("# Heading wx, wy\n".getBytes)
           for (i <- 0 until w.getRowDimension) {
-            fos.write((group + ", ").getBytes)
+            fos.write((s"$group").getBytes)
             for (j <- 0 until w.getColumnDimension) {
               fos.write(dec.format(w.get(i, j)).getBytes)
               if (j != w.getColumnDimension - 1) {
@@ -978,10 +980,10 @@ object RadioMap {
       Math.sqrt(finalResult).toFloat
     }
 
-    private def printMatrix(m: Matrix) {
+    private def printMatrix(m: Matrix): Unit = {
       for (i <- 0 until m.getRowDimension) {
-        for (j <- 0 until m.getColumnDimension) {
-          System.out.print(m.get(i, j) + " ")
+        for (j <- 0 until m.getColumnDimension()) {
+          System.out.print(s"$m.get(i, j)")
         }
         println()
       }

@@ -36,10 +36,9 @@
 package oauth.provider.v2.utils
 
 import com.couchbase.client.java.document.json.JsonObject
+import oauth.provider.v2.OAuth2Constant
 import oauth.provider.v2.models.AccessTokenModel
-import oauth.provider.v2.{OAuth2Constant, utils}
-import play.mvc.Result
-import play.mvc.Results
+import play.mvc.{Result, Results}
 
 
 object OAuth2Responses {
@@ -124,10 +123,10 @@ object OAuth2Responses {
 
         def ValidToken(tokenModel: AccessTokenModel): Result = {
                val json = JsonObject.empty()
-        json.put(OAuth2Constant.ACCESS_TOKEN, tokenModel.getAccessToken)
-        json.put(OAuth2Constant.TOKEN_TYPE, tokenModel.getTokenType)
-        json.put(OAuth2Constant.EXPIRES_IN, tokenModel.getExpiresIn)
-        json.put(OAuth2Constant.REFRESH_TOKEN, tokenModel.getRefreshToken)
+        json.put(OAuth2Constant.ACCESS_TOKEN, tokenModel.getAccessToken())
+        json.put(OAuth2Constant.TOKEN_TYPE, tokenModel.getTokenType())
+        json.put(OAuth2Constant.EXPIRES_IN, tokenModel.getExpiresIn())
+        json.put(OAuth2Constant.REFRESH_TOKEN, tokenModel.getRefreshToken())
         Results.ok(json.toString)
         }
 

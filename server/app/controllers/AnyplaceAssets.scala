@@ -35,23 +35,25 @@
  */
 package controllers
 
-import datasources.SCHEMA
-import play.api.mvc.Action
+import javax.inject.{Inject, Singleton}
+import play.api.mvc._
 
-object AnyplaceAssets extends play.api.mvc.Controller {
+@Singleton
+class AnyplaceAssets @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
-  def at(path: String, file: String) = Action.async {
-    implicit request =>
-      //    Assets.at(path+"/anyplace_viewer_campus", file)
-      val uri = request.headers.get("referer").getOrElse("")
-      var viewerDir = "/anyplace_viewer/"
-      val campus = !uri.contains(SCHEMA.fCampusCuid)
-      if (campus) {
-        viewerDir = "/anyplace_viewer/"
-      } else {
-        viewerDir = "/anyplace_viewer_campus/"
-      }
-      Assets.at(path + viewerDir, file).apply(request)
+  //def at(path: String, file: String): Action[AnyContent] = Action {
+  //  implicit request =>
+  //    //    Assets.at(path+"/anyplace_viewer_campus", file)
+  //    val uri = request.headers.get("referer").getOrElse("")
+  //    var viewerDir = "/anyplace_viewer/"
+  //    val campus = !uri.contains(SCHEMA.fCampusCuid)
+  //    if (campus) {
+  //      viewerDir = "/anyplace_viewer/"
+  //    } else {
+  //      viewerDir = "/anyplace_viewer_campus/"
+  //    }
+  //
+  //
+  //}
 
-  }
 }

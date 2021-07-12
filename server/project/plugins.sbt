@@ -1,9 +1,13 @@
-logLevel := Level.Warn
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.8")
 
-resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
 
-//playVersion := "2.4.2"
+//logLevel := Level.Warn
+//
+//resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
+//
+////playVersion := "2.4.2"
+//
+//addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.7")
 
- addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.2")
-//addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2") // CANT do this
-//addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.5")
+
+

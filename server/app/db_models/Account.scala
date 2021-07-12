@@ -40,11 +40,12 @@ import java.io.IOException
 
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.{MongodbDatasource, SCHEMA}
+import javax.inject.Singleton
 import play.api.libs.json._
 import utils.JsonUtils.convertToInt
 import utils.LPLogger
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 
 object ExternalType extends Enumeration {
@@ -52,13 +53,14 @@ object ExternalType extends Enumeration {
   val GOOGLE, LOCAL = Value
 }
 
+@Singleton
 class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
   private var json: JsValue = _
 
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new java.util.HashMap[String, String]())
     fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
     fields.put(SCHEMA.fOwnerId, "")
@@ -69,7 +71,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
 
   // TODO make it follow new version of User Json
-  def this(json: JsValue) {
+  def this(json: JsValue) = {
     this()
     fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
     fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])

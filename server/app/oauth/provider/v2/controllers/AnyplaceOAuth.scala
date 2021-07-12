@@ -35,148 +35,140 @@
  */
 package oauth.provider.v2.controllers
 
-import oauth.provider.v2.utils.OAuth2Responses
-import oauth.provider.v2.granttype.GrantHandlerFactory
-import oauth.provider.v2.granttype.IGrantHandler
-import oauth.provider.v2.models.AccountModel
-import oauth.provider.v2.models.ClientCredentials
+import javax.inject.{Inject, Singleton}
 import oauth.provider.v2.models.OAuth2Request
-import accounts.IAccountService
-import accounts.ProxyAccountService
-import oauth.provider.v2.OAuth2Constant
-import org.apache.commons.lang3.StringUtils
-import play.api.mvc.Action
-import play.mvc.Controller
+import play.api.mvc.{AbstractController, ControllerComponents}
 import utils.{AnyResponseHelper, LPLogger}
 
-object AnyplaceOAuth extends Controller{
+@Singleton
+class AnyplaceOAuth @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
 
   /**
-    * This endpoint interacts with the resource owner in order to obtain
-    * authorization grant. The authorization server first authenticates
-    * the resource owner, using credentials (HTML Form) or session cookies.
-    *
-    * TLS/SSL connection is REQUIRED.
-    *
-    * REQUIRED: GET, [POST]
-    *
-    * This endpoint is used by grant types:
-    * a) Authorization Code
-    * b) Implicit grant
-    * and the field 'response_type' is required with values 'code' or 'token'
-    * respectively.
-    *
-    * @return
-    */
-  def authorize()=Action {
+   * This endpoint interacts with the resource owner in order to obtain
+   * authorization grant. The authorization server first authenticates
+   * the resource owner, using credentials (HTML Form) or session cookies.
+   *
+   * TLS/SSL connection is REQUIRED.
+   *
+   * REQUIRED: GET, [POST]
+   *
+   * This endpoint is used by grant types:
+   * a) Authorization Code
+   * b) Implicit grant
+   * and the field 'response_type' is required with values 'code' or 'token'
+   * respectively.
+   *
+   * @return
+   */
+  def authorize() = Action {
     implicit request =>
-    // create the Request and check it
-    val anyReq: OAuth2Request = new OAuth2Request(request)
-    if (!anyReq.assertJsonBody()) {
-      AnyResponseHelper.bad_request(
-        AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-    }
-    val json = anyReq.getJsonBody
-    LPLogger.info("AnyplaceOAuth::authorize():: " + json.toString)
-    AnyResponseHelper.not_found(
-      "OAuth grant types using authenticate are not supported!")
+      // create the Request and check it
+      val anyReq: OAuth2Request = new OAuth2Request(request)
+      if (!anyReq.assertJsonBody()) {
+        AnyResponseHelper.bad_request(
+          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+      }
+      val json = anyReq.getJsonBody()
+      LPLogger.info("AnyplaceOAuth::authorize():: " + json.toString)
+      AnyResponseHelper.not_found(
+        "OAuth grant types using authenticate are not supported!")
   }
 
-  /**
-    * This endpoint is used by all the grant types flows except 'implicit grant'
-    * since the token is issued directly.
-    *
-    * TLS/SSL connection is REQUIRED.
-    * REQUIRED: POST
-    * Required parameters with no value are treated as omitted and unknowns are ignored.
-    *
-    * ////// REQUEST A TOKEN //////////////
-    * Access Token Request (application/x-www-form-urlencoded): RFC 4.3.2
-    * grant_type: 'password'
-    * username: The resource owner username
-    * password: The resource owner password
-    * scope: The scope of the access request (optional)
-    * client_id: The client id issued by the registration service (optional)
-    * client_secret: The client secret issued by the registration service (optional)
-    *
-    * After successful request the response is like below:
-    *
-    * HTTP/1.1 200 OK
-    * Content-Type: application/json;charset=utf-8
-    * Cache-Control: no-store
-    * Pragma: no-cache
-    *
-    * {
-    * "access_token": "access token here",
-    * "token_type": "Bearer",
-    * "expires_in": lifetime in seconds,
-    * "refresh_token": "refresh token here"
-    * }
-    *
-    * ////// REFRESH A TOKEN //////////////
-    * Access Token Refresh (application/x-www-form-urlencoded): RFC 4.3.2
-    * grant_type: 'refresh_token'
-    * refresh_token: 'the refresh token issued in the token request'
-    * scope: The scope of the access request (optional)
-    * client_id: The client id issued by the registration service (optional)
-    * client_secret: The client secret issued by the registration service (optional)
-    *
-    * After successful request the response is like below:
-    *
-    * HTTP/1.1 200 OK
-    * Content-Type: application/json;charset=utf-8
-    * Cache-Control: no-store
-    * Pragma: no-cache
-    *
-    * {
-    * "access_token": "access token here",
-    * "token_type": "Bearer",
-    * "expires_in": lifetime in seconds,
-    * "refresh_token": "refresh token here"
-    * }
-    *
-    * @return
-    */
-    @deprecated("")
-  def token()=Action {
-    implicit request =>
-
-    LPLogger.info("AnyplaceOAuth::token():: " + request.body.toString)
-    // wrap the Request into our own OAuth2Request
-    val anyReq: OAuth2Request = new OAuth2Request(request)
-    // ensure that a grant_type exists
-    val grantType: String = anyReq.getParameter(OAuth2Constant.GRANT_TYPE)
-    if (StringUtils.isBlank(grantType)) {
-      OAuth2Responses.InvalidRequest("'grant_type' not found")
-    }
-    // make sure that we can handle the specified grant_type
-    val grantHandler: IGrantHandler =
-      GrantHandlerFactory.fromGrantType(grantType)
-    if (grantHandler == null) {
-      OAuth2Responses.UnsupportedGrantType(
-        "'grant_type' requested is not supported")
-    }
-    // ensure that client credentials have been submitted and are valid
-    val clientCredentials: ClientCredentials = anyReq.getCredentials
-    if (StringUtils.isBlank(clientCredentials.client_id)) {
-      OAuth2Responses.InvalidRequest("'client_id' not found")
-    }
-    if (StringUtils.isBlank(clientCredentials.client_secret)) {
-      OAuth2Responses.InvalidRequest("'client_secret' not found")
-    }
-    val accountService: IAccountService = ProxyAccountService.getInstance
-    val account: AccountModel = accountService.validateClient(
-      clientCredentials.client_id,
-      clientCredentials.client_secret,
-      grantType)
-    if (account == null) {
-      OAuth2Responses.InvalidClient(
-        "Specified client credentials are not valid")
-    }
-    // and return the appropriate response either the token or the error json
-//    grantHandler.handleRequest(anyReq, accountService, account)
-      null
-  }
+  ///**
+  // * This endpoint is used by all the grant types flows except 'implicit grant'
+  // * since the token is issued directly.
+  // *
+  // * TLS/SSL connection is REQUIRED.
+  // * REQUIRED: POST
+  // * Required parameters with no value are treated as omitted and unknowns are ignored.
+  // *
+  // * ////// REQUEST A TOKEN //////////////
+  // * Access Token Request (application/x-www-form-urlencoded): RFC 4.3.2
+  // * grant_type: 'password'
+  // * username: The resource owner username
+  // * password: The resource owner password
+  // * scope: The scope of the access request (optional)
+  // * client_id: The client id issued by the registration service (optional)
+  // * client_secret: The client secret issued by the registration service (optional)
+  // *
+  // * After successful request the response is like below:
+  // *
+  // * HTTP/1.1 200 OK
+  // * Content-Type: application/json;charset=utf-8
+  // * Cache-Control: no-store
+  // * Pragma: no-cache
+  // *
+  // * {
+  // * "access_token": "access token here",
+  // * "token_type": "Bearer",
+  // * "expires_in": lifetime in seconds,
+  // * "refresh_token": "refresh token here"
+  // * }
+  // *
+  // * ////// REFRESH A TOKEN //////////////
+  // * Access Token Refresh (application/x-www-form-urlencoded): RFC 4.3.2
+  // * grant_type: 'refresh_token'
+  // * refresh_token: 'the refresh token issued in the token request'
+  // * scope: The scope of the access request (optional)
+  // * client_id: The client id issued by the registration service (optional)
+  // * client_secret: The client secret issued by the registration service (optional)
+  // *
+  // * After successful request the response is like below:
+  // *
+  // * HTTP/1.1 200 OK
+  // * Content-Type: application/json;charset=utf-8
+  // * Cache-Control: no-store
+  // * Pragma: no-cache
+  // *
+  // * {
+  // * "access_token": "access token here",
+  // * "token_type": "Bearer",
+  // * "expires_in": lifetime in seconds,
+  // * "refresh_token": "refresh token here"
+  // * }
+  // *
+  // * @return
+  // */
+  //@deprecated("")
+  //def token() = Action {
+  //  implicit request =>
+  //
+  //    LPLogger.info("AnyplaceOAuth::token():: " + request.body.toString)
+  //    // wrap the Request into our own OAuth2Request
+  //    val anyReq: OAuth2Request = new OAuth2Request(request)
+  //    // ensure that a grant_type exists
+  //    val grantType: String = anyReq.getParameter(OAuth2Constant.GRANT_TYPE)
+  //    if (StringUtils.isBlank(grantType)) {
+  //      OAuth2Responses.InvalidRequest("'grant_type' not found")
+  //    }
+  //    // make sure that we can handle the specified grant_type
+  //    val grantHandler: IGrantHandler =
+  //      GrantHandlerFactory.fromGrantType(grantType)
+  //    if (grantHandler == null) {
+  //      OAuth2Responses.UnsupportedGrantType(
+  //        "'grant_type' requested is not supported")
+  //    }
+  //    // ensure that client credentials have been submitted and are valid
+  //    val clientCredentials: ClientCredentials = anyReq.getCredentials
+  //    if (StringUtils.isBlank(clientCredentials.client_id)) {
+  //      OAuth2Responses.InvalidRequest("'client_id' not found")
+  //    }
+  //    if (StringUtils.isBlank(clientCredentials.client_secret)) {
+  //      OAuth2Responses.InvalidRequest("'client_secret' not found")
+  //    }
+  //    val accountService: IAccountService = ProxyAccountService.getInstance
+  //    val account: AccountModel = accountService.validateClient(
+  //      clientCredentials.client_id,
+  //      clientCredentials.client_secret,
+  //      grantType)
+  //    if (account == null) {
+  //      OAuth2Responses.InvalidClient(
+  //        "Specified client credentials are not valid")
+  //    }
+  //    // and return the appropriate response either the token or the error json
+  //    //    grantHandler.handleRequest(anyReq, accountService, account)
+  //    null
+  //}
 
   // depending on the grant_type the handler will take over the procedure now
   // depending on the grant_type the handler will take over the procedure now

@@ -35,14 +35,13 @@
  */
 package utils
 
-import play.Logger
-import java.text.NumberFormat
-import java.text.ParseException
+import java.text.{NumberFormat, ParseException}
 import java.util._
 
 import datasources.SCHEMA
-//remove if not needed
-import scala.collection.JavaConversions._
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 
 object Dijkstra {
 
@@ -52,33 +51,33 @@ object Dijkstra {
 
     var hmp: HashMap[String, DVertex] = new HashMap[String, DVertex]()
 
-    def addPois(pois: List[HashMap[String, String]]) {
-      for (p <- pois) {
+    def addPois(pois: List[HashMap[String, String]]): Unit = {
+      for (p <- pois.asScala) {
         val dv = new DVertex(p)
         this.vertices.add(dv)
         hmp.put(p.get(SCHEMA.fPuid), dv)
       }
     }
 
-    def addPoi(p: HashMap[String, String]) {
+    def addPoi(p: HashMap[String, String]): Unit ={
       val dv = new DVertex(p)
       this.vertices.add(dv)
       hmp.put(p.get(SCHEMA.fPuid), dv)
     }
 
-    def addEdges(conns: List[HashMap[String, String]]) {
+    def addEdges(conns: List[HashMap[String, String]]) : Unit ={
       val nf = NumberFormat.getInstance(Locale.ENGLISH)
       var w = 0.0
-      for (e <- conns) {
+      for (e <- conns.asScala) {
         try {
-          val weight = e.getOrElse(SCHEMA.fWeight,null)
+          val weight = e.getOrDefault(SCHEMA.fWeight,null)
           if (weight != null)
             w = nf.parse(weight).doubleValue()
         } catch {
           case e1: ParseException =>
         }
-        val a = hmp.getOrElse(e.get(SCHEMA.fPoisA), null)
-        val b = hmp.getOrElse(e.get(SCHEMA.fPoisB), null)
+        val a = hmp.getOrDefault(e.get(SCHEMA.fPoisA), null)
+        val b = hmp.getOrDefault(e.get(SCHEMA.fPoisB), null)
         if (!(a == null || b == null)) {
           a.adjacencies.add(new DEdge(w, b))
           b.adjacencies.add(new DEdge(w, a))
@@ -86,7 +85,7 @@ object Dijkstra {
       }
     }
 
-    def addEdge(conn: HashMap[String, String]) {
+    def addEdge(conn: HashMap[String, String]): Unit = {
       val nf = NumberFormat.getInstance(Locale.ENGLISH)
       var w = 0.0
       try {
@@ -94,8 +93,8 @@ object Dijkstra {
       } catch {
         case e1: ParseException =>
       }
-      val a = hmp.getOrElse(conn.get(SCHEMA.fPoisA), null)
-      val b = hmp.getOrElse(conn.get(SCHEMA.fPoisB), null)
+      val a = hmp.getOrDefault(conn.get(SCHEMA.fPoisA), null)
+      val b = hmp.getOrDefault(conn.get(SCHEMA.fPoisB), null)
       if (a == null || b == null) {
         return
       }
@@ -147,10 +146,10 @@ object Dijkstra {
           return Collections.emptyList()
         }
         if (dv.puid.equalsIgnoreCase(puid_to)) {
-          Logger.info("Path found!")
+          //Logger.info("Path found!")
           return path(dv)
         }
-        for (e <- dv.adjacencies) {
+        for (e <- dv.adjacencies.asScala) {
           tar = e.target
           val dist_no_tar = dv.minDistance + e.weight
           if (dist_no_tar < tar.minDistance) {
@@ -176,8 +175,8 @@ object Dijkstra {
   }
 
   def getShortestPath(graph: Graph, puid_from: String, puid_to: String): List[HashMap[String, String]] = {
-    Logger.info("Dijkstra from[" + puid_from + "]")
-    Logger.info("Dijkstra to[" + puid_to + "]")
+    //Logger.info("Dijkstra from[" + puid_from + "]")
+    //Logger.info("Dijkstra to[" + puid_to + "]")
     computePath(graph, puid_from, puid_to)
   }
 }

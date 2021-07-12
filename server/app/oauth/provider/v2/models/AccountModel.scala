@@ -39,12 +39,13 @@ import java.util._
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import oauth.provider.v2.models.AccountModel._
-import utils.{LPUtils, PasswordService}
+import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
+import utils.{LPUtils}
 
 import scala.beans.BeanProperty
 
 //remove if not needed
-import scala.collection.JavaConversions._
+// import scala.collection.JavaConversions._
 
 object AccountModel {
 
@@ -105,12 +106,12 @@ object AccountModel {
     "account_" +
       LPUtils.hashStringHex(
         LPUtils.generateRandomToken() + System.currentTimeMillis() +
-          LPUtils.getRandomUUID)
+          LPUtils.getRandomUUID())
 
   private def generateNewClientId(auid: String): String =
     "client_" +
       LPUtils.hashStringHex(
-        LPUtils.getRandomUUID + auid + System.currentTimeMillis())
+        LPUtils.getRandomUUID() + auid + System.currentTimeMillis())
 
   private def generateNewClientSecret(auid: String,
                                       client_id: String): String =
@@ -182,7 +183,7 @@ class AccountModel(json: JsonObject) {
       false
     }
     val scopes: Array[String] = scope.split(" ")
-    val accountScopes: Array[String] = this.getScope.split(" ")
+    val accountScopes: Array[String] = this.getScope().split(" ")
     // if more scopes requested reject
     if (scopes.length > accountScopes.length) {
       false
@@ -216,7 +217,7 @@ class AccountModel(json: JsonObject) {
   def addNewClient(grant_type: String,
                    scope: String,
                    redirect_uri: String): Unit = {
-    val client_id: String = generateNewClientId(this.getAuid)
+    val client_id: String = generateNewClientId(this.getAuid())
     val client_secret: String = generateNewClientSecret(auid, client_id)
     this.clients.add(
       new ClientModel(client_id,
@@ -227,14 +228,14 @@ class AccountModel(json: JsonObject) {
   }
 
   override def toString(): String =
-    String.format("AccountModel: uaid[%s]", this.getAuid)
+    String.format("AccountModel: uaid[%s]", this.getAuid())
 
   def toJson(): JsonObject = {
     val json: JsonObject = JsonObject.empty()
     json.put("doctype", "account")
     json.put("auid", this.auid)
     json.put("username", this.username)
-    json.put("password", PasswordService.createHash(this.password))
+    //json.put("password", PasswordService.createHash(this.password))
     json.put("scope", this.scope)
     json.put("nickname", this.nickname)
     json.put("email", this.email)

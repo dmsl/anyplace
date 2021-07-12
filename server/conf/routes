@@ -18,12 +18,12 @@ POST        /user/login                                                         
 POST        /user/admin/accounts_all                                                controllers.Admin.fetchAllAccounts()
 POST        /user/admin/migration/run                                               controllers.Admin.migrateToMongoDB()
 
-POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
+#POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
 #GET         /login                                                                  controllers.ApplicationAnyplace.login()
 #GET         /logout                                                                 controllers.ApplicationAnyplace.logout()
 #POST        /authenticate                                                           controllers.ApplicationAnyplace.authenticate()
 
-POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
+#POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
 ################
 # Spaces
@@ -149,7 +149,7 @@ GET         /architect                                                          
 
 # VIEWER:
 GET /viewer/index.html                                                              controllers.AnyplaceWebApps.serveViewer(file="index.html")
-GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
+#GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
 GET /viewer/                                                                        controllers.AnyplaceWebApps.serveViewer(file="index.html")
 GET /viewer                                                                         controllers.AnyplaceWebApps.AddTrailingSlash()
 
@@ -187,16 +187,13 @@ GET /*any                                                                       
 #GET         /admin/*file                                                            controllers.AnyplaceWebApps.serveAdmin(file: String)
 #GET         /admin                                                                  controllers.AnyplaceWebApps.AddTrailingSlash()
 
-# Android
-# CHECK:NN
-#POST        /android                                                                controllers.AnyplaceAndroid.getApks()
-#GET         /android/apk/:file                                                      controllers.AnyplaceAndroid.downloadApk(file: String)
 
 #####################################################################################################
 # ACCES MAP
+# TODO:PM: clear crlb mentions..
 # TODO:NN na epistrefi deprecated kai bad request "will be removed"
-POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
-POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
+#POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
+#POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
 
 
 ###################
@@ -209,11 +206,11 @@ POST        /anyplace/mapping/building/newowner                                 
 # Not in use by anyplace API. Used by Rayzit
 POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.AnyplaceMapping.poisByBuidincConnectors()
 # Not in use. (Replaced JsonObject with JsValue, didnt test)
-POST        /anyplace/mapping/floor/upload                                          controllers.AnyplaceMapping.floorPlanUpload()
-# ASK:DZ : called by updateConnection(js) which is never called.
-POST        /anyplace/mapping/connection/update                                     controllers.AnyplaceMapping.connectionUpdate()
-# ASK:DZ : called by updateFloor(js) which is never called.
-POST        /anyplace/mapping/floor/update                                          controllers.AnyplaceMapping.floorUpdate()
+#POST        /anyplace/mapping/floor/upload                                          controllers.AnyplaceMapping.floorPlanUpload()
+## ASK:DZ : called by updateConnection(js) which is never called.
+#POST        /anyplace/mapping/connection/update                                     controllers.AnyplaceMapping.connectionUpdate()
+## ASK:DZ : called by updateFloor(js) which is never called.
+#POST        /anyplace/mapping/floor/update                                          controllers.AnyplaceMapping.floorUpdate()
 
 # CHECK:DZ
 POST        /anyplace/position/path_add                                             controllers.AnyplacePosition.magneticPathAdd()
@@ -227,9 +224,9 @@ POST        /anyplace/mapping/radio/radio_buid_floor                            
 
 ###   INFLUXDB
 # CHECK:DZ Make it obsolete?
-POST        /anyplace/geolocation/insert                                            controllers.AnyplaceInfluxdb.insertInfluxdb()
-POST        /anyplace/geolocation/range_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
-POST        /anyplace/geolocation/distance_lookup                                   controllers.AnyplaceInfluxdb.locationLookup()
+#POST        /anyplace/geolocation/insert                                            controllers.AnyplaceInfluxdb.insertInfluxdb()
+#POST        /anyplace/geolocation/range_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
+#POST        /anyplace/geolocation/distance_lookup                                   controllers.AnyplaceInfluxdb.locationLookup()
 
 ### DELETED CHECK:DZ
 #POST        /anyplace/mapping/pois/types                                           controllers.AnyplaceMapping.poisTypes()

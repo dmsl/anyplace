@@ -45,9 +45,9 @@ abstract class AbstractModel {
 
     def getFields(): HashMap[String, String] = fields
 
-    def setFields(f: HashMap[String, String]) {
+    def setFields(f: HashMap[String, String]): Unit = {
         this.fields = f
-        getId
+        getId()
     }
 
     def getId(): String

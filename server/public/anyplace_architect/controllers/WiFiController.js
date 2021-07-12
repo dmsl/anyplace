@@ -305,25 +305,25 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             }
 
             function initializeFingerPrints() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#FPs').click();
                 $('#FPsButton').click();
             }
 
             function initializeRadioHeatmapRSS() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#HMs').click();
                 $('#HMsButton').click();
             }
 
             function initializeAPs() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#HMs').click();
                 $('#APsButton').click();
             }
 
             function initializeAcces() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#LAs').click();
                 $('#LAButton').click();
             }
@@ -339,7 +339,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             }
 
             function initializeTime() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#FPs').click();
                 $('#FPsTimeButton').click();
             }
@@ -1130,37 +1130,37 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     };
 
     $('#HMs_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#HMs').click();
         $('#HMsButton').click();
     });
 
     $('#APs_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#HMs').click();
         $('#APsButton').click();
     });
 
     $('#FPs_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#FPs').click();
         $('#FPsButton').click();
     });
 
     $('#deleteFingerprintsSpn').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#FPs').click();
         $('#deleteButton').click();
     });
 
     $('#FPs_2').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#FPs').click();
         $('#FPsTimeButton').click();
     });
 
     $('#LA_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#LAs').click();
         $('#LAButton').click();
 

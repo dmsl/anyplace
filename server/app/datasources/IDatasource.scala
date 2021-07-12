@@ -51,7 +51,7 @@ trait IDatasource {
 
   def login(collection: String, username: String, password: String): List[JsValue]
 
-  def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int)
+  def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int): Unit
 
   def deleteFingerprint(fingerprint: JsValue): Boolean
 
@@ -77,13 +77,13 @@ trait IDatasource {
 
   def deleteFromKey(key: String): Boolean
 
-  @deprecated("mdb")
-  def getFromKey(key: String): AnyRef
+  //@deprecated("mdb")
+  //def getFromKey(key: String): AnyRef
 
   def getFromKey(collection: String, key: String, value: String): JsValue
 
-  @deprecated("mdb")
-  def getFromKeyAsJson(key: String): JsValue
+  //@deprecated("mdb")
+  //def getFromKeyAsJson(key: String): JsValue
 
   def getFromKeyAsJson(collection: String, key: String, value: String): JsValue
 

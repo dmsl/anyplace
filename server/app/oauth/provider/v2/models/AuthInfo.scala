@@ -50,7 +50,7 @@ class AuthInfo {
     private var code : String = _
     private var redirect_uri : String = _
 
-    def this(sauid: String, sclient_id: String, sscope: String) {
+    def this(sauid: String, sclient_id: String, sscope: String) = {
         this()
         this.auid = sauid
         this.client_id = sclient_id

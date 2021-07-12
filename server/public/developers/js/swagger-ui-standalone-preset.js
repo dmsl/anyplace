@@ -320,7 +320,7 @@
             }
 
             function yt(t) {
-                return Array.isArray(t) ? V(t).map(yt).toList() : vt(t) ? Z(t).map(yt).toMap() : t
+                return Array.isArray(t) ? V(t).map(yt).asScala() : vt(t) ? Z(t).map(yt).toMap() : t
             }
 
             function vt(t) {

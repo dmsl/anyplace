@@ -48,9 +48,9 @@ import utils.{LPLogger, LPUtils}
 class ErrorHandler extends HttpErrorHandler {
 
     def infoGithub(eid: String) : String = {
-        "\n\n\nIf you think this is an error, open a new issue at:" +
-        "\nhttps://github.com/dmsl/anyplace/issues"  +
-        "\n\nReference ErrorID:" + eid
+        //"\n\n\nIf you think this is an error, open a new issue at:" +
+        //"\nhttps://github.com/dmsl/anyplace/issues"  +
+        "ErrorID:" + eid
     }
 
     def errorMsg(request: RequestHeader): String = {

@@ -69,7 +69,7 @@ object LPUtils {
             secureRandom = SecureRandom.getInstance("SHA1PRNG")
             secureRandom.setSeed(secureRandom.generateSeed(PRNG_SEED))
             val digest = MessageDigest.getInstance("SHA-1")
-            val dig = digest.digest((secureRandom.nextLong() + "").getBytes)
+            val dig = digest.digest((s"$secureRandom.nextLong()").getBytes)
             binaryToHex(dig)
         } catch {
             case e: NoSuchAlgorithmException => {
@@ -244,5 +244,15 @@ object LPUtils {
                 e.printStackTrace()
         }
         null
+    }
+
+
+    def appendGoogleIdIfNeeded(id: String) = {
+        if (id.contains("_local"))
+            id
+        else if (id.contains("_google"))
+            id
+        else
+            id + "_google"
     }
 }

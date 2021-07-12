@@ -37,7 +37,6 @@ package oauth.provider.v2.models
 
 import java.util.regex.Pattern
 
-import datasources.{ProxyDataSource, SCHEMA}
 import oauth.provider.v2.OAuth2Constant
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Request}
@@ -55,7 +54,7 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     assertFormUrlEncodedBody()
   }
 
-  def this(request: Request[AnyContent]) {
+  def this(request: Request[AnyContent]) = {
     this(request, true)
   }
 
@@ -106,20 +105,6 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     } else if (hasFormEncodedBody()) {
       return this.mFormBody.get(property).get.head
     }
-    null
-  }
-
-  /**
-   * Checks in database if a user exists with the access_token of the json.
-   *
-   * @param json original request.
-   * @return the owner_id of the user.
-   */
-  def authorize(json: JsValue): String = {
-    val token = (json \ SCHEMA.fAccessToken).as[String]
-    val user = ProxyDataSource.getIDatasource().getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fAccessToken, token)
-    if (user != null)
-      return (user \ SCHEMA.fOwnerId).as[String]
     null
   }
 

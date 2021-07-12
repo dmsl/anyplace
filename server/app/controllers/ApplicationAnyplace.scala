@@ -35,15 +35,14 @@
  */
 package controllers
 
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import play.Play
-import play.api.data._
-import play.api.data.Forms._
-import play.api.mvc.{Action, Result}
-import security.User
-import utils.{AnyResponseHelper, LPLogger}
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
+import play.api.mvc.{AbstractController, ControllerComponents}
 
-object ApplicationAnyplace extends play.api.mvc.Controller {
+@Singleton
+class ApplicationAnyplace @Inject()(cc: ControllerComponents,
+                                    conf: Configuration)
+  extends AbstractController(cc) {
 
   def index() = Action {
     Redirect("/viewer")
@@ -51,13 +50,14 @@ object ApplicationAnyplace extends play.api.mvc.Controller {
 
   def Version= Action {
     // TODO object
+    //val port = Integer.parseInt(Play.application().configuration.getProperty("http.port", 9000))
     // get host (e.g. ap-dev.cs.ucy.ac.cy)
     // if host == ap-dev.... hardcoded, tote { variant= beta.
     // get port (port number)..
     // if port: != 443 or 80: { variant = alpha }
     // }
     // object: {version, variant, host, port}
-    val version = Play.application().configuration().getString("application.version")
+    val version = conf.get[String]("application.version")
     Ok(version)
   }
 

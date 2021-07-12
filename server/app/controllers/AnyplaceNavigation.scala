@@ -40,17 +40,19 @@ import java.util.{ArrayList, HashMap, List}
 
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import db_models.NavResultPoint
+import javax.inject.{Inject, Singleton}
 import json.VALIDATE
 import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json.{JsObject, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc._
 import utils._
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 //remove if not needed
-import scala.collection.JavaConversions._
+// import scala.collection.JavaConversions._
 
-object AnyplaceNavigation extends play.api.mvc.Controller {
-  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
-
+@Singleton
+class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSource) extends AbstractController(cc) {  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
 
   def getBuildingById() = Action {
     implicit request =>
@@ -59,13 +61,13 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
-        val json = anyReq.getJsonBody
+        val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceNavigation::getBuildingById():: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val doc = ProxyDataSource.getIDatasource.buildingFromKeyAsJson(buid)
+          val doc = pds.getIDatasource.buildingFromKeyAsJson(buid)
           if (doc == null) {
             return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
           }
@@ -85,13 +87,13 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
-        val json = anyReq.getJsonBody
+        val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceNavigation::getPoisById():: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.cPOIS)
         if (checkRequirements != null) return checkRequirements
         val puid = (json \ SCHEMA.cPOIS).as[String]
         try {
-          var doc = ProxyDataSource.getIDatasource.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
+          var doc = pds.getIDatasource.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
           if (doc == null) {
             return AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
           }
@@ -112,7 +114,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
-        val json = anyReq.getJsonBody
+        val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceNavigation::getNavigationRoute(): " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, "pois_from", "pois_to")
         if (checkRequirements != null) return checkRequirements
@@ -122,11 +124,11 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           return AnyResponseHelper.bad_request("Destination and Source is the same!")
         }
         try {
-          val poiFrom = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_from)
+          val poiFrom = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_from)
           if (poiFrom == null) {
             return AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
           }
-          val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
+          val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
             return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
           }
@@ -144,7 +146,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           } else {
             return AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
           }
-          val res: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.toList)
+          val res: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
           return AnyResponseHelper.ok(res, "Successfully plotted navigation.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -159,7 +161,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        val json = anyReq.getJsonBody
+        val json = anyReq.getJsonBody()
         LPLogger.info("AnyplaceNavigation::getNavigationRouteXY():: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
           "pois_to")
@@ -170,7 +172,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
         val puid_to = (json \ "pois_to").as[String]
         var res: Result = null
         try {
-          val poiTo = ProxyDataSource.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
+          val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
             return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
           }
@@ -178,7 +180,7 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
           val floor_to = (poiTo \ SCHEMA.fFloorNumber).as[String]
           val dlat = java.lang.Double.parseDouble(coordinates_lat)
           val dlon = java.lang.Double.parseDouble(coordinates_lon)
-          val floorPois = ProxyDataSource.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
+          val floorPois = pds.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
           if (0 == floorPois.size) {
             return AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
           }
@@ -217,11 +219,11 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
             LPLogger.error("Nav unsupported")
             return AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
           }
-          val json: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.toList)
+          val json: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
           return AnyResponseHelper.ok(json, "Successfully plotted navigation.")
         } catch {
           //case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-          case e: Exception => return AnyResponseHelper.internal_server_error(e.getClass + ": " + e.getMessage)
+          case e: Exception => return AnyResponseHelper.internal_server_error(e.getClass.toString + ": " + e.getMessage)
         }
       }
 
@@ -229,19 +231,19 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
   }
 
   private def navigateSameFloor(from: JsValue, to: JsValue): List[JsValue] = {
-    navigateSameFloor(from, to, ProxyDataSource.getIDatasource.poisByBuildingFloorAsMap((from \ SCHEMA.fBuid).as[String],
+    navigateSameFloor(from, to, pds.getIDatasource.poisByBuildingFloorAsMap((from \ SCHEMA.fBuid).as[String],
       (from \ SCHEMA.fFloorNumber).as[String]))
   }
 
   private def navigateSameFloor(from: JsValue, to: JsValue, floorPois: List[HashMap[String, String]]): List[JsValue] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
-    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
+    graph.addEdges(pds.getIDatasource.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     val routePois = Dijkstra.getShortestPath(graph, (from \ SCHEMA.fPuid).as[String], (to \ SCHEMA.fPuid).as[String])
 
     val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
-    for (poi <- routePois) {
+    for (poi <- routePois.asScala) {
       p = new NavResultPoint()
       p.lat = poi.get(SCHEMA.fCoordinatesLat)
       p.lon = poi.get(SCHEMA.fCoordinatesLon)
@@ -256,12 +258,12 @@ object AnyplaceNavigation extends play.api.mvc.Controller {
 
   private def navigateSameBuilding(from: JsValue, to: JsValue): List[JsValue] = {
     val graph = new Dijkstra.Graph()
-    graph.addPois(ProxyDataSource.getIDatasource.poisByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
-    graph.addEdges(ProxyDataSource.getIDatasource.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
+    graph.addPois(pds.getIDatasource.poisByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
+    graph.addEdges(pds.getIDatasource.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     val routePois = Dijkstra.getShortestPath(graph, (from \ SCHEMA.fPuid).as[String], (to \ SCHEMA.fPuid).as[String])
     val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
-    for (poi <- routePois) {
+    for (poi <- routePois.asScala) {
       p = new NavResultPoint()
       p.lat = poi.get(SCHEMA.fCoordinatesLat)
       p.lon = poi.get(SCHEMA.fCoordinatesLon)

@@ -44,7 +44,7 @@ import play.api.libs.json.{JsLookupResult, JsResultException, JsValue}
 import play.api.mvc.Result
 import utils.{AnyResponseHelper, JsonUtils}
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 object VALIDATE {
 
@@ -202,7 +202,7 @@ object VALIDATE {
 
     def response(): Result = {
       var str = ""
-      for (error:String <- errors) str += error + "\n"
+      for (error:String <- errors.asScala) str += error + "\n"
 
       AnyResponseHelper.bad_request("ERROR: Validation:\n" + str)
     }

@@ -45,7 +45,8 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JsonUtils.convertToInt
 import utils.LPUtils
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
+
 
 
 class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
@@ -60,7 +61,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
 
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fOwnerId, "")
     fields.put(SCHEMA.fCampusCuid, "")
@@ -98,7 +99,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fOwnerId, owner)
   }
 
-  def isEmptyDeleteElseAdd(json: JsValue, key: String) {
+  def isEmptyDeleteElseAdd(json: JsValue, key: String) = {
     val temp = (json \ key).as[String]
     if (temp != "" && temp != null && temp != "-") {
       fields.put(key, temp)
@@ -110,7 +111,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
   def getId(): String = {
     var cuid: String = fields.get(SCHEMA.fCampusCuid)
     if (cuid.isEmpty || cuid.==("")) {
-      val finalId: String = LPUtils.getRandomUUID + "_" + System
+      val finalId: String = LPUtils.getRandomUUID() + "_" + System
         .currentTimeMillis()
       fields.put(SCHEMA.fCampusCuid, "cuid_" + finalId)
       cuid = fields.get(SCHEMA.fCampusCuid)
