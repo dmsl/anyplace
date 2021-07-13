@@ -39,8 +39,10 @@ import java.util.{ArrayList, HashMap}
 
 import datasources.SCHEMA
 import play.api.libs.json.{JsValue, Json}
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 //remove if not needed
-import scala.collection.JavaConversions._
+// import scala.collection.JavaConversions._
 
 class Algo1(json: JsValue) extends IAlgo {
 
@@ -65,7 +67,7 @@ class Algo1(json: JsValue) extends IAlgo {
     //    val obj=listenObject.asInstanceOf[JsonObject]
     //    val mac = obj.getString("MAC")
     //    val rss = obj.getInt("rss")
-        if (mac == null || rss == null) {
+        if (mac == null) {
             throw new Exception("Invalid array wifi:: require mac,rss")
         }
 
@@ -76,7 +78,7 @@ class Algo1(json: JsValue) extends IAlgo {
         var score = 0
         var nNCM = 0
         var nCM = 0
-        for (wifiDatabase <- bucket) {
+        for (wifiDatabase <- bucket.asScala) {
             //val mac = wifiDatabase.getString("MAC")
             val mac = (wifiDatabase\SCHEMA.fMac).as[String]
             if (input.containsKey(mac)) {
@@ -91,7 +93,7 @@ class Algo1(json: JsValue) extends IAlgo {
         Math.sqrt(score) - a * nCM + b * nNCM
     }
 
-    private def checkScore(similarity: Double, floor: String) {
+    private def checkScore(similarity: Double, floor: String): Unit ={
         if (mostSimilar.size == 0) {
             mostSimilar.add(new Score(similarity, floor))
             return
@@ -108,14 +110,14 @@ class Algo1(json: JsValue) extends IAlgo {
         }
     }
 
-    def proccess(bucket: ArrayList[JsValue], floor: String) {
+    def proccess(bucket: ArrayList[JsValue], floor: String) : Unit = {
         val similarity = compare(bucket)
         checkScore(similarity, floor)
     }
 
     def getFloor(): String = {
         val sum_floor_score = new HashMap[String, Integer]()
-        for (s <- mostSimilar) {
+        for (s <- mostSimilar.asScala) {
             var score = 1
             if (sum_floor_score.containsKey(s.floor)) {
                 score = sum_floor_score.get(s.floor) + 1
@@ -124,7 +126,7 @@ class Algo1(json: JsValue) extends IAlgo {
         }
         var max_floor = "0"
         var max_score = 0
-        for (floor <- sum_floor_score.keySet) {
+        for (floor <- sum_floor_score.keySet.asScala) {
             val score = sum_floor_score.get(floor)
             if (max_score < score) {
                 max_score = score

@@ -33,57 +33,52 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package accounts
-
-import datasources.CouchbaseDatasource
-
-import oauth.provider.v2.models.AccessTokenModel
-
-import oauth.provider.v2.models.AccountModel
-
-import oauth.provider.v2.models.AuthInfo
-
-object ProxyAccountService {
-
-private var sInstance: ProxyAccountService = _
-
-        def getInstance(): ProxyAccountService = {
-        if (sInstance == null) {
-        sInstance = new ProxyAccountService()
-        }
-        sInstance
-        }
-
-        }
-
-/**
- * This class acts as a proxy to the User Service implementation.
- */
-class ProxyAccountService private () extends IAccountService {
-
-private var mCouchbase: CouchbaseDatasource =
-        CouchbaseDatasource.getStaticInstance
-
-        override def validateClient(clientId: String,
-        clientSecret: String,
-        grantType: String): AccountModel =
-        mCouchbase.validateClient(clientId, clientSecret, grantType)
-
-        override def validateAccount(account: AccountModel,
-        username: String,
-        password: String): Boolean =
-        mCouchbase.validateAccount(account, username, password)
-
-        override def createOrUpdateAuthInfo(account: AccountModel,
-        clientId: String,
-        scope: String): AuthInfo =
-        mCouchbase.createOrUpdateAuthInfo(account, clientId, scope)
-
-        override def getAuthInfoByRefreshToken(refreshToken: String): AuthInfo =
-        mCouchbase.getAuthInfoByRefreshToken(refreshToken)
-
-        override def createOrUpdateAccessToken(
-        authInfo: AuthInfo): AccessTokenModel =
-        mCouchbase.createOrUpdateAccessToken(authInfo)
-
-        }
+//package accounts
+//
+//import datasources.CouchbaseDatasource
+//import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
+//
+//object ProxyAccountService {
+//
+//  private var sInstance: ProxyAccountService = _
+//
+//  def getInstance(): ProxyAccountService = {
+//    if (sInstance == null) {
+//      sInstance = new ProxyAccountService()
+//    }
+//    sInstance
+//  }
+//
+//}
+//
+///**
+// * This class acts as a proxy to the User Service implementation.
+// */
+//class ProxyAccountService private() extends IAccountService {
+//
+//  private var mCouchbase: CouchbaseDatasource =
+//    CouchbaseDatasource.getStaticInstance()
+//
+//  override def validateClient(clientId: String,
+//                              clientSecret: String,
+//                              grantType: String): AccountModel =
+//    mCouchbase.validateClient(clientId, clientSecret, grantType)
+//
+//  override def validateAccount(account: AccountModel,
+//                               username: String,
+//                               password: String): Boolean =
+//    mCouchbase.validateAccount(account, username, password)
+//
+//  override def createOrUpdateAuthInfo(account: AccountModel,
+//                                      clientId: String,
+//                                      scope: String): AuthInfo =
+//    mCouchbase.createOrUpdateAuthInfo(account, clientId, scope)
+//
+//  override def getAuthInfoByRefreshToken(refreshToken: String): AuthInfo =
+//    mCouchbase.getAuthInfoByRefreshToken(refreshToken)
+//
+//  override def createOrUpdateAccessToken(
+//                                          authInfo: AuthInfo): AccessTokenModel =
+//    mCouchbase.createOrUpdateAccessToken(authInfo)
+//
+//}

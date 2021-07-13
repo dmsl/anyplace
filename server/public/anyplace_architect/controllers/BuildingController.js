@@ -69,9 +69,10 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
-                // console.log("VERSION:: " + data);
+                var prettyVersion=getPrettyVersion(data);
+                console.log("VERSION:: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
-                element.textContent = "v"+data;
+                element.textContent = "v"+prettyVersion;
             },
             function (resp) { console.log("Failed to get version: " + resp.data); }
         );

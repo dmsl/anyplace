@@ -45,7 +45,8 @@ import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import utils.JsonUtils.convertToInt
 import utils.{GeoJSONPoint, LPUtils}
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
+
 
 object Poi {
 
@@ -59,7 +60,7 @@ object Poi {
             buid: String,
             floor_number: String,
             coordinates_lat: String,
-            coordinates_lon: String): String = "poi_" + LPUtils.getRandomUUID
+            coordinates_lon: String): String = "poi_" + LPUtils.getRandomUUID()
 }
 
 class Poi(hm: HashMap[String, String]) extends AbstractModel {
@@ -72,7 +73,7 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fPuid, "")
     fields.put(SCHEMA.fBuid, "")
@@ -89,7 +90,7 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fCoordinatesLon, "")
   }
 
-  def this(json: JsValue) {
+  def this(json: JsValue) = {
     this()
     if ((json \ SCHEMA.fPuid).toOption.isDefined)
       fields.put(SCHEMA.fPuid, (json \ SCHEMA.fPuid).as[String])
@@ -157,12 +158,12 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
 
   def toValidJson(): JsonObject = {
     // initialize id if not initialized
-    getId
+    getId()
     JsonObject.from(this.getFields())
   }
 
   def toValidMongoJson(): JsValue = {
-    getId
+    getId()
     toJson()
   }
 

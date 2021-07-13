@@ -37,24 +37,17 @@
 package db_models
 
 
-import java.io.{File, FileNotFoundException, FileOutputStream, IOException}
+import java.io.IOException
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
-import controllers.AnyplacePosition.BBOX_MAX
-import datasources.{ProxyDataSource, SCHEMA}
-import json.VALIDATE.{Coordinate, StringNumber}
-import play.Play
+import datasources.SCHEMA
 import play.api.libs.json._
-import play.api.mvc.Result
-import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
-import utils.AnyplaceServerAPI._
-import utils.FileUtils.getDirFrozenFloor
 import utils.JsonUtils.convertToInt
-import utils.LPUtils.MD5
 import utils._
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
+
 
 object RadioMapRaw {
 
@@ -94,105 +87,6 @@ object RadioMapRaw {
     sb.toString
   }
 
-  /**
-   * Every time it creates a new radiomap file
-   * We have only coordinates and floor. We dont have a building so we download from a bounding box
-   *
-   * @param json
-   * @param range
-   * @return
-   */
-  def findRadioBbox(json: JsValue, range: Int): Result = {
-    if (Coordinate(json, SCHEMA.fCoordinatesLat) == null)
-      return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
-    val lat = (json \ SCHEMA.fCoordinatesLat).as[String]
-    if (Coordinate(json, SCHEMA.fCoordinatesLon) == null)
-      return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
-    val lon = (json \ SCHEMA.fCoordinatesLon).as[String]
-    if (StringNumber(json, SCHEMA.fFloorNumber) == null)
-      return AnyResponseHelper.bad_request("floor_number field must be String, containing a number!")
-    val floorNumber = (json \ SCHEMA.fFloorNumber).as[String]
-    if (!Floor.checkFloorNumberFormat(floorNumber)) {
-      return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-    } else {
-      val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
-        range)
-      LPLogger.D4("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
-
-      // create unique name for cached file based on coordinates, floor_number, range
-      val pathName = "radiomaps"
-      val hashKey = lat + lon + floorNumber
-      val bboxRadioDir = MD5(hashKey) + "-" + range.toString
-      LPLogger.debug("hashkey = " + hashKey)
-      LPLogger.debug("bbox_token = " + bboxRadioDir)
-      // store in radioMapRawDir/tmp/buid/floor/bbox_token
-      val fullPath = Play.application().configuration().getString("radioMapRawDir") + "/bbox/" + bboxRadioDir
-      val dir = new File(fullPath)
-      val radiomap_filename = new File(fullPath + URL_SEP + "indoor-radiomap.txt")
-        .getAbsolutePath
-      var msg = ""
-      if (!dir.exists()) {
-        // if the range is maximum then we are looking for the entire floor
-        if (range == BBOX_MAX) {
-          val buid = ProxyDataSource.getIDatasource.dumpRssLogEntriesWithCoordinates(floorNumber, lat.toDouble, lon.toDouble)
-          if (buid != null) {  // building found. return path to file
-            val radiomap_mean_filename = SERVER_API_ROOT
-            val path = radiomap_mean_filename.dropRight(1) + getDirFrozenFloor(buid, floorNumber) + "/indoor-radiomap-mean.txt"
-            val res = Json.obj("map_url_mean" -> path)
-            return AnyResponseHelper.ok(res, "Successfully retrieved radiomap: full-floor (according to lat lon)")
-          }
-        }
-        msg = "created bbox: " + fullPath
-        if (!dir.mkdirs()) {
-          return AnyResponseHelper.internal_server_error("Failed to create bbox dir: " + fullPath)
-        }
-        val rssLog = new File(dir.getAbsolutePath + URL_SEP + "rss-log")
-        var fout: FileOutputStream = null
-        var floorFetched: Long = 0l
-        try {
-          fout = new FileOutputStream(rssLog)
-          LPLogger.D5("RSS path: " + rssLog.toPath().getFileName.toString)
-          floorFetched = ProxyDataSource.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floorNumber)
-          fout.close()
-          if (floorFetched == 0) {
-            return AnyResponseHelper.bad_request("Area not supported yet!")
-          }
-          val rm = new RadioMap(new File(fullPath), radiomap_filename, "", -110)
-          val resCreate = rm.createRadioMap()
-          if (resCreate != null) {
-            return AnyResponseHelper.internal_server_error("findRadioBbox: radiomap on-the-fly: " + resCreate)
-          }
-        } catch {
-          case fnfe: FileNotFoundException => return AnyResponseHelper.internal_server_error("findRadioBbox: " +
-            "rssLog: " + rssLog, fnfe)
-          case e: Exception =>  return AnyResponseHelper.internal_server_error("findRadioBbox" , e)
-        }
-      } else {
-        msg = "cached-bbox: " + fullPath
-        LPLogger.debug("findRadioBbox: " + msg)
-      }
-      var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
-      var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
-      var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
-      val api = AnyplaceServerAPI.SERVER_API_ROOT
-      var pos = radiomap_mean_filename.indexOf(pathName)
-      radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
-      var res: JsValue = null
-      if (RBF_ENABLED) {
-        pos = radiomap_rbf_weights_filename.indexOf(pathName)
-        radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos)
-        pos = radiomap_parameters_filename.indexOf(pathName)
-        radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos)
-        res = Json.obj("map_url_mean" -> radiomap_mean_filename,
-          "map_url_weights" -> radiomap_rbf_weights_filename, "map_url_parameters" -> radiomap_parameters_filename)
-      } else {
-        res = Json.obj("map_url_mean" -> radiomap_mean_filename)
-      }
-
-      AnyResponseHelper.ok(res, "Successfully retrieved radiomap: " + msg)
-    }
-  }
-
   def unrollFingerprint(rss: JsValue, measurement: List[String]): JsValue = {
     var json = Json.obj(SCHEMA.fBuid -> (rss \ SCHEMA.fBuid).as[String], SCHEMA.fFloor -> (rss \ SCHEMA.fFloor).as[String],
       SCHEMA.fX -> (rss \ SCHEMA.fX).as[String], SCHEMA.fY -> (rss \ SCHEMA.fY).as[String], SCHEMA.fHeading -> (rss \ SCHEMA.fHeading).as[String],
@@ -213,7 +107,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            x: String,
            y: String,
            heading: String
-          ) {
+          ) = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fTimestamp, timestamp)
     fields.put(SCHEMA.fX, x)
@@ -227,7 +121,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            y: String,
            heading: String,
 
-           floor: String) {
+           floor: String) = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fTimestamp, timestamp)
     fields.put(SCHEMA.fX, x)
@@ -241,7 +135,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            y: String,
            heading: String,
            floor: String,
-           strongestWifi: String) {
+           strongestWifi: String) = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fTimestamp, timestamp)
     fields.put(SCHEMA.fX, x)
@@ -257,7 +151,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            heading: String,
            floor: String,
            strongestWifi: String,
-           buid: String) {
+           buid: String) = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fTimestamp, timestamp)
     fields.put(SCHEMA.fX, x)
@@ -289,7 +183,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
       val timestampToSec = (json \ SCHEMA.fTimestamp).as[String].toLong / 1000 // milliseconds to seconds
       val roundTimestamp = (timestampToSec - (timestampToSec % 86400)) * 1000 // rounds down to day
       json = json.as[JsObject] + (SCHEMA.fMeasurements -> Json.toJson(measurements)) +
-        (SCHEMA.fTimestamp -> JsString(roundTimestamp + ""))
+        (SCHEMA.fTimestamp -> JsString(s"$roundTimestamp"))
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
         new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
           java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).toGeoJSON()))

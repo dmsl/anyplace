@@ -33,74 +33,67 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package oauth.provider.v2.granttype
+//package oauth.provider.v2.granttype
+//
+//import oauth.provider.v2.OAuth2Constant
+//import oauth.provider.v2.utils.OAuth2Responses
+//import oauth.provider.v2.models._
+//import accounts.IAccountService
+//import play.mvc.Result
+//import utils.AnyResponseHelper
+//
+////remove if not needed
+//// import scala.collection.JavaConversions._
+//
+///**
+// * This class is the handler that is responsible to handle the requests
+// * with grant_type specified as 'password'.
+// */
+//class PasswordHandler extends AbstractGrantHandler {
+//
+//    override def handleRequest(request: OAuth2Request,
+//                               accountService: IAccountService,
+//                               account: AccountModel): Result = {
+//        val clientCredentials: ClientCredentials = request.getCredentials
 
-import oauth.provider.v2.OAuth2Constant
+        //val username: String = request.getParameter(OAuth2Constant.USERNAME)
+        //if (StringUtils.isBlank(username)) {
+        //    OAuth2Responses.InvalidRequest("'username' not provided")
+        //}
+        //val password: String = request.getParameter(OAuth2Constant.PASSWORD)
+        //if (StringUtils.isBlank(password)) {
+        //    OAuth2Responses.InvalidRequest("'password' not provided")
+        //}
+        //
+        //if (!accountService.validateAccount(account, username, password)) {
+        //    OAuth2Responses.InvalidGrant(
+        //            "username:password credentials are not valid")
+        //}
+        //
+        //val scope: String = request.getParameter(OAuth2Constant.SCOPE)
+        //if (StringUtils.isBlank(scope)) {
+        //    OAuth2Responses.InvalidRequest("'scope' not provided")
+        //}
 
-import oauth.provider.v2.utils.OAuth2Responses
-
-import oauth.provider.v2.models._
-
-import accounts.IAccountService
-
-import org.apache.commons.lang3.StringUtils
-
-import play.mvc.Result
-
-import utils.AnyResponseHelper
-
-//remove if not needed
-import scala.collection.JavaConversions._
-
-/**
- * This class is the handler that is responsible to handle the requests
- * with grant_type specified as 'password'.
- */
-class PasswordHandler extends AbstractGrantHandler {
-
-    override def handleRequest(request: OAuth2Request,
-                               accountService: IAccountService,
-                               account: AccountModel): Result = {
-        val clientCredentials: ClientCredentials = request.getCredentials
-// ensure that username and password exists
-        val username: String = request.getParameter(OAuth2Constant.USERNAME)
-        if (StringUtils.isBlank(username)) {
-            OAuth2Responses.InvalidRequest("'username' not provided")
-        }
-        val password: String = request.getParameter(OAuth2Constant.PASSWORD)
-        if (StringUtils.isBlank(password)) {
-            OAuth2Responses.InvalidRequest("'password' not provided")
-        }
-// ensure that the provided username/password relates to an account
-        if (!accountService.validateAccount(account, username, password)) {
-            OAuth2Responses.InvalidGrant(
-                    "username:password credentials are not valid")
-        }
-// and the specific client currently being used
-        val scope: String = request.getParameter(OAuth2Constant.SCOPE)
-        if (StringUtils.isBlank(scope)) {
-            OAuth2Responses.InvalidRequest("'scope' not provided")
-        }
-// try to issue the new access token
-        val authInfo: AuthInfo = accountService.createOrUpdateAuthInfo(
-                account,
-                clientCredentials.client_id,
-                scope)
-        if (authInfo == null) {
-            OAuth2Responses.InvalidGrant("Could not authorize you for this scope")
-        }
-//LPLogger.info("before issuing token");
-        val accessTokenModel: AccessTokenModel =
-                issueAccessToken(accountService, authInfo)
-        if (accessTokenModel == null) {
-            AnyResponseHelper.internal_server_error("Could not create access token")
-        }
-//LPLogger.info("new token: [" + accessTokenModel.getAccessToken() + "]");
-        OAuth2Responses.ValidToken(accessTokenModel)
-    }
+        //val authInfo: AuthInfo = accountService.createOrUpdateAuthInfo(
+        //        account,
+        //        clientCredentials.client_id,
+        //        scope)
+//        if (authInfo == null) {
+//            OAuth2Responses.InvalidGrant("Could not authorize you for this scope")
+//        }
+////LPLogger.info("before issuing token");
+//        val accessTokenModel: AccessTokenModel =
+//                issueAccessToken(accountService, authInfo)
+//        if (accessTokenModel == null) {
+//            AnyResponseHelper.internal_server_error("Could not create access token")
+//        }
+////LPLogger.info("new token: [" + accessTokenModel.getAccessToken() + "]");
+//        OAuth2Responses.ValidToken(accessTokenModel)
+//    }
 // now we have to make sure that the scope requested is valid
 // and that is included in the scope granted for the specific account
 // now we have to make sure that the scope requested is valid
 // and that is included in the scope granted for the specific account
 
-}
+//}

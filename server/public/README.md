@@ -1,24 +1,90 @@
-# Web applications
-Architect, Viewer, Viewer Campus, and Developers are separate
-web application front-ends, that share some common images, JS, and CSS files.
+# WEB APPLICATIONS:
+Separate web application frontends written in Angular-JS.
+They utilize Google Maps JS. In future work we aim to migrate to Leaflet/Angular.
+They share some common resources:
+- images
+- js/css
 
-## anyplace_architect (web-app)
-Architect web application sources.
+#### 1. [architect](./anyplace_architect)
+#### 2. [viewer](./anyplace_viewer)
+#### 3. [viewer_campus](./anyplace_viewer_campus)
 
-## anyplace_developers (web-app/Documentation)
-API Documentation sources.
+##  Compilation:
+To compile the
+[architect](./anyplace_architect), [viewer](./anyplace_viewer), or  [viewer_campus](./anyplace_viewer_campus)
+please follow the below instructions:
 
-## anyplace_viewer (web-app)
-Viewer web application sources.
+<details>
+<summary>
+Show Compilation Instructions
+</summary>
+1. `cd` to the relevant web app directory
 
-## anyplace_viewer_campus (web-app)
-Viewer Campus web application sources.
+2. Install [Bower](http://bower.io/) dependencies:
+```
+bower install
+```
 
-## images
-Common images shared between above web applications.
+3. Install [Grunt](http://gruntjs.com/) tasks (requires [npm](https://www.npmjs.com/)):
 
-## js
-Common JavaScript shared between above web applications.
+```
+# For Unix:
+npm install
+# For Windows:
+npm install -g grunt-cli
+```
+4. Build the web app:
 
-## stylesheets
-Common CSS shared between above web applications.
+4.1 Development Version:
+```
+# grunt will keep 'watching' for resource updates (js/css/images)
+grunt
+```
+4.1 Deployment version:
+```
+grunt deploy
+```
+For windows: use `grunt.cmd`
+
+
+### The built files will be in the *build* folder with the following structure:
+```
+    <web-app>
+    ├── build
+    │   ├── css
+    │   │   └── anyplace.min.css  # Concatenated and minified CSS
+    │   ├── images
+    │   │   └── ...               # Optimized images
+    │   └── js
+    │       └── anyplace.min.js   # Concatenated and minified JS files
+    ├── bower_components
+    │   └── ...                   # Bower dependencies
+    └── index.html
+```
+
+#### Older notes on deploying the HTML:
+Once the *build* folder is ready, we need to access the index.html file through the http protocol.
+An easy way to do that is to start a Python [SimpleHTTPServer](https://docs.python.org/2/library/simplehttpserver.html) in the directory were the index.html is located.
+
+```
+python -m SimpleHTTPServer 9000
+```
+
+Then hit *http://localhost:9000/* in your browser to launch AnyplaceArchitect.
+
+(The index.html file cannot be simply opened through the file system because the browser will throw security errors.)
+
+**The port number is important**.
+For security purposes, AnyplaceServer accepts Cross-Origin requests from *localhost* only on ports 3030, 8080 and 9000.
+
+</details>
+
+---
+
+# DOCUMENTATION:
+- [developers](./developers): Uses `Swagger-UI`
+
+# Common resources:
+- [images](./images): Common images shared between above web applications.
+- [js](./js): Common JavaScript shared between above web applications.
+- [style](./style): Common CSS shared between above web applications.

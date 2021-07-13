@@ -11,19 +11,18 @@
 # /user/login/google (move from AnyplaceMapping to: AnyplaceAccounts (AnypalceAccounts->Accounts)
 POST        /anyplace/mapping/accounts/sign                                        controllers.AnyplaceMapping.addAccount()
 
-POST        /user/register                                                         controllers.AnyplaceAccounts.register()
-POST        /user/login                                                            controllers.AnyplaceAccounts.login()
-#POST         /user/logout                                                                    controllers.AnyplaceAccounts.logout()
+POST        /user/register                                                         controllers.UserController.register()
+POST        /user/login                                                            controllers.UserController.login()
+#POST         /user/logout                                                         controllers.UserController.logout()
 # ADMIN
 POST        /user/admin/accounts_all                                                controllers.Admin.fetchAllAccounts()
 POST        /user/admin/migration/run                                               controllers.Admin.migrateToMongoDB()
 
-POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
+#POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
 #GET         /login                                                                  controllers.ApplicationAnyplace.login()
 #GET         /logout                                                                 controllers.ApplicationAnyplace.logout()
 #POST        /authenticate                                                           controllers.ApplicationAnyplace.authenticate()
-
-POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
+#POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
 ################
 # Spaces
@@ -139,24 +138,24 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles     
 ## WEB APPS:
 # DEVELOPERS:
 GET         /developers/*file                                                       controllers.Assets.at(path="/public/developers", file)
-GET         /developers/                                                            controllers.AnyplaceWebApps.serveDevelopers(file="index.html")
-GET         /developers                                                             controllers.AnyplaceWebApps.AddTrailingSlash()
+GET         /developers/                                                            controllers.WebAppController.serveDevelopers(file="index.html")
+GET         /developers                                                             controllers.WebAppController.AddTrailingSlash()
 
 # ARCHITECT:
 GET         /architect/*file                                                        controllers.Assets.at(path="/public/anyplace_architect", file)
-GET         /architect/                                                             controllers.AnyplaceWebApps.serveArchitect(file="index.html")
-GET         /architect                                                              controllers.AnyplaceWebApps.AddTrailingSlash()
+GET         /architect/                                                             controllers.WebAppController.serveArchitect(file="index.html")
+GET         /architect                                                              controllers.WebAppController.AddTrailingSlash()
 
 # VIEWER:
-GET /viewer/index.html                                                              controllers.AnyplaceWebApps.serveViewer(file="index.html")
-GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
-GET /viewer/                                                                        controllers.AnyplaceWebApps.serveViewer(file="index.html")
-GET /viewer                                                                         controllers.AnyplaceWebApps.AddTrailingSlash()
+GET /viewer/index.html                                                              controllers.WebAppController.serveViewer(file="index.html")
+#GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
+GET /viewer/                                                                        controllers.WebAppController.serveViewer(file="index.html")
+GET /viewer                                                                         controllers.WebAppController.AddTrailingSlash()
 
 # NEW ANGULAR WEB APP (Login, register) :
 #GET         /new2/*file                                                             controllers.Assets.at(path="/public/new2", file)
-#GET         /new2/                                                                  controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
-#GET         /new2                                                                   controllers.AnyplaceWebApps.AddTrailingSlash()
+#GET         /new2/                                                                  controllers.WebAppController.serveArchitect2(file="index.html")
+#GET         /new2                                                                   controllers.WebAppController.AddTrailingSlash()
 
 ## BLUEPRINTS
 POST        /anyplace/floortiles/:buid/:floor_number                                controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
@@ -184,19 +183,16 @@ GET /*any                                                                       
 ### CHECK:NN IF USED ###
 #####################
 # ADMIN WEBSITE CHECK:NN /admin ... else: delete and report to PM
-#GET         /admin/*file                                                            controllers.AnyplaceWebApps.serveAdmin(file: String)
-#GET         /admin                                                                  controllers.AnyplaceWebApps.AddTrailingSlash()
+#GET         /admin/*file                                                            controllers.WebAppController.serveAdmin(file: String)
+#GET         /admin                                                                  controllers.WebAppController.AddTrailingSlash()
 
-# Android
-# CHECK:NN
-#POST        /android                                                                controllers.AnyplaceAndroid.getApks()
-#GET         /android/apk/:file                                                      controllers.AnyplaceAndroid.downloadApk(file: String)
 
 #####################################################################################################
 # ACCES MAP
+# TODO:PM: clear crlb mentions..
 # TODO:NN na epistrefi deprecated kai bad request "will be removed"
-POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
-POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
+#POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
+#POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
 
 
 ###################
@@ -209,11 +205,11 @@ POST        /anyplace/mapping/building/newowner                                 
 # Not in use by anyplace API. Used by Rayzit
 POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.AnyplaceMapping.poisByBuidincConnectors()
 # Not in use. (Replaced JsonObject with JsValue, didnt test)
-POST        /anyplace/mapping/floor/upload                                          controllers.AnyplaceMapping.floorPlanUpload()
-# ASK:DZ : called by updateConnection(js) which is never called.
-POST        /anyplace/mapping/connection/update                                     controllers.AnyplaceMapping.connectionUpdate()
-# ASK:DZ : called by updateFloor(js) which is never called.
-POST        /anyplace/mapping/floor/update                                          controllers.AnyplaceMapping.floorUpdate()
+#POST        /anyplace/mapping/floor/upload                                          controllers.AnyplaceMapping.floorPlanUpload()
+## ASK:DZ : called by updateConnection(js) which is never called.
+#POST        /anyplace/mapping/connection/update                                     controllers.AnyplaceMapping.connectionUpdate()
+## ASK:DZ : called by updateFloor(js) which is never called.
+#POST        /anyplace/mapping/floor/update                                          controllers.AnyplaceMapping.floorUpdate()
 
 # CHECK:DZ
 POST        /anyplace/position/path_add                                             controllers.AnyplacePosition.magneticPathAdd()
@@ -227,9 +223,9 @@ POST        /anyplace/mapping/radio/radio_buid_floor                            
 
 ###   INFLUXDB
 # CHECK:DZ Make it obsolete?
-POST        /anyplace/geolocation/insert                                            controllers.AnyplaceInfluxdb.insertInfluxdb()
-POST        /anyplace/geolocation/range_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
-POST        /anyplace/geolocation/distance_lookup                                   controllers.AnyplaceInfluxdb.locationLookup()
+#POST        /anyplace/geolocation/insert                                            controllers.AnyplaceInfluxdb.insertInfluxdb()
+#POST        /anyplace/geolocation/range_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
+#POST        /anyplace/geolocation/distance_lookup                                   controllers.AnyplaceInfluxdb.locationLookup()
 
 ### DELETED CHECK:DZ
 #POST        /anyplace/mapping/pois/types                                           controllers.AnyplaceMapping.poisTypes()

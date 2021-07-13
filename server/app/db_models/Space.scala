@@ -47,11 +47,10 @@ import java.util.HashMap
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json._
-import play.twirl.api.TemplateMagic.javaCollectionToScala
 import utils.JsonUtils.convertToInt
 import utils.{GeoJSONPoint, LPUtils}
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
 
 class Space(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
@@ -60,7 +59,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
   private var co_owners = JsArray()
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fBuid, "")
     fields.put(SCHEMA.fIsPublished, "")
@@ -74,7 +73,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fSpaceType, "")
   }
 
-  def this(json: JsValue) {
+  def this(json: JsValue) = {
     this()
     fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])
     if ((json \ SCHEMA.fBuid).toOption.isDefined)
@@ -99,7 +98,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     this.lng = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLon).as[String])
   }
 
-  def this(json: JsValue, owner: String) {
+  def this(json: JsValue, owner: String) = {
     this(json)
     fields.put(SCHEMA.fOwnerId, owner)
   }
@@ -107,7 +106,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
   def getId(): String = {
     var buid: String = fields.get(SCHEMA.fBuid)
     if (buid == null || buid.isEmpty || buid == "") {
-      val finalId = LPUtils.getRandomUUID + "_" + System.currentTimeMillis()
+      val finalId = LPUtils.getRandomUUID() + "_" + System.currentTimeMillis()
       fields.put(SCHEMA.fBuid, "building_" + finalId)
       buid = fields.get(SCHEMA.fBuid)
       this.json.as[JsObject] + (SCHEMA.fBuid -> Json.toJson(buid))
@@ -115,12 +114,12 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     buid
   }
 
-  def hasAccess(ownerId: String): Boolean = {
-    if (fields.get(SCHEMA.fOwnerId) == ownerId) return true
-    co_owners.value.foreach(coOwner => if (coOwner == ownerId) return true)
-
-    false
-  }
+  //def hasAccess(ownerId: String): Boolean = {
+  //  if (fields.get(SCHEMA.fOwnerId) == ownerId) return true
+  //  co_owners.value.foreach(coOwner => if (coOwner == ownerId) return true)
+  //
+  //  false
+  //}
 
   def toGeoJSON(): String = {
     val sb = new StringBuilder()
@@ -165,7 +164,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
         val co_owners = (jsonReq \ SCHEMA.fCoOwners).as[String]
         ja.add(co_owners)
       }
-      val arr = Json.toJson(ja.toList)
+      val arr = Json.toJson(ja.asScala)
       json = Json.toJson(json.as[JsObject] + (SCHEMA.fCoOwners -> arr))
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
         java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
@@ -199,7 +198,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
         java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
       json = Json.toJson(json.as[JsObject] + (SCHEMA.fOwnerId -> JsString(newOwnerId)))
-      json = Json.toJson(json.as[JsObject] + (SCHEMA.fCoOwners -> Json.toJson(newCoOwners.toList)))
+      json = Json.toJson(json.as[JsObject] + (SCHEMA.fCoOwners -> Json.toJson(newCoOwners.asScala)))
     } catch {
       case e: IOException => e.printStackTrace()
     }
@@ -227,7 +226,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     ret
   }
 
-  def cleanupFieldKey(json: JsValue, key: String) {
+  def cleanupFieldKey(json: JsValue, key: String): Unit = {
     if ((json \ key).toOption.isDefined && (json \ key) != JsDefined(JsNull)) {
       val temp = (json \ key).as[String]
       if (!temp.equals("")) {

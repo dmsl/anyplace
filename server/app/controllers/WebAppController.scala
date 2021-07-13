@@ -36,11 +36,14 @@
 package controllers
 
 import datasources.SCHEMA
-import play.mvc.{Http, Security}
-import play.api.mvc.{Action, Result}
-import play.Play
+import play.api.Environment
+import play.api.mvc.{AbstractController, ControllerComponents, Result}
+//import play.Play
+import javax.inject.{Inject, Singleton}
 
-object AnyplaceWebApps extends play.api.mvc.Controller {
+@Singleton
+class WebAppController @Inject()(cc: ControllerComponents,
+                                 env: Environment) extends AbstractController(cc) {
 
   def AddTrailingSlash() = Action { implicit request =>
     MovedPermanently(request.path + "/")
@@ -51,6 +54,7 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
     serveFile(archiDir, file)
   }
 
+  // CLR:PM
   //def servePortal(file: String) = Action {
   //  val viewerDir = "web_apps/anyplace_portal"
   //  serveFile(viewerDir, file)
@@ -140,9 +144,8 @@ object AnyplaceWebApps extends play.api.mvc.Controller {
       file_str = "index.html"
       header = ("Content-Disposition", "inline")
     }
-    val reqFile = appDir + "/" + file_str
-    val file = Play.application().resourceAsStream(reqFile)
-
+    val reqFile: String = appDir + "/" + file_str
+    val file = env.classLoader.getResourceAsStream(reqFile)
     if (file != null)
       Ok(scala.io.Source.fromInputStream(file, "UTF-8").mkString).as("text/html")
     else

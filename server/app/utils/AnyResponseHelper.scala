@@ -39,11 +39,11 @@ import java.util.List
 
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue}
-//import play.api.mvc.{Result, Results}
 import play.api.mvc._
 import utils.AnyResponseHelper.Response.Response
-//remove if not needed
-import scala.collection.JavaConversions._
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.language.implicitConversions
 
 object AnyResponseHelper {
 
@@ -51,17 +51,11 @@ object AnyResponseHelper {
     val WRONG_API_USAGE = "Wrong API usage!"
 
     object Response extends Enumeration {
-
         val BAD_REQUEST = new Response()
-
         val OK = new Response()
-
         val FORBIDDEN = new Response()
-
         val UNAUTHORIZED_ACCESS = new Response()
-
         val INTERNAL_SERVER_ERROR = new Response()
-
         val NOT_FOUND = new Response()
 
         class Response extends Val
@@ -69,8 +63,8 @@ object AnyResponseHelper {
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
 
-    def ok(json: JsValue, msg: String) = CreateResultResponse(Response.OK, json, msg)
-    def bad_request(json: JsValue, msg: String) = CreateResultResponse(Response.BAD_REQUEST, json, msg)
+    def ok(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
+    def bad_request(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
 
 
     private def CreateResultResponse(r: Response, json_in: JsValue, message: String): Result = {
@@ -130,9 +124,9 @@ object AnyResponseHelper {
     }
 
     // #####################################################
-    // TODO: DEPRECATE (couchbase)
+    // TODO:PM DEPRECATE (couchbase)
 
-    def ok(json: JsonObject, msg: String): Result = {
+    def ok(json: JsonObject, msg: String=""): Result = {
         createResultResponse(Response.OK, json, msg)
     }
 
@@ -201,7 +195,7 @@ object AnyResponseHelper {
         val error_messages = JsonArray.empty()
         val json = JsonObject.empty()
 
-        for (s <- missing) {
+        for (s <- missing.asScala) {
             error_messages.add(String.format("Missing or Invalid parameter:: [%s]", s))
         }
         json.put("error_messages",error_messages)

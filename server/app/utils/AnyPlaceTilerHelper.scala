@@ -3,11 +3,15 @@ package utils
 import java.io._
 import java.nio.file.Files
 
-import play.Logger
-//remove if not needed
-import play.Play
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
+import play.api.mvc.{AbstractController, ControllerComponents}
 
-object AnyPlaceTilerHelper {
+@Singleton
+class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
+                                conf: Configuration,
+                                api: AnyplaceServerAPI)
+  extends AbstractController(cc) {
 
     private val ANYPLACE_TILER_SCRIPT_START =  "start-anyplace-tiler.sh"
     private val FLOOR_PLANS_ROOT_DIR = "floor_plans" + File.separatorChar
@@ -16,15 +20,15 @@ object AnyPlaceTilerHelper {
     val FLOOR_TILES_ZIP_NAME = "tiles_archive.zip"
 
     def getTilerScriptStart(): String = {
-        Play.application().configuration().getString("tilerRootDir")  + File.separatorChar + ANYPLACE_TILER_SCRIPT_START
+        conf.get[String]("tilerRootDir")  + File.separatorChar + ANYPLACE_TILER_SCRIPT_START
     }
 
     def getRootFloorPlansDir(): String = {
-        Play.application().configuration().getString("floorPlansRootDir") + File.separatorChar
+        conf.get[String]("floorPlansRootDir") + File.separatorChar
     }
 
     def getRootFloorPlansDirFor(buid: String): String = {
-        getRootFloorPlansDir + buid + File.separatorChar
+        getRootFloorPlansDir() + buid + File.separatorChar
     }
 
     def getRootFloorPlansDirFor(buid: String, floor: String): String = {
@@ -60,7 +64,7 @@ object AnyPlaceTilerHelper {
         if (buid.trim().isEmpty || floor.trim().isEmpty) {
             return null
         }
-        AnyplaceServerAPI.SERVER_FULL_URL + File.separatorChar +
+        api.SERVER_FULL_URL + File.separatorChar +
           "anyplace/floortiles/" +
           buid +
           File.separatorChar +
@@ -77,7 +81,7 @@ object AnyPlaceTilerHelper {
      * @return
      */
     def storeFloorPlanToServer(buid: String, floor_number: String, file: File): File = {
-        val dirS = AnyPlaceTilerHelper.getRootFloorPlansDirFor(buid, floor_number)
+        val dirS = getRootFloorPlansDirFor(buid, floor_number)
         val dir = new File(dirS)
         dir.mkdirs()
         if (!dir.isDirectory || !dir.canWrite() || !dir.canExecute()) {
@@ -102,7 +106,7 @@ object AnyPlaceTilerHelper {
               imageFile.toString +
               "]")
         }
-        val pb = new ProcessBuilder(getTilerScriptStart, imageFile.getAbsolutePath.toString, lat,
+        val pb = new ProcessBuilder(getTilerScriptStart(), imageFile.getAbsolutePath().toString(), lat,
             lng, "-DISLOG")
         val log = new File(imageDir, "anyplace_tiler_" + imageFile.getName + ".log")
         pb.redirectErrorStream(true)
@@ -121,7 +125,7 @@ object AnyPlaceTilerHelper {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with exit code[" +
                   p.exitValue() +
                   "]!"
-                Logger.error(err)
+                LPLogger.error(err)
                 throw new AnyPlaceException(err)
             }
         } catch {
@@ -129,14 +133,14 @@ object AnyPlaceTilerHelper {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with IOException[" +
                   e.getMessage +
                   "]!"
-                Logger.error(err)
+                LPLogger.error(err)
                 throw new AnyPlaceException(err)
             }
             case e: InterruptedException => {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with InterruptedException[" +
                   e.getMessage +
                   "]!"
-                Logger.error(err)
+                LPLogger.error(err)
                 throw new AnyPlaceException(err)
             }
         }
@@ -153,7 +157,7 @@ object AnyPlaceTilerHelper {
               imageFile.toString +
               "]")
         }
-        val pb = new ProcessBuilder(getTilerScriptStart, imageFile.getAbsolutePath.toString, lat,
+        val pb = new ProcessBuilder(getTilerScriptStart(), imageFile.getAbsolutePath().toString(), lat,
             lng,"-DISLOG",zoom)
         val log = new File(imageDir, "anyplace_tiler_" + imageFile.getName + ".log")
         pb.redirectErrorStream(true)
@@ -172,7 +176,7 @@ object AnyPlaceTilerHelper {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with exit code[" +
                   p.exitValue() +
                   "]!"
-                Logger.error(err)
+                LPLogger.error(err)
                 throw new AnyPlaceException(err)
             }
         } catch {
@@ -180,14 +184,14 @@ object AnyPlaceTilerHelper {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with IOException[" +
                   e.getMessage +
                   "]!"
-                Logger.error(err)
+                LPLogger.error(err)
                 throw new AnyPlaceException(err)
             }
             case e: InterruptedException => {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with InterruptedException[" +
                   e.getMessage +
                   "]!"
-                Logger.error(err)
+                LPLogger.error(err)
                 throw new AnyPlaceException(err)
             }
         }

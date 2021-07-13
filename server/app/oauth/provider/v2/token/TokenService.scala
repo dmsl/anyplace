@@ -67,7 +67,7 @@ object TokenService { // Used by the secure encryption/decryption algorithms
     val timeNow = new Date().getTime
     val plainText = authInfo.getAuid + "]" + authInfo.getScope + "]" + authInfo.getClientId + "]" + String.valueOf(timeNow)
     LPLogger.info("plaintext    : >" + plainText + "<")
-    val randomString = LPUtils.generateRandomToken
+    val randomString = LPUtils.generateRandomToken()
     LPLogger.info("randomstr PH1: >" + randomString + "<")
     val encrypted_token = LPUtils.secureEncrypt(SECURE_PASSWORD_PHASE1, randomString + "." + plainText)
     LPLogger.info("encrypted PH2: >" + encrypted_token + "<")
@@ -96,7 +96,7 @@ object TokenService { // Used by the secure encryption/decryption algorithms
     LPLogger.info("plaintext    : >" + plainText + "<")
     val signature = LPUtils.secureEncrypt(SECURE_PASSWORD_PHASE1, plainText)
     LPLogger.info("signature PH1: >" + signature + "<")
-    val randomString = LPUtils.generateRandomToken
+    val randomString = LPUtils.generateRandomToken()
     LPLogger.info("randomstr PH1: >" + randomString + "<")
     val encrypted_token = LPUtils.secureEncrypt(SECURE_PASSWORD_PHASE2, randomString + "." + signature)
     LPLogger.info("encrypted PH2: >" + encrypted_token + "<")
@@ -106,5 +106,5 @@ object TokenService { // Used by the secure encryption/decryption algorithms
   /**
     * Return a new Client Id
     */
-  def createUserId: String = LPUtils.getRandomUUID
+  def createUserId: String = LPUtils.getRandomUUID()
 }

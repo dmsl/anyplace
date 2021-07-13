@@ -43,7 +43,8 @@ import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import utils.JsonUtils.convertToInt
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
+
 
 object Floor {
 
@@ -62,7 +63,7 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
 
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fBuid, "")
     fields.put(SCHEMA.fIsPublished, "")
@@ -71,7 +72,7 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fDescription, "")
   }
 
-  def this(json: JsValue) {
+  def this(json: JsValue) = {
     this()
     if ((json \ SCHEMA.fFuid).toOption.isDefined)
       fields.put(SCHEMA.fFuid, (json \ SCHEMA.fFuid).as[String])

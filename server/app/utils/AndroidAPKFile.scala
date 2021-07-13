@@ -50,8 +50,8 @@ object AndroidAPKFile {
 
     override def compare(thiss: AndroidAPKFile, that: AndroidAPKFile): Int =
       try {
-        val vThis: String = thiss.getVersion.substring(1)
-        val vThat: String = that.getVersion.substring(1)
+        val vThis: String = thiss.getVersion().substring(1)
+        val vThat: String = that.getVersion().substring(1)
         val segsThis: Array[String] = vThis.split("[.]")
         val segsThat: Array[String] = vThat.split("[.]")
         for (i <- 0 until segsThis.length) {
@@ -63,7 +63,7 @@ object AndroidAPKFile {
             1
           }
         }
-        if (thiss.isRelease) -1 else 1
+        if (thiss.isRelease()) -1 else 1
       } catch {
         case e: NumberFormatException => -1
 

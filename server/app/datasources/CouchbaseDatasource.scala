@@ -35,7 +35,7 @@
  */
 package datasources
 
-import java.io.{FileOutputStream, IOException, PrintWriter}
+import java.io.{FileOutputStream, IOException}
 import java.util
 import java.util.concurrent.TimeUnit
 import java.util.{ArrayList, Collections, HashMap}
@@ -44,43 +44,41 @@ import accounts.IAccountService
 import com.couchbase.client.java.document.JsonDocument
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment
-import com.couchbase.client.java.view.{SpatialViewQuery, ViewQuery}
+import com.couchbase.client.java.view.ViewQuery
 import com.couchbase.client.java.{Bucket, CouchbaseCluster, PersistTo}
-import db_models.{Connection, Poi, RadioMapRaw}
+import db_models.Connection
 import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService
-import play.Play
+import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
-import utils.JsonUtils.{fromCouchList, fromCouchObject, toCouchObject}
-import utils.{GeoPoint, JsonUtils, LPLogger}
+import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
+import utils.{GeoPoint, LPLogger}
 
 import scala.collection.mutable.ListBuffer
-//remove if not needed
-import scala.collection.JavaConversions._
-
+import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsScala}
 
 object CouchbaseDatasource {
-
   private var sInstance: CouchbaseDatasource = null
-  private var sLockInstance: AnyRef = new AnyRef()
-
-  def getStaticInstance: CouchbaseDatasource = {
+  private val sLockInstance: AnyRef = new AnyRef()
+  
+  def getStaticInstance(conf: Configuration): CouchbaseDatasource = {
     sLockInstance.synchronized {
       if (sInstance == null) {
-        val clusterNodes = Play.application().configuration().getString("couchbase.clusterNodes")
-        val hostname = Play.application().configuration().getString("couchbase.hostname")
-        val port = Play.application().configuration().getString("couchbase.port")
-        val username = Play.application().configuration().getString("couchbase.username")
-        val bucket = Play.application().configuration().getString("couchbase.bucket")
-        val password = Play.application().configuration().getString("couchbase.password")
+        // It either users clusterNodes or hostname
+        var clusterNodes : String = null
+        var hostname :String = null
+        if (conf.has("couchbase.clusterNodes")) clusterNodes = conf.get[String]("couchbase.clusterNodes")
+        if (conf.has("couchbase.hostname")) hostname = conf.get[String]("couchbase.hostname")
+        val port = conf.get[String]("couchbase.port")
+        val username = conf.get[String]("couchbase.username")
+        val bucket = conf.get[String]("couchbase.bucket")
+        val password = conf.get[String]("couchbase.password")
         sInstance = CouchbaseDatasource.createNewInstance(hostname, clusterNodes, port, bucket, username, password)
         try {
           sInstance.init()
         } catch {
-          case e: DatasourceException => LPLogger.error("CouchbaseDatasource::getStaticInstance():: Exception while instantiating Couchbase [" +
-            e.getMessage +
-            "]")
+          case e: DatasourceException => LPLogger.error("CouchbaseDatasource: INIT ERROR: " + e.getMessage)
         }
       }
       sInstance
@@ -242,7 +240,7 @@ class CouchbaseDatasource private(hostname: String,
 
   def getFromKey(collection:String, key: String, value: String): JsValue = ???
 
-  override def getFromKey(key: String): JsonDocument = {
+  def getFromKey(key: String): JsonDocument = {
     val client = getConnection
     val db_res = client.get(key)
     db_res
@@ -250,51 +248,51 @@ class CouchbaseDatasource private(hostname: String,
 
   override def getFromKeyAsJson(collection: String, key: String, value: String): JsValue = ???
 
-  override def getFromKeyAsJson(key: String): JsValue = {
-    if (key == null || key.trim().isEmpty) {
-      throw new IllegalArgumentException("No null or empty string allowed as key!")
-    }
-    val db_res = getFromKey(key)
-    if (db_res == null) {
-      return null
-    }
-    try {
-      val jsonNode = db_res.content()
-      LPLogger.debug("json node = " + jsonNode)
-      fromCouchObject(jsonNode)
-    } catch {
-      case e: IOException => {
-        LPLogger.error("CouchbaseDatasource::getFromKeyAsJson():: Could not convert document from Couchbase into JSON!")
-        null
-      }
-    }
-  }
+  //def getFromKeyAsJson(key: String): JsValue = {
+  //  if (key == null || key.trim().isEmpty) {
+  //    throw new IllegalArgumentException("No null or empty string allowed as key!")
+  //  }
+  //  val db_res = getFromKey(key)
+  //  if (db_res == null) {
+  //    return null
+  //  }
+  //  try {
+  //    val jsonNode = db_res.content()
+  //    LPLogger.debug("json node = " + jsonNode)
+  //    fromCouchObject(jsonNode)
+  //  } catch {
+  //    case e: IOException => {
+  //      LPLogger.error("CouchbaseDatasource::getFromKeyAsJson():: Could not convert document from Couchbase into JSON!")
+  //      null
+  //    }
+  //  }
+  //}
 
   override def fingerprintExists(collection: String, buid: String, floor: String, x: String, y: String, heading: String): Boolean = ???
 //  override def buildingFromKeyAsJson(key: String): JsValue = ???
 
-  override def buildingFromKeyAsJson(key: String): JsValue = {
-    val building = toCouchObject(getFromKeyAsJson(key))
-    if (building == null) {
-      return null
-    }
-    val floors = JsonArray.empty()
-    for (f <- floorsByBuildingAsJson(key)) {
-      floors.add(f)
-    }
-    building.put("floors", floors)
-    val pois = JsonArray.empty()
-    for (p <- poisByBuildingAsJson(key)) {
-      if (!toCouchObject(p).getString("pois_type").equalsIgnoreCase(Poi.POIS_TYPE_NONE)) //continue
-        pois.add(p)
-    }
-    building.put("pois", floors)
-    fromCouchObject(building)
-  }
+  //override def buildingFromKeyAsJson(key: String): JsValue = {
+  //  val building = toCouchObject(getFromKeyAsJson(key))
+  //  if (building == null) {
+  //    return null
+  //  }
+  //  val floors = JsonArray.empty()
+  //  for (f <- floorsByBuildingAsJson(key).asScala) {
+  //    floors.add(f)
+  //  }
+  //  building.put("floors", floors)
+  //  val pois = JsonArray.empty()
+  //  for (p <- poisByBuildingAsJson(key).asScala) {
+  //    if (!toCouchObject(p).getString("pois_type").equalsIgnoreCase(Poi.POIS_TYPE_NONE)) //continue
+  //      pois.add(p)
+  //  }
+  //  building.put("pois", floors)
+  //  fromCouchObject(building)
+  //}
 
   override def poiByBuidFloorPuid(buid: String, floor_number: String, puid: String): Boolean = ???
 
-  override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = getFromKeyAsJson(key)
+  //override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = getFromKeyAsJson(key)
 
   override def poisByBuildingFloorAsJson(buid: String, floor_number: String): List[JsValue] = ???
 
@@ -343,7 +341,7 @@ class CouchbaseDatasource private(hostname: String,
     val pois = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = row.document().content()
         json.removeKey("owner_id")
@@ -356,43 +354,43 @@ class CouchbaseDatasource private(hostname: String,
     pois
   }
 
-  override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
+  //override def poisByBuildingAsMap(buid: String): java.util.List[HashMap[String, String]] = {
+  //  val couchbaseClient = getConnection
+  //  val viewQuery = ViewQuery.from("nav", "pois_by_buid").includeDocs(true).key((buid))
+  //
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  val pois = new ArrayList[HashMap[String, String]]()
+  //
+  //  for (row <- res.allRows().asScala) {
+  //    pois.add(JsonUtils.getHashMapStrStr(fromCouchObject(row.document().content())))
+  //  }
+  //  pois
+  //}
 
-    val res = couchbaseClient.query(viewQuery)
-
-    val pois = new ArrayList[HashMap[String, String]]()
-
-    for (row <- res.allRows()) {
-      pois.add(JsonUtils.getHashMapStrStr(fromCouchObject(row.document().content())))
-    }
-    pois
-  }
-
-  override def floorsByBuildingAsJson(buid: String): java.util.List[JsValue] = {
-    val floors = new ArrayList[JsValue]()
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(buid).includeDocs(true)
-
-    val res = couchbaseClient.query(viewQuery)
-    LPLogger.debug("couchbase results: " + res.totalRows())
-    if (!res.success()) {
-      throw new DatasourceException("Error retrieving floors from database!")
-    }
-    var json: JsonObject = null
-
-    for (row <- res.allRows()) {
-      try {
-        json = row.document().content()
-        json.removeKey("owner_id")
-        floors.add(fromCouchObject(json))
-      } catch {
-        case e: IOException =>
-      }
-    }
-    floors
-  }
+  //override def floorsByBuildingAsJson(buid: String): java.util.List[JsValue] = {
+  //  val floors = new ArrayList[JsValue]()
+  //  val couchbaseClient = getConnection
+  //  val viewQuery = ViewQuery.from("nav", "floor_by_buid").key(buid).includeDocs(true)
+  //
+  //  val res = couchbaseClient.query(viewQuery)
+  //  LPLogger.debug("couchbase results: " + res.totalRows())
+  //  if (!res.success()) {
+  //    throw new DatasourceException("Error retrieving floors from database!")
+  //  }
+  //  var json: JsonObject = null
+  //
+  //  for (row <- res.allRows().asScala) {
+  //    try {
+  //      json = row.document().content()
+  //      json.removeKey("owner_id")
+  //      floors.add(fromCouchObject(json))
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  floors
+  //}
 
   override def connectionsByBuildingAllFloorsAsJson(buid: String): List[JsValue] = ???
 //  @throws[DatasourceException]
@@ -451,7 +449,7 @@ class CouchbaseDatasource private(hostname: String,
     var hm: HashMap[String, String] = null
     val conns = new ArrayList[HashMap[String, String]]()
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
 //      hm = JsonUtils.getHashMapStrStr(row.document().content())
       if (!hm.get("edge_type").equalsIgnoreCase(Connection.EDGE_TYPE_OUTDOOR))
         conns.add(hm)
@@ -489,7 +487,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "all_by_buid").includeDocs(true).key((buid))
 
     val res = couchbaseClient.query(viewQuery)
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       val id = row.id()
       val db_res = couchbaseClient.remove(id, PersistTo.ONE)
       try {
@@ -546,7 +544,7 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
 
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       val id = row.id()
       val db_res = couchbaseClient.remove(id, PersistTo.ONE)
       try {
@@ -572,7 +570,7 @@ class CouchbaseDatasource private(hostname: String,
     LPLogger.debug("couchbase results: " + res.totalRows)
     var json: JsonObject = null
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = row.key().asInstanceOf[JsonObject]
         json.put("weight", row.value().toString)
@@ -810,7 +808,7 @@ class CouchbaseDatasource private(hostname: String,
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
     var jsonCheck: JsonObject = null
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = JsonObject.empty()
         jsonCheck = JsonObject.empty()
@@ -841,7 +839,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("heatmaps", "heatmap_by_floor_building").includeDocs(true).key((id))
 
     val res = couchbaseClient.query(viewQuery)
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       val id = row.id()
       val db_res = couchbaseClient.remove(id, PersistTo.ONE)
       try {
@@ -957,28 +955,28 @@ class CouchbaseDatasource private(hostname: String,
 
 //  override def getAllBuildings(): List[JsValue] = ???
 
-  override def getAllBuildings(): List[JsValue] = {
-
-    val buildings = new ArrayList[JsonObject]()
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "building_all").includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-    //
-
-    for (row <- res.allRows()) {
-      try {
-        val json = row.document().content()
-        json.removeKey("geometry")
-        json.removeKey("owner_id")
-        json.removeKey("co_owners")
-        buildings.add(json)
-
-      } catch {
-        case e: IOException =>
-      }
-    }
-    fromCouchList(buildings)
-  }
+  //override def getAllBuildings(): List[JsValue] = {
+  //
+  //  val buildings = new ArrayList[JsonObject]()
+  //  val couchbaseClient = getConnection
+  //  val viewQuery = ViewQuery.from("nav", "building_all").includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //  //
+  //
+  //  for (row <- res.allRows().asScala) {
+  //    try {
+  //      val json = row.document().content()
+  //      json.removeKey("geometry")
+  //      json.removeKey("owner_id")
+  //      json.removeKey("co_owners")
+  //      buildings.add(json)
+  //
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  fromCouchList(buildings)
+  //}
 
   override def getAllBuildingsByOwner(oid: String): List[JsValue] = ???
 //  override def getAllBuildingsByOwner(oid: String): java.util.List[JsonObject] = {
@@ -1045,7 +1043,7 @@ class CouchbaseDatasource private(hostname: String,
   //      try {
   //        json = row.document().content()
   //        val pub = json.getString("is_published") == null || json.getString("is_published").equalsIgnoreCase("true")
-  //        val owner = json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").toList.contains(owner_id)
+  //        val owner = json.getString("owner_id").equals(owner_id) || json.getArray("co_owners").asScala.contains(owner_id)
   //        if (pub || owner) {
   //          json.removeKey("geometry")
   //          json.removeKey("owner_id")
@@ -1134,7 +1132,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("nav", "get_campus").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
     var json: JsonObject = null
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = row.document().content()
         var cuid = json.getString("cuid")
@@ -1171,144 +1169,144 @@ class CouchbaseDatasource private(hostname: String,
 //    buildingsets
 //  }
 
-  /**
-   * fetch all rss entries and write them in a file
-   * @param outFile
-   * @param bbox
-   * @param floor_number
-   * @return total of rss entries of a specifi floor
-   */
-  override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
-    val writer = new PrintWriter(outFile)
-    val floorLimit = 100000
-    val queryLimit = 5000
-    var totalFetched = 0
-    var currentFetched = 0
-    var floorFetched = 0
-    var rssEntry: JsonObject = null
-    val couchbaseClient = getConnection
-    try {
-      do {
-        val viewQuery = SpatialViewQuery.from("nav_spatial", "building_coordinates")
-          .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-          .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).limit(queryLimit).skip(totalFetched)
-        val res = couchbaseClient.query(viewQuery)
-        currentFetched = 0
-        for (row <- res) {
-          currentFetched += 1
-          rssEntry = row.document().content()
-
-          if (rssEntry.getString("floor") == floor_number) {
-            floorFetched += 1
-            // re-create old fingerprints in order to call that method
-            writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
-          }
-        }
-        totalFetched += currentFetched
-        LPLogger.info("total fetched: " + totalFetched)
-        // check limits
-      } while (currentFetched >= queryLimit && floorFetched < floorLimit);
-      writer.flush()
-      writer.close()
-    } catch {
-      case e: Exception => LPLogger.error("dumpRssLogEntriesSpatial: " + e.getClass + ": " + e.getMessage)//continue
-    }
-    floorFetched
-  }
+  ///**
+  // * fetch all rss entries and write them in a file
+  // * @param outFile
+  // * @param bbox
+  // * @param floor_number
+  // * @return total of rss entries of a specifi floor
+  // */
+  //override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = {
+  //  val writer = new PrintWriter(outFile)
+  //  val floorLimit = 100000
+  //  val queryLimit = 5000
+  //  var totalFetched = 0
+  //  var currentFetched = 0
+  //  var floorFetched = 0
+  //  var rssEntry: JsonObject = null
+  //  val couchbaseClient = getConnection
+  //  try {
+  //    do {
+  //      val viewQuery = SpatialViewQuery.from("nav_spatial", "building_coordinates")
+  //        .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //        .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).limit(queryLimit).skip(totalFetched)
+  //      val res = couchbaseClient.query(viewQuery)
+  //      currentFetched = 0
+  //      for (row <- res.asScala) {
+  //        currentFetched += 1
+  //        rssEntry = row.document().content()
+  //
+  //        if (rssEntry.getString("floor") == floor_number) {
+  //          floorFetched += 1
+  //          // re-create old fingerprints in order to call that method
+  //          writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
+  //        }
+  //      }
+  //      totalFetched += currentFetched
+  //      LPLogger.info("total fetched: " + totalFetched)
+  //      // check limits
+  //    } while (currentFetched >= queryLimit && floorFetched < floorLimit);
+  //    writer.flush()
+  //    writer.close()
+  //  } catch {
+  //    case e: Exception => LPLogger.error("dumpRssLogEntriesSpatial: " + e.getClass + ": " + e.getMessage)//continue
+  //  }
+  //  floorFetched
+  //}
 
   override def dumpRssLogEntriesWithCoordinates(floor_number: String, lat: Double, lon: Double): String = ???
 
-  override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
-    val writer = new PrintWriter(outFile)
-    val couchbaseClient = getConnection
-    val queryLimit = 10000
-    var totalFetched = 0
-    var currentFetched: Int = 0
-    var rssEntry: JsonObject = null
+  //override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
+  //  val writer = new PrintWriter(outFile)
+  //  val couchbaseClient = getConnection
+  //  val queryLimit = 10000
+  //  var totalFetched = 0
+  //  var currentFetched: Int = 0
+  //  var rssEntry: JsonObject = null
+  //
+  //  var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
+  //
+  //  do {
+  //    viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
+  //
+  //    val res = couchbaseClient.query(viewQuery)
+  //    if (!(res.totalRows() > 0)) return totalFetched
+  //    currentFetched = 0
+  //
+  //    for (row <- res.allRows().asScala) {
+  //      currentFetched += 1
+  //      try {
+  //        rssEntry = row.document().content()
+  //      } catch {
+  //        case e: IOException => //continue
+  //      }
+  //      writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
+  //    }
+  //    totalFetched += currentFetched
+  //    LPLogger.info("total fetched: " + totalFetched)
+  //  } while (currentFetched >= queryLimit)
+  //  writer.flush()
+  //  writer.close()
+  //  totalFetched
+  //}
 
-    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
-
-    do {
-      viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
-
-      val res = couchbaseClient.query(viewQuery)
-      if (!(res.totalRows() > 0)) return totalFetched
-      currentFetched = 0
-
-      for (row <- res.allRows()) {
-        currentFetched += 1
-        try {
-          rssEntry = row.document().content()
-        } catch {
-          case e: IOException => //continue
-        }
-        writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
-      }
-      totalFetched += currentFetched
-      LPLogger.info("total fetched: " + totalFetched)
-    } while (currentFetched >= queryLimit)
-    writer.flush()
-    writer.close()
-    totalFetched
-  }
-
-  override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
-    val writer = new PrintWriter(outFile)
-    val couchbaseClient = getConnection
-    val queryLimit = 10000
-    var totalFetched = 0
-    var currentFetched: Int = 0
-    var rssEntry: JsonObject = null
-
-
-    do {
-      var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
-      val res = couchbaseClient.query(viewQuery)
-      if (res == null) return totalFetched
-      currentFetched = 0
-
-      var threshold = 0
-      var thresholdCounter= 0
-      var thresholdAction = false
-      val results = new java.util.ArrayList[JsonObject]
-      for (row <- res.allRows()) {
-        results.add(row.document().content())
-      }
-
-      if(results.size()>200) {
-        threshold = results.size() / 200
-        thresholdAction=true
-      }
-
-      for (result <- results) {
-        if(thresholdAction) {
-          thresholdCounter += 1
-          if (thresholdCounter % threshold == 0) {
-            currentFetched += 1
-            try {
-              rssEntry = result
-            } catch {
-              case e: IOException => //continue
-            }
-            writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
-          }
-        }else{
-          currentFetched += 1
-            try {
-              rssEntry = result
-            } catch {
-              case e: IOException => //continue
-            }
-            writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
-        }
-      }
-      totalFetched += currentFetched
-      LPLogger.info("total fetched: " + totalFetched)
-    } while (currentFetched >= queryLimit)
-    writer.flush()
-    writer.close()
-    totalFetched
-  }
+  //override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
+  //  val writer = new PrintWriter(outFile)
+  //  val couchbaseClient = getConnection
+  //  val queryLimit = 10000
+  //  var totalFetched = 0
+  //  var currentFetched: Int = 0
+  //  var rssEntry: JsonObject = null
+  //
+  //
+  //  do {
+  //    var viewQuery = ViewQuery.from("radio", "raw_radio_building_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true).limit(queryLimit).skip(totalFetched)
+  //    val res = couchbaseClient.query(viewQuery)
+  //    if (res == null) return totalFetched
+  //    currentFetched = 0
+  //
+  //    var threshold = 0
+  //    var thresholdCounter= 0
+  //    var thresholdAction = false
+  //    val results = new java.util.ArrayList[JsonObject]
+  //    for (row <- res.allRows().asScala) {
+  //      results.add(row.document().content())
+  //    }
+  //
+  //    if(results.size()>200) {
+  //      threshold = results.size() / 200
+  //      thresholdAction=true
+  //    }
+  //
+  //    for (result <- results.asScala) {
+  //      if(thresholdAction) {
+  //        thresholdCounter += 1
+  //        if (thresholdCounter % threshold == 0) {
+  //          currentFetched += 1
+  //          try {
+  //            rssEntry = result
+  //          } catch {
+  //            case e: IOException => //continue
+  //          }
+  //          writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
+  //        }
+  //      }else{
+  //        currentFetched += 1
+  //          try {
+  //            rssEntry = result
+  //          } catch {
+  //            case e: IOException => //continue
+  //          }
+  //          writer.println(RadioMapRaw.toRawRadioMapRecord(fromCouchObject(rssEntry)))
+  //      }
+  //    }
+  //    totalFetched += currentFetched
+  //    LPLogger.info("total fetched: " + totalFetched)
+  //  } while (currentFetched >= queryLimit)
+  //  writer.flush()
+  //  writer.close()
+  //  totalFetched
+  //}
 
   override def getAllAccounts(): List[JsValue] = {
     LPLogger.debug("couchbase getAllAccounts: ")
@@ -1326,7 +1324,7 @@ class CouchbaseDatasource private(hostname: String,
     }
     var json: JsonObject = null
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         if (row.document() != null) {
           json = row.document().content()
@@ -1345,65 +1343,66 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("radio", "tempview").includeDocs(true)
     val res = couchbaseClient.query(viewQuery)
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       deleteFromKey(row.key().toString)
     }
     true
   }
 
-  override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMAC: Array[String]): Boolean = {
-    predictFloorFast(algo, bbox, strongestMAC)
-  }
+  override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = ???
+  //override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMAC: Array[String]): Boolean = {
+  //  predictFloorFast(algo, bbox, strongestMAC)
+  //}
 
-  private def predictFloorFast(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
-    val designDoc = "floor"
-    val viewName = "group_wifi"
-    val couchbaseClient = getConnection
-    var totalFetched = 0
-    var count = 0
-
-    for (strongestMAC <- strongestMACs) {
-      LPLogger.debug("strongestMAC = " + strongestMAC)
-      /**
-        * val startkey: ComplexKey = ComplexKey.of(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon), null)
-        * val endkey: ComplexKey = ComplexKey.of(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon), "࿿")
-        *query.setRange(startkey, endkey)
-        */
-      val viewQuery = ViewQuery.from(designDoc, viewName)
-        .startKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-        .endKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
-      val response = couchbaseClient.query(viewQuery)
-
-      var _floor = "0"
-      val bucket = new ArrayList[JsValue](10)
-
-      for (row <- response) {
-        try {
-
-            val value = row.value().asInstanceOf[JsonObject]
-            val MAC = value.getString(SCHEMA.fMac)
-
-            if (MAC == strongestMAC) {
-              count = count +1
-              algo.proccess(bucket, _floor)
-              bucket.clear()
-              _floor = value.getString("floor")
-              bucket.add(Json.parse(value.toString()))
-              totalFetched += 1
-            }
-        } catch {
-          case e: IOException => LPLogger.D2("" + e.getClass + ": " + e.getMessage + ": " + e.getCause)
-        }
-      }
-    }
-    LPLogger.D2("predictFloorFast fetched: " + totalFetched)
-    LPLogger.D2("COUNt = " + count)
-    if (totalFetched > 10) {
-      true
-    } else {
-      false
-    }
-  }
+  //private def predictFloorFast(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
+  //  val designDoc = "floor"
+  //  val viewName = "group_wifi"
+  //  val couchbaseClient = getConnection
+  //  var totalFetched = 0
+  //  var count = 0
+  //
+  //  for (strongestMAC <- strongestMACs) {
+  //    LPLogger.debug("strongestMAC = " + strongestMAC)
+  //    /**
+  //      * val startkey: ComplexKey = ComplexKey.of(strongestMAC, new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon), null)
+  //      * val endkey: ComplexKey = ComplexKey.of(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon), "࿿")
+  //      *query.setRange(startkey, endkey)
+  //      */
+  //    val viewQuery = ViewQuery.from(designDoc, viewName)
+  //      .startKey(JsonArray.from(strongestMAC,  new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //      .endKey(JsonArray.from(strongestMAC, new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true).skip(totalFetched)
+  //    val response = couchbaseClient.query(viewQuery)
+  //
+  //    var _floor = "0"
+  //    val bucket = new ArrayList[JsValue](10)
+  //
+  //    for (row <- response.asScala) {
+  //      try {
+  //
+  //          val value = row.value().asInstanceOf[JsonObject]
+  //          val MAC = value.getString(SCHEMA.fMac)
+  //
+  //          if (MAC == strongestMAC) {
+  //            count = count +1
+  //            algo.proccess(bucket, _floor)
+  //            bucket.clear()
+  //            _floor = value.getString("floor")
+  //            bucket.add(Json.parse(value.toString()))
+  //            totalFetched += 1
+  //          }
+  //      } catch {
+  //        case e: IOException => LPLogger.D2("" + e.getClass + ": " + e.getMessage + ": " + e.getCause)
+  //      }
+  //    }
+  //  }
+  //  LPLogger.D2("predictFloorFast fetched: " + totalFetched)
+  //  LPLogger.D2("COUNt = " + count)
+  //  if (totalFetched > 10) {
+  //    true
+  //  } else {
+  //    false
+  //  }
+  //}
 
   override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
     val couchbaseClient = getConnection
@@ -1416,7 +1415,7 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = row.document().content()
         result.add(json)
@@ -1438,7 +1437,7 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = row.document().content()
         result.add(json)
@@ -1459,7 +1458,7 @@ class CouchbaseDatasource private(hostname: String,
     val result = new ArrayList[JsonObject]()
     var json: JsonObject = null
 
-    for (row <- res.allRows()) {
+    for (row <- res.allRows().asScala) {
       try {
         json = row.document().content()
         result.add(json)
@@ -1492,7 +1491,7 @@ class CouchbaseDatasource private(hostname: String,
     var accountJson: JsonObject = null
     var clients: JsonArray = null
     var found: Boolean = false
-    for (row <- res) {
+    for (row <- res.asScala) {
       try accountJson = row.document().content()
       catch {
         case e: IOException => null
@@ -1523,14 +1522,14 @@ class CouchbaseDatasource private(hostname: String,
       false
     }
     // TODO- or even maybe salting them
-    if (username != account.getUsername) {
+    if (username != account.getUsername()) {
       false
     }
-    if (password == null || password.trim().isEmpty) {
+    if (password == null || password.trim().isEmpty()) {
       false
     }
     // TODO- or even maybe salting them
-    if (password != account.getPassword) {
+    if (password != account.getPassword()) {
       false
     }
     true
@@ -1549,7 +1548,7 @@ class CouchbaseDatasource private(hostname: String,
       null
     }
     // TODO - IMPORTANT - no refresh token is issued at the moment
-    new AuthInfo(account.getAuid, clientId, scope)
+    new AuthInfo(account.getAuid(), clientId, scope)
   }
 
   // TODO - maybe the database here first in order to check
@@ -1573,8 +1572,8 @@ class CouchbaseDatasource private(hostname: String,
       val tokenModel: AccessTokenModel =
         TokenService.createNewAccessToken(authInfo)
       val db_res = client.mapAdd(
-        tokenModel.getTuid, tokenModel.getTuid,
-        tokenModel.toJson().toString,
+        tokenModel.getTuid(), tokenModel.getTuid(),
+        tokenModel.toJson().toString(),
         tokenModel.getExpiresIn().toInt, TimeUnit.MILLISECONDS)
 
       try if (db_res) {
@@ -1603,7 +1602,7 @@ class CouchbaseDatasource private(hostname: String,
 
 
     var json: JsonObject = null
-    import scala.collection.JavaConversions._
+    // import scala.collection.JavaConversions._
     for (row <- res) { // handle each building entry
       try {
         json = JsonObject.empty()
@@ -1626,107 +1625,107 @@ class CouchbaseDatasource private(hostname: String,
     points
   }
 
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
+  //override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
+  //
+  //  val points = new java.util.ArrayList[JsonObject]
+  //  val point = new java.util.HashMap[java.util.List[String], Integer]()
+  //  val xy = new java.util.ArrayList[java.util.List[String]]
+  //
+  //  val couchbaseClient = getConnection
+  //
+  //  val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
+  //
+  //  val viewQuery = SpatialViewQuery.from("radio", "radio_heatmap_bbox_byxy")
+  //    .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //    .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //
+  //  LPLogger.debug("couchbase results: " + res.size)
+  //
+  //  var json: JsonObject = null
+  //  for (row <- res) { // handle each building entry
+  //    try {
+  //      json = row.document().content()
+  //      if ((json.getString("buid").compareTo("\"" + buid + "\"") == 0) && (json.getString("floor").compareTo("\"" + floor + "\"") == 0)) {
+  //        val p = new java.util.ArrayList[String]
+  //        val x = json.getString("x")
+  //        val y = json.getString("y")
+  //        p.add(x)
+  //        p.add(y)
+  //        if (point.containsKey(p)) point.put(p, point.get(p) + 1)
+  //        else {
+  //          point.put(p, 1)
+  //          xy.add(p)
+  //        }
+  //      }
+  //    } catch {
+  //      case e: IOException =>
+  //
+  //      // skip this NOT-JSON document
+  //    }
+  //  }
+  //  while ( {
+  //    !xy.isEmpty
+  //  }) {
+  //    val p = xy.remove(0)
+  //    try {
+  //      json = JsonObject.empty()
+  //      val w = "" + point.get(p)
+  //      json.put("x", p.get(0))
+  //      json.put("y", p.get(1))
+  //      json.put("w", w)
+  //      points.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //
+  //      //skip this NOT-JSON document
+  //    }
+  //  }
+  //  points
+  //}
 
-    val points = new java.util.ArrayList[JsonObject]
-    val point = new java.util.HashMap[java.util.List[String], Integer]()
-    val xy = new java.util.ArrayList[java.util.List[String]]
-
-    val couchbaseClient = getConnection
-
-    val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
-
-    val viewQuery = SpatialViewQuery.from("radio", "radio_heatmap_bbox_byxy")
-      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-
-
-    LPLogger.debug("couchbase results: " + res.size)
-
-    var json: JsonObject = null
-    for (row <- res) { // handle each building entry
-      try {
-        json = row.document().content()
-        if ((json.getString("buid").compareTo("\"" + buid + "\"") == 0) && (json.getString("floor").compareTo("\"" + floor + "\"") == 0)) {
-          val p = new java.util.ArrayList[String]
-          val x = json.getString("x")
-          val y = json.getString("y")
-          p.add(x)
-          p.add(y)
-          if (point.containsKey(p)) point.put(p, point.get(p) + 1)
-          else {
-            point.put(p, 1)
-            xy.add(p)
-          }
-        }
-      } catch {
-        case e: IOException =>
-
-        // skip this NOT-JSON document
-      }
-    }
-    while ( {
-      !xy.isEmpty
-    }) {
-      val p = xy.remove(0)
-      try {
-        json = JsonObject.empty()
-        val w = "" + point.get(p)
-        json.put("x", p.get(0))
-        json.put("y", p.get(1))
-        json.put("w", w)
-        points.add(json)
-      } catch {
-        case e: IOException =>
-
-        //skip this NOT-JSON document
-      }
-    }
-    points
-  }
-
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
-
-    val points = new java.util.ArrayList[JsonObject]
-    val point = new HashMap[java.util.List[String], Integer]
-
-    val couchbaseClient = getConnection
-
-    val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
-
-    val viewQuery = SpatialViewQuery.from("radio", "radio_heatmap_bbox_byxy")
-      .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
-      .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    var json: JsonObject = null
-    var json2: JsonObject = null
-    for (row <- res) { // handle each building entry
-      try {
-        json = row.document().content()
-        if ((json.getString("buid").compareTo("\"" + buid + "\"") == 0) && (json.getString("floor").compareTo("\"" + floor + "\"") == 0)) {
-          val p = new ArrayList[String]
-          val x = json.getString("x")
-          val y = json.getString("y")
-          p.add(x)
-          p.add(y)
-          if (!point.containsKey(p)) {
-            json2 = JsonObject.empty()
-            json2.put("x", p.get(0))
-            json2.put("y", p.get(1))
-            points.add(json2)
-            point.put(p, 1)
-          }
-        }
-      } catch {
-        case e: IOException =>
-
-        // skip this NOT-JSON document
-      }
-    }
-    points
-  }
+  //override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = {
+  //
+  //  val points = new java.util.ArrayList[JsonObject]
+  //  val point = new HashMap[java.util.List[String], Integer]
+  //
+  //  val couchbaseClient = getConnection
+  //
+  //  val bbox = GeoPoint.getGeoBoundingBox(lat.toDouble, lon.toDouble, range) // 50 meters radius
+  //
+  //  val viewQuery = SpatialViewQuery.from("radio", "radio_heatmap_bbox_byxy")
+  //    .startRange(JsonArray.from(new java.lang.Double(bbox(0).dlat), new java.lang.Double(bbox(0).dlon)))
+  //    .endRange(JsonArray.from(new java.lang.Double(bbox(1).dlat), new java.lang.Double(bbox(1).dlon))).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  var json: JsonObject = null
+  //  var json2: JsonObject = null
+  //  for (row <- res) { // handle each building entry
+  //    try {
+  //      json = row.document().content()
+  //      if ((json.getString("buid").compareTo("\"" + buid + "\"") == 0) && (json.getString("floor").compareTo("\"" + floor + "\"") == 0)) {
+  //        val p = new ArrayList[String]
+  //        val x = json.getString("x")
+  //        val y = json.getString("y")
+  //        p.add(x)
+  //        p.add(y)
+  //        if (!point.containsKey(p)) {
+  //          json2 = JsonObject.empty()
+  //          json2.put("x", p.get(0))
+  //          json2.put("y", p.get(1))
+  //          points.add(json2)
+  //          point.put(p, 1)
+  //        }
+  //      }
+  //    } catch {
+  //      case e: IOException =>
+  //
+  //      // skip this NOT-JSON document
+  //    }
+  //  }
+  //  points
+  //}
 
 
   var lastletters = ""
@@ -2140,6 +2139,10 @@ class CouchbaseDatasource private(hostname: String,
     true
   }
 
+  override def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long = ???
+  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsonObject] = ???
+
   def convertJson(list: java.util.List[JsonObject]): List[JsValue] = {
     val jsList = ListBuffer[JsValue]()
     for (doc <- list) {
@@ -2162,4 +2165,26 @@ class CouchbaseDatasource private(hostname: String,
                         external: String, accType: String): JsValue = ???
 
   override def isAdmin(col: String): Boolean = ???
+
+  override def buildingFromKeyAsJson(key: String): JsValue = ???
+
+  override def poiFromKeyAsJson(collection: String, key: String, value: String): JsValue = ???
+
+  override def poisByBuildingAsMap(buid: String): util.List[util.HashMap[String, String]] = ???
+
+  override def floorsByBuildingAsJson(buid: String): util.List[JsValue] = ???
+
+  override def getAllBuildings(): List[JsValue] = ???
+
+  /**
+   * Populates rss-log per buid:floor.
+   *
+   * @param outFile rss-log file in frozen dir. It is filled per floor
+   * @param buid
+   * @param floor_number
+   * @return
+   */
+  override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = ???
+
+  override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = ???
 }
