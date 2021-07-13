@@ -145,9 +145,10 @@ app.service('GMapService', function () {
 
     var mapTypeId = DEFAULT_MAP_TILES;
     if (typeof(Storage) !== "undefined" && localStorage) {
-        if (localStorage.getItem('mapTypeId'))
+        if (localStorage.getItem('mapTypeId')) {
             mapTypeId = localStorage.getItem('mapTypeId');
-        else
+            if (mapTypeId === "roadmap") mapTypeid = DEFAULT_MAP_TILES;
+        } else
             localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);
     }
 

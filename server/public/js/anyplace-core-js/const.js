@@ -11,7 +11,7 @@ ERR_FETCH_BUILDINGS="Something went wrong while fetching buildings.";
 ERR_FETCH_ALL_FLOORS="Something went wrong while fetching all floors.";
 ERR_USER_AUTH="Could not authorize user. Please refresh.";
 ERR_FETCH_FINGERPRINTS="Something went wrong while fetching fingerPrints.";
-// TODO Permission denined
+// TODO Permission denied
 ERR_GEOLOC_DEVICE_SETTINGS="Please check your device's geolocation settings.";
 ERR_GEOLOC_NET_OR_SATELLITES="Position unavailable. The network is down or the positioning satellites couldn't be contacted.";
 ERR_GEOLOC_TIMEOUT="Timeout. The request for retrieving your Geolocation was timed out.";
