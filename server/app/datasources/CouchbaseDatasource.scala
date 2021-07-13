@@ -59,9 +59,8 @@ import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsScala}
 
 object CouchbaseDatasource {
-
   private var sInstance: CouchbaseDatasource = null
-  private var sLockInstance: AnyRef = new AnyRef()
+  private val sLockInstance: AnyRef = new AnyRef()
   
   def getStaticInstance(conf: Configuration): CouchbaseDatasource = {
     sLockInstance.synchronized {
@@ -98,10 +97,10 @@ object CouchbaseDatasource {
 
     var hostname = ""
     var clusterNodes = ""
-    if(hostname_in != "") {
+    if(hostname_in != null) {
         hostname = hostname_in.trim()
     }
-    if(clusterNodes_in != "") {
+    if(clusterNodes_in != null) {
         clusterNodes=clusterNodes_in.trim()
     }
     
