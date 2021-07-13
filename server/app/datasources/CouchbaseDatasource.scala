@@ -62,12 +62,15 @@ object CouchbaseDatasource {
 
   private var sInstance: CouchbaseDatasource = null
   private var sLockInstance: AnyRef = new AnyRef()
-
+  
   def getStaticInstance(conf: Configuration): CouchbaseDatasource = {
     sLockInstance.synchronized {
       if (sInstance == null) {
-        val clusterNodes = conf.get[String]("couchbase.clusterNodes")
-        val hostname = conf.get[String]("couchbase.hostname")
+        // It either users clusterNodes or hostname
+        var clusterNodes : String = null
+        var hostname :String = null
+        if (conf.has("couchbase.clusterNodes")) clusterNodes = conf.get[String]("couchbase.clusterNodes")
+        if (conf.has("couchbase.hostname")) hostname = conf.get[String]("couchbase.hostname")
         val port = conf.get[String]("couchbase.port")
         val username = conf.get[String]("couchbase.username")
         val bucket = conf.get[String]("couchbase.bucket")
@@ -76,9 +79,7 @@ object CouchbaseDatasource {
         try {
           sInstance.init()
         } catch {
-          case e: DatasourceException => LPLogger.error("CouchbaseDatasource::getStaticInstance():: Exception while instantiating Couchbase [" +
-            e.getMessage +
-            "]")
+          case e: DatasourceException => LPLogger.error("CouchbaseDatasource: INIT ERROR: " + e.getMessage)
         }
       }
       sInstance
@@ -97,10 +98,10 @@ object CouchbaseDatasource {
 
     var hostname = ""
     var clusterNodes = ""
-    if(hostname_in != null) {
+    if(hostname_in != "") {
         hostname = hostname_in.trim()
     }
-    if(clusterNodes_in != null) {
+    if(clusterNodes_in != "") {
         clusterNodes=clusterNodes_in.trim()
     }
     
