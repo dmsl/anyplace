@@ -7,8 +7,8 @@ module.exports = function (grunt) {
     concat: {
       js: {
         src: [
-          'app.js',
-          '../shared/js/*.js',
+          '../shared/js/*.js',                  // FIRST
+          'app.js',                             // SECOND
           '../shared/js/anyplace-core-js/*.js',
           'scripts/*.js',
           'controllers/*.js'

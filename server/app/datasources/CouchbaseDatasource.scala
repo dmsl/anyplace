@@ -62,7 +62,7 @@ object CouchbaseDatasource {
   private var sInstance: CouchbaseDatasource = null
   private val sLockInstance: AnyRef = new AnyRef()
   
-  def getStaticInstance(conf: Configuration): CouchbaseDatasource = {
+  def initialize(conf: Configuration): CouchbaseDatasource = {
     sLockInstance.synchronized {
       if (sInstance == null) {
         // It either users clusterNodes or hostname

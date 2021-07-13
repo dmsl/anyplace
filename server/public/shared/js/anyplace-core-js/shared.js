@@ -41,8 +41,6 @@
  *
  */
 
-
-
 // Activate tooltips
 $('document').ready(function(){
     // Hide tooltip on click
@@ -285,6 +283,7 @@ LOG.DBG2 = function() { return 2 <= LOG.level; }
 LOG.DBG3 = function() { return 3 <= LOG.level; }
 LOG.DBG4 = function() { return 4 <= LOG.level; }
 
+LOG.F = function(msg) { alert(msg); window.stop(); }
 LOG.D1 = function(msg) { if (LOG.DBG1()) console.log(msg);}
 LOG.D2 = function(msg) { if (LOG.DBG2()) console.log(msg);}
 LOG.D3 = function(msg) { if (LOG.DBG3()) console.log(msg);}

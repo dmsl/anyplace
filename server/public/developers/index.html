@@ -34,19 +34,11 @@
 <a href="https://dmsl.cs.ucy.ac.cy">DMSL Copyright 2021</a><br>
 <script>
     window.onload = function () {
-        $.getJSON("blds", function (result) {
-            buildingDetails = JSON.parse(JSON.stringify(result));
+        $.getJSON("/api/version", function (result) {
+            version = JSON.parse(JSON.stringify(result));
             var bname;
-            //console.log(buildingDetails.buildingNames);
-
-            for (var i = 0; i < buildingDetails.buildingNames.length; i++) {
-                //console.log(buildingDetails.buildingNames[i].name);
-                bname = buildingDetails.buildingNames[i].name;
-                var bldLat = buildingDetails.buildingNames[i].bldLatitude;
-                var bldLng = buildingDetails.buildingNames[i].bldLongitude;
-                console.log(bname);
-                console.log([bldLat, bldLng]);
-            }
+            console.log("VERSION");
+            console.log(version);
         });
         // Begin Swagger UI call region
         var ui = SwaggerUIBundle({

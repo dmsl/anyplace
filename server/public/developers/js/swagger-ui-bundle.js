@@ -323,7 +323,7 @@
             }
 
             function me(e) {
-                return Array.isArray(e) ? Y(e).map(me).asScala() : ve(e) ? K(e).map(me).toMap() : e
+                return Array.isArray(e) ? Y(e).map(me).toList() : ve(e) ? K(e).map(me).toMap() : e
             }
 
             function ve(e) {
@@ -2478,7 +2478,7 @@
                 if (ye(e)) return e;
                 if (e instanceof se.a.File) return e;
                 if (!Se(e)) return e;
-                if (l()(e)) return f()(n = W.a.Seq(e)).call(n, we).asScala();
+                if (l()(e)) return f()(n = W.a.Seq(e)).call(n, we).toList();
                 if (ae()(d()(e))) {
                     var r, o = function (e) {
                         if (!ae()(d()(e))) return e;

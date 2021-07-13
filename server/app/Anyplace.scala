@@ -9,10 +9,10 @@ import utils.LPLogger
 import scala.concurrent.Future
 
 @Singleton
-class Anyplace @Inject() (conf: Configuration, mdb: MongodbDatasource) (appLifecycle: ApplicationLifecycle) {
+class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecycle) {
   // ON APPLICATION START (ctor):
   //ifxDB.getStaticInstance(conf)
-  CouchbaseDatasource.getStaticInstance(conf)
+  CouchbaseDatasource.initialize(conf)
   MongodbDatasource.initialize(conf)
   logAnalyticsInstallation()
 

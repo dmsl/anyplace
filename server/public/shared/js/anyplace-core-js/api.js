@@ -150,6 +150,9 @@ AnyplaceAPI.Navigation.POIS_ROUTE = AnyplaceAPI.BASE_URL + AnyplaceAPI.Navigatio
 
 AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL = "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8";
 
+if (app == undefined) {
+    LOG.F("api.js must be loaded after app.js in GruntFile)")
+}
 
 app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
 

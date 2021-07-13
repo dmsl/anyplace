@@ -72,8 +72,8 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   def getIDatasource: IDatasource = getInstance()
 
-  private def initCouchbase() : Unit = {
-    this.mCouchbase = CouchbaseDatasource.getStaticInstance(conf)
+  private def initCouchbase(): Unit = {
+    this.mCouchbase = CouchbaseDatasource.initialize(conf)
   }
 
   private def initMongodb(): Unit = {

@@ -39,7 +39,6 @@ import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AbstractController, ControllerComponents}
-import utils.AnyResponseHelper
 
 @Singleton
 class ApplicationAnyplace @Inject()(cc: ControllerComponents,
@@ -55,6 +54,7 @@ class ApplicationAnyplace @Inject()(cc: ControllerComponents,
     val address = conf.get[String]("server.address")
     val port = conf.get[String]("server.port")
 
+
     var variant=""
     if (address.contains("dev")) {
       variant = "beta"
@@ -65,6 +65,7 @@ class ApplicationAnyplace @Inject()(cc: ControllerComponents,
 
     val res: JsValue = Json.obj(
       "version" -> version,
+      "address" -> address,
       "port"-> port,
       "variant" -> variant)
 

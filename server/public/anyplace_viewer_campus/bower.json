@@ -30,7 +30,7 @@
     "fontawesome": "~4.3.0",
     "jqueryui-touch-punch": "*",
     "select2": "~3.5.2",
-    "angular-aria": "1.7.2",
+    "angular-aria": "1.5.8",
     "angular-animate": "1.7.2",
     "angular-material": "^1.1.4"
   },

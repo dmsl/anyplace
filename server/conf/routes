@@ -148,7 +148,7 @@ GET         /architect                                                          
 
 # VIEWER:
 GET /viewer/index.html                                                              controllers.WebAppController.serveViewer(file="index.html")
-#GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
+GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
 GET /viewer/                                                                        controllers.WebAppController.serveViewer(file="index.html")
 GET /viewer                                                                         controllers.WebAppController.AddTrailingSlash()
 

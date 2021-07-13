@@ -1,8 +1,8 @@
 // TODO:PM
 //import com.typesafe.config._
 //val conf = ConfigFactory.parseFile(new File("conf/reference.conf")).resolve()
-//name :=  conf.getString("application.name")
-//version := conf.getString("application.version")
+//name :=  conf.get[String]("application.name")
+//version := conf.get[String]("application.version")
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
