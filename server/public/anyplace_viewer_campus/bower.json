@@ -1,6 +1,6 @@
 {
   "name": "AnyplaceViewer",
-  "version": "3.2.0",
+  "version": "4.2.0",
   "homepage": "http://anyplace.cs.ucy.ac.cy/viewer/",
   "authors": [
     "Costantinos Costa",
@@ -30,8 +30,8 @@
     "fontawesome": "~4.3.0",
     "jqueryui-touch-punch": "*",
     "select2": "~3.5.2",
-    "angular-aria": "1.5.8",
-    "angular-animate": "1.5.8",
+    "angular-aria": "1.7.2",
+    "angular-animate": "1.7.2",
     "angular-material": "^1.1.4"
   },
   "resolutions": {

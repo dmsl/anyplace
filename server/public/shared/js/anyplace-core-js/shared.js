@@ -269,6 +269,15 @@ function isNullOrEmpty(value){
     return (value == null || value == undefined || value == "" || value == "-");
 }
 
+function getPrettyVersion(version) {
+   var s = version.version;
+   if(version.variant != null && version.variant !== "") {
+       s +="-"+version.variant;
+   }
+   return s;
+}
+
+
 var LOG = {};
 LOG.level = 3;
 LOG.DBG1 = function() { return 1 <= LOG.level; }

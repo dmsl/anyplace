@@ -8,7 +8,8 @@ module.exports = function (grunt) {
       js: {
         src: [
           'app.js',
-          '../js/anyplace-core-js/*.js', // Anyplace JS lib
+          '../shared/js/*.js',
+          '../shared/js/anyplace-core-js/*.js',
           'scripts/*.js',
           'controllers/*.js'
         ],
@@ -16,8 +17,8 @@ module.exports = function (grunt) {
       },
       css: {
         src: [
+          '../shared/css/*.css',
           'style/*.css',
-          '../style/*.css',
         ],
         dest: 'build/css/anyplace.css'
       }
@@ -50,34 +51,37 @@ module.exports = function (grunt) {
           src: ['**/*.{png,jpg,gif,svg}'],
           dest: 'build/images/'
         },
-          // shared images folder
-          {
+          { // shared images folder
             expand: true,
-            cwd: '../images/',
+            cwd: '../shared/images/',
             src: ['**/*.{png,jpg,gif,svg}'],
             dest: 'build/images/'
           }
         ]
       }
     },
-
     watch: {
       js: {
-        files: ['app.js', '../js/shared.js', 'scripts/*.js', 'controllers/*.js'],
+        files: [
+          'app.js',
+          '../shared/js/*.js',
+          '../shared/js/anyplace-core-js/*.js',
+          'scripts/*.js',
+          'controllers/*.js'],
         tasks: ['concat:js', 'uglify'],
         options: {
           spawn: false
         }
       },
       css: {
-        files: ['style/*.css', '../style/*.css'],
+        files: ['style/*.css', '../shared/css/*.css'],
         tasks: ['concat:css', 'cssmin'],
         options: {
           spawn: false
         }
       },
       images: {
-        files: ['../images/*'],
+        files: ['../shared/images/*'],
         tasks: ['imagemin'],
         options: {
           spawn: false

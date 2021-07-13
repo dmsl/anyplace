@@ -11,9 +11,9 @@
 # /user/login/google (move from AnyplaceMapping to: AnyplaceAccounts (AnypalceAccounts->Accounts)
 POST        /anyplace/mapping/accounts/sign                                        controllers.AnyplaceMapping.addAccount()
 
-POST        /user/register                                                         controllers.AnyplaceAccounts.register()
-POST        /user/login                                                            controllers.AnyplaceAccounts.login()
-#POST         /user/logout                                                                    controllers.AnyplaceAccounts.logout()
+POST        /user/register                                                         controllers.UserController.register()
+POST        /user/login                                                            controllers.UserController.login()
+#POST         /user/logout                                                         controllers.UserController.logout()
 # ADMIN
 POST        /user/admin/accounts_all                                                controllers.Admin.fetchAllAccounts()
 POST        /user/admin/migration/run                                               controllers.Admin.migrateToMongoDB()
@@ -138,24 +138,24 @@ POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles     
 ## WEB APPS:
 # DEVELOPERS:
 GET         /developers/*file                                                       controllers.Assets.at(path="/public/developers", file)
-GET         /developers/                                                            controllers.AnyplaceWebApps.serveDevelopers(file="index.html")
-GET         /developers                                                             controllers.AnyplaceWebApps.AddTrailingSlash()
+GET         /developers/                                                            controllers.WebAppController.serveDevelopers(file="index.html")
+GET         /developers                                                             controllers.WebAppController.AddTrailingSlash()
 
 # ARCHITECT:
 GET         /architect/*file                                                        controllers.Assets.at(path="/public/anyplace_architect", file)
-GET         /architect/                                                             controllers.AnyplaceWebApps.serveArchitect(file="index.html")
-GET         /architect                                                              controllers.AnyplaceWebApps.AddTrailingSlash()
+GET         /architect/                                                             controllers.WebAppController.serveArchitect(file="index.html")
+GET         /architect                                                              controllers.WebAppController.AddTrailingSlash()
 
 # VIEWER:
-GET /viewer/index.html                                                              controllers.AnyplaceWebApps.serveViewer(file="index.html")
+GET /viewer/index.html                                                              controllers.WebAppController.serveViewer(file="index.html")
 #GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
-GET /viewer/                                                                        controllers.AnyplaceWebApps.serveViewer(file="index.html")
-GET /viewer                                                                         controllers.AnyplaceWebApps.AddTrailingSlash()
+GET /viewer/                                                                        controllers.WebAppController.serveViewer(file="index.html")
+GET /viewer                                                                         controllers.WebAppController.AddTrailingSlash()
 
 # NEW ANGULAR WEB APP (Login, register) :
 #GET         /new2/*file                                                             controllers.Assets.at(path="/public/new2", file)
-#GET         /new2/                                                                  controllers.AnyplaceWebApps.serveArchitect2(file="index.html")
-#GET         /new2                                                                   controllers.AnyplaceWebApps.AddTrailingSlash()
+#GET         /new2/                                                                  controllers.WebAppController.serveArchitect2(file="index.html")
+#GET         /new2                                                                   controllers.WebAppController.AddTrailingSlash()
 
 ## BLUEPRINTS
 POST        /anyplace/floortiles/:buid/:floor_number                                controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
@@ -183,8 +183,8 @@ GET /*any                                                                       
 ### CHECK:NN IF USED ###
 #####################
 # ADMIN WEBSITE CHECK:NN /admin ... else: delete and report to PM
-#GET         /admin/*file                                                            controllers.AnyplaceWebApps.serveAdmin(file: String)
-#GET         /admin                                                                  controllers.AnyplaceWebApps.AddTrailingSlash()
+#GET         /admin/*file                                                            controllers.WebAppController.serveAdmin(file: String)
+#GET         /admin                                                                  controllers.WebAppController.AddTrailingSlash()
 
 
 #####################################################################################################

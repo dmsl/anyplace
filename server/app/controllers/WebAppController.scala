@@ -54,6 +54,7 @@ class AnyplaceWebApps @Inject()(cc: ControllerComponents,
     serveFile(archiDir, file)
   }
 
+  // CLR:PM
   //def servePortal(file: String) = Action {
   //  val viewerDir = "web_apps/anyplace_portal"
   //  serveFile(viewerDir, file)
