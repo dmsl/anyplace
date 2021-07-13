@@ -47,55 +47,10 @@ import play.api.mvc._
 import utils.{AnyResponseHelper, JsonUtils, LPLogger}
 
 @Singleton
-class AnyplaceAccounts @Inject()(cc: ControllerComponents, pds: ProxyDataSource, conf: Configuration) extends AbstractController(cc) {
-
-  /**
-   * Fetches the account with the AUID passed in.
-   * The account document is returned in the Json response.
-   *
-   * @return
-   */
-  //def fetchAccount(auid_in: String) = Action {
-  //  implicit request =>
-  //
-  //    def inner(request: Request[AnyContent]): Result = {
-  //      var auid: String = auid_in
-  //      // create the Request and check it
-  //      val anyReq: OAuth2Request = new OAuth2Request(request)
-  //      if (!anyReq.assertJsonBody()) {
-  //        return AnyResponseHelper.bad_request(
-  //          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-  //      }
-  //      val json = anyReq.getJsonBody()
-  //      LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
-  //      // check if there is any required parameter missing
-  //      val notFound: java.util.List[String] =
-  //        JsonUtils.hasProperties(json, "auid")
-  //      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-  //        return AnyResponseHelper.requiredFieldsMissing(notFound)
-  //      }
-  //      // if the auid in the route is empty then try to get the one from the POST json body
-  //      if (auid == null || auid.trim().isEmpty)
-  //        auid = json.\\("auid").mkString
-  //      try {
-  //        var storedAccount: JsonObject = null
-  //        storedAccount =
-  //          toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
-  //        if (storedAccount ==  null) {
-  //          return AnyResponseHelper.bad_request("Account could not be found!")
-  //        }
-  //        return AnyResponseHelper.ok(storedAccount,
-  //          "Successfully created account!")
-  //      } catch {
-  //        case e: DatasourceException =>
-  //          return AnyResponseHelper.internal_server_error(
-  //            "500: " + e.getMessage)
-  //
-  //      }
-  //    }
-  //
-  //    inner(request)
-  //}
+class UserController @Inject()(cc: ControllerComponents,
+                                pds: ProxyDataSource,
+                                conf: Configuration)
+  extends AbstractController(cc) {
 
   /**
    * Deletes the account with the AUID passed in.
@@ -115,7 +70,7 @@ class AnyplaceAccounts @Inject()(cc: ControllerComponents, pds: ProxyDataSource,
             AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
+        LPLogger.info("UserController:deleteAccount: " + json.toString)
         // check if there is any required parameter missing
         val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
@@ -218,7 +173,6 @@ class AnyplaceAccounts @Inject()(cc: ControllerComponents, pds: ProxyDataSource,
   // */
   //def fetchAccountClients(auid: String)(auid_in: String) = Action {
   //  implicit request =>
-  //
   //    def inner(request: Request[AnyContent]): Result = {
   //      var auid: String = auid_in
   //      // create the Request and check it
@@ -486,7 +440,56 @@ class AnyplaceAccounts @Inject()(cc: ControllerComponents, pds: ProxyDataSource,
         val res: JsValue = Json.obj("newUser" -> newUser)
         return AnyResponseHelper.ok(res,"Succefully registered!")
       }
-
       inner(request)
   }
+
+  // CLR:PM
+  /**
+   * Fetches the account with the AUID passed in.
+   * The account document is returned in the Json response.
+   *
+   * @return
+   */
+  //def fetchAccount(auid_in: String) = Action {
+  //  implicit request =>
+  //
+  //    def inner(request: Request[AnyContent]): Result = {
+  //      var auid: String = auid_in
+  //      // create the Request and check it
+  //      val anyReq: OAuth2Request = new OAuth2Request(request)
+  //      if (!anyReq.assertJsonBody()) {
+  //        return AnyResponseHelper.bad_request(
+  //          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+  //      }
+  //      val json = anyReq.getJsonBody()
+  //      LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
+  //      // check if there is any required parameter missing
+  //      val notFound: java.util.List[String] =
+  //        JsonUtils.hasProperties(json, "auid")
+  //      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+  //        return AnyResponseHelper.requiredFieldsMissing(notFound)
+  //      }
+  //      // if the auid in the route is empty then try to get the one from the POST json body
+  //      if (auid == null || auid.trim().isEmpty)
+  //        auid = json.\\("auid").mkString
+  //      try {
+  //        var storedAccount: JsonObject = null
+  //        storedAccount =
+  //          toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
+  //        if (storedAccount ==  null) {
+  //          return AnyResponseHelper.bad_request("Account could not be found!")
+  //        }
+  //        return AnyResponseHelper.ok(storedAccount,
+  //          "Successfully created account!")
+  //      } catch {
+  //        case e: DatasourceException =>
+  //          return AnyResponseHelper.internal_server_error(
+  //            "500: " + e.getMessage)
+  //
+  //      }
+  //    }
+  //
+  //    inner(request)
+  //}
+
 }

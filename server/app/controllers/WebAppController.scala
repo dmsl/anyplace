@@ -42,8 +42,8 @@ import play.api.mvc.{AbstractController, ControllerComponents, Result}
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class AnyplaceWebApps @Inject()(cc: ControllerComponents,
-                                env: Environment) extends AbstractController(cc) {
+class WebAppController @Inject()(cc: ControllerComponents,
+                                 env: Environment) extends AbstractController(cc) {
 
   def AddTrailingSlash() = Action { implicit request =>
     MovedPermanently(request.path + "/")

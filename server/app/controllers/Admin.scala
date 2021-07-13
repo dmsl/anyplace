@@ -1,6 +1,5 @@
 package controllers
 
-//import controllers.AnyplaceMapping.appendGoogleIdIfNeeded
 import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
@@ -9,6 +8,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import utils.LPUtils.appendGoogleIdIfNeeded
 import utils.{AnyResponseHelper, LPLogger}
+
 @Singleton
 class Admin @Inject()(cc: ControllerComponents,
                       mdb: MongodbDatasource,
@@ -46,9 +46,8 @@ class Admin @Inject()(cc: ControllerComponents,
    */
   def fetchAllAccounts() = Action {
     implicit request =>
-
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.info("AnyplaceAccounts::fetchAllAccounts(): ")
+        LPLogger.info("fetchAllAccounts(): ")
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()

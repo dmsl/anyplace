@@ -37,7 +37,9 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AbstractController, ControllerComponents}
+import utils.AnyResponseHelper
 
 @Singleton
 class ApplicationAnyplace @Inject()(cc: ControllerComponents,
@@ -49,18 +51,33 @@ class ApplicationAnyplace @Inject()(cc: ControllerComponents,
   }
 
   def Version= Action {
-    // TODO object
-    //val port = Integer.parseInt(Play.application().configuration.getProperty("http.port", 9000))
-    // get host (e.g. ap-dev.cs.ucy.ac.cy)
-    // if host == ap-dev.... hardcoded, tote { variant= beta.
-    // get port (port number)..
-    // if port: != 443 or 80: { variant = alpha }
-    // }
-    // object: {version, variant, host, port}
     val version = conf.get[String]("application.version")
-    Ok(version)
+    val address = conf.get[String]("server.address")
+    val port = conf.get[String]("server.port")
+
+    var variant=""
+    if (address.contains("dev")) {
+      variant = "beta"
+      if (port != "443" || port != "80") variant = "alpha"
+    } else if (address.contains("localhost")) {
+      variant = "local"
+    }
+
+    val res: JsValue = Json.obj(
+      "version" -> version,
+      "port"-> port,
+      "variant" -> variant)
+
+//    return AnyResponseHelper.ok(res) CLR:PM
+    Ok(res)
   }
 
+  def indexAny() = index()
+
+  def indexAny(any: String) = index()
+    //Redirect(routes.Assets.at("/public/anyplace_viewer", "index.html"))
+
+  // CHECK:PM CHECK:NN ??
   //  def Architect = Action {
   //    Ok(views.html.architect())
   //  }
@@ -72,13 +89,7 @@ class ApplicationAnyplace @Inject()(cc: ControllerComponents,
   //    def ViewerCampus(any: String) = Action {
   //    Ok(views.html.viewer_campus())
   //  }
-
-  def indexAny() = index()
-
-  def indexAny(any: String) = index()
-    //Redirect(routes.Assets.at("/public/anyplace_viewer", "index.html"))
-
-
+  // CLR:PM
   ///**
   //  * AUTHORIZATION SESSION
   //  */

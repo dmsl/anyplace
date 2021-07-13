@@ -1,8 +1,14 @@
+// TODO:PM
+//import com.typesafe.config._
+//val conf = ConfigFactory.parseFile(new File("conf/reference.conf")).resolve()
+//name :=  conf.getString("application.name")
+//version := conf.getString("application.version")
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
   .settings(
     name := """Anyplace""",
-    version := "4.2.0",
+    version := "4.2.1",
     scalaVersion := "2.13.6",
     libraryDependencies ++= Seq(
       guice,
@@ -20,11 +26,6 @@ lazy val root = (project in file("."))
     )
   )
 
-
-// TODO:PM
-//import com.typesafe.config._
-//val conf = ConfigFactory.parseFile(new File("conf/application.conf")).resolve()
-//version := conf.getString("app.version")
 
 
 

@@ -124,9 +124,9 @@ object AnyResponseHelper {
     }
 
     // #####################################################
-    // TODO: DEPRECATE (couchbase)
+    // TODO:PM DEPRECATE (couchbase)
 
-    def ok(json: JsonObject, msg: String): Result = {
+    def ok(json: JsonObject, msg: String=""): Result = {
         createResultResponse(Response.OK, json, msg)
     }
 
