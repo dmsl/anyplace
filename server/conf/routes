@@ -22,7 +22,6 @@ POST        /user/admin/migration/run                                           
 #GET         /login                                                                  controllers.ApplicationAnyplace.login()
 #GET         /logout                                                                 controllers.ApplicationAnyplace.logout()
 #POST        /authenticate                                                           controllers.ApplicationAnyplace.authenticate()
-
 #POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
 ################

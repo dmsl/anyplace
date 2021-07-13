@@ -20,7 +20,15 @@ lazy val root = (project in file("."))
     )
   )
 
-//
+
+// TODO:PM
+//import com.typesafe.config._
+//val conf = ConfigFactory.parseFile(new File("conf/application.conf")).resolve()
+//version := conf.getString("app.version")
+
+
+
+// CLR:PM OLD CONFIGURATION
 //import com.typesafe.sbt.packager.MappingsHelper._
 //mappings in Universal ++= directory(baseDirectory.value / "floor_plans")
 
@@ -37,22 +45,22 @@ lazy val root = (project in file("."))
 
 // TODO ACCES: all these should be updated to 1.0 version, once bayes-scala-gp is replaced.
 //libraryDependencies ++= Seq(
-  // Add here the specific dependencies for this module:
-  //filters,
-  //guice,
-    // TODO ACCESS: with % (single percentage) and by appending _VERSION to lib-name,
-    //  we force it to use an earlier version
-    // The should instead become:
-    // "package" %% "lib-name" % "1.0", e.g.:
-    // (adding another % between package and lib-name concatenation, and removing _VERSOIN suffix from libname)
+// Add here the specific dependencies for this module:
+//filters,
+//guice,
+// TODO ACCESS: with % (single percentage) and by appending _VERSION to lib-name,
+//  we force it to use an earlier version
+// The should instead become:
+// "package" %% "lib-name" % "1.0", e.g.:
+// (adding another % between package and lib-name concatenation, and removing _VERSOIN suffix from libname)
 
 
-     //"org.scalanlp" %% "breeze" % "1.0", CHECK:PM
-  //"org.scalanlp" % "breeze_2.11" % "0.12",
-  //"org.scalanlp" % "breeze-natives_2.11" % "0.12",
-  //"org.scalanlp" % "breeze-viz_2.11" % "0.12",
-  //"org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
-  //"javax.inject" % "javax.inject" % "1"
+//"org.scalanlp" %% "breeze" % "1.0", CHECK:PM
+//"org.scalanlp" % "breeze_2.11" % "0.12",
+//"org.scalanlp" % "breeze-natives_2.11" % "0.12",
+//"org.scalanlp" % "breeze-viz_2.11" % "0.12",
+//"org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
+//"javax.inject" % "javax.inject" % "1"
 //)
 
 // Play json
