@@ -67,11 +67,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
-                var prettyVersion=data.version;
-                if(data.variant !== "") {
-                    data+="-"+data.variant;
-                }
-                console.log("VERSION:: " + data);
+                var prettyVersion=getPrettyVersion(data);
+                console.log("VERSION:: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
                 element.textContent = "v"+prettyVersion;
             },

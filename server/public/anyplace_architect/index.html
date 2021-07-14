@@ -1094,10 +1094,10 @@
 
                                 <ul class="nav nav-pills" role="tablist">
                                     <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
-                                        <a href="" ng-click="setCrudTabSelected(1)" id="FPs">FingerPrints</a>
+                                        <a href="" ng-click="setCrudTabSelected(1)" id="FPs">Fingerprints</a>
                                     </li>
                                     <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
-                                        <a href="" ng-click="setCrudTabSelected(2)" id="HMs">Wi-Fi Coverage</a>
+                                        <a href="" ng-click="setCrudTabSelected(2)" id="HMs">Coverage</a>
                                     </li>
                                     <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
                                         <a href="" ng-click="setCrudTabSelected(3)" id="LAs">Accuracy</a>
@@ -1197,7 +1197,7 @@
                                     </div>
                                     <div style="margin: 10px; font-weight: bold">
                                         <button id="LAButton" class="btn btn-success"
-                                                ng-click="toggleLocalizationAccuracy()">
+                                                ng-click="toggleLocalizationAccuracy()" disabled>
                                             {{getLocalizationAccuracyText()}}
                                             <!--                                    <i id="LAButtonProgres" class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>-->
 
@@ -1207,7 +1207,7 @@
                                             </div>
 
                                         </button>
-                                        <button id="LAButton1" class="btn btn-success" ng-click="deleteRadiomaps()">
+                                        <button id="LAButton1" class="btn btn-success" ng-click="deleteRadiomaps()" disabled>
                                             Delete Radiomap
                                         </button>
                                     </div>
@@ -1401,7 +1401,7 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Wi-Fi Coverage</h3>
+                <h3 class="modal-title">Coverage</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
