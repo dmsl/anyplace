@@ -48,7 +48,9 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         name: undefined,
         email: undefined,
         username: undefined,
-        password: undefined
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
     }
 
     $scope.myBuildings = [];
@@ -65,9 +67,13 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
-                // console.log("VERSION: " + data);
+                var prettyVersion=data.version;
+                if(data.variant !== "") {
+                    data+="-"+data.variant;
+                }
+                console.log("VERSION:: " + data);
                 var element = document.getElementById("anyplace-version");
-                element.textContent = "v"+data;
+                element.textContent = "v"+prettyVersion;
             },
             function (resp) { console.log("Failed to get version: " + resp.data); }
         );
@@ -236,13 +242,9 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
         var promise = $scope.anyAPI.allCucodeCampus(jsonReq);
         promise.then(
-            function (resp) {
-                // on success
+            function (resp) { // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
                 $scope.myBuildings = data.spaces;
@@ -251,41 +253,32 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                     content: '-',
                     maxWidth: 500
                 });
-
                 var localStoredBuildingIndex = -1;
                 var localStoredBuildingId = undefined;
-
                 try {
                     if (typeof(Storage) !== "undefined" && localStorage && localStorage.getItem('lastBuilding')) {
                         localStoredBuildingId = localStorage.getItem('lastBuilding');
                     }
                 } catch (e) {
-
                 }
-
                 var loadBuidFromUrl = -1;
-
                 for (var i = 0; i < $scope.myBuildings.length; i++) {
                     var b = $scope.myBuildings[i];
                     if (i==0){
                         $scope.gmapService.gmap.panTo(_latLngFromBuilding(b));
                         $scope.gmapService.gmap.setZoom(13);
                     }
-
                     if (localStoredBuildingId && localStoredBuildingId === b.buid) {
                         localStoredBuildingIndex = i;
                     }
-
                     if (b.is_published === 'true' || b.is_published == true) {
                         b.is_published = true;
                     } else {
                         b.is_published = false;
                     }
-
                     if ($scope.urlBuid && $scope.urlBuid == b.buid) {
                         loadBuidFromUrl = i;
                     }
-
                     // var s = new google.maps.Size(55, 80);
                     // if ($scope.isFirefox)
                     //     s = new google.maps.Size(110, 160);

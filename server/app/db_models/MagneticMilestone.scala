@@ -46,7 +46,7 @@ class MagneticMilestone(hm: HashMap[String, String]) extends AbstractModel {
 
     this.fields = hm
 
-    def this() {
+    def this() = {
         this(new HashMap[String, String])
         fields.put("buid", "")
         fields.put("floor_num", "")
@@ -64,7 +64,7 @@ class MagneticMilestone(hm: HashMap[String, String]) extends AbstractModel {
         fields.put("doctype", "magnetic_milestone")
     }
 
-    def this(json: JsonObject) {
+    def this(json: JsonObject) = {
         this()
         fields.put("buid", json.getString("buid"))
         fields.put("floor_num", json.getString("floor_num"))
@@ -86,7 +86,7 @@ class MagneticMilestone(hm: HashMap[String, String]) extends AbstractModel {
     def this(json: JsonObject,
              buid: String,
              floor_num: String,
-             mpuid: String) {
+             mpuid: String) = {
         this()
         fields.put("buid", buid)
         fields.put("floor_num", floor_num)
@@ -107,7 +107,7 @@ class MagneticMilestone(hm: HashMap[String, String]) extends AbstractModel {
     def getId(): String = {
         var id: String = fields.get("mmuid")
         if (id.isEmpty || id== "") {
-            id = "mmilestone_" + LPUtils.getRandomUUID + "_" + System.currentTimeMillis()
+            id = "mmilestone_" + LPUtils.getRandomUUID() + "_" + System.currentTimeMillis()
         }
         id
     }

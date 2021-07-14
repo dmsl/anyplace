@@ -105,9 +105,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     }
 
     $scope.fetchAllPoi = function (letters , buid) {
-
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters , "greeklish":$scope.greeklish};
-        LOG.D2(jsonReq);
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",
+            "access-control-allow-credentials": "true",    "content-length": "17516",
+            "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters , "greeklish":$scope.greeklish};
+        if (jsonReq.greeklish == null) jsonReq.greeklish = "true";
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {

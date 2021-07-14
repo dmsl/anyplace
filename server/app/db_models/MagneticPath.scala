@@ -46,7 +46,7 @@ class MagneticPath(hm: HashMap[String, String]) extends AbstractModel {
 
     this.fields = hm
 
-    def this() {
+    def this() = {
         this(new HashMap[String, String])
         fields.put("lat_a", "")
         fields.put("lng_a", "")
@@ -58,7 +58,7 @@ class MagneticPath(hm: HashMap[String, String]) extends AbstractModel {
         fields.put("doctype", "magnetic_path")
     }
 
-    def this(json: JsonObject) {
+    def this(json: JsonObject) = {
         this()
         fields.put("lat_a", json.getString("lat_a"))
         fields.put("lng_a", json.getString("lng_a"))
@@ -74,14 +74,14 @@ class MagneticPath(hm: HashMap[String, String]) extends AbstractModel {
     def getId(): String = {
         var id: String  = fields.get("mpuid")
         if (id.isEmpty || id == "") {
-            id = "mpath_" + LPUtils.getRandomUUID + "_" + System.currentTimeMillis()
+            id = "mpath_" + LPUtils.getRandomUUID() + "_" + System.currentTimeMillis()
         }
         id
     }
 
     def toValidJson(): JsonObject = {
         // initialize id if not initialized
-        getId
+        getId()
         JsonObject.from(this.getFields())
     }
 

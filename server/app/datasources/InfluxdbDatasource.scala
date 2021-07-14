@@ -39,9 +39,8 @@ import java.io.IOException
 
 import db_models._
 import io.razem.influxdbclient._
-import play.Play
 import utils.{GeoPoint, LPLogger}
-
+import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -50,18 +49,18 @@ object InfluxdbDatasource {
 	private var sInstance: InfluxdbDatasource = _
 	private var sLockInstance: AnyRef = new AnyRef()
 
-	def getStaticInstance: InfluxdbDatasource = {
-		sLockInstance.synchronized {
-			if (sInstance == null) {
-				val hostname = Play.application().configuration().getString("influxdb.hostname", "localhost")
-				val port = Play.application().configuration().getString("influxdb.port", "8086")
-				val database = Play.application().configuration().getString("influxdb.database", "anyplace")
-				val precision = Play.application().configuration().getInt("influxdb.precision", 6)
-				sInstance = InfluxdbDatasource.createNewInstance(hostname, port, database, precision)
-			}
-			sInstance
-		}
-	}
+	//def getStaticInstance: InfluxdbDatasource = {
+	//	sLockInstance.synchronized {
+	//		if (sInstance == null) {
+	//			val hostname = Play.application().configuration().getString("influxdb.hostname", "localhost")
+	//			val port = Play.application().configuration().getString("influxdb.port", "8086")
+	//			val database = Play.application().configuration().getString("influxdb.database", "anyplace")
+	//			val precision = Play.application().configuration().getInt("influxdb.precision", 6)
+	//			sInstance = InfluxdbDatasource.createNewInstance(hostname, port, database, precision)
+	//		}
+	//		sInstance
+	//	}
+	//}
 
 	def createNewInstance(
 			hostname_in: String,
@@ -153,7 +152,8 @@ class InfluxdbDatasource(host: String, port: Short, database: String, precision:
 	}
 
 	def recordToDevicePoint(record: Record): DevicePoint = new DevicePoint(
-		record("deviceID") toString, record("latitude") toString, record("longitude") toString, record(SCHEMA.fTimestamp) toString, record("time") toString
+		record.apply("deviceID").toString(), record.apply("latitude").toString(), record.apply("longitude").toString(),
+		record.apply(SCHEMA.fTimestamp).toString(), record.apply("time").toString()
 	)
 
 	def flattenResults(list: List[QueryResult]): List[DevicePoint] = {

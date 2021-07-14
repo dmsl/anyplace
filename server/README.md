@@ -1,11 +1,11 @@
-# Anyplace v4.x Installation Notes
+# Installation:
 This is a latest version of the Anyplace backend, which has been ported to tha scala language and
 that also supports all the latest versions of its underlying software layers
 (i.e., it has been tested with couchbase 4.5 and play framework 2.8). 
 
 In case you want a precompiled release of the latest Anyplace, please check the docker folder (anyplace/docker)
 
-# Anyplace v4.x for administrators
+# For administrators
 
 ## Setup/Configuration
 

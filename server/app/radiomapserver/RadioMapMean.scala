@@ -41,8 +41,9 @@ import java.util.{ArrayList, HashMap}
 import utils.LPLogger
 
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 //remove if not needed
-import scala.collection.JavaConversions._
+// import scala.collection.JavaConversions._
 import scala.util.control.Breaks._
 
 class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNValue: Int) {
@@ -89,14 +90,14 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
           c += 1
           if (line.trim() == "") {
             //continue (break from breakable inside loop)
-            break
+            break()
           }
           line = line.replace(", ", " ")
           temp = line.split(" ")
           if (temp(0).trim() == "#") {
             if (temp(1).trim() == "NaN") {
               //continue (break from breakable inside loop)
-              break
+              break()
             }
             if (temp.length < 5) {
               return false
@@ -111,7 +112,7 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
               this.MacAdressList.add(temp(i))
             }
             //continue (break from breakable inside loop)
-            break
+            break()
           }
           key = temp(0) + " " + temp(1)
           group = java.lang.Integer.parseInt(temp(2))
@@ -132,7 +133,7 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
             this.LocationRSS_HashMap.put(key, RSS_Values)
             this.GroupLocationRSS_HashMap.put(group, LocationRSS_HashMap)
             //continue (break from breakable inside loop)
-            break
+            break()
           }
           this.LocationRSS_HashMap.put(key, RSS_Values)
         }
@@ -159,7 +160,7 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
       str += MacAdressList.get(i) + " "
     }
     str += "\nLocations\n"
-    for (location <- LocationRSS_HashMap.keySet) {
+    for (location <- LocationRSS_HashMap.keySet.asScala) {
       str += location + " "
       temp = LocationRSS_HashMap.get(location)
       for (i <- 0 until temp.size) {

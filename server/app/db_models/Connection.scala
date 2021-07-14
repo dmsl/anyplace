@@ -43,7 +43,8 @@ import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import utils.JsonUtils.convertToInt
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
+
 
 object Connection {
 
@@ -62,7 +63,7 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
 
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fIsPublished, "")
     fields.put(SCHEMA.fEdgeType, "")
@@ -77,7 +78,7 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fConCuid, "")
   }
 
-  def this(json: JsValue) {
+  def this(json: JsValue) = {
     this()
     if ((json \ SCHEMA.fIsPublished).toOption.isDefined)
       fields.put(SCHEMA.fIsPublished, (json \ SCHEMA.fIsPublished).as[String])

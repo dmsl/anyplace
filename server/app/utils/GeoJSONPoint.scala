@@ -38,7 +38,8 @@ package utils
 import java.util
 
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import play.twirl.api.TemplateMagic.javaCollectionToScala
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class GeoJSONPoint(var lat: Double, var lon: Double) {
 
@@ -46,7 +47,7 @@ class GeoJSONPoint(var lat: Double, var lon: Double) {
         val ja = new util.ArrayList[Double]
         ja.add(this.lat)
         ja.add(this.lon)
-        var jo = Json.obj("coordinates" -> Json.toJson(ja.toList))
+        var jo = Json.obj("coordinates" -> Json.toJson(ja.asScala))
         jo = jo.as[JsObject] + ("type" -> JsString("Point"))
         jo
     }

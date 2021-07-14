@@ -40,11 +40,12 @@ import java.io.IOException
 
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.{MongodbDatasource, SCHEMA}
+import javax.inject.Singleton
 import play.api.libs.json._
 import utils.JsonUtils.convertToInt
 import utils.LPLogger
 
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 
 object ExternalType extends Enumeration {
@@ -52,23 +53,25 @@ object ExternalType extends Enumeration {
   val GOOGLE, LOCAL = Value
 }
 
+@Singleton
 class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
   private var json: JsValue = _
 
   this.fields = hm
 
-  def this() {
+  def this() = {
     this(new java.util.HashMap[String, String]())
     fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
     fields.put(SCHEMA.fOwnerId, "")
     fields.put(SCHEMA.fName, "")
     fields.put(SCHEMA.fType, "")
+    fields.put(SCHEMA.fAccessToken, "")
   }
 
 
   // TODO make it follow new version of User Json
-  def this(json: JsValue) {
+  def this(json: JsValue) = {
     this()
     fields.put(SCHEMA.fSchema, MongodbDatasource.__SCHEMA.toString)
     fields.put(SCHEMA.fOwnerId, (json \ SCHEMA.fOwnerId).as[String])
@@ -76,6 +79,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fType, (json \ SCHEMA.fType).as[String])
     if ((json \ SCHEMA.fExternal).toOption.isDefined)
       fields.put(SCHEMA.fExternal, (json \ SCHEMA.fExternal).as[String])
+    fields.put(SCHEMA.fAccessToken, MongodbDatasource.generateAccessToken(false))
     this.json = json
   }
 

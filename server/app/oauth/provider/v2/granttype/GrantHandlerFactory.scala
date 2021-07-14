@@ -37,8 +37,6 @@ package oauth.provider.v2.granttype
 
 import java.util
 
-import oauth.provider.v2.OAuth2Constant
-
 /**
   * This factory is responsible to return the appropriate handler
   * to process the token request specified by the grant_type.
@@ -64,5 +62,5 @@ object GrantHandlerFactory {
   def isGrantTypeSupported(`type`: String): Boolean = fromGrantType(`type`) != null
 
   sGrantHandlers = new util.HashMap[String, IGrantHandler]
-  sGrantHandlers.put(OAuth2Constant.GRANT_TYPE_PASSWORD, new PasswordHandler)
+  //sGrantHandlers.put(OAuth2Constant.GRANT_TYPE_PASSWORD, new PasswordHandler)
 }

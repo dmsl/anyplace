@@ -1,25 +1,23 @@
-# Deploy a development instance
+# Remote Deploy during develop:
 
-Idea:
-1. code for the backend locally
-2. sync sources to remote, compile them, and view from browser.
+Workflow:
+1. Write code locally
+2. Sync code to remote for compilation, and view the result from the browser
 
-# Run on different port:
-sbt "run 9001"
+See [deploy](./deploy)
 
+## Run on different port:
+`sbt "run 9001"`
 
-# Troubleshooting: 
+## Troubleshooting:
 - `Can't connect to X11 window server using ':0' as the value of the DISPLAY variable.`
 
- Try:
+Try:
 `unset DISPLAY`
 
-
-# keystore
-
+## keystore
 ```
 keytool -genkey -alias MyKey -keyalg RSA -keysize 2048 -keystore keystore.jks
 play -Dhttps.port=9443 -Dhttps.keyStore=keystore.jks -Dhttps.keyStorePassword=password run
 ```
-
 add dummy value to this

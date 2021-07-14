@@ -543,20 +543,14 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                 marker.tpl2 = tpl;
                 marker.model = p;
-
                 marker.infowindow = infowindow;
-
                 $scope.myPoisHashT[p.puid].marker = marker;
                 $scope.anyService.setAllPois($scope.myPoisHashT);
-
                 google.maps.event.addListener(marker, 'click', function () {
-
                     if ($scope.edgeMode) {
                         if ($scope.connectPois.prev) {
-
                             if ($scope.connectPois.prev == this) {
                                 $scope.connectPois.prev = undefined;
-
                                 if (this.model.pois_type === "None") {
                                     this.setIcon(_getConnectorIconNormal());
                                 } else {
@@ -564,14 +558,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 }
                                 return;
                             }
-
                             // No longer the beginning of an edge, make smaller.
                             if ($scope.connectPois.prev.model.pois_type === "None") {
                                 $scope.connectPois.prev.setIcon(_getConnectorIconNormal());
                             } else {
                                 $scope.connectPois.prev.setIcon(_getNormalPoiIconNormal());
                             }
-
                             var flightPath = new google.maps.Polyline({
                                 path: [this.position, $scope.connectPois.prev.position],
                                 geodesic: true,
@@ -579,64 +571,45 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 strokeOpacity: 0.5,
                                 strokeWeight: 4
                             });
-
                             flightPath.setMap(GMapService.gmap);
-
                             // Construct the request
                             var poiA = $scope.connectPois.prev.model;
                             var poiB = this.model;
-
                             if (!poiA || !poiB || !poiA.puid || !poiB.puid || !poiA.buid || !poiB.buid || LPUtils.isNullOrUndefined(poiA.floor_number) || LPUtils.isNullOrUndefined(poiB.floor_number)) {
                                 _err($scope, "One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
                                 return;
                             }
-
                             var jsonReq = {
-
-                                username: $scope.creds.username,
-                                password: $scope.creds.password,
                                 owner_id: $scope.owner_id,
-
                                 pois_a: poiA.puid,
                                 floor_a: poiA.floor_number,
                                 buid_a: poiA.buid,
-
                                 // insert the connection buid ( needed by the Dijkstra algorithm at the moment )
                                 buid: poiA.buid,
-
                                 pois_b: poiB.puid,
                                 floor_b: poiB.floor_number,
                                 buid_b: poiB.buid,
-
                                 is_published: 'true',
                                 edge_type: 'hallway'
                             };
-
                             flightPath.model = jsonReq;
-
-                            // make the request at AnyplaceAPI
-
-                            var promise = $scope.anyAPI.addConnection(jsonReq);
+                            var promise = $scope.anyAPI.addConnection(jsonReq); // make the request at AnyplaceAPI
                             promise.then(
                                 function (resp) {
                                     var data = resp.data;
                                     var cuid = data.cuid;
-
                                     flightPath.model.cuid = cuid;
                                     var cloneModel = flightPath.model;
                                     cloneModel.polyLine = flightPath;
                                     $scope.myConnectionsHashT[cuid] = cloneModel;
                                     $scope.anyService.setAllConnection($scope.myConnectionsHashT);
-
                                     flightPath.setOptions({
                                         strokeColor: '#0000FF',
                                         strokeOpacity: 0.5
                                     });
-
                                     google.maps.event.addListener(flightPath, 'click', function () {
                                         $scope.$apply(_deleteConnection(this));
                                     });
-
                                 },
                                 function (resp) {
                                     ShowError($scope, resp,
@@ -645,13 +618,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                     flightPath.setMap(null);
                                 }
                             );
-
                             $scope.connectPois.prev = undefined;
-
                         } else {
-
                             $scope.connectPois.prev = this;
-
                             // Increase the size of markers to indicate as the start of an edge
                             if (this.model.pois_type === "None") {
                                 this.setIcon(_getConnectorIconBigger());
@@ -659,7 +628,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 this.setIcon(_getNormalPoiIconBigger());
                             }
                         }
-
                     } else {
                         infowindow.setContent(this.tpl2[0]);
                         infowindow.open(GMapService.gmap, this);
@@ -821,8 +789,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.fetchAllPoisForFloor = function (fl) {
-
-        //TODO: validation
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = AnyplaceService.getBuildingId();
         jsonReq.floor_number = AnyplaceService.getFloorNumber();
@@ -831,33 +797,25 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         promise.then(
             function (resp) {
                 var data = resp.data;
-
                 $scope.clearPoisOnMap();
-
                 $scope.myPois = data.pois;
-
                 var sz = $scope.myPois.length;
                 for (var i = sz - 1; i >= 0; i--) {
                     // insert the pois inside the hashtable
                     // TODO clone (?)
                     var puid = $scope.myPois[i].puid;
-
                     if ($scope.myPois[i].is_building_entrance == 'true') {
                         $scope.myPois[i].is_building_entrance = true;
                     } else {
                         $scope.myPois[i].is_building_entrance = false;
                     }
-
                     $scope.myPois[i].pois_type2=$scope.myPois[i].pois_type;
-
                     $scope.myPoisHashT[puid] = {};
                     $scope.myPoisHashT[puid].model = $scope.myPois[i];
                     $scope.anyService.setAllPois($scope.myPoisHashT);
                 }
-
                 // draw the markers
                 $scope.drawPoisOnMap();
-
                 //_suc($scope, "Successfully fetched all POIs.");
             },
             function (resp) {
@@ -873,98 +831,71 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.addPoi = function (id) {
         if ($scope.myMarkers[id] && $scope.myMarkers[id].marker) {
-
             if ($scope.myMarkers[id].model.pois_type2.localeCompare("")!=0){
                 $scope.myMarkers[id].model.pois_type=$scope.myMarkers[id].model.pois_type2;
             }
-
             var poi = $scope.myMarkers[id].model;
-
-            // set owner id
-            poi.owner_id = $scope.owner_id;
-
             poi.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
             poi.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
-
             poi.is_building_entrance = String(poi.is_building_entrance);
-
             if (poi.coordinates_lat === undefined || poi.coordinates_lat === null) {
                 _err($scope, "POI has invalid latitude format");
                 return;
             }
-
             if (poi.coordinates_lon === undefined || poi.coordinates_lon === null) {
                 _err($scope, "POI has invalid longitude format");
                 return;
             }
-
-            if (poi.owner_id && poi.name && poi.buid && poi.pois_type
+            if (poi.name && poi.buid && poi.pois_type
                 && !LPUtils.isNullOrUndefined(poi.is_building_entrance)
                 && !LPUtils.isNullOrUndefined(poi.is_published)
                 && !LPUtils.isNullOrUndefined(poi.is_door)
                 && !LPUtils.isNullOrUndefined(poi.floor_name)
                 && !LPUtils.isNullOrUndefined(poi.floor_number)) {
-
                 if (poi.is_building_entrance == 'true') {
                     poi.is_building_entrance = 'true';
                 } else {
                     poi.is_building_entrance = 'false';
                 }
-
                 var json_req = poi;
-
                 // make the request at AnyplaceAPI
                 var promise = $scope.anyAPI.addPois(json_req);
                 promise.then(
                     function (resp) {
                         var data = resp.data;
-
                         poi.puid = data.puid;
-
                         if (poi.is_building_entrance == 'true') {
                             poi.is_building_entrance = true;
                         } else {
                             poi.is_building_entrance = false;
                         }
-
                         // insert the newly created building inside the loadedBuildings
                         $scope.myPois.push(poi);
                         $scope.anyService.selectedPoi = $scope.myPois[$scope.myPois.length - 1];
-
                         // update the hashtable
-
                         $scope.myPoisHashT[poi.puid] = {
                             model: poi,
                             marker: $scope.myMarkers[id].marker
                         };
                         $scope.anyService.setAllPois($scope.myPoisHashT);
-
                         $scope.myMarkers[id].model = poi;
-
                         if ($scope.myMarkers[id].infowindow) {
                             $scope.myMarkers[id].infowindow.close();
                             $scope.myMarkers[id].infowindow.setContent($scope.myMarkers[id].marker.tpl2[0]);
                         }
-
                         $scope.myMarkers[id].marker.model = poi;
-
                         if ($scope.myMarkers[id].marker.model.pois_type == "None") {
                             $scope.myMarkers[id].marker.setIcon(_getConnectorIconNormal());
                         } else {
                             $scope.myMarkers[id].marker.setIcon(_getNormalPoiIconNormal());
                         }
-
                         google.maps.event.clearListeners($scope.myMarkers[id].marker, 'click');
-
                         var infowindow = $scope.myMarkers[id].infowindow;
-
                         google.maps.event.addListener($scope.myMarkers[id].marker, 'click', function () {
                             if ($scope.edgeMode) {
                                 if ($scope.connectPois.prev) {
-
                                     if ($scope.connectPois.prev == this) {
                                         $scope.connectPois.prev = undefined;
-
                                         if (this.model.pois_type === "None") {
                                             this.setIcon(_getConnectorIconNormal());
                                         } else {
@@ -972,14 +903,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                         }
                                         return;
                                     }
-
                                     // No longer the beginning of an edge, make smaller.
                                     if ($scope.connectPois.prev.model.pois_type === "None") {
                                         $scope.connectPois.prev.setIcon(_getConnectorIconNormal());
                                     } else {
                                         $scope.connectPois.prev.setIcon(_getNormalPoiIconNormal());
                                     }
-
                                     var flightPath = new google.maps.Polyline({
                                         path: [this.position, $scope.connectPois.prev.position],
                                         geodesic: true,
@@ -987,64 +916,45 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                         strokeOpacity: 0.5,
                                         strokeWeight: 4
                                     });
-
                                     flightPath.setMap(GMapService.gmap);
-
                                     // Construct the request
                                     var poiA = $scope.connectPois.prev.model;
                                     var poiB = this.model;
-
                                     if (!poiA || !poiB || !poiA.puid || !poiB.puid || !poiA.buid || !poiB.buid || LPUtils.isNullOrUndefined(poiA.floor_number) || LPUtils.isNullOrUndefined(poiB.floor_number)) {
                                         _err($scope, "One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
                                         return;
                                     }
-
                                     var jsonReq = {
-
-                                        username: $scope.creds.username,
-                                        password: $scope.creds.password,
-                                        owner_id: $scope.owner_id,
-
                                         pois_a: poiA.puid,
                                         floor_a: poiA.floor_number,
                                         buid_a: poiA.buid,
-
                                         // insert the connection buid ( needed by the Dijkstra algorithm at the moment )
                                         buid: poiA.buid,
-
                                         pois_b: poiB.puid,
                                         floor_b: poiB.floor_number,
                                         buid_b: poiB.buid,
-
                                         is_published: 'true',
                                         edge_type: 'hallway'
                                     };
-
                                     flightPath.model = jsonReq;
-
                                     // make the request at AnyplaceAPI
-
                                     var promise = $scope.anyAPI.addConnection(jsonReq);
                                     promise.then(
                                         function (resp) {
                                             var data = resp.data;
                                             var cuid = data.cuid;
-
                                             flightPath.model.cuid = cuid;
                                             var cloneModel = flightPath.model;
                                             cloneModel.polyLine = flightPath;
                                             $scope.myConnectionsHashT[cuid] = cloneModel;
                                             $scope.anyService.setAllConnection($scope.myConnectionsHashT);
-
                                             flightPath.setOptions({
                                                 strokeColor: '#0000FF',
                                                 strokeOpacity: 0.5
                                             });
-
                                             google.maps.event.addListener(flightPath, 'click', function () {
                                                 $scope.$apply(_deleteConnection(this));
                                             });
-
                                         },
                                         function (resp) {
                                             ShowError($scope, resp,
@@ -1052,11 +962,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                             flightPath.setMap(null);
                                         }
                                     );
-
                                     $scope.connectPois.prev = undefined;
                                 } else {
                                     $scope.connectPois.prev = this;
-
                                     // Increase the size of markers to indicate as the start of an edge
                                     if (this.model.pois_type === "None") {
                                         this.setIcon(_getConnectorIconBigger());
@@ -1075,16 +983,13 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 })
                             }
                         });
-
                         google.maps.event.addListener($scope.myMarkers[id].marker, "dragend", function (event) {
                             if (this.model && this.model.puid) {
                                 $scope.updatePoiPosition(this);
                             }
                         });
-
                         // Too spammy.
                         //_suc($scope, "Successfully added new POI.");
-
                     },
                     function (resp) {
                         ShowError($scope, resp, "Something went wrong while adding the new POI.", true);
@@ -1201,32 +1106,22 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.updatePoi = function (id) {
         var bobj = $scope.myPoisHashT[id];
-
         if (!bobj || !bobj.model || !bobj.model.puid) {
             if ($scope.myPoisHashT && $scope.myMarkers && $scope.myMarkers[id] && $scope.myMarkers[id].model && $scope.myPoisHashT[$scope.myMarkers[id].model.puid]) {
-
                 bobj = $scope.myPoisHashT[$scope.myMarkers[id].model.puid];
-
                 if (!bobj || !bobj.model || !bobj.model.puid) {
                     _err($scope, "No valid POI selected to be updated.");
                     return;
                 }
-
             } else {
                 _err($scope, "No valid POI selected to be updated.");
                 return;
             }
         }
-
         if (bobj.model.pois_type2.localeCompare("")!=0){
             bobj.model.pois_type = bobj.model.pois_type2;
         }
-
         var obj = bobj.model;
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-        obj.owner_id = $scope.owner_id;
-
         var marker = bobj.marker;
         if (marker) {
             var latLng = marker.position;
@@ -1235,43 +1130,35 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 obj.coordinates_lon = String(latLng.lng());
             }
         }
-
         if (obj.is_building_entrance) {
             obj.is_building_entrance = 'true';
         } else {
             obj.is_building_entrance = 'false';
         }
-
         // make the request at AnyplaceAPI
         var promise = $scope.anyAPI.updatePois(obj);
         promise.then(
             function (resp) {
                 // success
                 var data = resp.data;
-
                 if (marker) {
                     marker.infowindow.setMap(null);
                 }
-
                 if (obj.is_building_entrance == 'true') {
                     obj.is_building_entrance = true;
                 } else {
                     obj.is_building_entrance = false;
                 }
-
                 for (var c in $scope.myConnectionsHashT) {
                     if ($scope.myConnectionsHashT.hasOwnProperty(c)) {
                         if ($scope.myConnectionsHashT[c].pois_a == obj.puid
                             || $scope.myConnectionsHashT[c].pois_b == obj.puid) {
-
                             var pa = $scope.myConnectionsHashT[c].pois_a;
                             var pb = $scope.myConnectionsHashT[c].pois_b;
-
                             var flightPlanCoordinates = [
                                 new google.maps.LatLng($scope.myPoisHashT[pa].model.coordinates_lat, $scope.myPoisHashT[pa].model.coordinates_lon),
                                 new google.maps.LatLng($scope.myPoisHashT[pb].model.coordinates_lat, $scope.myPoisHashT[pb].model.coordinates_lon)
                             ];
-
                             $scope.myConnectionsHashT[c].polyLine.setPath(flightPlanCoordinates);
                             $scope.anyService.setAllConnection($scope.myConnectionsHashT);
                             $scope.anyService.setAllPois($scope.myPoisHashT);
@@ -1289,62 +1176,47 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.updatePoiPosition = function (marker) {
-
         var obj;
-
         if (marker && marker.model) {
             obj = marker.model;
         }
-
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-        obj.owner_id = $scope.owner_id;
-
         var latLng = marker.position;
         if (latLng && latLng.lat() && latLng.lng()) {
             obj.coordinates_lat = String(latLng.lat());
             obj.coordinates_lon = String(latLng.lng());
         }
-
         if (obj.is_building_entrance) {
             obj.is_building_entrance = 'true';
         } else {
             obj.is_building_entrance = 'false';
         }
-
         // make the request at AnyplaceAPI
         var promise = $scope.anyAPI.updatePois(obj);
         promise.then(
             function (resp) {
                 // success
                 var data = resp.data;
-
                 if (obj.is_building_entrance == 'true' || obj.is_building_entrance === true) {
                     obj.is_building_entrance = true;
                 } else {
                     obj.is_building_entrance = false;
                 }
-
                 for (var c in $scope.myConnectionsHashT) {
                     if ($scope.myConnectionsHashT.hasOwnProperty(c)) {
                         if ($scope.myConnectionsHashT[c].pois_a == marker.model.puid
                             || $scope.myConnectionsHashT[c].pois_b == marker.model.puid) {
-
                             var pa = $scope.myConnectionsHashT[c].pois_a;
                             var pb = $scope.myConnectionsHashT[c].pois_b;
-
                             var flightPlanCoordinates = [
                                 new google.maps.LatLng($scope.myPoisHashT[pa].model.coordinates_lat, $scope.myPoisHashT[pa].model.coordinates_lon),
                                 new google.maps.LatLng($scope.myPoisHashT[pb].model.coordinates_lat, $scope.myPoisHashT[pb].model.coordinates_lon)
                             ];
-
                             $scope.myConnectionsHashT[c].polyLine.setPath(flightPlanCoordinates);
                             $scope.anyService.setAllConnection($scope.myConnectionsHashT);
                             $scope.anyService.setAllPois($scope.myPoisHashT);
                         }
                     }
                 }
-
             },
             function (resp) {
                 ShowError($scope, resp, "Something went wrong while moving POI.", true);
@@ -1421,12 +1293,14 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
+            + '<div>'
             + '<fieldset class="form-group">Or enter your one type name:'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
             + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
             + '</fieldset>'
+            + '</div>'
             + '<div style="text-align: center;">'
             + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
             + '<button type="submit" class="btn btn-success add-any-button" ng-click="addPoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-plus"></span> Add'
@@ -1461,12 +1335,14 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
+            + '<div>'
             + '<fieldset class="form-group">Or enter your one type name:'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
             + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
             + '</fieldset>'
+            + '</div>'
             + '<div style="text-align: center;">'
             + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
             + '<button type="submit" class="btn btn-success add-any-button" ng-click="updatePoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-pencil"></span> Update'

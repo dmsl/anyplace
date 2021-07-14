@@ -25,7 +25,6 @@
  THE SOFTWARE.
  */
 
-
 var heatMap = [];
 var heatMapAcces = [];
 var APmap = [];
@@ -131,10 +130,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         $scope.crudTabSelected = n;
     };
     $scope.isCrudTabSelected = function (n) {
-
         return $scope.crudTabSelected === n;
     };
-
 
     $scope.data = {
         floor_plan_coords: {},
@@ -308,25 +305,25 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             }
 
             function initializeFingerPrints() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#FPs').click();
                 $('#FPsButton').click();
             }
 
             function initializeRadioHeatmapRSS() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#HMs').click();
                 $('#HMsButton').click();
             }
 
             function initializeAPs() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#HMs').click();
                 $('#APsButton').click();
             }
 
             function initializeAcces() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#LAs').click();
                 $('#LAButton').click();
             }
@@ -342,7 +339,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             }
 
             function initializeTime() {
-                $('#wifiTab').click();
+                $('#heatmapTab').click();
                 $('#FPs').click();
                 $('#FPsTimeButton').click();
             }
@@ -1133,37 +1130,37 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     };
 
     $('#HMs_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#HMs').click();
         $('#HMsButton').click();
     });
 
     $('#APs_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#HMs').click();
         $('#APsButton').click();
     });
 
     $('#FPs_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#FPs').click();
         $('#FPsButton').click();
     });
 
     $('#deleteFingerprintsSpn').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#FPs').click();
         $('#deleteButton').click();
     });
 
     $('#FPs_2').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#FPs').click();
         $('#FPsTimeButton').click();
     });
 
     $('#LA_1').unbind().click(function () {
-        $('#wifiTab').click();
+        $('#heatmapTab').click();
         $('#LAs').click();
         $('#LAButton').click();
 
@@ -1297,13 +1294,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             if (confirmation) {
                 var b = $scope.anyService.getBuilding();
                 var f = $scope.anyService.getFloorNumber();
-                var reqObj = $scope.creds;
-
-                if (!$scope.owner_id) {
-                    _err($scope, "Could not identify user. Please refresh and sign in again.");
-                    return;
-                }
-                reqObj.owner_id = $scope.owner_id;
+                var reqObj = {};
                 if (!b || !b.buid) {
                     _err($scope, "No building selected");
                     return;
@@ -2219,7 +2210,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     // REVIEWLS using lsolea code
     GMapService.gmap.addListener('zoom_changed', function () {
-        LOG.D2("GMapService:on_zoom_changed");
+        LOG.D4("GMapService:on_zoom_changed");
 
         _currentZoomLevel = GMapService.gmap.getZoom();
 

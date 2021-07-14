@@ -172,7 +172,7 @@ class GeoPoint {
 	var dlat: Double = 0.0
 	var dlon: Double = 0.0
 
-	def this(lat: Double, lon: Double) {
+	def this(lat: Double, lon: Double) = {
 		this()
 		this.lat = java.lang.Double.toString(lat)
 		this.lon = java.lang.Double.toString(lon)
@@ -180,7 +180,7 @@ class GeoPoint {
 		this.dlon = lon
 	}
 
-	def this(lat: String, lon: String) {
+	def this(lat: String, lon: String) = {
 		this()
 		try {
 			this.dlat = java.lang.Double.parseDouble(lat)

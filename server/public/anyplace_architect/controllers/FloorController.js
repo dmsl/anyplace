@@ -361,29 +361,15 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     $scope.addFloorObject = function (flJson, selectedBuilding, flData) {
         var obj = _checkFloorFormat(flJson);
-
-        obj.owner_id = $scope.owner_id;
-
-        if (!obj.owner_id) {
-            _err($scope, ERR_USER_AUTH);
-            return;
-        }
-
-        // make the request at AnyplaceAPI
-        var promise = $scope.anyAPI.addFloor(obj);
+        var promise = $scope.anyAPI.addFloor(obj); // make the request at AnyplaceAPI
         promise.then(
-            function (resp) {
-                // on success
+            function (resp) { // on success
                 var data = resp.data;
                 // insert the newly created building inside the loadedBuildings
                 $scope.xFloors.push(obj);
-
                 $scope.anyService.selectedFloor = $scope.xFloors[$scope.xFloors.length - 1];
-
                 _suc($scope, "Successfully added new floor");
-
                 $scope.uploadWithZoom(selectedBuilding, obj, flData);
-
             },
             function (resp) {
               ShowError($scope, resp,
@@ -415,49 +401,34 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     };
 
     $scope.deleteFloor = function () {
-
         var bobj = $scope.anyService.getFloor();
-
         if (LPUtils.isNullOrUndefined(bobj) || LPUtils.isStringBlankNullUndefined(bobj.floor_number) || LPUtils.isStringBlankNullUndefined(bobj.buid)) {
             _err($scope, "No floor seems to be selected.");
             return;
         }
-
-        bobj.username = $scope.creds.username;
-        bobj.password = $scope.creds.password;
-        bobj.owner_id = $scope.owner_id;
-
-        console.log(bobj);
-
-        // make the request at AnyplaceAPI
-        var promise = $scope.anyAPI.deleteFloor(bobj);
+        var promise = $scope.anyAPI.deleteFloor(bobj); // make the request at AnyplaceAPI
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
-
                 // delete the building from the loadedBuildings
                 var lf = $scope.xFloors;
                 var sz = lf.length;
-
                 for (var i = 0; i < sz; i++) {
                     if (lf[i].floor_number == bobj.floor_number) {
                         lf.splice(i, 1);
                         break;
                     }
                 }
-
                 if ($scope.data.floor_plan_groundOverlay != null) {
                     $scope.data.floor_plan_groundOverlay.setMap(null);
                     $scope.data.floor_plan_groundOverlay = null;
                 }
-
                 if ($scope.xFloors && $scope.xFloors.length > 0) {
                     $scope.anyService.selectedFloor = $scope.xFloors[0];
                 } else {
                     $scope.anyService.selectedFloor = undefined;
                 }
-
                 _suc($scope, "Successfully deleted floor.");
             },
             function (resp) {

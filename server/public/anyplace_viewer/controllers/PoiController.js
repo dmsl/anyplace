@@ -94,7 +94,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     }
 
     $scope.fetchAllPoi = function (letters , buid) {
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters, "greeklish":$scope.greeklish };
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",
+            "access-control-allow-credentials": "true",    "content-length": "17516",
+            "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters, "greeklish":$scope.greeklish };
+        if (jsonReq.greeklish == null) jsonReq.greeklish = "true";
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
@@ -403,51 +406,39 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.retrieveRouteFromPoiToPoi = function (from, to) {
-
         if (!from || !from.puid) {
             _err($scope, "Source POI is corrupted.");
             return;
         }
-
         if (!to || !to.puid) {
             _err($scope, "Source POI is corrupted.");
             return;
         }
-
         var jsonReq = $scope.creds;
-
         jsonReq.pois_from = from.puid;
         jsonReq.pois_to = to.puid;
-
         var promise = AnyplaceAPIService.retrieveRouteFromPoiToPoi(jsonReq);
         promise.then(
             function (resp) {
                 var data = resp.data;
-
                 var listPois = data.pois;
-
                 _clearPoiRoutePolyline();
-
                 for (var i = 0; i < listPois.length; i++) {
                     if (listPois[i].lat && listPois[i].lon && listPois[i].floor_number) {
                         var fl = listPois[i].floor_number;
-
                         if (!poiRoutePolyline.hasOwnProperty(fl)) {
                             poiRoutePolyline[fl] = {
                                 flightPlanCoordinates: []
                             };
                         }
-
                         poiRoutePolyline[fl].flightPlanCoordinates.push(new google.maps.LatLng(
                             parseFloat(listPois[i].lat),
                             parseFloat(listPois[i].lon)
                         ));
                     }
                 }
-
                 for (var fkey in poiRoutePolyline) {
                     if (poiRoutePolyline.hasOwnProperty(fkey)) {
-
                         poiRoutePolyline[fkey].polyline = new google.maps.Polyline({
                             path: poiRoutePolyline[fkey].flightPlanCoordinates,
                             geodesic: true,
@@ -455,21 +446,17 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                             strokeOpacity: 0.75,
                             strokeWeight: 6
                         });
-
                         if ($scope.anyService.selectedFloor.floor_number === fkey)
                             poiRoutePolyline[fkey].polyline.setMap($scope.gmapService.gmap);
                     }
                 }
-
                 // user is in the building
                 if (poiClosestToUserPos) {
-
                     var lineSymbol = {
                         path: 'M 0,-1 0,1',
                         strokeOpacity: 0.75,
                         scale: 4
                     };
-
                     userToPoiPolyline = new google.maps.Polyline({
                         path: [
                             new google.maps.LatLng(parseFloat(from.coordinates_lat), parseFloat(from.coordinates_lon)),
@@ -485,9 +472,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                             repeat: '20px'
                         }]
                     });
-
                     userToPoiPolyline.setMap($scope.gmapService.gmap);
-
                     poiClosestToUserPos = undefined;
                 }
             },
@@ -674,9 +659,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 }
             }
             poiClosestToUserPos = minP;
-
             $scope.retrieveRouteFromPoiToPoi(minP, targetPoi);
-
             if (!$scope.getIsUserLocVisible()) {
                 $scope.displayMyLocMarker({lat: lat, lng: lng});
             }

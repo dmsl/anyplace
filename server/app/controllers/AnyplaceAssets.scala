@@ -36,11 +36,14 @@
 package controllers
 
 import datasources.SCHEMA
-import play.api.mvc.Action
+import javax.inject.{Inject, Singleton}
+import play.api.mvc._
 
-object AnyplaceAssets extends play.api.mvc.Controller {
+@Singleton
+class AnyplaceAssets @Inject()(cc: ControllerComponents,
+                               assets: Assets) extends AbstractController(cc) {
 
-  def at(path: String, file: String) = Action.async {
+  def at(path: String, file: String): Action[AnyContent] = Action.async {
     implicit request =>
       //    Assets.at(path+"/anyplace_viewer_campus", file)
       val uri = request.headers.get("referer").getOrElse("")
@@ -51,7 +54,10 @@ object AnyplaceAssets extends play.api.mvc.Controller {
       } else {
         viewerDir = "/anyplace_viewer_campus/"
       }
-      Assets.at(path + viewerDir, file).apply(request)
-
+     // assets.a
+      //play.api.controllers.AnyplaceAssets.super.at
+      assets.at(path + viewerDir, file).apply(request)
+        //.apply(request)
   }
+
 }

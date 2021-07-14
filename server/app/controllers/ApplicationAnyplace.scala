@@ -35,25 +35,50 @@
  */
 package controllers
 
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
-import play.Play
-import play.api.data._
-import play.api.data.Forms._
-import play.api.mvc.{Action, Result}
-import security.User
-import utils.{AnyResponseHelper, LPLogger}
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{AbstractController, ControllerComponents}
 
-object ApplicationAnyplace extends play.api.mvc.Controller {
+@Singleton
+class ApplicationAnyplace @Inject()(cc: ControllerComponents,
+                                    conf: Configuration)
+  extends AbstractController(cc) {
 
   def index() = Action {
     Redirect("/viewer")
   }
 
   def Version= Action {
-    val version = Play.application().configuration().getString("application.version")
-    Ok(version)
+    val version = conf.get[String]("application.version")
+    val address = conf.get[String]("server.address")
+    val port = conf.get[String]("server.port")
+
+
+    var variant=""
+    if (address.contains("dev")) {
+      variant = "beta"
+      if (port != "443" || port != "80") variant = "alpha"
+    } else if (address.contains("localhost")) {
+      variant = "local"
+    }
+
+    val res: JsValue = Json.obj(
+      "version" -> version,
+      "address" -> address,
+      "port"-> port,
+      "variant" -> variant)
+
+//    return AnyResponseHelper.ok(res) CLR:PM
+    Ok(res)
   }
 
+  def indexAny() = index()
+
+  def indexAny(any: String) = index()
+    //Redirect(routes.Assets.at("/public/anyplace_viewer", "index.html"))
+
+  // CHECK:PM CHECK:NN ??
   //  def Architect = Action {
   //    Ok(views.html.architect())
   //  }
@@ -65,68 +90,62 @@ object ApplicationAnyplace extends play.api.mvc.Controller {
   //    def ViewerCampus(any: String) = Action {
   //    Ok(views.html.viewer_campus())
   //  }
-
-  def indexAny() = index()
-
-  def indexAny(any: String) = Action {
-    Redirect(routes.Assets.at("/public/anyplace_viewer", "index.html"))
-  }
-
-  /**
-    * AUTHORIZATION SESSION
-    */
-  case class Login(username: String, password: String) {
-    var admin_mode = ""
-
-    def validate: String = {
-      if (!User.authenticate(username, password)) return "Invalid user or password"
-      null
-    }
-  }
-
-  // displays the login form for the architect
-  def login = Action { // IMPORTANT - to allow cross domain requests
-    LPLogger.error("ApplicationAnyplace.login() ?")
-    //response().setHeader("Access-Control-Allow-Origin", CORSHelper.checkOriginFromRequest(request()));
-    // allows session cookies to be transferred
-    //response().setHeader("Access-Control-Allow-Credentials", "true");
-    def frm = Form(mapping("Username" -> nonEmptyText,
-      "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
-
-    Ok(views.html.anyplace_login.render(frm))
-  }
-
-  // validates the username and password
-  def authenticate = Action {
-    LPLogger.error("ApplicationAnyplace.authenticate() ?")
-    def loginForm = Form(mapping("Username" -> nonEmptyText, "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
-
-    if (loginForm.hasErrors)
-      BadRequest(views.html.anyplace_login.render(loginForm))
-    else {
-      if (loginForm.get.admin_mode.equalsIgnoreCase("architect"))
-        Redirect(routes.AnyplaceWebApps.serveAdmin("index.html")).withSession(("username", loginForm.get.username))
-      else if (loginForm.get.admin_mode.equalsIgnoreCase("android"))
-        Redirect(routes.AnyplaceAndroid.getApks).withSession(("username", loginForm.get.username))
-      else if (loginForm.get.admin_mode.equalsIgnoreCase("admin"))
-        Redirect(routes.AnyplaceWebApps.serveAdmin("index.html")).withSession(("username", loginForm.get.username))
-      else if (loginForm.get.admin_mode.equalsIgnoreCase("architect2"))
-        Redirect(routes.AnyplaceWebApps.serveAdmin("index.html")).withSession(("username", loginForm.get.username))
-    }
-
-    def frm = Form(mapping("Username" -> nonEmptyText,
-      "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
-    BadRequest(views.html.anyplace_login.render(frm))
-  }
-
-  /**
-    * Logout and clean the session.
-    */
-  def logout = Action {
-    LPLogger.error("ApplicationAnyplace.logout() ?")
-    Redirect(routes.ApplicationAnyplace.login).withNewSession.flashing(
-      "success" -> "You've been logged out"
-    )
-  }
+  // CLR:PM
+  ///**
+  //  * AUTHORIZATION SESSION
+  //  */
+  //case class Login(username: String, password: String) {
+  //  var admin_mode = ""
+  //
+  //  def validate: String = {
+  //    if (!User.authenticate(username, password)) return "Invalid user or password"
+  //    null
+  //  }
+  //}
+  //
+  //// displays the login form for the architect
+  //def login = Action { // IMPORTANT - to allow cross domain requests
+  //  LPLogger.error("ApplicationAnyplace.login() ?")
+  //  //response().setHeader("Access-Control-Allow-Origin", CORSHelper.checkOriginFromRequest(request()));
+  //  // allows session cookies to be transferred
+  //  //response().setHeader("Access-Control-Allow-Credentials", "true");
+  //  def frm = Form(mapping("Username" -> nonEmptyText,
+  //    "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
+  //
+  //  Ok(views.html.anyplace_login.render(frm))
+  //}
+  //
+  //// validates the username and password
+  //def authenticate = Action {
+  //  LPLogger.error("ApplicationAnyplace.authenticate() ?")
+  //  def loginForm = Form(mapping("Username" -> nonEmptyText, "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
+  //
+  //  if (loginForm.hasErrors)
+  //    BadRequest(views.html.anyplace_login.render(loginForm))
+  //  else {
+  //    if (loginForm.get.admin_mode.equalsIgnoreCase("architect"))
+  //      Redirect(routes.AnyplaceWebApps.serveAdmin("index.html")).withSession(("username", loginForm.get.username))
+  //    else if (loginForm.get.admin_mode.equalsIgnoreCase("android"))
+  //      Redirect(routes.AnyplaceAndroid.getApks).withSession(("username", loginForm.get.username))
+  //    else if (loginForm.get.admin_mode.equalsIgnoreCase("admin"))
+  //      Redirect(routes.AnyplaceWebApps.serveAdmin("index.html")).withSession(("username", loginForm.get.username))
+  //    else if (loginForm.get.admin_mode.equalsIgnoreCase("architect2"))
+  //      Redirect(routes.AnyplaceWebApps.serveAdmin("index.html")).withSession(("username", loginForm.get.username))
+  //  }
+  //
+  //  def frm = Form(mapping("Username" -> nonEmptyText,
+  //    "Password" -> nonEmptyText)(Login.apply)(Login.unapply))
+  //  BadRequest(views.html.anyplace_login.render(frm))
+  //}
+  //
+  ///**
+  //  * Logout and clean the session.
+  //  */
+  //def logout = Action {
+  //  LPLogger.error("ApplicationAnyplace.logout() ?")
+  //  Redirect(routes.ApplicationAnyplace.login).withNewSession.flashing(
+  //    "success" -> "You've been logged out"
+  //  )
+  //}
 
 }

@@ -47,11 +47,11 @@ import utils.GeoPoint // TODO: Will use play.json
 trait IDatasource {
 
   def register(collection: String, name: String, email: String, username: String, password: String,
-               external: String, accType: String): Boolean
+               external: String, accType: String): JsValue
 
   def login(collection: String, username: String, password: String): List[JsValue]
 
-  def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int)
+  def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int): Unit
 
   def deleteFingerprint(fingerprint: JsValue): Boolean
 
@@ -77,13 +77,13 @@ trait IDatasource {
 
   def deleteFromKey(key: String): Boolean
 
-  @deprecated("mdb")
-  def getFromKey(key: String): AnyRef
+  //@deprecated("mdb")
+  //def getFromKey(key: String): AnyRef
 
   def getFromKey(collection: String, key: String, value: String): JsValue
 
-  @deprecated("mdb")
-  def getFromKeyAsJson(key: String): JsValue
+  //@deprecated("mdb")
+  //def getFromKeyAsJson(key: String): JsValue
 
   def getFromKeyAsJson(collection: String, key: String, value: String): JsValue
 
@@ -221,4 +221,6 @@ trait IDatasource {
   def generateHeatmaps(): Boolean
 
   def deleteNotValidDocuments(): Boolean
+
+  def isAdmin(col: String): Boolean
 }

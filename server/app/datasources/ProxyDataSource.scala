@@ -42,24 +42,13 @@ import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
 import floor_module.IAlgo
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 import play.api.libs.json.JsValue
 import utils.GeoPoint
 
-object ProxyDataSource {
-
-  private var sInstance: ProxyDataSource = _
-
-  def getInstance(): ProxyDataSource = {
-    if (sInstance == null) {
-      sInstance = new ProxyDataSource()
-    }
-    sInstance
-  }
-
-  def getIDatasource(): IDatasource = getInstance()
-}
-
-class ProxyDataSource private() extends IDatasource {
+@Singleton
+class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   private var mCouchbase: CouchbaseDatasource = _
   private var mongoDB: MongodbDatasource = _
@@ -72,15 +61,26 @@ class ProxyDataSource private() extends IDatasource {
   initMongodb()
   //setActiveDatabase(this.mongoDB) // TODO: nneof once all done
 
-  private def initCouchbase() {
-    this.mCouchbase = CouchbaseDatasource.getStaticInstance
+  private var sInstance: ProxyDataSource = _
+
+  def getInstance(): ProxyDataSource = {
+    if (sInstance == null) {
+      sInstance = new ProxyDataSource(conf)
+    }
+    sInstance
   }
 
-  private def initMongodb() {
-    this.mongoDB = MongodbDatasource.getStaticInstance
+  def getIDatasource: IDatasource = getInstance()
+
+  private def initCouchbase(): Unit = {
+    this.mCouchbase = CouchbaseDatasource.initialize(conf)
   }
 
-  private def setActiveDatabase(ds: IDatasource) {
+  private def initMongodb(): Unit = {
+    this.mongoDB = MongodbDatasource.initialize(conf)
+  }
+
+  private def setActiveDatabase(ds: IDatasource): Unit = {
     this.mActiveDatabase = ds
   }
 
@@ -121,10 +121,10 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getFromKey(collection, key, value)
   }
 
-  override def getFromKey(key: String): AnyRef = {
-    _checkActiveDatasource()
-    mActiveDatabase.getFromKey(key)
-  }
+  //override def getFromKey(key: String): AnyRef = {
+  //  _checkActiveDatasource()
+  //  mActiveDatabase.getFromKey(key)
+  //}
 
   override def deleteRadiosInBox(): Boolean = {
     _checkActiveDatasource()
@@ -141,10 +141,10 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.fingerprintExists(collection, buid, floor, x, y, heading)
   }
 
-  override def getFromKeyAsJson(key: String): JsValue = {
-    _checkActiveDatasource()
-    mActiveDatabase.getFromKeyAsJson(key)
-  }
+  //override def getFromKeyAsJson(key: String): JsValue = {
+  //  _checkActiveDatasource()
+  //  mActiveDatabase.getFromKeyAsJson(key)
+  //}
 
   override def buildingFromKeyAsJson(key: String): JsValue = {
     _checkActiveDatasource()
@@ -220,7 +220,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def getRadioHeatmap(): java.util.List[JsonObject] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmap
+    mActiveDatabase.getRadioHeatmap()
   }
 
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
@@ -343,7 +343,7 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.getAllAccounts()
   }
 
-  def _checkActiveDatasource() {
+  def _checkActiveDatasource(): Unit = {
     if (this.mActiveDatabase == null) {
       throw new DatasourceException("No active Datasource exists!")
     }
@@ -351,7 +351,7 @@ class ProxyDataSource private() extends IDatasource {
 
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.predictFloor(algo, bbox, strongestMACs)
+    mongoDB.predictFloor(algo, bbox, strongestMACs)
   }
 
   override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
@@ -444,7 +444,7 @@ class ProxyDataSource private() extends IDatasource {
     mongoDB.deleteFingerprint(fingerprint)
   }
 
-  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) {
+  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) = {
     _checkActiveDatasource()
     mongoDB.createTimestampHeatmap(col, buid, floor, level)
   }
@@ -455,8 +455,13 @@ class ProxyDataSource private() extends IDatasource {
   }
 
   override def register(collection: String, name: String, email: String, username: String, password: String,
-                        external: String, accType: String): Boolean = {
+                        external: String, accType: String): JsValue = {
     _checkActiveDatasource()
     mongoDB.register(collection, name, email, username, password, external, accType)
+  }
+
+  override def isAdmin(col: String): Boolean = {
+    _checkActiveDatasource()
+    mongoDB.isAdmin(col)
   }
 }

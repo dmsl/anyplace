@@ -35,14 +35,12 @@
  */
 package utils
 
-import java.io.{File, FileOutputStream, IOException}
+import java.io.File
 import java.nio.file.Files
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
 import org.apache.commons.codec.binary.Base64
-import play.Play
-import utils.LPUtils.generateRandomRssLogFileName
 //remove if not needed
 
 object HelperMethods {
@@ -79,41 +77,12 @@ object HelperMethods {
 
     def base64ToString(base64_in: String): String = new String(decodeBase64(base64_in))
 
-    def storeRadioMapRawToServer(file: File): Boolean = {
-        /*
-        * FeatureAdd : Configuring location for server generated files
-        */
-        //val radio_dir = "radio_maps_raw/"
-        val radio_dir = Play.application().configuration().getString("radioMapRawDir")
-        val dir = new File(radio_dir)
-        dir.mkdirs()
-        if (!dir.isDirectory || !dir.canWrite() || !dir.canExecute()) {
-            return false
-        }
-        val name = generateRandomRssLogFileName()
-        //FeatureAdd : Configuring location for server generated files
-        val dest_f = new File(radio_dir + AnyplaceServerAPI.URL_SEP + name)
-        var fout: FileOutputStream = null
-        try {
-            fout = new FileOutputStream(dest_f)
-            Files.copy(file.toPath(), fout)
-            fout.close()
-            LPLogger.D1("storeRadioMapToServer: Stored raw rss-log: " + name)
-        } catch {
-            case e: IOException => {
-                e.printStackTrace()
-                return false
-            }
-        }
-        true
-    }
-
      /*
      * DELETE FLOOR : BuxFix
      * Fixing function as parent level floor plan files and directory 
      * was not getting removed during floor delete
      */
-    def recDeleteDirFile(f: File, root: Boolean =true) {
+    def recDeleteDirFile(f: File, root: Boolean =true): Unit ={
         if (f.isFile) {
             Files.delete(f.toPath())
         } else if (f.isDirectory) {

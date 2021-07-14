@@ -69,19 +69,19 @@ class AccessTokenModel(private var access_token: String,
 
   def getClientId(): String = client_id
 
-  override def toString(): String = this.getTuid
+  override def toString(): String = this.getTuid()
 
   def toJson(): JsonObject = {
     val json: JsonObject= JsonObject.empty()
-    json.put("token_type", this.getTokenType)
-    json.put("access_token", this.getAccessToken)
-    json.put("expires_in", this.getExpiresIn)
-    json.put("refresh_token", this.getRefreshToken)
-    json.put("tuid", this.getTuid)
-    json.put("scope", this.getScope)
-    json.put("client_id", this.getClientId)
-    json.put("auid", this.getAuid)
-    json.put("created_at", this.getCreatedAt)
+    json.put("token_type", this.getTokenType())
+    json.put("access_token", this.getAccessToken())
+    json.put("expires_in", this.getExpiresIn())
+    json.put("refresh_token", this.getRefreshToken())
+    json.put("tuid", this.getTuid())
+    json.put("scope", this.getScope())
+    json.put("client_id", this.getClientId())
+    json.put("auid", this.getAuid())
+    json.put("created_at", this.getCreatedAt())
     json
   }
 

@@ -1,0 +1,5 @@
+###########
+### MISC:
+###########
+# TODO:NN update usages of /anyplace/version (architect)
+GET        /version                                                       controllers.ApplicationAnyplace.Version

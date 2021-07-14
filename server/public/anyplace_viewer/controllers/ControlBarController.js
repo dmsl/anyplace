@@ -50,7 +50,9 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
         name: undefined,
         email: undefined,
         username: undefined,
-        password: undefined
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
     }
 
     $scope.tab = 1;

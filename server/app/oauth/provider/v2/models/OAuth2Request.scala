@@ -54,7 +54,7 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     assertFormUrlEncodedBody()
   }
 
-  def this(request: Request[AnyContent]) {
+  def this(request: Request[AnyContent]) = {
     this(request, true)
   }
 
@@ -107,6 +107,7 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     }
     null
   }
+
   ///////////////////////////////////////////////////////////////////////////////////
   // OAUTH RELATED METHODS
 
@@ -132,3 +133,5 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     new ClientCredentials(client_id, client_secret)
   }
 }
+
+
