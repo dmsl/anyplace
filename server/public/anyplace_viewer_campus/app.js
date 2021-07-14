@@ -27,16 +27,11 @@
 
 var app = angular.module('anyViewer', ['ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'ngMaterial', 'angular-loading-bar']);
 
-
 app.service('GMapService', function () {
-
     this.gmap = {};
     this.directionsDisplay = undefined;
     this.directionsService = undefined;
-//    this.searchBox = {};
-
     var self = this;
-
     var element = document.getElementById("map-canvas");
 
     /**
@@ -169,6 +164,13 @@ app.service('GMapService', function () {
         }
     });
 
+    // WORKAROUNDS:
+    google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+        // Once map object is rendered, hide gmaps warning (billing account)
+        // We are migrating to leaflet for this.
+        $(".dismissButton").click();
+    });
+
   self.gmap.addListener('maptypeid_changed', function () {
     // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
     //Issue happens due to setting of custom maptype Id
@@ -204,7 +206,6 @@ app.service('GMapService', function () {
         if (self.gmap.getMapTypeId() === "CartoLight")
             attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
     }
-
 
     //Define OSM map type pointing at the OpenStreetMap tile server
     self.gmap.mapTypes.set("OSM", new OSMMapType(new google.maps.Size(256, 256)));

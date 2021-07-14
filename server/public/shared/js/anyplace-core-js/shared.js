@@ -43,13 +43,6 @@
 
 // Activate tooltips
 $('document').ready(function(){
-    // Hide tooltip on click
-    // $('body').tooltip({
-    //     selector: '[data-toggle="tooltip"]'
-    // }).click(function () {
-    //     $('[data-toggle="tooltip"]').tooltip("hide");
-    // });
-
     // modal focus fix
     $('#myModal_Welcome').on('shown.bs.modal', function () {
         $('#myModal_Welcome').trigger('focus')

@@ -167,6 +167,13 @@ app.service('GMapService', function () {
         }
     });
 
+    // WORKAROUNDS:
+    google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+        // Once map object is rendered, hide gmaps warning (billing account)
+        // We are migrating to leaflet for this.
+        $(".dismissButton").click();
+    });
+
   self.gmap.addListener('maptypeid_changed', function () {
     // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
     //Issue happens due to setting of custom maptype Id

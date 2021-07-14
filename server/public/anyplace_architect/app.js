@@ -28,11 +28,8 @@
 var app = angular.module('anyArchitect', ['ngCookies', 'angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
-
     this.gmap = {};
-
     var self = this;
-
     var element = document.getElementById("map-canvas");
 
     /**
@@ -217,10 +214,16 @@ app.service('GMapService', function () {
     self.gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
     self.searchBox = new google.maps.places.SearchBox((input));
 
-    // reveal maps search box after 2s (once the website has loaded)
-  setTimeout(function(){
-    $("#pac-input").fadeIn(500);
-  }, 2000);
+    // WORKAROUNDS:
+    google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+        // Once map object is rendered, hide gmaps warning (billing account)
+        // We are migrating to leaflet for this.
+        $(".dismissButton").click();
+        google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+            // once some tiles are shown, show the maps search box
+            $("#pac-input").fadeIn(500);
+        });
+    });
 
     google.maps.event.addListener(self.searchBox, 'places_changed', function () {
         var places = self.searchBox.getPlaces();
@@ -243,9 +246,7 @@ app.service('GMapService', function () {
 
 
 app.factory('AnyplaceService', function () {
-
     var anyService = {};
-
     anyService.selectedBuilding = undefined;
     anyService.selectedFloor = undefined;
     anyService.selectedPoi = undefined;
@@ -258,8 +259,6 @@ app.factory('AnyplaceService', function () {
     anyService.radioHeatmapLocalization = false; //lsolea01
     anyService.fingerPrintsTimeMode = false;
     anyService.radioHeatmapRSSTimeMode = false;
-
-
     anyService.alerts = [];
 
     anyService.jsonReq = {
