@@ -36,7 +36,7 @@
 
 package location;
 
-import utils.LPLogger;
+import utils.LOG;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class RadioMap {
         String calculatedLocation = Algorithms.ProcessingAlgorithms(latestScanList, rm, algoChoice);
 
         if (calculatedLocation == null) {
-            LPLogger.debug("Can't find location. Check that radio map file refers to the same area.");
+            LOG.D("Can't find location. Check that radio map file refers to the same area.");
             return null;
         } else {
             String[] temp = calculatedLocation.split(" ");

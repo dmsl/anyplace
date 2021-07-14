@@ -53,7 +53,7 @@ import oauth.provider.v2.token.TokenService
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
-import utils.{GeoPoint, LPLogger}
+import utils.{GeoPoint, LOG}
 
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsScala}
@@ -61,11 +61,15 @@ import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsScala}
 object CouchbaseDatasource {
   private var sInstance: CouchbaseDatasource = null
   private val sLockInstance: AnyRef = new AnyRef()
-  
-  def initialize(conf: Configuration): CouchbaseDatasource = {
+
+  def instance: CouchbaseDatasource = {
+    if (sInstance == null) throw new RuntimeException("Couchbase not initialized")
+    sInstance
+  }
+  def initialize(conf: Configuration): Unit = {
     sLockInstance.synchronized {
       if (sInstance == null) {
-        // It either users clusterNodes or hostname
+        // either users clusterNodes or hostname
         var clusterNodes : String = null
         var hostname :String = null
         if (conf.has("couchbase.clusterNodes")) clusterNodes = conf.get[String]("couchbase.clusterNodes")
@@ -78,10 +82,9 @@ object CouchbaseDatasource {
         try {
           sInstance.init()
         } catch {
-          case e: DatasourceException => LPLogger.error("CouchbaseDatasource: INIT ERROR: " + e.getMessage)
+          case e: DatasourceException => LOG.E("CouchbaseDatasource: INIT ERROR: " + e.getMessage)
         }
       }
-      sInstance
     }
   }
 
@@ -112,7 +115,7 @@ object CouchbaseDatasource {
     if ((hostname.isEmpty && clusterNodes.isEmpty) || port.isEmpty || bucket.isEmpty || username.isEmpty || password.isEmpty) {
       throw new IllegalArgumentException("Empty string configuration are not allowed to create a CouchbaseDatasource.")
     }
-    if (!hostname.isEmpty && !clusterNodes.isEmpty) {
+    if (hostname.nonEmpty && clusterNodes.nonEmpty) {
         // prefer clusterNodes
         hostname="" 
         // CLR
@@ -157,11 +160,11 @@ class CouchbaseDatasource private(hostname: String,
 
       // Connects to a cluster on hostname if the other one does not respond during bootstrap.
       if (!mHostname.isEmpty) {
-          LPLogger.info("Couchbase: connecting to: " + mHostname + ":" + mPort + " bucket[" +
+          LOG.I("Couchbase: connecting to: " + mHostname + ":" + mPort + " bucket[" +
               mBucket + "]")
           mCluster = CouchbaseCluster.create(env, mHostname)
       } else if (!mClusterNodes.isEmpty) {
-          LPLogger.info("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
+          LOG.I("Couchbase: connecting to cluster: " + mClusterNodes + ":" + mPort + " bucket[" +
               mBucket + "]")
           mCluster = CouchbaseCluster.fromConnectionString(env, mClusterNodes);
       } else {
@@ -171,13 +174,13 @@ class CouchbaseDatasource private(hostname: String,
       mSecureBucket = mCluster.openBucket(mBucket, mPassword)
     } catch {
       case e: java.net.SocketTimeoutException =>
-        LPLogger.error(errMsg + ": " +  e.getMessage)
+        LOG.E(errMsg + ": " +  e.getMessage)
         throw new DatasourceException(errMsg + ": SocketTimeout")
       case e: IOException =>
-        LPLogger.error(errMsg + ": " + e.getMessage)
+        LOG.E(errMsg + ": " + e.getMessage)
         throw new DatasourceException(errMsg + ": IO")
       case e: Exception =>
-        LPLogger.error(errMsg + ": " + e.getMessage)
+        LOG.E(errMsg + ": " + e.getMessage)
         throw new DatasourceException(errMsg + ": " + e.getMessage)
     }
     true
@@ -205,7 +208,7 @@ class CouchbaseDatasource private(hostname: String,
       this.connect()
     } catch {
       case e: DatasourceException => {
-        LPLogger.error("CouchbaseDatasource::init():: " + e.getMessage)
+        LOG.E("CouchbaseDatasource::init():: " + e.getMessage)
         throw new DatasourceException("Cannot connect to couchbase.")
       }
     }
@@ -567,7 +570,7 @@ class CouchbaseDatasource private(hostname: String,
     val viewQuery = ViewQuery.from("radio", "radio_new_campus_experiment").group(true).reduce(true)
     val res = couchbaseClient.query(viewQuery)
 
-    LPLogger.debug("couchbase results: " + res.totalRows)
+    LOG.D("couchbase results: " + res.totalRows)
     var json: JsonObject = null
 
     for (row <- res.allRows().asScala) {
@@ -1309,7 +1312,7 @@ class CouchbaseDatasource private(hostname: String,
   //}
 
   override def getAllAccounts(): List[JsValue] = {
-    LPLogger.debug("couchbase getAllAccounts: ")
+    LOG.D("couchbase getAllAccounts: ")
 
     val accounts = new ArrayList[JsonObject]()
 
@@ -1318,7 +1321,7 @@ class CouchbaseDatasource private(hostname: String,
 
     val res = couchbaseClient.query(viewQuery)
 
-    LPLogger.debug("couchbase results: " + res.totalRows)
+    LOG.D("couchbase results: " + res.totalRows)
     if (res.error().size > 0) {
       throw new DatasourceException("Error retrieving accounts from database!")
     }
@@ -1477,7 +1480,7 @@ class CouchbaseDatasource private(hostname: String,
     try couchbaseClient = getConnection
     catch {
       case e: DatasourceException => {
-        LPLogger.error(
+        LOG.E(
           "CouchbaseDatasource::validateClient():: Exception while getting connection in DB")
         null
       }
@@ -1562,7 +1565,7 @@ class CouchbaseDatasource private(hostname: String,
     try client = getConnection
     catch {
       case e: DatasourceException => {
-        LPLogger.error(
+        LOG.E(
           "CouchbaseDatasource::createOrUpdateAccessToken():: Exception while opening connection to store new token in DB")
         return act
       }
@@ -1580,7 +1583,7 @@ class CouchbaseDatasource private(hostname: String,
         return tokenModel
       } catch {
         case e: Exception =>
-          LPLogger.error(
+          LOG.E(
             "CouchbaseDatasource::createOrUpdateAccessToken():: Exception while storing new token in DB")
           return act
 

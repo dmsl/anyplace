@@ -117,7 +117,7 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
             val br = new BufferedReader(new InputStreamReader(is))
             var line = br.readLine()
             while (line != null) {
-                LPLogger.debug(">" + line)
+                LOG.D(">" + line)
                 line = br.readLine()
             }
             p.waitFor()
@@ -125,7 +125,7 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
                 val err = "Tiling for image[" + imageFile.toString + "] failed with exit code[" +
                   p.exitValue() +
                   "]!"
-                LPLogger.error(err)
+                LOG.E(err)
                 throw new AnyPlaceException(err)
             }
         } catch {
@@ -133,14 +133,14 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
                 val err = "Tiling for image[" + imageFile.toString + "] failed with IOException[" +
                   e.getMessage +
                   "]!"
-                LPLogger.error(err)
+                LOG.E(err)
                 throw new AnyPlaceException(err)
             }
             case e: InterruptedException => {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with InterruptedException[" +
                   e.getMessage +
                   "]!"
-                LPLogger.error(err)
+                LOG.E(err)
                 throw new AnyPlaceException(err)
             }
         }
@@ -168,7 +168,7 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
             val br = new BufferedReader(new InputStreamReader(is))
             var line = br.readLine()
             while (line != null) {
-                LPLogger.debug(">" + line)
+                LOG.D(">" + line)
                 line = br.readLine()
             }
             p.waitFor()
@@ -176,7 +176,7 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
                 val err = "Tiling for image[" + imageFile.toString + "] failed with exit code[" +
                   p.exitValue() +
                   "]!"
-                LPLogger.error(err)
+                LOG.E(err)
                 throw new AnyPlaceException(err)
             }
         } catch {
@@ -184,14 +184,14 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
                 val err = "Tiling for image[" + imageFile.toString + "] failed with IOException[" +
                   e.getMessage +
                   "]!"
-                LPLogger.error(err)
+                LOG.E(err)
                 throw new AnyPlaceException(err)
             }
             case e: InterruptedException => {
                 val err = "Tiling for image[" + imageFile.toString + "] failed with InterruptedException[" +
                   e.getMessage +
                   "]!"
-                LPLogger.error(err)
+                LOG.E(err)
                 throw new AnyPlaceException(err)
             }
         }

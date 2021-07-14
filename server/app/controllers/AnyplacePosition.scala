@@ -104,7 +104,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         } else {
           mapHelper.storeRadioMapRawToServer(rssLog)
           ret = storeFloorRssToDB(rssLog)
-          LPLogger.debug("Rss values already exist: " + ret)
+          LOG.D("Rss values already exist: " + ret)
           val errors: ArrayList[JsValue] = new ArrayList[JsValue]
           for (buid <- newBuildingsFloors.keySet.asScala) {
             for (floor_num <- newBuildingsFloors.get(buid).asScala) {
@@ -120,7 +120,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
             return AnyResponseHelper.bad_request(json, "Failed to create frozen radio maps.")
           }
         }
-        LPLogger.debug("Successfully uploaded rss log.")
+        LOG.D("Successfully uploaded rss log.")
         return AnyResponseHelper.ok("Successfully uploaded rss log.")
       }
 
@@ -141,7 +141,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("radioDownloadFloor: " + json.toString)
+        LOG.I("radioDownloadFloor: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         // range is large enough to cover the entire floor
@@ -159,7 +159,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString)
+        LOG.I("AnyplacePosition::radioDownloadFloor(): " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
           SCHEMA.fFloorNumber, "range")
         if (checkRequirements != null) return checkRequirements
@@ -187,7 +187,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("radioDownloadByBuildingFloor: " + json.toString)
+        LOG.I("radioDownloadByBuildingFloor: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val floor_number = (json \ SCHEMA.fFloor).as[String]
@@ -287,7 +287,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("radioDownloadByBuildingFloorall: " + json.toString)
+        LOG.I("radioDownloadByBuildingFloorall: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val floor_number = (json \ SCHEMA.fFloor).as[String]
@@ -337,7 +337,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
             try {
               fout.close()
             } catch {
-              case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
+              case e: IOException => LOG.E("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
             case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
@@ -400,8 +400,8 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           lineNumber += 1
         val segs = line.split(" ")
         val rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6))
-        LPLogger.info(rmr.toValidJson().toString)
-        LPLogger.debug("raw[" + lineNumber + "] : " + rmr.toValidJson())
+        LOG.I(rmr.toValidJson().toString)
+        LOG.D("raw[" + lineNumber + "] : " + rmr.toValidJson())
         try {
           if (!proxyDataSource.getIDatasource.addJsonDocument(rmr.getId(), 0, rmr.toGeoJSON())) {
             return "Radio Map entry could not be saved in database![could not be created]"
@@ -436,7 +436,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         //LPLogger.info("AnyplacePosition::serveRadioMap(): " + json.toString)
         val filePath = "radiomaps" + api.URL_SEP + radio_folder + api.URL_SEP +
           fileName
-        LPLogger.info("requested: " + filePath)
+        LOG.I("requested: " + filePath)
         val file = new File(filePath)
         try {
           if (!file.exists()) return AnyResponseHelper.bad_request("Requested file does not exist");
@@ -461,7 +461,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         floor +
         api.URL_SEP +
         fileName
-      LPLogger.info("requested: " + filePath)
+      LOG.I("requested: " + filePath)
       val file = new File(filePath)
       try {
         if (!file.exists()) return AnyResponseHelper.bad_request("Requested file does not exist");
@@ -603,7 +603,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
   def predictFloorAlgo1() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.D2("predictFloorAlgo1:")
+        LOG.D2("predictFloorAlgo1:")
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
@@ -625,7 +625,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           if (json.\("first").getOrElse(null) == null) return AnyResponseHelper.bad_request("Sent first Wifi")
           strongestMAC.add(json.\("first").\(SCHEMA.fMac).as[String])
           if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\(SCHEMA.fMac).as[String])
-          LPLogger.D2("strongestMAC " + strongestMAC)
+          LOG.D2("strongestMAC " + strongestMAC)
           val res = JsonObject.empty()
           var msg = ""
           if (proxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
@@ -652,7 +652,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMagnetic::pathAdd(): " + json.toString)
+        LOG.I("AnyplaceMagnetic::pathAdd(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, "lat_a", "lng_a", "lat_b", "lng_b",
           SCHEMA.fBuid, "floor_num")
         if (!requiredMissing.isEmpty) {
@@ -687,7 +687,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMagnetic::magneticPathDelete(): " + json.toString)
+        LOG.I("AnyplaceMagnetic::magneticPathDelete(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, "mpuid")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -715,7 +715,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString)
+        LOG.I("AnyplaceMapping::poisByFloor(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -743,7 +743,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::mpsByBuilding(): " + json.toString)
+        LOG.I("AnyplaceMapping::mpsByBuilding(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -770,7 +770,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::mpsByBuilding(): " + json.toString)
+        LOG.I("AnyplaceMapping::mpsByBuilding(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "floor_num", "mpuid", "milestones")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -808,7 +808,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::milestonesByFloor(): " + json.toString)
+        LOG.I("AnyplaceMapping::milestonesByFloor(): " + json.toString)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "floor_num")
         if (!requiredMissing.isEmpty) {
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)

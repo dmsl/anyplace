@@ -42,7 +42,7 @@ import java.util
 import java.util.{ArrayList, HashMap, LinkedList}
 
 import Jama.Matrix
-import utils.LPLogger
+import utils.LOG
 
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
 
@@ -100,7 +100,7 @@ object RadioMap {
       reader.close()
     } catch {
       case nfe: NumberFormatException => {
-        LPLogger.error("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+        LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath +
           ": Line " +
           line_num +
           " " +
@@ -108,7 +108,7 @@ object RadioMap {
         return null
       }
       case e: Exception => {
-        LPLogger.error("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+        LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath +
           ": " +
           e.getMessage)
         return null
@@ -262,7 +262,7 @@ object RadioMap {
         fr.close()
         reader.close()
       } catch {
-        case e: Exception => LPLogger.error("Error while parsing RSS log file " + f.getAbsolutePath +
+        case e: Exception => LOG.E("Error while parsing RSS log file " + f.getAbsolutePath +
           ": " +
           e.getMessage)
       }
@@ -301,7 +301,7 @@ object RadioMap {
         reader.close()
       } catch {
         case nfe: NumberFormatException => {
-          LPLogger.error("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+          LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath +
             ": Line " +
             line_num +
             " " +
@@ -309,7 +309,7 @@ object RadioMap {
           return false
         }
         case e: Exception => {
-          LPLogger.error("Error while authenticating RSS log file " + inFile.getAbsolutePath +
+          LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath +
             ": " +
             e.getMessage)
           return false
@@ -326,10 +326,10 @@ object RadioMap {
         if (!RM.ConstructRadioMap(new File(radiomap_mean_filename))) return "writeParameters: Failed to ConstructRadioMap"
         if (!find_MIN_MAX_Values(group)) return "writeParameters: Failed to find_MIN_MAX_Values"
         if (!(RM.getOrderList().size >= 2)) return "writeParameters: RBF: RM orderList is small: " + RM.getOrderList().size
-        LPLogger.debug("Calculating RBF parameter...")
+        LOG.D("Calculating RBF parameter...")
         S_RBF = calculateSGreek(RM, group)
         if (S_RBF == -1) return "writeParameters: S_RBF == -1"
-        LPLogger.debug("RBF calculation Done!")
+        LOG.D("RBF calculation Done!")
         val radiomap_parameters_file = new File(radiomap_parameters_filename)
         try {
           fos = if (i == 0) new FileOutputStream(radiomap_parameters_file, false) else new FileOutputStream(radiomap_parameters_file,
@@ -355,7 +355,7 @@ object RadioMap {
           }
         }
       }
-      LPLogger.debug("Written Parameters!")
+      LOG.D("Written Parameters!")
       null
     }
 
@@ -402,7 +402,7 @@ object RadioMap {
 
       catch {
         case e: Exception => {
-          LPLogger.error("Error while finding min and max RSS values: " + e.getMessage)
+          LOG.E("Error while finding min and max RSS values: " + e.getMessage)
           return false
         }
       }
@@ -457,7 +457,7 @@ object RadioMap {
           2)
       } catch {
         case e: Exception => {
-          LPLogger.error("Error while calculating Euclidean distance: " + e.getMessage)
+          LOG.E("Error while calculating Euclidean distance: " + e.getMessage)
           return -1
         }
       }
@@ -475,7 +475,7 @@ object RadioMap {
      * @return
      */
     private def writeRadioMap(): String = {
-      LPLogger.debug("writing radio map to files")
+      LOG.D("writing radio map to files")
       val AP = new ArrayList[String]()
       val orientations = 4
       val radiomap_file = new File(radiomap_filename)
@@ -506,7 +506,7 @@ object RadioMap {
 
         // BUG:DZ BUG:PM BUG:NN below methods fail
         if (RBF_ENABLED == true) {
-          LPLogger.D1("BUG: writeParameters, writeRBFWeights")
+          LOG.D1("BUG: writeParameters, writeRBFWeights")
           res = writeParameters(orientations)
           if (res != null) return res
           res = writeRBFWeights(orientations)
@@ -517,7 +517,7 @@ object RadioMap {
           e.printStackTrace()
           return "writeRadioMap:"  + e.getClass + ": " + e.getMessage
       }
-      LPLogger.debug("Finished writing radio map to files!")
+      LOG.D("Finished writing radio map to files!")
       null
     }
 
@@ -645,23 +645,23 @@ object RadioMap {
 
     def writeRBFWeights(orientation: Int): String = {
       val start = System.currentTimeMillis()
-      LPLogger.debug("Writing RBF weights!")
+      LOG.D("Writing RBF weights!")
       for (x <- 0 until orientation) {
         val group = x * 360 / orientation
         val MatrixU = create_U_matrix(group)
         if (MatrixU == null) return "writeRBFWeights: MatrixU is null"
-        LPLogger.debug("created U matrix! time[ " + (System.currentTimeMillis() - start) +
+        LOG.D("created U matrix! time[ " + (System.currentTimeMillis() - start) +
           "] ms")
         val Matrixd = create_d_matrix(MatrixU.getRowDimension, group)
         if (Matrixd == null) return "writeRBFWeights: Matrixd is null"
-        LPLogger.debug("created matrix d! time[ " + (System.currentTimeMillis() - start) + "] ms")
+        LOG.D("created matrix d! time[ " + (System.currentTimeMillis() - start) + "] ms")
         val UPlus = computeUPlusMatrix(MatrixU)
         if (UPlus == null) return "writeRBFWeights: UPlus is null"
-        LPLogger.debug("computed Plus matrix! time[ " + (System.currentTimeMillis() - start) +
+        LOG.D("computed Plus matrix! time[ " + (System.currentTimeMillis() - start) +
           "] ms")
         val w = computeWMatrix(UPlus, Matrixd)
         if (w == null) return "writeRBFWeights: w is null"
-        LPLogger.debug("computed W matrix! time[ " + (System.currentTimeMillis() - start) + "] ms")
+        LOG.D("computed W matrix! time[ " + (System.currentTimeMillis() - start) + "] ms")
         val dec = new DecimalFormat("###.########")
         var fos: FileOutputStream = null
         val radiomap_rbf_weights_file = new File(radiomap_rbf_weights_filename)
@@ -694,7 +694,7 @@ object RadioMap {
           }
         }
       }
-      LPLogger.debug("Written RBF weights! time[ " + (System.currentTimeMillis() - start) +
+      LOG.D("Written RBF weights! time[ " + (System.currentTimeMillis() - start) +
         "] ms")
       null
     }
@@ -773,7 +773,7 @@ object RadioMap {
 
       catch {
         case e: Exception => {
-          LPLogger.error("Error while populating C array of RBF: " + e.getMessage)
+          LOG.E("Error while populating C array of RBF: " + e.getMessage)
           CArray = null
         }
       }
@@ -838,7 +838,7 @@ object RadioMap {
         readerRadiomap.close()
       } catch {
         case e: Exception => {
-          LPLogger.error("Error while populating U array of RBF: " + e.getMessage)
+          LOG.E("Error while populating U array of RBF: " + e.getMessage)
           return null
         }
       }
@@ -919,7 +919,7 @@ object RadioMap {
         readerRadiomap.close()
       } catch {
         case e: Exception => {
-          LPLogger.error("Error while creating d matrix of RBF: " + e.getMessage)
+          LOG.E("Error while creating d matrix of RBF: " + e.getMessage)
           return null
         }
       }
@@ -936,7 +936,7 @@ object RadioMap {
         UtransposeUInverse.times(Utranspose)
       } catch {
         case e: Exception => {
-          LPLogger.error("Error while computing U+ matrix of RBF: " + e.getMessage)
+          LOG.E("Error while computing U+ matrix of RBF: " + e.getMessage)
           null
         }
       }
@@ -951,7 +951,7 @@ object RadioMap {
         w
       } catch {
         case e: Exception => {
-          LPLogger.error("Error while computing w matrix of RBF: " + e.getMessage)
+          LOG.E("Error while computing w matrix of RBF: " + e.getMessage)
           null
         }
       }

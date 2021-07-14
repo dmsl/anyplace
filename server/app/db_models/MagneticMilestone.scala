@@ -35,7 +35,7 @@
  */
 package db_models
 
-import utils.LPUtils
+import utils.Utils
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
@@ -107,7 +107,7 @@ class MagneticMilestone(hm: HashMap[String, String]) extends AbstractModel {
     def getId(): String = {
         var id: String = fields.get("mmuid")
         if (id.isEmpty || id== "") {
-            id = "mmilestone_" + LPUtils.getRandomUUID() + "_" + System.currentTimeMillis()
+            id = "mmilestone_" + Utils.getRandomUUID() + "_" + System.currentTimeMillis()
         }
         id
     }

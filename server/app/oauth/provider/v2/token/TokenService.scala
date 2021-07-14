@@ -38,8 +38,8 @@ package oauth.provider.v2.token
 import oauth.provider.v2.OAuth2Constant
 import oauth.provider.v2.models.AccessTokenModel
 import oauth.provider.v2.models.AuthInfo
-import utils.LPLogger
-import utils.LPUtils
+import utils.LOG
+import utils.Utils
 import java.util.Date
 
 /**
@@ -66,11 +66,11 @@ object TokenService { // Used by the secure encryption/decryption algorithms
   def createNewAccessToken(authInfo: AuthInfo): AccessTokenModel = {
     val timeNow = new Date().getTime
     val plainText = authInfo.getAuid + "]" + authInfo.getScope + "]" + authInfo.getClientId + "]" + String.valueOf(timeNow)
-    LPLogger.info("plaintext    : >" + plainText + "<")
-    val randomString = LPUtils.generateRandomToken()
-    LPLogger.info("randomstr PH1: >" + randomString + "<")
-    val encrypted_token = LPUtils.secureEncrypt(SECURE_PASSWORD_PHASE1, randomString + "." + plainText)
-    LPLogger.info("encrypted PH2: >" + encrypted_token + "<")
+    LOG.I("plaintext    : >" + plainText + "<")
+    val randomString = Utils.generateRandomToken()
+    LOG.I("randomstr PH1: >" + randomString + "<")
+    val encrypted_token = Utils.secureEncrypt(SECURE_PASSWORD_PHASE1, randomString + "." + plainText)
+    LOG.I("encrypted PH2: >" + encrypted_token + "<")
     new AccessTokenModel(encrypted_token, OAuth2Constant.TOKEN_TYPE_BEARER, OAuth2Constant.EXPIRES_IN_DEFAULT_VALUE, authInfo.getRefreshToken, authInfo.getScope, authInfo.getAuid, authInfo.getClientId, timeNow)
   }
 
@@ -93,18 +93,18 @@ object TokenService { // Used by the secure encryption/decryption algorithms
   def createNewAccessToken2(authInfo: AuthInfo): AccessTokenModel = {
     val timeNow = new Date().getTime
     val plainText = authInfo.getAuid + "]" + authInfo.getScope + "]" + authInfo.getClientId + "]" + String.valueOf(timeNow)
-    LPLogger.info("plaintext    : >" + plainText + "<")
-    val signature = LPUtils.secureEncrypt(SECURE_PASSWORD_PHASE1, plainText)
-    LPLogger.info("signature PH1: >" + signature + "<")
-    val randomString = LPUtils.generateRandomToken()
-    LPLogger.info("randomstr PH1: >" + randomString + "<")
-    val encrypted_token = LPUtils.secureEncrypt(SECURE_PASSWORD_PHASE2, randomString + "." + signature)
-    LPLogger.info("encrypted PH2: >" + encrypted_token + "<")
+    LOG.I("plaintext    : >" + plainText + "<")
+    val signature = Utils.secureEncrypt(SECURE_PASSWORD_PHASE1, plainText)
+    LOG.I("signature PH1: >" + signature + "<")
+    val randomString = Utils.generateRandomToken()
+    LOG.I("randomstr PH1: >" + randomString + "<")
+    val encrypted_token = Utils.secureEncrypt(SECURE_PASSWORD_PHASE2, randomString + "." + signature)
+    LOG.I("encrypted PH2: >" + encrypted_token + "<")
     new AccessTokenModel(encrypted_token, OAuth2Constant.TOKEN_TYPE_BEARER, OAuth2Constant.EXPIRES_IN_DEFAULT_VALUE, authInfo.getRefreshToken, authInfo.getScope, authInfo.getAuid, authInfo.getClientId, timeNow)
   }
 
   /**
     * Return a new Client Id
     */
-  def createUserId: String = LPUtils.getRandomUUID()
+  def createUserId: String = Utils.getRandomUUID()
 }

@@ -38,7 +38,7 @@ package radiomapserver
 import java.io.{BufferedReader, File, FileReader}
 import java.util.{ArrayList, HashMap}
 
-import utils.LPLogger
+import utils.LOG
 
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -141,7 +141,7 @@ class RadioMapMean(private val isIndoor: Boolean, @BeanProperty val defaultNaNVa
       reader.close()
     } catch {
       case e: Exception => {
-        LPLogger.debug("Error while constructing RadioMap: ")
+        LOG.D("Error while constructing RadioMap: ")
         e.printStackTrace()
         return false
       }

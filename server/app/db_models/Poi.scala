@@ -43,7 +43,7 @@ import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import utils.JsonUtils.convertToInt
-import utils.{GeoJSONPoint, LPUtils}
+import utils.{GeoJSONPoint, Utils}
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
@@ -60,7 +60,7 @@ object Poi {
             buid: String,
             floor_number: String,
             coordinates_lat: String,
-            coordinates_lon: String): String = "poi_" + LPUtils.getRandomUUID()
+            coordinates_lon: String): String = "poi_" + Utils.getRandomUUID()
 }
 
 class Poi(hm: HashMap[String, String]) extends AbstractModel {

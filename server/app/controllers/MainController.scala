@@ -35,31 +35,52 @@
  */
 package controllers
 
+import datasources.SCHEMA
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AbstractController, ControllerComponents}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Result}
+import utils.LOG
 
 @Singleton
-class ApplicationAnyplace @Inject()(cc: ControllerComponents,
-                                    conf: Configuration)
+class MainController @Inject()(cc: ControllerComponents,
+                               conf: Configuration,
+                               assets: Assets)
   extends AbstractController(cc) {
 
-  def index() = Action {
-    Redirect("/viewer")
+  def index(): Action[AnyContent] = Action { Redirect("/viewer") }
+  def indexAny(): Action[AnyContent]  = index()
+  def indexRedirect(any: String): Action[AnyContent] = index() // redirect all others to index
+
+  def at(path: String, file: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      val uri = request.headers.get("referer").getOrElse("")
+      var viewerDir = "/anyplace_viewer/"
+      val campus = !uri.contains(SCHEMA.fCampusCuid)
+      if (campus) {
+        viewerDir = "/anyplace_viewer/"
+      } else {
+        viewerDir = "/anyplace_viewer_campus/"
+      }
+      assets.at(path + viewerDir, file).apply(request)
   }
 
-  def Version= Action {
+  def Version: Action[AnyContent] = Action {
     val version = conf.get[String]("application.version")
     val address = conf.get[String]("server.address")
     val port = conf.get[String]("server.port")
-
+    LOG.D2("PORT: " + port) // CLR:PM
+    LOG.D2("address: " + address)
 
     var variant=""
-    if (address.contains("dev")) {
-      variant = "beta"
-      if (port != "443" || port != "80") variant = "alpha"
-    } else if (address.contains("localhost")) {
+    if (address.contains("ap-dev")) {
+      LOG.D("not 443: " + (port != "443"))
+      variant = "alpha"
+      if (port.equals("443") || port.equals("80")) {
+        LOG.D1("BETA VARIANT") // CLR:PM
+        variant = "beta"
+      }
+    } else if (address.contains("localhost") || address == "127.0.0.1") {
       variant = "local"
     }
 
@@ -68,15 +89,8 @@ class ApplicationAnyplace @Inject()(cc: ControllerComponents,
       "address" -> address,
       "port"-> port,
       "variant" -> variant)
-
-//    return AnyResponseHelper.ok(res) CLR:PM
     Ok(res)
   }
-
-  def indexAny() = index()
-
-  def indexAny(any: String) = index()
-    //Redirect(routes.Assets.at("/public/anyplace_viewer", "index.html"))
 
   // CHECK:PM CHECK:NN ??
   //  def Architect = Action {

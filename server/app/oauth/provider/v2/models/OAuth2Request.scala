@@ -40,7 +40,7 @@ import java.util.regex.Pattern
 import oauth.provider.v2.OAuth2Constant
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Request}
-import utils.LPUtils
+import utils.Utils
 
 // TODO:NN method-> verifyUser() verifyAdminUser()
 // notes -> ../spaceDelete
@@ -120,7 +120,7 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     if (header != null) {
       val matcher = REGEXP_BASIC.matcher(header)
       if (matcher.find) {
-        val decoded = LPUtils.decodeBase64String(matcher.group(2))
+        val decoded = Utils.decodeBase64String(matcher.group(2))
         if (decoded.indexOf(':') > 0) { // we have a client_id:client_secret combo
           val credential = decoded.split(":", 2)
           return new ClientCredentials(credential(0), credential(1))

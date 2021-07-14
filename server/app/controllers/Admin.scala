@@ -6,8 +6,8 @@ import json.VALIDATE
 import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import utils.LPUtils.appendGoogleIdIfNeeded
-import utils.{AnyResponseHelper, LPLogger}
+import utils.Utils.appendGoogleIdIfNeeded
+import utils.{AnyResponseHelper, LOG}
 
 @Singleton
 class Admin @Inject()(cc: ControllerComponents,
@@ -47,7 +47,7 @@ class Admin @Inject()(cc: ControllerComponents,
   def fetchAllAccounts() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.info("fetchAllAccounts(): ")
+        LOG.I("fetchAllAccounts(): ")
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()

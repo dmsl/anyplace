@@ -1,5 +1,3 @@
-#  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
-
 -> /api api.Routes
 
 ################
@@ -9,6 +7,8 @@
 # TODO:NN add usages... renamed stuff.. etc..
 # TODO: other API.... local..
 # /user/login/google (move from AnyplaceMapping to: AnyplaceAccounts (AnypalceAccounts->Accounts)
+# CHECK:NN (CLR if needed)
+#  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
 POST        /anyplace/mapping/accounts/sign                                        controllers.AnyplaceMapping.addAccount()
 
 POST        /user/register                                                         controllers.UserController.register()
@@ -19,9 +19,9 @@ POST        /user/admin/accounts_all                                            
 POST        /user/admin/migration/run                                               controllers.Admin.migrateToMongoDB()
 
 #POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
-#GET         /login                                                                  controllers.ApplicationAnyplace.login()
-#GET         /logout                                                                 controllers.ApplicationAnyplace.logout()
-#POST        /authenticate                                                           controllers.ApplicationAnyplace.authenticate()
+#GET         /login                                                                  controllers.MainController.login()
+#GET         /logout                                                                 controllers.MainController.logout()
+#POST        /authenticate                                                           controllers.MainController.authenticate()
 #POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
 ################
@@ -148,7 +148,7 @@ GET         /architect                                                          
 
 # VIEWER:
 GET /viewer/index.html                                                              controllers.WebAppController.serveViewer(file="index.html")
-GET /viewer/*file                                                                   controllers.AnyplaceAssets.at(path="/public", file)
+GET /viewer/*file                                                                   controllers.MainController.at(path="/public", file)
 GET /viewer/                                                                        controllers.WebAppController.serveViewer(file="index.html")
 GET /viewer                                                                         controllers.WebAppController.AddTrailingSlash()
 
@@ -175,9 +175,9 @@ GET /floortiles/zip/*file                                                       
 # maps from /public to /assets
 GET /assets/*file                                                                   controllers.Assets.at(path="/public", file)
 # root
-GET /                                                                               controllers.ApplicationAnyplace.index()
+GET /                                                                               controllers.MainController.index()
 # REDIRECT REMAINING TO INDEX
-GET /*any                                                                           controllers.ApplicationAnyplace.indexAny(any)
+GET /*any                                                                           controllers.MainController.indexRedirect(any)
 
 #####################
 ### CHECK:NN IF USED ###

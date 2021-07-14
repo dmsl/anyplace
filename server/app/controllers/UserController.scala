@@ -44,7 +44,7 @@ import oauth.provider.v2.models.OAuth2Request
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.mvc._
-import utils.{AnyResponseHelper, JsonUtils, LPLogger}
+import utils.{AnyResponseHelper, JsonUtils, LOG}
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents,
@@ -70,7 +70,7 @@ class UserController @Inject()(cc: ControllerComponents,
             AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LPLogger.info("UserController:deleteAccount: " + json.toString)
+        LOG.I("UserController:deleteAccount: " + json.toString)
         // check if there is any required parameter missing
         val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
@@ -394,7 +394,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
         if (checkRequirements != null) return checkRequirements
 
-        LPLogger.D2("login = " + json)
+        LOG.D2("login = " + json)
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
         val storedUser = pds.getIDatasource.login(SCHEMA.cUsers, username, password)
@@ -417,7 +417,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D2("register: " + json)
+        LOG.D2("register: " + json)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
         if (checkRequirements != null) return checkRequirements
         val name = (json \ SCHEMA.fName).as[String]

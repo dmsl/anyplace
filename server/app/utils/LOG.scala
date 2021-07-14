@@ -37,59 +37,48 @@ package utils
 
 import play.api.Logger
 
-
-// TODO rename to LOG
-object LPLogger {
-  val logger: Logger = Logger(this.getClass())
+object LOG {
+  val logger: Logger = Logger(this.getClass)
   private val LEVEL: Int = 2
 
-  def error(tag: String, message: String, e: Exception): Unit = {
-    // Logger.error(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
-    error(tag + ": " + message, e)
+  def E(tag: String, message: String, e: Exception): Unit = {
+    E(tag + ": " + message, e)
   }
 
-  def error(tag: String, e: Exception): Unit = {
-    val msg = String.format("%s: %s: %s\n%s", tag, e.getClass, e.getMessage, e.getStackTrace.toString)
+  def E(tag: String, e: Exception): Unit = {
+    val msg = String.format("%s: %s: %s\n%s", tag, e.getClass, e.getMessage, e.getStackTrace)
     logger.error(msg, e)
   }
 
-  def error(message: String): Unit = {
+  def E(message: String): Unit = {
     logger.error(String.format("%s", message))
   }
 
-  def info(tag: String, message: String, e: Exception): Unit = {
+  def I(tag: String, message: String, e: Exception): Unit = {
     logger.info(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
   }
 
-  def info(message: String): Unit = {
+  def I(message: String): Unit = {
     logger.info(String.format("%s", message))
   }
 
-  def debug(tag: String, message: String, e: Exception): Unit = {
+  def D(tag: String, message: String, e: Exception): Unit = {
     logger.debug(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
   }
 
-  def debug(message: String): Unit = {
+  def D(message: String): Unit = {
     logger.debug(String.format("%s", message))
   }
 
-  def D1(): Boolean = LEVEL >= 1
+  def D1: Boolean = LEVEL >= 1
+  def D2: Boolean = LEVEL >= 2
+  def D3: Boolean = LEVEL >= 3
+  def D4: Boolean = LEVEL >= 4
+  def D5: Boolean = LEVEL >= 5
 
-  def D2(): Boolean = LEVEL >= 2
-
-  def D3(): Boolean = LEVEL >= 3
-
-  def D4(): Boolean = LEVEL >= 4
-
-  def D5(): Boolean = LEVEL >= 5
-
-  def D1(message: String): Unit = if (D1()) logger.warn(String.format("%s", message))
-
-  def D2(message: String): Unit = if (D2()) logger.debug(String.format("%s", message))
-
-  def D3(message: String): Unit = if (D3()) logger.debug(String.format("%s", message))
-
-  def D4(message: String): Unit = if (D4()) logger.debug(String.format("%s", message))
-
-  def D5(message: String): Unit = if (D5()) logger.debug(String.format("%s", message))
+  def D1(message: String): Unit = if (D1) logger.warn(String.format("%s", message))
+  def D2(message: String): Unit = if (D2) logger.debug(String.format("%s", message))
+  def D3(message: String): Unit = if (D3) logger.debug(String.format("%s", message))
+  def D4(message: String): Unit = if (D4) logger.debug(String.format("%s", message))
+  def D5(message: String): Unit = if (D5) logger.debug(String.format("%s", message))
 }

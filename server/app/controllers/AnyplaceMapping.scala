@@ -50,7 +50,7 @@ import org.apache.commons.codec.binary.Base64
 import org.mongodb.scala.model.Filters.equal
 import play.api.{Configuration, Environment}
 import radiomapserver.RadioMap.RadioMap
-import utils.LPUtils.appendGoogleIdIfNeeded
+import utils.Utils.appendGoogleIdIfNeeded
 
 import scala.concurrent.Future
 //import breeze.linalg.{DenseMatrix, DenseVector}
@@ -132,7 +132,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
           return sub.as[String]
       } catch {
         case ioe: IOException => null
-        case iae: IllegalArgumentException => LPLogger.error("verifyId: " + iae.getMessage + "String: '" + res + "'");
+        case iae: IllegalArgumentException => LOG.E("verifyId: " + iae.getMessage + "String: '" + res + "'");
       }
     null
   }
@@ -154,7 +154,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-        LPLogger.info("AnyplaceMapping::getRadioHeatmap(): " + stripJson(anyReq.getJsonBody()))
+        LOG.I("AnyplaceMapping::getRadioHeatmap(): " + stripJson(anyReq.getJsonBody()))
         try {
           val radioPoints = pds.getIDatasource.getRadioHeatmap()
           if (radioPoints == null) return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
@@ -177,7 +177,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("getHeatmapByFloorAVG1: " + stripJson(json))
+        LOG.I("getHeatmapByFloorAVG1: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -207,7 +207,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D2("getRadioHeatmapRSS2(): " + stripJson(json))
+        LOG.D2("getRadioHeatmapRSS2(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -242,7 +242,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D2("getHeatmapByFloorAVG3: " + stripJson(json))
+        LOG.D2("getHeatmapByFloorAVG3: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -276,7 +276,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D2("getHeatmapByFloorAVG3Tiles: " + stripJson(json))
+        LOG.D2("getHeatmapByFloorAVG3Tiles: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fX, SCHEMA.fY, "z")
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -322,7 +322,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D2("heatmapByFloorTimestampAVG3: " + stripJson(json))
+        LOG.D2("heatmapByFloorTimestampAVG3: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -374,7 +374,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D3("heatmapByFloorTimestampTiles: " + stripJson(json))
+        LOG.D3("heatmapByFloorTimestampTiles: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX,
           SCHEMA.fTimestampY, SCHEMA.fX, SCHEMA.fY, "z")
         if (checkRequirements != null) return checkRequirements
@@ -420,7 +420,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("heatmapByFloorTimestampAVG1: " + stripJson(json))
+        LOG.I("heatmapByFloorTimestampAVG1: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -452,7 +452,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("heatmapByFloorTimestampAVG2: " + stripJson(json))
+        LOG.I("heatmapByFloorTimestampAVG2: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -487,7 +487,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::getAPs(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::getAPs(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -502,8 +502,8 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
             var accessPoints = pds.getIDatasource.getAPsByBuildingFloor(buid, floor)
             val apcdb = pds.getIDatasource.getAPsByBuildingFloorcdb(buid, floor)
 
-            LPLogger.debug("mdb " + accessPoints.size)
-            LPLogger.debug("cdb " + apcdb.size())
+            LOG.D("mdb " + accessPoints.size)
+            LOG.D("cdb " + apcdb.size())
             //val newList = new util.ArrayList[JsValue]()
             //for (ap <- apcdb) {
             //  val newAP = fromCouchObject(ap)
@@ -671,7 +671,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("FingerPrintsDelete: " + stripJson(json))
+        LOG.I("FingerPrintsDelete: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2",
           "lon2", SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
@@ -689,7 +689,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
           if (fingerprints.isEmpty)
             return AnyResponseHelper.bad_request("Fingerprints does not exist or could not be retrieved!")
 
-          LPLogger.D2("FingerPrintsDelete: will delete " + fingerprints.size + " fingerprints.")
+          LOG.D2("FingerPrintsDelete: will delete " + fingerprints.size + " fingerprints.")
           for (fingerprint <- fingerprints) {
             pds.getIDatasource.deleteFingerprint(fingerprint)
           }
@@ -716,7 +716,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::FingerPrintsTimestampDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::FingerPrintsTimestampDelete(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2",
           SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
@@ -770,7 +770,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.D2("FingerprintsByTime: " + stripJson(json))
+        LOG.D2("FingerprintsByTime: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -807,7 +807,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::findPosition(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::findPosition(): " + stripJson(json))
         //val requiredMissing = JsonUtils.requirePropertiesInJson(json, SCHEMA.fBuid, SCHEMA.fFloor,"APs","algorithm_choice")
         // LPLogger.debug("json: "+json)
         //if (!requiredMissing.isEmpty)
@@ -825,7 +825,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
             Some(s.get)
           }
           case e: JsError =>
-            LPLogger.error("accessOpt Errors: " + JsError.toJson(e).toString())
+            LOG.E("accessOpt Errors: " + JsError.toJson(e).toString())
             None
         }
         val accessPoints = accessOpt.get
@@ -906,7 +906,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + stripJson(json))
+        LOG.I("AnyplacePosition::radioDownloadFloor(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloor, SCHEMA.fBuid, "range")
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -950,7 +950,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::deleteRadiosInBox(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::deleteRadiosInBox(): " + stripJson(json))
         try {
           if (!pds.getIDatasource.deleteRadiosInBox()) return AnyResponseHelper.bad_request("Building already exists or could not be added!")
           return AnyResponseHelper.ok("Success")
@@ -968,7 +968,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.D2("spaceAdd: " + stripJson(json))
+        LOG.D2("spaceAdd: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fName, SCHEMA.fDescription,
           SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken, SCHEMA.fSpaceType)
         if (checkRequirements != null) return checkRequirements
@@ -1001,7 +1001,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::spaceUpdateCoOwners(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::spaceUpdateCoOwners(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken, SCHEMA.fCoOwners)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\\(SCHEMA.fAccessToken) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1035,7 +1035,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::spaceUpdateOwner(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::spaceUpdateOwner(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken, "new_owner")
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1069,7 +1069,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::spaceUpdateX(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::spaceUpdateX(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
@@ -1117,7 +1117,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::spaceDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::spaceDelete(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
@@ -1161,7 +1161,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("spaceAll: " + stripJson(json))
+        LOG.I("spaceAll: " + stripJson(json))
         try {
           val spaces = pds.getIDatasource.getAllBuildings()
           val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
@@ -1191,7 +1191,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::spaceGet(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::spaceGet(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -1226,13 +1226,13 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("spaceAllByOwner: " + stripJson(json))
+        LOG.I("spaceAllByOwner: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
         if (owner_id == null) return AnyResponseHelper.forbidden("Unauthorized")
         try {
-          LPLogger.debug("owner_id = " + owner_id)
+          LOG.D("owner_id = " + owner_id)
           val spaces = pds.getIDatasource.getAllBuildingsByOwner(owner_id)
           val res: JsValue = Json.obj("spaces" -> spaces)
           try {
@@ -1256,7 +1256,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("spaceByBucode: " + stripJson(json))
+        LOG.I("spaceByBucode: " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuCode)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         val bucode = (json \ SCHEMA.fBuCode).as[String]
@@ -1283,7 +1283,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("spaceCoordinates(): " + stripJson(json))
+        LOG.I("spaceCoordinates(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
         if (checkRequirements != null) return checkRequirements
         var range = NEARBY_BUILDINGS_RANGE
@@ -1297,7 +1297,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
           }
           if (range > NEARBY_BUILDINGS_RANGE_MAX) {
             range = NEARBY_BUILDINGS_RANGE_MAX
-            LPLogger.info("spaceCoordinates: Maximum range exceeded. Using " + range)
+            LOG.I("spaceCoordinates: Maximum range exceeded. Using " + range)
           }
         }
 
@@ -1335,7 +1335,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("buildingSetAll: " + stripJson(json))
+        LOG.I("buildingSetAll: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
@@ -1391,7 +1391,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
           return AnyResponseHelper
             .bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::buildingSetAdd(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fDescription, SCHEMA.fName, SCHEMA.fBuids, SCHEMA.fGreeklish)
         if (checkRequirements != null) return checkRequirements
         var owner_id = user.authorize(json)
@@ -1436,7 +1436,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::campusUpdate(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::campusUpdate(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         var owner_id = user.authorize(json)
@@ -1498,7 +1498,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
 
   import datasources.{DatasourceException}
   import oauth.provider.v2.models.OAuth2Request
-  import utils.{AnyResponseHelper, JsonUtils, LPLogger}
+  import utils.{AnyResponseHelper, JsonUtils, LOG}
 
   def buildingsetAllByOwner = Action {
     implicit request =>
@@ -1506,7 +1506,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("buildingsetAllByOwner: " + stripJson(json))
+        LOG.I("buildingsetAllByOwner: " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
@@ -1542,7 +1542,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::campusDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::campusDelete(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         var owner_id = user.authorize(json)
@@ -1583,7 +1583,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.D2("AnyplaceMapping::floorAdd(): " + stripJson(json))
+        LOG.D2("AnyplaceMapping::floorAdd(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
           SCHEMA.fDescription, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
@@ -1620,7 +1620,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::floorUpdate(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::floorUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
         if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
@@ -1692,7 +1692,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::floorDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::floorDelete(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         var owner_id = user.authorize(json)
@@ -1738,7 +1738,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::floorAll(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::floorAll(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -1764,7 +1764,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisAdd(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poisAdd(): " + stripJson(json))
         if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return AnyResponseHelper.forbidden("Unauthorized")
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
           SCHEMA.fFloorNumber, SCHEMA.fName, SCHEMA.fPoisType, SCHEMA.fIsDoor, SCHEMA.fIsBuildingEntrance, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
@@ -1800,7 +1800,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisUpdate(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poisUpdate(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
@@ -1867,7 +1867,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poiDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poiDelete(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
@@ -1908,7 +1908,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisByFloor(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poisByFloor(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -1938,7 +1938,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisByBuid(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poisByBuid(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -1969,12 +1969,12 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
   def searchPois = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.D2("searchPois") // ALWAYS: a D2 on the endpoint method with method name
+        LOG.D2("searchPois") // ALWAYS: a D2 on the endpoint method with method name
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.debug("json = " + json)
+        LOG.D("json = " + json)
         var cuid = request.getQueryString(SCHEMA.fConCuid).orNull
         if (cuid == null) cuid = (json \ SCHEMA.fConCuid).as[String]
         var letters = request.getQueryString("letters").orNull
@@ -2020,7 +2020,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poisByBuidincConnectors(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty)
           return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2051,7 +2051,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::connectionAdd(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::connectionAdd(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fPoisA, SCHEMA.fFloorA,
           SCHEMA.fBuidA, SCHEMA.fPoisB, SCHEMA.fFloorB, SCHEMA.fBuidB, SCHEMA.fBuid, SCHEMA.fEdgeType, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
@@ -2119,7 +2119,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::connectionUpdate(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::connectionUpdate(): " + stripJson(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB,
           SCHEMA.fAccessToken)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2182,7 +2182,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poiDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poiDelete(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB,
           SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
@@ -2209,7 +2209,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
           val cuid = Connection.getId(pois_a, pois_b)
           val all_items_failed = pds.getIDatasource.deleteAllByConnection(cuid)
           if (all_items_failed == null) {
-            LPLogger.info("AnyplaceMapping::connectionDelete(): " + cuid + " not found.")
+            LOG.I("AnyplaceMapping::connectionDelete(): " + cuid + " not found.")
             return AnyResponseHelper.bad_request("POI Connection not found")
           }
           if (all_items_failed.size > 0) {
@@ -2232,7 +2232,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::poisByFloor(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::poisByFloor(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -2267,7 +2267,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
 
   import datasources.{DatasourceException}
   import oauth.provider.v2.models.OAuth2Request
-  import utils.{AnyResponseHelper, JsonUtils, LPLogger}
+  import utils.{AnyResponseHelper, JsonUtils, LOG}
 
   /**
    * Retrieve all the pois of a building/floor combination.
@@ -2282,7 +2282,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::connectionsByallFloors(): " + stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -2342,9 +2342,9 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::serveFloorPlan(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::serveFloorPlan(): " + stripJson(json))
         val filePath = tilerHelper.getFloorPlanFor(buid, floor_number)
-        LPLogger.info("requested: " + filePath)
+        LOG.I("requested: " + filePath)
         try {
           val file = new File(filePath)
           // LPLogger.debug("filePath " + file.getAbsolutePath.toString)
@@ -2367,10 +2367,10 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZip(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::serveFloorPlanTilesZip(): " + stripJson(json))
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         val filePath = tilerHelper.getFloorTilesZipFor(buid, floor_number)
-        LPLogger.info("requested: " + filePath)
+        LOG.I("requested: " + filePath)
         try {
           val file = new File(filePath)
           if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
@@ -2392,10 +2392,10 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + stripJson(json))
         if (!Floor.checkFloorNumberFormat(floor_number)) return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
         val filePath = tilerHelper.getFloorTilesZipFor(buid, floor_number)
-        LPLogger.info("requested: " + filePath)
+        LOG.I("requested: " + filePath)
         val file = new File(filePath)
         if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
         if (!file.canRead()) return AnyResponseHelper.bad_request("Requested floor plan cannot be read: " +
@@ -2437,9 +2437,9 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::serveFloorPlanBase64(): " + stripJson(json))
         val filePath = tilerHelper.getFloorPlanFor(buid, floor_number)
-        LPLogger.info("requested: " + filePath)
+        LOG.I("requested: " + filePath)
         val file = new File(filePath)
         try {
           if (!file.exists()) return AnyResponseHelper.bad_request("Requested floor plan does not exist");
@@ -2482,7 +2482,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64all(): " + stripJson(json) + " " + floor_number)
+        LOG.I("AnyplaceMapping::serveFloorPlanBase64all(): " + stripJson(json) + " " + floor_number)
         val floors = floor_number.split(" ")
         val all_floors = new util.ArrayList[String]
         var z = 0
@@ -2490,7 +2490,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
           z < floors.length
         }) {
           val filePath = tilerHelper.getFloorPlanFor(buid, floors(z))
-          LPLogger.info("requested: " + filePath)
+          LOG.I("requested: " + filePath)
           val file = new File(filePath)
           try
             if (!file.exists || !file.canRead) {
@@ -2573,8 +2573,8 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         } catch {
           case e: IOException => return AnyResponseHelper.bad_request("Cannot parse json in the request!")
         }
-        LPLogger.info("Floorplan Request[json]: " + json.toString)
-        LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
+        LOG.I("Floorplan Request[json]: " + json.toString)
+        LOG.I("Floorplan Request[floorplan]: " + floorplan.filename)
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fLatBottomLeft,
           SCHEMA.fLonBottomLeft, SCHEMA.fLatTopRight, SCHEMA.fLonTopRight)
         if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
@@ -2610,7 +2610,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
-        LPLogger.info("Successfully tiled: " + floor_file.toString)
+        LOG.I("Successfully tiled: " + floor_file.toString)
         return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
 
@@ -2621,7 +2621,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.D2("floorPlanUploadWithZoom")
+        LOG.D2("floorPlanUploadWithZoom")
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) return AnyResponseHelper.bad_request("Invalid request type - Not Multipart!")
@@ -2679,7 +2679,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         } catch {
           case e: AnyPlaceException => return AnyResponseHelper.bad_request("Could not create floor plan tiles on the server!")
         }
-        LPLogger.info("Successfully tiled: " + floor_file.toString)
+        LOG.I("Successfully tiled: " + floor_file.toString)
         return AnyResponseHelper.ok("Successfully updated floor plan!")
       }
 
@@ -2720,11 +2720,11 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (res.size == 1) {
           user = mongoDB.convertJson(res(0))
         } else if (res.size > 1) {
-          LPLogger.error("User exists. More than one user with id: " + ownerId)
+          LOG.E("User exists. More than one user with id: " + ownerId)
         }
 
       }
-      case ExternalType.LOCAL => LPLogger.debug("TODO: query unique email")
+      case ExternalType.LOCAL => LOG.D("TODO: query unique email")
     }
     return user
   }
@@ -2737,7 +2737,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
   def addAccount() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LPLogger.D1("AddAccount")
+        LOG.D1("AddAccount")
         val auth = new OAuth2Request(request)
         if (!auth.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = auth.getJsonBody()
@@ -2749,7 +2749,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         if (external.toOption.isDefined) {
           return addGoogleAccount(auth) // auth.addGoogleAccount()
         } else {
-          LPLogger.error("TODO: Add Local Account")
+          LOG.E("TODO: Add Local Account")
           null
         }
         //val user: JsValue = Json.obj("user" -> result)
@@ -2763,15 +2763,15 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
   // TODO if json has not type add type = user
   def appendUserType(json: JsValue): JsValue = {
     if ((json \ SCHEMA.fType).toOption.isDefined) {
-      LPLogger.info("user type exists: " + (json \ SCHEMA.fType).as[String]) // Might crash
+      LOG.I("user type exists: " + (json \ SCHEMA.fType).as[String]) // Might crash
       return json
     } else {
       var userType: String = ""
       if (isFirstUser()) {
         userType = "admin"
-        LPLogger.info("Initializing admin user!")
+        LOG.I("Initializing admin user!")
       } else {
-        LPLogger.D4("AppendUserType: user")
+        LOG.D4("AppendUserType: user")
         userType = "user"
       }
       return json.as[JsObject] + (SCHEMA.fType -> JsString(userType))
@@ -2799,7 +2799,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
   }
 
   def addGoogleAccount(auth: OAuth2Request): Result = {
-    LPLogger.info("addGoogleAccount")
+    LOG.I("addGoogleAccount")
     var json = auth.getJsonBody()
     val notFound = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
     if (!notFound.isEmpty) return AnyResponseHelper.requiredFieldsMissing(notFound)
@@ -2978,7 +2978,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LPLogger.info("AnyplaceMapping::deleteNotValidDocuments(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::deleteNotValidDocuments(): " + stripJson(json))
         try {
           if (!pds.getIDatasource.deleteNotValidDocuments()) return AnyResponseHelper.bad_request("None valid documents!")
           return AnyResponseHelper.ok("Success")
@@ -3159,13 +3159,13 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
     val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
     var fout: FileOutputStream = null
     fout = new FileOutputStream(radio)
-    LPLogger.debug(radio.toPath().getFileName.toString)
+    LOG.D(radio.toPath().getFileName.toString)
     var floorFetched: Long = 0L
     floorFetched = pds.getIDatasource.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floor_number)
     try {
       fout.close()
     } catch {
-      case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
+      case e: IOException => LOG.E("Error while closing the file output stream for the dumped rss logs")
     }
     if (floorFetched == 0) {
       Option[RadioMapMean](null)

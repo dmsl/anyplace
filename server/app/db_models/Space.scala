@@ -48,7 +48,7 @@ import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json._
 import utils.JsonUtils.convertToInt
-import utils.{GeoJSONPoint, LPUtils}
+import utils.{GeoJSONPoint, Utils}
 
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
 
@@ -106,7 +106,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
   def getId(): String = {
     var buid: String = fields.get(SCHEMA.fBuid)
     if (buid == null || buid.isEmpty || buid == "") {
-      val finalId = LPUtils.getRandomUUID() + "_" + System.currentTimeMillis()
+      val finalId = Utils.getRandomUUID() + "_" + System.currentTimeMillis()
       fields.put(SCHEMA.fBuid, "building_" + finalId)
       buid = fields.get(SCHEMA.fBuid)
       this.json.as[JsObject] + (SCHEMA.fBuid -> Json.toJson(buid))

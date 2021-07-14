@@ -44,6 +44,7 @@ import java.util.Date
 import java.util.Locale
 
 
+// CLR:PM
 object AndroidAPKFile {
 
   class AndroidAPKComparator extends Comparator[AndroidAPKFile] {

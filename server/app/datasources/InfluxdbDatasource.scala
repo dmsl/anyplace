@@ -39,7 +39,7 @@ import java.io.IOException
 
 import db_models._
 import io.razem.influxdbclient._
-import utils.{GeoPoint, LPLogger}
+import utils.{GeoPoint, LOG}
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -81,15 +81,15 @@ object InfluxdbDatasource {
 			new InfluxdbDatasource(hostname_in, port_in.toShort, database_in, precision)
 		} catch {
 			case e: java.net.SocketTimeoutException =>
-				LPLogger.error("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
+				LOG.E("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
 					e.getMessage)
 				throw new DatasourceException("Cannot connect to Anyplace Influx Database [SocketTimeout]!")
 			case e: IOException =>
-				LPLogger.error("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
+				LOG.E("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
 					e.getMessage)
 				throw new DatasourceException("Cannot connect to Anyplace influx Database [IO]!")
 			case e: Exception =>
-				LPLogger.error("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
+				LOG.E("InfluxdbDatasource::connect():: Error connection to InfluxDB: " +
 					e.getMessage)
 				throw new DatasourceException("Cannot connect to Anyplace Influx Database! [Unknown]")
 		}

@@ -43,7 +43,7 @@ import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JsonUtils.convertToInt
-import utils.LPUtils
+import utils.Utils
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
@@ -111,7 +111,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
   def getId(): String = {
     var cuid: String = fields.get(SCHEMA.fCampusCuid)
     if (cuid.isEmpty || cuid.==("")) {
-      val finalId: String = LPUtils.getRandomUUID() + "_" + System
+      val finalId: String = Utils.getRandomUUID() + "_" + System
         .currentTimeMillis()
       fields.put(SCHEMA.fCampusCuid, "cuid_" + finalId)
       cuid = fields.get(SCHEMA.fCampusCuid)

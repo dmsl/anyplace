@@ -35,14 +35,13 @@
  */
 
 import java.io.{PrintWriter, StringWriter}
-
 import play.api.http.HttpErrorHandler
 
 import scala.concurrent._
 import javax.inject.Singleton
 import play.api.mvc._
 import play.api.mvc.Results._
-import utils.{LPLogger, LPUtils}
+import utils.{AnyResponseHelper, LOG, Utils}
 
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
@@ -73,39 +72,52 @@ class ErrorHandler extends HttpErrorHandler {
             return Future.successful(Status(statusCode))
         }
 
-        val eid = LPUtils.genErrorUniqueID()
+        // API requests return an API answer.
+        if(request.path.startsWith("/api")) {
+           return Future.successful(AnyResponseHelper.bad_request("No such endpoint."))
+        }
+
+        val eid = Utils.genErrorUniqueID()
         val errInt = "404: ID: " + eid
         val errPub =  "Client Error: 404: Error ID: " + eid
 
-        LPLogger.error(errInt + " " + errorMsg(request))
+        LOG.E(errInt + " " + errorMsg(request))
 
         Future.successful(Status(statusCode)(
             errPub + "\n\n\n" + errorMsg(request) + infoGithub(eid)))
     }
 
     def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
-        val eid = LPUtils.genErrorUniqueID()
+        val eid = Utils.genErrorUniqueID()
         val errInt = "500: ID: " + eid + ":"
         val errPub =  "500 Internal Server Error: Error ID: " + eid
 
-        LPLogger.error(errInt + " " + errorMsg(request))
+        LOG.E(errInt + " " + errorMsg(request))
 
-        LPLogger.error("Message: " + exception.getMessage)
-        LPLogger.error("Cause: " + exception.getCause)
+        LOG.E("Message: " + exception.getMessage)
+        LOG.E("Cause: " + exception.getCause)
+        if(request.path.startsWith("/api")) { // API requests return JSON
+            return Future.successful(AnyResponseHelper.bad_request("No such endpoint."))
+        }
+
         if (exception.isInstanceOf[MatchError]) {
             // CHECK if OK leave like this
-            LPLogger.error("Skip full stacktrace?")
+            LOG.E("Skip full stacktrace?")
         } else {
-            LPLogger.error("StackTrace: " + fullStacktrace(exception))
+            LOG.E("StackTrace: " + fullStacktrace(exception))
         }
 
       //  Handle:
-//        p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
-//          java.lang.IllegalArgumentException: empty text
+      //  p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
+      //  java.lang.IllegalArgumentException: empty text
 
+        val msg =  errPub + "\n\n\n" + errorMsg(request) +
+          "\nCause: " + exception.getMessage + infoGithub(eid)
 
-        Future.successful(InternalServerError(
-            errPub + "\n\n\n" + errorMsg(request) +
-            "\nCause: " + exception.getMessage + infoGithub(eid)))
+        if(request.path.startsWith("/api")) { // return JSON
+            return Future.successful(AnyResponseHelper.bad_request(msg))
+        }  else {
+            return Future.successful(InternalServerError(msg))
+        }
     }
 }

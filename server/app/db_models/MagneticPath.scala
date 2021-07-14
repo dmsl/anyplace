@@ -35,7 +35,7 @@
  */
 package db_models
 
-import utils.LPUtils
+import utils.Utils
 import java.util.HashMap
 
 import com.couchbase.client.java.document.json.JsonObject
@@ -74,7 +74,7 @@ class MagneticPath(hm: HashMap[String, String]) extends AbstractModel {
     def getId(): String = {
         var id: String  = fields.get("mpuid")
         if (id.isEmpty || id == "") {
-            id = "mpath_" + LPUtils.getRandomUUID() + "_" + System.currentTimeMillis()
+            id = "mpath_" + Utils.getRandomUUID() + "_" + System.currentTimeMillis()
         }
         id
     }

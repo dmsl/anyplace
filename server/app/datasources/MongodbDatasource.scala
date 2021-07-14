@@ -58,7 +58,7 @@ import play.api.Configuration
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue, Json}
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
 import utils.JsonUtils.cleanupMongoJson
-import utils.{GeoJSONPoint, GeoPoint, JsonUtils, LPLogger}
+import utils.{GeoJSONPoint, GeoPoint, JsonUtils, LOG}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
@@ -69,19 +69,24 @@ import scala.util.control.Breaks
 
 object MongodbDatasource {
   val __SCHEMA: Int = 0
-  private var sInstance: MongodbDatasource = null
   private var mdb: MongoDatabase = null
-  private var admins: List[String] = List[String]()
   private var mongoClient: MongoClient = null
+  private var sInstance: MongodbDatasource = null
 
-  def initialize(conf: Configuration): MongodbDatasource = {
+  private var admins: List[String] = List[String]()
+
+  def instance: MongodbDatasource = {
+    if (sInstance == null) throw new RuntimeException("Mongodb not initialized")
+    sInstance
+  }
+
+  def initialize(conf: Configuration): Unit = {
     val username = conf.get[String]("mongodb.app.username")
     val password = conf.get[String]("mongodb.app.password")
     val hostname = conf.get[String]("mongodb.hostname")
     val port = conf.get[String]("mongodb.port")
     val database = conf.get[String]("mongodb.database")
     sInstance = createInstance(hostname, database, username, password, port)
-    sInstance
   }
 
   def createInstance(hostname: String, database: String, username: String, password: String, port: String): MongodbDatasource = {
@@ -92,8 +97,8 @@ object MongodbDatasource {
     val collections = mdb.listCollectionNames()
     val awaited = Await.result(collections.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LPLogger.info("MongoDB: Connected to: " + hostname + ":" + port)
-    LPLogger.debug("Collections = " + res)
+    LOG.I("MongoDB: Connected to: " + hostname + ":" + port)
+    LOG.D("Collections = " + res)
     admins = loadAdmins()
     new MongodbDatasource()
   }
@@ -142,12 +147,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   def convertJson(doc: Document) = cleanupMongoJson(Json.parse(doc.toJson()))
-
-
-
-  def disconnect() = {
-    val res = mongoClient.close()
-  }
+  def disconnect() = mongoClient.close()
 
   var wordsELOT = new java.util.ArrayList[java.util.ArrayList[String]]
   var allPoisSide = new java.util.HashMap[String, java.util.List[JsValue]]()
@@ -288,7 +288,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue] = {
-    LPLogger.info("poisByBuildingAsJson3")
+    LOG.I("poisByBuildingAsJson3")
     var pois: java.util.List[JsValue] = null
     val pois2 = new java.util.ArrayList[JsValue]
     if (allPoisSide.get(buid) != null)
@@ -643,7 +643,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
       db_res
     } catch {
       case e: IOException => {
-        LPLogger.error("Couldn't find the document.")
+        LOG.E("Couldn't find the document.")
         null
       }
     }
@@ -785,7 +785,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def deleteAllByBuilding(buid: String): Boolean = {
-    LPLogger.debug("Cascading building " + buid)
+    LOG.D("Cascading building " + buid)
     var ret = true
 
     // deleting floors along with pois, edges
@@ -832,7 +832,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val delAwaited = Await.result(deleted.toFuture(), Duration.Inf)
     val delRes = delAwaited
     val bool1 = delRes.wasAcknowledged()
-    LPLogger.debug("fingerprints with buid " + buid + " " + delRes.toString)
+    LOG.D("fingerprints with buid " + buid + " " + delRes.toString)
     ret = ret && bool1
 
     (ret && bool)
@@ -852,8 +852,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def deleteAllByFloor(buid: String, floor_number: String): Boolean = {
-    LPLogger.D3("deleteAllByFloor::")
-    LPLogger.D3("Cascade deletion: edges reaching this floor, edges of this floor," +
+    LOG.D3("deleteAllByFloor::")
+    LOG.D3("Cascade deletion: edges reaching this floor, edges of this floor," +
       " pois of this floor, floorplan(mongoDB), floorplan image(server)")
     var collection = mdb.getCollection(SCHEMA.cEdges)
 
@@ -863,7 +863,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     var awaited = Await.result(deleted.toFuture(), Duration.Inf)
     var res = awaited
     val bool1 = res.wasAcknowledged()
-    LPLogger.debug("edges from buid_a: " + buid + " " + res.toString)
+    LOG.D("edges from buid_a: " + buid + " " + res.toString)
 
     // queryBuidB deletes edges that point to building buid
     val queryBuidB = BsonDocument(SCHEMA.fBuidB -> buid, SCHEMA.fFloorB -> floor_number)
@@ -871,7 +871,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     awaited = Await.result(deleted.toFuture(), Duration.Inf)
     res = awaited
     val bool2 = res.wasAcknowledged()
-    LPLogger.debug("edges to buid_b: " + buid + " " + res.toString)
+    LOG.D("edges to buid_b: " + buid + " " + res.toString)
 
     // this query will delete the pois of the floor
     val queryFloor = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloorNumber -> floor_number)
@@ -880,7 +880,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     awaited = Await.result(deleted.toFuture(), Duration.Inf)
     res = awaited
     val bool3 = res.wasAcknowledged()
-    LPLogger.debug("pois in building with buid: " + buid + " " + res.toString)
+    LOG.D("pois in building with buid: " + buid + " " + res.toString)
 
     // delets 7 cached collections
     val queryCached = BsonDocument(SCHEMA.fBuid -> buid)
@@ -889,7 +889,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     awaited = Await.result(deleted.toFuture(), Duration.Inf)
     res = awaited
     val bool4 = res.wasAcknowledged()
-    LPLogger.debug("fingerprints with buid " + buid + " " + res.toString)
+    LOG.D("fingerprints with buid " + buid + " " + res.toString)
     val bool5 = deleteAffectedHeatmaps(buid, floor_number)
 
     // this query will delete the floor it self
@@ -898,7 +898,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     awaited = Await.result(deleted.toFuture(), Duration.Inf)
     res = awaited
     val bool6 = res.wasAcknowledged()
-    LPLogger.debug("floorplan with buid " + buid + " " + res.toString)
+    LOG.D("floorplan with buid " + buid + " " + res.toString)
     bool1 && bool2 && bool3 && bool4 && bool5 & bool6
   }
 
@@ -974,7 +974,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val res = awaited.toList
 
     var foundHeatmaps = convertJson(res)
-    LPLogger.debug("size = " + foundHeatmaps.size)
+    LOG.D("size = " + foundHeatmaps.size)
     if (foundHeatmaps.size == 0) {
       foundHeatmaps = generateHeatmapsOnFly(SCHEMA.cHeatmapWifi1, buid, floor, query, 1, false)
       if (foundHeatmaps == null)
@@ -1094,7 +1094,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def getRadioHeatmapByBuildingFloorTimestampAverage2(buid: String, floor: String, timestampX: String, timestampY: String): List[JsValue] = {
-    LPLogger.debug("getRadioHeatmapByBuildingFloorTimestampAverage2")
+    LOG.D("getRadioHeatmapByBuildingFloorTimestampAverage2")
     val collection = mdb.getCollection(SCHEMA.cHeatmapWifiTimestamp2)
     val radioPoints = collection.find(and(lt(SCHEMA.fTimestamp, timestampY), gt(SCHEMA.fTimestamp, timestampX),
       equal(SCHEMA.fBuid, buid), equal(SCHEMA.fFloor, floor)))
@@ -1125,7 +1125,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
                             hasTimestamp: Boolean): List[JsValue] = {
     val collection = mdb.getCollection(col)
     if (onRequestCreateHeatmaps(buid, floor, level, hasTimestamp)) { // if success fetch
-      LPLogger.D2("generateHeatmapsOnFly")
+      LOG.D2("generateHeatmapsOnFly")
       var radioPoints: AggregateObservable[Document] = null
       radioPoints = collection.aggregate(Seq(
         Aggregates.filter(query),
@@ -1148,7 +1148,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
    * @return
    */
   def onRequestCreateHeatmaps(buid: String, floor: String, level: Int, hasTimestamp: Boolean): Boolean = {
-    LPLogger.info("onRequestCreateHeatmaps")
+    LOG.I("onRequestCreateHeatmaps")
     val collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
     val query: BsonDocument = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor)
     val fingerprintsLookup = collection.find(query)
@@ -1156,7 +1156,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val res = awaited.toList
     val fingerprints = convertJson(res)
     if (fingerprints.size == 0) {
-      LPLogger.info("No fingerprints in the building.Can't generate heatmaps.")
+      LOG.I("No fingerprints in the building.Can't generate heatmaps.")
       return false
     }
 
@@ -1275,7 +1275,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
    */
   def trimCoordinates(fingerprint: JsValue, level: Int): util.ArrayList[Double] = {
     if ((fingerprint \ SCHEMA.fGeometry \ SCHEMA.fCoordinates).toOption.isEmpty) {
-      LPLogger.debug("trimCoordinates: " + fingerprint + ".No field coordinates.")
+      LOG.D("trimCoordinates: " + fingerprint + ".No field coordinates.")
       return null
     }
     val location = new util.ArrayList[Double]
@@ -1307,7 +1307,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
       }
       return location
     } catch {
-      case e: Exception => LPLogger.error("trimCoordinates", e)
+      case e: Exception => LOG.E("trimCoordinates", e)
     }
     null
   }
@@ -1441,7 +1441,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val buildings = collection.find(query)
     val awaited = Await.result(buildings.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LPLogger.debug(s"Res on complete Length:${res.length}")
+    LOG.D(s"Res on complete Length:${res.length}")
     val listJson = convertJson(res)
     var newJson: JsValue = null
     val newList = new util.ArrayList[JsValue]()
@@ -1498,7 +1498,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
         and(equal(SCHEMA.fIsPublished, "false"), equal(SCHEMA.fOwnerId, owner_id)))))
     val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LPLogger.debug("getAllBuildingsNearMe: fetched " + res.size + " building(s) within a range of: " + range)
+    LOG.D("getAllBuildingsNearMe: fetched " + res.size + " building(s) within a range of: " + range)
     val listJson = convertJson(res)
     val buildings = new java.util.ArrayList[JsValue]()
     for (building <- listJson) {
@@ -1535,7 +1535,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
         }
       }
     }
-    LPLogger.info("total fetched: " + totalFetched)
+    LOG.I("total fetched: " + totalFetched)
 
     writer.flush()
     writer.close()
@@ -1567,7 +1567,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     }
     if (unique == 1)
       return uniqBuid
-    LPLogger.error("Coordinates were found in two floors.")
+    LOG.E("Coordinates were found in two floors.")
     return null
   }
 
@@ -1608,7 +1608,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val users = collection.find()
     val awaited = Await.result(users.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LPLogger.debug(s"Res on complete Length:${res.length}")
+    LOG.D(s"Res on complete Length:${res.length}")
     val usersList = convertJson(res)
     val ret = new util.ArrayList[JsValue]()
     for (user <- usersList) {
@@ -1632,7 +1632,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
       val awaited = Await.result(fingerprintLookup.toFuture(), Duration.Inf)
       val res = awaited.toList
       val listJson = convertJson(res)
-      LPLogger.D2("size = " + listJson.size)
+      LOG.D2("size = " + listJson.size)
       if (listJson.size != 0) {
         val bucket = new java.util.ArrayList[JsValue](10)
         var _floor = "0"
@@ -1683,7 +1683,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def generateHeatmaps(): Boolean = {
-    LPLogger.debug("generateHeatmaps: Generating Heatmaps")
+    LOG.D("generateHeatmaps: Generating Heatmaps")
     val bCollection = mdb.getCollection(SCHEMA.cSpaces)
     val flCollection = mdb.getCollection(SCHEMA.cFloorplans)
     val fiCollection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
@@ -1706,33 +1706,33 @@ class MongodbDatasource @Inject() () extends IDatasource {
         val fingerprints = convertJson(resFi)
         for (fingerprint <- fingerprints) {
           if (!updateHeatmap(fingerprint, 1, false)) {
-            LPLogger.debug("error at level 1")
+            LOG.D("error at level 1")
             return false
           }
           if (!updateHeatmap(fingerprint, 2, false)) {
-            LPLogger.debug("error at level 2")
+            LOG.D("error at level 2")
             return false
           }
           if (!updateHeatmap(fingerprint, 3, false)) {
-            LPLogger.debug("error at level 3")
+            LOG.D("error at level 3")
             return false
           }
           if (!updateHeatmap(fingerprint, 1, true)) {
-            LPLogger.debug("error at level 1 timestamp")
+            LOG.D("error at level 1 timestamp")
             return false
           }
           if (!updateHeatmap(fingerprint, 2, true)) {
-            LPLogger.debug("error at level 2 timestamp")
+            LOG.D("error at level 2 timestamp")
             return false
           }
           if (!updateHeatmap(fingerprint, 3, true)) {
-            LPLogger.debug("error at level 3 timestamp")
+            LOG.D("error at level 3 timestamp")
             return false
           }
         }
       }
     }
-    LPLogger.debug("generateHeatmaps: Generated Heatmaps")
+    LOG.D("generateHeatmaps: Generated Heatmaps")
     true
   }
 
@@ -1745,7 +1745,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
-    LPLogger.D2("Deleting generated heatmaps..")
+    LOG.D2("Deleting generated heatmaps..")
     val collections = Array(cHeatmapWifi1, cHeatmapWifi2, cHeatmapWifi3, cHeatmapWifiTimestamp1,
       cHeatmapWifiTimestamp2, cHeatmapWifiTimestamp3, cAccessPointsWifi)
     val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor_number)

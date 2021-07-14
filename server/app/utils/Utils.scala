@@ -1,10 +1,10 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -38,19 +38,22 @@ package utils
 import java.io.UnsupportedEncodingException
 import java.security.{InvalidAlgorithmParameterException, MessageDigest, NoSuchAlgorithmException, SecureRandom}
 import java.security.spec.InvalidKeySpecException
-import java.util.UUID
-
+import java.util.{Date, UUID}
 import javax.crypto._
 import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
 import org.apache.commons.codec.binary.Base64
 
-object LPUtils {
+import java.text.SimpleDateFormat
 
+object Utils {
     private val SECURE_ITERATIONS = 1000
-
     private val SECURE_KEY_LENGTH = 128
-
     private val PRNG_SEED = 16
+
+    def prettyDate: String = {
+        val date_format = "dd/MM/YY HH:mm:ss"
+        new SimpleDateFormat(date_format).format(new Date)
+    }
 
     def getRandomUUID(): String = UUID.randomUUID().toString
 
@@ -60,7 +63,7 @@ object LPUtils {
     }
 
     def generateRandomRssLogFileName(): String = {
-        return "rss-log-" + System.currentTimeMillis() + "-" + LPUtils.generateRandomToken()
+        return "rss-log-" + System.currentTimeMillis() + "-" + Utils.generateRandomToken()
     }
 
     def generateRandomToken(): String = {

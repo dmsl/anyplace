@@ -43,21 +43,5 @@ import play.api.mvc._
 class AnyplaceAssets @Inject()(cc: ControllerComponents,
                                assets: Assets) extends AbstractController(cc) {
 
-  def at(path: String, file: String): Action[AnyContent] = Action.async {
-    implicit request =>
-      //    Assets.at(path+"/anyplace_viewer_campus", file)
-      val uri = request.headers.get("referer").getOrElse("")
-      var viewerDir = "/anyplace_viewer/"
-      val campus = !uri.contains(SCHEMA.fCampusCuid)
-      if (campus) {
-        viewerDir = "/anyplace_viewer/"
-      } else {
-        viewerDir = "/anyplace_viewer_campus/"
-      }
-     // assets.a
-      //play.api.controllers.AnyplaceAssets.super.at
-      assets.at(path + viewerDir, file).apply(request)
-        //.apply(request)
-  }
 
 }

@@ -43,7 +43,7 @@ import datasources.{MongodbDatasource, SCHEMA}
 import javax.inject.Singleton
 import play.api.libs.json._
 import utils.JsonUtils.convertToInt
-import utils.LPLogger
+import utils.LOG
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
@@ -100,7 +100,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
   // TODO: replace with mongo
   def toGeoJSON(): String = {
-    LPLogger.error("TODO:nn convert to mdb")
+    LOG.E("TODO:nn convert to mdb")
     val sb = new StringBuilder()
     var json: JsonObject = null
     try {

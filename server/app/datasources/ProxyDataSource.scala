@@ -49,17 +49,15 @@ import utils.GeoPoint
 
 @Singleton
 class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
-
   private var mCouchbase: CouchbaseDatasource = _
   private var mongoDB: MongodbDatasource = _
-
   private var mActiveDatabase: IDatasource = _
 
   initCouchbase()
   setActiveDatabase(this.mCouchbase)
+  //setActiveDatabase(this.mongoDB) // TODO:NN TODO:PM getting close to this...
 
   initMongodb()
-  //setActiveDatabase(this.mongoDB) // TODO: nneof once all done
 
   private var sInstance: ProxyDataSource = _
 
@@ -73,11 +71,13 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
   def getIDatasource: IDatasource = getInstance()
 
   private def initCouchbase(): Unit = {
-    this.mCouchbase = CouchbaseDatasource.initialize(conf)
+    CouchbaseDatasource.initialize(conf)
+    this.mCouchbase = CouchbaseDatasource.instance
   }
 
   private def initMongodb(): Unit = {
-    this.mongoDB = MongodbDatasource.initialize(conf)
+    MongodbDatasource.initialize(conf)
+    this.mongoDB = MongodbDatasource.instance
   }
 
   private def setActiveDatabase(ds: IDatasource): Unit = {

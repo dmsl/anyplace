@@ -40,7 +40,7 @@ import java.util._
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import oauth.provider.v2.models.AccountModel._
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
-import utils.{LPUtils}
+import utils.{Utils}
 
 import scala.beans.BeanProperty
 
@@ -104,19 +104,19 @@ object AccountModel {
     */
   private def generateNewAuid(): String =
     "account_" +
-      LPUtils.hashStringHex(
-        LPUtils.generateRandomToken() + System.currentTimeMillis() +
-          LPUtils.getRandomUUID())
+      Utils.hashStringHex(
+        Utils.generateRandomToken() + System.currentTimeMillis() +
+          Utils.getRandomUUID())
 
   private def generateNewClientId(auid: String): String =
     "client_" +
-      LPUtils.hashStringHex(
-        LPUtils.getRandomUUID() + auid + System.currentTimeMillis())
+      Utils.hashStringHex(
+        Utils.getRandomUUID() + auid + System.currentTimeMillis())
 
   private def generateNewClientSecret(auid: String,
                                       client_id: String): String =
     "secret_" +
-      LPUtils.hashStringBase64(client_id + LPUtils.generateRandomToken())
+      Utils.hashStringBase64(client_id + Utils.generateRandomToken())
 
   private var CHANGEABLE_PROPERTIES: Array[String] =
     Array("nickname", "scope", "email", "isadmin")

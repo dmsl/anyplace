@@ -11,8 +11,8 @@ import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
-import utils.LPUtils.{MD5, generateRandomRssLogFileName}
-import utils.{AnyResponseHelper, AnyplaceServerAPI, FileUtils, GeoPoint, LPLogger}
+import utils.Utils.{MD5, generateRandomRssLogFileName}
+import utils.{AnyResponseHelper, AnyplaceServerAPI, FileUtils, GeoPoint, LOG}
 import javax.inject.Singleton
 
 @Singleton
@@ -30,7 +30,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     if (!Floor.checkFloorNumberFormat(floor_number)) {
       return null
     }
-    LPLogger.info(cls + buid + ":" + floor_number)
+    LOG.I(cls + buid + ":" + floor_number)
 
     val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
 
@@ -44,7 +44,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(rssLogPerFloor)
-      LPLogger.D1(cls + "Creating rss-log: " + rssLogPerFloor.toPath().getFileName.toString)
+      LOG.D1(cls + "Creating rss-log: " + rssLogPerFloor.toPath().getFileName.toString)
     } catch {
       case e: FileNotFoundException => return cls + e.getClass + ": " + e.getMessage
     }
@@ -90,14 +90,14 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     } else {
       val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
         range)
-      LPLogger.D4("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
+      LOG.D4("LowerLeft: " + bbox(0) + " UpperRight: " + bbox(1))
 
       // create unique name for cached file based on coordinates, floor_number, range
       val pathName = "radiomaps"
       val hashKey = lat + lon + floorNumber
       val bboxRadioDir = MD5(hashKey) + "-" + range.toString
-      LPLogger.debug("hashkey = " + hashKey)
-      LPLogger.debug("bbox_token = " + bboxRadioDir)
+      LOG.D("hashkey = " + hashKey)
+      LOG.D("bbox_token = " + bboxRadioDir)
       // store in radioMapRawDir/tmp/buid/floor/bbox_token
       val fullPath = conf.get[String]("radioMapRawDir") + "/bbox/" + bboxRadioDir
       val dir = new File(fullPath)
@@ -124,7 +124,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
         var floorFetched: Long = 0L
         try {
           fout = new FileOutputStream(rssLog)
-          LPLogger.D5("RSS path: " + rssLog.toPath().getFileName.toString)
+          LOG.D5("RSS path: " + rssLog.toPath().getFileName.toString)
           floorFetched = pds.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floorNumber)
           fout.close()
           if (floorFetched == 0) {
@@ -142,7 +142,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
         }
       } else {
         msg = "cached-bbox: " + fullPath
-        LPLogger.debug("findRadioBbox: " + msg)
+        LOG.D("findRadioBbox: " + msg)
       }
       var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
       var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
@@ -185,7 +185,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
       fout = new FileOutputStream(dest_f)
       Files.copy(file.toPath(), fout)
       fout.close()
-      LPLogger.D1("storeRadioMapToServer: Stored raw rss-log: " + name)
+      LOG.D1("storeRadioMapToServer: Stored raw rss-log: " + name)
     } catch {
       case e: IOException => {
         e.printStackTrace()

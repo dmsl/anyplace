@@ -1,13 +1,18 @@
 # WEB APPLICATIONS:
 Separate web application frontends written in Angular-JS.
 They utilize Google Maps JS. In future work we aim to migrate to Leaflet/Angular.
-They share some common resources:
-- images
-- js/css
+They also share some common resources: [shared](./shared/)
+```
+shared
+├── css
+├── images
+└── js/
+    └── anyplace-core-js
+```
 
-#### 1. [architect](./anyplace_architect)
-#### 2. [viewer](./anyplace_viewer)
-#### 3. [viewer_campus](./anyplace_viewer_campus)
+1. [architect](./anyplace_architect)
+2. [viewer](./anyplace_viewer)
+3. [viewer_campus](./anyplace_viewer_campus)
 
 ##  Compilation:
 To compile the
