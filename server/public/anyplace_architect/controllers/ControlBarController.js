@@ -93,6 +93,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         //location.reload();
         $scope.setAuthenticated(true);
         $scope.gAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
+        // passing the token directly to request and intercept later with Local access_token
         app.access_token = $scope.gAuth.id_token;
         $scope.personLookUp(googleUser);
     };
@@ -107,6 +108,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
     $scope.personLookUp = function (resp) {
         // BUG: resp.getBasicProfile is not a function
+        // those functions are attributes of resp (googleUser)
         $scope.person = resp.getBasicProfile(); // BUG
         $scope.person.image = $scope.person.getImageUrl(); // BUG
         $scope.person.id = $scope.person.getId(); // BUG
@@ -114,7 +116,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         // compose user id
         $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
         $scope.displayName = $scope.person.displayName;
-
         var promise = AnyplaceAPIService.signGoogleAccount({
             name: $scope.person.displayName,
             external: "google"
@@ -126,6 +127,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
                 $scope.userType = resp.data.type;
                 $scope.gAuth.access_token = resp.data.access_token;
                 app.access_token = resp.data.access_token;
+                $scope.user.access_token = resp.data.access_token;
                 if ($scope.person && $scope.person.id) {
                     $scope.$broadcast('loggedIn', []);
                 }

@@ -15,8 +15,9 @@
         <pattern>%cyan(%20.-20logger{20}) | %d{"dd/MM/YY HH:mm:ss"} | %highlight(%-5level) | %message%n%xException{5}</pattern>
     </encoder>
   </appender>
-  
-  <logger name="play" level="INFO" />
+
+  <!--  LOG LEVELS  -->
+  <logger name="play" level="ERROR" />
   <logger name="application" level="DEBUG" />
   
   <!-- Off these ones as they are annoying, and anyway we manage configuration ourself -->
@@ -24,7 +25,7 @@
   <logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" />
   <logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" />
   <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
-  <root level="ERROR">
+  <root level="INFO">
     <!-- INFO: Not logging errors in a file. Instead everything is in stdout.
                This is because the std out redirected in a file anyway, during a docker invocation,
                which can be trimmed periodically to curb it's size.
@@ -32,7 +33,7 @@
                One may enable writing ERROR logs to file as well, but 2 files will need to be
                managed then. To do so, uncomment the following:
     -->
-    <!-- <appender-ref ref="FILE" /> -->
+<!--    <appender-ref ref="FILE" />-->
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

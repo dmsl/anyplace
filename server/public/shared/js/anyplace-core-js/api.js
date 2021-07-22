@@ -25,8 +25,9 @@
  THE SOFTWARE.
  */
 
-var AnyplaceAPI = {};
+var AnyplaceAPI = {}; // TODO:NN once all done, and commited. rename ONLY this to API
 AnyplaceAPI.BASE_URL = "../anyplace";
+AnyplaceAPI.API = "../api"
 AnyplaceAPI.VERSION = "../api/version";
 
 /**
@@ -78,21 +79,21 @@ AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.BASE_URL + Any
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
 
-AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/space/add";
-AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.BUILDING_ADD;
-AnyplaceAPI.Mapping.BUILDING_ONE = "/mapping/building/get";
-AnyplaceAPI.Mapping.BUILDING_ONE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.BUILDING_ONE;
-AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/space/update";
-AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.BUILDING_UPDATE;
-AnyplaceAPI.Mapping.BUILDING_DELETE = "/mapping/space/delete";
-AnyplaceAPI.Mapping.BUILDING_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.BUILDING_DELETE;
+AnyplaceAPI.Mapping.BUILDING_ADD = "/auth/mapping/space/add";
+AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ADD;
+AnyplaceAPI.Mapping.BUILDING_ONE = "/mapping/space/get";
+AnyplaceAPI.Mapping.BUILDING_ONE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ONE;
+AnyplaceAPI.Mapping.BUILDING_UPDATE = "/auth/mapping/space/update";
+AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_UPDATE;
+AnyplaceAPI.Mapping.BUILDING_DELETE = "/auth/mapping/space/delete";
+AnyplaceAPI.Mapping.BUILDING_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_DELETE;
 AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/space/all";
-AnyplaceAPI.Mapping.BUILDING_ALL_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.BUILDING_ALL;
-AnyplaceAPI.Mapping.BUILDING_ALL_OWNER = "/mapping/space/all_owner";
-AnyplaceAPI.Mapping.BUILDING_ALL_OWNER_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.BUILDING_ALL_OWNER;
+AnyplaceAPI.Mapping.BUILDING_ALL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ALL;
+AnyplaceAPI.Mapping.BUILDING_ALL_OWNER = "/auth/mapping/space/all_owner";
+AnyplaceAPI.Mapping.BUILDING_ALL_OWNER_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ALL_OWNER;
 
-AnyplaceAPI.Mapping.CAMPUS_ALL = "/mapping/campus/all_owner";
-AnyplaceAPI.Mapping.CAMPUS_ALL_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CAMPUS_ALL;
+AnyplaceAPI.Mapping.CAMPUS_ALL = "/auth/mapping/campus/all_owner";
+AnyplaceAPI.Mapping.CAMPUS_ALL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CAMPUS_ALL;
 AnyplaceAPI.Mapping.CAMPUS_UPDATE = "/mapping/campus/update";
 AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CAMPUS_UPDATE;
 AnyplaceAPI.Mapping.CAMPUS_DELETE = "/mapping/campus/delete";
@@ -117,33 +118,36 @@ AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64all/";
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL;
 
-AnyplaceAPI.Mapping.POIS_ADD = "/mapping/pois/add";
-AnyplaceAPI.Mapping.POIS_ADD_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_ADD;
-AnyplaceAPI.Mapping.POIS_UPDATE = "/mapping/pois/update";
-AnyplaceAPI.Mapping.POIS_UPDATE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_UPDATE;
-AnyplaceAPI.Mapping.POIS_DELETE = "/mapping/pois/delete";
-AnyplaceAPI.Mapping.POIS_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_DELETE;
+AnyplaceAPI.Mapping.POIS_ADD = "/auth/mapping/pois/add";
+AnyplaceAPI.Mapping.POIS_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_ADD;
+AnyplaceAPI.Mapping.POIS_UPDATE = "/auth/mapping/pois/update";
+AnyplaceAPI.Mapping.POIS_UPDATE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_UPDATE;
+AnyplaceAPI.Mapping.POIS_DELETE = "/auth/mapping/pois/delete";
+AnyplaceAPI.Mapping.POIS_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_DELETE;
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR = "/mapping/pois/all_floor";
-AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
+AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
-AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
+AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
 AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/search";
-AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.ALL_POIS;
+AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.ALL_POIS;
 
-AnyplaceAPI.Mapping.CONNECTION_ADD = "/mapping/connection/add";
-AnyplaceAPI.Mapping.CONNECTION_ADD_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CONNECTION_ADD;
-AnyplaceAPI.Mapping.CONNECTION_UPDATE = "/mapping/connection/update";
+AnyplaceAPI.Mapping.CONNECTION_ADD = "/auth/mapping/connection/add";
+AnyplaceAPI.Mapping.CONNECTION_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_ADD;
+AnyplaceAPI.Mapping.CONNECTION_UPDATE = "/auth/mapping/connection/update";
 AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CONNECTION_UPDATE;
 AnyplaceAPI.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
-AnyplaceAPI.Mapping.CONNECTION_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CONNECTION_DELETE;
+AnyplaceAPI.Mapping.CONNECTION_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_DELETE;
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
-AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;
+AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;
 
-AnyplaceAPI.Mapping.SIGN = "/mapping/accounts/sign";
-AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.SIGN;
+AnyplaceAPI.Mapping.SIGN = "/user/google/sign";
+AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.SIGN;
 
 AnyplaceAPI.Mapping.SIGN_LOCAL = "/user/login";
+AnyplaceAPI.Mapping.SIGN_LOCAL_URL = AnyplaceAPI.API + "/user/login";
+
 AnyplaceAPI.Mapping.REGISTER_LOCAL = "/user/register";
+AnyplaceAPI.Mapping.REGISTER_LOCAL_URL = AnyplaceAPI.API + "/user/register";
 
 AnyplaceAPI.Navigation.POIS_ROUTE = "/navigation/route";
 AnyplaceAPI.Navigation.POIS_ROUTE = AnyplaceAPI.BASE_URL + AnyplaceAPI.Navigation.POIS_ROUTE;
@@ -830,10 +834,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.signLocalAccount = function (json_req) {
-        LOG.D2("api.js");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.SIGN_LOCAL,
+            url: AnyplaceAPI.Mapping.SIGN_LOCAL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -846,7 +849,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("api.js");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.REGISTER_LOCAL,
+            url: AnyplaceAPI.Mapping.REGISTER_LOCAL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

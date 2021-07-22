@@ -265,8 +265,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = {};
-        // jsonReq.owner_id = $scope.owner_id;
-        jsonReq.access_token = $scope.user.access_token;
         var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
         promise.then(
             function (resp) { // on success
@@ -1590,7 +1588,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.user.name = data.user.name;
                 $scope.user.email = data.user.email;
                 // $scope.user.owner_id = data.user.owner_id;
-                // $scope.user.access_token = data.user.access_token;
+                $scope.user.access_token = data.user.access_token;
 
                 $scope.gAuth.access_token = data.user.access_token;
                 app.access_token = data.user.access_token;

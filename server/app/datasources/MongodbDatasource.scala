@@ -97,8 +97,8 @@ object MongodbDatasource {
     val collections = mdb.listCollectionNames()
     val awaited = Await.result(collections.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LOG.I("MongoDB: Connected to: " + hostname + ":" + port)
-    LOG.D("Collections = " + res)
+    //LOG.I("MongoDB: Connected to: " + hostname + ":" + port)
+    //LOG.D("Collections = " + res)
     admins = loadAdmins()
     new MongodbDatasource()
   }
@@ -1487,8 +1487,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
     buildings.toList
   }
 
-  override def getBuildingByAlias(alias: String): JsonObject = ???
-
   override def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue] = {
     val bbox = GeoPoint.getGeoBoundingBox(lat, lng, range)
     val collection = mdb.getCollection(SCHEMA.cSpaces)
@@ -1660,12 +1658,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def deleteRadiosInBox(): Boolean = ???
-
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
-
-  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = ???
-
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = ???
 
   override def BuildingSetsCuids(cuid: String): Boolean = {
     if (getBuildingSet(cuid).size > 1)

@@ -38,7 +38,7 @@ package datasources
 import java.io.{FileOutputStream, IOException}
 import java.util
 import java.util.concurrent.TimeUnit
-import java.util.{ArrayList, Collections, HashMap}
+import java.util.{ArrayList, HashMap}
 
 import accounts.IAccountService
 import com.couchbase.client.java.document.JsonDocument
@@ -1064,22 +1064,6 @@ class CouchbaseDatasource private(hostname: String,
 
   var allPoisbycuid = new java.util.HashMap[String, java.util.List[JsonObject]]()
 
-  override def getBuildingByAlias(alias: String): JsonObject = {
-    var jsn: JsonObject = null
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("nav", "building_by_alias").key((alias)).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-    // LPLogger.debug("couchbase results: " + res.totalRows)
-    if (!res.iterator().hasNext) {
-      return null
-    }
-    try {
-      jsn = res.iterator().next().document().content()
-    } catch {
-      case ioe: IOException =>
-    }
-    jsn
-  }
 
   override def getBuildingSet(cuid2: String): List[JsValue] = ???
 //  @throws[DatasourceException]
@@ -1407,70 +1391,70 @@ class CouchbaseDatasource private(hostname: String,
   //  }
   //}
 
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-
-    if (0 == res.totalRows) {
-      return Collections.emptyList()
-    }
-    val result = new ArrayList[JsonObject]()
-    var json: JsonObject = null
-
-    for (row <- res.allRows().asScala) {
-      try {
-        json = row.document().content()
-        result.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    result
-  }
-
-  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid").key((buid)).includeDocs(true)
-
-    val res = couchbaseClient.query(viewQuery)
-    if (0 == res.totalRows) {
-      return Collections.emptyList()
-    }
-    val result = new ArrayList[JsonObject]()
-    var json: JsonObject = null
-
-    for (row <- res.allRows().asScala) {
-      try {
-        json = row.document().content()
-        result.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    result
-  }
-
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
-    val couchbaseClient = getConnection
-    val viewQuery = ViewQuery.from("magnetic", "mmilestones_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
-    val res = couchbaseClient.query(viewQuery)
-    if (0 == res.totalRows) {
-      return Collections.emptyList()
-    }
-    val result = new ArrayList[JsonObject]()
-    var json: JsonObject = null
-
-    for (row <- res.allRows().asScala) {
-      try {
-        json = row.document().content()
-        result.add(json)
-      } catch {
-        case e: IOException =>
-      }
-    }
-    result
-  }
+  //override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
+  //  val couchbaseClient = getConnection
+  //  val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //
+  //  if (0 == res.totalRows) {
+  //    return Collections.emptyList()
+  //  }
+  //  val result = new ArrayList[JsonObject]()
+  //  var json: JsonObject = null
+  //
+  //  for (row <- res.allRows().asScala) {
+  //    try {
+  //      json = row.document().content()
+  //      result.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  result
+  //}
+  //
+  //override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
+  //  val couchbaseClient = getConnection
+  //  val viewQuery = ViewQuery.from("magnetic", "mpaths_by_buid").key((buid)).includeDocs(true)
+  //
+  //  val res = couchbaseClient.query(viewQuery)
+  //  if (0 == res.totalRows) {
+  //    return Collections.emptyList()
+  //  }
+  //  val result = new ArrayList[JsonObject]()
+  //  var json: JsonObject = null
+  //
+  //  for (row <- res.allRows().asScala) {
+  //    try {
+  //      json = row.document().content()
+  //      result.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  result
+  //}
+  //
+  //override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
+  //  val couchbaseClient = getConnection
+  //  val viewQuery = ViewQuery.from("magnetic", "mmilestones_by_buid_floor").key(JsonArray.from(buid, floor_number)).includeDocs(true)
+  //  val res = couchbaseClient.query(viewQuery)
+  //  if (0 == res.totalRows) {
+  //    return Collections.emptyList()
+  //  }
+  //  val result = new ArrayList[JsonObject]()
+  //  var json: JsonObject = null
+  //
+  //  for (row <- res.allRows().asScala) {
+  //    try {
+  //      json = row.document().content()
+  //      result.add(json)
+  //    } catch {
+  //      case e: IOException =>
+  //    }
+  //  }
+  //  result
+  //}
 
   override def validateClient(clientId: String,
                               clientSecret: String,

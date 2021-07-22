@@ -464,19 +464,15 @@ app.filter('propsFilter', function() {
   };
 });
 
+
 app.factory('myInterceptor', [function () {
     var requestInterceptor = {
         request: function (config) {
-
-            if (config.url !== undefined)
-                if (config.url.indexOf(AnyplaceAPI.BASE_URL) !== 0) {
-                    return config;
+            if (config.url !== undefined) {
+                if (config.url.startsWith(AnyplaceAPI.API) || config.url.startsWith(AnyplaceAPI.BASE_URL)) {
+                    if (config.data) { config.data.access_token = app.access_token; }
                 }
-
-            if (config.data) {
-                config.data.access_token = app.access_token;
             }
-
             return config;
         }
     };

@@ -38,7 +38,7 @@ package utils
 import play.api.Logger
 
 object LOG {
-  val logger: Logger = Logger(this.getClass)
+  val logger: Logger = Logger("access")
   private val LEVEL: Int = 2
 
   def E(tag: String, message: String, e: Exception): Unit = {
@@ -59,6 +59,7 @@ object LOG {
   }
 
   def I(message: String): Unit = {
+    Logger.apply("LOG.scala").info(message)
     logger.info(String.format("%s", message))
   }
 

@@ -1,22 +1,6 @@
 -> /api api.Routes
 
-################
-# Accounts
-################
-# TODO:NN for each endpoint: add in swagger-js
-# TODO:NN add usages... renamed stuff.. etc..
-# TODO: other API.... local..
-# /user/login/google (move from AnyplaceMapping to: AnyplaceAccounts (AnypalceAccounts->Accounts)
-# CHECK:NN (CLR if needed)
-#  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
-POST        /anyplace/mapping/accounts/sign                                        controllers.AnyplaceMapping.addAccount()
 
-POST        /user/register                                                         controllers.UserController.register()
-POST        /user/login                                                            controllers.UserController.login()
-#POST         /user/logout                                                         controllers.UserController.logout()
-# ADMIN
-POST        /user/admin/accounts_all                                                controllers.Admin.fetchAllAccounts()
-POST        /user/admin/migration/run                                               controllers.Admin.migrateToMongoDB()
 
 #POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
 #GET         /login                                                                  controllers.MainController.login()
@@ -24,32 +8,6 @@ POST        /user/admin/migration/run                                           
 #POST        /authenticate                                                           controllers.MainController.authenticate()
 #POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
 
-################
-# Spaces
-################
-POST        /anyplace/mapping/space/add                                          controllers.AnyplaceMapping.spaceAdd()
-POST        /anyplace/mapping/space/update                                       controllers.AnyplaceMapping.spaceUpdate()
-# TODO:NN verified all except fingerprints: must also delete radiomaps_frozen
-POST        /anyplace/mapping/space/delete                                       controllers.AnyplaceMapping.spaceDelete()
-POST        /anyplace/mapping/space/all                                          controllers.AnyplaceMapping.spaceAll()
-POST        /anyplace/mapping/space/all_owner                                    controllers.AnyplaceMapping.spaceAllByOwner()
-POST        /anyplace/mapping/space/coordinates                                  controllers.AnyplaceMapping.spaceCoordinates()
-POST        /anyplace/mapping/space/get                                          controllers.AnyplaceMapping.spaceGetOne()
-
-# POIs
-POST        /anyplace/mapping/pois/add                                              controllers.AnyplaceMapping.poisAdd()
-POST        /anyplace/mapping/pois/delete                                           controllers.AnyplaceMapping.poisDelete()
-POST        /anyplace/mapping/pois/update                                           controllers.AnyplaceMapping.poisUpdate()
-POST        /anyplace/mapping/pois/all_floor                                        controllers.AnyplaceMapping.poisByFloor()
-POST        /anyplace/mapping/pois/all_building                                     controllers.AnyplaceMapping.poisByBuid()
-# RENAMED: all_pois -> search
-POST        /anyplace/mapping/pois/search                                           controllers.AnyplaceMapping.searchPois()
-
-# Connections
-POST        /anyplace/mapping/connection/add                                        controllers.AnyplaceMapping.connectionAdd()
-POST        /anyplace/mapping/connection/delete                                     controllers.AnyplaceMapping.connectionDelete()
-POST        /anyplace/mapping/connection/all_floor                                  controllers.AnyplaceMapping.connectionsByFloor()
-POST        /anyplace/mapping/connection/all_floors                                 controllers.AnyplaceMapping.connectionsByallFloors()
 
 # Floors
 POST        /anyplace/mapping/floor/add                                             controllers.AnyplaceMapping.floorAdd()
@@ -65,7 +23,7 @@ POST        /anyplace/mapping/campus/update                                     
 POST        /anyplace/mapping/campus/delete                                         controllers.AnyplaceMapping.campusDelete()
 # RENAME:NN parameter 'pois' -> 'puid'
 POST        /anyplace/mapping/campus/all_cucode                                     controllers.AnyplaceMapping.buildingSetAll()
-POST        /anyplace/mapping/campus/all_owner                                      controllers.AnyplaceMapping.buildingsetAllByOwner()
+
 
 ################
 ### NAVIGATION
@@ -212,13 +170,6 @@ POST        /anyplace/mapping/pois/all_pois_nconnectors                         
 #POST        /anyplace/mapping/floor/update                                          controllers.AnyplaceMapping.floorUpdate()
 
 # CHECK:DZ
-POST        /anyplace/position/path_add                                             controllers.AnyplacePosition.magneticPathAdd()
-POST        /anyplace/position/path_delete                                          controllers.AnyplacePosition.magneticPathDelete()
-POST        /anyplace/position/paths_by_floor                                       controllers.AnyplacePosition.magneticPathByFloor()
-POST        /anyplace/position/paths_by_buid                                        controllers.AnyplacePosition.magneticPathByBuilding()
-POST        /anyplace/position/milestones_add                                       controllers.AnyplacePosition.magneticMilestoneUpload()
-POST        /anyplace/position/milestones_by_floor                                  controllers.AnyplacePosition.magneticMilestoneByFloor()
-
 POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.AnyplaceMapping.getRadioHeatmapBbox()
 
 ###   INFLUXDB

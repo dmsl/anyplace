@@ -172,8 +172,6 @@ trait IDatasource {
 
   def getAllBuildingsByBucode(bucode: String): List[JsValue]
 
-  def getBuildingByAlias(alias: String): JsonObject
-
   def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue]
 
   def dumpRssLogEntriesSpatial(outFile: FileOutputStream, bbox: Array[GeoPoint], floor_number: String): Long
@@ -205,12 +203,6 @@ trait IDatasource {
   def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean
 
   def deleteRadiosInBox(): Boolean
-
-  def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
-
-  def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject]
-
-  def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject]
 
   def BuildingSetsCuids(cuid: String): Boolean
 

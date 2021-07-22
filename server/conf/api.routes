@@ -2,4 +2,57 @@
 ### MISC:
 ###########
 # TODO:NN update usages of /anyplace/version (architect)
-GET        /version                                                       controllers.MainController.Version
+GET        /version                                                         controllers.MainController.Version
+
+################
+# Accounts
+################
+# TODO:NN for each endpoint: add in swagger-js
+# TODO:NN add usages... renamed stuff.. etc..
+# TODO: other API.... local..
+# /user/login/google (move from AnyplaceMapping to: AnyplaceAccounts (AnypalceAccounts->Accounts)
+# CHECK:NN (CLR if needed)
+#  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
+POST        /user/google/sign                                               controllers.AnyplaceMapping.addAccount()
+
+POST        /user/register                                                  controllers.UserController.register()
+POST        /user/login                                                     controllers.UserController.login()
+#POST         /user/logout                                                  controllers.UserController.logout()
+# ADMIN
+POST        /user/auth/admin/accounts_all                                   controllers.Admin.fetchAllAccounts()
+POST        /user/auth/admin/migration/run                                  controllers.Admin.migrateToMongoDB()
+
+
+################
+# Spaces
+################
+
+POST        /auth/mapping/space/add                                         controllers.AnyplaceMapping.spaceAdd()
+POST        /auth/mapping/space/update                                      controllers.AnyplaceMapping.spaceUpdate()
+# TODO:NN verified all except fingerprints: must also delete radiomaps_frozen
+POST        /auth/mapping/space/delete                                      controllers.AnyplaceMapping.spaceDelete()
+POST        /mapping/space/all                                              controllers.AnyplaceMapping.spaceAll()
+POST        /auth/mapping/space/all_owner                                   controllers.AnyplaceMapping.spaceAllByOwner()
+POST        /auth/mapping/space/coordinates                                 controllers.AnyplaceMapping.spaceCoordinates()
+POST        /mapping/space/get                                              controllers.AnyplaceMapping.spaceGetOne()
+
+# Spaces: POIs
+POST        /auth/mapping/pois/add                                          controllers.AnyplaceMapping.poisAdd()
+POST        /auth/mapping/pois/delete                                       controllers.AnyplaceMapping.poisDelete()
+POST        /auth/mapping/pois/update                                       controllers.AnyplaceMapping.poisUpdate()
+POST        /mapping/pois/all_floor                                         controllers.AnyplaceMapping.poisByFloor()
+POST        /mapping/pois/all_building                                      controllers.AnyplaceMapping.poisByBuid()
+# RENAMED: all_pois -> search
+POST        /mapping/pois/search                                            controllers.AnyplaceMapping.searchPois()
+
+# Spaces: Connections
+POST        /auth/mapping/connection/add                                    controllers.AnyplaceMapping.connectionAdd()
+POST        /auth/mapping/connection/delete                                 controllers.AnyplaceMapping.connectionDelete()
+POST        /mapping/connection/all_floor                                   controllers.AnyplaceMapping.connectionsByFloor()
+POST        /mapping/connection/all_floors                                  controllers.AnyplaceMapping.connectionsByallFloors()
+
+
+
+
+
+POST        /auth/mapping/campus/all_owner                                  controllers.AnyplaceMapping.buildingsetAllByOwner()

@@ -749,9 +749,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
         // there is a connection selected and loaded so use it for update
         var obj = _checkConnectionFormat(conn);
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-        obj.owner_id = $scope.owner_id;
 
         if (LPUtils.isNullOrUndefined(obj.pois_a) || LPUtils.isStringBlankNullUndefined(obj.pois_a)) {
             _err($scope, "No valid connection has been selected. Missing POI A.");
@@ -1036,10 +1033,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
 
         var obj = bobj.model;
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-
-        obj.owner_id = $scope.owner_id;
 
         var delPuid = obj.puid;
         // make the request at AnyplaceAPI
@@ -1190,6 +1183,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         } else {
             obj.is_building_entrance = 'false';
         }
+
         // make the request at AnyplaceAPI
         var promise = $scope.anyAPI.updatePois(obj);
         promise.then(

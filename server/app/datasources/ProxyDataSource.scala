@@ -307,11 +307,6 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     mongoDB.getAllBuildingsByBucode(bucode)
   }
 
-  override def getBuildingByAlias(alias: String): JsonObject = {
-    _checkActiveDatasource()
-    mActiveDatabase.getBuildingByAlias(alias)
-  }
-
   override def getAllBuildingsNearMe(lat: Double, lng: Double, range: Int, owner_id: String): List[JsValue] = {
     _checkActiveDatasource()
     mongoDB.getAllBuildingsNearMe(lat, lng, range, owner_id)
@@ -352,21 +347,6 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
   override def predictFloor(algo: IAlgo, bbox: Array[GeoPoint], strongestMACs: Array[String]): Boolean = {
     _checkActiveDatasource()
     mongoDB.predictFloor(algo, bbox, strongestMACs)
-  }
-
-  override def magneticPathsByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
-    _checkActiveDatasource()
-    mActiveDatabase.magneticPathsByBuildingFloorAsJson(buid, floor_number)
-  }
-
-  override def magneticPathsByBuildingAsJson(buid: String): java.util.List[JsonObject] = {
-    _checkActiveDatasource()
-    mActiveDatabase.magneticPathsByBuildingAsJson(buid)
-  }
-
-  override def magneticMilestonesByBuildingFloorAsJson(buid: String, floor_number: String): java.util.List[JsonObject] = {
-    _checkActiveDatasource()
-    mActiveDatabase.magneticMilestonesByBuildingFloorAsJson(buid, floor_number)
   }
 
   override def poisByBuildingIDAsJson(buid: String): List[JsValue] = {

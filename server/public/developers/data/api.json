@@ -10,7 +10,7 @@
     "https"
   ],
   "paths": {
-    "/user/register": {
+    "/api/user/register": {
       "post": {
         "tags": [
           "Account"
@@ -31,7 +31,7 @@
             "description": "Name and Surname",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/User"
+              "$ref": "#/definitions/UserRegister"
             }
           }
         ],
@@ -45,17 +45,694 @@
         }
       }
     },
-    "/user/login": {
+    "/api/user/login": {
       "post": {
         "tags": [
           "Account"
         ],
         "summary": "Login a local user",
+        "operationId": "userLogin",
         "consumes": [
           "application/json"
         ],
         "produces": [
           "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Name and Surname",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserLogin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/user/admin/accounts_all": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Retrieves all accounts",
+        "description": "Can only be executed by admin",
+        "operationId": "adminAccAll",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Access token for authentication",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/user/admin/migration/run": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Migrates couchdb to mongodb",
+        "description": "Can only be executed by admin",
+        "operationId": "adminMigrate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Access token for authentication",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/space/add": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Add a space",
+        "description": "",
+        "operationId": "addSpace",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SpaceAdd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/space/update": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Update a space",
+        "description": "Provide the new fields that you wish to update.",
+        "operationId": "updateSpace",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SpaceUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/space/delete": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Delete a Space",
+        "description": "Provide the buid and your access token.",
+        "operationId": "deleteSpace",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SpaceDelete"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/space/all": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve all spaces",
+        "description": "",
+        "operationId": "spaceAll",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/space/all_owner": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve all your spaces",
+        "description": "Based on your owner_id all the spaces are retrieved.",
+        "operationId": "spaceAllOwner",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/space/coordinates": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve near-by spaces",
+        "description": "Based on a given location and a range, all spaces inside that range are retrieved.",
+        "operationId": "spaceCoords",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SpaceCoords"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/space/get": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve a space",
+        "description": "Based on the buid retrieve a space.",
+        "operationId": "spaceGet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Buid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/pois/add": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Add a POI",
+        "description": "Provide required fields in orded to add a POI in a specific floor, inside a space",
+        "operationId": "poisAdd",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PoisAdd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/pois/update": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Update a POI",
+        "description": "Provide the new fields that you wish to update",
+        "operationId": "poisUpdate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PoisUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/pois/delete": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Delete a POI",
+        "description": "Provide buid and puid in order to delete a POI",
+        "operationId": "poisDelete",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PoisDelete"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/pois/all_floor": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve all POIs of a floor",
+        "description": "Provide buid and floor in order to retrieve all POIs of that floor",
+        "operationId": "poisAllFloor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AllFloor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/pois/all_building": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve all POIs of a space",
+        "description": "Provide buid in order to retrieve all POIs of that Space",
+        "operationId": "poisAllBuilding",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AllSpace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/pois/search": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Search for POIs",
+        "description": "Provide cuid and buid to retrieve POIs based on letters. Supports greeklish search.",
+        "operationId": "poisSearch",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PoisSearch"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/connection/add": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Add a connection",
+        "description": "Provide information for two POIs in order to add a connection.",
+        "operationId": "conAdd",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConAdd"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/auth/mapping/connection/delete": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Delete a connection",
+        "description": "Provide information about the connection you wish to delete",
+        "operationId": "conDelete",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ConDelete"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/connection/all_floor": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve all connections of a floor",
+        "description": "Provide buid and floor in order to retrieve all connections of that floor",
+        "operationId": "conAllFloor",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AllFloor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          },
+          "405": {
+            "description": "Invalid input"
+          }
+        }
+      }
+    },
+    "/api/mapping/connection/all_floors": {
+      "post": {
+        "tags": [
+          "Space"
+        ],
+        "summary": "Retrieve all connections of a space",
+        "description": "Provide buid in order to retrieve all connections of that space",
+        "operationId": "conAllFloors",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Body",
+            "description": "Space description",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AllSpace"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -89,14 +766,371 @@
       }
     }
   },
-  "securityDefinitions": {
-    "api_key": {
-      "type": "apiKey",
-      "name": "access_token",
-      "in": "header"
-    }
-  },
   "definitions": {
+    "ApiKey": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "AccessToken": {
+      "type": "string",
+      "example": 1234
+    },
+    "Buid": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794"
+        }
+      }
+    },
+    "SpaceAdd": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": 203
+        },
+        "description": {
+          "type": "string",
+          "example": "Conference room"
+        },
+        "url": {
+          "type": "string",
+          "example": "www.myBuildingUrl.com"
+        },
+        "address": {
+          "type": "string",
+          "example": "2783 Harper Street"
+        },
+        "coordinates_lat": {
+          "type": "string",
+          "example": 25.00683111039714
+        },
+        "coordinates_lon": {
+          "type": "string",
+          "example": 55.52313655614853
+        },
+        "space_type": {
+          "type": "string",
+          "example": "building, vessel"
+        },
+        "is_published": {
+          "type": "string",
+          "example": "true"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "SpaceUpdate": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "building_abc-1234-abc_567"
+        },
+        "name": {
+          "type": "string",
+          "example": 302
+        },
+        "description": {
+          "type": "string",
+          "example": "Conference room 2"
+        },
+        "url": {
+          "type": "string",
+          "example": "www.myBuildingUrl2.com"
+        },
+        "address": {
+          "type": "string",
+          "example": "2781 Harper Street"
+        },
+        "coordinates_lat": {
+          "type": "string",
+          "example": 35.00683111039714
+        },
+        "coordinates_lon": {
+          "type": "string",
+          "example": 45.52313655614853
+        },
+        "space_type": {
+          "type": "string",
+          "example": "building"
+        },
+        "is_published": {
+          "type": "string",
+          "example": "true"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "SpaceDelete": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "SpaceCoords": {
+      "type": "object",
+      "properties": {
+        "coordinates_lat": {
+          "type": "string",
+          "example": 25.00683111039714
+        },
+        "coordinates_lon": {
+          "type": "string",
+          "example": 55.52313655614853
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        },
+        "range": {
+          "type": "integer",
+          "example": 100
+        }
+      }
+    },
+    "PoisAdd": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "stairs"
+        },
+        "buid": {
+          "type": "string",
+          "example": "building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794"
+        },
+        "floor_name": {
+          "type": "string",
+          "example": 1
+        },
+        "floor_number": {
+          "type": "string",
+          "example": 1
+        },
+        "is_building_entrance": {
+          "type": "string",
+          "example": "true"
+        },
+        "is_door": {
+          "type": "string",
+          "example": "false"
+        },
+        "description": {
+          "type": "string",
+          "example": "Entrance staircase"
+        },
+        "coordinates_lat": {
+          "type": "string",
+          "example": 25.00683111039714
+        },
+        "coordinates_lon": {
+          "type": "string",
+          "example": 55.52313655614853
+        },
+        "pois_type": {
+          "type": "string",
+          "example": "Stair"
+        },
+        "is_published": {
+          "type": "string",
+          "example": "true"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "PoisUpdate": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794"
+        },
+        "puid": {
+          "type": "string",
+          "example": "poi_f387b832-301e-4f9a-b735-1ee5dabc1ed0"
+        },
+        "name": {
+          "type": "string",
+          "example": "Main door"
+        },
+        "is_building_entrance": {
+          "type": "string",
+          "example": "false"
+        },
+        "is_door": {
+          "type": "string",
+          "example": "true"
+        },
+        "description": {
+          "type": "string",
+          "example": "Entrance door"
+        },
+        "coordinates_lat": {
+          "type": "string",
+          "example": 35.00683111039714
+        },
+        "coordinates_lon": {
+          "type": "string",
+          "example": 45.52313655614853
+        },
+        "pois_type": {
+          "type": "string",
+          "example": "Entrance"
+        },
+        "is_published": {
+          "type": "string",
+          "example": "true"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "PoisDelete": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794"
+        },
+        "puid": {
+          "type": "string",
+          "example": "poi_f387b832-301e-4f9a-b735-1ee5dabc1ed0"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "AllFloor": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "username_1373876832005"
+        },
+        "floor_number": {
+          "type": "string",
+          "example": 1
+        }
+      }
+    },
+    "AllSpace": {
+      "type": "object",
+      "properties": {
+        "buid": {
+          "type": "string",
+          "example": "username_1373876832005"
+        }
+      }
+    },
+    "PoisSearch": {
+      "type": "object",
+      "properties": {
+        "cuid": {
+          "type": "string",
+          "example": "ucy"
+        },
+        "letters": {
+          "type": "string",
+          "example": "toual"
+        },
+        "buid": {
+          "type": "string",
+          "example": "username_1373876832005"
+        },
+        "greeklish": {
+          "type": "string",
+          "example": "true"
+        }
+      }
+    },
+    "ConAdd": {
+      "type": "object",
+      "properties": {
+        "is_published": {
+          "type": "string",
+          "example": "true"
+        },
+        "buid_a": {
+          "type": "string",
+          "example": "building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149725"
+        },
+        "floor_a": {
+          "type": "string",
+          "example": 0
+        },
+        "pois_a": {
+          "type": "string",
+          "example": "poi_4e9806d4-a0a7-4107-87ff-485b80570471"
+        },
+        "buid_b": {
+          "type": "string",
+          "example": "building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149727"
+        },
+        "floor_b": {
+          "type": "string",
+          "example": 0
+        },
+        "pois_b": {
+          "type": "string",
+          "example": "poi_4e9806d4-a0a7-4107-87ff-485b80570473"
+        },
+        "buid": {
+          "type": "string",
+          "example": "building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149725"
+        },
+        "edge_type": {
+          "type": "string",
+          "example": "hallway"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
+    "ConDelete": {
+      "type": "object",
+      "properties": {
+        "buid_a": {
+          "type": "string",
+          "example": "building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149725"
+        },
+        "pois_a": {
+          "type": "string",
+          "example": "poi_4e9806d4-a0a7-4107-87ff-485b80570471"
+        },
+        "buid_b": {
+          "type": "string",
+          "example": "building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149727"
+        },
+        "pois_b": {
+          "type": "string",
+          "example": "poi_4e9806d4-a0a7-4107-87ff-485b80570473"
+        },
+        "access_token": {
+          "$ref": "#/definitions/AccessToken"
+        }
+      }
+    },
     "Version": {
       "type": "object",
       "properties": {
@@ -111,7 +1145,7 @@
         }
       }
     },
-    "User": {
+    "UserRegister": {
       "type": "object",
       "properties": {
         "name": {
@@ -122,6 +1156,19 @@
           "type": "string",
           "example": "my_email@gmail.com"
         },
+        "username": {
+          "type": "string",
+          "example": "username"
+        },
+        "password": {
+          "type": "string",
+          "example": "password"
+        }
+      }
+    },
+    "UserLogin": {
+      "type": "object",
+      "properties": {
         "username": {
           "type": "string",
           "example": "username"

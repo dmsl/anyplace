@@ -796,7 +796,6 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
             return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
       }
-
       inner(request)
   }
 
@@ -1117,7 +1116,7 @@ class AnyplaceMapping @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         var json = anyReq.getJsonBody()
-        LOG.I("AnyplaceMapping::spaceDelete(): " + stripJson(json))
+        LOG.I("AnyplaceMapping::spaceDelete(): " + json)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(json)
