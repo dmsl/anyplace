@@ -52,11 +52,8 @@ app.controller('BuildingController',
           promise.then(
               function (resp) { // on success
                   var data = resp.data;
-                  var prettyVersion=data.version;
-                  if(data.variant !== "") {
-                      data+="-"+data.variant;
-                  }
-                  console.log("VERSION:: " + data);
+                  var prettyVersion=getPrettyVersion(data);
+                  LOG.D1("Anyplace Version: " + prettyVersion);
                   var element = document.getElementById("anyplace-version");
                   element.textContent = "v"+prettyVersion;
               },

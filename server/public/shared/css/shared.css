@@ -26,9 +26,25 @@
     opacity: 0.6;
 }
 
+.center-delete-div {
+    text-align: center;
+    padding: 0 0 10px 0;
+}
+
+.center-div {
+    text-align: center;
+}
 .logo-header-img {
     width: 140px;
     /*margin-bottom: -2px;*/
+}
+
+.btn-user {
+    cursor: pointer;
+}
+
+.btn-user:hover {
+    font-weight: 900;
 }
 
 .textUserAdmin {

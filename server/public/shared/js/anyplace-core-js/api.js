@@ -25,10 +25,12 @@
  THE SOFTWARE.
  */
 
-var AnyplaceAPI = {}; // TODO:NN once all done, and commited. rename ONLY this to API
+// TODO:NN once all done, and commited. rename ONLY this to API
+var AnyplaceAPI = {};
 AnyplaceAPI.BASE_URL = "../anyplace";
 AnyplaceAPI.API = "../api"
-AnyplaceAPI.VERSION = "../api/version";
+
+AnyplaceAPI.VERSION = AnyplaceAPI.API + "/version";
 
 /**
  * MAPPING API
@@ -79,6 +81,7 @@ AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.BASE_URL + Any
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
 AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
 
+// TODO:NN replace BUILDING to SPACE everywhere here..
 AnyplaceAPI.Mapping.BUILDING_ADD = "/auth/mapping/space/add";
 AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ADD;
 AnyplaceAPI.Mapping.BUILDING_ONE = "/mapping/space/get";
