@@ -100,21 +100,21 @@
                 <i class="fa fa-window-minimize"></i>
             </button>
             <span id="login-details" ng-show="isAuthenticated">
+                <a class="btn-user" ng-click="setTab(5)">
                 <span class="subnote" ng-class="{textUserAdmin:isUserAdmin()}">
                     {{person.displayName }}
                 </span>
                 <button class="btn profile-photo-wrapper">
                     <span class="profile-photo" ng-style="{'background-image': 'url('+person.image+')'}"></span>
                 </button>
-                <button ng-click="signOut()" class="btn btn-primary">Log Out</button>
+                </a>
             </span>
         </div>
 
         <div id="sign-in-box" ng-hide="isAuthenticated || !showFullControls">
-
             <div id="google-border" class="rborder">
                 <span class="button-style">
-                <button onclick="showHideFun('singInOptions')"; class="menu-btn">
+                <button onclick="showHideFun('singInOptions');" class="menu-btn">
                     Google
                 </button>
             </span>
@@ -280,7 +280,6 @@
             <div id="ctrl-bar-buildings" ng-show="showFullControls">
 
                 <div ng-show="isTabSet(1)">
-
                     <ui-select ng-model="anyService.selectedBuilding" theme="bootstrap" ng-disabled="disabled">
                         <ui-select-match placeholder="Select a Building...">{{$select.selected.name}}</ui-select-match>
                         <ui-select-choices
@@ -543,8 +542,8 @@
                                                placeholder="Campus id (unique per building)"/>
                                         <br/>
                                         <input type="checkbox" id="Greeklish-OnOff" value=""/><a
-                                            href="https://en.m.wikipedia.org/wiki/Greeklish" target="_blank"> Enable
-                                        Greeklish search for this Campus</a>
+                                            href="https://en.m.wikipedia.org/wiki/Greeklish" target="_blank">
+                                        Enable Greeklish search</a>
                                         <br/><br/>
                                         <button type="submit" class="btn btn-success pull-right add-any-button"
                                                 ng-click="addCampus()"><span class="glyphicon glyphicon-pencil"></span>
@@ -575,8 +574,8 @@
 
                                     <br/>
                                     <input type="checkbox" id="Greeklish-OnOffedit" value=""/><a
-                                        href="https://en.m.wikipedia.org/wiki/Greeklish" target="_blank"> Enable
-                                    Greeklish search for this Campus</a>
+                                        href="https://en.m.wikipedia.org/wiki/Greeklish" target="_blank">
+                                    Enable Greeklish search</a>
                                     <br/><br/>
                                     <fieldset>
                                         <button type="submit" class="btn btn-success pull-right add-any-button"
@@ -1009,7 +1008,7 @@
                                     </span>
                             </span>
 
-                            <span title="Delete FingerPrints MODE: {{ getDeleteFingerPrintsModeText() }}"
+                            <span title="Delete Fingerprints MODE: {{ getDeleteFingerPrintsModeText() }}"
                                   id="deleteFingerprintsSpn" class="A_0" ng-show="fingerPrintsMode">
                                     <span id="delete-mode">
                                       <button type="button" class="btn btn-light btn-quickactions"
@@ -1086,12 +1085,9 @@
 
                     <div class="ctlr-group" ng-show="showFullControls &&  isTabSet(6)">
                         <div class="working-on-indicator">{{anyService.selectedBuilding.name}}</div>
-
                         <div class="divider-top-15-line">
-
-
-                            <div class="divider-top-10">
-
+                            <h4>Wi-Fi:</h4>
+                            <div class="divider-top-10 center-div">
                                 <ul class="nav nav-pills" role="tablist">
                                     <li role="presentation" ng-class="{ active:isCrudTabSelected(1) }">
                                         <a href="" ng-click="setCrudTabSelected(1)" id="FPs">Fingerprints</a>
@@ -1102,10 +1098,9 @@
                                     <li role="presentation" ng-class="{ active:isCrudTabSelected(3) }">
                                         <a href="" ng-click="setCrudTabSelected(3)" id="LAs">Accuracy</a>
                                     </li>
-
                                 </ul>
 
-                                <div ng-show="isCrudTabSelected(1)" class="divider-top-10 center-wifi-div">
+                                <div ng-show="isCrudTabSelected(1)" class="divider-top-10 center-div">
                                     <div class="subnote">
                                         Shows the Wi-Fi fingerprints that have been collected.
                                         <a href="javascript:void(0)" data-toggle="modal" data-target="#myModal_1">Read
@@ -1117,7 +1112,7 @@
                                         </button>
                                         <button id="deleteButton" class="btn btn-success"
                                                 ng-click="deleteFingerPrints()">
-                                            Delete FingerPrints
+                                            Delete Fingerprints
                                         </button>
                                     </div>
                                     <div style="margin: 10px; font-weight: bold" ng-show="fingerPrintsMode">
@@ -1143,7 +1138,7 @@
                                     </div>
                                 </div>
 
-                                <div ng-show="isCrudTabSelected(2)" class="divider-top-10 center-wifi-div">
+                                <div ng-show="isCrudTabSelected(2)" class="divider-top-10 center-div">
                                     <div class="subnote">
                                         Shows the Wi-Fi network coverage.
                                         <a href="javascript:void(0)" data-toggle="modal" data-target="#myModal_2">Read
@@ -1182,11 +1177,9 @@
                                              selected-model="example8model" extra-settings="example9settings"
                                              ng-show="filterByMAN"></div>
                                     </div>
-
-
                                 </div>
 
-                                <div ng-show="isCrudTabSelected(3)" class="divider-top-10 center-wifi-div">
+                                <div ng-show="isCrudTabSelected(3)" class="divider-top-10 center-div">
                                     <div class="subnote scroll">
                                         Shows the expected localization accuracy.
                                         <div>
@@ -1271,17 +1264,30 @@
 
         </div>
 
-
+        <!-- TAB: User -->
         <div id="ctrl-bar-more" ng-show="isTabSet(5) && showFullControls">
-            <div class="subnote">Your API Key</div>
-            <div class="divider-top-10">
-                <input class="form-control" value="{{gAuth.access_token}}">
+            <div ng-show="isAuthenticated">
+                <span class="primary">User: </span>
+                <span class="subnote" ng-class="{textUserAdmin:isUserAdmin()}">
+                    {{person.displayName}}
+                </span>
+                <br>
+                <div class="subnote">API KEY:</div>
+                <div class="divider-top-10">
+                    <input class="form-control" value="{{gAuth.access_token}}">
+                </div>
+                <div>
+                    <a data-toggle="modal" data-target="#myModal_Welcome">
+                        <button style="width: 50px; float: right; margin:10px; border-radius: 5px; border:3px">
+                            <i class="fa fa-question-circle"></i>
+                        </button>
+                    </a>
+                </div>
+                <div class="center-div">
+                    <br><br>
+                    <button ng-click="signOut();" class="btn btn-primary btn-logout">Logout</button>
+                </div>
             </div>
-            <a data-toggle="modal" data-target="#myModal_Welcome">
-                <button style="width: 50px; float: right; margin:10px; border-radius: 5px; border:3px">
-                    <i class="fa fa-question-circle"></i>
-                </button>
-            </a>
         </div>
 
         <div id="notification_panel" ng-controller="AlertController as alertCtrl" ng-show="alerts.length">
@@ -1290,7 +1296,6 @@
             </alert>
         </div>
         <div id="my-loc-control" class="ng-cloak" ng-cloak>
-
             <div ng-click="centerViewToSelectedItem()"
                  class="center-view-box-parent box-shadow-1">
                 <div id="center-view-box">

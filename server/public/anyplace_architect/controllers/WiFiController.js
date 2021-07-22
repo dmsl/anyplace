@@ -1065,28 +1065,27 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
     $scope.getAPsButtonText = function () {
         var check = 0;
-        return APmap[check] !== undefined && APmap[check] !== null ? "Hide Estimated Wi-Fi AP Position" : "Show Estimated Wi-Fi AP Position";
+        return APmap[check] !== undefined && APmap[check] !== null ?
+            "Hide Estimated Wi-Fi AP Position" : "Show Estimated Wi-Fi AP Position";
     };
 
     $scope.getFingerPrintsButtonText = function () {
         var check = 0;
-        return (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) || (heatmap && heatmap.getMap()) ? "Hide FingerPrints" : "Show FingerPrints";
+        return (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) ||
+        (heatmap && heatmap.getMap()) ? "Hide Fingerprints" : "Show Fingerprints";
     };
 
     $scope.getFingerPrintTimeButtonText = function () {
-
-        return $scope.fingerPrintsTimeMode ? "Hide FingerPrints By Time" : "Show FingerPrints By Time";
+        return $scope.fingerPrintsTimeMode ? "Hide Fingerprints By Time" : "Show Fingerprints By Time";
     };
 
     $scope.getHeatMapTimeButtonText = function () {
-
         return $scope.radioHeatmapRSSTimeMode ? "Hide WiFi Map By Time" : "Show WiFi Map By Time";
     };
 
     $scope.getLocalizationAccuracyText = function () {
         return $scope.localizationAccMode ? "Hide ACCES Map" : "Show ACCES Map";
     }
-
 
     $scope.getPOIsButtonText = function () {
 
@@ -1334,7 +1333,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                         "New radiomaps for fingerprints and Wi-Fi coverage will be regenerated shortly after.");
                 promise.then(
                     function (resp) { // on success
-                        data = resp.data.fingerprints; // delete the fingerPrints from the loaded FingerPrints
+                        data = resp.data.fingerprints; // delete the fingerPrints from the loaded Fingerprints
                         if (data.length > 0) {
                             console.log("Deleted " + data.length + " fingerprints.");
                             var i = fingerPrintsMap.length;

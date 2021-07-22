@@ -641,15 +641,6 @@ margin-left: -0.15em;
     margin-bottom: 5px !important;
 }
 
-.center-delete-div {
-    text-align: center;
-    padding: 0 0 10px 0;
-}
-
-.center-wifi-div {
-    text-align: center;
-}
-
 .form-group {
     margin-bottom: 5px !important;
 }
@@ -657,6 +648,12 @@ margin-left: -0.15em;
 .b-more-button {
     display: inline-block;
 }
+
+.btn-logout {
+    margin: 0 !important;
+    width: 40%;
+}
+
 
 /* Prevent text overflow in Bootstrap */
 .ui-select-bootstrap > .ui-select-match > .ui-select-toggle > .ui-select-match-text:not(.ng-hide),
