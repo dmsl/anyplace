@@ -40,8 +40,6 @@ import java.util.ArrayList
 import play.api.libs.json.JsValue
 
 trait IAlgo {
-
 	def proccess(bucket: ArrayList[JsValue], floor: String): Unit
-
 	def getFloor(): String
 }

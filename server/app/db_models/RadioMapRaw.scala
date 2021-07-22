@@ -100,7 +100,6 @@ object RadioMapRaw {
 }
 
 class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
-
   this.fields = h
 
   def this(timestamp: String,
@@ -120,7 +119,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
            x: String,
            y: String,
            heading: String,
-
            floor: String) = {
     this(new HashMap[String, String])
     fields.put(SCHEMA.fTimestamp, timestamp)
@@ -242,5 +240,4 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     sb.append(fields.get(SCHEMA.fFloor))
     sb.toString
   }
-
 }

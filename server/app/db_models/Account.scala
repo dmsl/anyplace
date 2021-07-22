@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -47,7 +47,6 @@ import utils.LOG
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
-
 object ExternalType extends Enumeration {
   type ExternalType = Value
   val GOOGLE, LOCAL = Value
@@ -55,9 +54,7 @@ object ExternalType extends Enumeration {
 
 @Singleton
 class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
-
   private var json: JsValue = _
-
   this.fields = hm
 
   def this() = {
@@ -97,10 +94,10 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     convertToInt(SCHEMA.fSchema, res)
   }
 
-
-  // TODO: replace with mongo
+  // CLR:NN
+  // TODO:NN replace with mongo
   def toGeoJSON(): String = {
-    LOG.E("TODO:nn convert to mdb")
+    LOG.E("TODO:NN convert to mdb")
     val sb = new StringBuilder()
     var json: JsonObject = null
     try {
@@ -113,7 +110,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
   }
 
   @deprecated
-  def _toString(): String = toValidJson().toString
+  def _toString(): String = toValidJson().toString // TODO:NN once cdb is out
 
   override def toString(): String = toJson().toString()
 }

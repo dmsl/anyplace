@@ -1,17 +1,17 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Paschalis Mpeis
+ * Author(s): Paschalis Mpeis, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
  * Contact: anyplace@cs.ucy.ac.cy
  *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
+ * Copyright (c) 2021, Data Management Systems Lab (DMSL), University of Cyprus.
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,37 +38,31 @@ package utils
 import play.api.Logger
 
 object LOG {
-  val logger: Logger = Logger("access")
+  val logger: Logger = Logger(this.getClass)
   private val LEVEL: Int = 2
 
-  def E(tag: String, message: String, e: Exception): Unit = {
-    E(tag + ": " + message, e)
-  }
+  def D(message: String): Unit = logger.debug(String.format("%s", message))
+  def I(message: String): Unit = logger.info(String.format("%s", message))
+  def W(message: String): Unit = logger.warn(String.format("%s", message))
+  def E(message: String): Unit = logger.error(String.format("%s", message))
 
-  def E(tag: String, e: Exception): Unit = {
-    val msg = String.format("%s: %s: %s\n%s", tag, e.getClass, e.getMessage, e.getStackTrace)
-    logger.error(msg, e)
-  }
+  def D(tag: String, message: String): Unit = D(String.format("%s: %s", tag, message))
+  def I(tag: String, message: String): Unit = I(String.format("%s: %s", tag, message))
+  def W(tag: String, message: String): Unit = W(String.format("%s: %s", tag, message))
+  def E(tag: String, message: String): Unit = E(String.format("%s: %s", tag, message))
 
-  def E(message: String): Unit = {
-    logger.error(String.format("%s", message))
-  }
+  def D(msg: String, e: Exception): Unit = D(msg + ": "+ prettyException(e))
+  def I(msg: String, e: Exception): Unit = I(msg + ": "+ prettyException(e))
+  def E(msg: String, e: Exception): Unit = E(msg + ": "+ prettyException(e))
 
-  def I(tag: String, message: String, e: Exception): Unit = {
-    logger.info(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
-  }
+  def E(tag:String, msg: String, e: Exception): Unit = E(tag+": "+msg, e)
+  def I(tag:String, msg: String, e: Exception): Unit = I(tag+": "+msg, e)
+  def D(tag:String, msg: String, e: Exception): Unit = D(tag+": "+msg, e)
 
-  def I(message: String): Unit = {
-    Logger.apply("LOG.scala").info(message)
-    logger.info(String.format("%s", message))
-  }
 
-  def D(tag: String, message: String, e: Exception): Unit = {
-    logger.debug(String.format("%s: %s [%s]", tag, message, e.getMessage), e)
-  }
-
-  def D(message: String): Unit = {
-    logger.debug(String.format("%s", message))
+  // Helper methods
+  private def prettyException(e: Exception): String= {
+    String.format("%s: %s\n%s", e.getClass, e.getMessage, e.getStackTrace)
   }
 
   def D1: Boolean = LEVEL >= 1

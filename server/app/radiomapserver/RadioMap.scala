@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -40,15 +40,10 @@ import java.io._
 import java.text.DecimalFormat
 import java.util
 import java.util.{ArrayList, HashMap, LinkedList}
-
 import Jama.Matrix
 import utils.LOG
 
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
-
-//remove if not needed
-// import scala.collection.JavaConversions._
-
 
 object RadioMap {
   val RBF_ENABLED = false
@@ -82,7 +77,8 @@ object RadioMap {
           java.lang.Float.parseFloat(temp(1))
           java.lang.Float.parseFloat(temp(2))
           java.lang.Float.parseFloat(temp(3))
-          if (!temp(4).matches("[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
+          if (!temp(4).matches(
+            "[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}")) {
             throw new Exception("Line " + line_num + " MAC Address is not valid.")
           }
           java.lang.Integer.parseInt(temp(5))
@@ -101,22 +97,16 @@ object RadioMap {
     } catch {
       case nfe: NumberFormatException => {
         LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath +
-          ": Line " +
-          line_num +
-          " " +
-          nfe.getMessage)
+          ": Line " + line_num, nfe)
         return null
       }
       case e: Exception => {
-        LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath +
-          ": " +
-          e.getMessage)
+        LOG.E("Error while authenticating RSS log file " + inFile.getAbsolutePath, e)
         return null
       }
     }
     buildingsFloors
   }
-
 
   class RadioMap(private val rss_folder: File,
                  private val radiomap_filename: String,
@@ -124,23 +114,15 @@ object RadioMap {
                  private val defaultNaNValue: Int) {
 
     private val RadioMap = new HashMap[String, HashMap[String, ArrayList[Integer]]]()
-
-    private var NewRadioMap: HashMap[String, HashMap[Integer, ArrayList[Any]]] = new HashMap[String, HashMap[Integer, ArrayList[Any]]]()
-
+    private val NewRadioMap: HashMap[String, HashMap[Integer, ArrayList[Any]]] =
+      new HashMap[String, HashMap[Integer, ArrayList[Any]]]()
     private var orientationLists: HashMap[Integer, ArrayList[Any]] = _
-
     private val isIndoor = this.radiomap_filename.contains("indoor")
-
     private val radiomap_mean_filename = radiomap_filename.replace(".", "-mean.")
-
     private val radiomap_rbf_weights_filename = radiomap_filename.replace(".", "-weights.")
-
     private val radiomap_parameters_filename = radiomap_filename.replace(".", "-parameters.")
-
     private var S_RBF: Float = -1f
-
     private var MIN_RSS: Int = java.lang.Integer.MAX_VALUE
-
     private var MAX_RSS: Int = java.lang.Integer.MIN_VALUE
 
     /**

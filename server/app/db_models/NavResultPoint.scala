@@ -41,21 +41,14 @@ import datasources.SCHEMA
 import play.api.libs.json.{JsValue, Json}
 
 class NavResultPoint {
-
   var lat: String = _
-
   var lon: String = _
-
   var puid: String = _
-
   var buid: String = _
-
   var floor_number: String = _
-
   var pois_type: String = _
 
   def toValidCouchJson(): JsonObject = {
-
     val p = JsonObject.empty()
     p.put("lat", lat)
     p.put("lon", lon)
@@ -67,8 +60,12 @@ class NavResultPoint {
   }
 
   def toValidMongoJson(): JsValue = {
-    Json.obj(("lat" -> lat), ("lon" -> lon), (SCHEMA.fPuid -> puid), (SCHEMA.fBuid -> buid), (SCHEMA.fFloorNumber -> floor_number),
-      (SCHEMA.fPoisType -> pois_type))
+    Json.obj(
+      "lat" -> lat,
+      "lon" -> lon,
+      SCHEMA.fPuid -> puid,
+      SCHEMA.fBuid -> buid,
+      SCHEMA.fFloorNumber -> floor_number,
+      SCHEMA.fPoisType -> pois_type)
   }
-
 }

@@ -52,6 +52,8 @@ class UserController @Inject()(cc: ControllerComponents,
                                 conf: Configuration)
   extends AbstractController(cc) {
 
+  // TODO:NN TODO:PM put Admin here, and remove Admin.scala
+
   /**
    * Deletes the account with the AUID passed in.
    * The result of the action is returned in the Json response.

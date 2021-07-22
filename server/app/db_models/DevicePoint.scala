@@ -7,11 +7,13 @@ import play.api.libs.json.__
 import utils.GeoPoint
 
 
+// TODO:NN CLR with influxDB
 object DevicePoint {
 
-	def apply(deviceID: String, geoPoint: GeoPoint, timestamp:Long, ifxtime: String) = new DevicePoint(deviceID, geoPoint, timestamp, ifxtime)
-
-	def unapply(arg: DevicePoint): Option[(String, GeoPoint, Long, String)] = Option[(String, GeoPoint, Long, String)](arg.deviceID, arg.geoPoint, arg.timestamp, arg.ifxtime)
+	def apply(deviceID: String, geoPoint: GeoPoint, timestamp:Long, ifxtime: String) =
+		new DevicePoint(deviceID, geoPoint, timestamp, ifxtime)
+	def unapply(arg: DevicePoint): Option[(String, GeoPoint, Long, String)] =
+		Option[(String, GeoPoint, Long, String)](arg.deviceID, arg.geoPoint, arg.timestamp, arg.ifxtime)
 
 	implicit val Read = (
 		(__ \ "deviceID").read[String] and
@@ -36,7 +38,6 @@ class DevicePoint(
 	                 val timestamp: Long,
 	                 val ifxtime: String
                  ) {
-
 
 	def this(deviceID: String, latitude: String, longitude: String, timestamp: String, influxTimestamp: String) = {
 		this(

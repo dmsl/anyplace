@@ -58,6 +58,8 @@ import utils.{GeoPoint, LOG}
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsScala}
 
+// TODO:NN TODO:PM completely remove this
+// TODO:PM clear app.conf
 object CouchbaseDatasource {
   private var sInstance: CouchbaseDatasource = null
   private val sLockInstance: AnyRef = new AnyRef()

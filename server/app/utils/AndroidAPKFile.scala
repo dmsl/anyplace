@@ -43,7 +43,6 @@ import java.util.Date
 
 import java.util.Locale
 
-
 // CLR:PM
 object AndroidAPKFile {
 
@@ -75,45 +74,24 @@ object AndroidAPKFile {
 }
 
 class AndroidAPKFile(private var mFile: File) {
-
-
   private var mFileBasename: String = mFile.getAbsolutePath.substring(
     mFile.getAbsolutePath.lastIndexOf(File.separatorChar) + 1)
-
   val segs: Array[String] = mFileBasename.split("_")
-
-
   private var mUrl: String = _
-
   private var mVersion: String = segs(2)
-
   private var mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
-
   private var mIsDev: Boolean = !mIsRelease
-
   private var mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
 
-
   def getVersion(): String = mVersion
-
   def isRelease(): Boolean = mIsRelease
-
   def isDev(): Boolean = mIsDev
-
   def getFile(): File = mFile
-
   def getDate(): Date = mDate
-
   def getFilePath(): String = mFile.getAbsolutePath
-
   def getFilePathBasename(): String = mFileBasename
-
-  def setDownloadUrl(url: String): Unit = {
-    mUrl = url
-  }
-
+  def setDownloadUrl(url: String): Unit = mUrl = url
   def getDownloadUrl(): String = mUrl
-
 }
 
 // Android apks are in the form:

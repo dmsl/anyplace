@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -43,6 +43,7 @@ import play.api.mvc._
 import play.api.mvc.Results._
 import utils.{AnyResponseHelper, LOG, Utils}
 
+// TODO: will only emit json for all endpoints that contain /api
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
 
@@ -110,7 +111,6 @@ class ErrorHandler extends HttpErrorHandler {
       //  Handle:
       //  p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
       //  java.lang.IllegalArgumentException: empty text
-
         val msg =  errPub + "\n\n\n" + errorMsg(request) +
           "\nCause: " + exception.getMessage + infoGithub(eid)
 

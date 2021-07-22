@@ -47,16 +47,10 @@ import utils.Utils
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
-
-
 class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
-
   private var json: JsValue = _
-
   private var lat: Double = _
-
   private var lng: Double = _
-
   private var admins: Array[String] = Array("112997031510415584062_google")
 
   this.fields = hm
@@ -91,7 +85,6 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
       fields.remove(SCHEMA.fDescription)
     }
     this.json = json
-
   }
 
   def this(json: JsValue, owner: String) = {
@@ -121,8 +114,7 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   def toValidJson(): JsonObject = {
-    // initialize id if not initialized
-    getId()
+    getId()  // initialize id if not initialized
     JsonObject.from(this.getFields())
   }
 
@@ -130,7 +122,6 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     getId()
     toJson()
   }
-
 
   def toGeoJSON(): String = {
     val sb: StringBuilder = new StringBuilder()
@@ -172,7 +163,6 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   @deprecated()
-  def _toString(): String = toValidJson().toString
-
+  def _toString(): String = toValidJson().toString // CLR:NN
   override def toString(): String = toJson().toString()
 }

@@ -1,3 +1,39 @@
+/*
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
+ *
+ * Anyplace is a first-of-a-kind indoor information service offering GPS-less
+ * localization, navigation and search inside buildings using ordinary smartphones.
+ *
+ * Author(s): Nikolas Neofytou, Paschalis Mpeis
+ *
+ * Supervisor: Demetrios Zeinalipour-Yazti
+ *
+ * URL: https://anyplace.cs.ucy.ac.cy
+ * Contact: anyplace@cs.ucy.ac.cy
+ *
+ * Copyright (c) 2021, Data Management Systems Lab (DMSL), University of Cyprus.
+ * All rights reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the “Software”), to deal in the
+ * Software without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so, subject to the
+ * following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ */
+
 package controllers.helper
 
 import java.io.{File, FileNotFoundException, FileOutputStream, IOException}
@@ -30,7 +66,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     if (!Floor.checkFloorNumberFormat(floor_number)) {
       return null
     }
-    LOG.I(cls + buid + ":" + floor_number)
+    LOG.D1(cls + buid + ":" + floor_number)
 
     val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
 
@@ -44,7 +80,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(rssLogPerFloor)
-      LOG.D1(cls + "Creating rss-log: " + rssLogPerFloor.toPath().getFileName.toString)
+      LOG.D2(cls + "Creating rss-log: " + rssLogPerFloor.toPath().getFileName.toString)
     } catch {
       case e: FileNotFoundException => return cls + e.getClass + ": " + e.getMessage
     }
@@ -96,8 +132,8 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
       val pathName = "radiomaps"
       val hashKey = lat + lon + floorNumber
       val bboxRadioDir = MD5(hashKey) + "-" + range.toString
-      LOG.D("hashkey = " + hashKey)
-      LOG.D("bbox_token = " + bboxRadioDir)
+      LOG.D3("hashkey = " + hashKey)
+      LOG.D3("bbox_token = " + bboxRadioDir)
       // store in radioMapRawDir/tmp/buid/floor/bbox_token
       val fullPath = conf.get[String]("radioMapRawDir") + "/bbox/" + bboxRadioDir
       val dir = new File(fullPath)
@@ -142,8 +178,9 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
         }
       } else {
         msg = "cached-bbox: " + fullPath
-        LOG.D("findRadioBbox: " + msg)
+        LOG.D2("findRadioBbox: " + msg)
       }
+
       var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
       var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
       var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
@@ -170,7 +207,6 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     /*
     * FeatureAdd : Configuring location for server generated files
     */
-    //val radio_dir = "radio_maps_raw/"
     val radio_dir = conf.get[String]("radioMapRawDir")
     val dir = new File(radio_dir)
     dir.mkdirs()
@@ -185,10 +221,10 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
       fout = new FileOutputStream(dest_f)
       Files.copy(file.toPath(), fout)
       fout.close()
-      LOG.D1("storeRadioMapToServer: Stored raw rss-log: " + name)
+      LOG.D2("storeRadioMapRawToServer: Stored raw rss-log: " + name)
     } catch {
       case e: IOException => {
-        e.printStackTrace()
+        LOG.E("storeRadioMapRawToServer", e)
         return false
       }
     }

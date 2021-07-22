@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -12,7 +12,7 @@
  * URL: https://anyplace.cs.ucy.ac.cy
  * Contact: anyplace@cs.ucy.ac.cy
  *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
+ * Copyright (c) 2021, Data Management Systems Lab (DMSL), University of Cyprus.
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,10 +35,6 @@
  *
  */
 package db_models
-
-/**
- *
- */
 
 import java.io.IOException
 import java.util
@@ -114,6 +110,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     buid
   }
 
+  // CHECK:NN is this in UserController or something?
   //def hasAccess(ownerId: String): Boolean = {
   //  if (fields.get(SCHEMA.fOwnerId) == ownerId) return true
   //  co_owners.value.foreach(coOwner => if (coOwner == ownerId) return true)
@@ -136,9 +133,8 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   @deprecated
-  def toValidJson(): JsonObject = {
-    // initialize id if not initialized
-    getId()
+  def toValidJson(): JsonObject = { // CHECK:NN why not making this smethod in the abstract parent class?
+    getId()   // initialize id if not initialized
     JsonObject.from(this.getFields()).put(SCHEMA.fCoOwners, co_owners)
   }
 
@@ -245,7 +241,6 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   @deprecated
-  def _toString(): String = toValidJson().toString
-
+  def _toString(): String = toValidJson().toString  // TODO:NN CLR mdb
   override def toString(): String = toJson().toString()
 }

@@ -41,7 +41,8 @@ import oauth.provider.v2.models.AccountModel
 
 import oauth.provider.v2.models.AuthInfo
 
-//remove if not needed
+// CHECK:NN CHECK:PM remove if not used
+// (still has dependencies)
 
 /**
  *

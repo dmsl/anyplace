@@ -1441,7 +1441,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val buildings = collection.find(query)
     val awaited = Await.result(buildings.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LOG.D(s"Res on complete Length:${res.length}")
+    LOG.D3(s"Res on complete Length:${res.length}")
     val listJson = convertJson(res)
     var newJson: JsValue = null
     val newList = new util.ArrayList[JsValue]()
@@ -1606,7 +1606,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val users = collection.find()
     val awaited = Await.result(users.toFuture(), Duration.Inf)
     val res = awaited.toList
-    LOG.D(s"Res on complete Length:${res.length}")
+    LOG.D3(s"Res on complete Length:${res.length}")
     val usersList = convertJson(res)
     val ret = new util.ArrayList[JsValue]()
     for (user <- usersList) {

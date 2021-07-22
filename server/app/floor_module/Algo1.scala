@@ -41,19 +41,14 @@ import datasources.SCHEMA
 import play.api.libs.json.{JsValue, Json}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-//remove if not needed
-// import scala.collection.JavaConversions._
 
 class Algo1(json: JsValue) extends IAlgo {
-
     val a = 10
     val b = 10
     val l1 = 10
     var input: HashMap[String, Wifi] = new HashMap[String, Wifi]()
     var mostSimilar: ArrayList[Score] = new ArrayList[Score](10)
     val listenList = (json\"wifi").as[List[String]]
-    //val listenList = json.getArray("wifi")
-
 
     if (listenList == null) {
         throw new Exception("Wifi parameter is not array")
@@ -63,12 +58,12 @@ class Algo1(json: JsValue) extends IAlgo {
         val obj = Json.parse(listenObject)
         val mac = (obj\SCHEMA.fMac).as[String]
         val rss = (obj\SCHEMA.fRSS).as[String].toInt
-    //for (listenObject <- listenList.iterator()) {
-    //    val obj=listenObject.asInstanceOf[JsonObject]
-    //    val mac = obj.getString("MAC")
-    //    val rss = obj.getInt("rss")
+        //for (listenObject <- listenList.iterator()) {
+        //    val obj=listenObject.asInstanceOf[JsonObject]
+        //    val mac = obj.getString("MAC")
+        //    val rss = obj.getInt("rss")
         if (mac == null) {
-            throw new Exception("Invalid array wifi:: require mac,rss")
+            throw new Exception("Invalid array wifi. Require: mac,rss")
         }
 
         input.put(mac, new Wifi(mac, rss))
@@ -137,6 +132,5 @@ class Algo1(json: JsValue) extends IAlgo {
     }
 
     class Score(var similarity: Double, var floor: String)
-
     class Wifi(var mac: String, var rss: java.lang.Integer)
 }

@@ -197,13 +197,11 @@ object VALIDATE {
 
 
   class Validation(private val errors: java.util.List[String]) {
-
     def failed():Boolean = !errors.isEmpty
 
     def response(): Result = {
       var str = ""
       for (error:String <- errors.asScala) str += error + "\n"
-
       AnyResponseHelper.bad_request("ERROR: Validation:\n" + str)
     }
   }

@@ -53,7 +53,4 @@ public abstract class AbstractGrantHandler implements IGrantHandler {
     protected AccessTokenModel issueAccessToken(IAccountService accountService, AuthInfo authInfo){
         return accountService.createOrUpdateAccessToken(authInfo);
     }
-
-
-
 }

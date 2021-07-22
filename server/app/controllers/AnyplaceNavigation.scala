@@ -62,7 +62,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LOG.I("AnyplaceNavigation::getBuildingById():: " + json.toString)
+        LOG.D2("getBuildingById: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -88,17 +88,17 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LOG.I("AnyplaceNavigation::getPoisById():: " + json.toString)
+        LOG.D2("getPoisById: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.cPOIS)
         if (checkRequirements != null) return checkRequirements
         val puid = (json \ SCHEMA.cPOIS).as[String]
         try {
           var doc = pds.getIDatasource.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
           if (doc == null) {
-            return AnyResponseHelper.bad_request("Document does not exist or could not be retrieved!")
+            return AnyResponseHelper.bad_request("Document does not exist or could not be retrieved.")
           }
           doc = doc.as[JsObject] - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema
-          return AnyResponseHelper.ok(doc, "Successfully fetched Poi information!")
+          return AnyResponseHelper.ok(doc, "Fetched POI information.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
         }
@@ -115,22 +115,22 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
           return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         }
         val json = anyReq.getJsonBody()
-        LOG.I("AnyplaceNavigation::getNavigationRoute(): " + json.toString)
+        LOG.D2("getNavigationRoute: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, "pois_from", "pois_to")
         if (checkRequirements != null) return checkRequirements
         val puid_from = (json \ "pois_from").as[String]
         val puid_to = (json \ "pois_to").as[String]
         if (puid_from.equalsIgnoreCase(puid_to)) {
-          return AnyResponseHelper.bad_request("Destination and Source is the same!")
+          return AnyResponseHelper.bad_request("Destination and Source is the same.")
         }
         try {
           val poiFrom = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_from)
           if (poiFrom == null) {
-            return AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved!")
+            return AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved.")
           }
           val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
-            return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
+            return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved.")
           }
           val buid_from = (poiFrom \ SCHEMA.fBuid).as[String]
           val floor_from = (poiFrom \ SCHEMA.fFloorNumber).as[String]
@@ -144,10 +144,10 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
               points = navigateSameBuilding(poiFrom, poiTo)
             }
           } else {
-            return AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
+            return AnyResponseHelper.bad_request("Navigation between buildings not supported yet.")
           }
           val res: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
-          return AnyResponseHelper.ok(res, "Successfully plotted navigation.")
+          return AnyResponseHelper.ok(res, "Plotted navigation.")
         } catch {
           case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
         }
@@ -162,7 +162,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
         val json = anyReq.getJsonBody()
-        LOG.I("AnyplaceNavigation::getNavigationRouteXY():: " + json.toString)
+        LOG.D2("getNavigationRouteXY: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
           "pois_to")
         if (checkRequirements != null) return checkRequirements
@@ -201,14 +201,16 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
             }
           }
           if (startingPoi == null) {
-            LOG.E("Nav pos")
-            return AnyResponseHelper.bad_request("Navigation is not supported from your position!")
+            val msg = "Navigation is not supported from your position."
+            return AnyResponseHelper.bad_request(msg)
           } else if (min_distance > ROUTE_MAX_DISTANCE_ALLOWED) {
-            LOG.E("5km Nav pos")
-            return AnyResponseHelper.bad_request("No Navigation supported at this position: startingPoi>=5km")
+            val msg = "No Navigation supported at this position: startingPoi>=5km"
+            LOG.D1(msg)
+            return AnyResponseHelper.bad_request(msg)
           }
-          LOG.D("Starting poi: " + (startingPoi \ SCHEMA.fPuid).as[String])
-          LOG.D("min_distance: " + min_distance)
+
+          LOG.D3("Starting poi: " + (startingPoi \ SCHEMA.fPuid).as[String])
+          LOG.D3("min_distance: " + min_distance)
           val buid_from = (startingPoi \ SCHEMA.fBuid).as[String]
           val floor_from = (startingPoi \ SCHEMA.fFloorNumber).as[String]
           var points: List[JsValue] = null
@@ -216,8 +218,8 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
             points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(startingPoi, poiTo) else navigateSameBuilding(startingPoi,
               poiTo)
           } else {
-            LOG.E("Nav unsupported")
-            return AnyResponseHelper.bad_request("Navigation between buildings not supported yet!")
+            val msg  = "Navigation between buildings not supported yet."
+            return AnyResponseHelper.bad_request(msg)
           }
           val json: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
           return AnyResponseHelper.ok(json, "Successfully plotted navigation.")

@@ -40,19 +40,15 @@ import java.util.HashMap
 import com.couchbase.client.java.document.json.JsonObject
 
 abstract class AbstractModel {
-
     var fields: HashMap[String, String] = new HashMap[String, String]()
 
     def getFields(): HashMap[String, String] = fields
+    def getId(): String
+    def toValidJson(): JsonObject
+    def toGeoJSON(): String
 
     def setFields(f: HashMap[String, String]): Unit = {
         this.fields = f
         getId()
     }
-
-    def getId(): String
-
-    def toValidJson(): JsonObject
-
-    def toGeoJSON(): String
 }

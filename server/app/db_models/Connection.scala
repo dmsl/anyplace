@@ -47,7 +47,6 @@ import scala.jdk.CollectionConverters.MapHasAsScala
 
 
 object Connection {
-
   val EDGE_TYPE_STAIR = "stair"
   val EDGE_TYPE_ELEVATOR = "elevator"
   val EDGE_TYPE_HALLWAY = "hallway"
@@ -58,7 +57,6 @@ object Connection {
 }
 
 class Connection(hm: HashMap[String, String]) extends AbstractModel {
-
   private var json: JsValue = _
 
   this.fields = hm
@@ -116,8 +114,7 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   def toValidJson(): JsonObject = {
-    // initialize id if not initialized
-    getId()
+    getId()  // initialize id if not initialized
     JsonObject.from(this.getFields())
   }
 
@@ -134,6 +131,5 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   override def toGeoJSON(): String = toJson().toString
-
   override def toString(): String = this.toJson().toString
 }

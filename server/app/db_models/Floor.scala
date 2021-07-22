@@ -45,9 +45,7 @@ import utils.JsonUtils.convertToInt
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
-
 object Floor {
-
   def getId(buid: String, floor_number: String): String = buid + "_" + floor_number
 
   def checkFloorNumberFormat(floor_number: String): Boolean = {
@@ -58,7 +56,6 @@ object Floor {
 }
 
 class Floor(hm: HashMap[String, String]) extends AbstractModel {
-
   private var json: JsValue = _
 
   this.fields = hm
@@ -107,13 +104,10 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
     newFuid
   }
 
-  def toValidJson(): JsonObject = {
-    null
-  }
+  def toValidJson(): JsonObject = null
 
   def toValidMongoJson(): JsValue = {
-    // initialize id if not initialized
-    getId()
+    getId()  // initialize id if not initialized
     fields.remove("username")
     toJson()
   }
@@ -126,6 +120,5 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   override def toGeoJSON(): String = toJson().toString
-
   override def toString(): String = this.toJson().toString
 }

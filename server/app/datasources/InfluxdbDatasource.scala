@@ -44,6 +44,7 @@ import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+// TODO:NN clear this out as well.
 object InfluxdbDatasource {
 
 	private var sInstance: InfluxdbDatasource = _

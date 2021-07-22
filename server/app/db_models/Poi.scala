@@ -47,13 +47,9 @@ import utils.{GeoJSONPoint, Utils}
 
 import scala.jdk.CollectionConverters.MapHasAsScala
 
-
 object Poi {
-
   val POIS_TYPE_NONE = "None"
-
   val POIS_TYPE_ELEVATOR = "elevator"
-
   val POIS_TYPE_STAIR = "stair"
 
   def getId(username_creator: String,
@@ -64,11 +60,8 @@ object Poi {
 }
 
 class Poi(hm: HashMap[String, String]) extends AbstractModel {
-
   private var json: JsValue = _
-
   private var lat: Double = _
-
   private var lng: Double = _
 
   this.fields = hm
@@ -157,8 +150,7 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   def toValidJson(): JsonObject = {
-    // initialize id if not initialized
-    getId()
+    getId()  // initialize id if not initialized
     JsonObject.from(this.getFields())
   }
 
