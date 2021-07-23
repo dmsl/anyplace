@@ -77,27 +77,27 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
-        if (body == null) {return AnyResponseHelper.bad_request("Invalid request type: Not multipart.")}
+        if (body == null) {return RESPONSE.BAD("Invalid request type: Not multipart.")}
         var rssLog: File = null
         try {
           rssLog = body.file("radiomap").get.ref.path.toFile
         } catch {
-          case e: Exception => return AnyResponseHelper.bad_request("Cannot find radiomap (rss log).")
+          case e: Exception => return RESPONSE.BAD("Cannot find radiomap (rss log).")
         }
         val body_form = body.asFormUrlEncoded
         if (body_form == null) {
-          return AnyResponseHelper.bad_request("Invalid request type - Cannot be parsed as form data.")
+          return RESPONSE.BAD("Invalid request type - Cannot be parsed as form data.")
         }
         if (!body_form.contains(SCHEMA.fAccessToken)) {
           // TODO:NN not authenticated
-          return AnyResponseHelper.bad_request("Cannot find access_token in the request.")
+          return RESPONSE.BAD("Cannot find access_token in the request.")
         }
         val access_token = body_form.get(SCHEMA.fAccessToken).get.head
-        if (user.authorize(Json.obj(SCHEMA.fAccessToken -> access_token)) == null) return AnyResponseHelper.forbidden("Unauthorized")
+        if (user.authorize(Json.obj(SCHEMA.fAccessToken -> access_token)) == null) return RESPONSE.FORBIDDEN("Unauthorized")
         var ret: String = ""
         val newBuildingsFloors = RadioMap.verifyRssLogAndGetBuildingFloors(rssLog)
         if (newBuildingsFloors == null) {
-          return AnyResponseHelper.bad_request("Uploaded a corrupted rss-log file.")
+          return RESPONSE.BAD("Uploaded a corrupted rss-log file.")
         } else {
           mapHelper.storeRadioMapRawToServer(rssLog)
           ret = storeFloorRssToDB(rssLog)
@@ -114,12 +114,12 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           }
           if (errors.size > 0) {
             val json = Json.obj("errorList" -> errors.asScala)
-            return AnyResponseHelper.bad_request(json, "Failed to create frozen radio maps.")
+            return RESPONSE.BAD(json, "Failed to create frozen radio maps.")
           }
         }
         val msg = "Successfully uploaded rss log."
         LOG.D1(msg)
-        return AnyResponseHelper.ok(msg)
+        return RESPONSE.OK(msg)
       }
 
       inner(request)
@@ -136,7 +136,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("radioDownloadFloor: " + json.toString)
@@ -154,7 +154,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("radioDownloadFloorBbox: " + json.toString)
@@ -162,7 +162,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           SCHEMA.fFloorNumber, "range")
         if (checkRequirements != null) return checkRequirements
         if (StringNumber(json, "range") == null) {
-          return AnyResponseHelper.bad_request("range field must be String, containing a number!")
+          return RESPONSE.BAD("range field must be String, containing a number!")
         }
         var range = (json \ "range").as[String].toInt
         if (range > mapHelper.BBOX_MAX) range = mapHelper.BBOX_MAX
@@ -181,7 +181,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("radioDownloadByBuildingFloor: " + json.toString)
@@ -190,9 +190,8 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         val floor_number = (json \ SCHEMA.fFloor).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
         if (!Floor.checkFloorNumberFormat(floor_number)) {
-          return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+          return RESPONSE.BAD("Floor number cannot contain whitespace!")
         }
-        // FeatureAdd : Configuring location for server generated files
         val rmapDir = fu.getDirFrozenFloor(buid, floor_number)
         val radiomapFile = fu.getRadiomapFile(buid, floor_number)
         val meanFile = fu.getMeanFile(buid, floor_number)
@@ -218,13 +217,13 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
             } else {
               res = Json.obj("map_url_mean" -> radiomap_mean_filename)
             }
-            return AnyResponseHelper.ok(res, "Successfully served radiomap floor.")
+            return RESPONSE.OK(res, "Successfully served radiomap floor.")
           } catch {
-            case e: Exception => return AnyResponseHelper.internal_server_error("radioDownloadByBuildingFloor", e)
+            case e: Exception => return RESPONSE.ERROR("radioDownloadByBuildingFloor", e)
           }
         }
         if (!rmapDir.mkdirs()) {
-          return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+          return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly!")
         }
         val radio = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
         var fout: FileOutputStream = null
@@ -235,7 +234,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           fout.close()
 
           if (floorFetched == 0) {
-            return AnyResponseHelper.bad_request("Area not supported yet!")
+            return RESPONSE.BAD("Area not supported yet!")
           }
 
           val folder = rmapDir.toString
@@ -247,7 +246,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
           val resCreate = rm.createRadioMap()
           if (resCreate != null) {
-            return AnyResponseHelper.internal_server_error("radioDownloadByBuildingFloor: radiomap on-the-fly: " + resCreate)
+            return RESPONSE.internal_server_error("radioDownloadByBuildingFloor: radiomap on-the-fly: " + resCreate)
           }
           val url = api.SERVER_API_ROOT
           var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
@@ -259,9 +258,9 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           val res: JsValue = Json.obj("map_url_mean" -> radiomap_mean_filename,
             "map_url_weights" -> radiomap_rbf_weights_filename,
             "map_url_parameters" -> radiomap_parameters_filename)
-          return AnyResponseHelper.ok(res, "Successfully created radio map.")
+          return RESPONSE.OK(res, "Successfully created radio map.")
         } catch {
-          case e: Exception => return AnyResponseHelper.internal_server_error("radioDownloadByBuildingFloor: " +
+          case e: Exception => return RESPONSE.ERROR("radioDownloadByBuildingFloor: " +
             "radiomap on-the-fly", e)
         }
       }
@@ -281,7 +280,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
 
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("radioDownloadByBuildingFloorall: " + json.toString)
@@ -294,7 +293,6 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         val rss_log_files = new java.util.ArrayList[String]()
 
         for (floor_number <- floors) {
-          //FeatureAdd : Configuring location for server generated files
           val rmapDir = fu.getDirFrozenFloor(buid, floor_number)
           val radiomapFile = fu.getRadiomapFile(buid, floor_number)
           val meanFile = fu.getMeanFile(buid, floor_number)
@@ -313,19 +311,19 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
               pos = fu.getFilePos(radiomap_parameters_filename)
               radiomap_parameters_filename = url + radiomap_parameters_filename.substring(pos)
             } catch {
-              case e: Exception => return AnyResponseHelper.internal_server_error("Error serving radiomap : " + e.getMessage)
+              case e: Exception => return RESPONSE.internal_server_error("Error serving radiomap : " + e.getMessage)
             }
           }
           if (!rmapDir.exists())
             if (!rmapDir.mkdirs()) {
-              return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!")
+              return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly!")
             }
           val radio = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
           } catch {
-            case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
+            case e: FileNotFoundException => return RESPONSE.internal_server_error(
               "Cannot create radiomap:3: " + e.getMessage)
           }
           var floorFetched: Long = 0L
@@ -337,7 +335,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
               case e: IOException => LOG.E("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
-            case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+            case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage)
           }
           if (floorFetched != 0) {
 
@@ -350,7 +348,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
               val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
               val resCreate = rm.createRadioMap()
               if (resCreate != null) {
-                return AnyResponseHelper.internal_server_error("radioDownloadByBuildingFloorall: Error: on-the-fly radioMap: " + resCreate)
+                return RESPONSE.internal_server_error("radioDownloadByBuildingFloorall: Error: on-the-fly radioMap: " + resCreate)
               }
               val url = api.SERVER_API_ROOT
               var pos = fu.getFilePos(radiomap_mean_filename)
@@ -360,7 +358,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
               pos = fu.getFilePos(radiomap_parameters_filename)
               radiomap_parameters_filename = url + radiomap_parameters_filename.substring(pos)
             } catch {
-              case e: Exception => return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage)
+              case e: Exception => return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage)
             }
 
             val source = scala.io.Source.fromFile(rmapDir.getAbsolutePath + api.URL_SEP + "indoor-radiomap.txt")
@@ -375,7 +373,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
 
         val res: JsValue = Json.obj("map_url_mean" -> radiomap_mean_filename.asScala,
           "rss_log_files" -> rss_log_files.asScala)
-        return AnyResponseHelper.ok(res, "Successfully served radio map.")
+        return RESPONSE.OK(res, "Successfully served radio map.")
       }
 
       inner(request)
@@ -426,7 +424,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request, false)
         if (!anyReq.assertJsonBody()) {
-          AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         //LPLogger.info("AnyplacePosition::serveRadioMap(): " + json.toString)
@@ -435,12 +433,12 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         LOG.D2("serveRadioMap: requested: " + filePath)
         val file = new File(filePath)
         try {
-          if (!file.exists()) return AnyResponseHelper.bad_request("Requested file does not exist");
-          if (!file.canRead()) return AnyResponseHelper.bad_request("Requested file cannot be read: " +
+          if (!file.exists()) return RESPONSE.BAD("Requested file does not exist");
+          if (!file.canRead()) return RESPONSE.BAD("Requested file cannot be read: " +
             fileName)
           Ok.sendFile(file)
         } catch {
-          case e: FileNotFoundException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: FileNotFoundException => RESPONSE.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -449,7 +447,6 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
 
   def serveFrozenRadioMap(building: String, floor: String, fileName: String) = Action {
     def inner(): Result = {
-      //FeatureAdd : Configuring location for server generated files
       val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
       val filePath = radioMapsFrozenDir + api.URL_SEP + building + api.URL_SEP +
         floor +
@@ -458,12 +455,12 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       LOG.D2("serveFrozenRadioMap: requested: " + filePath)
       val file = new File(filePath)
       try {
-        if (!file.exists()) return AnyResponseHelper.bad_request("Requested file does not exist");
-        if (!file.canRead()) return AnyResponseHelper.bad_request("Requested file cannot be read: " +
+        if (!file.exists()) return RESPONSE.BAD("Requested file does not exist");
+        if (!file.canRead()) return RESPONSE.BAD("Requested file cannot be read: " +
           fileName)
         Ok.sendFile(file)
       } catch {
-        case e: FileNotFoundException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+        case e: FileNotFoundException => return RESPONSE.internal_server_error("500: " + e.getMessage)
       }
     }
 
@@ -600,7 +597,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
         LOG.D2("predictFloorAlgo1:")
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         var alg1: Algo1 = null
@@ -608,7 +605,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           alg1 = new Algo1(json)
         } catch {
           case ex: Exception => {
-            return AnyResponseHelper.bad_request(ex.getClass.toString() + ": " + ex.getMessage + ": " + ex.getCause.toString())
+            return RESPONSE.BAD(ex.getClass.toString() + ": " + ex.getMessage + ": " + ex.getCause.toString())
           }
         }
         try {
@@ -616,7 +613,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           val lot = json.\("dlong").as[Double]
           val bbox = GeoPoint.getGeoBoundingBox(lat, lot, 100)
           val strongestMAC = new ArrayList[String](2)
-          if (json.\("first").getOrElse(null) == null) return AnyResponseHelper.bad_request("Sent first Wifi")
+          if (json.\("first").getOrElse(null) == null) return RESPONSE.BAD("Sent first Wifi")
           strongestMAC.add(json.\("first").\(SCHEMA.fMac).as[String])
           if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\(SCHEMA.fMac).as[String])
           LOG.D2("strongestMAC " + strongestMAC)
@@ -629,9 +626,9 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
             res.put(SCHEMA.fFloor, "")
             msg = "Could not predict floor."
           }
-          AnyResponseHelper.ok(res, msg)
+          RESPONSE.ok(res, msg)
         } catch {
-          case e: Exception => AnyResponseHelper.internal_server_error("500: " + e.getMessage + ": " + e.getCause)
+          case e: Exception => RESPONSE.internal_server_error("500: " + e.getMessage + ": " + e.getCause)
         }
       }
 

@@ -35,15 +35,18 @@
  */
 package utils
 
-import java.io.UnsupportedEncodingException
+import datasources.SCHEMA
+
 import java.security.{InvalidAlgorithmParameterException, MessageDigest, NoSuchAlgorithmException, SecureRandom}
-import java.security.spec.InvalidKeySpecException
 import java.util.{Date, UUID}
 import javax.crypto._
 import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
-import org.apache.commons.codec.binary.Base64
-
 import java.text.SimpleDateFormat
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, UnsupportedEncodingException}
+import org.apache.commons.codec.binary.Base64
+import play.api.libs.json.{JsObject, JsValue}
+
+import java.util.zip.GZIPOutputStream
 
 object Utils {
     private val SECURE_ITERATIONS = 1000
@@ -58,13 +61,12 @@ object Utils {
     def getRandomUUID(): String = UUID.randomUUID().toString
 
     def genErrorUniqueID(): String = {
-        java.net.InetAddress.getLocalHost().getHostName().toUpperCase +
+        java.net.InetAddress.getLocalHost.getHostName.toUpperCase +
         "x" + UUID.randomUUID().toString.split("-").last.toUpperCase
     }
 
-    def generateRandomRssLogFileName(): String = {
-        return "rss-log-" + System.currentTimeMillis() + "-" + Utils.generateRandomToken()
-    }
+    def generateRandomRssLogFileName(): String =
+        "rss-log-" + System.currentTimeMillis() + "-" + Utils.generateRandomToken()
 
     def generateRandomToken(): String = {
         var secureRandom: SecureRandom = null
@@ -72,13 +74,12 @@ object Utils {
             secureRandom = SecureRandom.getInstance("SHA1PRNG")
             secureRandom.setSeed(secureRandom.generateSeed(PRNG_SEED))
             val digest = MessageDigest.getInstance("SHA-1")
-            val dig = digest.digest((s"$secureRandom.nextLong()").getBytes)
+            val dig = digest.digest(s"$secureRandom.nextLong()".getBytes)
             binaryToHex(dig)
         } catch {
-            case e: NoSuchAlgorithmException => {
-                e.printStackTrace()
+            case e: NoSuchAlgorithmException =>
+                LOG.E("generateRandomToken", e)
                 null
-            }
         }
     }
 
@@ -88,7 +89,6 @@ object Utils {
     }
 
     def hashStringBase64(input: String) = new String(Base64.encodeBase64(hashString(input)))
-
     def hashStringHex(input: String): String = binaryToHex(hashString(input))
 
     def hashString(input: String): Array[Byte] = {
@@ -101,8 +101,7 @@ object Utils {
             val byteData = md.digest()
             return byteData
         } catch {
-            case e: UnsupportedEncodingException => e.printStackTrace()
-            case e: NoSuchAlgorithmException => e.printStackTrace()
+            case e: Exception => LOG.E("hashString", e)
         }
         null
     }
@@ -110,23 +109,20 @@ object Utils {
     def deriveKeyPbkdf2(salt: Array[Byte], password: String): SecretKey = {
         val iterationCount = SECURE_ITERATIONS
         val keyLength = SECURE_KEY_LENGTH
-        val keySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength)
+        val keySpec = new PBEKeySpec(password.toCharArray, salt, iterationCount, keyLength)
         try {
             val keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
             val keyBytes = keyFactory.generateSecret(keySpec).getEncoded
             val key = new SecretKeySpec(keyBytes, "AES")
             return key
         } catch {
-            case e: NoSuchAlgorithmException => e.printStackTrace()
-            case e: InvalidKeySpecException => e.printStackTrace()
+            case e: Exception => LOG.E("deriveKeyPbkdf2", e)
         }
         null
     }
 
     def binaryToHex(ba: Array[Byte]): String = {
-        if (ba == null || ba.length == 0) {
-            return null
-        }
+        if (ba == null || ba.length == 0) { return null }
         val sb = new StringBuilder(ba.length * 2)
         var hexNumber: String = null
         for (x <- ba.indices) {
@@ -137,26 +133,19 @@ object Utils {
     }
 
     def hexToBinary(hex: String): Array[Byte] = {
-        if (hex == null || hex.length == 0) {
-            return null
-        }
+        if (hex == null || hex.isEmpty) { return null }
         val ba = Array.ofDim[Byte](hex.length / 2)
         for (i <- ba.indices) {
             ba(i) = java.lang.Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16).toByte
         }
         ba
     }
-
-    import java.io.UnsupportedEncodingException
-
-    import org.apache.commons.codec.binary.Base64
-
     def encodeBase64String(s: String): String = try {
         val binary = s.getBytes("UTF-8")
         new String(Base64.encodeBase64(binary))
     } catch {
         case e: UnsupportedEncodingException =>
-            e.printStackTrace()
+            LOG.E("encodeBase64String", e)
             null
     }
 
@@ -165,12 +154,19 @@ object Utils {
         new String(binary, "UTF-8")
     } catch {
         case e: UnsupportedEncodingException =>
-            e.printStackTrace()
+            LOG.E("decodeBase64String", e)
             null
     }
 
+    def encodeFileToBase64Binary(fu: FileUtils, fileName: String) = {
+        val file = new File(fileName)
+        val bytes = fu.LoadFile(file)
+        val encoded = Base64.encodeBase64(bytes)
+        val encodedString = new String(encoded)
+        encodedString
+    }
 
-
+    // CHECK:NN do we salt & pepper the local passwords before we save them?
     def secureEncrypt(password: String, plaintext: String): String = {
         try {
             val keyLength = SECURE_KEY_LENGTH
@@ -186,23 +182,13 @@ object Utils {
             val ivParams = new IvParameterSpec(iv)
             cipher.init(Cipher.ENCRYPT_MODE, key, ivParams)
             val ciphertext = cipher.doFinal(plaintext.getBytes("UTF-8"))
-            //LPLogger.info("bytes: " + new String(salt) + "." + iv + "." + new String(ciphertext));
-            val finalResult = new String(Base64.encodeBase64(salt)) + "." + new String(Base64.encodeBase64(iv)) + "." + new String(Base64.encodeBase64(ciphertext))
-            //LPLogger.info("final: " + finalResult);
+            LOG.D5("bytes: " + new String(salt) + "." + iv + "." + new String(ciphertext));
+            val finalResult = new String(Base64.encodeBase64(salt)) + "." +
+              new String(Base64.encodeBase64(iv)) + "." + new String(Base64.encodeBase64(ciphertext))
+            LOG.D5("final: " + finalResult);
             return finalResult
         } catch {
-            case e: NoSuchAlgorithmException =>
-                e.printStackTrace()
-            case e: NoSuchPaddingException =>
-                e.printStackTrace()
-            case e: InvalidAlgorithmParameterException =>
-                e.printStackTrace()
-            case e: IllegalBlockSizeException =>
-                e.printStackTrace()
-            case e: BadPaddingException =>
-                e.printStackTrace()
-            case e: UnsupportedEncodingException =>
-                e.printStackTrace()
+            case e: Exception => LOG.E("secureEncrypt", e)
         }
         null
     }
@@ -233,29 +219,49 @@ object Utils {
             val plainrStr = new String(plaintext, "UTF-8")
             return plainrStr
         } catch {
-            case e: NoSuchAlgorithmException =>
-                e.printStackTrace()
-            case e: NoSuchPaddingException =>
-                e.printStackTrace()
-            case e: IllegalBlockSizeException =>
-                e.printStackTrace()
-            case e: BadPaddingException =>
-                e.printStackTrace()
-            case e: InvalidAlgorithmParameterException =>
-                e.printStackTrace()
-            case e: UnsupportedEncodingException =>
-                e.printStackTrace()
+            case e: Exception => LOG.E("secureDecrypt", e)
         }
         null
     }
 
-
-    def appendGoogleIdIfNeeded(id: String) = {
-        if (id.contains("_local"))
-            id
-        else if (id.contains("_google"))
-            id
-        else
-            id + "_google"
+    def gzip(input: String) = {
+        val inputStream = new ByteArrayInputStream(input.getBytes)
+        val stringOutputStream = new ByteArrayOutputStream((input.length * 0.75).toInt)
+        val gzipOutputStream = new GZIPOutputStream(stringOutputStream)
+        val buf = Array.ofDim[Byte](5000)
+        var len = 0
+        len = inputStream.read(buf)
+        while (len > 0) {
+            gzipOutputStream.write(buf, 0, len)
+            len = inputStream.read(buf)
+        }
+        inputStream.close()
+        gzipOutputStream.close()
+        stringOutputStream
     }
+
+
+    def appendGoogleIdIfNeeded(id: String): String = {
+        if (id.contains("_local"))  id
+        else if (id.contains("_google")) id
+        else id + "_google"
+    }
+
+
+    /**
+     *   Returns a json in a string format, and strips out unnecessary fields for logging, like
+     *   access_token (which is huge), username, and password.
+     *
+     *   Used for cleaner logging. As the code gets updated this may be eventually removed..
+     *
+     * @param jsVal
+     * @return
+     */
+    def stripJson(jsVal: JsValue): String =
+        (jsVal.as[JsObject] - SCHEMA.fAccessToken - "password" - "username").toString()
+
 }
+
+
+
+

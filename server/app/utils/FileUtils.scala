@@ -1,7 +1,6 @@
 package utils
 
-import java.io.File
-
+import java.io.{File, FileInputStream, IOException}
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -36,4 +35,21 @@ class FileUtils @Inject()(cc: ControllerComponents,
   }
 
   def getRadioMapRawFile() = ???
+
+  def LoadFile(file: File): Array[Byte] = {
+    val is = new FileInputStream(file)
+    val length = file.length
+    if (length > java.lang.Integer.MAX_VALUE) {
+    }
+    val bytes = Array.ofDim[Byte](length.toInt)
+    var offset = 0
+    var numRead = 0
+    do {
+      numRead = is.read(bytes, offset, bytes.length - offset)
+      offset += numRead
+    } while ((offset < bytes.length && numRead >= 0))
+    if (offset < bytes.length) throw new IOException("Could not read file: " + file.getName)
+    is.close()
+    bytes
+  }
 }

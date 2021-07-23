@@ -42,7 +42,7 @@ import com.google.common.collect.Lists
 import datasources.SCHEMA._
 import play.api.libs.json.{JsLookupResult, JsResultException, JsValue}
 import play.api.mvc.Result
-import utils.{AnyResponseHelper, JsonUtils}
+import utils.{RESPONSE, JsonUtils}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -188,7 +188,7 @@ object VALIDATE {
   def checkRequirements(json: JsValue, keys: String*): Result = {
     for (key <- keys) {
       val requiredMissing = JsonUtils.hasProperties(json, key)
-      if (!requiredMissing.isEmpty) return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
+      if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
       val validation = VALIDATE.fields(json, key)
       if (validation.failed()) return validation.response()
     }
@@ -202,7 +202,7 @@ object VALIDATE {
     def response(): Result = {
       var str = ""
       for (error:String <- errors.asScala) str += error + "\n"
-      AnyResponseHelper.bad_request("ERROR: Validation:\n" + str)
+      RESPONSE.BAD("ERROR: Validation:\n" + str)
     }
   }
 

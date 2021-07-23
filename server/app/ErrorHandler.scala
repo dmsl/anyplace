@@ -41,7 +41,7 @@ import scala.concurrent._
 import javax.inject.Singleton
 import play.api.mvc._
 import play.api.mvc.Results._
-import utils.{AnyResponseHelper, LOG, Utils}
+import utils.{RESPONSE, LOG, Utils}
 
 // TODO: will only emit json for all endpoints that contain /api
 @Singleton
@@ -75,7 +75,7 @@ class ErrorHandler extends HttpErrorHandler {
 
         // API requests return an API answer.
         if(request.path.startsWith("/api")) {
-           return Future.successful(AnyResponseHelper.bad_request("No such endpoint."))
+           return Future.successful(RESPONSE.BAD("No such endpoint."))
         }
 
         val eid = Utils.genErrorUniqueID()
@@ -98,7 +98,7 @@ class ErrorHandler extends HttpErrorHandler {
         LOG.E("Message: " + exception.getMessage)
         LOG.E("Cause: " + exception.getCause)
         if(request.path.startsWith("/api")) { // API requests return JSON
-            return Future.successful(AnyResponseHelper.bad_request("No such endpoint."))
+            return Future.successful(RESPONSE.BAD("No such endpoint."))
         }
 
         if (exception.isInstanceOf[MatchError]) {
@@ -115,7 +115,7 @@ class ErrorHandler extends HttpErrorHandler {
           "\nCause: " + exception.getMessage + infoGithub(eid)
 
         if(request.path.startsWith("/api")) { // return JSON
-            return Future.successful(AnyResponseHelper.bad_request(msg))
+            return Future.successful(RESPONSE.BAD(msg))
         }  else {
             return Future.successful(InternalServerError(msg))
         }

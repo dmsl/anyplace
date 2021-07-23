@@ -38,7 +38,7 @@ package oauth.provider.v2.controllers
 import javax.inject.{Inject, Singleton}
 import oauth.provider.v2.models.OAuth2Request
 import play.api.mvc.{AbstractController, ControllerComponents}
-import utils.{AnyResponseHelper, LOG}
+import utils.{RESPONSE, LOG}
 
 // CHECK:NN  how much of this is in use?
 // (all this folder in general)
@@ -68,12 +68,12 @@ class AnyplaceOAuth @Inject()(cc: ControllerComponents) extends AbstractControll
       // create the Request and check it
       val anyReq: OAuth2Request = new OAuth2Request(request)
       if (!anyReq.assertJsonBody()) {
-        AnyResponseHelper.bad_request(
-          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        RESPONSE.BAD(
+          RESPONSE.ERROR_JSON_PARSE)
       }
       val json = anyReq.getJsonBody()
       LOG.D2("AnyplaceOAuth:authorize: " + json.toString)
-      AnyResponseHelper.not_found("OAuth grant types using authenticate are not supported.")
+      RESPONSE.NOT_FOUND("OAuth grant types using authenticate are not supported.")
   }
 
   ///**

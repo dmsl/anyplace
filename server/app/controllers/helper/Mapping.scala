@@ -48,7 +48,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
 import utils.Utils.{MD5, generateRandomRssLogFileName}
-import utils.{AnyResponseHelper, AnyplaceServerAPI, FileUtils, GeoPoint, LOG}
+import utils.{RESPONSE, AnyplaceServerAPI, FileUtils, GeoPoint, LOG}
 import javax.inject.Singleton
 
 @Singleton
@@ -113,16 +113,16 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
    */
   def findRadioBbox(json: JsValue, range: Int): Result = {
     if (Coordinate(json, SCHEMA.fCoordinatesLat) == null)
-      return AnyResponseHelper.bad_request("coordinates_lat field must be String containing a float!")
+      return RESPONSE.BAD("coordinates_lat field must be String containing a float!")
     val lat = (json \ SCHEMA.fCoordinatesLat).as[String]
     if (Coordinate(json, SCHEMA.fCoordinatesLon) == null)
-      return AnyResponseHelper.bad_request("coordinates_lon field must be String containing a float!")
+      return RESPONSE.BAD("coordinates_lon field must be String containing a float!")
     val lon = (json \ SCHEMA.fCoordinatesLon).as[String]
     if (StringNumber(json, SCHEMA.fFloorNumber) == null)
-      return AnyResponseHelper.bad_request("floor_number field must be String, containing a number!")
+      return RESPONSE.BAD("floor_number field must be String, containing a number!")
     val floorNumber = (json \ SCHEMA.fFloorNumber).as[String]
     if (!Floor.checkFloorNumberFormat(floorNumber)) {
-      return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
+      return RESPONSE.BAD("Floor number cannot contain whitespace!")
     } else {
       val bbox = GeoPoint.getGeoBoundingBox(java.lang.Double.parseDouble(lat), java.lang.Double.parseDouble(lon),
         range)
@@ -148,12 +148,12 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
             val radiomap_mean_filename = api.SERVER_API_ROOT
             val path = radiomap_mean_filename.dropRight(1) + fu.getDirFrozenFloor(buid, floorNumber) + "/indoor-radiomap-mean.txt"
             val res = Json.obj("map_url_mean" -> path)
-            return AnyResponseHelper.ok(res, "Successfully retrieved radiomap: full-floor (according to lat lon)")
+            return RESPONSE.OK(res, "Successfully retrieved radiomap: full-floor (according to lat lon)")
           }
         }
         msg = "created bbox: " + fullPath
         if (!dir.mkdirs()) {
-          return AnyResponseHelper.internal_server_error("Failed to create bbox dir: " + fullPath)
+          return RESPONSE.internal_server_error("Failed to create bbox dir: " + fullPath)
         }
         val rssLog = new File(dir.getAbsolutePath + api.URL_SEP + "rss-log")
         var fout: FileOutputStream = null
@@ -164,17 +164,17 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
           floorFetched = pds.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floorNumber)
           fout.close()
           if (floorFetched == 0) {
-            return AnyResponseHelper.bad_request("Area not supported yet!")
+            return RESPONSE.BAD("Area not supported yet!")
           }
           val rm = new RadioMap(new File(fullPath), radiomap_filename, "", -110)
           val resCreate = rm.createRadioMap()
           if (resCreate != null) {
-            return AnyResponseHelper.internal_server_error("findRadioBbox: radiomap on-the-fly: " + resCreate)
+            return RESPONSE.internal_server_error("findRadioBbox: radiomap on-the-fly: " + resCreate)
           }
         } catch {
-          case fnfe: FileNotFoundException => return AnyResponseHelper.internal_server_error("findRadioBbox: " +
+          case fnfe: FileNotFoundException => return RESPONSE.ERROR("findRadioBbox: " +
             "rssLog: " + rssLog, fnfe)
-          case e: Exception =>  return AnyResponseHelper.internal_server_error("findRadioBbox" , e)
+          case e: Exception =>  return RESPONSE.ERROR("findRadioBbox" , e)
         }
       } else {
         msg = "cached-bbox: " + fullPath
@@ -199,14 +199,11 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
         res = Json.obj("map_url_mean" -> radiomap_mean_filename)
       }
 
-      AnyResponseHelper.ok(res, "Successfully retrieved radiomap: " + msg)
+      RESPONSE.OK(res, "Successfully retrieved radiomap: " + msg)
     }
   }
 
   def storeRadioMapRawToServer(file: File): Boolean = {
-    /*
-    * FeatureAdd : Configuring location for server generated files
-    */
     val radio_dir = conf.get[String]("radioMapRawDir")
     val dir = new File(radio_dir)
     dir.mkdirs()
@@ -214,7 +211,6 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
       return false
     }
     val name = generateRandomRssLogFileName()
-    //FeatureAdd : Configuring location for server generated files
     val dest_f = new File(radio_dir + api.URL_SEP + name)
     var fout: FileOutputStream = null
     try {

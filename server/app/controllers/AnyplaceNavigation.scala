@@ -59,7 +59,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("getBuildingById: " + json.toString)
@@ -69,11 +69,11 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
         try {
           val doc = pds.getIDatasource.buildingFromKeyAsJson(buid)
           if (doc == null) {
-            return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!")
+            return RESPONSE.BAD("Building does not exist or could not be retrieved!")
           }
-          return AnyResponseHelper.ok(doc, "Successfully fetched building information!")
+          return RESPONSE.OK(doc, "Successfully fetched building information!")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
+          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage + "]")
         }
       }
 
@@ -85,7 +85,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("getPoisById: " + json.toString)
@@ -95,12 +95,12 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
         try {
           var doc = pds.getIDatasource.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
           if (doc == null) {
-            return AnyResponseHelper.bad_request("Document does not exist or could not be retrieved.")
+            return RESPONSE.BAD("Document does not exist or could not be retrieved.")
           }
           doc = doc.as[JsObject] - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema
-          return AnyResponseHelper.ok(doc, "Fetched POI information.")
+          return RESPONSE.OK(doc, "Fetched POI information.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage + "]")
+          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage + "]")
         }
       }
 
@@ -112,7 +112,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.D2("getNavigationRoute: " + json.toString)
@@ -121,16 +121,16 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
         val puid_from = (json \ "pois_from").as[String]
         val puid_to = (json \ "pois_to").as[String]
         if (puid_from.equalsIgnoreCase(puid_to)) {
-          return AnyResponseHelper.bad_request("Destination and Source is the same.")
+          return RESPONSE.BAD("Destination and Source is the same.")
         }
         try {
           val poiFrom = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_from)
           if (poiFrom == null) {
-            return AnyResponseHelper.bad_request("Source POI does not exist or could not be retrieved.")
+            return RESPONSE.BAD("Source POI does not exist or could not be retrieved.")
           }
           val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
-            return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved.")
+            return RESPONSE.BAD("Destination POI does not exist or could not be retrieved.")
           }
           val buid_from = (poiFrom \ SCHEMA.fBuid).as[String]
           val floor_from = (poiFrom \ SCHEMA.fFloorNumber).as[String]
@@ -144,12 +144,12 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
               points = navigateSameBuilding(poiFrom, poiTo)
             }
           } else {
-            return AnyResponseHelper.bad_request("Navigation between buildings not supported yet.")
+            return RESPONSE.BAD("Navigation between buildings not supported yet.")
           }
           val res: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
-          return AnyResponseHelper.ok(res, "Plotted navigation.")
+          return RESPONSE.OK(res, "Plotted navigation.")
         } catch {
-          case e: DatasourceException => return AnyResponseHelper.internal_server_error("500: " + e.getMessage)
+          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage)
         }
       }
 
@@ -160,7 +160,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("getNavigationRouteXY: " + json.toString)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
@@ -174,7 +174,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
         try {
           val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
-            return AnyResponseHelper.bad_request("Destination POI does not exist or could not be retrieved!")
+            return RESPONSE.BAD("Destination POI does not exist or could not be retrieved!")
           }
           val buid_to = (poiTo \ SCHEMA.fBuid).as[String]
           val floor_to = (poiTo \ SCHEMA.fFloorNumber).as[String]
@@ -182,7 +182,7 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
           val dlon = java.lang.Double.parseDouble(coordinates_lon)
           val floorPois = pds.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
           if (0 == floorPois.size) {
-            return AnyResponseHelper.bad_request("Navigation is not supported on your floor!")
+            return RESPONSE.BAD("Navigation is not supported on your floor!")
           }
 
           var dlat2: Double = 0.0
@@ -202,11 +202,11 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
           }
           if (startingPoi == null) {
             val msg = "Navigation is not supported from your position."
-            return AnyResponseHelper.bad_request(msg)
+            return RESPONSE.BAD(msg)
           } else if (min_distance > ROUTE_MAX_DISTANCE_ALLOWED) {
             val msg = "No Navigation supported at this position: startingPoi>=5km"
             LOG.D1(msg)
-            return AnyResponseHelper.bad_request(msg)
+            return RESPONSE.BAD(msg)
           }
 
           LOG.D3("Starting poi: " + (startingPoi \ SCHEMA.fPuid).as[String])
@@ -219,13 +219,13 @@ class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSourc
               poiTo)
           } else {
             val msg  = "Navigation between buildings not supported yet."
-            return AnyResponseHelper.bad_request(msg)
+            return RESPONSE.BAD(msg)
           }
           val json: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
-          return AnyResponseHelper.ok(json, "Successfully plotted navigation.")
+          return RESPONSE.OK(json, "Successfully plotted navigation.")
         } catch {
           //case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-          case e: Exception => return AnyResponseHelper.internal_server_error(e.getClass.toString + ": " + e.getMessage)
+          case e: Exception => return RESPONSE.internal_server_error(e.getClass.toString + ": " + e.getMessage)
         }
       }
 

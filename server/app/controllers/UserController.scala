@@ -44,7 +44,7 @@ import oauth.provider.v2.models.OAuth2Request
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.mvc._
-import utils.{AnyResponseHelper, JsonUtils, LOG}
+import utils.{RESPONSE, JsonUtils, LOG}
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents,
@@ -68,8 +68,8 @@ class UserController @Inject()(cc: ControllerComponents,
         // create the Request and check it
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
-          return AnyResponseHelper.bad_request(
-            AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+          return RESPONSE.BAD(
+            RESPONSE.ERROR_JSON_PARSE)
         }
         val json = anyReq.getJsonBody()
         LOG.I("UserController:deleteAccount: " + json.toString)
@@ -77,19 +77,19 @@ class UserController @Inject()(cc: ControllerComponents,
         val notFound: java.util.List[String] =
           JsonUtils.hasProperties(json, "auid")
         if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-          return AnyResponseHelper.requiredFieldsMissing(notFound)
+          return RESPONSE.MISSING_FIELDS(notFound)
         }
         // if the auid in the route is empty then try to get the one from the POST json body
         if (auid == null || auid.trim().isEmpty)
           auid = json.\\("auid").mkString
         try {
           if (!pds.getIDatasource.deleteFromKey(auid)) {
-            return AnyResponseHelper.bad_request("Account could not be deleted!")
+            return RESPONSE.BAD("Account could not be deleted!")
           }
-          return AnyResponseHelper.ok("Successfully deleted account!")
+          return RESPONSE.OK("Successfully deleted account!")
         } catch {
           case e: DatasourceException =>
-            return AnyResponseHelper.internal_server_error(
+            return RESPONSE.internal_server_error(
               "500: " + e.getMessage)
 
         }
@@ -391,7 +391,7 @@ class UserController @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
 
         val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
         if (checkRequirements != null) return checkRequirements
@@ -400,14 +400,14 @@ class UserController @Inject()(cc: ControllerComponents,
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
         val storedUser = pds.getIDatasource.login(SCHEMA.cUsers, username, password)
-        if (storedUser == null) return AnyResponseHelper.bad_request("Incorrect username or password!")
-        if (storedUser.size > 1) return AnyResponseHelper.bad_request("More than one users were found!")
+        if (storedUser == null) return RESPONSE.BAD("Incorrect username or password!")
+        if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found!")
         val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
-        if (accessToken == null) return AnyResponseHelper.bad_request("User doesn't have access token!")
+        if (accessToken == null) return RESPONSE.BAD("User doesn't have access token!")
 
         val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
         val res = Json.obj("user" -> user)
-        return AnyResponseHelper.ok(res, "Successfully found user.")
+        return RESPONSE.OK(res, "Successfully found user.")
       }
 
     inner(request)
@@ -417,7 +417,7 @@ class UserController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("register: " + json)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
@@ -432,15 +432,15 @@ class UserController @Inject()(cc: ControllerComponents,
           accType = "admin"
         // Check if the email is unique
         val storedEmail = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
-        if (storedEmail != null) return AnyResponseHelper.bad_request("There is already an account with this email.")
+        if (storedEmail != null) return RESPONSE.BAD("There is already an account with this email.")
         // Check if the username is unique
         val storedUsername = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
-        if (storedUsername != null) return AnyResponseHelper.bad_request("Username is already taken.")
+        if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
         val newUser = pds.getIDatasource.register(SCHEMA.cUsers, name, email, username, password, external, accType)
-        if (newUser == null) return AnyResponseHelper.bad_request("Please try again.")
+        if (newUser == null) return RESPONSE.BAD("Please try again.")
         // TODO:NN change return to "succesffully ... pls login.."
         val res: JsValue = Json.obj("newUser" -> newUser)
-        return AnyResponseHelper.ok(res,"Succefully registered!")
+        return RESPONSE.OK(res,"Succefully registered!")
       }
       inner(request)
   }

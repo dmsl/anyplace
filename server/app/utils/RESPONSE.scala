@@ -36,19 +36,19 @@
 package utils
 
 import java.util.List
-
 import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue}
+import play.api.mvc.Results.Ok
 import play.api.mvc._
-import utils.AnyResponseHelper.Response.Response
+import utils.RESPONSE.Response.Response
 
+import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.implicitConversions
 
-object AnyResponseHelper {
-
-    val CANNOT_PARSE_BODY_AS_JSON = "Cannot parse request body as Json object!"
-    val WRONG_API_USAGE = "Wrong API usage!"
+object RESPONSE {
+    val ERROR_JSON_PARSE = "Cannot parse request body as Json object."
+    val ERROR_API_USAGE = "Wrong API usage."
 
     object Response extends Enumeration {
         val BAD_REQUEST = new Response()
@@ -63,12 +63,11 @@ object AnyResponseHelper {
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
 
-    def ok(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
-    def bad_request(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
-
+    def OK(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
+    def BAD(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
 
     private def CreateResultResponse(r: Response, json_in: JsValue, message: String): Result = {
-        var obj: JsValue = json_in
+        val obj: JsValue = json_in
 
         r match {
             case Response.BAD_REQUEST =>
@@ -119,75 +118,39 @@ object AnyResponseHelper {
                   ("message" -> JsString("Unknown Action")) +
                   ("status_code" -> JsNumber(403))
                 Results.BadRequest(res.toString)
-
         }
     }
+    def OK(msg: String): Result = createResultResponse(Response.OK, null, msg)
 
-    // #####################################################
-    // TODO:PM DEPRECATE (couchbase)
-
-    def ok(json: JsonObject, msg: String=""): Result = {
-        createResultResponse(Response.OK, json, msg)
-    }
-
-    def bad_request(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.BAD_REQUEST, json, msg)
-    }
-
-    def forbidden(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.FORBIDDEN, json, msg)
-    }
-
-    def unauthorized(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.UNAUTHORIZED_ACCESS, json, msg)
-    }
-
-    def internal_server_error(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.INTERNAL_SERVER_ERROR, json, msg)
-    }
-
-    def not_found(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.NOT_FOUND, json, msg)
-    }
-
-    def ok(msg: String): Result = {
-        createResultResponse(Response.OK, null, msg)
-    }
-
-    def DEPRECATED(msg: String): Result = {
+    def DEPRECATED(msg: String): Result =
         createResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
+
+    def BAD(msg: String): Result = createResultResponse(Response.BAD_REQUEST, null, msg)
+
+    def FORBIDDEN(msg: String): Result = createResultResponse(Response.FORBIDDEN, null, msg)
+
+    def UNAUTHORIZED(msg: String): Result = createResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
+
+    private def prettyException(e: Exception): String = s"500: ${e.getClass}: ${e.getMessage}"
+
+    def ERROR(e: Exception): Result = {
+        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, prettyException(e))
     }
 
-    def bad_request(msg: String): Result = {
-        createResultResponse(Response.BAD_REQUEST, null, msg)
-    }
-
-    def forbidden(msg: String): Result = {
-        createResultResponse(Response.FORBIDDEN, null, msg)
-    }
-
-    def unauthorized(msg: String): Result = {
-        createResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
-    }
-
-    def internal_server_error(msg: String): Result = {
+    def ERROR(tag: String, e: Exception): Result = {
+        val msg = tag+": "+prettyException(e)
         createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
     }
-    def internal_server_error(msg: String, e: Exception): Result = {
-        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg + ": " + e.getClass + ": " + e.getMessage)
-    }
 
-    def not_found(msg: String): Result = {
-        createResultResponse(Response.NOT_FOUND, null, msg)
-    }
+    def internal_server_error(msg: String): Result =
+        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
 
-    def requiredFieldsMissing(missing: List[String]): Result = {
-        if (missing == null) {
-            throw new IllegalArgumentException("No null List of missing keys allowed!")
-        }
+    def NOT_FOUND(msg: String): Result = createResultResponse(Response.NOT_FOUND, null, msg)
 
+    def MISSING_FIELDS(missing: util.List[String]): Result = {
+        if (missing == null) {throw new IllegalArgumentException("No null List of missing keys allowed.") }
 
-        //val res: JsValue = Json.obj(
+        //val res: JsValue = Json.obj( // CHECK:NN
         //    "users_num" -> users.length,
         //    SCHEMA.cUsers -> Json.arr(users)
         //)
@@ -196,10 +159,10 @@ object AnyResponseHelper {
         val json = JsonObject.empty()
 
         for (s <- missing.asScala) {
-            error_messages.add(String.format("Missing or Invalid parameter:: [%s]", s))
+            error_messages.add(String.format("Missing or Invalid parameter: %s", s))
         }
         json.put("error_messages",error_messages)
-        createResultResponse(Response.BAD_REQUEST, json, String.format("Missing or Invalid parameter:: [%s]",
+        createResultResponse(Response.BAD_REQUEST, json, String.format("Missing or Invalid parameter: %s",
             missing.get(0)))
     }
 
@@ -250,9 +213,45 @@ object AnyResponseHelper {
                 json.put("message", "Unknown Action")
                 json.put("status_code", 403)
                 Results.BadRequest(json.toString)
-
         }
     }
 
+    // #####################################################
+    // TODO:NN TODO:PM DEPRECATE (couchbase) JsonObject  com.couchbase.client.java.document.json.
+    def ok(json: JsonObject, msg: String=""): Result = {
+        createResultResponse(Response.OK, json, msg)
+    }
+    def bad_request(json: JsonObject, msg: String): Result = {
+        createResultResponse(Response.BAD_REQUEST, json, msg)
+    }
+    def forbidden(json: JsonObject, msg: String): Result = {
+        createResultResponse(Response.FORBIDDEN, json, msg)
+    }
+    def unauthorized(json: JsonObject, msg: String): Result = {
+        createResultResponse(Response.UNAUTHORIZED_ACCESS, json, msg)
+    }
+    def internal_server_error(json: JsonObject, msg: String): Result = {
+        createResultResponse(Response.INTERNAL_SERVER_ERROR, json, msg)
+    }
+    def not_found(json: JsonObject, msg: String): Result = {
+        createResultResponse(Response.NOT_FOUND, json, msg)
+    }
 
+    def gzipJsonOk(json: JsValue, message: String): Result = {
+        val tempJson = json.as[JsObject] + ("message" -> JsString(message))
+        gzipJsonOk(tempJson.toString())
+    }
+
+    def gzipJsonOk(body: String): Result = {
+        val gzipv = Utils.gzip(body)
+        Ok(gzipv.toByteArray).withHeaders(("Content-Encoding", "gzip"),
+            ("Content-Length", gzipv.size.toString),
+            ("Content-Type", "application/json"))
+    }
+
+    def gzipOk(body: String): Result = {
+        val gzipv = Utils.gzip(body)
+        Ok(gzipv.toByteArray).withHeaders(("Content-Encoding", "gzip"),
+            ("Content-Length", gzipv.size.toString))
+    }
 }
