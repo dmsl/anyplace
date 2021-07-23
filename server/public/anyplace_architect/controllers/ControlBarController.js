@@ -379,7 +379,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                      HandleGeolocationError($scope, err.code);
                     });
                 });
         } else {

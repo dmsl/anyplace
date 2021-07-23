@@ -160,7 +160,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                     //var radius = position.coords.accuracy;
 
                     $scope.userPosition = posLatlng;
-
                     $scope.displayMyLocMarker(posLatlng);
 
                     var infowindow = new google.maps.InfoWindow({
@@ -181,8 +180,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                         });
                     }
 
-
-
                     if (!pannedToUserPosOnce) {
                         GMapService.gmap.panTo(posLatlng);
                         GMapService.gmap.setZoom(19);
@@ -191,7 +188,8 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                        LOG.D2("ControlBarController: geolocation")
+                        HandleGeolocationError($scope, err.code);
                     });
                 },     {
                     enableHighAccuracy: false,

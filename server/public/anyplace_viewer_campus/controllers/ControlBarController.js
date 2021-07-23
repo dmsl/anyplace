@@ -180,7 +180,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                 },
                 function (err) {
                     $scope.$apply(function () {
-                       HandleGeolocationError(err.code);
+                       HandleGeolocationError($scope, err.code);
                     });
                 });
         } else {

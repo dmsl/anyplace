@@ -41,6 +41,12 @@
  *
  */
 
+var IMG_ACCESS_POINT_ARCHITECT = 'build/images/wireless-router-icon-bg.png';
+var IMG_BUILDING_ARCHITECT = 'build/images/building-icon.png';
+// PM: For some reason different dimensions are used for viewer
+var IMG_BUILDING_VIEWER = 'build/images/building-icon-viewer.png';
+var IMG_FINGERPRINT_RED_SPOT= 'build/images/red_dot.png';
+
 // Activate tooltips
 $('document').ready(function(){
     // modal focus fix
@@ -125,31 +131,22 @@ function ShowWarningAutohide(scope, response, defaultMsg, showDefaultMessage) {
   _ShowAlert(scope, _warn_autohide, response, defaultMsg, showDefaultMessage)
 }
 
-function HandleGeolocationError(errorCode) {
-  if (err.code == 1) {
-    _err($scope, ERR_GEOLOC_DEVICE_SETTINGS)
-  } else if (err.code == 2) {
-    _err($scope, ERR_GEOLOC_NET_OR_SATELLITES)
-  } else if (err.code == 3) {
-    _err($scope, ERR_GEOLOC_TIMEOUT)
+function HandleGeolocationError(scope, errorCode) {
+  if (errorCode === 1) {
+    _warn_autohide(scope, ERR_GEOLOC_DEVICE_SETTINGS)
+  } else if (errorCode === 2) {
+      _warn_autohide(scope, ERR_GEOLOC_NET_OR_SATELLITES)
+  } else if (errorCode === 3) {
+      _warn_autohide(scope, ERR_GEOLOC_TIMEOUT)
   } else {
-    _err($scope, ERR_GEOLOC_UNKNOWN);
+      _warn_autohide(scope, ERR_GEOLOC_UNKNOWN);
   }
 }
 
 function selectAllInputText(element) {
-  console.log("Runned!");
+  //console.log("Runned!");
   element.setSelectionRange(0, element.value.length)
 }
-
-
-
-var IMG_ACCESS_POINT_ARCHITECT = 'build/images/wireless-router-icon-bg.png';
-var IMG_BUILDING_ARCHITECT = 'build/images/building-icon.png';
-// PM: For some reason different dimensions are used for viewer
-var IMG_BUILDING_VIEWER = 'build/images/building-icon-viewer.png';
-var IMG_FINGERPRINT_RED_SPOT= 'build/images/red_dot.png';
-
 
 function getMapsIconBuildingViewer(scope, latLong) {
     // console.log("getMapsIconBuildingViewer")
@@ -267,7 +264,6 @@ function getPrettyVersion(version) {
    }
    return s;
 }
-
 
 var LOG = {};
 LOG.level = 3;

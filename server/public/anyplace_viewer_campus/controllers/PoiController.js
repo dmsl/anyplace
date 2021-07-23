@@ -781,7 +781,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                      HandleGeolocationError($scope, err.code);
                     });
                 }
             );

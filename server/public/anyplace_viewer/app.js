@@ -75,16 +75,17 @@ app.service('GMapService', function () {
     OSMMapType.prototype.name = 'OSM';
     OSMMapType.prototype.alt = 'Tile OSM Map Type';
     OSMMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        if (zoom>19)
-            return null;
+        // CHECK:PM
+        // if (zoom>19) // CHECK
+        //     return null;
         var tilesPerGlobe = 1 << zoom;
         var x = coord.x % tilesPerGlobe;
         if (x < 0) {
             x = tilesPerGlobe+x;
         }
         var tile = ownerDocument.createElement('img');
-          // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
-        tile.src =  "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";;
+        // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
+        tile.src =  "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
         tile.style.width = this.tileSize.width + 'px';
         tile.style.height = this.tileSize.height + 'px';
         return tile;
@@ -103,7 +104,6 @@ app.service('GMapService', function () {
     CartoLightMapType.prototype.alt = 'Tile Carto Light Map Type';
     CartoLightMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
         var url="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
-
         url=url.replace('{x}', coord.x)
             .replace('{y}', coord.y)
             .replace('{z}', zoom);

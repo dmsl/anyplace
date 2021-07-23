@@ -609,11 +609,11 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         _suc($scope, "Now you can click on another POI to draw the indoor path between the 2 points.");
     };
 
-    $scope.getHtml5GeoLocation = function (callback, errcallback) {
+    $scope.getHtml5GeoLocation = function (callback, errCallback) {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(callback, errcallback);
+            navigator.geolocation.getCurrentPosition(callback, errCallback);
         } else {
-            _err($scope, "The Geolocation feature is not supported by this browser.");
+            _err($scope, "Geolocation is not supported by this browser.");
         }
     };
 
@@ -742,7 +742,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                        LOG.E("PoiController: getHtml5GeoLocation")
+                        HandleGeolocationError($scope, err.code);
                     });
                 }
             );
