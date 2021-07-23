@@ -17,6 +17,7 @@ server.port="443"
 couchbase.hostname="http://localhost"
 # couchbase.clusterNodes="couchbase://node1,node2,nodeN"
 ###
+# CLR:PM
 couchbase.port=8091
 couchbase.bucket="anyplace"
 couchbase.username="anyplace"

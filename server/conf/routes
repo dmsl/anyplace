@@ -1,28 +1,29 @@
--> /api api.Routes
-
+# Not mounting to /api due to swagger documentation generation.
+# It is manually appended api.routess
+->  /    api.Routes
 
 
 #POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
 #GET         /login                                                                  controllers.MainController.login()
 #GET         /logout                                                                 controllers.MainController.logout()
 #POST        /authenticate                                                           controllers.MainController.authenticate()
-#POST        /anyplace/mapping/maintenance                                           controllers.AnyplaceMapping.maintenance()
+#POST        /anyplace/mapping/maintenance                                           controllers.MappingController.maintenance()
 
 
 # Floors
-POST        /anyplace/mapping/floor/add                                             controllers.AnyplaceMapping.floorAdd()
-POST        /anyplace/mapping/floor/delete                                          controllers.AnyplaceMapping.floorDelete()
+POST        /anyplace/mapping/floor/add                                             controllers.MappingController.floorAdd()
+POST        /anyplace/mapping/floor/delete                                          controllers.MappingController.floorDelete()
 # CHECK:PM ASK:DZ is setting floorplan description obsolete?
-POST        /anyplace/mapping/floor/uploadWithZoom                                  controllers.AnyplaceMapping.floorPlanUploadWithZoom()
-POST        /anyplace/mapping/floor/all                                             controllers.AnyplaceMapping.floorAll()
+POST        /anyplace/mapping/floor/uploadWithZoom                                  controllers.MappingController.floorPlanUploadWithZoom()
+POST        /anyplace/mapping/floor/all                                             controllers.MappingController.floorAll()
 
 # Campus
-POST        /anyplace/mapping/campus/add                                            controllers.AnyplaceMapping.buildingSetAdd()
+POST        /anyplace/mapping/campus/add                                            controllers.MappingController.buildingSetAdd()
 # CHECK:NN CHECK:PM on frontend(js) buildings and greeklish are not set in the form
-POST        /anyplace/mapping/campus/update                                         controllers.AnyplaceMapping.campusUpdate()
-POST        /anyplace/mapping/campus/delete                                         controllers.AnyplaceMapping.campusDelete()
+POST        /anyplace/mapping/campus/update                                         controllers.MappingController.campusUpdate()
+POST        /anyplace/mapping/campus/delete                                         controllers.MappingController.campusDelete()
 # RENAME:NN parameter 'pois' -> 'puid'
-POST        /anyplace/mapping/campus/all_cucode                                     controllers.AnyplaceMapping.buildingSetAll()
+POST        /anyplace/mapping/campus/all_cucode                                     controllers.MappingController.buildingSetAll()
 
 
 ################
@@ -41,14 +42,14 @@ POST        /anyplace/navigation/pois/id                                        
 # used by android
 POST        /anyplace/position/predictFloorAlgo1                                    controllers.AnyplacePosition.predictFloorAlgo1()
 # TODO:NN estimate_position (implement this as well..)
-POST        /anyplace/position/estimate_position                                    controllers.AnyplaceMapping.findPosition()
+POST        /anyplace/position/estimate_position                                    controllers.MappingController.findPosition()
 
 ################
 ### RADIOMAPS
 ################
 # /radiomap/delete
 # /radiomap/upload
-POST        /anyplace/position/radio/delete                                         controllers.AnyplaceMapping.FingerPrintsDelete()
+POST        /anyplace/position/radio/delete                                         controllers.MappingController.FingerPrintsDelete()
 POST        /anyplace/position/radio_by_building_floor_all                          controllers.AnyplacePosition.radioDownloadByBuildingFloorall()
 POST        /anyplace/position/radio_by_floor_bbox                                  controllers.AnyplacePosition.radioDownloadFloorBbox()
 # TODO TEST:NN TEST:PM test on mobile app
@@ -64,8 +65,8 @@ POST        /anyplace/position/radio_by_building_floor                          
 # TODO:NN fix bug NEXT MEETING
 # where is it called (we want to rename)
 # TODO:NN access_points/APs..
-POST        /anyplace/position/radio/APs_building_floor                             controllers.AnyplaceMapping.getAPsByBuildingFloor()
-POST        /anyplace/position/radio/aps_ids                                        controllers.AnyplaceMapping.getAPsIds()
+POST        /anyplace/position/radio/APs_building_floor                             controllers.MappingController.getAPsByBuildingFloor()
+POST        /anyplace/position/radio/aps_ids                                        controllers.MappingController.getAPsIds()
 
 ################
 ### HEATMAP DATA
@@ -73,20 +74,20 @@ POST        /anyplace/position/radio/aps_ids                                    
 # RENAMED:
 # NEW FILE:
 # /anyplace/position/radio/heatmap_building_floor_average_1 -> /heatmap/floor/average/1 /2 /3 /3/tiles .. TODO:NN
-POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.AnyplaceMapping.getHeatmapByFloorAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.AnyplaceMapping.getHeatmapByFloorAVG2()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.AnyplaceMapping.getHeatmapByFloorAVG3()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.AnyplaceMapping.getHeatmapByFloorAVG3Tiles()
+POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.MappingController.getHeatmapByFloorAVG1()
+POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.MappingController.getHeatmapByFloorAVG2()
+POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.MappingController.getHeatmapByFloorAVG3()
+POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.MappingController.getHeatmapByFloorAVG3Tiles()
 
 # Time-based data
-POST        /anyplace/position/radio/time                                           controllers.AnyplaceMapping.FingerprintsByTime()
-POST        /anyplace/position/radio/delete/time                                    controllers.AnyplaceMapping.FingerPrintsTimestampDelete()
+POST        /anyplace/position/radio/time                                           controllers.MappingController.FingerprintsByTime()
+POST        /anyplace/position/radio/delete/time                                    controllers.MappingController.FingerPrintsTimestampDelete()
 # CHECK:PM CHECK:DZ the old code does not group the heatmaps on higher levels BUGFIX
 # TODO:NN REMOVE building_... and tell PM where is it used?!
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG2()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.AnyplaceMapping.heatmapByFloorTimestampAVG3()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.AnyplaceMapping.heatmapByFloorTimestampTiles()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.MappingController.heatmapByFloorTimestampAVG1()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.MappingController.heatmapByFloorTimestampAVG2()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.MappingController.heatmapByFloorTimestampAVG3()
+POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.MappingController.heatmapByFloorTimestampTiles()
 
 
 
@@ -116,13 +117,13 @@ GET /viewer                                                                     
 #GET         /new2                                                                   controllers.WebAppController.AddTrailingSlash()
 
 ## BLUEPRINTS
-POST        /anyplace/floortiles/:buid/:floor_number                                controllers.AnyplaceMapping.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
-GET         /anyplace/floortiles/:buid/:floor_number/*file                          controllers.AnyplaceMapping.serveFloorPlanTilesStatic( buid: String, floor_number: String, file: String )
+POST        /anyplace/floortiles/:buid/:floor_number                                controllers.MappingController.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
+GET         /anyplace/floortiles/:buid/:floor_number/*file                          controllers.MappingController.serveFloorPlanTilesStatic( buid: String, floor_number: String, file: String )
 # USED BY: Android Navigator:
-POST        /anyplace/floortiles/zip/:buid/:floor_number                            controllers.AnyplaceMapping.serveFloorPlanTilesZip( buid: String, floor_number: String )
+POST        /anyplace/floortiles/zip/:buid/:floor_number                            controllers.MappingController.serveFloorPlanTilesZip( buid: String, floor_number: String )
 # USED BY: Web apps
-POST        /anyplace/floorplans64/:buid/:floor_number                              controllers.AnyplaceMapping.serveFloorPlanBase64( buid: String, floor_number: String )
-POST        /anyplace/floorplans64all/:buid/:floor_number                           controllers.AnyplaceMapping.serveFloorPlanBase64all( buid: String, floor_number: String )
+POST        /anyplace/floorplans64/:buid/:floor_number                              controllers.MappingController.serveFloorPlanBase64( buid: String, floor_number: String )
+POST        /anyplace/floorplans64all/:buid/:floor_number                           controllers.MappingController.serveFloorPlanBase64all( buid: String, floor_number: String )
 POST        /anyplace/radiomaps_frozen/:building/:floor/:filename                   controllers.AnyplacePosition.serveFrozenRadioMap(building: String, floor: String, filename: String)
 POST        /anyplace/radiomaps/:radio_folder/:filename                             controllers.AnyplacePosition.serveRadioMap( radio_folder: String, filename: String )
 
@@ -149,28 +150,28 @@ GET /*any                                                                       
 # ACCES MAP
 # TODO:PM: clear crlb mentions..
 # TODO:NN na epistrefi deprecated kai bad request "will be removed"
-#POST        /anyplace/position/radio/acces                                          controllers.AnyplaceMapping.getAccesHeatmapByBuildingFloor()
-#POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.AnyplaceMapping.deleteAccesSpaceData()
+#POST        /anyplace/position/radio/acces                                          controllers.MappingController.getAccesHeatmapByBuildingFloor()
+#POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.MappingController.deleteAccesSpaceData()
 
 
 ###################
 # Unused Endpoints
 ###################
-POST        /anyplace/mapping/building/coowners                                     controllers.AnyplaceMapping.spaceUpdateCoOwners()
+POST        /anyplace/mapping/building/coowners                                     controllers.MappingController.spaceUpdateCoOwners()
 # Fetches all buildings that matches bucode.
-POST        /anyplace/mapping/building/all_bucode                                   controllers.AnyplaceMapping.spaceByBucode()
-POST        /anyplace/mapping/building/newowner                                     controllers.AnyplaceMapping.spaceUpdateOwner()
+POST        /anyplace/mapping/building/all_bucode                                   controllers.MappingController.spaceByBucode()
+POST        /anyplace/mapping/building/newowner                                     controllers.MappingController.spaceUpdateOwner()
 # Not in use by anyplace API. Used by Rayzit
-POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.AnyplaceMapping.poisByBuidincConnectors()
+POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.MappingController.poisBySpaceConnectors()
 # Not in use. (Replaced JsonObject with JsValue, didnt test)
-#POST        /anyplace/mapping/floor/upload                                          controllers.AnyplaceMapping.floorPlanUpload()
+#POST        /anyplace/mapping/floor/upload                                          controllers.MappingController.floorPlanUpload()
 ## ASK:DZ : called by updateConnection(js) which is never called.
-#POST        /anyplace/mapping/connection/update                                     controllers.AnyplaceMapping.connectionUpdate()
+#POST        /anyplace/mapping/connection/update                                     controllers.MappingController.connectionUpdate()
 ## ASK:DZ : called by updateFloor(js) which is never called.
-#POST        /anyplace/mapping/floor/update                                          controllers.AnyplaceMapping.floorUpdate()
+#POST        /anyplace/mapping/floor/update                                          controllers.MappingController.floorUpdate()
 
 # CHECK:DZ
-POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.AnyplaceMapping.getRadioHeatmapBbox()
+POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.MappingController.getRadioHeatmapBbox()
 
 ###   INFLUXDB
 # CHECK:DZ Make it obsolete?
@@ -179,5 +180,5 @@ POST        /anyplace/mapping/radio/radio_buid_floor                            
 #POST        /anyplace/geolocation/distance_lookup                                   controllers.AnyplaceInfluxdb.locationLookup()
 
 ### DELETED CHECK:DZ
-#POST        /anyplace/mapping/pois/types                                           controllers.AnyplaceMapping.poisTypes()
-#POST        /anyplace/mapping/pois/add_category                                    controllers.AnyplaceMapping.categoryAdd()
+#POST        /anyplace/mapping/pois/types                                           controllers.MappingController.poisTypes()
+#POST        /anyplace/mapping/pois/add_category                                    controllers.MappingController.categoryAdd()

@@ -1,0 +1,11 @@
+---
+swagger: "2.0"
+schemes: [http, https]
+info:
+  title: "Anyplace API"
+  description: " A free and open Indoor Navigation Service with superb accuracy!"
+consumes:
+  - application/json
+produces:
+  - application/json
+
