@@ -44,7 +44,6 @@ Generate one using the `sbt shell` (inside IntelliJ):
         + `radioMapRawDir`: directory for the raw radiomap data
         + `radioMapFrozenDir`: directory for the frozen radiomaps
         + `tilerRootDir`: directory of the tiler
-        + `crlbsDir`: directory for the ACCES map data, generated using the  Cramer-Rao lower bound (CRLBS) algorithm.
 
 5. Install [tiler dependencies] (anyplace_tiler/README.md)
 </details>
@@ -157,7 +156,7 @@ Operating System with standard unix, mac or windows configurations.
 ```
 
 ##### API Controllers
-* [`AnyplaceMapping`](app/controllers/AnyplaceMapping.java) - Handles all of the interactions coming from Anyplace Architect, like the [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on buildings/floors/POIs. 
+* [`MappingController`](app/controllers/MappingController.java) - Handles all of the interactions coming from Anyplace Architect, like the [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) operations on buildings/floors/POIs.
 * [`AnyplacePosition`](app/controllers/AnyplacePosition.java) - Handles indoor positioning items like RSS logs and radiomaps. (_Also contains some experimental positioning methods using magnetic readings, which is work in progress._) 
 * [`AnyplaceNavigation`](app/controllers/AnyplaceNavigation.java) - Provides indoor navigation paths between two POIs. Uses [Dijkstra's algorithm](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm) to find shortest paths.
 
@@ -175,91 +174,8 @@ This class provides floor detection functionality for detecting when a user has 
 * **Anyplace Developers** - This is the page for Anyplace API's interactive documentation, built with [Dart](https://www.dartlang.org/). It resides in the [`public`](public) directory and served through the [`AnyplaceWebApps`](app/controllers/AnyplaceWebApps.java) controller.
 
 
-## Geolocation using `InfluxDB`:
-<details open>
-<summary>
-Influx Documentation (will be removed)
-</summary>
-TODO:PM remove influx
-Anyplace provides endpoints dedicated to storing and retrieving geo-points:
+# SBT INTERFACE:
+As of 4.2 sbt interface is available from IntelliJ (and terminal)
 
-|path|kind|description|
-|:-|:-:|-:|
-/anyplace/geolocation/insert| POST | insert a point in the database
-/anyplace/geolocation/range_lookup| POST | retrieve all points in a timespan in a square of two points
-/anyplace/geolocation/distance_lookup | POST | retrieve all points in a timespan within some distance in KM from the point
 
-### Storing Geopoints
-
-__path__: /anyplace/geolocation/insert  
-__input kind__: json  
-__parameters__:   
-```
-{
-    point: {
-        latitude: string,
-        longitude: string,
-    },
-    deviceID: string,
-    timestamp: long
-}
-```
-__Example__:
-```bash
-$ curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{"deviceID":"myDevicePoint", "point":{"latitude":"22.2931","longitude":"17.12911"}, "timestamp":900000333}'  http://10.16.30.47:9000/anyplace/influxdb/insert
-```
-
-### Retrieving Geopoints
-
-#### Using two points
-__path__: /anyplace/geolocation/range_lookup  
-__input kind__: json  
-__parameters__:   
-```
-{
-    point1: {
-        latitude: string,
-        longitude: string,
-    },
-    point2: {
-        latitude: string,
-        longitude: string,
-    },
-    deviceID: string,
-    beginTime: long,
-    endTime: long
-}
-```
-__Example__:
-```bash
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{"deviceID":"5","point1":{"latitude":"37.350101","longitude":"37.3501"},"point2":{"latitude":"37.35012","longitude":"37.3502"}, "beginTime":1, "endTime":10}' \
-  http://10.16.30.47:9000/anyplace/influxdb/range_lookup
-```
-#### Using distance
-__path__: /anyplace/geolocation/distance_lookup  
-__input kind__: json  
-__parameters__:   
-```
-{
-    point: {
-        latitude: string,
-        longitude: string,
-    },
-    distance: double,
-    deviceID: string,
-    beginTime: long,
-    endTime: long
-}
-```
-__Example__:
-```bash
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{"deviceID":"5","point":{"latitude":"37.350101","longitude":"37.3501"},"distance":10, "beginTime":1, "endTime":10}' \
-  http://10.16.30.47:9000/anyplace/influxdb/distance_lookup
-```
 </details>
