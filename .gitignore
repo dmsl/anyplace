@@ -76,3 +76,5 @@ clients/bin/Anyplace.jar
 clients/core/bin/Anyplace.jar
 
 *.swp
+
+server/.idea/play2_project_settings.xml
