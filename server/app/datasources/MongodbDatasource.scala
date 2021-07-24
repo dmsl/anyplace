@@ -44,8 +44,8 @@ import java.util
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.MongodbDatasource.{admins, generateAccessToken, mdb, mongoClient}
 import datasources.SCHEMA._
-import db_models.RadioMapRaw.unrollFingerprint
-import db_models.{Connection, Poi, RadioMapRaw}
+import models.RadioMapRaw.unrollFingerprint
+import models.{Connection, Poi, RadioMapRaw}
 import floor_module.IAlgo
 import javax.inject.{Inject, Singleton}
 import org.mongodb.scala._

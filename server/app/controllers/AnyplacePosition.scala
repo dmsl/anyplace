@@ -40,7 +40,7 @@ import java.io._
 import java.util.ArrayList
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
-import db_models.{Floor, RadioMapRaw}
+import models.{Floor, RadioMapRaw}
 import floor_module.Algo1
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE

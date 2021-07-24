@@ -34,7 +34,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package db_models
+package models
 
 import java.util.HashMap
 

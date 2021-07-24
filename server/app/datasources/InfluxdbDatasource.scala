@@ -37,7 +37,7 @@ package datasources
 
 import java.io.IOException
 
-import db_models._
+import models._
 import io.razem.influxdbclient._
 import utils.{GeoPoint, LOG}
 import scala.language.postfixOps

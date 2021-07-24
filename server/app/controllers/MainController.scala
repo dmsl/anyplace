@@ -36,11 +36,14 @@
 package controllers
 
 import datasources.SCHEMA
+
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Result}
-import utils.LOG
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request, Result}
+import utils.{LOG, RESPONSE}
+
+import scala.language.postfixOps
 
 @Singleton
 class MainController @Inject()(cc: ControllerComponents,
@@ -50,7 +53,18 @@ class MainController @Inject()(cc: ControllerComponents,
 
   def index(): Action[AnyContent] = Action { Redirect("/viewer") }
   def indexAny(): Action[AnyContent]  = index()
-  def indexRedirect(any: String): Action[AnyContent] = index() // redirect all others to index
+
+  def indexRedirect(any: String): Action[AnyContent] = {
+      //if(any.contains("/api")) {
+      // TODO: if on API then return json
+      //implicit request =>
+      //  def inner(request: Request[AnyContent]): Result = {
+      //    RESPONSE.BAD(RESPONSE.ERROR_API_USAGE)
+      //  }
+      //  return inner(request)
+      //
+      index() // redirect all others to index
+  }
 
   def at(path: String, file: String): Action[AnyContent] = Action.async {
     implicit request =>
@@ -69,8 +83,8 @@ class MainController @Inject()(cc: ControllerComponents,
     val version = conf.get[String]("application.version")
     val address = conf.get[String]("server.address")
     val port = conf.get[String]("server.port")
-    LOG.D2("PORT: " + port) // CLR:PM
-    LOG.D2("address: " + address)
+    LOG.D4("PORT: " + port)
+    LOG.D4("address: " + address)
 
     var variant=""
     if (address.contains("ap-dev")) {

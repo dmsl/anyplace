@@ -46,7 +46,7 @@ import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment
 import com.couchbase.client.java.view.ViewQuery
 import com.couchbase.client.java.{Bucket, CouchbaseCluster, PersistTo}
-import db_models.Connection
+import models.Connection
 import floor_module.IAlgo
 import oauth.provider.v2.models.{AccessTokenModel, AccountModel, AuthInfo}
 import oauth.provider.v2.token.TokenService

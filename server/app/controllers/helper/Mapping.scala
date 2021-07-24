@@ -40,7 +40,7 @@ import java.io.{File, FileNotFoundException, FileOutputStream, IOException}
 import java.nio.file.Files
 
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
-import db_models.Floor
+import models.Floor
 import javax.inject.Inject
 import json.VALIDATE.{Coordinate, StringNumber}
 import play.api.Configuration

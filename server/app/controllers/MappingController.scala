@@ -51,8 +51,8 @@ import radiomapserver.RadioMap.RadioMap
 import utils.Utils.appendGoogleIdIfNeeded
 import scala.concurrent.Future
 import datasources.{DatasourceException, MongodbDatasource, SCHEMA}
-import db_models.ExternalType.ExternalType
-import db_models._
+import models.ExternalType.ExternalType
+import models._
 import json.VALIDATE
 import json.VALIDATE.String
 import location.Algorithms
@@ -421,12 +421,12 @@ class MappingController @Inject()(cc: ControllerComponents,
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
           val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
-          if (radioPoints == null) return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved!")
+          if (radioPoints == null) return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved.")
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all radio points!")
+            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all radio points.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)

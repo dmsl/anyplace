@@ -34,7 +34,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package db_models
+package models
 
 import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA

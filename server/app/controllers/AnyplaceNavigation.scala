@@ -39,7 +39,7 @@ package controllers
 import java.util.{ArrayList, HashMap, List}
 
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
-import db_models.NavResultPoint
+import models.NavResultPoint
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
 import oauth.provider.v2.models.OAuth2Request
