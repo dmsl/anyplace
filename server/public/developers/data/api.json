@@ -79,12 +79,12 @@
         }
       }
     },
-    "/api/user/admin/accounts_all": {
+    "/api/auth/admin/users_all": {
       "post": {
         "tags": [
           "Account"
         ],
-        "summary": "Retrieves all accounts",
+        "summary": "Retrieves all users",
         "description": "Can only be executed by admin",
         "operationId": "adminAccAll",
         "consumes": [
@@ -114,7 +114,7 @@
         }
       }
     },
-    "/api/user/admin/migration/run": {
+    "/api/auth/admin/migration/run": {
       "post": {
         "tags": [
           "Account"
@@ -397,7 +397,7 @@
     "/api/auth/mapping/pois/add": {
       "post": {
         "tags": [
-          "Space"
+          "Space:POIs"
         ],
         "summary": "Add a POI",
         "description": "Provide required fields in orded to add a POI in a specific floor, inside a space",
@@ -432,7 +432,7 @@
     "/api/auth/mapping/pois/update": {
       "post": {
         "tags": [
-          "Space"
+          "Space:POIs"
         ],
         "summary": "Update a POI",
         "description": "Provide the new fields that you wish to update",
@@ -467,7 +467,7 @@
     "/api/auth/mapping/pois/delete": {
       "post": {
         "tags": [
-          "Space"
+          "Space:POIs"
         ],
         "summary": "Delete a POI",
         "description": "Provide buid and puid in order to delete a POI",
@@ -502,7 +502,7 @@
     "/api/mapping/pois/all_floor": {
       "post": {
         "tags": [
-          "Space"
+          "Space:POIs"
         ],
         "summary": "Retrieve all POIs of a floor",
         "description": "Provide buid and floor in order to retrieve all POIs of that floor",
@@ -537,7 +537,7 @@
     "/api/mapping/pois/all_building": {
       "post": {
         "tags": [
-          "Space"
+          "Space:POIs"
         ],
         "summary": "Retrieve all POIs of a space",
         "description": "Provide buid in order to retrieve all POIs of that Space",
@@ -572,7 +572,7 @@
     "/api/mapping/pois/search": {
       "post": {
         "tags": [
-          "Space"
+          "Space:POIs"
         ],
         "summary": "Search for POIs",
         "description": "Provide cuid and buid to retrieve POIs based on letters. Supports greeklish search.",
@@ -607,7 +607,7 @@
     "/api/auth/mapping/connection/add": {
       "post": {
         "tags": [
-          "Space"
+          "Space:Connection"
         ],
         "summary": "Add a connection",
         "description": "Provide information for two POIs in order to add a connection.",
@@ -642,7 +642,7 @@
     "/api/auth/mapping/connection/delete": {
       "post": {
         "tags": [
-          "Space"
+          "Space:Connection"
         ],
         "summary": "Delete a connection",
         "description": "Provide information about the connection you wish to delete",
@@ -677,7 +677,7 @@
     "/api/mapping/connection/all_floor": {
       "post": {
         "tags": [
-          "Space"
+          "Space:Connection"
         ],
         "summary": "Retrieve all connections of a floor",
         "description": "Provide buid and floor in order to retrieve all connections of that floor",
@@ -712,7 +712,7 @@
     "/api/mapping/connection/all_floors": {
       "post": {
         "tags": [
-          "Space"
+          "Space:Connection"
         ],
         "summary": "Retrieve all connections of a space",
         "description": "Provide buid in order to retrieve all connections of that space",
