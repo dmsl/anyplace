@@ -12,13 +12,10 @@ lazy val root = (project in file("."))
     scalaVersion := "2.13.6",
     libraryDependencies ++= Seq(
       guice,
+      "com.typesafe.play" %% "play-json" % "2.10.0-RC2",
       "com.typesafe.play" %% "play" % "2.8.7",
       "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
-      "com.typesafe.play" %% "play-json" % "2.10.0-RC2",
-
-      // TODO:PM TODO:NN REMOVE
-      "io.razem" %% "scala-influxdb-client" % "0.6.2",
-      //"com.couchbase.client" % "java-client" % "2.7.18",
+      "io.razem" %% "scala-influxdb-client" % "0.6.2",  // TODO:NN REMOVE
     ),
     scalacOptions ++= Seq(
       "-feature",
