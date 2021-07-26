@@ -40,13 +40,9 @@ package models
 import java.io.IOException
 import java.util.HashMap
 
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json._
-import utils.JsonUtils.convertToInt
 import utils._
-
-import scala.jdk.CollectionConverters.MapHasAsScala
 
 
 object RadioMapRaw {
@@ -166,10 +162,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
       fields.get(SCHEMA.fMac)
   }
 
-  def toValidJson(): JsonObject = {
-    JsonObject.from(this.getFields())
-  }
-
   def toValidMongoJson(): JsValue = {
     toJson()
   }
@@ -212,14 +204,6 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  def toJson(): JsValue = {
-    val sMap: Map[String, String] = this.getFields().asScala.toMap
-    val res = Json.toJson(sMap)
-    convertToInt(SCHEMA.fSchema, res)
-  }
-
-  @deprecated("")
-  def _toString(): String = this.toValidJson().toString
 
   override def toString(): String = toJson().toString()
 

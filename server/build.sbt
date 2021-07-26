@@ -18,7 +18,7 @@ lazy val root = (project in file("."))
 
       // TODO:PM TODO:NN REMOVE
       "io.razem" %% "scala-influxdb-client" % "0.6.2",
-      "com.couchbase.client" % "java-client" % "2.7.18",
+      //"com.couchbase.client" % "java-client" % "2.7.18",
     ),
     scalacOptions ++= Seq(
       "-feature",

@@ -36,7 +36,6 @@
  */
 package models
 
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json.{JsValue, Json}
 
@@ -47,17 +46,6 @@ class NavResultPoint {
   var buid: String = _
   var floor_number: String = _
   var pois_type: String = _
-
-  def toValidCouchJson(): JsonObject = {
-    val p = JsonObject.empty()
-    p.put("lat", lat)
-    p.put("lon", lon)
-    p.put(SCHEMA.fPuid, puid)
-    p.put(SCHEMA.fBuid, buid)
-    p.put(SCHEMA.fFloorNumber, floor_number)
-    p.put(SCHEMA.fPoisType, pois_type)
-    p
-  }
 
   def toValidMongoJson(): JsValue = {
     Json.obj(

@@ -36,16 +36,12 @@
  */
 package models
 
-import java.io.IOException
 import java.util.HashMap
 
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JsonUtils.convertToInt
 import utils.Utils
-
-import scala.jdk.CollectionConverters.MapHasAsScala
 
 class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
@@ -113,11 +109,6 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     cuid
   }
 
-  def toValidJson(): JsonObject = {
-    getId()  // initialize id if not initialized
-    JsonObject.from(this.getFields())
-  }
-
   def toValidMongoJson(): JsValue = {
     getId()
     toJson()
@@ -141,28 +132,5 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  @deprecated("unused")
-  def _changeOwner(newOwnerId: String): String = {
-    val sb: StringBuilder = new StringBuilder()
-    var json: JsonObject = null
-    try {
-      this.fields.put(SCHEMA.fOwnerId, newOwnerId)
-      json = toValidJson()
-    } catch {
-      case e: IOException => e.printStackTrace()
-    }
-    sb.append(json.toString)
-    sb.toString
-  }
-
-  def toJson(): JsValue = {
-    val sMap: Map[String, String] = this.getFields().asScala.toMap
-    val res = Json.toJson(sMap)
-    // convert some keys to primitive types
-    convertToInt(SCHEMA.fSchema, res)
-  }
-
-  @deprecated()
-  def _toString(): String = toValidJson().toString // CLR:NN
   override def toString(): String = toJson().toString()
 }

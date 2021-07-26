@@ -37,14 +37,14 @@
 package controllers
 
 
-import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
+import datasources.{ProxyDataSource, SCHEMA}
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
 import oauth.provider.v2.models.OAuth2Request
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.mvc._
-import utils.{RESPONSE, JsonUtils, LOG}
+import utils.{LOG, RESPONSE}
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents,
@@ -60,43 +60,43 @@ class UserController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def deleteAccount(auid_in: String) = Action {
-    implicit request =>
-
-      def inner(request: Request[AnyContent]): Result = {
-        var auid: String = auid_in
-        // create the Request and check it
-        val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) {
-          return RESPONSE.BAD(
-            RESPONSE.ERROR_JSON_PARSE)
-        }
-        val json = anyReq.getJsonBody()
-        LOG.I("UserController:deleteAccount: " + json.toString)
-        // check if there is any required parameter missing
-        val notFound: java.util.List[String] =
-          JsonUtils.hasProperties(json, "auid")
-        if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-          return RESPONSE.MISSING_FIELDS(notFound)
-        }
-        // if the auid in the route is empty then try to get the one from the POST json body
-        if (auid == null || auid.trim().isEmpty)
-          auid = json.\\("auid").mkString
-        try {
-          if (!pds.getIDatasource.deleteFromKey(auid)) {
-            return RESPONSE.BAD("Account could not be deleted!")
-          }
-          return RESPONSE.OK("Successfully deleted account!")
-        } catch {
-          case e: DatasourceException =>
-            return RESPONSE.internal_server_error(
-              "500: " + e.getMessage)
-
-        }
-      }
-
-      inner(request)
-  }
+  //def deleteAccount(auid_in: String) = Action {
+  //  implicit request =>
+  //
+  //    def inner(request: Request[AnyContent]): Result = {
+  //      var auid: String = auid_in
+  //      // create the Request and check it
+  //      val anyReq: OAuth2Request = new OAuth2Request(request)
+  //      if (!anyReq.assertJsonBody()) {
+  //        return RESPONSE.BAD(
+  //          RESPONSE.ERROR_JSON_PARSE)
+  //      }
+  //      val json = anyReq.getJsonBody()
+  //      LOG.I("UserController:deleteAccount: " + json.toString)
+  //      // check if there is any required parameter missing
+  //      val notFound: java.util.List[String] =
+  //        JsonUtils.hasProperties(json, "auid")
+  //      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
+  //        return RESPONSE.MISSING_FIELDS(notFound)
+  //      }
+  //      // if the auid in the route is empty then try to get the one from the POST json body
+  //      if (auid == null || auid.trim().isEmpty)
+  //        auid = json.\\("auid").mkString
+  //      try {
+  //        if (!pds.getIDatasource.deleteFromKey(auid)) {
+  //          return RESPONSE.BAD("Account could not be deleted!")
+  //        }
+  //        return RESPONSE.OK("Successfully deleted account!")
+  //      } catch {
+  //        case e: DatasourceException =>
+  //          return RESPONSE.internal_server_error(
+  //            "500: " + e.getMessage)
+  //
+  //      }
+  //    }
+  //
+  //    inner(request)
+  //}
 
   ///**
   // * Updates the account specified by the AUID.

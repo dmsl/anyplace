@@ -35,10 +35,10 @@
  */
 package oauth.provider.v2.models
 
-import com.couchbase.client.java.document.json.JsonObject
 import AccessTokenModel._
+import play.api.libs.json.{JsValue, Json}
 
-import scala.beans.{BeanProperty}
+import scala.beans.BeanProperty
 
 object AccessTokenModel {
 
@@ -71,17 +71,18 @@ class AccessTokenModel(private var access_token: String,
 
   override def toString(): String = this.getTuid()
 
-  def toJson(): JsonObject = {
-    val json: JsonObject= JsonObject.empty()
-    json.put("token_type", this.getTokenType())
-    json.put("access_token", this.getAccessToken())
-    json.put("expires_in", this.getExpiresIn())
-    json.put("refresh_token", this.getRefreshToken())
-    json.put("tuid", this.getTuid())
-    json.put("scope", this.getScope())
-    json.put("client_id", this.getClientId())
-    json.put("auid", this.getAuid())
-    json.put("created_at", this.getCreatedAt())
+  def toJson(): JsValue = {
+    val json: JsValue = Json.obj(
+      "token_type" -> this.getTokenType(),
+      "access_token" -> this.getAccessToken(),
+      "expires_in" -> this.getExpiresIn(),
+      "refresh_token" -> this.getRefreshToken(),
+      "tuid" -> this.getTuid(),
+      "scope" -> this.getScope(),
+      "client_id" -> this.getClientId(),
+      "auid" -> this.getAuid(),
+      "created_at" -> this.getCreatedAt()
+    )
     json
   }
 

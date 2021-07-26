@@ -37,13 +37,8 @@
 package models
 
 import java.util.HashMap
-
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import utils.JsonUtils.convertToInt
-
-import scala.jdk.CollectionConverters.MapHasAsScala
+import play.api.libs.json.{JsObject, JsString, JsValue}
 
 object Floor {
   def getId(buid: String, floor_number: String): String = buid + "_" + floor_number
@@ -104,19 +99,10 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
     newFuid
   }
 
-  def toValidJson(): JsonObject = null
-
   def toValidMongoJson(): JsValue = {
     getId()  // initialize id if not initialized
     fields.remove("username")
     toJson()
-  }
-
-  def toJson(): JsValue = {
-    val sMap: Map[String, String] = this.getFields().asScala.toMap
-    val res = Json.toJson(sMap)
-    // convert some keys to primitive types
-    convertToInt(SCHEMA.fSchema, res)
   }
 
   override def toGeoJSON(): String = toJson().toString

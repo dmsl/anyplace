@@ -37,54 +37,18 @@
 package utils
 
 import java.util
-import java.util.{ArrayList, Collections, HashMap}
+import java.util.{Collections, HashMap}
 
-import com.couchbase.client.java.document.json.JsonObject
 import com.google.gson.Gson
 import datasources.SCHEMA
 import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 
 object JsonUtils {
 
-  def getHashMapStrStr(jsonString: String): HashMap[String, String] = {
-    val json = JsonObject.fromJson(jsonString)
-    json.toMap.asInstanceOf[HashMap[String, String]]
-
-  }
 
   def getHashMapStrStr(json: JsValue): HashMap[String, String] = {
     val gson: Gson = new Gson()
     gson.fromJson(json.toString(), (new HashMap[String, String]()).getClass)
-  }
-
-  def fillMapFromJson(json: JsonObject, map: HashMap[String, String], keys: String*): util.List[String] = {
-    if (json == null || map == null) {
-      throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
-    }
-    if (keys == null) {
-      return Collections.emptyList()
-    }
-    val notFound = new ArrayList[String]()
-    for (k <- keys) {
-      val value = json.getString(k)
-      if (value == null) notFound.add(k) else map.put(k, value)
-    }
-    notFound
-  }
-
-  def requirePropertiesInJson(json: JsonObject, keys: String*): util.List[String] = {
-    if (json == null) {
-      throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
-    }
-    if (keys == null) {
-      return Collections.emptyList()
-    }
-    val notFound = new util.ArrayList[String]()
-    for (k <- keys) {
-      val value = json.getString(k)
-      if (value == null || 0 == value.trim().length) notFound.add(k)
-    }
-    notFound
   }
 
   def hasProperties(json: JsValue, keys: String*): util.List[String] = {
@@ -142,43 +106,6 @@ object JsonUtils {
 
   def cleanupMongoJson(json: JsValue): JsValue = {
     return json.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema
-  }
-  @deprecated("mdb")
-  def toCouchObject(json: JsValue): JsonObject = {
-    val sJson = json.toString
-    JsonObject.fromJson(sJson)
-  }
-
-  @deprecated("mdb")
-  def fromCouchObject(json: JsonObject): JsValue = {
-    val sJson = json.toString
-    Json.parse(sJson)
-  }
-
-  @deprecated("mdb")
-  def toCouchArray(json: Array[JsValue]): Array[JsonObject] = {
-    val temp = new ArrayList[JsonObject]()
-    for (i <- json) {
-      temp.add(toCouchObject(i))
-    }
-    temp.asInstanceOf[Array[JsonObject]]
-  }
-
-  @deprecated("mdb")
-  def fromCouchList(json: java.util.ArrayList[JsonObject]): List[JsValue] = {
-    val temp = new ArrayList[JsValue]()
-    for (i <- 0 until json.size()) {
-      temp.add(fromCouchObject(json.get(i)))
-    }
-    temp.asInstanceOf[List[JsValue]]
-  }
-
-  @deprecated("mdb")
-  def toCouchList(json: util.List[JsValue]): util.List[JsonObject] = {
-    val list: util.List[JsonObject] = null
-    for (i <- 1 until json.size())
-      list.add(toCouchObject(json.get(i)))
-    list
   }
 
 }

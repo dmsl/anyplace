@@ -37,18 +37,29 @@ package models
 
 import java.util.HashMap
 
-import com.couchbase.client.java.document.json.JsonObject
+import datasources.SCHEMA
+import play.api.libs.json.{JsValue, Json}
+import utils.JsonUtils.convertToInt
+
+import scala.jdk.CollectionConverters.MapHasAsScala
 
 abstract class AbstractModel {
     var fields: HashMap[String, String] = new HashMap[String, String]()
 
     def getFields(): HashMap[String, String] = fields
     def getId(): String
-    def toValidJson(): JsonObject
+    def toValidMongoJson(): JsValue
     def toGeoJSON(): String
 
     def setFields(f: HashMap[String, String]): Unit = {
         this.fields = f
         getId()
+    }
+
+    def toJson(): JsValue = {
+        val sMap: Map[String, String] = this.getFields().asScala.toMap
+        val res = Json.toJson(sMap)
+        // convert some keys to primitive types
+        convertToInt(SCHEMA.fSchema, res)
     }
 }

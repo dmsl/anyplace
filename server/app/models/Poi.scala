@@ -38,14 +38,9 @@ package models
 
 import java.io.IOException
 import java.util.HashMap
-
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import utils.JsonUtils.convertToInt
 import utils.{GeoJSONPoint, Utils}
-
-import scala.jdk.CollectionConverters.MapHasAsScala
 
 object Poi {
   val POIS_TYPE_NONE = "None"
@@ -149,10 +144,6 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
     puid
   }
 
-  def toValidJson(): JsonObject = {
-    getId()  // initialize id if not initialized
-    JsonObject.from(this.getFields())
-  }
 
   def toValidMongoJson(): JsValue = {
     getId()
@@ -174,11 +165,4 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
   }
 
   override def toString(): String = toJson().toString
-
-  def toJson(): JsValue = {
-    val sMap: Map[String, String] = this.getFields().asScala.toMap
-    val res = Json.toJson(sMap)
-    // convert some keys to primitive types
-    convertToInt(SCHEMA.fSchema, res)
-  }
 }

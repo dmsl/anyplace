@@ -35,99 +35,112 @@
  */
 package oauth.provider.v2.utils
 
-import com.couchbase.client.java.document.json.JsonObject
 import oauth.provider.v2.OAuth2Constant
 import oauth.provider.v2.models.AccessTokenModel
+import play.api.libs.json._
 import play.mvc.{Result, Results}
 
 
 object OAuth2Responses {
 
-        def InvalidRequest(msg: String): Result = {
-        val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.INVALID_REQUEST)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.badRequest(json.toString)
-        }
+  def InvalidRequest(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.INVALID_REQUEST),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.badRequest(json.toString)
+  }
 
-        def InvalidClient(msg: String): Result = {
-                val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.INVALID_CLIENT)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+  def InvalidClient(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.INVALID_CLIENT),
+      OAuth2Constant.ERROR_DESCRIPTION-> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        def UnauthorizedClient(msg: String): Result = {
-                val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.UNAUTHORIZED_CLIENT)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+  def UnauthorizedClient(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.UNAUTHORIZED_CLIENT),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        def RedirectUriMismatch(msg: String): Result = {
-                val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.NOT_MATCH_REDIRECT_URI)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+  def RedirectUriMismatch(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.NOT_MATCH_REDIRECT_URI),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        def UnsupportedResponseType(msg: String): Result = {
-                val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR,
-        OAuth2ErrorConstant.UNSUPPORTED_RESPONSE_TYPE)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.badRequest(json.toString)
-        }
+  def UnsupportedResponseType(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR ->  JsString(OAuth2ErrorConstant.UNSUPPORTED_RESPONSE_TYPE),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.badRequest(json.toString)
+  }
 
-        def InvalidGrant(msg: String): Result = {
-                val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.INVALID_GRANT)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+  def InvalidGrant(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.INVALID_GRANT),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        def UnsupportedGrantType(msg: String): Result = {
-               val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.UNSUPPORTED_GRANT_TYPE)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.badRequest(json.toString)
-        }
+  def UnsupportedGrantType(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.UNSUPPORTED_GRANT_TYPE),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.badRequest(json.toString)
+  }
 
-        def InvalidScope(msg: String): Result = {
-               val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.INVALID_SCOPE)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+  def InvalidScope(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR -> JsString(OAuth2ErrorConstant.INVALID_SCOPE),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        def InvalidToken(msg: String): Result = {
-               val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.INVALID_TOKEN)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+  def InvalidToken(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR -> JsString(OAuth2ErrorConstant.INVALID_TOKEN),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        def ExpiredToken(): Result = {
-               val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.EXPIRED_TOKEN)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, "The token has expired!")
-        Results.unauthorized(json.toString)
-        }
+  def ExpiredToken(): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR-> JsString(OAuth2ErrorConstant.EXPIRED_TOKEN),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString("The token has expired!")
+    )
 
-        def InsufficientScope(msg: String): Result = {
-               val json = JsonObject.empty()
-        json.put(OAuth2Constant.ERROR, OAuth2ErrorConstant.INSUFFICIENT_SCOPE)
-        json.put(OAuth2Constant.ERROR_DESCRIPTION, msg)
-        Results.unauthorized(json.toString)
-        }
+    Results.unauthorized(json.toString)
+  }
 
-        def ValidToken(tokenModel: AccessTokenModel): Result = {
-               val json = JsonObject.empty()
-        json.put(OAuth2Constant.ACCESS_TOKEN, tokenModel.getAccessToken())
-        json.put(OAuth2Constant.TOKEN_TYPE, tokenModel.getTokenType())
-        json.put(OAuth2Constant.EXPIRES_IN, tokenModel.getExpiresIn())
-        json.put(OAuth2Constant.REFRESH_TOKEN, tokenModel.getRefreshToken())
-        Results.ok(json.toString)
-        }
+  def InsufficientScope(msg: String): Result = {
+    val json = Json.obj(
+      OAuth2Constant.ERROR -> JsString(OAuth2ErrorConstant.INSUFFICIENT_SCOPE),
+      OAuth2Constant.ERROR_DESCRIPTION -> JsString(msg)
+    )
+    Results.unauthorized(json.toString)
+  }
 
-        }
+  def ValidToken(tokenModel: AccessTokenModel): Result = {
+    val json: JsValue = Json.obj(
+      OAuth2Constant.ACCESS_TOKEN -> JsString(tokenModel.getAccessToken()),
+      OAuth2Constant.TOKEN_TYPE -> JsString(tokenModel.getTokenType()),
+      OAuth2Constant.EXPIRES_IN -> JsNumber(tokenModel.getExpiresIn()),
+      OAuth2Constant.REFRESH_TOKEN -> JsString(tokenModel.getRefreshToken())
+    )
+
+    Results.ok(json.toString)
+  }
+
+}

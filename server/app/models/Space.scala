@@ -40,13 +40,11 @@ import java.io.IOException
 import java.util
 import java.util.HashMap
 
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.SCHEMA
 import play.api.libs.json._
-import utils.JsonUtils.convertToInt
 import utils.{GeoJSONPoint, Utils}
 
-import scala.jdk.CollectionConverters.{CollectionHasAsScala, MapHasAsScala}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class Space(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
@@ -130,12 +128,6 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     }
     sb.append(json.toString)
     sb.toString
-  }
-
-  @deprecated
-  def toValidJson(): JsonObject = { // CHECK:NN why not making this smethod in the abstract parent class?
-    getId()   // initialize id if not initialized
-    JsonObject.from(this.getFields()).put(SCHEMA.fCoOwners, co_owners)
   }
 
   def toValidMongoJson(): JsValue = {
@@ -233,14 +225,5 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     }
   }
 
-  def toJson(): JsValue = {
-    val sMap: Map[String, String] = this.getFields().asScala.toMap
-    val res = Json.toJson(sMap)
-    // convert some keys to primitive types
-    convertToInt(SCHEMA.fSchema, res)
-  }
-
-  @deprecated
-  def _toString(): String = toValidJson().toString  // TODO:NN CLR mdb
   override def toString(): String = toJson().toString()
 }

@@ -42,7 +42,7 @@ import com.google.common.collect.Lists
 import datasources.SCHEMA._
 import play.api.libs.json.{JsLookupResult, JsResultException, JsValue}
 import play.api.mvc.Result
-import utils.{RESPONSE, JsonUtils}
+import utils.{JsonUtils, LOG, RESPONSE}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 

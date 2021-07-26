@@ -38,17 +38,19 @@ package controllers
 
 import java.io._
 import java.io.IOException
-import utils.{RESPONSE, JsonUtils, LOG}
+
+import utils.{JsonUtils, LOG, RESPONSE}
 import java.text.{NumberFormat, ParseException}
 import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.util
 import java.util.Locale
-import com.couchbase.client.java.document.json.JsonObject
+
 import datasources.ProxyDataSource
 import org.mongodb.scala.model.Filters.equal
 import play.api.{Configuration, Environment}
 import radiomapserver.RadioMap.RadioMap
 import utils.Utils.appendGoogleIdIfNeeded
+
 import scala.concurrent.Future
 import datasources.{DatasourceException, MongodbDatasource, SCHEMA}
 import models.ExternalType.ExternalType
@@ -65,6 +67,8 @@ import radiomapserver.RadioMapMean
 import utils.JsonUtils.isNullOrEmpty
 import utils._
 import javax.inject.{Inject, Singleton}
+import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
+
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
@@ -130,9 +134,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           val radioPoints = pds.getIDatasource.getRadioHeatmap()
           if (radioPoints == null) return RESPONSE.BAD("Building does not exist or could not be retrieved.")
-          val res = JsonObject.empty()
-          res.put("radioPoints", (radioPoints))
-          return RESPONSE.ok(res, "Successfully retrieved radio points.")
+          val res = Json.obj("radioPoints" -> radioPoints.asScala)
+          return RESPONSE.OK(res, "Successfully retrieved radio points.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -459,18 +462,8 @@ class MappingController @Inject()(cc: ControllerComponents,
           return RESPONSE.gzipJsonOk(res, "Fetched precompute of accessPointsWifi")
         } else {
           try {
-            var accessPoints = pds.getIDatasource.getAPsByBuildingFloor(buid, floor)
-            val apcdb = pds.getIDatasource.getAPsByBuildingFloorcdb(buid, floor) // TODO:NN cdb remove
-
+            val accessPoints = pds.getIDatasource.getAPsByBuildingFloor(buid, floor)
             LOG.D3("mdb " + accessPoints.size)
-            LOG.D3("cdb " + apcdb.size())
-            //val newList = new util.ArrayList[JsValue]() // CHECK:NN CLR if not needed..
-            //for (ap <- apcdb) {
-            //  val newAP = fromCouchObject(ap)
-            //  newList.add(newAP)
-            //}
-            //accessPoints = newList.asScala
-
             val uniqueAPs: util.HashMap[String, JsValue] = new util.HashMap()
             for (accessPoint <- accessPoints) {
               var tempAP = accessPoint
@@ -594,13 +587,11 @@ class MappingController @Inject()(cc: ControllerComponents,
           if (accessPointsOfReq == null) {
             return RESPONSE.BAD("Access Points do not exist or could not be retrieved.")
           }
-          val res = JsonObject.empty()
-          res.put("accessPoints", APsIDs)
-
+          val res: JsValue = Json.obj("accessPoints" -> APsIDs.toList)
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.ok(res, "Successfully retrieved IDs for Access Points.")
+            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved IDs for Access Points.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -835,6 +826,7 @@ class MappingController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  // TODO:NN  convert to jsvalue so it works????? or delete
   def getRadioHeatmapBbox = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -854,14 +846,13 @@ class MappingController @Inject()(cc: ControllerComponents,
         val weight = (json \ SCHEMA.fWeight).as[String]
         val range = strRange.toInt
         try {
-          var radioPoints: util.List[JsonObject] = null
+          var radioPoints: util.List[JsValue] = null
           if (weight.compareTo("false") == 0) radioPoints = pds.getIDatasource.getRadioHeatmapBBox2(lat, lon, buid, floor_number, range)
           else if (weight.compareTo("true") == 0) radioPoints = pds.getIDatasource.getRadioHeatmapBBox(lat, lon, buid, floor_number, range)
           else if (weight.compareTo("no spatial") == 0) radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floor_number, range)
           if (radioPoints == null)
             return RESPONSE.BAD("Space does not exist or could not be retrieved.")
-          val res = JsonObject.empty()
-          res.put("radioPoints", radioPoints)
+          val res = Json.obj("radioPoints" -> radioPoints.asScala)
           // CHECK: NN comments below?
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
             RESPONSE.gzipJsonOk(res.toString)
@@ -869,7 +860,7 @@ class MappingController @Inject()(cc: ControllerComponents,
             //                return AnyResponseHelper.ok(res.toString());
           catch {
             case ioe: IOException =>
-              return RESPONSE.ok(res, "Successfully retrieved radio points.")
+              return RESPONSE.OK(res, "Successfully retrieved radio points.")
           }
         } catch {
           case e: DatasourceException =>
@@ -1777,9 +1768,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           val all_items_failed = pds.getIDatasource.deleteAllByPoi(puid)
           if (all_items_failed.size > 0) {
-            val obj = JsonObject.empty()
-            obj.put("ids", (all_items_failed))
-            return RESPONSE.bad_request(obj, "Some items related to the deleted poi could not be deleted: " +
+            val res = Json.obj("ids" -> all_items_failed.asScala)
+            return RESPONSE.BAD(res, "Some items related to the deleted poi could not be deleted: " +
               all_items_failed.size +
               " items.")
           }

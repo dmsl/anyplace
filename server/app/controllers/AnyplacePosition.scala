@@ -38,7 +38,6 @@ package controllers
 
 import java.io._
 import java.util.ArrayList
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models.{Floor, RadioMapRaw}
 import floor_module.Algo1
@@ -379,45 +378,46 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  private def storeRadioMapToDB(infile: File): String = {
-    var line: String = null
-    var fr: FileReader = null
-    var bf: BufferedReader = null
-    var lineNumber = 0
-    try {
-      fr = new FileReader(infile)
-      bf = new BufferedReader(fr)
-      while ( {
-        line = bf.readLine
-        line != null
-      }) {
-        if (line.startsWith("# Timestamp")) //continue
-          lineNumber += 1
-        val segs = line.split(" ")
-        val rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6))
-        LOG.I(rmr.toValidJson().toString)
-        LOG.D("raw[" + lineNumber + "] : " + rmr.toValidJson())
-        try {
-          if (!proxyDataSource.getIDatasource.addJsonDocument(rmr.getId(), 0, rmr.toGeoJSON())) {
-            return "Radio Map entry could not be saved in database![could not be created]"
-          }
-        } catch {
-          case e: DatasourceException => return "Internal server error while trying to save rss entry."
-        }
-      }
-    } catch {
-      case e: FileNotFoundException => return "Internal server error: Error while storing rss log."
-      case e: IOException => return "Internal server error: Error while storing rss log."
-    } finally {
-      try {
-        if (fr != null) fr.close()
-        if (bf != null) bf.close()
-      } catch {
-        case e: IOException => return "Internal server error: Error while storing rss log."
-      }
-    }
-    null
-  }
+  // CHECK:PM unused
+  //private def storeRadioMapToDB(infile: File): String = {
+  //  var line: String = null
+  //  var fr: FileReader = null
+  //  var bf: BufferedReader = null
+  //  var lineNumber = 0
+  //  try {
+  //    fr = new FileReader(infile)
+  //    bf = new BufferedReader(fr)
+  //    while ( {
+  //      line = bf.readLine
+  //      line != null
+  //    }) {
+  //      if (line.startsWith("# Timestamp")) //continue
+  //        lineNumber += 1
+  //      val segs = line.split(" ")
+  //      val rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6))
+  //      LOG.I(rmr.toValidJson().toString)
+  //      LOG.D("raw[" + lineNumber + "] : " + rmr.toValidJson())
+  //      try {
+  //        if (!proxyDataSource.getIDatasource.addJsonDocument(rmr.getId(), 0, rmr.toGeoJSON())) {
+  //          return "Radio Map entry could not be saved in database![could not be created]"
+  //        }
+  //      } catch {
+  //        case e: DatasourceException => return "Internal server error while trying to save rss entry."
+  //      }
+  //    }
+  //  } catch {
+  //    case e: FileNotFoundException => return "Internal server error: Error while storing rss log."
+  //    case e: IOException => return "Internal server error: Error while storing rss log."
+  //  } finally {
+  //    try {
+  //      if (fr != null) fr.close()
+  //      if (bf != null) bf.close()
+  //    } catch {
+  //      case e: IOException => return "Internal server error: Error while storing rss log."
+  //    }
+  //  }
+  //  null
+  //}
 
   def serveRadioMap(radio_folder: String, fileName: String) = Action {
     implicit request =>
@@ -617,16 +617,16 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           strongestMAC.add(json.\("first").\(SCHEMA.fMac).as[String])
           if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\(SCHEMA.fMac).as[String])
           LOG.D2("strongestMAC " + strongestMAC)
-          val res = JsonObject.empty()
+          var res: JsValue = Json.obj()
           var msg = ""
           if (proxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
-            res.put(SCHEMA.fFloor, alg1.getFloor())
+            res = Json.obj(SCHEMA.fFloor -> alg1.getFloor())
             msg = "Successfully predicted floor."
           } else {
-            res.put(SCHEMA.fFloor, "")
+            res = Json.obj(SCHEMA.fFloor -> "")
             msg = "Could not predict floor."
           }
-          RESPONSE.ok(res, msg)
+          RESPONSE.OK(res, msg)
         } catch {
           case e: Exception => RESPONSE.internal_server_error("500: " + e.getMessage + ": " + e.getCause)
         }

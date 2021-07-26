@@ -35,14 +35,15 @@
  */
 package utils
 
-import java.util.List
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import java.util
+
+import play.api.libs.json.Json
+
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import utils.RESPONSE.Response.Response
 
-import java.util
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.implicitConversions
 
@@ -63,11 +64,10 @@ object RESPONSE {
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
     }
 
-    def OK(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
-    def BAD(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
-
     private def CreateResultResponse(r: Response, json_in: JsValue, message: String): Result = {
-        val obj: JsValue = json_in
+        var obj: JsValue = json_in
+        if (obj == null)
+            obj = Json.obj()
 
         r match {
             case Response.BAD_REQUEST =>
@@ -120,121 +120,40 @@ object RESPONSE {
                 Results.BadRequest(res.toString)
         }
     }
-    def OK(msg: String): Result = createResultResponse(Response.OK, null, msg)
+    def OK(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
+    def BAD(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
 
-    def DEPRECATED(msg: String): Result =
-        createResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
-
-    def BAD(msg: String): Result = createResultResponse(Response.BAD_REQUEST, null, msg)
-
-    def FORBIDDEN(msg: String): Result = createResultResponse(Response.FORBIDDEN, null, msg)
-
-    def UNAUTHORIZED(msg: String): Result = createResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
+    def OK(msg: String): Result = CreateResultResponse(Response.OK, null, msg)
+    def DEPRECATED(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
+    def BAD(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, msg)
+    def FORBIDDEN(msg: String): Result = CreateResultResponse(Response.FORBIDDEN, null, msg)
+    def UNAUTHORIZED(msg: String): Result = CreateResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
 
     private def prettyException(e: Exception): String = s"500: ${e.getClass}: ${e.getMessage}"
 
     def ERROR(e: Exception): Result = {
-        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, prettyException(e))
+        CreateResultResponse(Response.INTERNAL_SERVER_ERROR, null, prettyException(e))
     }
 
     def ERROR(tag: String, e: Exception): Result = {
         val msg = tag+": "+prettyException(e)
-        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
+        CreateResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
     }
 
     def internal_server_error(msg: String): Result =
-        createResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
+        CreateResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
 
-    def NOT_FOUND(msg: String): Result = createResultResponse(Response.NOT_FOUND, null, msg)
+    def NOT_FOUND(msg: String): Result = CreateResultResponse(Response.NOT_FOUND, null, msg)
 
     def MISSING_FIELDS(missing: util.List[String]): Result = {
-        if (missing == null) {throw new IllegalArgumentException("No null List of missing keys allowed.") }
-
-        //val res: JsValue = Json.obj( // CHECK:NN
-        //    "users_num" -> users.length,
-        //    SCHEMA.cUsers -> Json.arr(users)
-        //)
-        // TODO Convert to Json (example above)
-        val error_messages = JsonArray.empty()
-        val json = JsonObject.empty()
-
+        if (missing == null) { throw new IllegalArgumentException("No null List of missing keys allowed.") }
+        val error_messages = new java.util.ArrayList[String]
         for (s <- missing.asScala) {
             error_messages.add(String.format("Missing or Invalid parameter: %s", s))
         }
-        json.put("error_messages",error_messages)
-        createResultResponse(Response.BAD_REQUEST, json, String.format("Missing or Invalid parameter: %s",
+        val json = Json.obj("error_messages" -> error_messages.asScala)
+        CreateResultResponse(Response.BAD_REQUEST, json, String.format("Missing or Invalid parameter: %s",
             missing.get(0)))
-    }
-
-    private def createResultResponse(r: Response, json_in: JsonObject, message: String): Result = {
-        var json=json_in
-        if (json == null) {
-            json = JsonObject.empty()
-        }
-        r match {
-            case Response.BAD_REQUEST =>
-                json.put("status", "error")
-                json.put("message", message)
-                json.put("status_code", 400)
-                Results.BadRequest(json.toString)
-
-            case Response.OK =>
-                json.put("status", "success")
-                json.put("message", message)
-                json.put("status_code", 200)
-                Results.Ok(json.toString)
-
-            case Response.FORBIDDEN =>
-                json.put("status", "error")
-                json.put("message", message)
-                json.put("status_code", 401)
-                Results.Forbidden(json.toString)
-
-            case Response.UNAUTHORIZED_ACCESS =>
-                json.put("status", "error")
-                json.put("message", message)
-                json.put("status_code", 403)
-                Results.Unauthorized(json.toString)
-
-            case Response.INTERNAL_SERVER_ERROR =>
-                json.put("status", "error")
-                json.put("message", message)
-                json.put("status_code", 500)
-                Results.InternalServerError(json.toString)
-
-            case Response.NOT_FOUND =>
-                json.put("status", "error")
-                json.put("message", message)
-                json.put("status_code", 404)
-                Results.NotFound(json.toString)
-
-            case _ =>
-                json.put("status", "error")
-                json.put("message", "Unknown Action")
-                json.put("status_code", 403)
-                Results.BadRequest(json.toString)
-        }
-    }
-
-    // #####################################################
-    // TODO:NN TODO:PM DEPRECATE (couchbase) JsonObject  com.couchbase.client.java.document.json.
-    def ok(json: JsonObject, msg: String=""): Result = {
-        createResultResponse(Response.OK, json, msg)
-    }
-    def bad_request(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.BAD_REQUEST, json, msg)
-    }
-    def forbidden(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.FORBIDDEN, json, msg)
-    }
-    def unauthorized(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.UNAUTHORIZED_ACCESS, json, msg)
-    }
-    def internal_server_error(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.INTERNAL_SERVER_ERROR, json, msg)
-    }
-    def not_found(json: JsonObject, msg: String): Result = {
-        createResultResponse(Response.NOT_FOUND, json, msg)
     }
 
     def gzipJsonOk(json: JsValue, message: String): Result = {

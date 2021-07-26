@@ -36,16 +36,9 @@
  */
 package models
 
-import java.io.IOException
-
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.{MongodbDatasource, SCHEMA}
 import javax.inject.Singleton
 import play.api.libs.json._
-import utils.JsonUtils.convertToInt
-import utils.LOG
-
-import scala.jdk.CollectionConverters.MapHasAsScala
 
 object ExternalType extends Enumeration {
   type ExternalType = Value
@@ -82,35 +75,11 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
 
   def getId(): String = fields.get(SCHEMA.fOwnerId)
 
-  @deprecated
-  def toValidJson(): JsonObject = {
-    JsonObject.from(this.getFields())
+  override def toValidMongoJson(): JsValue = {
+    toJson()
   }
-
-  def toJson(): JsValue = {
-    val sMap: Map[String, String] = this.getFields().asScala.toMap
-    val res = Json.toJson(sMap)
-    // convert some keys to primitive types
-    convertToInt(SCHEMA.fSchema, res)
-  }
-
-  // CLR:NN
-  // TODO:NN replace with mongo
-  def toGeoJSON(): String = {
-    LOG.E("TODO:NN convert to mdb")
-    val sb = new StringBuilder()
-    var json: JsonObject = null
-    try {
-      json = JsonObject.empty()
-    } catch {
-      case e: IOException => e.printStackTrace()
-    }
-    sb.append(json.toString)
-    sb.toString
-  }
-
-  @deprecated
-  def _toString(): String = toValidJson().toString // TODO:NN once cdb is out
 
   override def toString(): String = toJson().toString()
+
+  override def toGeoJSON(): String = ???
 }

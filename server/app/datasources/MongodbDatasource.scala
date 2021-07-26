@@ -40,14 +40,12 @@ import java.io.{FileOutputStream, IOException, PrintWriter}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util
-
-import com.couchbase.client.java.document.json.JsonObject
 import datasources.MongodbDatasource.{admins, generateAccessToken, mdb, mongoClient}
 import datasources.SCHEMA._
-import models.RadioMapRaw.unrollFingerprint
-import models.{Connection, Poi, RadioMapRaw}
 import floor_module.IAlgo
 import javax.inject.{Inject, Singleton}
+import models.RadioMapRaw.unrollFingerprint
+import models.{Connection, Poi, RadioMapRaw}
 import org.mongodb.scala._
 import org.mongodb.scala.bson.{BsonDocument, conversions}
 import org.mongodb.scala.model.Aggregates
@@ -568,8 +566,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
     String.valueOf(myChars)
   }
 
-  def addJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
-
   override def addJsonDocument(col: String, document: String): Boolean = {
     val collection = mdb.getCollection(col)
     val addJson = collection.insertOne(Document.apply(document))
@@ -580,14 +576,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
     else
       false
   }
-
-  override def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean = ???
-
-  override def deleteFromKey(key: String): Boolean = ???
-
-  //override def getFromKey(key: String) = ???
-  //
-  //override def getFromKeyAsJson(key: String) = ???
 
   override def fingerprintExists(col: String, buid: String, floor: String, x: String, y: String, heading: String): Boolean = {
     val collection = mdb.getCollection(col)
@@ -934,7 +922,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     res.wasAcknowledged()
   }
 
-  override def getRadioHeatmap(): java.util.List[JsonObject] = ???
+
 
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     val collection = mdb.getCollection(SCHEMA.cHeatmapWifi3)
@@ -1318,8 +1306,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
     return number
   }
 
-  override def getAPsByBuildingFloorcdb(buid: String, floor: String): util.List[JsonObject] = ???
-
   override def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     val collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
     val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor)
@@ -1428,12 +1414,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
     }
     points.toList
   }
-
-  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
-
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
-
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject] = ???
 
   override def getAllBuildings(): List[JsValue] = {
     val collection = mdb.getCollection(SCHEMA.cSpaces)
@@ -1805,7 +1785,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
 
   override def register(col: String, name: String, email: String, username: String, password: String, external: String,
                         accType: String): JsValue = {
-
     val accessToken = generateAccessToken(true)
     val owner_id = createOwnerId(username) + "_local"
     val json: JsValue = Json.obj("name" -> JsString(name), SCHEMA.fEmail -> JsString(email),
@@ -1817,5 +1796,11 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def init(): Boolean = ???
+
+  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
+  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
+  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
+  override def getRadioHeatmap(): java.util.List[JsValue] = ???
+
 }
 

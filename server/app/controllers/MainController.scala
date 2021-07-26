@@ -36,12 +36,11 @@
 package controllers
 
 import datasources.SCHEMA
-
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request, Result}
-import utils.{LOG, RESPONSE}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import utils.LOG
 
 import scala.language.postfixOps
 
@@ -88,10 +87,8 @@ class MainController @Inject()(cc: ControllerComponents,
 
     var variant=""
     if (address.contains("ap-dev")) {
-      LOG.D("not 443: " + (port != "443"))
       variant = "alpha"
       if (port.equals("443") || port.equals("80")) {
-        LOG.D1("BETA VARIANT") // CLR:PM
         variant = "beta"
       }
     } else if (address.contains("localhost") || address == "127.0.0.1") {

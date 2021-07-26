@@ -36,7 +36,7 @@
 
 import com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion
 import com.dmurph.tracking.{AnalyticsConfigData, JGoogleAnalyticsTracker}
-import datasources.{CouchbaseDatasource, MongodbDatasource}
+import datasources.MongodbDatasource
 
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
@@ -60,7 +60,6 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
   /** Play Application started */
   def OnAnyplaceStart(): Unit = {
     LOG.I(prettyDate + " | Anyplace STARTED!")
-    CouchbaseDatasource.initialize(conf)
     MongodbDatasource.initialize(conf)
     //ifxDB.getStaticInstance(conf) // CLR:PM
     logAnalyticsInstallation()
@@ -71,7 +70,6 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
     LOG.I(prettyDate + " | Anyplace STOPPED!")
     try {
       // InfluxdbDatasource.getStaticInstance.disconnect() CLR:PM
-      CouchbaseDatasource.instance.disconnect()
       MongodbDatasource.instance.disconnect()
     } catch {
       case e: Exception => LOG.E("Anyplace: StopHook", e)

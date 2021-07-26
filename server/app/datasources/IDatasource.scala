@@ -39,7 +39,6 @@ package datasources
 import java.io.FileOutputStream
 import java.util.HashMap
 
-import com.couchbase.client.java.document.json.JsonObject
 import floor_module.IAlgo
 import play.api.libs.json.JsValue
 import utils.GeoPoint // TODO: Will use play.json
@@ -65,25 +64,13 @@ trait IDatasource {
 
   def init(): Boolean
 
-  def addJsonDocument(key: String, expiry: Int, document: String): Boolean
-
   def addJsonDocument(col: String, document: String): Boolean
-
-  def replaceJsonDocument(key: String, expiry: Int, document: String): Boolean
 
   def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean
 
   def deleteFromKey(col: String, key: String, value: String): Boolean
 
-  def deleteFromKey(key: String): Boolean
-
-  //@deprecated("mdb")
-  //def getFromKey(key: String): AnyRef
-
   def getFromKey(collection: String, key: String, value: String): JsValue
-
-  //@deprecated("mdb")
-  //def getFromKeyAsJson(key: String): JsValue
 
   def getFromKeyAsJson(collection: String, key: String, value: String): JsValue
 
@@ -121,8 +108,6 @@ trait IDatasource {
 
   def deleteAllByPoi(puid: String): java.util.List[String]
 
-  def getRadioHeatmap(): java.util.List[JsonObject]
-
   def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue]
 
   def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue]
@@ -146,11 +131,7 @@ trait IDatasource {
 
   def getAPsByBuildingFloor(buid: String, floor: String): List[JsValue]
 
-  def getAPsByBuildingFloorcdb(buid: String, floor: String): java.util.List[JsonObject]
-
   def getCachedAPsByBuildingFloor(buid: String, floor: String): JsValue
-
-  def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String]
 
   def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = ???
 
@@ -159,12 +140,6 @@ trait IDatasource {
   def getFingerPrintsTimestampBBox(buid: String, floor: String, lat1: String, lon1: String, lat2: String, lon2: String, timestampX: String, timestampY: String): List[JsValue]
 
   def getFingerprintsByTime(buid: String, floor: String): List[JsValue]
-
-  def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
-
-  def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
-
-  def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsonObject]
 
   def getAllBuildings(): List[JsValue]
 
@@ -215,4 +190,10 @@ trait IDatasource {
   def deleteNotValidDocuments(): Boolean
 
   def isAdmin(col: String): Boolean
+
+  def getRadioHeatmap(): java.util.List[JsValue]
+  def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String]
+  def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue]
+  def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue]
+  def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue]
 }

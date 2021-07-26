@@ -35,14 +35,13 @@
  */
 package oauth.provider.v2.models
 
-import java.util._
-
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
 import oauth.provider.v2.models.AccountModel._
+import play.api.libs.json.{JsValue, Json}
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
-import utils.{Utils}
+import utils.Utils
 
 import scala.beans.BeanProperty
+
 
 //remove if not needed
 // import scala.collection.JavaConversions._
@@ -65,13 +64,14 @@ object AccountModel {
 
     def getScope(): String = scope
 
-    def toJson(): JsonObject = {
-      val json: JsonObject = JsonObject.empty()
-      json.put("client_id", client_id)
-      json.put("client_secret", client_secret)
-      json.put("grant_type", grant_type)
-      json.put("scope", scope)
-      json.put("redirect_uri", redirect_uri)
+    def toJson(): JsValue = {
+      val json: JsValue = Json.obj(
+        "client_id" -> client_id,
+        "client_secret" -> client_secret,
+        "grant_type" -> grant_type,
+        "scope" -> scope,
+        "redirect_uri" -> redirect_uri
+      )
       json
     }
 
@@ -81,21 +81,22 @@ object AccountModel {
     * STATIC FACTORIES
     */
   def createEmptyAccount(): AccountModel = {
-    val json: JsonObject = JsonObject.empty()
-    json.put("clients",JsonArray.empty())
+    val json: JsValue = Json.obj()
     new AccountModel(json)
   }
 
   def createInitializedAccount(): AccountModel = {
-    val json: JsonObject = JsonObject.empty()
-    json.put("clients",JsonArray.empty())
-    json.put("auid", generateNewAuid())
-    json.put("username", "")
-    json.put("password", "")
-    json.put("scope", "")
-    json.put("nickname", "")
-    json.put("email", "")
-    json.put("isadmin", false)
+
+    val json: JsValue = Json.obj(
+      "clients" -> Json.arr(),
+      "auid" -> generateNewAuid(),
+      "username" -> "",
+      "password" -> "",
+      "scope" -> "",
+      "nickname" -> "",
+      "email" -> "",
+      "isadmin" -> false
+    )
     new AccountModel(json)
   }
 
@@ -128,47 +129,48 @@ object AccountModel {
 /**
   * Created by lambros on 2/4/14.
   */
-class AccountModel(json: JsonObject) {
+class AccountModel(json: JsValue) {
 
-  private var mJson: JsonObject = JsonObject.empty()
+  private var mJson: JsValue = Json.obj()
   @BeanProperty
-  var auid: String = json.getString("auid")
-
-  @BeanProperty
-  var username: String = json.getString("username")
+  var auid: String = (json\"auid").as[String]
 
   @BeanProperty
-  var password: String = json.getString("password")
+  var username: String = (json\"username").as[String]
 
   @BeanProperty
-  var scope: String = json.getString("scope")
+  var password: String = (json\"password").as[String]
 
   @BeanProperty
-  var nickname: String = json.getString("nickname")
+  var scope: String = (json\"scope").as[String]
 
   @BeanProperty
-  var email: String = json.getString("email")
+  var nickname: String = (json\"nickname").as[String]
 
-  private var isadmin: Boolean = json.getBoolean("isadmin")
+  @BeanProperty
+  var email: String = (json\"email").as[String]
 
-  private var clients: List[ClientModel] = new ArrayList[ClientModel]()
+  private var isadmin: Boolean = (json\"isadmin").as[Boolean]
+
+  private var clients: java.util.ArrayList[ClientModel] = new java.util.ArrayList[ClientModel]()
 
 
-  val jsclients=json.getArray("clients")
+  val jsclients = (json\"clients").as[List[JsValue]]
   jsclients.forall(client =>
     this.clients.add(
       new ClientModel(
-        client.asInstanceOf[JsonObject].getString("client_id"),
-        client.asInstanceOf[JsonObject].getString("client_secret"),
-        client.asInstanceOf[JsonObject].getString("grant_type"),
-        client.asInstanceOf[JsonObject].getString("scope"),
-        client.asInstanceOf[JsonObject].getString("redirect_uri")
-      ))
+        (client\"client_id").as[String],
+        (client\"client_secret").as[String],
+        (client\"grant_type").as[String],
+        (client\"scope").as[String],
+        (client\"redirect_uri").as[String]
+      )
+    )
   )
 
   if (this.auid == null || this.auid.trim().isEmpty) {
     this.auid = generateNewAuid()
-    this.mJson.put("auid", this.auid)
+    this.mJson = Json.obj("auid" -> this.auid)
   }
 
   def isAdmin(): Boolean = isadmin
@@ -230,19 +232,22 @@ class AccountModel(json: JsonObject) {
   override def toString(): String =
     String.format("AccountModel: uaid[%s]", this.getAuid())
 
-  def toJson(): JsonObject = {
-    val json: JsonObject = JsonObject.empty()
-    json.put("doctype", "account")
-    json.put("auid", this.auid)
-    json.put("username", this.username)
-    //json.put("password", PasswordService.createHash(this.password))
-    json.put("scope", this.scope)
-    json.put("nickname", this.nickname)
-    json.put("email", this.email)
-    json.put("isadmin", this.isadmin)
-    val clientsNode: JsonArray = JsonArray.empty()
+  def toJson(): JsValue = {
+
+    val json: JsValue = Json.obj(
+      "doctype" -> "account",
+      "auid" -> this.auid,
+      "username" -> this.username,
+      // "password" -> PasswordService.createHash(this.password,
+      "scope" -> this.scope,
+      "nickname" -> this.nickname,
+      "email" -> this.email,
+      "isadmin" -> this.isadmin
+    )
+    val clientsNode = new java.util.ArrayList[JsValue]()
     for (cm <- this.clients) {
-      clientsNode.add("clients",cm.toJson())
+      val client = Json.obj("clients" -> cm.toJson())
+      clientsNode.add(client)
     }
     this.mJson = json
     this.mJson
