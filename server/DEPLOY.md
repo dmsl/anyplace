@@ -57,6 +57,23 @@ Deploy Production
     # To stop press Ctrl-C or kill the respective process through the task manager
     ``` 
 
+6. **SSL and Cluster Configuration**:
++ Install a free certificate from
+  [letsencrypt.org](https://letsencrypt.org/) on your Anyplace Server 
+  to obtain a secure https connection. SSL is only optional for 
+  web functionality. For Android, SSL is a prerequisite!
+
+
++ (Optional) Install a free load balancer from 
+  [HAProxy](http://www.haproxy.org/) to scale your installation 
+  to multiple Anplace servers. 
+  In case of Anyplace cluster configuration, 
+  please install the certificate on the load balancer.
+
+***
+
+
+
 </details>
 
 ## 2. DEVELOPMENT:
@@ -90,7 +107,7 @@ git update-index --assume-unchanged config.sh push_code.sh watchdog.sh sync.sh
 </details>
 
 
-## 3. [Docker](../../docker/README.md) (outdated)
+## 3. [Docker](../docker/README.md) (outdated)
 <details>
 <summary>
 Deploy Docker
