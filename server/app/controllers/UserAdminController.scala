@@ -47,12 +47,13 @@ import utils.Utils.appendGoogleIdIfNeeded
 import utils.{RESPONSE, LOG}
 
 @Singleton
-class Admin @Inject()(cc: ControllerComponents,
-                      mdb: MongodbDatasource,
-                      pds: ProxyDataSource,
-                      user: helper.User)
+class UserAdminController @Inject()(cc: ControllerComponents,
+                                    mdb: MongodbDatasource,
+                                    pds: ProxyDataSource,
+                                    user: helper.User)
   extends AbstractController(cc) {
 
+  // CHECK:NN ?
   def migrateToMongoDB() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -76,6 +77,7 @@ class Admin @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  // CHECK:NN does it work?
   /**
    * Retrieve all the accounts.
    *

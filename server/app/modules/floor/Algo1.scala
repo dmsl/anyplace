@@ -33,7 +33,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package floor_module
+package modules.floor
 
 import java.util.{ArrayList, HashMap}
 

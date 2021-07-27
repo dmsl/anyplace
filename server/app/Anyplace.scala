@@ -59,20 +59,18 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
 
   /** Play Application started */
   def OnAnyplaceStart(): Unit = {
-    LOG.I(prettyDate + " | Anyplace STARTED!")
+    LOG.I(prettyDate + " | Anyplace backend: started.")
     MongodbDatasource.initialize(conf)
-    //ifxDB.getStaticInstance(conf) // CLR:PM
     logAnalyticsInstallation()
   }
 
   /** Play Application stopped */
   def OnAnyplaceStop(): Unit = {
-    LOG.I(prettyDate + " | Anyplace STOPPED!")
+    LOG.I(prettyDate + " | Anyplace backend: stopped.")
     try {
-      // InfluxdbDatasource.getStaticInstance.disconnect() CLR:PM
       MongodbDatasource.instance.disconnect()
     } catch {
-      case e: Exception => LOG.E("Anyplace: StopHook", e)
+      case e: Exception => LOG.E("OnAnyplaceStop", e)
     }
   }
 

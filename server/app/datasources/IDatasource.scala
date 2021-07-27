@@ -39,7 +39,7 @@ package datasources
 import java.io.FileOutputStream
 import java.util.HashMap
 
-import floor_module.IAlgo
+import modules.floor.IAlgo
 import play.api.libs.json.JsValue
 import utils.GeoPoint // TODO: Will use play.json
 

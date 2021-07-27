@@ -40,7 +40,7 @@ import java.io.FileOutputStream
 import java.util
 import java.util.HashMap
 
-import floor_module.IAlgo
+import modules.floor.IAlgo
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.libs.json.JsValue

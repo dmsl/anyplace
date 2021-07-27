@@ -33,7 +33,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package radiomapserver
+package modules.radiomapserver
 
 import java.io.{BufferedReader, File, FileReader}
 import java.util.{ArrayList, HashMap}

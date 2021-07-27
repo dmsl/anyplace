@@ -52,7 +52,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 // import scala.collection.JavaConversions._
 
 @Singleton
-class AnyplaceNavigation @Inject()(cc: ControllerComponents, pds: ProxyDataSource) extends AbstractController(cc) {  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
+class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSource) extends AbstractController(cc) {  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
 
   def getBuildingById() = Action {
     implicit request =>

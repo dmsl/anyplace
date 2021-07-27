@@ -48,7 +48,7 @@ import java.util.Locale
 import datasources.ProxyDataSource
 import org.mongodb.scala.model.Filters.equal
 import play.api.{Configuration, Environment}
-import radiomapserver.RadioMap.RadioMap
+import modules.radiomapserver.RadioMap.RadioMap
 import utils.Utils.appendGoogleIdIfNeeded
 
 import scala.concurrent.Future
@@ -63,7 +63,7 @@ import org.mongodb.scala.MongoDatabase
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsObject, JsValue, Json, _}
 import play.api.mvc._
-import radiomapserver.RadioMapMean
+import modules.radiomapserver.RadioMapMean
 import utils.JsonUtils.isNullOrEmpty
 import utils._
 import javax.inject.{Inject, Singleton}

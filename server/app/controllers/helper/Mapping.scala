@@ -46,7 +46,7 @@ import json.VALIDATE.{Coordinate, StringNumber}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
-import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
+import modules.radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
 import utils.Utils.{MD5, generateRandomRssLogFileName}
 import utils.{RESPONSE, AnyplaceServerAPI, FileUtils, GeoPoint, LOG}
 import javax.inject.Singleton

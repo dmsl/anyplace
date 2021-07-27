@@ -34,7 +34,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package radiomapserver
+package modules.radiomapserver
 
 import java.io._
 import java.text.DecimalFormat

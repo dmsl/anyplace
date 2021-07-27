@@ -40,7 +40,7 @@ import java.io._
 import java.util.ArrayList
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models.{Floor, RadioMapRaw}
-import floor_module.Algo1
+import modules.floor.Algo1
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
 import json.VALIDATE.StringNumber
@@ -48,23 +48,22 @@ import oauth.provider.v2.models.OAuth2Request
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import radiomapserver.RadioMap
-import radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
+import modules.radiomapserver.RadioMap
+import modules.radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
 import utils._
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Singleton
-class AnyplacePosition @Inject()(cc: ControllerComponents, 
-                                 mapHelper: helper.Mapping,
-                                 api: AnyplaceServerAPI,
-                                 conf: Configuration,
-                                 fu: FileUtils,
-                                 proxyDataSource: ProxyDataSource,
-                                 user: helper.User)
+class PositioningController @Inject()(cc: ControllerComponents,
+                                      mapHelper: helper.Mapping,
+                                      api: AnyplaceServerAPI,
+                                      conf: Configuration,
+                                      fu: FileUtils,
+                                      proxyDataSource: ProxyDataSource,
+                                      user: helper.User)
   extends AbstractController(cc) {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
-
 
   /**
    * Upload fingerprints to server and database.
@@ -222,7 +221,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           }
         }
         if (!rmapDir.mkdirs()) {
-          return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly!")
+          return RESPONSE.internal_server_error("Can't create radiomap on-the-fly.")
         }
         val radio = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
         var fout: FileOutputStream = null
@@ -266,7 +265,6 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
-
 
   /**
    * Returns a link to the radio map that needs to be downloaded according to the specified buid and floor
@@ -315,7 +313,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           }
           if (!rmapDir.exists())
             if (!rmapDir.mkdirs()) {
-              return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly!")
+              return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly.")
             }
           val radio = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
           var fout: FileOutputStream = null
@@ -377,47 +375,6 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
-
-  // CHECK:PM unused
-  //private def storeRadioMapToDB(infile: File): String = {
-  //  var line: String = null
-  //  var fr: FileReader = null
-  //  var bf: BufferedReader = null
-  //  var lineNumber = 0
-  //  try {
-  //    fr = new FileReader(infile)
-  //    bf = new BufferedReader(fr)
-  //    while ( {
-  //      line = bf.readLine
-  //      line != null
-  //    }) {
-  //      if (line.startsWith("# Timestamp")) //continue
-  //        lineNumber += 1
-  //      val segs = line.split(" ")
-  //      val rmr = new RadioMapRaw(segs(0), segs(1), segs(2), segs(3), segs(4), segs(5), segs(6))
-  //      LOG.I(rmr.toValidJson().toString)
-  //      LOG.D("raw[" + lineNumber + "] : " + rmr.toValidJson())
-  //      try {
-  //        if (!proxyDataSource.getIDatasource.addJsonDocument(rmr.getId(), 0, rmr.toGeoJSON())) {
-  //          return "Radio Map entry could not be saved in database![could not be created]"
-  //        }
-  //      } catch {
-  //        case e: DatasourceException => return "Internal server error while trying to save rss entry."
-  //      }
-  //    }
-  //  } catch {
-  //    case e: FileNotFoundException => return "Internal server error: Error while storing rss log."
-  //    case e: IOException => return "Internal server error: Error while storing rss log."
-  //  } finally {
-  //    try {
-  //      if (fr != null) fr.close()
-  //      if (bf != null) bf.close()
-  //    } catch {
-  //      case e: IOException => return "Internal server error: Error while storing rss log."
-  //    }
-  //  }
-  //  null
-  //}
 
   def serveRadioMap(radio_folder: String, fileName: String) = Action {
     implicit request =>
@@ -613,7 +570,7 @@ class AnyplacePosition @Inject()(cc: ControllerComponents,
           val lot = json.\("dlong").as[Double]
           val bbox = GeoPoint.getGeoBoundingBox(lat, lot, 100)
           val strongestMAC = new ArrayList[String](2)
-          if (json.\("first").getOrElse(null) == null) return RESPONSE.BAD("Sent first Wifi")
+          if (json.\("first").getOrElse(null) == null) return RESPONSE.BAD("Sent Wi-Fi first parameter.")
           strongestMAC.add(json.\("first").\(SCHEMA.fMac).as[String])
           if (json.\("second").getOrElse(null) != null) strongestMAC.add(json.\("second").\(SCHEMA.fMac).as[String])
           LOG.D2("strongestMAC " + strongestMAC)

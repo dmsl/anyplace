@@ -36,9 +36,10 @@
 package controllers
 
 import datasources.SCHEMA
+
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OWrites}
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import utils.LOG
 
@@ -78,29 +79,23 @@ class MainController @Inject()(cc: ControllerComponents,
       assets.at(path + viewerDir, file).apply(request)
   }
 
-  def Version: Action[AnyContent] = Action {
+  def getVersion: Action[AnyContent] = Action {
     val version = conf.get[String]("application.version")
     val address = conf.get[String]("server.address")
     val port = conf.get[String]("server.port")
-    LOG.D4("PORT: " + port)
+    LOG.D4("port: " + port)
     LOG.D4("address: " + address)
 
     var variant=""
     if (address.contains("ap-dev")) {
       variant = "alpha"
-      if (port.equals("443") || port.equals("80")) {
-        variant = "beta"
-      }
+      if (port.equals("443") || port.equals("80")) { variant = "beta" }
     } else if (address.contains("localhost") || address == "127.0.0.1") {
       variant = "local"
     }
 
-    val res: JsValue = Json.obj(
-      "version" -> version,
-      "address" -> address,
-      "port"-> port,
-      "variant" -> variant)
-    Ok(res)
+    val result = models.Protocol.Version(version, variant, port, address)
+    Ok(Json.toJson(result))
   }
 
   // CHECK:PM CHECK:NN ??

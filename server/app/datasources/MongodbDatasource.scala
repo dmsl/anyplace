@@ -42,7 +42,7 @@ import java.time.format.DateTimeFormatter
 import java.util
 import datasources.MongodbDatasource.{admins, generateAccessToken, mdb, mongoClient}
 import datasources.SCHEMA._
-import floor_module.IAlgo
+import modules.floor.IAlgo
 import javax.inject.{Inject, Singleton}
 import models.RadioMapRaw.unrollFingerprint
 import models.{Connection, Poi, RadioMapRaw}
