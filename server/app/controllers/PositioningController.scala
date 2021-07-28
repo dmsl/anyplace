@@ -41,15 +41,16 @@ import java.util.ArrayList
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models.{Floor, RadioMapRaw}
 import modules.floor.Algo1
+
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
 import json.VALIDATE.StringNumber
-import oauth.provider.v2.models.OAuth2Request
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import modules.radiomapserver.RadioMap
 import modules.radiomapserver.RadioMap.{RBF_ENABLED, RadioMap}
+import models.oauth.OAuth2Request
 import utils._
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -86,8 +87,10 @@ class PositioningController @Inject()(cc: ControllerComponents,
         if (body_form == null) {
           return RESPONSE.BAD("Invalid request type - Cannot be parsed as form data.")
         }
+        // XXX:NN TODO:NN why checking on the body? isnt this on the eheaders?
+        // there is a check
         if (!body_form.contains(SCHEMA.fAccessToken)) {
-          // TODO:NN not authenticated
+          // TODO:NN we have a dedicated method for this.
           return RESPONSE.BAD("Cannot find access_token in the request.")
         }
         val access_token = body_form.get(SCHEMA.fAccessToken).get.head
@@ -379,7 +382,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
   def serveRadioMap(radio_folder: String, fileName: String) = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request, false)
+        val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) {
           RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         }

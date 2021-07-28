@@ -1,17 +1,17 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou, Paschalis Mpeis
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
  * Contact: anyplace@cs.ucy.ac.cy
  *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
+ * Copyright (c) 2021, Data Management Systems Lab (DMSL), University of Cyprus.
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,59 +33,40 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package oauth.provider.v2.models
-
-import java.util.regex.Pattern
+package models.oauth
 
 import datasources.SCHEMA
-import oauth.provider.v2.OAuth2Constant
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Request, Result}
+import utils.RESPONSE
 import utils.RESPONSE.ERROR_NO_ACCESS_TOKEN
-import utils.{RESPONSE, Utils}
 
 // TODO:NN method-> verifyUser() verifyAdminUser()
 // notes -> ../spaceDelete
 class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
   var mRequest = request
-  var mBody = this.mRequest.body
+  var mBody  = this.mRequest.body
   var mJsonBody: JsValue = _
   var mFormBody: Map[String, Seq[String]] = _
 
-  if (!assertJsonBody()) {
-    assertFormUrlEncodedBody()
-  }
+  if (!assertJsonBody()) { assertFormUrlEncodedBody() }
 
-  def this(request: Request[AnyContent]) = {
-    this(request, true)
-  }
+  def this(request: Request[AnyContent]) = { this(request, true) }
 
   def getAccessToken(): String = {
-
     val headers = this.mRequest.headers
     val apiKey =  headers.get(SCHEMA.fAccessToken)
     if (apiKey.nonEmpty) return apiKey.get
 
-    return null
+    null
   }
 
-  def NO_ACCESS_TOKEN() : Result = {
-    return RESPONSE.UNAUTHORIZED(ERROR_NO_ACCESS_TOKEN)
-  }
-
-  //private def hasAccessToken(): Boolean = {
-  //  val headers = this.mRequest.headers
-  //  val hasToken = headers.hasHeader(SCHEMA.fAccessToken)
-  //  val allHeaders = headers.toString()
-  //  LOG.D("HasToken: " + hasToken)
-  //  LOG.D("HasToken: " + allHeaders)
-  //
-  //  return hasToken
-  //}
+  def NO_ACCESS_TOKEN() : Result = { RESPONSE.UNAUTHORIZED(ERROR_NO_ACCESS_TOKEN) }
 
   def assertJsonBody(): Boolean = {
     if (this.mJsonBody == null)
       this.mJsonBody = this.mRequest.body.asJson.orNull
+
     this.mJsonBody != null
   }
 
@@ -108,18 +89,17 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
 
   def getFormEncodedBody(): Map[String, Seq[String]] = this.mFormBody
 
-
   def getMultipartFormData() = {
     try {
       this.mRequest.body.asMultipartFormData.get
     } catch {
-      case e: NoSuchElementException => null
+      case _: NoSuchElementException => null
     }
   }
 
   def getHeader(header: String): String = {
     if (header == null || header.trim().isEmpty) {
-      throw new IllegalArgumentException("No null/empty headers allowed!")
+      throw new IllegalArgumentException("Empty headers not allowed.")
     }
     this.mRequest.headers(header)
   }
@@ -128,34 +108,10 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     if (hasJsonBody()) {
       return (this.mJsonBody \ property).toString
     } else if (hasFormEncodedBody()) {
-      return this.mFormBody.get(property).get.head
+      // return this.mFormBody.get(property).get.head // CHECK:NN see below1
+      return this.mFormBody(property).head
     }
     null
-  }
-
-  ///////////////////////////////////////////////////////////////////////////////////
-  // OAUTH RELATED METHODS
-
-
-  private val REGEXP_BASIC = Pattern.compile("^\\s*(Basic)\\s+(.*)$")
-
-  def getCredentials: ClientCredentials = {
-    val header = this.getHeader(OAuth2Constant.HEADER_AUTHORIZATION)
-    // we found the credentials in the authorization header
-    if (header != null) {
-      val matcher = REGEXP_BASIC.matcher(header)
-      if (matcher.find) {
-        val decoded = Utils.decodeBase64String(matcher.group(2))
-        if (decoded.indexOf(':') > 0) { // we have a client_id:client_secret combo
-          val credential = decoded.split(":", 2)
-          return new ClientCredentials(credential(0), credential(1))
-        }
-      }
-    }
-    // we will try in the parameters list since the header does not contain the info
-    val client_id = this.getParameter(OAuth2Constant.CLIENT_ID)
-    val client_secret = this.getParameter(OAuth2Constant.CLIENT_SECRET)
-    new ClientCredentials(client_id, client_secret)
   }
 }
 

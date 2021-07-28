@@ -111,24 +111,34 @@ object MongodbDatasource {
     start + Random.alphanumeric.take(500).mkString("") + end
   }
 
+  def loadModerators(): List[String] = {
+    //TODO: NN: like below and check if admin or mod..
+    // queryUsers: BDoc with admin or moderator
+    null
+  }
+
   /**
    * Cache admins on MongoDB initialization.
    *
    * @return a list with admins.
    */
   def loadAdmins(): List[String] = {
+    queryUsers(BsonDocument(SCHEMA.fType -> "admin"))
+  }
+
+  def queryUsers(query: BsonDocument): List[String] = {
     val collection = mdb.getCollection(SCHEMA.cUsers)
-    val query = BsonDocument(SCHEMA.fType -> "admin")
     val adm = collection.find(query)
     val awaited = Await.result(adm.toFuture(), Duration.Inf)
     val res = awaited.toList
     val ret = new util.ArrayList[String]
-    for (admin <- res) {
-      val temp = Json.parse(admin.toJson())
+    for (user <- res) {
+      val temp = Json.parse(user.toJson())
       ret.add((temp \ SCHEMA.fOwnerId).as[String])
     }
     ret.toList
   }
+
 }
 
 @Singleton
@@ -1678,15 +1688,15 @@ class MongodbDatasource @Inject() () extends IDatasource {
         val fingerprints = convertJson(resFi)
         for (fingerprint <- fingerprints) {
           if (!updateHeatmap(fingerprint, 1, false)) {
-            LOG.D("error at level 1")
+            LOG.E("error at level 1")
             return false
           }
           if (!updateHeatmap(fingerprint, 2, false)) {
-            LOG.D("error at level 2")
+            LOG.E("error at level 2")
             return false
           }
           if (!updateHeatmap(fingerprint, 3, false)) {
-            LOG.D("error at level 3")
+            LOG.E("error at level 3")
             return false
           }
           if (!updateHeatmap(fingerprint, 1, true)) {
@@ -1694,23 +1704,23 @@ class MongodbDatasource @Inject() () extends IDatasource {
             return false
           }
           if (!updateHeatmap(fingerprint, 2, true)) {
-            LOG.D("error at level 2 timestamp")
+            LOG.E("error at level 2 timestamp")
             return false
           }
           if (!updateHeatmap(fingerprint, 3, true)) {
-            LOG.D("error at level 3 timestamp")
+            LOG.E("error at level 3 timestamp")
             return false
           }
         }
       }
     }
-    LOG.D("generateHeatmaps: Generated Heatmaps")
+    LOG.D1("generateHeatmaps: Generated Heatmaps")
     true
   }
 
   override def deleteNotValidDocuments(): Boolean = ???
 
-  private def connect(): Boolean = {
+  private def connect(): Boolean = { // CHECK:NN
     //    LPLogger.info("Mongodb: connecting to: " + mHostname + ":" + mPort + " bucket[" +
     //      mBucket + "]")
     false
@@ -1729,7 +1739,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
       val res = awaited.wasAcknowledged()
       ret = ret && res
     }
-    return ret
+
+    ret
   }
 
   override def deleteFingerprint(fingerprint: JsValue): Boolean = {
@@ -1745,7 +1756,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
       SCHEMA.fTimestamp -> (fingerprint \ fTimestamp).as[String])
     val deleted = collection.deleteMany(query)
     val awaited = Await.result(deleted.toFuture(), Duration.Inf)
-    return awaited.wasAcknowledged()
+
+    awaited.wasAcknowledged()
   }
 
   /**
@@ -1772,12 +1784,11 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val userLookUp = collection.find(query)
     val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
     val res = awaited.asInstanceOf[List[Document]]
-    if (convertJson(res).size == 0)
+    if (convertJson(res).isEmpty)
       return null
-    return convertJson(res)
+
+    convertJson(res)
   }
-
-
 
   def createOwnerId(username: String): String = {
     username + "_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYYYMMdd_HHmmss"))
@@ -1792,7 +1803,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
       SCHEMA.fAccessToken -> JsString(accessToken), SCHEMA.fExternal -> JsString(external),
       SCHEMA.fType -> JsString(accType), SCHEMA.fOwnerId -> JsString(owner_id))
     addJsonDocument(SCHEMA.cUsers, json.toString())
-    return json.as[JsObject] - SCHEMA.fPassword
+
+    json.as[JsObject] - SCHEMA.fPassword
   }
 
   override def init(): Boolean = ???
@@ -1801,6 +1813,5 @@ class MongodbDatasource @Inject() () extends IDatasource {
   override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
   override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
   override def getRadioHeatmap(): java.util.List[JsValue] = ???
-
 }
 

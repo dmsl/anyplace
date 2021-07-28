@@ -38,13 +38,12 @@ package controllers
 
 import java.io._
 import java.io.IOException
-
 import utils.{JsonUtils, LOG, RESPONSE}
+
 import java.text.{NumberFormat, ParseException}
 import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.util
 import java.util.Locale
-
 import datasources.ProxyDataSource
 import org.mongodb.scala.model.Filters.equal
 import play.api.{Configuration, Environment}
@@ -58,14 +57,15 @@ import models._
 import json.VALIDATE
 import json.VALIDATE.String
 import location.Algorithms
-import oauth.provider.v2.models.OAuth2Request
 import org.mongodb.scala.MongoDatabase
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsObject, JsValue, Json, _}
 import play.api.mvc._
 import modules.radiomapserver.RadioMapMean
+import models.oauth.OAuth2Request
 import utils.JsonUtils.isNullOrEmpty
 import utils._
+
 import javax.inject.{Inject, Singleton}
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
 
@@ -88,6 +88,9 @@ class MappingController @Inject()(cc: ControllerComponents,
                                   pds: ProxyDataSource,
                                   user: helper.User)
   extends AbstractController(cc) {
+
+  import models.oauth.OAuth2Request
+
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   // TODO:NN replace with user.isModerator(): will return true if user is mod or admin
@@ -97,33 +100,6 @@ class MappingController @Inject()(cc: ControllerComponents,
   val NEARBY_BUILDINGS_RANGE = 50
   val NEARBY_BUILDINGS_RANGE_MAX = 500
 
-  // TODO:NN move from here. Maybe to UserController? (or some Util object?). Does it work with local accounts?
-  def verifyId(authToken: String): String = {
-    // remove the double string quotes due to json processing
-    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
-    var res = ""
-    try {
-      res = Network.GET(gURL)
-    } catch {
-      case e: Exception => { LOG.E("verifyId", e)}
-    }
-    if (res != null) {
-      try {
-        // CHECK:PM CHECK:NN bug on main branch (JsonObject.fromJson())
-        val json = Json.parse(res)
-        val uid = (json \ "user_id")
-        val sub = (json \ "sub")
-        if (uid.toOption.isDefined)
-          return uid.as[String]
-        if (sub.toOption.isDefined)
-          return sub.as[String]
-      } catch {
-        case iae: IllegalArgumentException => LOG.E("verifyId: " + iae.getMessage + "String: '" + res + "'");
-        case e: Exception => LOG.E("verifyId", e)
-      }
-    }
-    null
-  }
 
   def getRadioHeatmap() = Action {
     implicit request =>
@@ -2181,7 +2157,6 @@ class MappingController @Inject()(cc: ControllerComponents,
   import java.io.IOException
 
   import datasources.{DatasourceException}
-  import oauth.provider.v2.models.OAuth2Request
   import utils.{RESPONSE, JsonUtils, LOG}
 
   /**
@@ -2432,14 +2407,14 @@ class MappingController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  // CHECK:NN why deprecated?
   @deprecated("NotInUse")
   def floorPlanUpload() = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
 
-        return RESPONSE.DEPRECATED("Invalid request type - Not Multipart!")
-
+        return RESPONSE.DEPRECATED("Invalid request type: Not Multipart")
 
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
@@ -2447,13 +2422,13 @@ class MappingController @Inject()(cc: ControllerComponents,
         var floorplan = body.file("floorplan").get
         if (floorplan == null) return RESPONSE.BAD("Cannot find the floor plan file in your request!")
         val urlenc = body.asFormUrlEncoded
-        val json_str = urlenc.get("json").get(0)
-        if (json_str == null) return RESPONSE.BAD("Cannot find json in the request!")
+        val json_str = urlenc.get("json").get.head // CHECK:NN get("json").get(0)
+        if (json_str == null) return RESPONSE.BAD("Cannot find json in the request.")
         var json: JsValue = null
         try {
           json = Json.parse(json_str)
         } catch {
-          case e: IOException => return RESPONSE.BAD("Cannot parse json in the request!")
+          case e: IOException => return RESPONSE.BAD("Cannot parse json in the request.")
         }
         LOG.I("Floorplan Request[json]: " + json.toString)
         LOG.I("Floorplan Request[floorplan]: " + floorplan.filename)
@@ -2568,98 +2543,6 @@ class MappingController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getAccountType(json: JsValue): ExternalType = {
-    val external = (json \ SCHEMA.fExternal)
-    if (external.toOption.isDefined) {
-      val exts = external.as[String]
-      if (exts == "google") return ExternalType.GOOGLE
-    }
-    ExternalType.LOCAL
-  }
-
-
-  def isFirstUser(): Boolean = {
-    val mdb: MongoDatabase = mongoDB.getMDB
-    val collection = mdb.getCollection(SCHEMA.cUsers)
-    val users = collection.find()
-    var awaited = Await.result(users.toFuture(), Duration.Inf)
-    var res = awaited.toList
-    return (res.size == 0)
-  }
-
-  def getUser(json: JsValue): JsValue = {
-    val mdb: MongoDatabase = mongoDB.getMDB
-    val collection = mdb.getCollection(SCHEMA.cUsers)
-    var user: JsValue = null
-    getAccountType(json) match {
-      case ExternalType.GOOGLE => {
-        val mdb: MongoDatabase = mongoDB.getMDB
-        val collection = mdb.getCollection(SCHEMA.cUsers)
-        val ownerId = (json \ SCHEMA.fOwnerId).as[String]
-        val userLookUp = collection.find(equal(SCHEMA.fOwnerId, ownerId))
-        val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
-        val res = awaited.toList
-        if (res.size == 1) {
-          user = mongoDB.convertJson(res(0))
-        } else if (res.size > 1) {
-          LOG.E("User exists. More than one user with id: " + ownerId)
-        }
-
-      }
-      case ExternalType.LOCAL => LOG.D("TODO: query unique email")
-    }
-    return user
-  }
-
-
-  /**
-   *
-   * @return type(admin, user, .. etc) + message
-   */
-  def addAccount() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        LOG.D1("AddAccount")
-        val auth = new OAuth2Request(request)
-        if (!auth.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        var json = auth.getJsonBody()
-        if (isNullOrEmpty(json)) return RESPONSE.BAD(RESPONSE.ERROR_API_USAGE)
-        json = appendUserType(json) //# TODO auth.appendUserType() // update json directly.. inside auth object..
-        // auth.isGoogleUser() // and hide the below functionality....
-        val external = (json \ SCHEMA.fExternal)
-        var result: Result = null
-        if (external.toOption.isDefined) {
-          return addGoogleAccount(auth) // auth.addGoogleAccount()
-        } else {
-          LOG.E("TODO: Add Local Account")
-          null
-        }
-        //val user: JsValue = Json.obj("user" -> result)
-        //return AnyResponseHelper.ok(user,"ok")
-      }
-
-      inner(request)
-  }
-
-
-  // TODO if json has not type add type = user
-  def appendUserType(json: JsValue): JsValue = {
-    if ((json \ SCHEMA.fType).toOption.isDefined) {
-      LOG.I("user type exists: " + (json \ SCHEMA.fType).as[String]) // Might crash
-      return json
-    } else {
-      var userType: String = ""
-      if (isFirstUser()) {
-        userType = "admin"
-        LOG.I("Initializing admin user!")
-      } else {
-        LOG.D4("AppendUserType: user")
-        userType = "user"
-      }
-      return json.as[JsObject] + (SCHEMA.fType -> JsString(userType))
-    }
-  }
-
   // TODO: Implement
   // TODO new object with above but password encrypt (salt)
   // TODO add this to mongo (insert)
@@ -2680,35 +2563,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     null
   }
 
-  def addGoogleAccount(auth: OAuth2Request): Result = {
-    LOG.I("addGoogleAccount")
-    var json = auth.getJsonBody()
-    val notFound = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
-    if (!notFound.isEmpty) return RESPONSE.MISSING_FIELDS(notFound)
 
-    var id = verifyId((json \ SCHEMA.fAccessToken).as[String])
-    if (id == null) return RESPONSE.UNAUTHORIZED_USER()
-    id = appendGoogleIdIfNeeded(id)
-    json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
-
-    var user = getUser(json)
-    if (!(user \ SCHEMA.fAccessToken).toOption.isDefined && user != null) { // add access_token to db if !exists
-      user = user.as[JsObject] + (SCHEMA.fAccessToken -> JsString(MongodbDatasource.generateAccessToken(false))) +
-        (SCHEMA.fSchema -> JsNumber(MongodbDatasource.__SCHEMA))
-      pds.getIDatasource.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId,
-        (json \ SCHEMA.fOwnerId).as[String], user.toString())
-    }
-    json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
-    if (user != null) {
-      user = user.as[JsObject] + (SCHEMA.fType -> JsString((user \ SCHEMA.fType).as[String]))
-      return RESPONSE.OK(user, "User Exists.") // its not AnyResponseHelperok
-    } else {
-      val user = new Account(json)
-      pds.getIDatasource.addJsonDocument(SCHEMA.cUsers, user.toString())
-      return RESPONSE.OK(user.toJson(), "Added google user.")
-    }
-
-  }
 
   //  private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
   //    // Admin

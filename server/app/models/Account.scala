@@ -59,7 +59,6 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
     fields.put(SCHEMA.fAccessToken, "")
   }
 
-
   // TODO make it follow new version of User Json
   def this(json: JsValue) = {
     this()
@@ -74,12 +73,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
   }
 
   def getId(): String = fields.get(SCHEMA.fOwnerId)
-
-  override def toValidMongoJson(): JsValue = {
-    toJson()
-  }
-
+  override def toValidMongoJson(): JsValue = toJson()
   override def toString(): String = toJson().toString()
-
   override def toGeoJSON(): String = ???
 }

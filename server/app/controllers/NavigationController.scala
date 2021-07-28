@@ -37,12 +37,12 @@
 package controllers
 
 import java.util.{ArrayList, HashMap, List}
-
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models.NavResultPoint
+
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
-import oauth.provider.v2.models.OAuth2Request
+import models.oauth.OAuth2Request
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import utils._

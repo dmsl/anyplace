@@ -38,8 +38,9 @@
 package controllers
 
 import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
+import models.oauth.OAuth2Request
+
 import javax.inject.{Inject, Singleton}
-import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import utils.Utils.appendGoogleIdIfNeeded
@@ -75,6 +76,7 @@ class UserAdminController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  //TODO:NN if user is admin or moderator
   // CHECK:NN does it work?
   /**
    * Retrieve all the accounts.
@@ -84,7 +86,7 @@ class UserAdminController @Inject()(cc: ControllerComponents,
   def fetchAllAccounts() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LOG.I("fetchAllAccounts(): ")
+        LOG.I("fetchAllAccounts: ")
         val anyReq: OAuth2Request = new OAuth2Request(request)
         val apiKey = anyReq.getAccessToken()
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
