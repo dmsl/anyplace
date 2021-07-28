@@ -13,3 +13,5 @@ if [ ! -f $remoteConf ]; then
 fi
 
 scp $remoteConf $REMOTE:$RFOLDER/conf/app.private.conf
+
+echo "Make sure you install grunt and npm dependencies on each web app."
