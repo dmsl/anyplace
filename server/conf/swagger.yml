@@ -13,7 +13,7 @@ info:
     Google sign in is supported. Anyplace specific key is provided for those cases as well.
 
     #### API KEY:
-    Find your key from [/architect](../architect)
+    Find your key from [/architect](../architect/#tab-user)
 
 consumes:
   - application/json
