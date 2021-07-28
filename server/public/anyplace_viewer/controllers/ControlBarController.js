@@ -238,13 +238,10 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     };
 
     // check if android device to prompt.
-
     var ua = navigator.userAgent.toLowerCase();
     var isAndroid = ua.indexOf("android") > -1 && !ua.indexOf("windows") > -1;
     var d = $('#android_top_DIV_1');
-    if (d)
-        if (isAndroid)
-            d.css({display: 'block'});
+    if (d) if (isAndroid)  d.css({display: 'block'});
 
     $scope.centerViewToSelectedItem = function () {
         var position = {};

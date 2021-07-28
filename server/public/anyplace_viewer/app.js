@@ -75,9 +75,8 @@ app.service('GMapService', function () {
     OSMMapType.prototype.name = 'OSM';
     OSMMapType.prototype.alt = 'Tile OSM Map Type';
     OSMMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        // CHECK:PM
-        // if (zoom>19) // CHECK
-        //     return null;
+        // CHECK:PM no tiles for lower level
+        if (zoom>19) return null;
         var tilesPerGlobe = 1 << zoom;
         var x = coord.x % tilesPerGlobe;
         if (x < 0) {
