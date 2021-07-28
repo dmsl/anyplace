@@ -294,7 +294,7 @@ POST        /api/auth/mapping/space/coordinates             controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Floor
+#        - Space: Floor
 #      summary: Get all floors
 #      description: ""
 #      operationId: floorAll
@@ -317,7 +317,7 @@ POST        /api/mapping/floor/all                          controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Floor
+#        - Space: Floor
 #      summary: Add floor
 #      description: ""
 #      operationId: floorAdd
@@ -342,7 +342,7 @@ POST        /api/auth/mapping/floor/add                     controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Floor
+#        - Space: Floor
 #      summary: Delete floor
 #      description: ""
 #      operationId: floorDelete
@@ -374,7 +374,7 @@ POST        /api/mapping/floor/uploadWithZoom               controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Campus
+#        - Space: Campus
 #      summary: Get all Campuses
 #      description: ""
 #      operationId: campusAll
@@ -397,7 +397,7 @@ POST        /api/mapping/campus/all_cucode                  controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Campus
+#        - Space: Campus
 #      summary: Add Campus
 #      description: ""
 #      operationId: campusAdd
@@ -424,7 +424,7 @@ POST        /api/auth/mapping/campus/add                    controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Campus
+#        - Space: Campus
 #      summary: Update Campus
 #      description: ""
 #      operationId: campusUpdate
@@ -449,7 +449,7 @@ POST        /api/auth/mapping/campus/update                 controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Campus
+#        - Space: Campus
 #      summary: Delete Campus
 #      description: ""
 #      operationId: campusDelete
@@ -474,7 +474,7 @@ POST        /api/auth/mapping/campus/delete                 controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Campus
+#        - Space: Campus
 #      summary: Get user's Campus
 #      description: ""
 #      operationId: campusUser
@@ -499,7 +499,7 @@ POST        /api/auth/mapping/campus/user                   controllers.MappingC
 
 ###
 #      tags:
-#        - Space:POI
+#        - Space: POI
 #      summary: Get POIs of a floor
 #      description: "Provide buid and floor in order to retrieve all POIs of that floor"
 #      operationId: poisAllFloor
@@ -522,7 +522,7 @@ POST        /api/mapping/pois/all_floor                     controllers.MappingC
 
 ###
 #      tags:
-#        - Space:POI
+#        - Space: POI
 #      summary: Get POIs of a space
 #      description: "Provide buid in order to retrieve all POIs of that Space"
 #      operationId: poisAllBuilding
@@ -547,7 +547,7 @@ POST        /api/mapping/pois/all_building                  controllers.MappingC
 
 ###
 #      tags:
-#        - Space:POI
+#        - Space: POI
 #      summary: Search for POIs
 #      description: "Provide cuid and buid to retrieve POIs based on letters. Supports greeklish search."
 #      operationId: poisSearch
@@ -570,7 +570,7 @@ POST        /api/mapping/pois/search                        controllers.MappingC
 
 ###
 #      tags:
-#        - Space:POI
+#        - Space: POI
 #      summary: Add a POI
 #      description: "Provide required fields in orded to add a POI in a specific floor, inside a space"
 #      operationId: poisAdd
@@ -595,7 +595,7 @@ POST        /api/auth/mapping/pois/add                      controllers.MappingC
 
 ###
 #      tags:
-#        - Space:POI
+#        - Space: POI
 #      summary: Delete a POI
 #      description: "Provide buid and puid in order to delete a POI"
 #      operationId: poisDelete
@@ -620,7 +620,7 @@ POST        /api/auth/mapping/pois/delete                   controllers.MappingC
 
 ###
 #      tags:
-#        - Space:POI
+#        - Space: POI
 #      summary: Update a POI
 #      description: "Provide the new fields that you wish to update"
 #      operationId: poisUpdate
@@ -647,7 +647,7 @@ POST        /api/auth/mapping/pois/update                   controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Connection
+#        - Space: Connection
 #      summary: Retrieve all connections of a floor
 #      description: "Provide buid and floor in order to retrieve all connections of that floor"
 #      operationId: conAllFloor
@@ -670,7 +670,7 @@ POST        /api/mapping/connection/all_floor               controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Connection
+#        - Space: Connection
 #      summary: Retrieve all connections of a space
 #      description: "Provide buid in order to retrieve all connections of that space"
 #      operationId: conAllFloors
@@ -693,7 +693,7 @@ POST        /api/mapping/connection/all_floors              controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Connection
+#        - Space: Connection
 #      summary: Add a connection
 #      description: "Provide information for two POIs in order to add a connection."
 #      operationId: conAdd
@@ -718,7 +718,7 @@ POST        /api/auth/mapping/connection/add                controllers.MappingC
 
 ###
 #      tags:
-#        - Space:Connection
+#        - Space: Connection
 #      summary: Delete a connection
 #      description: "Provide information about the connection you wish to delete"
 #      operationId: conDelete
