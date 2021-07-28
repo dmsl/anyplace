@@ -73,19 +73,23 @@ class ErrorHandler extends HttpErrorHandler {
             return Future.successful(Status(statusCode))
         }
 
-        // API requests return an API answer.
-        if(request.path.startsWith("/api")) {
-           return Future.successful(RESPONSE.BAD("No such endpoint."))
-        }
 
         val eid = Utils.genErrorUniqueID()
         val errInt = "404: ID: " + eid
         val errPub =  "Client Error: 404: Error ID: " + eid
 
-        LOG.E(errInt + " " + errorMsg(request))
+        val msg = errInt + " " + errorMsg(request)
 
-        Future.successful(Status(statusCode)(
-            errPub + "\n\n\n" + errorMsg(request) + infoGithub(eid)))
+        LOG.E(msg)
+
+        // API requests return an API answer.
+        if(request.path.startsWith("/api")) {
+            return Future.successful(RESPONSE.BAD(msg))
+        } else {
+            Future.successful(Status(statusCode)(
+                errPub + "\n\n\n" + errorMsg(request)))
+        }
+
     }
 
     def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
@@ -93,26 +97,27 @@ class ErrorHandler extends HttpErrorHandler {
         val errInt = "500: ID: " + eid + ":"
         val errPub =  "500 Internal Server Error: Error ID: " + eid
 
-        LOG.E(errInt + " " + errorMsg(request))
+        val msg : String = errInt + " " + errorMsg(request) + "\n" + exception.getClass + ": " + exception.getMessage
 
-        LOG.E("Message: " + exception.getMessage)
-        LOG.E("Cause: " + exception.getCause)
-        if(request.path.startsWith("/api")) { // API requests return JSON
-            return Future.successful(RESPONSE.BAD("No such endpoint."))
-        }
+        LOG.E(msg)
+        //LOG.E("Cause: " + exception.getCause)
+        //if(request.path.startsWith("/api")) { // API requests return JSON
+        //    return Future.successful(RESPONSE.BAD(msg))
+        //}
 
         if (exception.isInstanceOf[MatchError]) {
             // CHECK if OK leave like this
-            LOG.E("Skip full stacktrace?")
+            LOG.D("Skip full stacktrace?") // CHECK::NN
+            return Future.successful(InternalServerError(msg))
         } else {
             LOG.E("StackTrace: " + fullStacktrace(exception))
         }
 
       //  Handle:
       //  p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
-      //  java.lang.IllegalArgumentException: empty text
-        val msg =  errPub + "\n\n\n" + errorMsg(request) +
-          "\nCause: " + exception.getMessage + infoGithub(eid)
+      ////  java.lang.IllegalArgumentException: empty text
+      //  val msg =  errPub + "\n\n\n" + errorMsg(request) +
+      //    "\nCause: " + exception.getMessage + infoGithub(eid)
 
         if(request.path.startsWith("/api")) { // return JSON
             return Future.successful(RESPONSE.BAD(msg))

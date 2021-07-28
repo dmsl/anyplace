@@ -265,6 +265,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = {};
+        LOG.D2(jsonReq);
         var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
         promise.then(
             function (resp) { // on success
@@ -564,11 +565,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             _err($scope, "No buildings selected.");
             return;
         }
-        var buids = "[";
+        var buids = {};
         for (var i = sz - 1; i > 0; i--) {
-            buids = buids + "\"" + $scope.example9modeledit[i].id + "\",";
+            buids.add($scope.example9modeledit[i].id);
         }
-        buids = buids + "\"" + $scope.example9modeledit[0].id + "\"]";
+        buids.add($scope.example9modeledit[0].id);
         reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
         reqObj.buids = buids;
         var promise = $scope.anyAPI.updateCampus(reqObj);

@@ -49,6 +49,7 @@ import scala.language.implicitConversions
 
 object RESPONSE {
     val ERROR_JSON_PARSE = "Cannot parse request body as Json object."
+    val ERROR_NO_ACCESS_TOKEN = "Must provide access_token in headers."
     val ERROR_API_USAGE = "Wrong API usage."
 
     object Response extends Enumeration {
@@ -128,6 +129,7 @@ object RESPONSE {
     def BAD(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, msg)
     def FORBIDDEN(msg: String): Result = CreateResultResponse(Response.FORBIDDEN, null, msg)
     def UNAUTHORIZED(msg: String): Result = CreateResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
+    def UNAUTHORIZED_USER() : Result = UNAUTHORIZED("Unauthorized user.")
 
     private def prettyException(e: Exception): String = s"500: ${e.getClass}: ${e.getMessage}"
 

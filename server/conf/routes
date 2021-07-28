@@ -3,29 +3,7 @@
 # Not mounting to /api due to swagger documentation generation.
 # It is manually appended api.routess
 ->  /    api.Routes
-
-
-#POST        /accounts/oauth2/token                                                  oauth.provider.v2.controllers.AnyplaceOAuth.token()
-#GET         /login                                                                  controllers.MainController.login()
-#GET         /logout                                                                 controllers.MainController.logout()
-#POST        /authenticate                                                           controllers.MainController.authenticate()
-#POST        /anyplace/mapping/maintenance                                           controllers.MappingController.maintenance()
-
-
-# Floors
-POST        /anyplace/mapping/floor/add                                             controllers.MappingController.floorAdd()
-POST        /anyplace/mapping/floor/delete                                          controllers.MappingController.floorDelete()
-# CHECK:PM ASK:DZ is setting floorplan description obsolete?
-POST        /anyplace/mapping/floor/uploadWithZoom                                  controllers.MappingController.floorPlanUploadWithZoom()
-POST        /anyplace/mapping/floor/all                                             controllers.MappingController.floorAll()
-
-# Campus
-POST        /anyplace/mapping/campus/add                                            controllers.MappingController.buildingSetAdd()
-# CHECK:NN CHECK:PM on frontend(js) buildings and greeklish are not set in the form
-POST        /anyplace/mapping/campus/update                                         controllers.MappingController.campusUpdate()
-POST        /anyplace/mapping/campus/delete                                         controllers.MappingController.campusDelete()
-# RENAME:NN parameter 'pois' -> 'puid'
-POST        /anyplace/mapping/campus/all_cucode                                     controllers.MappingController.buildingSetAll()
+->  /    api.old.Routes
 
 
 ################
@@ -114,19 +92,12 @@ GET /viewer/*file                                                               
 GET /viewer/                                                                        controllers.WebAppController.serveViewer(file="index.html")
 GET /viewer                                                                         controllers.WebAppController.AddTrailingSlash()
 
-# NEW ANGULAR WEB APP (Login, register) :
-#GET         /new2/*file                                                             controllers.Assets.at(path="/public/new2", file)
-#GET         /new2/                                                                  controllers.WebAppController.serveArchitect2(file="index.html")
-#GET         /new2                                                                   controllers.WebAppController.AddTrailingSlash()
-
 ## BLUEPRINTS
 POST        /anyplace/floortiles/:buid/:floor_number                                controllers.MappingController.serveFloorPlanTilesZipLink( buid: String, floor_number: String )
 GET         /anyplace/floortiles/:buid/:floor_number/*file                          controllers.MappingController.serveFloorPlanTilesStatic( buid: String, floor_number: String, file: String )
 # USED BY: Android Navigator:
 POST        /anyplace/floortiles/zip/:buid/:floor_number                            controllers.MappingController.serveFloorPlanTilesZip( buid: String, floor_number: String )
 # USED BY: Web apps
-POST        /anyplace/floorplans64/:buid/:floor_number                              controllers.MappingController.serveFloorPlanBase64( buid: String, floor_number: String )
-POST        /anyplace/floorplans64all/:buid/:floor_number                           controllers.MappingController.serveFloorPlanBase64all( buid: String, floor_number: String )
 POST        /anyplace/radiomaps_frozen/:building/:floor/:filename                   controllers.PositioningController.serveFrozenRadioMap(building: String, floor: String, filename: String)
 POST        /anyplace/radiomaps/:radio_folder/:filename                             controllers.PositioningController.serveRadioMap( radio_folder: String, filename: String )
 
@@ -140,21 +111,6 @@ GET /assets/*file                                                               
 GET /                                                                               controllers.MainController.index()
 # REDIRECT REMAINING TO INDEX
 GET /*any                                                                           controllers.MainController.indexRedirect(any)
-
-#####################
-### CHECK:NN IF USED ###
-#####################
-# ADMIN WEBSITE CHECK:NN /admin ... else: delete and report to PM
-#GET         /admin/*file                                                            controllers.WebAppController.serveAdmin(file: String)
-#GET         /admin                                                                  controllers.WebAppController.AddTrailingSlash()
-
-
-#####################################################################################################
-# ACCES MAP
-# TODO:PM: clear crlb mentions..
-# TODO:NN na epistrefi deprecated kai bad request "will be removed"
-#POST        /anyplace/position/radio/acces                                          controllers.MappingController.getAccesHeatmapByBuildingFloor()
-#POST        /anyplace/position/radio/heatmap_building_floor_delete                  controllers.MappingController.deleteAccesSpaceData()
 
 
 ###################
@@ -175,12 +131,3 @@ POST        /anyplace/mapping/pois/all_pois_nconnectors                         
 
 # CHECK:DZ
 POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.MappingController.getRadioHeatmapBbox()
-
-###   INFLUXDB TODO:NN remove
-#POST        /anyplace/geolocation/insert                                            controllers.AnyplaceInfluxdb.insertInfluxdb()
-#POST        /anyplace/geolocation/range_lookup                                      controllers.AnyplaceInfluxdb.locationLookup()
-#POST        /anyplace/geolocation/distance_lookup                                   controllers.AnyplaceInfluxdb.locationLookup()
-
-### DELETED CHECK:DZ CHECK:NN ?
-#POST        /anyplace/mapping/pois/types                                           controllers.MappingController.poisTypes()
-#POST        /anyplace/mapping/pois/add_category                                    controllers.MappingController.categoryAdd()

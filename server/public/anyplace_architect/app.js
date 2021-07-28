@@ -470,7 +470,10 @@ app.factory('myInterceptor', [function () {
         request: function (config) {
             if (config.url !== undefined) {
                 if (config.url.startsWith(AnyplaceAPI.API) || config.url.startsWith(AnyplaceAPI.BASE_URL)) {
-                    if (config.data) { config.data.access_token = app.access_token; }
+                    if (config.data) {
+                        config.headers.access_token = app.access_token;
+                        config.data.access_token = app.access_token;
+                    }
                 }
             }
             return config;

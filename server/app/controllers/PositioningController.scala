@@ -91,7 +91,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
           return RESPONSE.BAD("Cannot find access_token in the request.")
         }
         val access_token = body_form.get(SCHEMA.fAccessToken).get.head
-        if (user.authorize(Json.obj(SCHEMA.fAccessToken -> access_token)) == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        if (user.authorize(access_token) == null) return RESPONSE.FORBIDDEN("Unauthorized")
         var ret: String = ""
         val newBuildingsFloors = RadioMap.verifyRssLogAndGetBuildingFloors(rssLog)
         if (newBuildingsFloors == null) {

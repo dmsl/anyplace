@@ -39,12 +39,11 @@ package controllers
 
 import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import javax.inject.{Inject, Singleton}
-import json.VALIDATE
 import oauth.provider.v2.models.OAuth2Request
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import utils.Utils.appendGoogleIdIfNeeded
-import utils.{RESPONSE, LOG}
+import utils.{LOG, RESPONSE}
 
 @Singleton
 class UserAdminController @Inject()(cc: ControllerComponents,
@@ -61,11 +60,10 @@ class UserAdminController @Inject()(cc: ControllerComponents,
 
         // Generate heatmaps
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
-        if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
+        val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
         if (!MongodbDatasource.loadAdmins().contains(appendGoogleIdIfNeeded(owner_id))) {
           return RESPONSE.FORBIDDEN("Unauthorized. Only admins can generate heatmaps.")
@@ -88,11 +86,10 @@ class UserAdminController @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
         LOG.I("fetchAllAccounts(): ")
         val anyReq: OAuth2Request = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
-        if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
+        val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
         if (!MongodbDatasource.loadAdmins().contains(owner_id))
           return RESPONSE.FORBIDDEN("Only admin users can see all accounts.")

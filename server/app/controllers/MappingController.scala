@@ -610,15 +610,17 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("FingerPrintsDelete: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(
-          json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fAccessToken)
+          json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2")
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ SCHEMA.fFloor).as[String]
         val lat1 = (json \ "lat1").as[String]
@@ -895,14 +897,16 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("spaceAdd: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fName, SCHEMA.fDescription,
-          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fAccessToken, SCHEMA.fSpaceType)
+          SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fSpaceType)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED("spaceAdd")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
           var space: Space = null
@@ -930,14 +934,14 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("spaceUpdateCoOwners: " + Utils.stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken, SCHEMA.fCoOwners)
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fCoOwners)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
-        if (json.\\(SCHEMA.fAccessToken) == null) return RESPONSE.FORBIDDEN("Unauthorized")
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        var owner_id = user.authorize(apiKey)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val validation = VALIDATE.fields(json, SCHEMA.fBuid)
         if (validation.failed()) return validation.response()
@@ -964,14 +968,15 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("spaceUpdateOwner: " + Utils.stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fAccessToken, "new_owner")
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "new_owner")
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
-        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return RESPONSE.FORBIDDEN("Unauthorized")
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val validation = VALIDATE.fields(json, SCHEMA.fBuid, "new_owner")
         if (validation.failed()) return validation.response()
@@ -998,13 +1003,15 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("spaceUpdate: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
@@ -1046,13 +1053,15 @@ class MappingController @Inject()(cc: ControllerComponents,
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("spaceDelete: " + json)
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         if (String(json, SCHEMA.fBuid) == null)
           return RESPONSE.BAD("Buid field must be String!")
@@ -1149,13 +1158,17 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("spaceAllByOwner: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json) // , SCHEMA.fAccessToken
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         try {
           LOG.D3("owner_id = " + owner_id)
           val spaces = pds.getIDatasource.getAllBuildingsByOwner(owner_id)
@@ -1203,10 +1216,12 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("spaceCoordinates: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
         if (checkRequirements != null) return checkRequirements
         var range = NEARBY_BUILDINGS_RANGE
         if (JsonUtils.hasProperty(json, "range")) {
@@ -1223,8 +1238,8 @@ class MappingController @Inject()(cc: ControllerComponents,
           }
         }
 
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
           val lat = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLat).as[String])
@@ -1308,6 +1323,8 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody())
           return RESPONSE
             .BAD(RESPONSE.ERROR_JSON_PARSE)
@@ -1315,8 +1332,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         LOG.D2("buildingSetAdd: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fDescription, SCHEMA.fName, SCHEMA.fBuids, SCHEMA.fGreeklish)
         if (checkRequirements != null) return checkRequirements
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized2")
+        var owner_id = user.authorize(apiKey)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
         try {
           val cuid = (json \ SCHEMA.fCampusCuid).as[String]
@@ -1353,14 +1369,16 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("campusUpdate: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
@@ -1395,10 +1413,9 @@ class MappingController @Inject()(cc: ControllerComponents,
             stored_campus = stored_campus.as[JsObject] + (SCHEMA.fGreeklish -> JsString(temp.toString))
           }
           if ((json \ SCHEMA.fBuids).toOption.isDefined) {
-            var buids = (json \ SCHEMA.fBuids).as[String]
-            buids = buids.replace("[", "").replace("]", "").replace("\"", "")
-            val buidsList = buids.split(",")
-            stored_campus = stored_campus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buidsList.toList))
+            LOG.D2(json.toString())
+            var buids = (json \ SCHEMA.fBuids).as[List[String]]
+            stored_campus = stored_campus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buids))
           }
           val campus = new BuildingSet(stored_campus)
           if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJSON()))
@@ -1417,13 +1434,13 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("buildingsetAllByOwner: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
-        if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
           val buildingsets = pds.getIDatasource.getAllBuildingsetsByOwner(owner_id)
@@ -1452,14 +1469,16 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("campusDelete: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
@@ -1493,14 +1512,16 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("floorAdd: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
-          SCHEMA.fDescription, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
+          SCHEMA.fDescription, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
@@ -1530,14 +1551,15 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("floorUpdate: " + Utils.stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
-        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return RESPONSE.FORBIDDEN("Unauthorized")
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
@@ -1575,13 +1597,15 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("floorDelete: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
@@ -1644,16 +1668,18 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("poisAdd: " + Utils.stripJson(json))
-        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return RESPONSE.FORBIDDEN("Unauthorized")
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
-          SCHEMA.fFloorNumber, SCHEMA.fName, SCHEMA.fPoisType, SCHEMA.fIsDoor, SCHEMA.fIsBuildingEntrance, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon,
-          SCHEMA.fAccessToken)
+          SCHEMA.fFloorNumber, SCHEMA.fName, SCHEMA.fPoisType, SCHEMA.fIsDoor, SCHEMA.fIsBuildingEntrance, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
@@ -1680,13 +1706,15 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("poisUpdate: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val puid = (json \ SCHEMA.fPuid).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -1747,13 +1775,15 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("poiDelete: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid, SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         val puid = (json \ SCHEMA.fPuid).as[String]
@@ -1930,14 +1960,16 @@ class MappingController @Inject()(cc: ControllerComponents,
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.I("AnyplaceMapping::connectionAdd(): " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fPoisA, SCHEMA.fFloorA,
-          SCHEMA.fBuidA, SCHEMA.fPoisB, SCHEMA.fFloorB, SCHEMA.fBuidB, SCHEMA.fBuid, SCHEMA.fEdgeType, SCHEMA.fAccessToken)
+          SCHEMA.fBuidA, SCHEMA.fPoisB, SCHEMA.fFloorB, SCHEMA.fBuidB, SCHEMA.fBuid, SCHEMA.fEdgeType)
         if (checkRequirements != null) return checkRequirements
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
@@ -1998,15 +2030,15 @@ class MappingController @Inject()(cc: ControllerComponents,
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.I("AnyplaceMapping::connectionUpdate(): " + Utils.stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB,
-          SCHEMA.fAccessToken)
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
-        if (json.\(SCHEMA.fAccessToken).getOrElse(null) == null) return RESPONSE.FORBIDDEN("Unauthorized")
-        var owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
@@ -2061,14 +2093,15 @@ class MappingController @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
 
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.I("AnyplaceMapping::poiDelete(): " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB,
-          SCHEMA.fAccessToken)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (checkRequirements != null) return checkRequirements
-        val owner_id = user.authorize(json)
-        if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
@@ -2653,7 +2686,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     if (!notFound.isEmpty) return RESPONSE.MISSING_FIELDS(notFound)
 
     var id = verifyId((json \ SCHEMA.fAccessToken).as[String])
-    if (id == null) return RESPONSE.FORBIDDEN("Unauthorized")
+    if (id == null) return RESPONSE.UNAUTHORIZED_USER()
     id = appendGoogleIdIfNeeded(id)
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
 

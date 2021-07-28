@@ -37,10 +37,12 @@ package oauth.provider.v2.models
 
 import java.util.regex.Pattern
 
+import datasources.SCHEMA
 import oauth.provider.v2.OAuth2Constant
 import play.api.libs.json.JsValue
-import play.api.mvc.{AnyContent, Request}
-import utils.Utils
+import play.api.mvc.{AnyContent, Request, Result}
+import utils.RESPONSE.ERROR_NO_ACCESS_TOKEN
+import utils.{RESPONSE, Utils}
 
 // TODO:NN method-> verifyUser() verifyAdminUser()
 // notes -> ../spaceDelete
@@ -57,6 +59,29 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
   def this(request: Request[AnyContent]) = {
     this(request, true)
   }
+
+  def getAccessToken(): String = {
+
+    val headers = this.mRequest.headers
+    val apiKey =  headers.get(SCHEMA.fAccessToken)
+    if (apiKey.nonEmpty) return apiKey.get
+
+    return null
+  }
+
+  def NO_ACCESS_TOKEN() : Result = {
+    return RESPONSE.UNAUTHORIZED(ERROR_NO_ACCESS_TOKEN)
+  }
+
+  //private def hasAccessToken(): Boolean = {
+  //  val headers = this.mRequest.headers
+  //  val hasToken = headers.hasHeader(SCHEMA.fAccessToken)
+  //  val allHeaders = headers.toString()
+  //  LOG.D("HasToken: " + hasToken)
+  //  LOG.D("HasToken: " + allHeaders)
+  //
+  //  return hasToken
+  //}
 
   def assertJsonBody(): Boolean = {
     if (this.mJsonBody == null)

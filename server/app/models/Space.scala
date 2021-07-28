@@ -101,7 +101,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     var buid: String = fields.get(SCHEMA.fBuid)
     if (buid == null || buid.isEmpty || buid == "") {
       val finalId = Utils.getRandomUUID() + "_" + System.currentTimeMillis()
-      fields.put(SCHEMA.fBuid, "building_" + finalId)
+      fields.put(SCHEMA.fBuid, fields.get(SCHEMA.fSpaceType).toLowerCase + "_" + finalId)
       buid = fields.get(SCHEMA.fBuid)
       this.json.as[JsObject] + (SCHEMA.fBuid -> Json.toJson(buid))
     }
