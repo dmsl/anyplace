@@ -58,19 +58,16 @@ object AndroidAPKFile {
           val a: Int = java.lang.Integer.parseInt(segsThis(i))
           val b: Int = java.lang.Integer.parseInt(segsThat(i))
           if (a < b) {
-            -1
+            return -1
           } else if (a > b) {
-            1
+            return 1
           }
         }
         if (thiss.isRelease()) -1 else 1
       } catch {
-        case e: NumberFormatException => -1
-
+        case _: NumberFormatException => -1
       }
-
   }
-
 }
 
 class AndroidAPKFile(private var mFile: File) {
@@ -78,10 +75,10 @@ class AndroidAPKFile(private var mFile: File) {
     mFile.getAbsolutePath.lastIndexOf(File.separatorChar) + 1)
   val segs: Array[String] = mFileBasename.split("_")
   private var mUrl: String = _
-  private var mVersion: String = segs(2)
-  private var mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
-  private var mIsDev: Boolean = !mIsRelease
-  private var mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
+  private val mVersion: String = segs(2)
+  private val mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
+  private val mIsDev: Boolean = !mIsRelease
+  private val mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
 
   def getVersion(): String = mVersion
   def isRelease(): Boolean = mIsRelease

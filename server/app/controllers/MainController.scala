@@ -55,14 +55,6 @@ class MainController @Inject()(cc: ControllerComponents,
   def indexAny(): Action[AnyContent]  = index()
 
   def indexRedirect(any: String): Action[AnyContent] = {
-      //if(any.contains("/api")) {
-      // TODO: if on API then return json
-      //implicit request =>
-      //  def inner(request: Request[AnyContent]): Result = {
-      //    RESPONSE.BAD(RESPONSE.ERROR_API_USAGE)
-      //  }
-      //  return inner(request)
-      //
       index() // redirect all others to index
   }
 

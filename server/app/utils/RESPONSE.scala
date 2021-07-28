@@ -1,10 +1,10 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nicolas Neofytoy, Paschalis Mpeis, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
@@ -36,14 +36,11 @@
 package utils
 
 import java.util
-
 import play.api.libs.json.Json
-
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import utils.RESPONSE.Response.Response
-
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.implicitConversions
 
@@ -59,7 +56,6 @@ object RESPONSE {
         val UNAUTHORIZED_ACCESS = new Response()
         val INTERNAL_SERVER_ERROR = new Response()
         val NOT_FOUND = new Response()
-
         class Response extends Val
 
         implicit def convertValue(v: Value): Response = v.asInstanceOf[Response]
@@ -121,16 +117,15 @@ object RESPONSE {
                 Results.BadRequest(res.toString)
         }
     }
+
     def OK(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
     def BAD(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
-
     def OK(msg: String): Result = CreateResultResponse(Response.OK, null, msg)
     def DEPRECATED(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
     def BAD(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, msg)
     def FORBIDDEN(msg: String): Result = CreateResultResponse(Response.FORBIDDEN, null, msg)
     def UNAUTHORIZED(msg: String): Result = CreateResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
     def UNAUTHORIZED_USER() : Result = UNAUTHORIZED("Unauthorized user.")
-
     private def prettyException(e: Exception): String = s"500: ${e.getClass}: ${e.getMessage}"
 
     def ERROR(e: Exception): Result = {

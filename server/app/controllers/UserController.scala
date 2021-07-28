@@ -97,20 +97,15 @@ class UserController @Inject()(cc: ControllerComponents,
         if (!auth.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = auth.getJsonBody()
         if (isNullOrEmpty(json)) return RESPONSE.BAD(RESPONSE.ERROR_API_USAGE)
-        LOG.D2("JSON BODY: ")
-        LOG.D2(json.toString())
         json = appendUserType(json) //# TODO auth.appendUserType() // update json directly.. inside auth object..
-        LOG.D2(json.toString())
         // auth.isGoogleUser() // and hide the below functionality....
         val external = json \ SCHEMA.fExternal
+
         if (external.toOption.isDefined && external.as[String] == "google") {
-          return authorizeGoogleAccount(auth) // auth.addGoogleAccount()
+          authorizeGoogleAccount(auth)
         } else {
-          // CHECK:NN why will it ever go here?
-          return RESPONSE.BAD(RESPONSE.ERROR_API_USAGE)
+          RESPONSE.BAD("Not a google account.")
         }
-        //val user: JsValue = Json.obj("user" -> result)
-        //return AnyResponseHelper.ok(user,"ok")
       }
 
       inner(request)
@@ -180,7 +175,6 @@ class UserController @Inject()(cc: ControllerComponents,
   def authorizeGoogleAccount(auth: OAuth2Request): Result = {
     LOG.I("addGoogleAccount")
     var json = auth.getJsonBody()
-    LOG.I(json.toString())
     val hasExternal = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
     if (!hasExternal.isEmpty) return RESPONSE.MISSING_FIELDS(hasExternal)
 
