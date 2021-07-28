@@ -263,6 +263,7 @@ class MappingController @Inject()(cc: ControllerComponents,
             val lat = (radioPoint \ "x").as[Double]
             val lon = (radioPoint \ "y").as[Double]
             val xyConverter = convertToXY(lat, lon, zoomLevel)
+            LOG.D2(xyConverter(0).toString + " " + xyConverter(1).toString)
             if (xyConverter(0) == tileX && xyConverter(1) == tileY) {
               radioPointsInXY.add(radioPoint)
             }

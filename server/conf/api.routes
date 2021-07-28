@@ -15,8 +15,12 @@
 #      schema:
 #        $ref: '#/definitions/Version'
 ###
-GET        /api/version                                                         controllers.MainController.getVersion
+GET        /api/version                                     controllers.MainController.getVersion
 
+
+################
+### SPACE
+################
 
 ###
 #      tags:
@@ -44,7 +48,7 @@ GET        /api/version                                                         
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/user/register                                                  controllers.UserController.register()
+POST        /api/user/register                              controllers.UserController.register()
 
 ###
 #  summary: Logins a local user
@@ -65,7 +69,7 @@ POST        /api/user/register                                                  
 #   200:
 #     description: success
 ###
-POST        /api/user/login                                                     controllers.UserController.login()
+POST        /api/user/login                                 controllers.UserController.login()
 
 ################
 # Spaces
@@ -92,7 +96,7 @@ POST        /api/user/login                                                     
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/space/all                                              controllers.MappingController.spaceAll()
+POST        /api/mapping/space/all                          controllers.MappingController.spaceAll()
 
 ###
 #      tags:
@@ -115,7 +119,7 @@ POST        /api/mapping/space/all                                              
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/space/get                                              controllers.MappingController.spaceGetOne()
+POST        /api/mapping/space/get                          controllers.MappingController.spaceGetOne()
 
 ###
 #      tags:
@@ -140,7 +144,7 @@ POST        /api/mapping/space/get                                              
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/add                                         controllers.MappingController.spaceAdd()
+POST        /api/auth/mapping/space/add                     controllers.MappingController.spaceAdd()
 
 ###
 #      tags:
@@ -165,7 +169,7 @@ POST        /api/auth/mapping/space/add                                         
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/update                                      controllers.MappingController.spaceUpdate()
+POST        /api/auth/mapping/space/update                  controllers.MappingController.spaceUpdate()
 
 # TODO:NN verified all except fingerprints: must also delete radiomaps_frozen
 
@@ -192,7 +196,7 @@ POST        /api/auth/mapping/space/update                                      
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/delete                                      controllers.MappingController.spaceDelete()
+POST        /api/auth/mapping/space/delete                  controllers.MappingController.spaceDelete()
 
 ###
 #      tags:
@@ -217,7 +221,7 @@ POST        /api/auth/mapping/space/delete                                      
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/user                                   controllers.MappingController.spaceAllByOwner()
+POST        /api/auth/mapping/space/user                    controllers.MappingController.spaceAllByOwner()
 
 ###
 #      tags:
@@ -245,7 +249,7 @@ POST        /api/auth/mapping/space/user                                   contr
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/coordinates                                 controllers.MappingController.spaceCoordinates()
+POST        /api/auth/mapping/space/coordinates             controllers.MappingController.spaceCoordinates()
 
 # Floors
 
@@ -270,7 +274,7 @@ POST        /api/auth/mapping/space/coordinates                                 
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/floor/all                                              controllers.MappingController.floorAll()
+POST        /api/mapping/floor/all                          controllers.MappingController.floorAll()
 
 ###
 #      tags:
@@ -295,7 +299,7 @@ POST        /api/mapping/floor/all                                              
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/floor/add                                         controllers.MappingController.floorAdd()
+POST        /api/auth/mapping/floor/add                     controllers.MappingController.floorAdd()
 
 ###
 #      tags:
@@ -320,12 +324,12 @@ POST        /api/auth/mapping/floor/add                                         
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/floor/delete                                      controllers.MappingController.floorDelete()
+POST        /api/auth/mapping/floor/delete                  controllers.MappingController.floorDelete()
 
 # CHECK:PM ASK:DZ is setting floorplan description obsolete?
 
 ### NoDocs ###
-POST        /api/mapping/floor/uploadWithZoom                                   controllers.MappingController.floorPlanUploadWithZoom()
+POST        /api/mapping/floor/uploadWithZoom               controllers.MappingController.floorPlanUploadWithZoom()
 
 # Campus
 
@@ -350,7 +354,7 @@ POST        /api/mapping/floor/uploadWithZoom                                   
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/campus/all_cucode                                      controllers.MappingController.buildingSetAll()
+POST        /api/mapping/campus/all_cucode                  controllers.MappingController.buildingSetAll()
 
 ###
 #      tags:
@@ -375,7 +379,7 @@ POST        /api/mapping/campus/all_cucode                                      
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/add                                        controllers.MappingController.buildingSetAdd()
+POST        /api/auth/mapping/campus/add                    controllers.MappingController.buildingSetAdd()
 
 # CHECK:NN CHECK:PM on frontend(js) buildings and greeklish are not set in the form
 
@@ -402,7 +406,7 @@ POST        /api/auth/mapping/campus/add                                        
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/update                                     controllers.MappingController.campusUpdate()
+POST        /api/auth/mapping/campus/update                 controllers.MappingController.campusUpdate()
 
 ###
 #      tags:
@@ -427,7 +431,7 @@ POST        /api/auth/mapping/campus/update                                     
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/delete                                     controllers.MappingController.campusDelete()
+POST        /api/auth/mapping/campus/delete                 controllers.MappingController.campusDelete()
 
 ###
 #      tags:
@@ -452,11 +456,11 @@ POST        /api/auth/mapping/campus/delete                                     
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/user                                       controllers.MappingController.buildingsetAllByOwner()
+POST        /api/auth/mapping/campus/user                   controllers.MappingController.buildingsetAllByOwner()
 
 ###
 #      tags:
-#        - Space:POIs
+#        - Space:POI
 #      summary: Get POIs of a floor
 #      description: "Provide buid and floor in order to retrieve all POIs of that floor"
 #      operationId: poisAllFloor
@@ -475,11 +479,11 @@ POST        /api/auth/mapping/campus/user                                       
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/all_floor                                         controllers.MappingController.poisByFloor()
+POST        /api/mapping/pois/all_floor                     controllers.MappingController.poisByFloor()
 
 ###
 #      tags:
-#        - Space:POIs
+#        - Space:POI
 #      summary: Get POIs of a space
 #      description: "Provide buid in order to retrieve all POIs of that Space"
 #      operationId: poisAllBuilding
@@ -498,13 +502,13 @@ POST        /api/mapping/pois/all_floor                                         
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/all_building                                      controllers.MappingController.poisByBuid()
+POST        /api/mapping/pois/all_building                  controllers.MappingController.poisByBuid()
 
 # RENAMED: all_pois -> search
 
 ###
 #      tags:
-#        - Space:POIs
+#        - Space:POI
 #      summary: Search for POIs
 #      description: "Provide cuid and buid to retrieve POIs based on letters. Supports greeklish search."
 #      operationId: poisSearch
@@ -523,11 +527,11 @@ POST        /api/mapping/pois/all_building                                      
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/search                                            controllers.MappingController.searchPois()
+POST        /api/mapping/pois/search                        controllers.MappingController.searchPois()
 
 ###
 #      tags:
-#        - Space:POIs
+#        - Space:POI
 #      summary: Add a POI
 #      description: "Provide required fields in orded to add a POI in a specific floor, inside a space"
 #      operationId: poisAdd
@@ -548,11 +552,11 @@ POST        /api/mapping/pois/search                                            
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/pois/add                                          controllers.MappingController.poisAdd()
+POST        /api/auth/mapping/pois/add                      controllers.MappingController.poisAdd()
 
 ###
 #      tags:
-#        - Space:POIs
+#        - Space:POI
 #      summary: Delete a POI
 #      description: "Provide buid and puid in order to delete a POI"
 #      operationId: poisDelete
@@ -573,11 +577,11 @@ POST        /api/auth/mapping/pois/add                                          
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/pois/delete                                       controllers.MappingController.poisDelete()
+POST        /api/auth/mapping/pois/delete                   controllers.MappingController.poisDelete()
 
 ###
 #      tags:
-#        - Space:POIs
+#        - Space:POI
 #      summary: Update a POI
 #      description: "Provide the new fields that you wish to update"
 #      operationId: poisUpdate
@@ -598,7 +602,7 @@ POST        /api/auth/mapping/pois/delete                                       
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/pois/update                                       controllers.MappingController.poisUpdate()
+POST        /api/auth/mapping/pois/update                   controllers.MappingController.poisUpdate()
 
 # Spaces: Connections
 
@@ -623,7 +627,7 @@ POST        /api/auth/mapping/pois/update                                       
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/connection/all_floor                                   controllers.MappingController.connectionsByFloor()
+POST        /api/mapping/connection/all_floor               controllers.MappingController.connectionsByFloor()
 
 ###
 #      tags:
@@ -646,7 +650,7 @@ POST        /api/mapping/connection/all_floor                                   
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/connection/all_floors                                  controllers.MappingController.connectionsByallFloors()
+POST        /api/mapping/connection/all_floors              controllers.MappingController.connectionsByallFloors()
 
 ###
 #      tags:
@@ -671,7 +675,7 @@ POST        /api/mapping/connection/all_floors                                  
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/connection/add                                    controllers.MappingController.connectionAdd()
+POST        /api/auth/mapping/connection/add                controllers.MappingController.connectionAdd()
 
 ###
 #      tags:
@@ -696,7 +700,309 @@ POST        /api/auth/mapping/connection/add                                    
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/connection/delete                                 controllers.MappingController.connectionDelete()
+POST        /api/auth/mapping/connection/delete             controllers.MappingController.connectionDelete()
+
+################
+### NAVIGATION
+################
+
+###
+#      tags:
+#        - Navigation
+#      summary: Find fastest route
+#      description: "Based on your current location, find the shortest route to a POI."
+#      operationId: routeXY
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RouteXY'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/route_xy                        controllers.NavigationController.getNavigationRouteXY()
+
+###
+#      tags:
+#        - Navigation
+#      summary: Find fastest route
+#      description: "Find the shortest route between two POIs."
+#      operationId: route
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Route'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/route                           controllers.NavigationController.getNavigationRoute()
+
+# SPACE
+
+###
+#      tags:
+#        - Navigation
+#      summary: Get detailed space
+#      description: "Based on buid get a space with full description (floors, POIs)."
+#      operationId: navSpaceId
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceId'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/space/id                        controllers.NavigationController.getBuildingById()
+
+###
+#      tags:
+#        - Navigation
+#      summary: Get POI
+#      description: ""
+#      operationId: navPOIsId
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpacePOI'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/pois/id                         controllers.NavigationController.getPoisById()
+
+################
+### POSITION
+################
+
+POST        /api/position/radio/time                        controllers.MappingController.FingerprintsByTime()
+
+POST        /api/position/radio/delete/time                 controllers.MappingController.FingerPrintsTimestampDelete()
+
+################
+### ACCESS POINTS
+################
+
+################
+### HEATMAP DATA
+################
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps zoom 1
+#      description: ""
+#      operationId: heatmapAvg1
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Heatmap'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/1                    controllers.MappingController.getHeatmapByFloorAVG1()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps zoom 2
+#      description: ""
+#      operationId: heatmapAvg2
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Heatmap'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/2                    controllers.MappingController.getHeatmapByFloorAVG2()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps zoom 3
+#      description: ""
+#      operationId: heatmapAvg3
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Heatmap'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/3                    controllers.MappingController.getHeatmapByFloorAVG3()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps tiles
+#      description: ""
+#      operationId: heatmapAvgTiles
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTiles'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/3/tiles              controllers.MappingController.getHeatmapByFloorAVG3Tiles()
+
+# Time-based data
+
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps with time zoom 1
+#      description: ""
+#      operationId: heatmapAvgTime1
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/1          controllers.MappingController.heatmapByFloorTimestampAVG1()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps with time zoom 2
+#      description: ""
+#      operationId: heatmapAvgTime2
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/2          controllers.MappingController.heatmapByFloorTimestampAVG2()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps with time zoom 3
+#      description: ""
+#      operationId: heatmapAvgTime3
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/3          controllers.MappingController.heatmapByFloorTimestampAVG3()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps tiles with time
+#      description: ""
+#      operationId: heatmapAvgTimeTiles
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTimeTiles'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/tiles      controllers.MappingController.heatmapByFloorTimestampTiles()
+
 
 
 # USED BY: Web apps

@@ -7,15 +7,6 @@
 
 
 ################
-### NAVIGATION
-################
-POST        /anyplace/navigation/route_xy                                           controllers.NavigationController.getNavigationRouteXY()
-POST        /anyplace/navigation/route                                              controllers.NavigationController.getNavigationRoute()
-# SPACE
-POST        /anyplace/navigation/building/id                                        controllers.NavigationController.getBuildingById()
-POST        /anyplace/navigation/pois/id                                            controllers.NavigationController.getPoisById()
-
-################
 ### POSITION
 ################
 # TODO algo1
@@ -48,29 +39,6 @@ POST        /anyplace/position/radio_by_building_floor                          
 # this endpoint
 POST        /anyplace/position/radio/APs_building_floor                             controllers.MappingController.getAPsByBuildingFloor()
 POST        /anyplace/position/radio/aps_ids                                        controllers.MappingController.getAPsIds()
-
-################
-### HEATMAP DATA
-################
-# RENAMED:
-# NEW FILE:
-# /anyplace/position/radio/heatmap_building_floor_average_1 -> /heatmap/floor/average/1 /2 /3 /3/tiles .. TODO:NN
-POST        /anyplace/position/radio/heatmap_building_floor_average_1               controllers.MappingController.getHeatmapByFloorAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_average_2               controllers.MappingController.getHeatmapByFloorAVG2()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3               controllers.MappingController.getHeatmapByFloorAVG3()
-POST        /anyplace/position/radio/heatmap_building_floor_average_3_tiles         controllers.MappingController.getHeatmapByFloorAVG3Tiles()
-
-# Time-based data
-POST        /anyplace/position/radio/time                                           controllers.MappingController.FingerprintsByTime()
-POST        /anyplace/position/radio/delete/time                                    controllers.MappingController.FingerPrintsTimestampDelete()
-# CHECK:PM CHECK:DZ the old code does not group the heatmaps on higher levels BUGFIX
-# TODO:NN REMOVE building_... and tell PM where is it used?!
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_1     controllers.MappingController.heatmapByFloorTimestampAVG1()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_2     controllers.MappingController.heatmapByFloorTimestampAVG2()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_average_3     controllers.MappingController.heatmapByFloorTimestampAVG3()
-POST        /anyplace/position/radio/heatmap_building_floor_timestamp_tiles         controllers.MappingController.heatmapByFloorTimestampTiles()
-
-
 
 ###########
 ### RESOURCES:

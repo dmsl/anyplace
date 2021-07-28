@@ -372,3 +372,99 @@ definitions:
         items:
           type: string
         example: [buid-1, buid-2]
+  RouteXY:
+    type: object
+    properties:
+      coordinates_lon:
+        type: string
+        example: 33.41028
+      coordinates_lat:
+        type: string
+        example: 35.1450
+      floor_number:
+        type: string
+        example: 1
+      pois_to:
+        type: string
+        example: poi_8a5ac942-3a02-453e-8cda-5b6870ecf92b
+  Route:
+    type: object
+    properties:
+      pois_from:
+        type: string
+        example: poi_908db729-0edd-4817-ac34-ca99b25d0f3d
+      pois_to:
+        type: string
+        example: poi_bcf9d54a-9f9f-4ae6-957e-2d37787e3dfb
+  SpacePOI:
+    type: object
+    properties:
+      pois:
+        type: string
+        example: poi_a7035659-881f-4169-9737-914081ee2f61
+  Heatmap:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+  HeatmapTiles:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+      x:
+        type: integer
+        example: 2486415
+      y:
+        type: integer
+        example: 1659305
+      z:
+        type: integer
+        example: 22
+  HeatmapTime:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+      timestampX:
+        type: string
+        example: 1000
+      timestampY:
+        type: string
+        example: 1579620960000
+  HeatmapTimeTiles:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+      x:
+        type: integer
+        example: 2486415
+      y:
+        type: integer
+        example: 1659305
+      z:
+        type: integer
+        example: 22
+      timestampX:
+        type: string
+        example: 1319572080000
+      timestampY:
+        type: string
+        example: 1579620960000

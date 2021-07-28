@@ -47,27 +47,27 @@ AnyplaceAPI.Mapping.GET_APS_IDS_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/position/radio/delete";
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE;
 AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME = "/position/radio/delete/time";
-AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME;
+AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME;
 AnyplaceAPI.Mapping.FINGERPRINTS_TIME = "/position/radio/time";
-AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.FINGERPRINTS_TIME;
+AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FINGERPRINTS_TIME;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/position/radio/heatmap_building_floor_average_1";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1 = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2 = "/position/radio/heatmap_building_floor_average_2";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2 = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/position/radio/heatmap_building_floor_average_3";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3 = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES = "/position/radio/heatmap_building_floor_average_3_tiles";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/heatmap/floor/average/1";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2 = "/heatmap/floor/average/2";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/heatmap/floor/average/3";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES = "/heatmap/floor/average/3/tiles";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/position/radio/heatmap_building_floor_timestamp_average_1";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1 = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2 = "/position/radio/heatmap_building_floor_timestamp_average_2";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2 = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/position/radio/heatmap_building_floor_timestamp_average_3";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES = "/position/radio/heatmap_building_floor_timestamp_tiles";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/heatmap/floor/average/timestamp/1";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2 = "/heatmap/floor/average/timestamp/2";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/heatmap/floor/average/timestamp/3";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3;
+AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES = "/heatmap/floor/average/timestamp/tiles";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES;
 
 AnyplaceAPI.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
 AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIOMAP_DELETE;
@@ -153,7 +153,7 @@ AnyplaceAPI.Mapping.REGISTER_LOCAL = "/user/register";
 AnyplaceAPI.Mapping.REGISTER_LOCAL_URL = AnyplaceAPI.API + "/user/register";
 
 AnyplaceAPI.Navigation.POIS_ROUTE = "/navigation/route";
-AnyplaceAPI.Navigation.POIS_ROUTE = AnyplaceAPI.BASE_URL + AnyplaceAPI.Navigation.POIS_ROUTE;
+AnyplaceAPI.Navigation.POIS_ROUTE = AnyplaceAPI.API + AnyplaceAPI.Navigation.POIS_ROUTE;
 
 AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL = "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8";
 
