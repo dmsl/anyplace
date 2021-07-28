@@ -18,9 +18,17 @@
 GET        /api/version                                     controllers.MainController.getVersion
 
 
+
+
+
 ################
-### SPACE
+### USERS
 ################
+# TODO:NN EXAMPLE RESPONSE TO PUT BELOW:
+# {"name":"Alang Turning","owner_id":"123_google","external":"google","type":"user","access_token":"apGoogle_ABC123ap",
+# "_schema":0,"status":"success","message":"User Exists.","status_code":200}
+# TODO:NN remove _schema from this response!
+
 
 ###
 #      tags:
@@ -51,7 +59,7 @@ GET        /api/version                                     controllers.MainCont
 POST        /api/user/register                              controllers.UserController.register()
 
 ###
-#  summary: Logins a local user
+#  summary: Login for local users
 #  tags:
 #    - User
 #  parameters: [
@@ -70,6 +78,37 @@ POST        /api/user/register                              controllers.UserCont
 #     description: success
 ###
 POST        /api/user/login                                 controllers.UserController.login()
+
+###
+#  summary: Login for Google users
+#  description: |
+#       TODO:NN put arguments: they are: "name" (not used probably"
+#       TODO:NN. see also notes in api.old.routes
+#       "external" example: "google"
+#       "access_token": Google OAuth access token for anyplacej
+#       TODO:NN put return result: (see EXAMPLE RESPONSE ABOVE)
+#       Also put this in the other endpoints as well!
+#  tags:
+#    - User
+#  parameters: [
+#   {
+#       "in": "body",
+#       "name": "Body",
+#       "description": "External Google account and Google Access Token",
+#       "required": true,
+#       "schema": {
+#           "$ref": "#/definitions/UserLoginGoogle"
+#       }
+#   }
+#  ]
+#  responses:
+#   200:
+#     description: success
+###
+POST        /api/user/login/google                                               controllers.UserController.loginGoogle()
+
+
+
 
 ################
 # Spaces
@@ -1006,7 +1045,7 @@ POST        /api/heatmap/floor/average/timestamp/tiles      controllers.MappingC
 
 
 # USED BY: Web apps
-
+# TODO:NN put docs on below as well.
 ### NoDocs ###
 POST        /api/floorplans64/:buid/:floor_number                               controllers.MappingController.serveFloorPlanBase64( buid: String, floor_number: String )
 ### NoDocs ###

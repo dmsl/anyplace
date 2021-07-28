@@ -285,6 +285,15 @@ definitions:
       password:
         type: string
         example: password
+  UserLoginGoogle:
+    type: object
+    properties:
+      external:
+          external: string
+          example: google
+      access_token:
+          type: string
+          example: AccessTokenFromGoogle
   UserLogin:
     type: object
     properties:

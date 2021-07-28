@@ -3,15 +3,10 @@
 ################
 # Accounts
 ################
-# TODO:NN for each endpoint: add in swagger-js
-# TODO:NN add usages... renamed stuff.. etc..
-# TODO: other API.... local..
+# TODO:NN google login...
 # /user/login/google (move from MappingController to: AnyplaceAccounts (AnypalceAccounts->Accounts)
 # CHECK:NN (CLR if needed)
 #  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
-
-### NoDocs ###
-POST        /api/user/google/sign                                               controllers.MappingController.addAccount()
 
 ###
 #  summary: Retrieves all user accounts
