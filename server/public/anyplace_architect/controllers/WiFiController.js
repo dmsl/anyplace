@@ -2076,10 +2076,14 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);
-        var circleRadius = 1.5;
+        var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);  // ACCES is removed
+        if ((true)) {
+            _warn_autohide($scope, WARN_ACCES_REMOVED)
+            return;
+        }
 
-        //zoom
+        var circleRadius = 1.5;
+        // zoom
         _currentZoomLevel = GMapService.gmap.getZoom();
         if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS && _currentZoomLevel < MAX_ZOOM_FOR_HEATMAPS) {
             levelOfZoom = 2;
@@ -2091,14 +2095,85 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             levelOfZoom = 1;
         }
 
-        promise.then(
-            function (resp) { // got ACCES map (either cached or generated on the fly)
-                var values = resp.data.crlb;
-                var data = resp.data.geojson.coordinates;
-                var i = data.length;
+        if (promise != null) {
+            promise.then(
+                function (resp) { // got ACCES map (either cached or generated on the fly)
+                    var values = resp.data.crlb;
+                    var data = resp.data.geojson.coordinates;
+                    var i = data.length;
 
-                if (i <= 0) {
-                    _warn($scope, WARN_NO_FINGERPRINTS);
+                    if (i <= 0) {
+                        _warn($scope, WARN_NO_FINGERPRINTS);
+                        document.getElementById("localizationAccuracy-mode")
+                            .classList.remove('quickaction-selected');
+                        $scope.localizationAccMode = false;
+                        if (typeof (Storage) !== "undefined" && localStorage) {
+                            localStorage.setItem('localizationAccMode', 'NO');
+                        }
+
+                        laButton.removeClass('disabled');
+                        laButton.prop('disabled', false);
+                        laButtonProgress.addClass("hidden");
+                        return;
+                    }
+
+                    var circleStroke = 0.8 * (levelOfZoom);
+                    // GMaps colors:
+                    // general surface: #F8F9FA
+                    // building color: #F1F1F1
+                    var strokeColor = '#a8a8a8';
+
+                    var j = 0;
+                    while (i--) { // pushing elements to map
+                        var rp = data[i];
+                        // FASTER RENDER
+                        var color = '#33cc33';
+                        if (isNaN(values[i]) || values[i] < 0) {
+                            color = '#000000';
+                        } else if (values[i] > 60) {
+                            color = '#ff391e';
+                        } else if (values[i] > 30) {
+                            color = '#ff8a1b';
+                        } else if (values[i] > 15) {
+                            color = '#ffd716';
+                        } else if (values[i] > 10) {
+                            color = '#fdff76';
+                        } else if (values[i] > 5) {
+                            color = '#99ff33';
+                        }
+
+                        var circle = new google.maps.Circle({
+                            strokeWeight: circleStroke,
+                            strokeColor: strokeColor,
+                            fillColor: color,
+                            fillOpacity: 0.5,
+                            map: $scope.gmapService.gmap,
+                            center: {lat: rp[0], lng: rp[1]},
+                            radius: circleRadius
+                        });
+
+                        heatMapAcces.push(circle);
+                        data.splice(i, 1);
+                        j++;
+                    }
+
+                    document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
+                    $scope.localizationAccMode = true;
+                    if (typeof (Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('localizationAccMode', 'NO');
+                    } else {
+                        localStorage.setItem('localizationAccMode', 'YES');
+                    }
+
+                    _HEATMAP_ACCES = true;
+                    $scope.radioHeatmapLocalization = true;
+
+                    laButtonProgress.addClass("hidden");
+                    laButton.removeClass('disabled');
+                    laButton.prop('disabled', false);
+                }, function (resp) { // on error
+                    ShowWarningAutohide($scope, resp, WARN_ACCES_ERROR);
+
                     document.getElementById("localizationAccuracy-mode")
                         .classList.remove('quickaction-selected');
                     $scope.localizationAccMode = false;
@@ -2106,83 +2181,12 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                         localStorage.setItem('localizationAccMode', 'NO');
                     }
 
+                    laButtonProgress.addClass("hidden");
                     laButton.removeClass('disabled');
                     laButton.prop('disabled', false);
-                    laButtonProgress.addClass("hidden");
-                    return;
                 }
-
-                var circleStroke = 0.8 * (levelOfZoom);
-                // GMaps colors:
-                // general surface: #F8F9FA
-                // building color: #F1F1F1
-                var strokeColor = '#a8a8a8';
-
-
-                var j = 0;
-                while (i--) { // pushing elements to map
-                    var rp = data[i];
-                    // FASTER RENDER
-                    var color = '#33cc33';
-                    if (isNaN(values[i]) || values[i] < 0) {
-                        color = '#000000';
-                    } else if (values[i] > 60) {
-                        color = '#ff391e';
-                    } else if (values[i] > 30) {
-                        color = '#ff8a1b';
-                    } else if (values[i] > 15) {
-                        color = '#ffd716';
-                    } else if (values[i] > 10) {
-                        color = '#fdff76';
-                    } else if (values[i] > 5) {
-                        color = '#99ff33';
-                    }
-
-                    var circle = new google.maps.Circle({
-                        strokeWeight: circleStroke,
-                        strokeColor: strokeColor,
-                        fillColor: color,
-                        fillOpacity: 0.5,
-                        map: $scope.gmapService.gmap,
-                        center: {lat: rp[0], lng: rp[1]},
-                        radius: circleRadius
-                    });
-
-                    heatMapAcces.push(circle);
-                    data.splice(i, 1);
-                    j++;
-                }
-
-                document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
-                $scope.localizationAccMode = true;
-                if (typeof (Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('localizationAccMode', 'NO');
-                } else {
-                    localStorage.setItem('localizationAccMode', 'YES');
-                }
-
-                _HEATMAP_ACCES = true;
-                $scope.radioHeatmapLocalization = true;
-
-                laButtonProgress.addClass("hidden");
-                laButton.removeClass('disabled');
-                laButton.prop('disabled', false);
-                console.log("SLA: enabling button: 2");
-            }, function (resp) { // on error
-                ShowWarningAutohide($scope, resp, WARN_ACCES_ERROR);
-
-                document.getElementById("localizationAccuracy-mode")
-                    .classList.remove('quickaction-selected');
-                $scope.localizationAccMode = false;
-                if (typeof (Storage) !== "undefined" && localStorage) {
-                    localStorage.setItem('localizationAccMode', 'NO');
-                }
-
-                laButtonProgress.addClass("hidden");
-                laButton.removeClass('disabled');
-                laButton.prop('disabled', false);
-            }
-        );
+            );
+        }
     };
 
     $scope.showConnections = function () {

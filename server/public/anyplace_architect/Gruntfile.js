@@ -101,6 +101,9 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-watch');
 
+  // Show notifications on recompilations
+  grunt.loadNpmTasks('grunt-notify');
+
   // 4. Tasks:
   // default: keep recompiling the code on each change (watch)
   //  deploy: compile the code

@@ -65,6 +65,14 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         gapi.client.plus.people.get({userId: 'me'}).execute(handleEmailResponse);
     };
 
+    $scope.copyApiKey = function () {
+        LOG.W("Copying api key")
+        var copyTextarea = document.querySelector('#auth-api-key');
+        copyTextarea.focus();
+        copyTextarea.select();
+        document.execCommand("copy");
+        _info($scope, "API key copied!");
+    }
 
     var handleEmailResponse = function (resp) {
         console.log("handleEmailResponse ?");
@@ -72,16 +80,12 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.showGoogleID = function () {
-        if (!$scope.person) {
-            return;
-        }
+        if (!$scope.person) { return; }
         AnyplaceService.addAlert('success', 'Your Google ID is: ' + $scope.person.id);
     };
 
     $scope.showGoogleAuth = function () {
-        if (!$scope.gAuth) {
-            return;
-        }
+        if (!$scope.gAuth) { return; }
         AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
     };
 
@@ -100,7 +104,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
 
 
     $scope.onSignInFailure = function () {
-        console.log('Sign-in state: Error');
+        LOG.E('Sign-in state');
     };
 
     window.onSignIn = $scope.onSignIn;

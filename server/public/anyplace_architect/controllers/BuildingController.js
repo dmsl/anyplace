@@ -294,11 +294,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                     }
                     var marker = getMapsIconBuildingArchitect(GMapService.gmap, _latLngFromBuilding(b))
                     var htmlContent = '<div class="infowindow-scroll-fix">'
-                        + '<h5>Building:</h5>'
-                        + '<span>' + b.name + '</span>'
-                        + '<h5>Description:</h5>'
+                        + '<div class="infowindow-title">'+b.name+'</div>'
+                        + '<div class="font-weight-bold">BUID:</div>'
+                        + '<input class="form-control input-tiny" value="'+b.buid+'" onClick="selectAllInputText(this)" readonly/>'
+                        + '<div class="infowindow-title">Description:</div>'
                         + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
                         + '</div>';
+
+
                     marker.infoContent = htmlContent;
                     marker.building = b;
                     $scope.myBuildingsHashT[b.buid] = {
@@ -350,7 +353,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 building.is_published = "false";
             }
             if (!building.description) {
-                building.description = "-";
+                building.description = "-"; // puts an empty description. mongodb will ignore it
             }
             if (building.name && building.description && building.is_published && building.url && building.address && building.space_type) {
                 var promise = $scope.anyAPI.addBuilding(building);
@@ -698,16 +701,26 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         if (prevMarker && prevMarker.marker && prevMarker.marker.getMap() && prevMarker.marker.getDraggable()) {
             // TODO: alert for already pending building.
-            console.log('there is a building pending, please add 1 at a time');
+            _warn_autohide($scope, 'Finish adding the previous building..');
+            LOG.D('there is a building pending, please add 1 at a time');
             return;
         }
+
+         // resize building
+        var icon_building = {
+            url: IMG_BUILDING_ARCHITECT,
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
 
         var marker = new google.maps.Marker({
             position: location,
             map: GMapService.gmap,
-            icon: IMG_BUILDING_ARCHITECT,
+            icon: icon_building,
             draggable: true
         });
+
 
         var infowindow = new google.maps.InfoWindow({
             content: '-',
@@ -1633,7 +1646,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     //set cookies
-
     $('#dismiss').on('click', function () {
         // set expire date.
         if (typeof(Storage) !== "undefined" && localStorage) {

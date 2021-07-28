@@ -380,9 +380,18 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
     };
 
-    var _POI_CONNECTOR_IMG = 'build/images/edge-connector-icon.png';
-    var _POI_EXISTING_IMG = 'build/images/any-poi-icon.png';
-    var _POI_NEW_IMG = 'build/images/poi-icon.png';
+    // TODO put these in common..
+    var _POI_CONNECTOR_IMG = 'build/images/edge-connector.png';
+    // PM: CLR
+    // var markerPoiConnector= new google.maps.MarkerImage(_POI_CONNECTOR_IMG,
+    //     new google.maps.Size(22, 22),
+    //     new google.maps.Point(0, 0),
+    //     new google.maps.Point(11, 11));
+    // var _POI_EXISTING_IMG = 'build/images/any-poi-icon.png';
+    // var _POI_NEW_IMG = 'build/images/poi-icon.png';
+    var _POI_EXISTING_IMG = 'build/images/poi.png';
+    var _POI_NEW_IMG = 'build/images/poi-new.png';
+
 
     var _latLngFromPoi = function (p) {
         if (p && p.coordinates_lat && p.coordinates_lon) {
@@ -455,18 +464,22 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     marker = new google.maps.Marker({
                         position: _latLngFromPoi(p),
                         draggable: true,
-                        icon: new google.maps.MarkerImage(
+			icon: new google.maps.MarkerImage(
                             _POI_CONNECTOR_IMG,
                             null, /* size is determined at runtime */
                             null, /* origin is 0,0 */
-                            null, /* anchor is bottom center of the scaled image */
+                            new google.maps.Point(11, 11),
+                            // null, /* anchor is bottom center of the scaled image */
                             new google.maps.Size(21, 21)
                         )
                     });
-                    if(_POIS_IS_ON)
-                        marker.setMap(GMapService.gmap);
+
+                    if(_POIS_IS_ON) marker.setMap(GMapService.gmap);
 
                     htmlContent = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
+                        + '<div class="infowindow-title">Connector</div>'
+                        + '<input value="'+ p.puid+'" type="text" class="form-control input-tiny" onClick="selectAllInputText(this)" readonly/>'
+                        + '<br>'
                         + '<fieldset class="form-group" style="display: inline-block; width: 73%;">'
                         + '<button type="submit" class="btn btn-success add-any-button" ng-click="updatePoi(\'' + p.puid + '\')"><span class="glyphicon glyphicon-pencil"></span> Update'
                         + '</button>'
@@ -478,7 +491,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         + '</div>';
                 } else {
                     var imgType = _POI_EXISTING_IMG;
-                    var size = new google.maps.Size(21, 32);
+                    var size = new google.maps.Size(32, 32);
 
 //                if (p.pois_type === "Entrance") {
 //                    imgType = "images/door.png";
@@ -503,11 +516,14 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         )
                     });
 
-                    if(_POIS_IS_ON)
-                    marker.setMap(GMapService.gmap);
+                    if(_POIS_IS_ON) marker.setMap(GMapService.gmap);
 
                     htmlContent = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
-                        + '<form name="poiForm">'
+                        + '<form name="poiForm" class="mapForm">'
+                        // PUID
+                        + '<div class="infowindow-title">POI</div>'
+                        + '<input ng-model="myPois[' + i + '].puid" type="text" class="form-control input-tiny" onClick="selectAllInputText(this)" readonly/>'
+                        + '<br>'
                         + '<fieldset class="form-group">'
                         + '<textarea ng-model="myPois[' + i + '].name" id="poi-name" type="text" class="form-control" placeholder="poi name" tabindex="1" autofocus></textarea>'
                         + '</fieldset>'
@@ -515,8 +531,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         + '<textarea ng-model="myPois[' + i + '].description" id="poi-description" type="text" class="form-control" placeholder="poi description" tabindex="5"></textarea>'
                         + '</fieldset>'
                         + '<fieldset class="form-group">'
+                        + '<div>POI Type:</div>'
                         + '<select ng-model="myPois[' + i + '].pois_type" class="form-control" ng-options="type for type in poisTypes" title="POI Types" tabindex="2">'
-                        + '<option value="">Select POI Type</option>'
+                        + '<option value="">POI Type</option>'
                         + '</select>'
                         + '</fieldset class="form-group">'
                         + '<fieldset class="form-group"><div>Custom type:</div>'
@@ -604,8 +621,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                     $scope.myConnectionsHashT[cuid] = cloneModel;
                                     $scope.anyService.setAllConnection($scope.myConnectionsHashT);
                                     flightPath.setOptions({
-                                        strokeColor: '#0000FF',
-                                        strokeOpacity: 0.5
+					strokeColor: '#503C8E',
+                                        strokeOpacity: 0.7
                                     });
                                     google.maps.event.addListener(flightPath, 'click', function () {
                                         $scope.$apply(_deleteConnection(this));
@@ -635,6 +652,13 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         $scope.$apply(function () {
                             if (self.model && self.model.puid) {
                                 $scope.anyService.selectedPoi = self.model;
+                                // TODO Close infowindow of the open building
+                                // (the below do not work)
+                                // console.log($scope.anyService.selectedBuilding);
+                                // $scope.anyService.selectedBuilding=null;
+                                // var open_buid=$scope.anyService.selectedBuilding.buid;
+                                // This hides the building icon:
+                                // $scope.myBuildingsHashT[open_buid].marker.setVisible(false);
                             }
                         })
                     }
@@ -730,7 +754,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _deleteConnection = function (fp) {
 
         if (!$scope.edgeMode) {
-            _err($scope, "Enable \"Edge Mode\" so you can delete connections by clicking on them.");
+            _info($scope, "Enable \"Edge Mode\" so you can delete connections by clicking on them.");
             return;
         }
 
@@ -1371,11 +1395,104 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '</div>';
 
         if (type == 'poi') {
+            var htmlContent = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
+                + '<form name="poiForm">'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="poi-name" type="text" class="form-control" placeholder="poi name" tabindex="1" autofocus/>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="poi-description" type="text" class="form-control" placeholder="poi description" tabindex="5"></textarea>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<select ng-model="myMarkers[' + marker.myId + '].model.pois_type" class="form-control" ng-options="type for type in poisTypes" title="POI Types" tabindex="2">'
+                + '<option value="">Select POI Type</option>'
+                + '</select>'
+                + '</fieldset class="form-group">'
+                + '<fieldset class="form-group">Or ender your one type name:'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
+                + '</fieldset>'
+                + '<div style="text-align: center;">'
+                + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
+                + '<button type="submit" class="btn btn-success add-any-button" ng-click="addPoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-plus"></span> Add'
+                + '</button>'
+                + '</fieldset>'
+                + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')" tabindex="6"><i class="fa fa-trash text-white"></i>'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>'
+                + '</form>'
+                + '</div>';
+
+            //var htmlContent2 = '<div class="infowindow-scroll-fix">'
+            //    + '<h5 style="margin: 0">Name:</h5>'
+            //    + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
+            //    + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+            //    + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
+            //    + '<h5 style="margin: 8px 0 0 0">Type:</h5>'
+            //    + '<span>{{myMarkers[' + marker.myId + '].model.pois_type}}</span>'
+            //    + '</div>';
+            var htmlContent2 = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
+                + '<form name="poiForm">'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="poi-name" type="text" class="form-control" placeholder="poi name" tabindex="1" autofocus/>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="poi-description" type="text" class="form-control" placeholder="poi description" tabindex="5"></textarea>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<select ng-model="myMarkers[' + marker.myId + '].model.pois_type" class="form-control" ng-options="type for type in poisTypes" title="POI Types" tabindex="2">'
+                + '<option value="">Select POI Type</option>'
+                + '</select>'
+                + '</fieldset class="form-group">'
+                + '<fieldset class="form-group">Or ender your one type name:'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
+                + '</fieldset>'
+                + '<div style="text-align: center;">'
+                + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
+                + '<button type="submit" class="btn btn-success add-any-button" ng-click="updatePoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-pencil"></span> Update'
+                + '</button>'
+                + '</fieldset>'
+                + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')" tabindex="6"><i class="fa fa-trash text-white"></i>'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>'
+                + '</form>'
+                + '</div>';
+
+
             var tpl = $compile(htmlContent)($scope);
             marker.tpl2 = $compile(htmlContent2)($scope);
             infowindow.setContent(tpl[0]);
             infowindow.open(GMapService.gmap, marker);
         } else if (type == 'connector') {
+            var htmlConnector = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
+                + '<div style="margin-bottom: 5px">POI Connector</div>'
+                + '<fieldset class="form-group" style="display: inline-block; width: 73%;">'
+                + '<button type="submit" class="btn btn-success add-any-button" ng-click="addPoi(' + marker.myId + ')"><span class="glyphicon glyphicon-plus"></span> Add'
+                + '</button>'
+                + '</fieldset>'
+                + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')"><i class="fa fa-trash text-white"></i>'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>';
+
+            var htmlConnector2 = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
+                + '<div style="margin-bottom: 5px">POI Connector</div>'
+                + '<fieldset class="form-group">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')"><i class="fa fa-trash text-white"></i> Remove'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>';
+
             var tplConn = $compile(htmlConnector)($scope);
             marker.tpl2 = $compile(htmlConnector2)($scope);
             infowindow.setContent(tplConn[0]);
@@ -1410,7 +1527,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         $scope.edgeMode = !$scope.edgeMode;
         if (!$scope.edgeMode) {
             $scope.connectPois.prev = undefined;
+            document.getElementById("poi-edge-mode").classList.remove('draggable-border-selected');
+        } else {
+            document.getElementById("poi-edge-mode").classList.add('draggable-border-selected');
+
         }
+
     };
 
     $("#draggable-poi").draggable({
@@ -1422,7 +1544,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 $scope.$apply(_warn($scope, "The marker was placed too far away from the selected building."));
                 return;
             }
-            $scope.placeMarker(ll, _POI_NEW_IMG, new google.maps.Size(21, 32), 'poi');
+            $scope.placeMarker(ll, _POI_NEW_IMG, new google.maps.Size(32, 32), 'poi');
         }
     });
 
