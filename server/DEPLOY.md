@@ -1,4 +1,4 @@
-# DEPLOY:
+# DEPLOY TUTORIAL
 
 ## 1. PRODUCTION:
 <details>
@@ -86,6 +86,33 @@ Instead of pushing compiling and testing everything on a local machine,
 these set of scripts send the code changes to a remote machine.
 Those are then compile remotely
 
+The below scripts run locally and sync the local files to a remote.  
+There needs to be some remote scripts as well:
+- one that does `sbt "run PORT"`
+- three that compile the web apps and watch for changes:
+  + `grunt` (for viewer, viewerCampus, and architect)
+  + see [./public](public/README.md)
+
+
+## 1. Setup
+Create `deploy/config.sh` from [deploy/config.example.sh](./deploy/config.example.sh)
+
+## 2. Push private configuration and install dependencies:
+
+#### 1.1 [deploy/push_private.conf.sh](./deploy/push_private.conf.sh):
+Pushes the app.private.remote.conf, which contains the passwords, etc.
+
+#### 1.2 REMOTELY: Compile all dependencies
+See  [./public](public/README.md) for more.  
+Must run remotely.
+
+## 3. Sync any new changes
+`./deploy/watchdog.sh` can do this automatically.
+
+---
+
+# Used scripts:
+
 #### [deploy/watchdog.sh](./deploy/watchdog.sh):
 Watches for file changes and automatically calls sync.sh
 
@@ -106,26 +133,10 @@ git update-index --assume-unchanged config.sh push_code.sh watchdog.sh sync.sh
 
 </details>
 
-
-## 3. [Docker](../docker/README.md) (outdated)
+## 3. LOCAL:
 <details>
 <summary>
-Deploy Docker
-</summary>
-The backend's codebase has changed significantly.
-All of it was rewritten to MongoDB, dependencies has changed,
-and the docker image is now outdated.  
-The backend now uses the latest version of `Play`, `Scala`,` sbt`, making its deployment easier.
-
-Any contributions from the community on docker are welcome.
-
-</details>
-
----
-# Testing:
-<details>
-<summary>
-Testing Instructions
+Local Deployment
 </summary>
 
 Just open a browser and test the following URLs:
@@ -137,4 +148,31 @@ $ http://localhost:9000/developers
 
 You can obviously setup the service on an IP/Domain name by configuring the underlying
 Operating System with standard unix, mac or windows configurations.
+
+For the compilation of the web apps ([architect](public/anyplace_architect),
+[viewer](public/anyplace_viewer), [viewerCampus](public/anyplace_viewer_campus)), please see this instructions:
+- [./public](public/README.md)
+
 </details>
+
+
+## 4. [~~DOCKER~~](../docker/README.md)
+<details>
+<summary>
+Docker Deployment (outdated)
+</summary>
+The backend's codebase has changed significantly.
+All of it was rewritten to MongoDB, dependencies has changed,
+and the docker image is now outdated.  
+
+The backend now uses the latest version of 
+`Play`, `Scala`,` sbt`, making its deployment easier.
+Compilations are faster as incremental builds can now be used by the more recent `sbt` version.
+
+Any contributions from the community on `docker` are welcome.
+
+</details>
+
+---
+
+## 5. Testing: with [POSTMAN](./POSTMAN.md)

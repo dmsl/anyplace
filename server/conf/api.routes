@@ -80,6 +80,28 @@ POST        /api/user/register                              controllers.UserCont
 POST        /api/user/login                                 controllers.UserController.login()
 
 ###
+#  summary: Refreshes a user login using the local access_token.
+#  note: Only for local accounts.
+#  tags:
+#    - User
+#  parameters: [
+#   {
+#       "in": "body",
+#       "name": "Body",
+#       "description": "accessToken",
+#       "required": true,
+#       "schema": {
+#           "$ref": "#/definitions/LocalAccessToken"
+#       }
+#   }
+#  ]
+#  responses:
+#   200:
+#     description: success
+###
+POST        /api/user/refresh                                 controllers.UserController.refresh()
+
+###
 #  summary: Login for Google users
 #  description: |
 #       TODO:NN put arguments: they are: "name" (not used probably"

@@ -154,16 +154,16 @@ function selectAllInputText(element) {
 
 function getMapsIconBuildingViewer(scope, latLong) {
     // console.log("getMapsIconBuildingViewer")
-    var s = new google.maps.Size(55, 80);
+    var s = new google.maps.Size(27.5, 40);
     if (scope.isFirefox)
-        s = new google.maps.Size(110, 160);
+        s = new google.maps.Size(55, 80);
 
     return new google.maps.Marker({
         position: latLong,
         icon: {
             url: IMG_BUILDING_VIEWER,
             size: s,
-            scaledSize: new google.maps.Size(55, 80)
+            scaledSize: new google.maps.Size(27.5, 40)
         },
         draggable: false
     });

@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -49,6 +49,16 @@ trait IDatasource {
                external: String, accType: String): JsValue
 
   def login(collection: String, username: String, password: String): List[JsValue]
+
+  /**
+   * Given an access_token it returns the user account.
+   * Used only for local accounts.
+   *
+   * @param collection
+   * @param accessToken
+   * @return
+   */
+  def getUserAccount(collection: String, accessToken: String): List[JsValue]
 
   def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int): Unit
 

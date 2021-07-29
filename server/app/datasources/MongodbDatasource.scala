@@ -1790,6 +1790,18 @@ class MongodbDatasource @Inject() () extends IDatasource {
     convertJson(res)
   }
 
+  override def getUserAccount(col: String, accessToken: String): List[JsValue] = {
+    val collection = mdb.getCollection(col)
+    val query = BsonDocument(SCHEMA.fAccessToken -> accessToken)
+    val userLookUp = collection.find(query)
+    val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
+    val res = awaited.asInstanceOf[List[Document]]
+    if (convertJson(res).isEmpty)
+      return null
+
+    convertJson(res)
+  }
+
   def createOwnerId(username: String): String = {
     username + "_" + LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYYYMMdd_HHmmss"))
   }

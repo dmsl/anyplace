@@ -45,7 +45,7 @@
 │   ├── controllers
 │   ├── datasources
 │   ├── db_models
-│   ├── oauth
+│   ├── models.oauth
 │   ├── modules.floor_module
 │   ├── modules.radiomapserver
 │   └── utils

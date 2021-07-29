@@ -51,6 +51,32 @@ class UserController @Inject()(cc: ControllerComponents,
     inner(request)
   }
 
+  def refresh() = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
+        if (checkRequirements != null) return checkRequirements
+        LOG.D2("refresh: " + json)
+        val accessToken = (json \ SCHEMA.fAccessToken).as[String]
+
+        val storedUser = pds.getIDatasource.getUserAccount(SCHEMA.cUsers, accessToken)
+        if (storedUser == null) return RESPONSE.BAD("User not found.")
+        if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
+
+        val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
+        val res = Json.obj("user" -> user)
+
+        RESPONSE.OK(res, "Successfully found user.")
+      }
+
+      inner(request)
+  }
+
+
   def register() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {

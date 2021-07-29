@@ -101,7 +101,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.$on("loggedIn", function (event, mass) {
-        LOG.D2("BROADCAST RECEIVED: loggedIn")
         $scope.fetchAllBuildings();
         $scope.fetchAllCampus();
     });

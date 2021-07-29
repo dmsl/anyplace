@@ -49,7 +49,7 @@ import utils.GeoPoint
 @Singleton
 class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
   private var mongoDB: MongodbDatasource = _
-  private var mActiveDatabase: IDatasource = _
+  private var db: IDatasource = _ // active DB
 
   initMongodb()
   setActiveDatabase(this.mongoDB)
@@ -72,14 +72,14 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
   }
 
   private def setActiveDatabase(ds: IDatasource): Unit = {
-    this.mActiveDatabase = ds
+    this.db = ds
   }
 
   override def init(): Boolean = true
 
   //override def addJsonDocument(key: String, expiry: Int, document: String): Boolean = {
   //  _checkActiveDatasource()
-  //  mActiveDatabase.addJsonDocument(key, expiry, document)
+  //  db.addJsonDocument(key, expiry, document)
   //}
 
   override def addJsonDocument(col: String, document: String): Boolean = {
@@ -104,7 +104,7 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   override def deleteRadiosInBox(): Boolean = {
     _checkActiveDatasource()
-    mActiveDatabase.deleteRadiosInBox()
+    db.deleteRadiosInBox()
   }
 
   override def getFromKeyAsJson(collection: String,key: String, value: String): JsValue = {
@@ -191,7 +191,7 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   override def getRadioHeatmap(): java.util.List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmap()
+    db.getRadioHeatmap()
   }
 
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
@@ -285,7 +285,7 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     _checkActiveDatasource()
-    mActiveDatabase.dumpRssLogEntriesByBuildingACCESFloor(outFile, buid, floor_number)
+    db.dumpRssLogEntriesByBuildingACCESFloor(outFile, buid, floor_number)
   }
 
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
@@ -295,12 +295,12 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   override def getAllAccounts(): List[JsValue] = {
     _checkActiveDatasource()
-    //mActiveDatabase.getAllAccounts
+    //db.getAllAccounts
     mongoDB.getAllAccounts()
   }
 
   def _checkActiveDatasource(): Unit = {
-    if (this.mActiveDatabase == null) {
+    if (this.db == null) {
       throw new DatasourceException("No active Datasource exists!")
     }
   }
@@ -357,7 +357,7 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   override def deleteNotValidDocuments(): Boolean ={
     _checkActiveDatasource()
-    mActiveDatabase.deleteNotValidDocuments()
+    db.deleteNotValidDocuments()
   }
 
   override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
@@ -380,6 +380,15 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     mongoDB.login(collection, username, password)
   }
 
+  /**
+   * Given an access_token it returns the user account.
+   * Used only for local accounts.
+   */
+  override def getUserAccount(collection: String, accessToken: String): List[JsValue] = {
+    _checkActiveDatasource()
+    db.getUserAccount(collection, accessToken)
+  }
+
   override def register(collection: String, name: String, email: String, username: String, password: String,
                         external: String, accType: String): JsValue = {
     _checkActiveDatasource()
@@ -393,21 +402,21 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String] = {
     _checkActiveDatasource()
-    mActiveDatabase.deleteAllByXsYs(buid,floor,x,y)
+    db.deleteAllByXsYs(buid,floor,x,y)
   }
 
   override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapByBuildingFloor2(lat,lon,buid,floor,range)
+    db.getRadioHeatmapByBuildingFloor2(lat,lon,buid,floor,range)
   }
 
   override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapBBox(lat,lon,buid,floor,range)
+    db.getRadioHeatmapBBox(lat,lon,buid,floor,range)
   }
 
   override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsValue] = {
     _checkActiveDatasource()
-    mActiveDatabase.getRadioHeatmapBBox2(lat,lon,buid,floor,range)
+    db.getRadioHeatmapBBox2(lat,lon,buid,floor,range)
   }
 }

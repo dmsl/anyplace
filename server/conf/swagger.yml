@@ -1,6 +1,6 @@
 ---
 swagger: "2.0"
-schemes: [http, https]
+schemes: [https, http]
 info:
   title: "Anyplace API"
   description: |
@@ -14,17 +14,43 @@ info:
 
     #### API KEY:
     Find your key from [/architect](../architect/#tab-user)
+  license:
+    name: "MIT License"
+    url: "https://opensource.org/licenses/MIT"
+  version: 1.0.0
+  contact:
+    email: "anyplace@cs.ucy.ac.cy"
 
 consumes:
   - application/json
 produces:
   - application/json
+
+tags:
+  - name: "User"
+    description: "Anyplace accounts (local or a Google account)."
+  - name: "Space"
+    description: "An indoor space (`building` or a `vessel`)."
+  - name: "Space:Floor"
+    description: "A `floor` within a space."
+  - name: "Space:POI"
+    description: "A Point of Interest (POI) in a floor."
+  - name: "Space:Campus"
+    description: "A group of spaces."
+  - name: "Space:Connection"
+    description: "A route in a building. It joins two connector POIs."
+  - name: "Navigation"
+    description: "Indoor navigation endpoints."
+  - name: "Heatmap"
+    description: "Heatmap visualization endpoints. These are cached in MongoDB, created on first request."
+
 securityDefinitions:
   api_key:
     description: "Obtain the API key from /developers.\nAll keys must end with `ap`.\n\n\n"
     type: "apiKey"
     name: "access_token"
     in: "header"
+
 definitions:
   SpaceId:
     type: object
@@ -303,6 +329,12 @@ definitions:
       password:
         type: string
         example: password
+  LocalAccessToken:
+    type: object
+    properties:
+      access_token:
+        type: string
+        example: apLocal_123ABC_ap
   FloorAdd:
     type: object
     properties:
