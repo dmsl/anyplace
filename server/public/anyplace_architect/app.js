@@ -396,9 +396,7 @@ app.factory('AnyplaceService', function () {
 
 app.factory('Alerter', function () {
     var alerter = {};
-
     alerter.AlertCtrl = '-';
-
     return alerter;
 });
 
@@ -465,14 +463,23 @@ app.filter('propsFilter', function() {
 });
 
 
-app.factory('myInterceptor', [function () {
+app.factory('requestInterceptor', [function () {
+    // Intercepting /api/auth requests and adding in the headers the anyplace access_token
     var requestInterceptor = {
         request: function (config) {
             if (config.url !== undefined) {
-                if (config.url.startsWith(AnyplaceAPI.API) || config.url.startsWith(AnyplaceAPI.BASE_URL)) {
+                var loggedIn = (app.user != null)
+                if (config.url.startsWith(AnyplaceAPI.API+"/auth/")
+                    // TODO:NN remove this part
+                    || config.url.startsWith(AnyplaceAPI.BASE_URL)) {
+
+                    if (!loggedIn) LOG.E("ERROR: user not logged in and requested: " + config.url)
+
+                    if (loggedIn) config.headers.access_token = app.user.access_token;
+
+                    // CHECK:NN why adding this?! who needs it?
                     if (config.data) {
-                        config.headers.access_token = app.access_token;
-                        config.data.access_token = app.access_token;
+                        if (loggedIn) config.data.access_token = app.user.access_token;
                     }
                 }
             }
@@ -484,5 +491,5 @@ app.factory('myInterceptor', [function () {
 }]);
 
 app.config(['$httpProvider', function ($httpProvider) {
-    $httpProvider.interceptors.push('myInterceptor');
+    $httpProvider.interceptors.push('requestInterceptor');
 }]);

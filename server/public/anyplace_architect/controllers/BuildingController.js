@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou,Loukas Solea, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou, Loukas Solea, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -70,7 +70,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             function (resp) { // on success
                 var data = resp.data;
                 var prettyVersion=getPrettyVersion(data);
-                LOG.D1("Anyplace Version: " + prettyVersion);
+                LOG.D3("Anyplace Version: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
                 element.textContent = "v"+prettyVersion;
             },
@@ -86,13 +86,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             return;
         }
         var b = $scope.myBuildingsHashT[$scope.anyService.getBuildingId()];
-        if (!b) {
-            return;
-        }
+        if (!b) { return; }
         var m = b.marker;
-        if (!m) {
-            return;
-        }
+        if (!m) { return; }
         // edit building
         if (n === 2) {
             m.setDraggable(true);
@@ -105,7 +101,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.$on("loggedIn", function (event, mass) {
-        //_suc('Successfully logged in.');
+        LOG.D2("BROADCAST RECEIVED: loggedIn")
         $scope.fetchAllBuildings();
         $scope.fetchAllCampus();
     });
@@ -265,7 +261,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = {};
-        LOG.D2(jsonReq);
+        LOG.D2("fetchAllBuildings");
+        LOG.D4(jsonReq);
         var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
         promise.then(
             function (resp) { // on success
@@ -650,7 +647,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             buids = buids + "\"" + $scope.example9model[i].id + "\",";
         }
         buids = buids + "\"" + $scope.example9model[0].id + "\"]";
-        var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
+        var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name
+            + ",\"owner_id\":\"" + $scope.owner_id +
+            "\",\"access_token\":\"" + $scope.user.access_token + "\"}";
         //alert(document.getElementById("Greeklish-OnOff").checked);
         var promise = $scope.anyAPI.addBuildingSet(jreq);
         promise.then(
@@ -1584,63 +1583,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             },
             function (resp) {
                 console.log(resp.data.message);
-            }
-        );
-    };
-
-    $scope.signLocalAccount = function () {
-        var jsonReq = {};
-        jsonReq.username = $scope.user.username;
-        jsonReq.password = $scope.user.password;
-
-        var promise = $scope.anyAPI.signLocalAccount(jsonReq);
-        promise.then(
-            function (resp) { // on success
-
-                var data = resp.data;
-                $scope.user.username = data.user.username;
-                $scope.user.name = data.user.name;
-                $scope.user.email = data.user.email;
-                // $scope.user.owner_id = data.user.owner_id;
-                $scope.user.access_token = data.user.access_token;
-
-                $scope.gAuth.access_token = data.user.access_token;
-                app.access_token = data.user.access_token;
-                $scope.setAuthenticated(true);
-
-                // $scope.person = resp.getBasicProfile(); // BUG
-                // $scope.person.image = $scope.person.getImageUrl(); // BUG
-                // $scope.person.id = $scope.person.getId(); // BUG
-                // $scope.person.displayName = $scope.person.getName();
-                // $scope.displayName = $scope.person.displayName;
-
-                $scope.fetchAllBuildings();
-                $scope.fetchAllCampus();
-                _suc($scope, "Successfully logged in.");
-            },
-            function (resp) {
-                ShowError($scope, resp,"Something went wrong at login.", true)
-            }
-        );
-    };
-
-    $scope.registerLocalAccount = function () {
-        var jsonReq = {};
-        jsonReq.name = $scope.user.name;
-        jsonReq.email = $scope.user.email;
-        jsonReq.username = $scope.user.username;
-        jsonReq.password = $scope.user.password;
-
-        var promise = $scope.anyAPI.registerLocalAccount(jsonReq);
-        promise.then(
-            function (resp) {
-                // on success
-                var data = resp.data;
-
-                _suc($scope, "Successfully registered!");
-            },
-            function (resp) {
-                ShowError($scope, resp,"Something went wrong at registration.", true)
             }
         );
     };

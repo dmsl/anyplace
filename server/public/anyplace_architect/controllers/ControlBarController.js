@@ -1,5 +1,4 @@
 /**
- *
  The MIT License (MIT)
  Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
@@ -20,14 +19,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, $rootScope, AnyplaceService, GMapService, AnyplaceAPIService) {
+app.controller('ControlBarController',
+    ['$scope', '$rootScope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService',
+        function ($scope, $rootScope, AnyplaceService, GMapService, AnyplaceAPIService) {
 
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
     $scope.isAuthenticated = false;
-    $scope.signInType = "google";
-    $scope.gAuth = {};
-    $scope.person = undefined;
+
+    $scope.user = undefined; // local or google
 
     $scope.creds = { //TODO:NN delete eventually..
         fullName: undefined,
@@ -38,17 +38,20 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.user = { // TODO:NN make it compatible with google account...
         name: undefined,
         email: undefined,
+        id: undefined, // TODO owner_id
         username: undefined,
         password: undefined,
-        owner_id: undefined,
         access_token: undefined
     }
 
-    $scope.owner_id = undefined;
-    $scope.displayName = undefined;
-    $scope.userType = undefined;
-
     var self = this; //to be able to reference to it in a callback, you could use $scope instead
+
+    angular.element(document).ready(function () {
+        // if a local user was already logged in (in cookies) then refresh it (with the server)
+        if ($scope.user.access_token == undefined) {
+            $scope.refreshLocalLogin()
+        }
+    });
 
     $scope.setAuthenticated = function (bool) {
         $scope.isAuthenticated = bool;
@@ -60,10 +63,10 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.showFullControls = !$scope.showFullControls;
     };
 
-    // not called
-    var apiClientLoaded = function () {
-        gapi.client.plus.people.get({userId: 'me'}).execute(handleEmailResponse);
-    };
+    // // not called
+    // var apiClientLoaded = function () {
+    //     gapi.client.plus.people.get({userId: 'me'}).execute(handleEmailResponse);
+    // };
 
     $scope.copyApiKey = function () {
         LOG.W("Copying api key")
@@ -74,77 +77,197 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         _info($scope, "API key copied!");
     }
 
-    var handleEmailResponse = function (resp) {
-        console.log("handleEmailResponse ?");
-        $scope.personLookUp(resp);
-    };
+    // var handleEmailResponse = function (resp) {
+    //     console.log("handleEmailResponse ?");
+    //     $scope.personLookUp(resp, googleAuth);
+    // };
 
     $scope.showGoogleID = function () {
-        if (!$scope.person) { return; }
-        AnyplaceService.addAlert('success', 'Your Google ID is: ' + $scope.person.id);
+        if (!$scope.user.google) { return; }
+        AnyplaceService.addAlert('success', 'Google ID is: ' + $scope.user.id);
     };
 
-    $scope.showGoogleAuth = function () {
-        if (!$scope.gAuth) { return; }
-        AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
+    $scope.showGoogleAuth = function () { // INFO this is anyplace access token
+        if (!$scope.user.access_token) { return; }
+        AnyplaceService.addAlert('success', 'access_token: ' + $scope.user.access_token);
     };
 
     $scope.onSignIn = function (googleUser) {
-        if ($scope.getCookie("username") === "") {
-            $scope.setCookie("username", "true", 365);
-            location.reload();
+        // TODO:NN set cookies for local login as well (see from this one)
+        if ($scope.getCookie("reloadedAfterLogin") === "") {
+            $scope.setCookie("reloadedAfterLogin", "true", 365);
+            location.reload(); // CHECK without reload...
         }
-        //location.reload();
         $scope.setAuthenticated(true);
-        $scope.gAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
-        // passing the token directly to request and intercept later with Local access_token
-        app.access_token = $scope.gAuth.id_token;
-        $scope.personLookUp(googleUser);
+        $scope.user = {}
+        $scope.user.google = {}
+
+        var googleAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
+        LOG.D4("user.google.auth")
+        LOG.D4(googleAuth)
+
+        $scope.googleUserLookup(googleUser, googleAuth);
     };
 
-
     $scope.onSignInFailure = function () {
-        LOG.E('Sign-in state');
+        LOG.E('Signin failed');
     };
 
     window.onSignIn = $scope.onSignIn;
     window.onSignInFailure = $scope.onSignInFailure;
 
-    $scope.personLookUp = function (resp) {
-        // BUG: resp.getBasicProfile is not a function
-        // those functions are attributes of resp (googleUser)
-        $scope.person = resp.getBasicProfile(); // BUG
-        $scope.person.image = $scope.person.getImageUrl(); // BUG
-        $scope.person.id = $scope.person.getId(); // BUG
-        $scope.person.displayName = $scope.person.getName();
-        // compose user id
-        $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
-        $scope.displayName = $scope.person.displayName;
-        var promise = AnyplaceAPIService.signGoogleAccount({
-            name: $scope.person.displayName,
-            external: "google"
+    $scope.googleUserLookup = function (googleUser, googleAuth) {
+        // Get data from Google Response
+        try {
+            $scope.user.google = googleUser.getBasicProfile();
+        } catch (error) {
+            LOG.E("LOGIN error: "+ error);
+            return;
+        }
+
+        LOG.D4("googlePersonLookup")
+        LOG.D4(googleUser)
+        LOG.D4(googleAuth)
+
+        $scope.user.google.auth = googleAuth;
+        $scope.user.google.access_token = googleAuth.id_token; // google access_token
+        $scope.user.image = $scope.user.google.getImageUrl(); // BUG
+        $scope.user.google._id = $scope.user.google.getId(); // BUG
+        $scope.user.name = $scope.user.google.getName();
+        $scope.user.accountType = "google"
+
+        // google id
+        $scope.user.google.id = $scope.user.google._id + '_' + $scope.user.accountType;
+
+        var promise = AnyplaceAPIService.loginGoogle({
+            name: $scope.user.name,
+            external: "google",
+            access_token: $scope.user.google.access_token,
         });
 
-        promise.then(
-            function (resp) {
+        promise.then(function (resp) {
                 // console.log(resp)
-                $scope.userType = resp.data.type;
-                $scope.gAuth.access_token = resp.data.access_token;
-                app.access_token = resp.data.access_token;
-                $scope.user.access_token = resp.data.access_token;
-                if ($scope.person && $scope.person.id) {
+                var data =resp.data;
+                $scope.user.type = data.type;
+                // anyplace access token
+                $scope.user.access_token = data.access_token; // anyplace token
+                $scope.user.id =  data.owner_id; // anyplace id
+                app.user=$scope.user;
+
+                // $scope.user.access_token = resp.data.access_token; CLR
+                if ($scope.user && $scope.user.id) {
+                    $scope.$broadcast('loggedIn', []); // TODO for local login also
+                }
+            },
+            function (resp) {
+                LOG.E("error: googleUserLookup")
+                LOG.D(resp)
+            }
+        );
+    };
+
+    $scope.refreshLocalLogin = function () {
+        LOG.D3("refreshLocalLogin");
+
+        var jsonReq = {};
+        var cookieAccessToken = $scope.getCookie("localAccessToken");
+        if (cookieAccessToken === "") { return; }
+
+        jsonReq.access_token = cookieAccessToken;
+
+        LOG.D("Refreshing local login. token:" + cookieAccessToken);
+
+        // if ($scope.getCookie("localAccessToken") === "") {
+        var promise = AnyplaceAPIService.refreshLocalAccount(jsonReq);
+        promise.then(
+            function (resp) { // on success
+                var data = resp.data;
+                LOG.D4("refreshLocalLogin")
+                LOG.D4(resp)
+                $scope.user.username = data.user.username;
+                $scope.user.name = data.user.name;
+                $scope.user.email = data.user.email;
+                $scope.user.id =  data.user.owner_id;
+                $scope.user.accountType = "local";
+                $scope.user.type = data.user.type;
+
+                $scope.user.access_token = data.user.access_token;
+                app.user=$scope.user;
+                $scope.setAuthenticated(true);
+
+                if ($scope.user && $scope.user.id) {
                     $scope.$broadcast('loggedIn', []);
                 }
             },
             function (resp) {
-                console.log("error: personLookUp")
-                console.log(resp)
+                ShowError($scope, resp,"Login refresh failed.", true)
+                $scope.deleteCookie("localAccessToken");
+            }
+        );
+    };
+
+    $scope.loginWithLocalAccount = function () {
+        var jsonReq = {};
+        LOG.D3("loginWithLocalAccount");
+        jsonReq.username = $scope.user.username;
+        jsonReq.password = $scope.user.password;
+
+        var promise = AnyplaceAPIService.loginLocalAccount(jsonReq);
+        promise.then(
+            function (resp) { // on success
+                var data = resp.data;
+                LOG.D4(resp);
+                $scope.user.username = data.user.username;
+                $scope.user.name = data.user.name;
+                $scope.user.email = data.user.email;
+                $scope.user.id =  data.user.owner_id;
+                $scope.user.accountType = "local";
+                $scope.user.type = data.user.type;
+
+                $scope.user.access_token = data.user.access_token;
+                app.user=$scope.user;
+                $scope.setAuthenticated(true);
+
+                // setting local user cookie (to enable login refresh)
+                if ($scope.getCookie("localAccessToken") === "") {
+                    $scope.setCookie("localAccessToken", $scope.user.access_token, 30);
+                }
+
+                if ($scope.user && $scope.user.id) {
+                    $scope.$broadcast('loggedIn', []);
+                }
+            },
+            function (resp) {
+                ShowError($scope, resp,"Login failed.", true)
+                $scope.deleteCookie("localAccessToken");
+            }
+        );
+    };
+
+    $scope.registerLocalAccount = function () {
+        var jsonReq = {};
+        jsonReq.name = $scope.user.name;
+        jsonReq.email = $scope.user.email;
+        jsonReq.username = $scope.user.username;
+        jsonReq.password = $scope.user.password;
+
+        var promise = AnyplaceAPIService.registerLocalAccount(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                _suc($scope, "Successfully registered!");
+            },
+            function (resp) {
+                ShowError($scope, resp,"Something went wrong at registration.", true)
             }
         );
     };
 
     $scope.signOut = function () {
-        $scope.setCookie("username", "", 365);
+        // $scope.setCookie("reloadedAfterLogin", "", 365); // CLR:PM
+        $scope.deleteCookie("reloadedAfterLogin");
         var auth2 = gapi.auth2.getAuthInstance();
         auth2.signOut().then(function () {
             console.log('User signed out.');
@@ -152,12 +275,12 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         $scope.isAuthenticated = false;
 
         $scope.$broadcast('loggedOff', []);
-        $scope.gAuth = {};
-        $scope.owner_id = undefined;
-        $scope.person = undefined;
+        $scope.user= undefined;
 
         clearFingerprintCoverage();
         clearFingerprintHeatmap();
+
+        $scope.deleteCookie("localAccessToken");
     };
 
     function clearFingerprintCoverage() {
@@ -188,7 +311,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             $scope.radioHeatmapRSSHasPurple = false;
             $scope.radioHeatmapRSSHasRed = false;
             $cookieStore.put('RSSClicked', 'NO');
-
         }
     }
 
@@ -241,6 +363,10 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         document.cookie = cname + "=" + cvalue + "; " + expires;
     };
 
+    $scope.deleteCookie = function (cname) {
+        document.cookie = cname+"=;expires=" + new Date(0).toUTCString()
+    };
+
     $scope.tab = 1;
 
     $scope.setTab = function (num) {
@@ -251,36 +377,33 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         return $scope.tab === num;
     };
 
-    $scope.isUserAdmin = function () {
-        if ($scope.userType == null) {
+    $scope.isAdmin = function () {
+        if ($scope.user == null) {
             return false;
-        } else if ($scope.userType == undefined) {
+        } else if ($scope.user.type == undefined) {
             return false;
-        } else if ($scope.userType == "admin") {
+        } else if ($scope.user.type == "admin") {
             return true;
         }
     };
-    // CLR:NN REVIEW:PM
-    // $scope.tab = 1;
-    //
-    // $scope.setTab = function (num) {
-    //     $scope.tab = num;
-    // };
-    //
-    // $scope.isTabSet = function (num) {
-    //     return $scope.tab === num;
-    // };
+
+    $scope.isAdminOrModerator = function () {
+        if ($scope.user == null) {
+            return false;
+        } else if ($scope.user.type == undefined) {
+            return false;
+        } else if ($scope.user.type == "admin" || $scope.user.type == "moderator") {
+            return true;
+        }
+    };
 
     var _err = function (msg) {
         $scope.anyService.addAlert('danger', msg);
     };
 
     var myLocMarker = undefined;
-
     $scope.userPosition = undefined;
-
     var pannedToUserPosOnce = false;
-
     $scope.isUserLocVisible = false;
 
     $scope.getIsUserLocVisible = function () {
@@ -326,11 +449,8 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.hideUserLocation = function () {
-        if (myLocMarker)
-            myLocMarker.setMap(null);
-        //if (accuracyRadius)
-        //    accuracyRadius.setMap(null);
-
+        if (myLocMarker)  myLocMarker.setMap(null);
+        //if (accuracyRadius) accuracyRadius.setMap(null);
         $scope.isUserLocVisible = false;
     };
 
@@ -354,7 +474,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
                     //var radius = position.coords.accuracy;
 
                     $scope.userPosition = posLatlng;
-
                     $scope.displayMyLocMarker(posLatlng);
 
                     var infowindow = new google.maps.InfoWindow({
@@ -408,9 +527,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
             _err($scope, "No building is selected.");
             return;
         }
-
         $scope.gmapService.gmap.panTo(position);
         $scope.gmapService.gmap.setZoom(20);
     }
-
 }]);

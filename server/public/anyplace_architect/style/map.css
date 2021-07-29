@@ -722,9 +722,9 @@ margin-left: -0.15em;
 
 .btn-about {
     margin: 0 !important;
+    margin-bottom: 10px !important;
     width: 40%;
 }
-
 
 /* Prevent text overflow in Bootstrap */
 .ui-select-bootstrap > .ui-select-match > .ui-select-toggle > .ui-select-match-text:not(.ng-hide),

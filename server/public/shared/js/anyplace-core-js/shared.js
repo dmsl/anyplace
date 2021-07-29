@@ -270,7 +270,7 @@ function getPrettyVersion(version) {
 }
 
 var LOG = {};
-LOG.level = 3;
+LOG.level = 2;
 LOG.DBG1 = function() { return 1 <= LOG.level; }
 LOG.DBG2 = function() { return 2 <= LOG.level; }
 LOG.DBG3 = function() { return 3 <= LOG.level; }
@@ -278,6 +278,7 @@ LOG.DBG4 = function() { return 4 <= LOG.level; }
 
 LOG.W = function(msg) { console.log("WARN: " + msg);}
 LOG.E = function(msg) { console.log("ERR: " + msg);}
+LOG.D = function(msg) { console.log(msg);}
 LOG.F = function(msg) { alert(msg); window.stop(); }
 LOG.D1 = function(msg) { if (LOG.DBG1()) console.log(msg);}
 LOG.D2 = function(msg) { if (LOG.DBG2()) console.log(msg);}

@@ -68,7 +68,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             function (resp) { // on success
                 var data = resp.data;
                 var prettyVersion=getPrettyVersion(data);
-                LOG.D1("Anyplace Version: " + prettyVersion);
+                LOG.D3("Anyplace Version: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
                 element.textContent = "v"+prettyVersion;
             },

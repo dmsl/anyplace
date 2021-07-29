@@ -146,8 +146,11 @@ AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.API + AnyplaceAPI.Map
 AnyplaceAPI.Mapping.LOGIN_GOOGLE = "/user/login/google";
 AnyplaceAPI.Mapping.LOGIN_GOOGLE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_GOOGLE;
 
-AnyplaceAPI.Mapping.SIGN_LOCAL = "/user/login";
-AnyplaceAPI.Mapping.SIGN_LOCAL_URL = AnyplaceAPI.API + "/user/login";
+AnyplaceAPI.Mapping.LOGIN_LOCAL = "/user/login";
+AnyplaceAPI.Mapping.LOGIN_LOCAL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_LOCAL;
+
+AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL = "/user/refresh";
+AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL;
 
 AnyplaceAPI.Mapping.REGISTER_LOCAL = "/user/register";
 AnyplaceAPI.Mapping.REGISTER_LOCAL_URL = AnyplaceAPI.API + "/user/register";
@@ -788,10 +791,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    // TODO: specialize google and local
-    apiService.signGoogleAccount = function (json_req) {
-        LOG.D1("signGoogleAccount")
-        LOG.D1(json_req)
+    apiService.loginGoogle = function (json_req) {
+        LOG.D4("loginGoogle")
+        LOG.D4(json_req)
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.LOGIN_GOOGLE_URL,
@@ -803,10 +805,22 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    apiService.signLocalAccount = function (json_req) {
+    apiService.refreshLocalAccount = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.SIGN_LOCAL_URL,
+            url: AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.loginLocalAccount = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.LOGIN_LOCAL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

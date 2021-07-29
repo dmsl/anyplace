@@ -83,11 +83,11 @@
             </button>
             <span id="login-details" ng-show="isAuthenticated">
                 <a class="btn-user" ng-click="setTab(5)">
-                <span class="subnote" ng-class="{textUserAdmin:isUserAdmin()}">
-                    {{person.displayName }}
+                <span class="subnote" ng-class="{userModerator:isAdminOrModerator()}">
+                    {{ user.name }}
                 </span>
                 <button class="btn profile-photo-wrapper">
-                    <span class="profile-photo" ng-style="{'background-image': 'url('+person.image+')'}"></span>
+                    <span class="profile-photo" ng-style="{'background-image': 'url('+user.image+')'}"></span>
                 </button>
                 </a>
             </span>
@@ -147,13 +147,13 @@
                             <label for="uname"><b>Username</b></label>
                             <input ng-model="user.username" type="text" placeholder="Enter Username" name="uname" maxlength="32" required>
 
-                            <label for="psw"><b>Password</b></label>
+                            <label for="sPsw"><b>Password</b></label>
                             <input ng-model="user.password" type="password" placeholder="Enter Password" id="sPsw" maxlength="32" required>
                             <label>
                                 <input type="checkbox" onclick="showPassword('sPsw')"> Show password
                             </label>
 
-                            <button type="submit"; class="lgn-btn" ng-click="signLocalAccount()">Login</button>
+                            <button type="submit"; class="lgn-btn" ng-click="loginWithLocalAccount()">Login</button>
                             <!--                            <label>-->
                             <!--                                <input type="checkbox" checked="checked" name="remember"> Remember me-->
                             <!--                            </label>-->
@@ -1242,9 +1242,26 @@
                 <div class="container">
                     <div class="row">
                         <span class="primary subnote font-weight-bold">User: </span>
-
-                        <span class="subnote user-name" ng-class="{textUserAdmin:isUserAdmin()}">
-                            {{person.displayName}}
+                        <span class="subnote user-name">
+                            {{user.name}}
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class="primary subnote font-weight-bold">Account: </span>
+                        <span class="subnote user-name">
+                            {{user.accountType}}
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class="primary subnote font-weight-bold">Type: </span>
+                        <span class="subnote user-name" ng-class="{userModerator:isAdminOrModerator()}">
+                            {{user.type}}
+                        </span>
+                    </div>
+                    <div class="row">
+                        <span class="primary subnote font-weight-bold">UserID: </span>
+                        <span class="subnote user-name">
+                            {{user.id}}
                         </span>
                     </div>
                     <br><br>
@@ -1258,7 +1275,7 @@
                     <div class="row">
                         <div class="center-div div-api-key">
                             <input id="auth-api-key"
-                                   value="{{gAuth.access_token}}"
+                                   value="{{user.access_token}}"
                                    class="form-control api-key"
                                    ng-click="copyApiKey(this)" readonly/>
                         </div>
@@ -1270,7 +1287,7 @@
                                 More <i class="fa fa-question-circle"></i>
                             </button>
                         </a>
-                    </div><br>
+                    </div>
                     <div class="center-div">
                         <button ng-click="signOut();" class="btn btn-primary btn-logout">Logout</button>
                     </div>
@@ -1555,8 +1572,6 @@
 
     </div>
 </div>
-
-
 </body>
 
 <footer>
@@ -1566,7 +1581,6 @@
 </footer>
 <script>
     $(function(){
-
         var hash = window.location.hash;
         var activeTab = localStorage.getItem('activeTab');
 
