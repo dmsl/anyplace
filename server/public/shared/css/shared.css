@@ -51,3 +51,23 @@
     font-weight: bolder;
     color: #A10000FF;
 }
+
+/* FIX for updated jquery
+   Issue: ng-dropdown-multiselect was showing twice the dropdown arrow (caret)
+ */
+.dropdown-multiselect .caret{
+    display: none;
+}
+
+/*INFO this hides the new building window..*/
+/*!* Hide 'View on Google Maps' links*!*/
+/*gm-style-iw-t*/
+/*gm-style-iw-d*/
+/*.gm-style-iw-t {*/
+/*    display: none !important;*/
+/*}*/
+/*.gm-style .gm-style-iw, .gm-style-iw-t::after, .poi-info-window {*/
+.poi-info-window {
+    display: none !important;
+}
+

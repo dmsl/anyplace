@@ -71,8 +71,8 @@ AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = AnyplaceAPI.API + Anyplace
 
 AnyplaceAPI.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
 AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIOMAP_DELETE;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES = "/position/radio/acces";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES;
+// AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES = "/position/radio/acces";
+// AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES;
 AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_POI;
 
@@ -143,8 +143,8 @@ AnyplaceAPI.Mapping.CONNECTION_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mappin
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;
 
-AnyplaceAPI.Mapping.SIGN = "/user/google/sign";
-AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.SIGN;
+AnyplaceAPI.Mapping.LOGIN_GOOGLE = "/user/login/google";
+AnyplaceAPI.Mapping.LOGIN_GOOGLE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_GOOGLE;
 
 AnyplaceAPI.Mapping.SIGN_LOCAL = "/user/login";
 AnyplaceAPI.Mapping.SIGN_LOCAL_URL = AnyplaceAPI.API + "/user/login";
@@ -157,9 +157,7 @@ AnyplaceAPI.Navigation.POIS_ROUTE = AnyplaceAPI.API + AnyplaceAPI.Navigation.POI
 
 AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL = "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8";
 
-if (app == undefined) {
-    LOG.F("api.js must be loaded after app.js in GruntFile)")
-}
+if (app == undefined) { LOG.F("api.js must be loaded after app.js in GruntFile)") }
 
 app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
 
@@ -182,7 +180,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     apiService.getRadioHeatmapRSS_1 = function (json_req) {
         LOG.D2("getRadioHeatmapRSS_1");
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1,
@@ -196,7 +193,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     apiService.getRadioHeatmapRSS_2 = function (json_req) {
         LOG.D2("getRadioHeatmapRSS_2");
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2,
@@ -210,7 +206,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     apiService.getRadioHeatmapRSS_3 = function (json_req) {
         LOG.D2("getRadioHeatmapRSS_3");
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3,
@@ -237,7 +232,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.getRadioHeatmapRSSByTime_1 = function (json_req) {
-        //alert( "make the request: " + json_req );
         LOG.D2("getRadioHeatmapRSSByTime_1");
         return $http({
             method: "POST",
@@ -251,7 +245,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_2 = function (json_req) {
-        //alert( "make the request: " + json_req );
         LOG.D2("getRadioHeatmapRSSByTime_2");
         return $http({
             method: "POST",
@@ -265,7 +258,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_3 = function (json_req) {
-        //alert( "make the request: " + json_req );
         LOG.D2("getRadioHeatmapRSSByTime_3");
         return $http({
             method: "POST",
@@ -279,7 +271,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_Tiles = function (json_req) {
-        //alert( "make the request: " + json_req );
         LOG.D2("getRadioHeatmapRSSByTime_Tiles");
         return $http({
             method: "POST",
@@ -294,7 +285,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.getAPs = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.APs_URL,
@@ -308,7 +298,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.getAPsIds = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.GET_APS_IDS_URL,
@@ -322,7 +311,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.deleteFingerprints = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL,
@@ -336,7 +324,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.deleteFingerprintsByTime = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL,
@@ -349,7 +336,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getFingerprintsTime = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL,
@@ -363,16 +349,17 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getHeatmapAcces = function (json_req) {
-        //alert( "make the request: " + json_req );
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
+        return null;
+        // DEPRECATED
+        // return $http({
+        //     method: "POST",
+        //     url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL,
+        //     data: json_req
+        // }).success(function (data, status) {
+        //     return data;
+        // }).error(function (data, status) {
+        //     return data;
+        // });
 
     };
 
@@ -389,7 +376,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapPoi = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI,
@@ -429,7 +415,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
      * BUILDING FUNCTIONS
      */
     apiService.addBuilding = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_ADD_URL,
@@ -442,7 +427,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.addBuildingSet = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
@@ -455,7 +439,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.updateBuilding = function (jsonReq) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_UPDATE_URL,
@@ -469,7 +452,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.updateCampus = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
@@ -483,7 +465,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.deleteBuilding = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_DELETE_URL,
@@ -498,7 +479,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     // lsolea01
     apiService.deleteRadiomaps = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL,
@@ -512,7 +492,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.deleteCampus = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
@@ -583,7 +562,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
      */
 
     apiService.addFloor = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_ADD_URL,
@@ -596,7 +574,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.updateFloor = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_UPDATE_URL,
@@ -609,7 +586,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.deleteFloor = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_DELETE_URL,
@@ -623,7 +599,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.allBuildingFloors = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
@@ -638,7 +613,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.uploadFloorPlan = function (json_req, file) {
-        //alert("make the request: " + json_req);
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL,
@@ -658,7 +632,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.uploadFloorPlan64 = function (json_req, file) {
-        //alert( "make the request: " + json_req );
         var fl_data = file.replace('data:image/png;base64,', '');
         var uarray = LPUtils.Base64Binary.decode(fl_data);
         var blob = new Blob([uarray]);
@@ -683,7 +656,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.downloadFloorPlan = function (json_req, buid, floor_number) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
@@ -696,7 +668,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.downloadFloorPlanAll = function (json_req, buid, floor_number) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
@@ -713,7 +684,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
      * POIS FUNCTIONS
      */
     apiService.addPois = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ADD_URL,
@@ -726,7 +696,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.updatePois = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_UPDATE_URL,
@@ -739,7 +708,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.deletePois = function (json_req) {
-        //alert( "make the request: " + json_req );
         //var deferred = $q.defer(); // thiz can be used instead of returning the $http
 
         return $http({
@@ -773,7 +741,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
      * CONNECTION FUNCTIONS
      */
     apiService.addConnection = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_ADD_URL,
@@ -786,7 +753,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.updateConnection = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL,
@@ -799,7 +765,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.deleteConnection = function (json_req) {
-        //alert( "make the request: " + json_req );
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_DELETE_URL,
@@ -825,9 +790,11 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     // TODO: specialize google and local
     apiService.signGoogleAccount = function (json_req) {
+        LOG.D1("signGoogleAccount")
+        LOG.D1(json_req)
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.SIGN_URL,
+            url: AnyplaceAPI.Mapping.LOGIN_GOOGLE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

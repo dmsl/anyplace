@@ -53,6 +53,11 @@ $('document').ready(function(){
     $('#myModal_Welcome').on('shown.bs.modal', function () {
         $('#myModal_Welcome').trigger('focus')
     });
+
+    // Activate tooltips
+    if ($("[rel=tooltip]").length) {
+        $("[rel=tooltip]").tooltip();
+    }
 });
 
 function __addAlert(scope, level, msg) {
@@ -84,7 +89,7 @@ var _warn_autohide = function (scope, msg) {
 };
 
 var _info = function (scope, msg) {
-  __addAlert('info', msg);
+  __addAlert(scope, 'info', msg);
   window.setTimeout(function() {
     $(".alert-info").fadeTo(500, 0).slideUp(500, function(){
       $(this).remove();
@@ -144,7 +149,6 @@ function HandleGeolocationError(scope, errorCode) {
 }
 
 function selectAllInputText(element) {
-  //console.log("Runned!");
   element.setSelectionRange(0, element.value.length)
 }
 
@@ -272,8 +276,11 @@ LOG.DBG2 = function() { return 2 <= LOG.level; }
 LOG.DBG3 = function() { return 3 <= LOG.level; }
 LOG.DBG4 = function() { return 4 <= LOG.level; }
 
+LOG.W = function(msg) { console.log("WARN: " + msg);}
+LOG.E = function(msg) { console.log("ERR: " + msg);}
 LOG.F = function(msg) { alert(msg); window.stop(); }
 LOG.D1 = function(msg) { if (LOG.DBG1()) console.log(msg);}
 LOG.D2 = function(msg) { if (LOG.DBG2()) console.log(msg);}
 LOG.D3 = function(msg) { if (LOG.DBG3()) console.log(msg);}
 LOG.D4 = function(msg) { if (LOG.DBG4()) console.log(msg);}
+

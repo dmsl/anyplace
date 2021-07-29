@@ -1,7 +1,8 @@
 var MIN_ZOOM_FOR_HEATMAPS = 19;
 var MAX_ZOOM_FOR_HEATMAPS = 21;
 var _MAX_ZOOM_LEVEL = 22;
-var DEFAULT_MAP_TILES = "OSM";
+// var DEFAULT_MAP_TILES = "OSM";
+var DEFAULT_MAP_TILES = "CartoLight";
 
 // MESSAGES
 //// Error messages
@@ -16,4 +17,4 @@ ERR_GEOLOC_UNKNOWN="There was an error while retrieving your Geolocation. Please
 ERR_GEOLOC_NOT_SUPPORTED="The Geolocation feature is not supported by this browser.";
 
 WARN_NO_FINGERPRINTS="This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.";
-WARN_ACCES_ERROR="Something went wrong while building ACCES map.";
+WARN_ACCES_REMOVED="ACCES map removed.";
