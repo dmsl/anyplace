@@ -36,7 +36,7 @@
 
 app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
-    var _POI_CONNECTOR_IMG = 'build/images/edge-connector-icon.png';
+    var _POI_CONNECTOR_IMG = 'build/images/edge-connector.png';
     var _POI_EXISTING_IMG = 'build/images/any-poi-icon-blue.png';
     var _POI_NEW_IMG = 'build/images/poi-icon.png';
 
@@ -874,7 +874,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 + '</div>'
                 + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
                 + '<div>Share URL:</div>'
-                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)"/>'
+                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)" readonly/>'
                 + /**
                  +'<ul class="rrssb-buttons">'
                  +'<li class="rrssb-facebook">'
@@ -919,7 +919,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                  +'</ul>'
                  */
                 '<div>Embed:</div>'
-                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)"/>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)" readonly/>'
                 + '</div>'
                 + '</div>';
 

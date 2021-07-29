@@ -1566,18 +1566,19 @@
 </footer>
 <script>
     $(function(){
-        $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
-            localStorage.setItem('activeTab', $(e.target).attr('href'));
-        })
 
         var hash = window.location.hash;
         var activeTab = localStorage.getItem('activeTab');
 
         if(hash) {
-            $('#ctrl-bar-tablist a[href="' + hash + '"]').tab('show');
+            tab = $('#ctrl-bar-tablist a[href="' + hash + '"]');
+            localStorage.setItem('activeTab', hash);
+            tab.click();
+            // tab.tab('show');
         } else if (activeTab){
-            $('#ctrl-bar-tablist a[href="' + activeTab + '"]').tab('show');
+            tab = $('#ctrl-bar-tablist a[href="' + activeTab + '"]')
         }
+
     });
 </script>
 
