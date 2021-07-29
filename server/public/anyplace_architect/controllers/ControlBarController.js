@@ -35,10 +35,10 @@ app.controller('ControlBarController',
         password: undefined
     };
 
-    $scope.user = { // TODO:NN make it compatible with google account...
+    $scope.user = {
         name: undefined,
         email: undefined,
-        id: undefined, // TODO owner_id
+        id: undefined,
         username: undefined,
         password: undefined,
         access_token: undefined
@@ -96,7 +96,7 @@ app.controller('ControlBarController',
         // TODO:NN set cookies for local login as well (see from this one)
         if ($scope.getCookie("reloadedAfterLogin") === "") {
             $scope.setCookie("reloadedAfterLogin", "true", 365);
-            location.reload(); // CHECK without reload...
+            location.reload();
         }
         $scope.setAuthenticated(true);
         $scope.user = {}
@@ -155,9 +155,7 @@ app.controller('ControlBarController',
                 app.user=$scope.user;
 
                 // $scope.user.access_token = resp.data.access_token; CLR
-                if ($scope.user && $scope.user.id) {
-                    $scope.$broadcast('loggedIn', []); // TODO for local login also
-                }
+                if ($scope.user && $scope.user.id) { $scope.$broadcast('loggedIn', []); }
             },
             function (resp) {
                 LOG.E("error: googleUserLookup")
@@ -174,8 +172,7 @@ app.controller('ControlBarController',
         if (cookieAccessToken === "") { return; }
 
         jsonReq.access_token = cookieAccessToken;
-
-        LOG.D("Refreshing local login. token:" + cookieAccessToken);
+        LOG.D2("Refreshing local login. token:" + cookieAccessToken);
 
         // if ($scope.getCookie("localAccessToken") === "") {
         var promise = AnyplaceAPIService.refreshLocalAccount(jsonReq);
@@ -233,9 +230,7 @@ app.controller('ControlBarController',
                     $scope.setCookie("localAccessToken", $scope.user.access_token, 30);
                 }
 
-                if ($scope.user && $scope.user.id) {
-                    $scope.$broadcast('loggedIn', []);
-                }
+                if ($scope.user && $scope.user.id) { $scope.$broadcast('loggedIn', []); }
             },
             function (resp) {
                 ShowError($scope, resp,"Login failed.", true)
@@ -256,7 +251,6 @@ app.controller('ControlBarController',
             function (resp) {
                 // on success
                 var data = resp.data;
-
                 _suc($scope, "Successfully registered!");
             },
             function (resp) {
