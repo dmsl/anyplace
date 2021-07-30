@@ -564,13 +564,16 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             _err($scope, "No buildings selected.");
             return;
         }
-        var buids = {};
+        var buids = [];
         for (var i = sz - 1; i > 0; i--) {
-            buids.add($scope.example9modeledit[i].id);
+            buids[i] = ($scope.example9modeledit[i].id);
         }
-        buids.add($scope.example9modeledit[0].id);
+        buids[0] = ($scope.example9modeledit[0].id);
+        LOG.D2(buids);
         reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
+        LOG.D2("1");
         reqObj.buids = buids;
+        LOG.D2("2");
         var promise = $scope.anyAPI.updateCampus(reqObj);
         promise.then(
             function (resp) {
