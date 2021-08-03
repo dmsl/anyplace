@@ -129,8 +129,30 @@ POST        /api/user/refresh                                 controllers.UserCo
 ###
 POST        /api/user/login/google                                               controllers.UserController.loginGoogle()
 
-
-
+###
+#      tags:
+#        - User
+#      summary: Retrieves all user accounts
+#      description: "Only for the admin/moderators."
+#      operationId: usersAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/admin/user/all                                   controllers.UserAdminController.fetchAllAccounts()
 
 ################
 # Spaces
@@ -387,19 +409,27 @@ POST        /api/auth/mapping/floor/add                     controllers.MappingC
 ###
 POST        /api/auth/mapping/floor/delete                  controllers.MappingController.floorDelete()
 
+# TODO:NN put docs on below as well.
+# SPACE:FLOOR:FLOORPLAN
+### NoDocs ###
+POST        /api/floorplans64/:buid/:floor_number                               controllers.MappingController.serveFloorPlanBase64( buid: String, floor_number: String )
+### NoDocs ###
+POST        /api/floorplans64/all/:buid/:floor_number                            controllers.MappingController.serveFloorPlanBase64all( buid: String, floor_number: String )
+
+
 # CHECK:PM ASK:DZ is setting floorplan description obsolete?
 
-### NoDocs ###
-POST        /api/mapping/floor/uploadWithZoom               controllers.MappingController.floorPlanUploadWithZoom()
+# floor/floorplan/upload
+POST        /api/mapping/floor/floorplan/upload              controllers.MappingController.floorPlanUploadWithZoom()
 
 # Campus
 
 ###
 #      tags:
 #        - Space:Campus
-#      summary: Get all Campuses
-#      description: ""
-#      operationId: campusAll
+#      summary: Get the Space set of a campus
+#      description: "Returns a group of Spaces that belong to a Campus"
+#      operationId: campusGet
 #      consumes:
 #        - application/json
 #      produces:
@@ -410,12 +440,12 @@ POST        /api/mapping/floor/uploadWithZoom               controllers.MappingC
 #          description: Campus description
 #          required: true
 #          schema:
-#            $ref: '#/definitions/CampusAll'
+#            $ref: '#/definitions/CampusGet'
 #      responses:
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/campus/all_cucode                  controllers.MappingController.buildingSetAll()
+POST        /api/mapping/campus/get                         controllers.MappingController.buildingSetAll()
 
 ###
 #      tags:
@@ -540,7 +570,7 @@ POST        /api/auth/mapping/campus/user                   controllers.MappingC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/all_floor                     controllers.MappingController.poisByFloor()
+POST        /api/mapping/pois/floor/all                     controllers.MappingController.poisByFloor()
 
 ###
 #      tags:
@@ -563,7 +593,7 @@ POST        /api/mapping/pois/all_floor                     controllers.MappingC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/all_building                  controllers.MappingController.poisByBuid()
+POST        /api/mapping/pois/space/all                  controllers.MappingController.poisByBuid()
 
 # RENAMED: all_pois -> search
 
@@ -788,7 +818,7 @@ POST        /api/auth/mapping/connection/delete             controllers.MappingC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/navigation/route_xy                        controllers.NavigationController.getNavigationRouteXY()
+POST        /api/navigation/route/coordinates               controllers.NavigationController.getNavigationRouteXY()
 
 ###
 #      tags:
@@ -865,13 +895,262 @@ POST        /api/navigation/pois/id                         controllers.Navigati
 ### POSITION
 ################
 
-POST        /api/position/radio/time                        controllers.MappingController.FingerprintsByTime()
+# used by android
 
-POST        /api/position/radio/delete/time                 controllers.MappingController.FingerPrintsTimestampDelete()
+###
+#      tags:
+#        - Position
+#      summary: Predict floor
+#      description: "According near-by Wi-Fi measurements tries to predict the floor"
+#      operationId: predictFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/PredictFloor'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/position/predictFloorAlgo1                 controllers.PositioningController.predictFloorAlgo1()
+
 
 ################
 ### ACCESS POINTS
 ################
+
+
+################
+### RADIOMAPS
+################
+
+# this endpoint has bug. fails to identify access points location
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get access points location
+#      description: ""
+#      operationId: getAPs
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/APs'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/wifi/access_points/floor                   controllers.MappingController.getAPsByBuildingFloor()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get access point's manufacturer
+#      description: ""
+#      operationId: APsId
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/APsId'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/wifi/access_points/ids                     controllers.MappingController.getAPsIds()
+
+
+# TODO TEST:NN TEST:PM test on mobile app
+
+POST        /api/radiomap/upload                            controllers.PositioningController.radioUpload()
+
+# TODO TEST:NN TEST:PM test on mobile app
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps of floor
+#      description: ""
+#      operationId: radiomapFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapFloor'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/floor                             controllers.PositioningController.radioDownloadFloor()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps of all floors
+#      description: ""
+#      operationId: radiomapFloorAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapFloorAll'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/floor/all                         controllers.PositioningController.radioDownloadByBuildingFloorall()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps in a bounding box
+#      description: ""
+#      operationId: radiomapFloorBbox
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapBbox'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/floor/bbox                        controllers.PositioningController.radioDownloadFloorBbox()
+
+# /api/radiomap/floor
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps of a space
+#      description: ""
+#      operationId: radiomapSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapSpace'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/space                             controllers.PositioningController.radioDownloadByBuildingFloor()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Generate time-based heatmaps for all zoom levels
+#      description: ""
+#      operationId: radiomapTime
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapSpace'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/time                              controllers.MappingController.FingerprintsByTime()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Delete radiomaps in a bounding box in a time-span
+#      description: ""
+#      operationId: radiomapDeleteTime
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapDeleteTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/radiomap/delete/time                       controllers.MappingController.FingerPrintsTimestampDelete()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Delete radiomaps in a bounding box
+#      description: ""
+#      operationId: radiomapDelete
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/radiomap/delete                            controllers.MappingController.FingerPrintsDelete()
 
 ################
 ### HEATMAP DATA
@@ -1067,8 +1346,3 @@ POST        /api/heatmap/floor/average/timestamp/tiles      controllers.MappingC
 
 
 # USED BY: Web apps
-# TODO:NN put docs on below as well.
-### NoDocs ###
-POST        /api/floorplans64/:buid/:floor_number                               controllers.MappingController.serveFloorPlanBase64( buid: String, floor_number: String )
-### NoDocs ###
-POST        /api/floorplans64all/:buid/:floor_number                            controllers.MappingController.serveFloorPlanBase64all( buid: String, floor_number: String )

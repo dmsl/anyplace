@@ -36,40 +36,31 @@
  */
 package controllers
 
-import java.io._
-import java.io.IOException
-import utils.{JsonUtils, LOG, RESPONSE}
-
+import java.io.{IOException, _}
 import java.text.{NumberFormat, ParseException}
 import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.util
 import java.util.Locale
-import datasources.ProxyDataSource
-import org.mongodb.scala.model.Filters.equal
-import play.api.{Configuration, Environment}
-import modules.radiomapserver.RadioMap.RadioMap
-import utils.Utils.appendGoogleIdIfNeeded
 
-import scala.concurrent.Future
-import datasources.{DatasourceException, MongodbDatasource, SCHEMA}
-import models.ExternalType.ExternalType
-import models._
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
+import javax.inject.{Inject, Singleton}
 import json.VALIDATE
 import json.VALIDATE.String
 import location.Algorithms
+import models._
+import modules.radiomapserver.RadioMap.RadioMap
+import modules.radiomapserver.RadioMapMean
 import org.mongodb.scala.MongoDatabase
+import org.mongodb.scala.model.Filters.equal
 import play.api.libs.json.Reads._
 import play.api.libs.json.{JsObject, JsValue, Json, _}
 import play.api.mvc._
-import modules.radiomapserver.RadioMapMean
-import models.oauth.OAuth2Request
-import utils.JsonUtils.isNullOrEmpty
-import utils._
-
-import javax.inject.{Inject, Singleton}
+import play.api.{Configuration, Environment}
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
+import utils.Utils.appendGoogleIdIfNeeded
+import utils.{JsonUtils, LOG, RESPONSE, _}
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 import scala.util.control.Breaks
@@ -2156,8 +2147,8 @@ class MappingController @Inject()(cc: ControllerComponents,
 
   import java.io.IOException
 
-  import datasources.{DatasourceException}
-  import utils.{RESPONSE, JsonUtils, LOG}
+  import datasources.DatasourceException
+  import utils.{JsonUtils, LOG, RESPONSE}
 
   /**
    * Retrieve all the pois of a building/floor combination.
@@ -2474,6 +2465,11 @@ class MappingController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  /**
+   * After a floor was added, this endpoints:
+   *    1. uploads a floorplan (filesystem)
+   *    2. updates the floor with the coordinates of the floor plan (db)
+   */
   def floorPlanUploadWithZoom() = Action {
     implicit request =>
 

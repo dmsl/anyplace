@@ -360,7 +360,7 @@ definitions:
       floor_number:
         type: string
         example: "-1"
-  CampusAll:
+  CampusGet:
     type: object
     properties:
       cuid:
@@ -508,3 +508,158 @@ definitions:
       timestampY:
         type: string
         example: 1579620960000
+  PredictFloor:
+    type: object
+    properties:
+      first:
+        type: object
+        example: { "MAC": "04:a1:51:a3:13:25", "rss": "-76" }
+      wifi:
+        type: array
+        items:
+          type: string
+        example: [
+            "{\"MAC\": \"24:b6:57:ae:40:30\", \"rss\": \"-85\"}",
+            "{\"MAC\": \"04:a1:51:a3:13:25\", \"rss\": \"-76\"}",
+            "{\"MAC\": \"24:b6:57:7b:e9:60\", \"rss\": \"-87\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2c:70\", \"rss\": \"-92\"}",
+            "{\"MAC\": \"d4:d7:48:b0:8d:20\", \"rss\": \"-93\"}",
+            "{\"MAC\": \"00:0b:fd:4a:71:d6\", \"rss\": \"-87\"}",
+            "{\"MAC\": \"00:0b:fd:4a:71:ce\", \"rss\": \"-88\"}",
+            "{\"MAC\": \"00:0b:fd:4a:71:ab\", \"rss\": \"-89\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2e:70\", \"rss\": \"-89\"}",
+            "{\"MAC\": \"24:b6:57:b4:f6:20\", \"rss\": \"-96\"}",
+            "{\"MAC\": \"00:0b:fd:f3:ab:0b\", \"rss\": \"-90\"}",
+            "{\"MAC\": \"24:b6:57:7b:e8:a0\", \"rss\": \"-93\"}",
+            "{\"MAC\": \"d4:d7:48:b0:97:10\", \"rss\": \"-94\"}",
+            "{\"MAC\": \"00:0e:84:4b:0b:e8\", \"rss\": \"-95\"}",
+            "{\"MAC\": \"d4:d7:48:b0:95:f0\", \"rss\": \"-92\"}",
+            "{\"MAC\": \"10:40:f3:9f:06:cc\", \"rss\": \"-85\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2b:00\", \"rss\": \"-90\"}",
+            "{\"MAC\": \"00:0e:84:4b:0c:0a\", \"rss\": \"-98\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2f:a0\", \"rss\": \"-96\"}"
+        ]
+      dlat:
+        type: number
+        example: 35.14451561520357
+      dlong:
+        type: number
+        example: 33.4112872928381
+  APs:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+  APsId:
+    type: object
+    properties:
+      ids:
+        type: array
+        items:
+          type: string
+        example: [
+            "00:11:74:b3:a6:e1",
+            "00:11:74:b3:a6:c1",
+            "8c:dc:02:d0:d3:0c",
+            "30:e1:71:1e:d0:43"
+        ]
+  RadiomapUpload:
+    type: object
+  RadiomapFloor:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: "35.14447778163889"
+      coordinates_lon:
+        type: string
+        example: "33.41125577688217"
+      floor_number:
+        type: string
+        example: "1"
+  RadiomapFloorAll:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: username_1373876832005
+      floor:
+        type: string
+        example: 0
+  RadiomapBbox:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: "35.14447778163889"
+      coordinates_lon:
+        type: string
+        example: "33.41125577688217"
+      floor_number:
+        type: string
+        example: "0"
+      range:
+        type: string
+        example: "222"
+  RadiomapSpace:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: username_1373876832005
+      floor:
+        type: string
+        example: 1
+  RadiomapDelete:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: nnn
+      floor:
+        type: string
+        example: 0
+      lat1:
+        type: string
+        example: 34.9203791974277
+      lon1:
+        type: string
+        example: 3.013322331003295
+      lat2:
+        type: string
+        example: 34.92033411232339
+      lon2:
+        type: string
+        example: 33.01325326412116
+  RadiomapDeleteTime:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: nnn
+      floor:
+        type: string
+        example: 0
+      lat1:
+        type: string
+        example: 34.9203791974277
+      lon1:
+        type: string
+        example: 3.013322331003295
+      lat2:
+        type: string
+        example: 34.92033411232339
+      lon2:
+        type: string
+        example: 33.01325326412116
+      timestampX:
+        type: string
+        example: 00
+      timestampY:
+        type: string
+        example: 1617117985695
+

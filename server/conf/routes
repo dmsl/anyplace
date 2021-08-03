@@ -10,35 +10,13 @@
 ### POSITION
 ################
 # TODO algo1
-# used by android
-POST        /anyplace/position/predictFloorAlgo1                                    controllers.PositioningController.predictFloorAlgo1()
+
 # TODO:NN estimate_position (implement this as well..)
 POST        /anyplace/position/estimate_position                                    controllers.MappingController.findPosition()
 
 ################
 ### RADIOMAPS
 ################
-# /radiomap/delete
-# /radiomap/upload
-POST        /anyplace/position/radio/delete                                         controllers.MappingController.FingerPrintsDelete()
-POST        /anyplace/position/radio_by_building_floor_all                          controllers.PositioningController.radioDownloadByBuildingFloorall()
-POST        /anyplace/position/radio_by_floor_bbox                                  controllers.PositioningController.radioDownloadFloorBbox()
-# TODO TEST:NN TEST:PM test on mobile app
-POST        /anyplace/position/radio_upload                                         controllers.PositioningController.radioUpload()
-# TODO TEST:NN TEST:PM test on mobile app
-POST        /anyplace/position/radio_download_floor                                 controllers.PositioningController.radioDownloadFloor()
-POST        /anyplace/position/radio_by_building_floor                              controllers.PositioningController.radioDownloadByBuildingFloor()
-
-################
-### ACCESS POINTS
-################
-# bug mdb: fails to identify access points location
-# TODO:NN fix bug NEXT MEETING
-# where is it called (we want to rename)
-# TODO:NN access_points/APs..
-# this endpoint
-POST        /anyplace/position/radio/APs_building_floor                             controllers.MappingController.getAPsByBuildingFloor()
-POST        /anyplace/position/radio/aps_ids                                        controllers.MappingController.getAPsIds()
 
 ###########
 ### RESOURCES:
@@ -90,12 +68,7 @@ POST        /anyplace/mapping/building/all_bucode                               
 POST        /anyplace/mapping/building/newowner                                     controllers.MappingController.spaceUpdateOwner()
 # Not in use by anyplace API. Used by Rayzit
 POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.MappingController.poisBySpaceConnectors()
-# Not in use. (Replaced JsonObject with JsValue, didnt test)
-#POST        /anyplace/mapping/floor/upload                                          controllers.MappingController.floorPlanUpload()
-## ASK:DZ : called by updateConnection(js) which is never called.
-#POST        /anyplace/mapping/connection/update                                     controllers.MappingController.connectionUpdate()
-## ASK:DZ : called by updateFloor(js) which is never called.
-#POST        /anyplace/mapping/floor/update                                          controllers.MappingController.floorUpdate()
+
 
 # CHECK:DZ
 POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.MappingController.getRadioHeatmapBbox()

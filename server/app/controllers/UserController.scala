@@ -1,5 +1,7 @@
 package controllers
 
+import java.security.MessageDigest
+
 import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
 
 import scala.concurrent.duration.Duration
@@ -263,339 +265,31 @@ class UserController @Inject()(cc: ControllerComponents,
     null
   }
 
+  def encryptPwd(password: String): String = {
+    val salt = "asdf" //# conf.get(salt) TODO define in private.conf (also in example) password.salt // .pepper
+    val pepper = "aaaa"
+
+    encryptPassword(salt + password + pepper)
+  }
+
+  def encryptPassword(password: String): String = {
+    val algorithm: MessageDigest = MessageDigest.getInstance("SHA-256")
+    val defaultBytes: Array[Byte] = password.getBytes
+    algorithm.reset
+    algorithm.update(defaultBytes)
+    val messageDigest: Array[Byte] = algorithm.digest
+    getHexString(messageDigest)
+  }
+
+  def getHexString(messageDigest: Array[Byte]): String = {
+    val hexString: StringBuffer = new StringBuffer
+    messageDigest foreach { digest =>
+      val hex = Integer.toHexString(0xFF & digest)
+      if (hex.length == 1) hexString.append('0') else hexString.append(hex)
+    }
+    hexString.toString
+  }
 
 }
 
-
-// CHECK:NN
-/**
- * Deletes the account with the AUID passed in.
- * The result of the action is returned in the Json response.
- *
- * @return
- */
-//def deleteAccount(auid_in: String) = Action {
-//  implicit request =>
-//
-//    def inner(request: Request[AnyContent]): Result = {
-//      var auid: String = auid_in
-//      // create the Request and check it
-//      val anyReq: OAuth2Request = new OAuth2Request(request)
-//      if (!anyReq.assertJsonBody()) {
-//        return RESPONSE.BAD(
-//          RESPONSE.ERROR_JSON_PARSE)
-//      }
-//      val json = anyReq.getJsonBody()
-//      LOG.I("UserController:deleteAccount: " + json.toString)
-//      // check if there is any required parameter missing
-//      val notFound: java.util.List[String] =
-//        JsonUtils.hasProperties(json, "auid")
-//      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-//        return RESPONSE.MISSING_FIELDS(notFound)
-//      }
-//      // if the auid in the route is empty then try to get the one from the POST json body
-//      if (auid == null || auid.trim().isEmpty)
-//        auid = json.\\("auid").mkString
-//      try {
-//        if (!pds.getIDatasource.deleteFromKey(auid)) {
-//          return RESPONSE.BAD("Account could not be deleted!")
-//        }
-//        return RESPONSE.OK("Successfully deleted account!")
-//      } catch {
-//        case e: DatasourceException =>
-//          return RESPONSE.internal_server_error(
-//            "500: " + e.getMessage)
-//
-//      }
-//    }
-//
-//    inner(request)
-//}
-
-///**
-// * Updates the account specified by the AUID.
-// * The result of the update is returned in the Json response.
-// *
-// * @return
-// */
-//def UpdateAccount(auid: String)(auid_in: String) = Action {
-//  implicit request =>
-//
-//    def inner(request: Request[AnyContent]): Result = {
-//      var auid: String = auid_in
-//      // create the Request and check it
-//      val anyReq: OAuth2Request = new OAuth2Request(request)
-//      if (!anyReq.assertJsonBody()) {
-//        return AnyResponseHelper.bad_request(
-//          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-//      }
-//      val json = anyReq.getJsonBody()
-//      LPLogger.info("AnyplaceAccounts::updateAccount():: " + json.toString)
-//      // check if there is any required parameter missing
-//      val notFound: java.util.List[String] =
-//        JsonUtils.hasProperties(json, "auid")
-//      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-//        return AnyResponseHelper.requiredFieldsMissing(notFound)
-//      }
-//      // if the auid in the route is empty then try to get the one from the POST json body
-//      if (auid == null || auid.trim().isEmpty)
-//        auid = json.\\("auid").mkString
-//      try {
-//        // fetch the stored object
-//        var storedAccount: JsonObject = null
-//        storedAccount = toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
-//        if (storedAccount == null) {
-//          return AnyResponseHelper.bad_request(
-//            "Account could not be updated! Try again...")
-//        }
-//        // apply any change made
-//        val updateableFields: Array[String] =
-//          AccountModel.getChangeableProperties()
-//        for (s <- updateableFields) {
-//          val value = json.\\(s)
-//          if (value.asInstanceOf[Boolean]) {
-//            storedAccount.put(s, value.asInstanceOf[Boolean])
-//          } else {
-//            val nv: String = value.mkString
-//            if (nv == null || nv.trim().isEmpty) //continue
-//              storedAccount.put(s, nv)
-//          }
-//        }
-//        // save the changes
-//        if (!pds.getIDatasource.replaceJsonDocument(auid, 0, storedAccount.toString)) {
-//          return AnyResponseHelper.bad_request(
-//            "Account could not be updated! Try again...")
-//        }
-//        return AnyResponseHelper.ok("Successfully updated account!")
-//      } catch {
-//        case e: DatasourceException =>
-//          return AnyResponseHelper.internal_server_error(
-//            "500: " + e.getMessage)
-//
-//      }
-//    }
-//
-//    inner(request)
-//}
-
-// check if there is any required parameter missing
-// check if there is any required parameter missing
-
-///**
-// * Returns the list of clients for this account
-// *
-// * @param auid The account for which the clients are to be returned
-// * @return
-// */
-//def fetchAccountClients(auid: String)(auid_in: String) = Action {
-//  implicit request =>
-//    def inner(request: Request[AnyContent]): Result = {
-//      var auid: String = auid_in
-//      // create the Request and check it
-//      val anyReq: OAuth2Request = new OAuth2Request(request)
-//      if (!anyReq.assertJsonBody()) {
-//        return AnyResponseHelper.bad_request(
-//          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-//      }
-//      val json = anyReq.getJsonBody()
-//      LPLogger.info("AnyplaceAccounts::fetchAccountClients():: " + json.toString)
-//      // check if there is any required parameter missing
-//      val notFound: java.util.List[String] =
-//        JsonUtils.hasProperties(json, "auid")
-//      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-//        return AnyResponseHelper.requiredFieldsMissing(notFound)
-//      }
-//      // if the auid in the route is empty then try to get the one from the POST json body
-//      if (auid == null || auid.trim().isEmpty)
-//        auid = json.\\("auid").mkString
-//      try {
-//        var storedAccount: JsonObject = null
-//        storedAccount =
-//          toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
-//        if (storedAccount == null) {
-//          return AnyResponseHelper.bad_request("Account could not be found!")
-//        }
-//        val json_clients = storedAccount.getArray("clients")
-//        val resp: JsonObject = JsonObject.empty()
-//        resp.put("clients", json_clients)
-//        return AnyResponseHelper.ok(resp, "Successfully fetched account clients!")
-//      } catch {
-//        case e: DatasourceException =>
-//          return AnyResponseHelper.internal_server_error(
-//            "500: " + e.getMessage)
-//
-//      }
-//    }
-//
-//    inner(request)
-//}
-
-///**
-// * Adds a new client for this account
-// *
-// * @param auid The account the new account belongs to
-// * @return
-// */
-//def addAccountClient(auid: String)(auid_in: String) = Action {
-//  implicit request =>
-//
-//    def inner(request: Request[AnyContent]): Result = {
-//      var auid: String = auid_in
-//      // create the Request and check it
-//      val anyReq: OAuth2Request = new OAuth2Request(request)
-//      if (!anyReq.assertJsonBody()) {
-//        return AnyResponseHelper.bad_request(
-//          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-//      }
-//      val json = anyReq.getJsonBody()
-//      LPLogger.info("AnyplaceAccounts::addAccountClient():: " + json.toString)
-//      // check if there is any required parameter missing
-//      val notFound: java.util.List[String] =
-//        JsonUtils.hasProperties(json, "auid", "grant_type")
-//      if (!notFound.isEmpty && (auid == null || auid.trim().isEmpty)) {
-//        return AnyResponseHelper.requiredFieldsMissing(notFound)
-//      }
-//      // if the auid in the route is empty then try to get the one from the POST json body
-//      if (auid == null || auid.trim().isEmpty)
-//        auid = json.\\("auid").mkString
-//      val grant_type: String = json.\\("grant_type").mkString
-//      val scope: String = json.\\("scope").mkString
-//      val redirect_uri: String = json.\\("redirect_uri").mkString
-//      if (!GrantHandlerFactory.isGrantTypeSupported(grant_type)) {
-//        return AnyResponseHelper.bad_request("grant_type specified is not supported!")
-//      }
-//      try {
-//        var storedAccount: JsonObject = null
-//        storedAccount = toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
-//        if (storedAccount == null) {
-//          return AnyResponseHelper.bad_request("Account could not be found!")
-//        }
-//        val account: AccountModel = new AccountModel(storedAccount)
-//        account.addNewClient(grant_type, scope, redirect_uri)
-//        // save the changes
-//        if (!pds.getIDatasource.replaceJsonDocument(
-//          auid,
-//          0,
-//          account.toJson().toString)) {
-//          return AnyResponseHelper.bad_request(
-//            "Account could not be updated! Try again...")
-//        }
-//        return AnyResponseHelper.ok("Successfully added account client!")
-//      } catch {
-//        case e: DatasourceException =>
-//          return AnyResponseHelper.internal_server_error(
-//            "500: " + e.getMessage)
-//
-//      }
-//    }
-//
-//    inner(request)
-//}
-
-/**
- * Fetches the account  client with the AUID and client_id passed in.
- * The client document is returned in the Json response.
- *
- * @return
- */
-//def fetchAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
-//  implicit request =>
-//
-//    def inner(request: Request[AnyContent]): Result = {
-//      var auid: String = auid_in
-//      // create the Request and check it
-//      val anyReq: OAuth2Request = new OAuth2Request(request)
-//      if (!anyReq.assertJsonBody()) {
-//        return AnyResponseHelper.bad_request(
-//          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-//      }
-//      val json = anyReq.getJsonBody()
-//      LPLogger.info("AnyplaceAccounts::fetchAccount():: " + json.toString)
-//      // check the arguments
-//      if ((auid == null || auid.trim().isEmpty)) {
-//        return AnyResponseHelper.bad_request("Invalid account id provided!")
-//      }
-//      if ((client_id == null || client_id.trim().isEmpty)) {
-//        AnyResponseHelper.bad_request("Invalid client id provided!")
-//      }
-//      try {
-//        var storedAccount: JsonObject = null
-//        storedAccount = toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
-//        if (storedAccount == null) {
-//          return AnyResponseHelper.bad_request("Account could not be found!")
-//        }
-//        val account: AccountModel = new AccountModel(storedAccount)
-//        val client: AccountModel.ClientModel = account.getClient(client_id)
-//        if (client == null) {
-//          return AnyResponseHelper.bad_request("Account client could not be found!")
-//        }
-//        return AnyResponseHelper.ok(client.toJson(),
-//          "Successfully fetched account client!")
-//      } catch {
-//        case e: DatasourceException =>
-//          return AnyResponseHelper.internal_server_error(
-//            "500: " + e.getMessage)
-//
-//      }
-//    }
-//
-//    inner(request)
-//}
-
-/**
- * Fetches the account  client with the AUID and client_id passed in.
- * The client document is returned in the Json response.
- *
- * @return
- */
-//def deleteAccountClient(auid: String, client_id: String)(auid_in: String) = Action {
-//  implicit request =>
-//
-//    def inner(request: Request[AnyContent]): Result = {
-//      var auid: String = auid_in
-//      // create the Request and check it
-//      val anyReq: OAuth2Request = new OAuth2Request(request)
-//      if (!anyReq.assertJsonBody()) {
-//        return AnyResponseHelper.bad_request(
-//          AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-//      }
-//      val json = anyReq.getJsonBody()
-//      LPLogger.info("AnyplaceAccounts::deleteAccount():: " + json.toString)
-//      // check the arguments
-//      if ((auid == null || auid.trim().isEmpty)) {
-//        return AnyResponseHelper.bad_request("Invalid account id provided!")
-//      }
-//      if ((client_id == null || client_id.trim().isEmpty)) {
-//        return AnyResponseHelper.bad_request("Invalid client id provided!")
-//      }
-//      try {
-//        var storedAccount: JsonObject = null
-//        storedAccount =
-//          toCouchObject(CouchbaseDatasource.getStaticInstance(conf).getFromKeyAsJson(auid))
-//        if (storedAccount == null) {
-//          return AnyResponseHelper.bad_request("Account could not be found!")
-//        }
-//        val account: AccountModel = new AccountModel(storedAccount)
-//        if (!account.deleteClient(client_id)) {
-//          return AnyResponseHelper.bad_request("Account client could not be found!")
-//        }
-//        // save the changes
-//        if (!pds.getIDatasource.replaceJsonDocument(
-//          auid,
-//          0,
-//          account.toJson().toString)) {
-//          return AnyResponseHelper.bad_request(
-//            "Account could not be updated! Try again...")
-//        }
-//        return AnyResponseHelper.ok("Successfully deleted account client!")
-//      } catch {
-//        case e: DatasourceException =>
-//          return AnyResponseHelper.internal_server_error(
-//            "500: " + e.getMessage)
-//
-//      }
-//    }
-//
-//    inner(request)
-//}
 

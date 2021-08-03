@@ -8,14 +8,6 @@
 # CHECK:NN (CLR if needed)
 #  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
 
-###
-#  summary: Retrieves all user accounts
-#  notes: Only for the admin/moderators.
-#  tags:
-#    - User
-######
-POST        /api/user/auth/admin/accounts_all                                   controllers.UserAdminController.fetchAllAccounts()
-
 ### NoDocs ###
 POST        /api/user/auth/admin/migration/run                                  controllers.UserAdminController.migrateToMongoDB()
 

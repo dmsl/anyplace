@@ -571,9 +571,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         buids[0] = ($scope.example9modeledit[0].id);
         LOG.D2(buids);
         reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
-        LOG.D2("1");
         reqObj.buids = buids;
-        LOG.D2("2");
         var promise = $scope.anyAPI.updateCampus(reqObj);
         promise.then(
             function (resp) {

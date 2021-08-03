@@ -469,9 +469,9 @@ app.factory('requestInterceptor', [function () {
         request: function (config) {
             if (config.url !== undefined) {
                 var loggedIn = (app.user != null)
-                if (config.url.startsWith(AnyplaceAPI.API+"/auth/")
+                if (config.url.startsWith(API.url+"/auth/")
                     // TODO:NN remove this part
-                    || config.url.startsWith(AnyplaceAPI.BASE_URL)) {
+                    || config.url.startsWith(API.old)) {
 
                     if (!loggedIn) LOG.E("ERROR: user not logged in and requested: " + config.url)
 

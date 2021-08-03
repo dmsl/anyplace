@@ -26,139 +26,139 @@
  */
 
 // TODO:NN once all done, and commited. rename ONLY this to API
-var AnyplaceAPI = {};
-AnyplaceAPI.BASE_URL = "../anyplace";
-AnyplaceAPI.API = "../api"
+var API = {};
+API.old = "../anyplace";
+API.url = "../api"
 
-AnyplaceAPI.VERSION = AnyplaceAPI.API + "/version";
+API.VERSION = API.url + "/version";
 
 /**
  * MAPPING API
  */
-AnyplaceAPI.Mapping = {};
-AnyplaceAPI.Navigation = {};
-AnyplaceAPI.Other = {};
+API.Mapping = {};
+API.Navigation = {};
+API.Other = {};
 
-AnyplaceAPI.Mapping.APs = "/position/radio/APs_building_floor";
-AnyplaceAPI.Mapping.APs_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.APs;
-AnyplaceAPI.Mapping.GET_APS_IDS = "/position/radio/aps_ids";
-AnyplaceAPI.Mapping.GET_APS_IDS_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.GET_APS_IDS;
+API.Mapping.APs = "/wifi/access_points/floor";
+API.Mapping.APs_URL = API.url + API.Mapping.APs;
+API.Mapping.GET_APS_IDS = "/wifi/access_points/ids";
+API.Mapping.GET_APS_IDS_URL = API.url + API.Mapping.GET_APS_IDS;
 
-AnyplaceAPI.Mapping.FINGERPRINTS_DELETE = "/position/radio/delete";
-AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE;
-AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME = "/position/radio/delete/time";
-AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME;
-AnyplaceAPI.Mapping.FINGERPRINTS_TIME = "/position/radio/time";
-AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FINGERPRINTS_TIME;
+API.Mapping.FINGERPRINTS_DELETE = "/auth/radiomap/delete";
+API.Mapping.FINGERPRINTS_DELETE_URL = API.url + API.Mapping.FINGERPRINTS_DELETE;
+API.Mapping.FINGERPRINTS_DELETE_TIME = "/auth/radiomap/delete/time";
+API.Mapping.FINGERPRINTS_DELETE_TIME_URL = API.url + API.Mapping.FINGERPRINTS_DELETE_TIME;
+API.Mapping.FINGERPRINTS_TIME = "/radiomap/time";
+API.Mapping.FINGERPRINTS_TIME_URL = API.url + API.Mapping.FINGERPRINTS_TIME;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1 = "/heatmap/floor/average/1";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_1;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2 = "/heatmap/floor/average/2";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_2;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3 = "/heatmap/floor/average/3";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES = "/heatmap/floor/average/3/tiles";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_3_TILES;
+API.Mapping.RADIO_HEATMAP_RSS_1 = "/heatmap/floor/average/1";
+API.Mapping.RADIO_HEATMAP_RSS_URL_1 = API.url + API.Mapping.RADIO_HEATMAP_RSS_1;
+API.Mapping.RADIO_HEATMAP_RSS_2 = "/heatmap/floor/average/2";
+API.Mapping.RADIO_HEATMAP_RSS_URL_2 = API.url + API.Mapping.RADIO_HEATMAP_RSS_2;
+API.Mapping.RADIO_HEATMAP_RSS_3 = "/heatmap/floor/average/3";
+API.Mapping.RADIO_HEATMAP_RSS_URL_3 = API.url + API.Mapping.RADIO_HEATMAP_RSS_3;
+API.Mapping.RADIO_HEATMAP_RSS_3_TILES = "/heatmap/floor/average/3/tiles";
+API.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES = API.url + API.Mapping.RADIO_HEATMAP_RSS_3_TILES;
 
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/heatmap/floor/average/timestamp/1";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2 = "/heatmap/floor/average/timestamp/2";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/heatmap/floor/average/timestamp/3";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES = "/heatmap/floor/average/timestamp/tiles";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES;
+API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1 = "/heatmap/floor/average/timestamp/1";
+API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1 = API.url + API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_1;
+API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2 = "/heatmap/floor/average/timestamp/2";
+API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2 = API.url + API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_2;
+API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3 = "/heatmap/floor/average/timestamp/3";
+API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = API.url + API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_3;
+API.Mapping.RADIO_HEATMAP_BY_TIME_TILES = "/heatmap/floor/average/timestamp/tiles";
+API.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = API.url + API.Mapping.RADIO_HEATMAP_BY_TIME_TILES;
 
-AnyplaceAPI.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
-AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIOMAP_DELETE;
+API.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
+API.Mapping.RADIOMAP_DELETE_URL = API.old + API.Mapping.RADIOMAP_DELETE;
 // AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES = "/position/radio/acces";
 // AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES;
-AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
-AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_POI;
+API.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
+API.Mapping.RADIO_HEATMAP_URL_POI = API.old + API.Mapping.RADIO_HEATMAP_POI;
 
-AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL = "/position/radio_by_building_floor_all";
-AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL;
-AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
-AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
+API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL = "/radiomap/floor/all";
+API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = API.url + API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL;
+API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
+API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = API.old + API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
 
 // TODO:NN replace BUILDING to SPACE everywhere here..
-AnyplaceAPI.Mapping.BUILDING_ADD = "/auth/mapping/space/add";
-AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ADD;
-AnyplaceAPI.Mapping.BUILDING_ONE = "/mapping/space/get";
-AnyplaceAPI.Mapping.BUILDING_ONE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ONE;
-AnyplaceAPI.Mapping.BUILDING_UPDATE = "/auth/mapping/space/update";
-AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_UPDATE;
-AnyplaceAPI.Mapping.BUILDING_DELETE = "/auth/mapping/space/delete";
-AnyplaceAPI.Mapping.BUILDING_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_DELETE;
-AnyplaceAPI.Mapping.BUILDING_ALL = "/mapping/space/all";
-AnyplaceAPI.Mapping.BUILDING_ALL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ALL;
-AnyplaceAPI.Mapping.BUILDING_ALL_OWNER = "/auth/mapping/space/user";
-AnyplaceAPI.Mapping.BUILDING_ALL_OWNER_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDING_ALL_OWNER;
+API.Mapping.BUILDING_ADD = "/auth/mapping/space/add";
+API.Mapping.BUILDING_ADD_URL = API.url + API.Mapping.BUILDING_ADD;
+API.Mapping.BUILDING_ONE = "/mapping/space/get";
+API.Mapping.BUILDING_ONE_URL = API.url + API.Mapping.BUILDING_ONE;
+API.Mapping.BUILDING_UPDATE = "/auth/mapping/space/update";
+API.Mapping.BUILDING_UPDATE_URL = API.url + API.Mapping.BUILDING_UPDATE;
+API.Mapping.BUILDING_DELETE = "/auth/mapping/space/delete";
+API.Mapping.BUILDING_DELETE_URL = API.url + API.Mapping.BUILDING_DELETE;
+API.Mapping.BUILDING_ALL = "/mapping/space/all";
+API.Mapping.BUILDING_ALL_URL = API.url + API.Mapping.BUILDING_ALL;
+API.Mapping.BUILDING_ALL_OWNER = "/auth/mapping/space/user";
+API.Mapping.BUILDING_ALL_OWNER_URL = API.url + API.Mapping.BUILDING_ALL_OWNER;
 
-AnyplaceAPI.Mapping.CAMPUS_ALL = "/auth/mapping/campus/user";
-AnyplaceAPI.Mapping.CAMPUS_ALL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CAMPUS_ALL;
-AnyplaceAPI.Mapping.CAMPUS_UPDATE = "/auth/mapping/campus/update";
-AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CAMPUS_UPDATE;
-AnyplaceAPI.Mapping.CAMPUS_DELETE = "/auth/mapping/campus/delete";
-AnyplaceAPI.Mapping.CAMPUS_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CAMPUS_DELETE;
-AnyplaceAPI.Mapping.BUILDINGSET_ADD = "/auth/mapping/campus/add";
-AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDINGSET_ADD;
-AnyplaceAPI.Mapping.BUILDINGSET_ALL = "/mapping/campus/all_cucode";
-AnyplaceAPI.Mapping.BUILDINGSET_ALL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.BUILDINGSET_ALL;
+API.Mapping.CAMPUS_ALL = "/auth/mapping/campus/user";
+API.Mapping.CAMPUS_ALL_URL = API.url + API.Mapping.CAMPUS_ALL;
+API.Mapping.CAMPUS_UPDATE = "/auth/mapping/campus/update";
+API.Mapping.CAMPUS_UPDATE_URL = API.url + API.Mapping.CAMPUS_UPDATE;
+API.Mapping.CAMPUS_DELETE = "/auth/mapping/campus/delete";
+API.Mapping.CAMPUS_DELETE_URL = API.url + API.Mapping.CAMPUS_DELETE;
+API.Mapping.BUILDINGSET_ADD = "/auth/mapping/campus/add";
+API.Mapping.BUILDINGSET_ADD_URL = API.url + API.Mapping.BUILDINGSET_ADD;
+API.Mapping.BUILDINGSET_ALL = "/mapping/campus/get";
+API.Mapping.BUILDINGSET_ALL_URL = API.url + API.Mapping.BUILDINGSET_ALL;
 
-AnyplaceAPI.Mapping.FLOOR_ADD = "/auth/mapping/floor/add";
-AnyplaceAPI.Mapping.FLOOR_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_ADD;
-AnyplaceAPI.Mapping.FLOOR_UPDATE = "/auth/mapping/floor/update";
-AnyplaceAPI.Mapping.FLOOR_UPDATE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_UPDATE;
-AnyplaceAPI.Mapping.FLOOR_DELETE = "/auth/mapping/floor/delete";
-AnyplaceAPI.Mapping.FLOOR_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_DELETE;
-AnyplaceAPI.Mapping.FLOOR_ALL = "/mapping/floor/all";
-AnyplaceAPI.Mapping.FLOOR_ALL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_ALL;
-AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/uploadWithZoom";
-AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD;
-AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/";
-AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD;
-AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64all/";
-AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL = AnyplaceAPI.API + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL;
+API.Mapping.FLOOR_ADD = "/auth/mapping/floor/add";
+API.Mapping.FLOOR_ADD_URL = API.url + API.Mapping.FLOOR_ADD;
+API.Mapping.FLOOR_UPDATE = "/auth/mapping/floor/update";
+API.Mapping.FLOOR_UPDATE_URL = API.url + API.Mapping.FLOOR_UPDATE;
+API.Mapping.FLOOR_DELETE = "/auth/mapping/floor/delete";
+API.Mapping.FLOOR_DELETE_URL = API.url + API.Mapping.FLOOR_DELETE;
+API.Mapping.FLOOR_ALL = "/mapping/floor/all";
+API.Mapping.FLOOR_ALL_URL = API.url + API.Mapping.FLOOR_ALL;
+API.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/floorplan/upload";
+API.Mapping.FLOOR_PLAN_UPLOAD_URL = API.url + API.Mapping.FLOOR_PLAN_UPLOAD;
+API.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/";
+API.Mapping.FLOOR_PLAN_DOWNLOAD_URL = API.url + API.Mapping.FLOOR_PLAN_DOWNLOAD;
+API.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64/all/";
+API.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL = API.url + API.Mapping.FLOOR_PLAN_DOWNLOAD_ALL;
 
-AnyplaceAPI.Mapping.POIS_ADD = "/auth/mapping/pois/add";
-AnyplaceAPI.Mapping.POIS_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_ADD;
-AnyplaceAPI.Mapping.POIS_UPDATE = "/auth/mapping/pois/update";
-AnyplaceAPI.Mapping.POIS_UPDATE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_UPDATE;
-AnyplaceAPI.Mapping.POIS_DELETE = "/auth/mapping/pois/delete";
-AnyplaceAPI.Mapping.POIS_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_DELETE;
-AnyplaceAPI.Mapping.POIS_ALL_FLOOR = "/mapping/pois/all_floor";
-AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
-AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
-AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
-AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/search";
-AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.ALL_POIS;
+API.Mapping.POIS_ADD = "/auth/mapping/pois/add";
+API.Mapping.POIS_ADD_URL = API.url + API.Mapping.POIS_ADD;
+API.Mapping.POIS_UPDATE = "/auth/mapping/pois/update";
+API.Mapping.POIS_UPDATE_URL = API.url + API.Mapping.POIS_UPDATE;
+API.Mapping.POIS_DELETE = "/auth/mapping/pois/delete";
+API.Mapping.POIS_DELETE_URL = API.url + API.Mapping.POIS_DELETE;
+API.Mapping.POIS_ALL_FLOOR = "/mapping/pois/floor/all";
+API.Mapping.POIS_ALL_FLOOR_URL = API.url + API.Mapping.POIS_ALL_FLOOR;
+API.Mapping.POIS_ALL_BUILDING = "/mapping/pois/space/all";
+API.Mapping.POIS_ALL_BUILDING_URL = API.url + API.Mapping.POIS_ALL_BUILDING;
+API.Mapping.ALL_POIS = "/mapping/pois/search";
+API.Mapping.ALL_POIS_URL = API.url + API.Mapping.ALL_POIS;
 
-AnyplaceAPI.Mapping.CONNECTION_ADD = "/auth/mapping/connection/add";
-AnyplaceAPI.Mapping.CONNECTION_ADD_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_ADD;
-AnyplaceAPI.Mapping.CONNECTION_UPDATE = "/auth/mapping/connection/update";
-AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.CONNECTION_UPDATE;
-AnyplaceAPI.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
-AnyplaceAPI.Mapping.CONNECTION_DELETE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_DELETE;
-AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
-AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;
+API.Mapping.CONNECTION_ADD = "/auth/mapping/connection/add";
+API.Mapping.CONNECTION_ADD_URL = API.url + API.Mapping.CONNECTION_ADD;
+API.Mapping.CONNECTION_UPDATE = "/auth/mapping/connection/update";
+API.Mapping.CONNECTION_UPDATE_URL = API.old + API.Mapping.CONNECTION_UPDATE;
+API.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
+API.Mapping.CONNECTION_DELETE_URL = API.url + API.Mapping.CONNECTION_DELETE;
+API.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
+API.Mapping.CONNECTION_ALL_FLOOR_URL = API.url + API.Mapping.CONNECTION_ALL_FLOOR;
 
-AnyplaceAPI.Mapping.LOGIN_GOOGLE = "/user/login/google";
-AnyplaceAPI.Mapping.LOGIN_GOOGLE_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_GOOGLE;
+API.Mapping.LOGIN_GOOGLE = "/user/login/google";
+API.Mapping.LOGIN_GOOGLE_URL = API.url + API.Mapping.LOGIN_GOOGLE;
 
-AnyplaceAPI.Mapping.LOGIN_LOCAL = "/user/login";
-AnyplaceAPI.Mapping.LOGIN_LOCAL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_LOCAL;
+API.Mapping.LOGIN_LOCAL = "/user/login";
+API.Mapping.LOGIN_LOCAL_URL = API.url + API.Mapping.LOGIN_LOCAL;
 
-AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL = "/user/refresh";
-AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL_URL = AnyplaceAPI.API + AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL;
+API.Mapping.LOGIN_REFRESH_LOCAL = "/user/refresh";
+API.Mapping.LOGIN_REFRESH_LOCAL_URL = API.url + API.Mapping.LOGIN_REFRESH_LOCAL;
 
-AnyplaceAPI.Mapping.REGISTER_LOCAL = "/user/register";
-AnyplaceAPI.Mapping.REGISTER_LOCAL_URL = AnyplaceAPI.API + "/user/register";
+API.Mapping.REGISTER_LOCAL = "/user/register";
+API.Mapping.REGISTER_LOCAL_URL = API.url + "/user/register";
 
-AnyplaceAPI.Navigation.POIS_ROUTE = "/navigation/route";
-AnyplaceAPI.Navigation.POIS_ROUTE = AnyplaceAPI.API + AnyplaceAPI.Navigation.POIS_ROUTE;
+API.Navigation.POIS_ROUTE = "/navigation/route";
+API.Navigation.POIS_ROUTE = API.url + API.Navigation.POIS_ROUTE;
 
-AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL = "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8";
+API.Other.GOOGLE_URL_SHORTNER_URL = "https://www.googleapis.com/urlshortener/v1/url?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8";
 
 if (app == undefined) { LOG.F("api.js must be loaded after app.js in GruntFile)") }
 
@@ -172,7 +172,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.version = function (json_req) {
         return $http({
             method: "GET",
-            url: AnyplaceAPI.VERSION,
+            url: API.VERSION,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -185,7 +185,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSS_1");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_1,
+            url: API.Mapping.RADIO_HEATMAP_RSS_URL_1,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -198,7 +198,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSS_2");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_2,
+            url: API.Mapping.RADIO_HEATMAP_RSS_URL_2,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -211,7 +211,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSS_3");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3,
+            url: API.Mapping.RADIO_HEATMAP_RSS_URL_3,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -224,7 +224,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSS_3_Tiles");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES,
+            url: API.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -238,7 +238,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSSByTime_1");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1,
+            url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -251,7 +251,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSSByTime_2");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2,
+            url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -264,7 +264,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSSByTime_3");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3,
+            url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -277,7 +277,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("getRadioHeatmapRSSByTime_Tiles");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL,
+            url: API.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -290,7 +290,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getAPs = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.APs_URL,
+            url: API.Mapping.APs_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -303,7 +303,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getAPsIds = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.GET_APS_IDS_URL,
+            url: API.Mapping.GET_APS_IDS_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -316,7 +316,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteFingerprints = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_URL,
+            url: API.Mapping.FINGERPRINTS_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -329,7 +329,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteFingerprintsByTime = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FINGERPRINTS_DELETE_TIME_URL,
+            url: API.Mapping.FINGERPRINTS_DELETE_TIME_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -341,7 +341,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getFingerprintsTime = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FINGERPRINTS_TIME_URL,
+            url: API.Mapping.FINGERPRINTS_TIME_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -369,7 +369,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.retrievePoisByBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
+            url: API.Mapping.POIS_ALL_BUILDING_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -381,7 +381,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getRadioHeatmapPoi = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI,
+            url: API.Mapping.RADIO_HEATMAP_URL_POI,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -393,7 +393,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getRadioByBuildingFloorAll = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
+            url: API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -405,7 +405,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getRadioByBuildingFloorTxt = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
+            url: API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -420,7 +420,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDING_ADD_URL,
+            url: API.Mapping.BUILDING_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -432,7 +432,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addBuildingSet = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
+            url: API.Mapping.BUILDINGSET_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -444,7 +444,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.updateBuilding = function (jsonReq) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDING_UPDATE_URL,
+            url: API.Mapping.BUILDING_UPDATE_URL,
             data: jsonReq
         }).success(function (data, status) {
             return data;
@@ -457,7 +457,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.updateCampus = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
+            url: API.Mapping.CAMPUS_UPDATE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -470,7 +470,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDING_DELETE_URL,
+            url: API.Mapping.BUILDING_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -484,7 +484,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteRadiomaps = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.RADIOMAP_DELETE_URL,
+            url: API.Mapping.RADIOMAP_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -497,7 +497,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteCampus = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
+            url: API.Mapping.CAMPUS_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -510,7 +510,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.allBuildings = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDING_ALL_URL,
+            url: API.Mapping.BUILDING_ALL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -523,7 +523,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.allOwnerBuildings = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDING_ALL_OWNER_URL,
+            url: API.Mapping.BUILDING_ALL_OWNER_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -536,7 +536,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.allCucodeCampus = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDINGSET_ALL_URL,
+            url: API.Mapping.BUILDINGSET_ALL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -549,7 +549,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.allCampus = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.CAMPUS_ALL_URL,
+            url: API.Mapping.CAMPUS_ALL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -567,19 +567,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addFloor = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_ADD_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-
-    apiService.updateFloor = function (json_req) {
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_UPDATE_URL,
+            url: API.Mapping.FLOOR_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -591,7 +579,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteFloor = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_DELETE_URL,
+            url: API.Mapping.FLOOR_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -604,7 +592,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.allBuildingFloors = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
+            url: API.Mapping.FLOOR_ALL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -618,7 +606,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.uploadFloorPlan = function (json_req, file) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL,
+            url: API.Mapping.FLOOR_PLAN_UPLOAD_URL,
             headers: {
                 'Content-Type': 'multipart/form-data'
             },
@@ -646,7 +634,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         var formData = new FormData();
         formData.append("json", json_req);
         formData.append("floorplan", blob);
-        return $http.post(AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL, formData, {
+        return $http.post(API.Mapping.FLOOR_PLAN_UPLOAD_URL, formData, {
             transformRequest: angular.identity,
             headers: {
                 'Content-Type': undefined
@@ -661,7 +649,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.downloadFloorPlan = function (json_req, buid, floor_number) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
+            url: API.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -673,7 +661,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.downloadFloorPlanAll = function (json_req, buid, floor_number) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
+            url: API.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -689,7 +677,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addPois = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.POIS_ADD_URL,
+            url: API.Mapping.POIS_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -701,7 +689,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.updatePois = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.POIS_UPDATE_URL,
+            url: API.Mapping.POIS_UPDATE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -715,7 +703,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.POIS_DELETE_URL,
+            url: API.Mapping.POIS_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             //deferred.resolve(data);
@@ -730,7 +718,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.retrievePoisByBuildingFloor = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL,
+            url: API.Mapping.POIS_ALL_FLOOR_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -746,19 +734,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addConnection = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.CONNECTION_ADD_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
-
-    apiService.updateConnection = function (json_req) {
-        return $http({
-            method: "POST",
-            url: AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL,
+            url: API.Mapping.CONNECTION_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -770,7 +746,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteConnection = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.CONNECTION_DELETE_URL,
+            url: API.Mapping.CONNECTION_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -782,7 +758,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.retrieveConnectionsByBuildingFloor = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL,
+            url: API.Mapping.CONNECTION_ALL_FLOOR_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -796,7 +772,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D4(json_req)
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.LOGIN_GOOGLE_URL,
+            url: API.Mapping.LOGIN_GOOGLE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -808,7 +784,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.refreshLocalAccount = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.LOGIN_REFRESH_LOCAL_URL,
+            url: API.Mapping.LOGIN_REFRESH_LOCAL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -820,7 +796,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.loginLocalAccount = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.LOGIN_LOCAL_URL,
+            url: API.Mapping.LOGIN_LOCAL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -833,7 +809,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         LOG.D2("api.js");
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.REGISTER_LOCAL_URL,
+            url: API.Mapping.REGISTER_LOCAL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -845,7 +821,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getOneBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.BUILDING_ONE_URL,
+            url: API.Mapping.BUILDING_ONE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -859,7 +835,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.retrieveALLPois = function (json_req) {
         var a = $http({
             method: "POST",
-            url: AnyplaceAPI.Mapping.ALL_POIS_URL,
+            url: API.Mapping.ALL_POIS_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -873,7 +849,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.retrieveRouteFromPoiToPoi = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Navigation.POIS_ROUTE,
+            url: API.Navigation.POIS_ROUTE,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -885,7 +861,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.googleUrlShortener = function (json_req) {
         return $http({
             method: "POST",
-            url: AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL,
+            url: API.Other.GOOGLE_URL_SHORTNER_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
