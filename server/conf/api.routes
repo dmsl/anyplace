@@ -17,10 +17,6 @@
 ###
 GET        /api/version                                     controllers.MainController.getVersion
 
-
-
-
-
 ################
 ### USERS
 ################
@@ -127,13 +123,16 @@ POST        /api/user/refresh                                 controllers.UserCo
 #   200:
 #     description: success
 ###
-POST        /api/user/login/google                                               controllers.UserController.loginGoogle()
+POST        /api/user/login/google                          controllers.UserController.loginGoogle()
 
 ###
 #      tags:
 #        - User
-#      summary: Retrieves all user accounts
-#      description: "Only for the admin/moderators."
+#      summary: Update user
+#      description: |
+#       User: can change name, username, password, email
+#       Moderator: can edit users
+#       Admin: can edit users and also promote them do moderators
 #      operationId: usersAll
 #      consumes:
 #        - application/json
@@ -145,6 +144,31 @@ POST        /api/user/login/google                                              
 #          description: Space description
 #          required: true
 #          schema:
+#            $ref: '#/definitions/UserUpdate'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/user/update                           controllers.UserController.updateUser()
+
+###
+#      tags:
+#        - User:Admin
+#      summary: Retrieves all user accounts
+#      description: "Only for the moderators."
+#      operationId: usersAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description:
+#          required: true
+#          schema:
 #            type: object
 #      responses:
 #        '200':
@@ -152,7 +176,7 @@ POST        /api/user/login/google                                              
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/admin/user/all                                   controllers.UserAdminController.fetchAllAccounts()
+POST        /api/auth/moderator/users/all                   controllers.UserAdminController.fetchAllAccounts()
 
 ################
 # Spaces
@@ -179,7 +203,7 @@ POST        /api/auth/admin/user/all                                   controlle
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/space/all                          controllers.MappingController.spaceAll()
+POST        /api/mapping/space/public                       controllers.MappingController.spaceAll()
 
 ###
 #      tags:
@@ -284,7 +308,7 @@ POST        /api/auth/mapping/space/delete                  controllers.MappingC
 ###
 #      tags:
 #        - Space
-#      summary: Get user spaces
+#      summary: Get user owned/co-owned spaces
 #      description: "Based on user's `owner_id` all the spaces are retrieved."
 #      operationId: spaceAllOwner
 #      consumes:
@@ -304,7 +328,32 @@ POST        /api/auth/mapping/space/delete                  controllers.MappingC
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/user                    controllers.MappingController.spaceAllByOwner()
+POST        /api/auth/mapping/space/accessible                    controllers.MappingController.spaceAllByOwner()
+
+###
+#      tags:
+#        - Space
+#      summary: Get user owned spaces
+#      description: "Based on user's `owner_id` all the spaces are retrieved."
+#      operationId: spaceAllOwned
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description:
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/user                          controllers.MappingController.spaceOwned()
 
 ###
 #      tags:
@@ -718,7 +767,7 @@ POST        /api/auth/mapping/pois/update                   controllers.MappingC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/connection/all_floor               controllers.MappingController.connectionsByFloor()
+POST        /api/mapping/connection/floor/all               controllers.MappingController.connectionsByFloor()
 
 ###
 #      tags:
@@ -741,7 +790,7 @@ POST        /api/mapping/connection/all_floor               controllers.MappingC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/connection/all_floors              controllers.MappingController.connectionsByallFloors()
+POST        /api/mapping/connection/floors/all              controllers.MappingController.connectionsByallFloors()
 
 ###
 #      tags:
@@ -936,7 +985,7 @@ POST        /api/position/predictFloorAlgo1                 controllers.Position
 #      tags:
 #        - Radiomaps
 #      summary: Get access points location
-#      description: ""
+#      description: "These are cached into the collection `accessPointsWifi`"
 #      operationId: getAPs
 #      consumes:
 #        - application/json

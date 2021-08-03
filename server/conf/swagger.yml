@@ -56,7 +56,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: username_1373876832005
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
   SpaceAdd:
     type: object
     properties:
@@ -215,7 +215,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: username_1373876832005
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
       floor_number:
         type: string
         example: 1
@@ -224,7 +224,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: username_1373876832005
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
   PoisSearch:
     type: object
     properties:
@@ -236,7 +236,7 @@ definitions:
         example: toual
       buid:
         type: string
-        example: username_1373876832005
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
       greeklish:
         type: string
         example: "true"
@@ -334,6 +334,27 @@ definitions:
       access_token:
         type: string
         example: apLocal_123ABC_ap
+  UserUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Alan Tur
+      username:
+        type: string
+        example: username2
+      password:
+        type: string
+        example: password2
+      email:
+        type: string
+        example: my_email2@gmail.com
+      "type":
+        type: string
+        example: moderator
+      owner_id:
+        type: string
+        example: username_18925790_231645_local
   FloorAdd:
     type: object
     properties:
@@ -586,7 +607,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: username_1373876832005
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
       floor:
         type: string
         example: 0
@@ -610,7 +631,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: username_1373876832005
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
       floor:
         type: string
         example: 1
@@ -619,7 +640,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: nnn
+        example: building_12345678-1234-1234-1234-123456789123_1234567891234
       floor:
         type: string
         example: 0
@@ -640,7 +661,7 @@ definitions:
     properties:
       buid:
         type: string
-        example: nnn
+        example: building_12345678-1234-1234-1234-123456789123_1234567891234
       floor:
         type: string
         example: 0
@@ -649,7 +670,7 @@ definitions:
         example: 34.9203791974277
       lon1:
         type: string
-        example: 3.013322331003295
+        example: 33.013322331003295
       lat2:
         type: string
         example: 34.92033411232339

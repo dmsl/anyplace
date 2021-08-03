@@ -108,14 +108,6 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     buid
   }
 
-  // CHECK:NN is this in UserController or something?
-  //def hasAccess(ownerId: String): Boolean = {
-  //  if (fields.get(SCHEMA.fOwnerId) == ownerId) return true
-  //  co_owners.value.foreach(coOwner => if (coOwner == ownerId) return true)
-  //
-  //  false
-  //}
-
   def toGeoJSON(): String = {
     val sb = new StringBuilder()
     var json = toValidMongoJson()

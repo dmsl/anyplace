@@ -263,6 +263,11 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     mongoDB.getAllBuildingsByOwner(oid)
   }
 
+  override def getAllSpaceOwned(owner_id: String): List[JsValue] = {
+    _checkActiveDatasource()
+    mongoDB.getAllSpaceOwned(owner_id)
+  }
+
   override def getAllBuildingsByBucode(bucode: String): List[JsValue] = {
     _checkActiveDatasource()
     mongoDB.getAllBuildingsByBucode(bucode)
@@ -384,9 +389,14 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
    * Given an access_token it returns the user account.
    * Used only for local accounts.
    */
-  override def getUserAccount(collection: String, accessToken: String): List[JsValue] = {
+  override def getUserFromAccessToken(collection: String, accessToken: String): List[JsValue] = {
     _checkActiveDatasource()
-    db.getUserAccount(collection, accessToken)
+    db.getUserFromAccessToken(collection, accessToken)
+  }
+
+  override def getUserFromOwnerId(accessToken: String): List[JsValue] = {
+    _checkActiveDatasource()
+    db.getUserFromOwnerId(accessToken)
   }
 
   override def register(collection: String, name: String, email: String, username: String, password: String,

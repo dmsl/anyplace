@@ -35,8 +35,9 @@
  */
 package controllers.helper
 
-import datasources.{ProxyDataSource, SCHEMA}
+import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
 import javax.inject.{Inject, Singleton}
+import play.api.libs.json.JsValue
 
 @Singleton
 class User @Inject()(pds: ProxyDataSource){
@@ -52,5 +53,35 @@ class User @Inject()(pds: ProxyDataSource){
     if (user != null)
       return (user \ SCHEMA.fOwnerId).as[String]
     null
+  }
+
+
+  def hasAccess(space: JsValue, userId: String): Boolean = {
+    // Admin
+    if (MongodbDatasource.getAdmins.contains(userId)) return true
+    else if (MongodbDatasource.getModerators.contains(userId)) return true
+
+     (isSpaceOwner(space, userId) || isSpaceCoOwner(space, userId))
+  }
+
+  private def isSpaceOwner(building: JsValue, userId: String): Boolean = {
+
+    if (building != null && (building \ SCHEMA.fOwnerId).toOption.isDefined &&
+      (building \ (SCHEMA.fOwnerId)).as[String].equals(userId)) return true
+    false
+  }
+
+  private def isSpaceCoOwner(building: JsValue, userId: String): Boolean = {
+    if (building != null) {
+      val cws = (building \ SCHEMA.fCoOwners)
+      if (cws.toOption.isDefined) {
+        val co_owners = cws.as[List[String]]
+        for (co_owner <- co_owners) {
+          if (co_owner == userId)
+            return true
+        }
+      }
+    }
+    false
   }
 }

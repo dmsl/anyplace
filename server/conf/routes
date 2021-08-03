@@ -9,8 +9,6 @@
 ################
 ### POSITION
 ################
-# TODO algo1
-
 # TODO:NN estimate_position (implement this as well..)
 POST        /anyplace/position/estimate_position                                    controllers.MappingController.findPosition()
 
@@ -68,7 +66,6 @@ POST        /anyplace/mapping/building/all_bucode                               
 POST        /anyplace/mapping/building/newowner                                     controllers.MappingController.spaceUpdateOwner()
 # Not in use by anyplace API. Used by Rayzit
 POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.MappingController.poisBySpaceConnectors()
-
 
 # CHECK:DZ
 POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.MappingController.getRadioHeatmapBbox()

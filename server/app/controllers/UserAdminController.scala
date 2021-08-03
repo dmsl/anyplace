@@ -66,7 +66,7 @@ class UserAdminController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
-        if (!MongodbDatasource.loadAdmins().contains(appendGoogleIdIfNeeded(owner_id))) {
+        if (!MongodbDatasource.getAdmins.contains(appendGoogleIdIfNeeded(owner_id))) {
           return RESPONSE.FORBIDDEN("Unauthorized. Only admins can generate heatmaps.")
         }
         if (!pds.getIDatasource.generateHeatmaps())
@@ -93,12 +93,12 @@ class UserAdminController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.FORBIDDEN("Unauthorized")
-        if (!MongodbDatasource.loadAdmins().contains(owner_id))
-          return RESPONSE.FORBIDDEN("Only admin users can see all accounts.")
+        if (!MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
+          return RESPONSE.FORBIDDEN("Only moderators users can see all accounts.")
         try {
           val users: List[JsValue] = pds.getIDatasource.getAllAccounts()
           val res: JsValue = Json.obj("users_num" -> users.length, SCHEMA.cUsers -> Json.arr(users))
-          RESPONSE.OK(res, "Successfully retrieved all accounts!")
+          RESPONSE.gzipJsonOk(res, "Successfully retrieved all accounts!")
         } catch {
           case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage)
         }

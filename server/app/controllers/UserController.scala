@@ -24,7 +24,8 @@ import scala.concurrent.Await
 class UserController @Inject()(cc: ControllerComponents,
                                 pds: ProxyDataSource,
                                mongoDB: MongodbDatasource,
-                               conf: Configuration)
+                               conf: Configuration,
+                               user: helper.User)
   extends AbstractController(cc) {
 
   def login() = Action {
@@ -36,10 +37,10 @@ class UserController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
         if (checkRequirements != null) return checkRequirements
-        LOG.D2("login: " + json)
+        LOG.D4("login: " + json)
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
-        val storedUser = pds.getIDatasource.login(SCHEMA.cUsers, username, password)
+        val storedUser = pds.getIDatasource.login(SCHEMA.cUsers, username, encryptPwd(password))
         if (storedUser == null) return RESPONSE.BAD("Incorrect username or password.")
         if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
         val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
@@ -62,10 +63,10 @@ class UserController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
         if (checkRequirements != null) return checkRequirements
-        LOG.D2("refresh: " + json)
+        LOG.D4("refresh: " + json)
         val accessToken = (json \ SCHEMA.fAccessToken).as[String]
 
-        val storedUser = pds.getIDatasource.getUserAccount(SCHEMA.cUsers, accessToken)
+        val storedUser = pds.getIDatasource.getUserFromAccessToken(SCHEMA.cUsers, accessToken)
         if (storedUser == null) return RESPONSE.BAD("User not found.")
         if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
 
@@ -85,7 +86,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val anyReq: OAuth2Request = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("register: " + json)
+        LOG.D4("register: " + json)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword, SCHEMA.fName, SCHEMA.fEmail)
         if (checkRequirements != null) return checkRequirements
         val name = (json \ SCHEMA.fName).as[String]
@@ -104,8 +105,7 @@ class UserController @Inject()(cc: ControllerComponents,
         // Check if the username is unique
         val storedUsername = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
         if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
-
-        val newUser = pds.getIDatasource.register(SCHEMA.cUsers, name, email, username, password, external, accType)
+        val newUser = pds.getIDatasource.register(SCHEMA.cUsers, name, email, username, encryptPwd(password), external, accType)
         if (newUser == null) return RESPONSE.BAD("Please try again.")
         val res: JsValue = Json.obj("newUser" -> newUser)
         return RESPONSE.OK(res,"Successfully registered.")
@@ -221,9 +221,12 @@ class UserController @Inject()(cc: ControllerComponents,
       pds.getIDatasource.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId,
         (json \ SCHEMA.fOwnerId).as[String], user.toString())
     }
-    json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
+    var userType = "user"
+    if (pds.getIDatasource.isAdmin(SCHEMA.cUsers))
+      userType = "admin"
+    json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id)) +
+      (SCHEMA.fType -> JsString(userType))
     if (user != null) { // user and access_token exists
-      user = user.as[JsObject] + (SCHEMA.fType -> JsString((user \ SCHEMA.fType).as[String]))
       return RESPONSE.OK(user, "User Exists.") // its not AnyResponseHelperok
     } else {  // new user created CHECK:NN .. how token is on local account?
       val user = new Account(json)
@@ -265,9 +268,74 @@ class UserController @Inject()(cc: ControllerComponents,
     null
   }
 
+  def updateUser() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+        LOG.D2("updateUser:")
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fOwnerId)
+        if (checkRequirements != null) return checkRequirements
+
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+
+        val userOwnerId = (json \ SCHEMA.fOwnerId).as[String]
+        // only admin can update a user, or the user can update it self
+        if (owner_id != userOwnerId && !MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
+          return RESPONSE.UNAUTHORIZED("Users can only update themselves, unless they are moderators.")
+
+        val storedUser = pds.getIDatasource.getUserFromOwnerId(userOwnerId)
+        if (storedUser == null) return RESPONSE.BAD("User not found.")
+        var newUser: JsValue = storedUser(0)
+
+        if ((json \ SCHEMA.fName).toOption.isDefined) {
+          newUser = newUser.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
+        }
+        if ((json \ SCHEMA.fEmail).toOption.isDefined) {
+          val email = (json \ SCHEMA.fEmail).as[String]
+          val storedEmail = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
+          if (storedEmail != null) return RESPONSE.BAD("There is already an account with this email.")
+          newUser = newUser.as[JsObject] + (SCHEMA.fEmail -> JsString(email))
+        }
+        if ((json \ SCHEMA.fUsername).toOption.isDefined) {
+          val username = (json \ SCHEMA.fUsername).as[String]
+          val storedUsername = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
+          if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
+          newUser = newUser.as[JsObject] + (SCHEMA.fUsername -> JsString(username))
+        }
+        if ((json \ SCHEMA.fPassword).toOption.isDefined) {
+          newUser = newUser.as[JsObject] + (SCHEMA.fPassword -> JsString(encryptPwd((json \ SCHEMA.fPassword).as[String])))
+        }
+        // Only admins can change type of user
+        if ((json \ SCHEMA.fType).toOption.isDefined) {
+          if (MongodbDatasource.getAdmins.contains(userOwnerId))
+            return RESPONSE.FORBIDDEN("Cannot change type of an admin.")
+          if (MongodbDatasource.getAdmins.contains(owner_id)) {
+            val _type = (json \ SCHEMA.fType).as[String]
+            if (_type.equals("moderator") || _type.equals("user")) {
+              newUser = newUser.as[JsObject] + (SCHEMA.fType -> JsString(_type))
+            } else {
+              return RESPONSE.FORBIDDEN("Cannot change to type '" + _type + "'")
+           }
+          } else {
+            return RESPONSE.FORBIDDEN("Unauthorized. Only admins can change user type.")
+          }
+        }
+        if (pds.getIDatasource.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId, userOwnerId, newUser.toString()))
+          return RESPONSE.OK("Successfully updated user.")
+        return RESPONSE.internal_server_error("Could not update user.")
+      }
+
+      inner(request)
+  }
+
   def encryptPwd(password: String): String = {
-    val salt = "asdf" //# conf.get(salt) TODO define in private.conf (also in example) password.salt // .pepper
-    val pepper = "aaaa"
+    val salt = conf.get[String]("password.salt")
+    val pepper = conf.get[String]("password.pepper")
 
     encryptPassword(salt + password + pepper)
   }

@@ -71,6 +71,7 @@ object SCHEMA {
   val fRSS = "rss"
   val fSchema = "_schema"
   val fSpaceType = "space_type"
+  val fSpaceTypes = Array("building", "vessel")
   val fSum = "sum"
   val fStrongestWifi = "strongestWifi"
   val fTimestamp = "timestamp"

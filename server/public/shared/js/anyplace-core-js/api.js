@@ -90,9 +90,9 @@ API.Mapping.BUILDING_UPDATE = "/auth/mapping/space/update";
 API.Mapping.BUILDING_UPDATE_URL = API.url + API.Mapping.BUILDING_UPDATE;
 API.Mapping.BUILDING_DELETE = "/auth/mapping/space/delete";
 API.Mapping.BUILDING_DELETE_URL = API.url + API.Mapping.BUILDING_DELETE;
-API.Mapping.BUILDING_ALL = "/mapping/space/all";
+API.Mapping.BUILDING_ALL = "/mapping/space/public";
 API.Mapping.BUILDING_ALL_URL = API.url + API.Mapping.BUILDING_ALL;
-API.Mapping.BUILDING_ALL_OWNER = "/auth/mapping/space/user";
+API.Mapping.BUILDING_ALL_OWNER = "/auth/mapping/space/accessible";
 API.Mapping.BUILDING_ALL_OWNER_URL = API.url + API.Mapping.BUILDING_ALL_OWNER;
 
 API.Mapping.CAMPUS_ALL = "/auth/mapping/campus/user";
@@ -140,7 +140,7 @@ API.Mapping.CONNECTION_UPDATE = "/auth/mapping/connection/update";
 API.Mapping.CONNECTION_UPDATE_URL = API.old + API.Mapping.CONNECTION_UPDATE;
 API.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
 API.Mapping.CONNECTION_DELETE_URL = API.url + API.Mapping.CONNECTION_DELETE;
-API.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
+API.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/floor/all";
 API.Mapping.CONNECTION_ALL_FLOOR_URL = API.url + API.Mapping.CONNECTION_ALL_FLOOR;
 
 API.Mapping.LOGIN_GOOGLE = "/user/login/google";

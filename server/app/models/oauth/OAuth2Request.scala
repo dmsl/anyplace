@@ -55,7 +55,7 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
 
   def getAccessToken(): String = {
     val headers = this.mRequest.headers
-    val apiKey =  headers.get(SCHEMA.fAccessToken)
+    val apiKey = headers.get(SCHEMA.fAccessToken)
     if (apiKey.nonEmpty) return apiKey.get
 
     null

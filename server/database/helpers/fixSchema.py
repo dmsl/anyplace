@@ -10,7 +10,7 @@ def fixBUILDING(obj, outrangedCoordsFile):
     fixCoordinateTypo(fixed, obj)
     markOutrangedCoordinates(fixed, outrangedCoordsFile)
     fixDashesOrNulls(fixed)
-    fixed['type'] = "Building"
+    fixed['space_type'] = "building"
     return fixed
 
 

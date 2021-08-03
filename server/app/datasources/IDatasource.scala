@@ -58,7 +58,10 @@ trait IDatasource {
    * @param accessToken
    * @return
    */
-  def getUserAccount(collection: String, accessToken: String): List[JsValue]
+  //TODO:PM remove collection
+  def getUserFromAccessToken(collection: String, accessToken: String): List[JsValue]
+
+  def getUserFromOwnerId(owner_id: String): List[JsValue]
 
   def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int): Unit
 
@@ -154,6 +157,8 @@ trait IDatasource {
   def getAllBuildings(): List[JsValue]
 
   def getAllBuildingsByOwner(oid: String): List[JsValue]
+
+  def getAllSpaceOwned(owner_id: String): List[JsValue]
 
   def getAllBuildingsByBucode(bucode: String): List[JsValue]
 

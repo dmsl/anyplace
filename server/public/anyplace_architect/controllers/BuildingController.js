@@ -215,14 +215,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.$watch('anyService.selectedBuilding', function () {
         $scope.spaceTypes = [
-            "Building",
-            "Vessel"
+            "building",
+            "vessel"
         ];
         $scope.spacecategories = [{
-            spacecat: "Building",
+            spacecat: "building",
             id: "type1"
         },{
-            spacecat: "Vessel",
+            spacecat: "vessel",
             id: "type2"
         }
         ];
@@ -477,6 +477,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         if (isNullOrEmpty(b.bucode)) {
             reqObj.bucode = "";
         }
+        reqObj.space_type = b.type;
         LOG.D2(b);
         var marker = $scope.myBuildingsHashT[b.buid].marker;
         if (marker) {

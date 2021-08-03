@@ -918,7 +918,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           val stored_space: JsValue = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_space == null) return RESPONSE.BAD("Space does not exist or could not be retrieved.")
-          if (!isBuildingOwner(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
           val space = new Space(stored_space)
           if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.appendCoOwners(json)))
             return RESPONSE.BAD("Space could not be updated.")
@@ -955,7 +955,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
           val space = new Space(stored_space)
           if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.changeOwner(newOwner))) return RESPONSE.BAD("Building could not be updated!")
           return RESPONSE.OK("Successfully updated space!")
@@ -985,7 +985,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
           if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
             val is_published = (json \ SCHEMA.fIsPublished).as[String]
             if (is_published == "true" || is_published == "false")
@@ -1005,6 +1005,11 @@ class MappingController @Inject()(cc: ControllerComponents,
             stored_space = stored_space.as[JsObject] + (SCHEMA.fCoordinatesLat -> JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
           if (json.\(SCHEMA.fCoordinatesLon).getOrElse(null) != null)
             stored_space = stored_space.as[JsObject] + (SCHEMA.fCoordinatesLon -> JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
+          if (json.\(SCHEMA.fSpaceType).getOrElse(null) != null) {
+            val spaceType = (json \ SCHEMA.fSpaceType).as[String]
+            if (SCHEMA.fSpaceTypes.contains(spaceType))
+              stored_space = stored_space.as[JsObject] + (SCHEMA.fSpaceType -> JsString(spaceType))
+          }
           val space = new Space(stored_space)
           if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJSON())) return RESPONSE.BAD("Building could not be updated!")
           return RESPONSE.OK("Successfully updated space!")
@@ -1037,7 +1042,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1140,6 +1145,34 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           LOG.D3("owner_id = " + owner_id)
           val spaces = pds.getIDatasource.getAllBuildingsByOwner(owner_id)
+          val res: JsValue = Json.obj("spaces" -> spaces)
+          try {
+            RESPONSE.gzipJsonOk(res.toString)
+          } catch {
+            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all spaces!")
+          }
+        } catch {
+          case e: DatasourceException => return RESPONSE.ERROR(e)
+        }
+      }
+
+      inner(request)
+  }
+
+  def spaceOwned() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        LOG.D2("spaceOwned: " + Utils.stripJson(json))
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        try {
+          val spaces = pds.getIDatasource.getAllSpaceOwned(owner_id)
           val res: JsValue = Json.obj("spaces" -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1493,9 +1526,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1531,9 +1564,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1578,9 +1611,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1651,9 +1684,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) return RESPONSE.UNAUTHORIZED("Unauthorized")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1687,11 +1720,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         val puid = (json \ SCHEMA.fPuid).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) {
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
-          }
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1756,10 +1787,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val puid = (json \ SCHEMA.fPuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1793,8 +1823,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD(
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD(
             "Space does not exist or could not be retrieved.")
           val pois = pds.getIDatasource.poisByBuildingFloorAsJson(buid, floor_number)
           val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois)
@@ -1822,8 +1852,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD(
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD(
             "Space does not exist or could not be retrieved.")
           val pois = pds.getIDatasource.poisByBuildingAsJson(buid)
           val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois.asScala)
@@ -1943,16 +1973,14 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
-          stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
-          stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2011,16 +2039,14 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
-          if (stored_building == null)
+          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (stored_space == null)
             return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
-          stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
-          if (stored_building == null)
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (stored_space == null)
             return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2074,14 +2100,12 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
-          if (stored_building == null) return RESPONSE.BAD("Building_a does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
-          stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
-          if (stored_building == null) return RESPONSE.BAD("Building_b does not exist or could not be retrieved!")
-          if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id))
-            return RESPONSE.UNAUTHORIZED("Unauthorized")
+          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (stored_space == null) return RESPONSE.BAD("Building_a does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (stored_space == null) return RESPONSE.BAD("Building_b does not exist or could not be retrieved!")
+          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2120,8 +2144,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
           val stored_floors = pds.getIDatasource.floorsByBuildingAsJson(buid)
           var floorExists = false
           for (floor <- stored_floors.asScala)
@@ -2168,8 +2192,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_building = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_building == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
           val pois = pds.getIDatasource.connectionsByBuildingAllFloorsAsJson(buid)
           val res: JsValue = Json.obj("connections" -> pois)
           try
@@ -2560,39 +2584,6 @@ class MappingController @Inject()(cc: ControllerComponents,
   }
 
 
-
-  //  private def isBuildingOwner(building: JsonObject, userId: String): Boolean = {
-  //    // Admin
-  //    if (userId.equals(ADMIN_ID)) return true
-  //    if (building != null && building.get(SCHEMA.fOwnerId) != null &&
-  //      building.getString(SCHEMA.fOwnerId).equals(userId)) return true
-  //    false
-  //  }
-
-  private def isBuildingOwner(building: JsValue, userId: String): Boolean = {
-    // Admin
-    if (userId.equals(ADMIN_ID)) return true
-    if (building != null && (building \ SCHEMA.fOwnerId).toOption.isDefined &&
-      (building \ (SCHEMA.fOwnerId)).as[String].equals(userId)) return true
-    false
-  }
-
-  private def isBuildingCoOwner(building: JsValue, userId: String): Boolean = {
-    // Admin
-    if (userId.equals(ADMIN_ID)) return true
-    if (building != null) {
-      val cws = (building \ SCHEMA.fCoOwners)
-      if (cws.toOption.isDefined) {
-        val co_owners = cws.as[List[String]]
-        for (co_owner <- co_owners) {
-          if (co_owner == userId)
-            return true
-        }
-      }
-    }
-    false
-  }
-
   // CHECK:NN
   @deprecated("NotNeeded")
   def maintenance(): Action[AnyContent] = Action {
@@ -2861,5 +2852,4 @@ class MappingController @Inject()(cc: ControllerComponents,
   //
   //    inner(request)
   //}
-
 }

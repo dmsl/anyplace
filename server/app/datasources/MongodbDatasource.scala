@@ -40,7 +40,8 @@ import java.io.{FileOutputStream, IOException, PrintWriter}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util
-import datasources.MongodbDatasource.{admins, generateAccessToken, mdb, mongoClient}
+
+import datasources.MongodbDatasource.{admins, generateAccessToken, mdb, moderators, mongoClient}
 import datasources.SCHEMA._
 import modules.floor.IAlgo
 import javax.inject.{Inject, Singleton}
@@ -72,6 +73,11 @@ object MongodbDatasource {
   private var sInstance: MongodbDatasource = null
 
   private var admins: List[String] = List[String]()
+  private var moderators: List[String] = List[String]()
+
+
+  def getAdmins: List[String] = { return admins}
+  def getModerators: List[String] = { return moderators}
 
   def instance: MongodbDatasource = {
     if (sInstance == null) throw new RuntimeException("Mongodb not initialized")
@@ -95,9 +101,8 @@ object MongodbDatasource {
     val collections = mdb.listCollectionNames()
     val awaited = Await.result(collections.toFuture(), Duration.Inf)
     val res = awaited.toList
-    //LOG.I("MongoDB: Connected to: " + hostname + ":" + port)
-    //LOG.D("Collections = " + res)
     admins = loadAdmins()
+    moderators = loadModerators()
     new MongodbDatasource()
   }
 
@@ -111,10 +116,13 @@ object MongodbDatasource {
     start + Random.alphanumeric.take(500).mkString("") + end
   }
 
+  /**
+   * Cache moderators on MongoDB initialization.
+   *
+   * @return a list with admins.
+   */
   def loadModerators(): List[String] = {
-    //TODO: NN: like below and check if admin or mod..
-    // queryUsers: BDoc with admin or moderator
-    null
+    queryUsers(BsonDocument(SCHEMA.fType -> "moderator"))
   }
 
   /**
@@ -1446,9 +1454,23 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val collection = mdb.getCollection(SCHEMA.cSpaces)
     var buildingLookUp = collection.find(or(equal(SCHEMA.fOwnerId, oid),
       equal(SCHEMA.fCoOwners, oid)))
-    if (admins.contains(oid)) {
+    if (admins.contains(oid) || moderators.contains(oid)) {
       buildingLookUp = collection.find()
     }
+    val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
+    val res = awaited.toList
+    val listJson = convertJson(res)
+    val buildings = new java.util.ArrayList[JsValue]()
+    for (building <- listJson) {
+      buildings.add(building.as[JsObject] - SCHEMA.fCoOwners - SCHEMA.fGeometry
+        - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema)
+    }
+    buildings.toList
+  }
+
+  override def getAllSpaceOwned(oid: String): List[JsValue] = {
+    val collection = mdb.getCollection(SCHEMA.cSpaces)
+    val buildingLookUp = collection.find(equal(SCHEMA.fOwnerId, oid))
     val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
     val res = awaited.toList
     val listJson = convertJson(res)
@@ -1790,9 +1812,21 @@ class MongodbDatasource @Inject() () extends IDatasource {
     convertJson(res)
   }
 
-  override def getUserAccount(col: String, accessToken: String): List[JsValue] = {
+  override def getUserFromAccessToken(col: String, accessToken: String): List[JsValue] = {
     val collection = mdb.getCollection(col)
     val query = BsonDocument(SCHEMA.fAccessToken -> accessToken)
+    val userLookUp = collection.find(query)
+    val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
+    val res = awaited.asInstanceOf[List[Document]]
+    if (convertJson(res).isEmpty)
+      return null
+
+    convertJson(res)
+  }
+
+  override def getUserFromOwnerId(ownerId: String): List[JsValue] = {
+    val collection = mdb.getCollection(SCHEMA.cUsers)
+    val query = BsonDocument(SCHEMA.fOwnerId -> ownerId)
     val userLookUp = collection.find(query)
     val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
     val res = awaited.asInstanceOf[List[Document]]
