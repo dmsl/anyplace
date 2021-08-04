@@ -172,7 +172,7 @@ For the compilation of the web apps ([architect](public/anyplace_architect),
 </details>
 
 
-## 4. [~~DOCKER~~](../docker/README.md)
+## 4. [~~DOCKER~~](../docker/README.md) (deprecated)
 <details>
 <summary>
 Docker Deployment (outdated)

@@ -3,12 +3,13 @@ The codebase has been rewritten to the latest versions of:
 - Play: `2.8.x`
 - Scala: `2.13.x`
 - sbt: `1.5.x`
+- MongoDB: `4.3.x`
 
 All endpoints have been completely reimplemented to `MongoDB`.
 
 ***
 
-The Version 4.0 is available as a prebuilt with docker, on the `/develop` branch.
+The Version 4.0 is available as a prebuilt with docker (on the `/develop` branch).
 Docker is not supported for 4.2+.
 
 ***
