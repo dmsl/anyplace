@@ -37,7 +37,10 @@ and adapting as necessary.
 
 - `application.secret` - Generated from Step 2.
 - `server.address` - The URL the server is running on.
-  
+
+- `password.salt` - used for password encryption
+- `password.pepper` - used for password encryption
+
 - filesystem settings (optional):
   + `floorPlansRootDir`: directory of the floorplans
   + `radioMapRawDir`: directory for the raw radiomap data
