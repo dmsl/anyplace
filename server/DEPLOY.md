@@ -6,7 +6,7 @@
 Deploy Production
 </summary>
 
-1. **Download Anyplace**:
+### 1. **Download Anyplace**:
    
     For the latest binaries visit our Github releases, and `unzip`, e.g, using:
 
@@ -16,7 +16,7 @@ Deploy Production
     Or simply follow the standard `sbt` instructions after cloning the project.
 
 
-2. **Generate application key**:
+### 2. **Generate application key**:
    
    This is now required for security purposes.  
    Generate one using the `sbt shell` (inside IntelliJ):
@@ -27,19 +27,32 @@ Deploy Production
     [Read more](https://www.playframework.com/documentation/2.8.x/ApplicationSecret).
 
 
-3. **Update [conf/application.conf](./conf/application.conf)**:
-- `application.secret` - previous step
+### 3. **Update [configuration](./conf/)**:
+Configuration is split amongst these files:
+
+#### 3.1 [conf/.app.private.conf](./conf/app.private.example.conf)
+Private configuration. Never share online.
+Create this file by duplicating [app.private.example.conf](./conf/app.private.example.conf) 
+and adapting as necessary.  
+
+- `application.secret` - Generated from Step 2.
 - `server.address` - The URL the server is running on.
-- database settings (mongodb, etc)
+  
 - filesystem settings (optional):
-  + `floorPlansRootDir`: directory of the floopr plans
+  + `floorPlansRootDir`: directory of the floorplans
   + `radioMapRawDir`: directory for the raw radiomap data
   + `radioMapFrozenDir`: directory for the frozen radiomaps
   + `tilerRootDir`: directory of the tiler
 
-4. **Install [tiler dependencies](anyplace_tiler/README.md)**:
+#### 3.2 [conf/app.base.conf](./conf/app.base.conf)
+- `app.base.conf`: put the base configuration. Don't reference any variables as it is used by [build.sbt](build.sbt).
 
-5. **Run anyplace service**:
+#### 3.3 [conf/app.play.conf](./conf/app.play.conf)
+Contains the remaining of the Play configuration.
+
+### 4. **Install [tiler dependencies](anyplace_tiler/README.md)**:
+
+### 5. **Run anyplace service**:
 
    **Unix/Linux**:
     ```bash
@@ -57,7 +70,7 @@ Deploy Production
     # To stop press Ctrl-C or kill the respective process through the task manager
     ``` 
 
-6. **SSL and Cluster Configuration**:
+### 6. **SSL and Cluster Configuration**:
 + Install a free certificate from
   [letsencrypt.org](https://letsencrypt.org/) on your Anyplace Server 
   to obtain a secure https connection. SSL is only optional for 
