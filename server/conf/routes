@@ -1,20 +1,22 @@
-
 ###
 # Not mounting to /api due to swagger documentation generation.
 # It is manually appended api.routess
 ->  /    api.Routes
 ->  /    api.old.Routes
 
+# CHECK:NN anything useful in this one?
+### NoDocs ###
+POST        /api/user/auth/admin/migration/run                                  controllers.UserAdminController.migrateToMongoDB()
 
-################
+# CHECK:NN do we need a logout?
+# POST         /user/logout                                                  controllers.UserController.logout()
+# ADMIN
+
 ### POSITION
-################
 # TODO:NN estimate_position (implement this as well..)
 POST        /anyplace/position/estimate_position                                    controllers.MappingController.findPosition()
 
-################
-### RADIOMAPS
-################
+###################################
 
 ###########
 ### RESOURCES:
@@ -55,17 +57,3 @@ GET /assets/*file                                                               
 GET /                                                                               controllers.MainController.index()
 # REDIRECT REMAINING TO INDEX
 GET /*any                                                                           controllers.MainController.indexRedirect(any)
-
-
-###################
-# Unused Endpoints
-###################
-POST        /anyplace/mapping/building/coowners                                     controllers.MappingController.spaceUpdateCoOwners()
-# Fetches all buildings that matches bucode.
-POST        /anyplace/mapping/building/all_bucode                                   controllers.MappingController.spaceByBucode()
-POST        /anyplace/mapping/building/newowner                                     controllers.MappingController.spaceUpdateOwner()
-# Not in use by anyplace API. Used by Rayzit
-POST        /anyplace/mapping/pois/all_pois_nconnectors                             controllers.MappingController.poisBySpaceConnectors()
-
-# CHECK:DZ
-POST        /anyplace/mapping/radio/radio_buid_floor                                controllers.MappingController.getRadioHeatmapBbox()

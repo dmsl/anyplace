@@ -70,13 +70,13 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
 
     val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
 
-    val rmapDir = new File(radioMapsFrozenDir + api.URL_SEP + buid + api.URL_SEP +
+    val rmapDir = new File(radioMapsFrozenDir + api.sep + buid + api.sep +
       floor_number)
 
     if (!rmapDir.exists() && !rmapDir.mkdirs()) {
       return cls + "failed to create: " + rmapDir.toString
     }
-    val rssLogPerFloor = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
+    val rssLogPerFloor = new File(rmapDir.getAbsolutePath + api.sep + "rss-log")
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(rssLogPerFloor)
@@ -86,7 +86,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     }
     var floorFetched: Long = 0
     try {
-      floorFetched = pds.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+      floorFetched = pds.db.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
       fout.close()
     } catch {
       case e: DatasourceException => return cls + e.getClass + ": " + e.getMessage
@@ -95,7 +95,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
     if (floorFetched == 0) {
       return null
     }
-    val radiomap_filename = new File(rmapDir.toString + api.URL_SEP + "indoor-radiomap.txt")
+    val radiomap_filename = new File(rmapDir.toString + api.sep + "indoor-radiomap.txt")
       .getAbsolutePath
     val rm = new RadioMap(new File(rmapDir.toString), radiomap_filename, "", -110)
     val resCreate = rm.createRadioMap()
@@ -137,13 +137,13 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
       // store in radioMapRawDir/tmp/buid/floor/bbox_token
       val fullPath = conf.get[String]("radioMapRawDir") + "/bbox/" + bboxRadioDir
       val dir = new File(fullPath)
-      val radiomap_filename = new File(fullPath + api.URL_SEP + "indoor-radiomap.txt")
+      val radiomap_filename = new File(fullPath + api.sep + "indoor-radiomap.txt")
         .getAbsolutePath
       var msg = ""
       if (!dir.exists()) {
         // if the range is maximum then we are looking for the entire floor
         if (range == BBOX_MAX) {
-          val buid = pds.getIDatasource.dumpRssLogEntriesWithCoordinates(floorNumber, lat.toDouble, lon.toDouble)
+          val buid = pds.db.dumpRssLogEntriesWithCoordinates(floorNumber, lat.toDouble, lon.toDouble)
           if (buid != null) {  // building found. return path to file
             val radiomap_mean_filename = api.SERVER_API_ROOT
             val path = radiomap_mean_filename.dropRight(1) + fu.getDirFrozenFloor(buid, floorNumber) + "/indoor-radiomap-mean.txt"
@@ -153,15 +153,15 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
         }
         msg = "created bbox: " + fullPath
         if (!dir.mkdirs()) {
-          return RESPONSE.internal_server_error("Failed to create bbox dir: " + fullPath)
+          return RESPONSE.ERROR_INTERNAL("Failed to create bbox dir: " + fullPath)
         }
-        val rssLog = new File(dir.getAbsolutePath + api.URL_SEP + "rss-log")
+        val rssLog = new File(dir.getAbsolutePath + api.sep + "rss-log")
         var fout: FileOutputStream = null
         var floorFetched: Long = 0L
         try {
           fout = new FileOutputStream(rssLog)
           LOG.D5("RSS path: " + rssLog.toPath().getFileName.toString)
-          floorFetched = pds.getIDatasource.dumpRssLogEntriesSpatial(fout, bbox, floorNumber)
+          floorFetched = pds.db.dumpRssLogEntriesSpatial(fout, bbox, floorNumber)
           fout.close()
           if (floorFetched == 0) {
             return RESPONSE.BAD("Area not supported yet!")
@@ -169,7 +169,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
           val rm = new RadioMap(new File(fullPath), radiomap_filename, "", -110)
           val resCreate = rm.createRadioMap()
           if (resCreate != null) {
-            return RESPONSE.internal_server_error("findRadioBbox: radiomap on-the-fly: " + resCreate)
+            return RESPONSE.ERROR_INTERNAL("findRadioBbox: radiomap on-the-fly: " + resCreate)
           }
         } catch {
           case fnfe: FileNotFoundException => return RESPONSE.ERROR("findRadioBbox: " +
@@ -211,7 +211,7 @@ class Mapping @Inject() (api: AnyplaceServerAPI, conf: Configuration, fu: FileUt
       return false
     }
     val name = generateRandomRssLogFileName()
-    val dest_f = new File(radio_dir + api.URL_SEP + name)
+    val dest_f = new File(radio_dir + api.sep + name)
     var fout: FileOutputStream = null
     try {
       fout = new FileOutputStream(dest_f)

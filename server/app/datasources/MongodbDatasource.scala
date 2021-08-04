@@ -584,7 +584,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     String.valueOf(myChars)
   }
 
-  override def addJsonDocument(col: String, document: String): Boolean = {
+  override def addJson(col: String, document: String): Boolean = {
     val collection = mdb.getCollection(col)
     val addJson = collection.insertOne(Document.apply(document))
     val awaited = Await.result(addJson.toFuture(), Duration.Inf)
@@ -1187,7 +1187,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val storedHeatmap = fetchStoredHeatmap(collectionName, fingerprint, level, hasTimestamp)
     if (storedHeatmap == null) {
       val heatmap = createHeatmap(fingerprint, level, hasTimestamp)
-      addJsonDocument(collectionName, heatmap.toString())
+      addJson(collectionName, heatmap.toString())
     } else {
       val newSum = confirmNegativity((fingerprint \ "sum").as[Int]) + confirmNegativity((storedHeatmap \ "sum").as[Int])
       val newCount = (fingerprint \ "count").as[Int] + (storedHeatmap \ "count").as[Int]
@@ -1812,8 +1812,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
     convertJson(res)
   }
 
-  override def getUserFromAccessToken(col: String, accessToken: String): List[JsValue] = {
-    val collection = mdb.getCollection(col)
+  override def getUserFromAccessToken(accessToken: String): List[JsValue] = {
+    val collection = mdb.getCollection(SCHEMA.cUsers)
     val query = BsonDocument(SCHEMA.fAccessToken -> accessToken)
     val userLookUp = collection.find(query)
     val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
@@ -1848,7 +1848,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
       SCHEMA.fUsername -> JsString(username), SCHEMA.fPassword -> JsString(password),
       SCHEMA.fAccessToken -> JsString(accessToken), SCHEMA.fExternal -> JsString(external),
       SCHEMA.fType -> JsString(accType), SCHEMA.fOwnerId -> JsString(owner_id))
-    addJsonDocument(SCHEMA.cUsers, json.toString())
+    addJson(SCHEMA.cUsers, json.toString())
 
     json.as[JsObject] - SCHEMA.fPassword
   }

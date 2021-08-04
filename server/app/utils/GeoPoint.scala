@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -34,10 +34,6 @@
  *
  */
 
-/**
-	* Source code for geohash adopted and adapted from
-	* https://github.com/Solliet/geohash_sisiphus/
-	*/
 package utils
 
 import scala.collection.mutable.ListBuffer
@@ -47,7 +43,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 
 object GeoPoint {
-
 
 	val charMap = "0123456789bcdefghjkmnpqrstuvwxyz"
 	val MAX_LAT: Double = 90.0
@@ -194,19 +189,20 @@ class GeoPoint {
 		this.lon = lon
 	}
 
+
+	/**
+	 * Source code for geohash adopted and adapted from
+	 * https://github.com/Solliet/geohash_sisiphus/
+	 */
 	def asGeohash(prec: Integer): String = {
 		require(prec >= 1 && prec <= 12)
 
 		val hash = ListBuffer[Char]()
-
 		val precision: Integer = prec * 5
-
-
 		var latHigh = GeoPoint.MAX_LAT
 		var latLow = GeoPoint.MIN_LAT
 		var lngHigh = GeoPoint.MAX_LONG
 		var lngLow = GeoPoint.MIN_LONG
-
 
 		var mid: Double = 0.0
 		var isEven = true

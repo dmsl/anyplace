@@ -41,8 +41,6 @@ import play.api.mvc.{AnyContent, Request, Result}
 import utils.RESPONSE
 import utils.RESPONSE.ERROR_NO_ACCESS_TOKEN
 
-// TODO:NN method-> verifyUser() verifyAdminUser()
-// notes -> ../spaceDelete
 class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
   var mRequest = request
   var mBody  = this.mRequest.body

@@ -41,11 +41,11 @@ import java.text.{NumberFormat, ParseException}
 import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.util
 import java.util.Locale
-
 import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
+
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
-import json.VALIDATE.String
+import json.VALIDATE.{String, floor}
 import location.Algorithms
 import models._
 import modules.radiomapserver.RadioMap.RadioMap
@@ -99,8 +99,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         LOG.D2("getRadioHeatmap: " + Utils.stripJson(anyReq.getJsonBody()))
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmap()
-          if (radioPoints == null) return RESPONSE.BAD("Building does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmap()
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           val res = Json.obj("radioPoints" -> radioPoints.asScala)
           return RESPONSE.OK(res, "Successfully retrieved radio points.")
         } catch {
@@ -122,8 +122,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
-          if (radioPoints == null) return RESPONSE.BAD("Space does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -151,8 +151,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
-          if (radioPoints == null) return RESPONSE.BAD("Space does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -185,8 +185,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
-          if (radioPoints == null) return RESPONSE.BAD("Space does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -221,8 +221,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val tileY = (json \ SCHEMA.fY).as[Int]
         val zoomLevel = (json \ "z").as[Int]
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
-          if (radioPoints == null) return RESPONSE.BAD("Building does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
 
           val radioPointsInXY: util.ArrayList[JsValue] = new util.ArrayList[JsValue]()
           // assigns fingerprints to map tiles because its overkill to load everything at once.
@@ -267,8 +267,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
 
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
-          if (radioPoints == null) return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -321,8 +321,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val z = (json \ "z").as[Int]
 
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
-          if (radioPoints == null) return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved!")
+          val radioPoints = pds.db.getRadioHeatmapByFloorTimestamp(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
           val radioPointsInXY: util.ArrayList[JsValue] = new util.ArrayList[JsValue]()
 
           for (radioPoint <- radioPoints) {
@@ -361,8 +361,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
-          if (radioPoints == null) return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByBuildingFloorTimestampAverage1(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -391,8 +391,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-          val radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
-          if (radioPoints == null) return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved.")
+          val radioPoints = pds.db.getRadioHeatmapByBuildingFloorTimestampAverage2(buid, floor, timestampX, timestampY)
+          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -423,14 +423,14 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
-        val APs = pds.getIDatasource.getCachedAPsByBuildingFloor(buid, floor)
+        val APs = pds.db.getCachedAPsByBuildingFloor(buid, floor)
         // if cached return it
         if (APs != null) {
           val res = Json.obj("accessPoints" -> (APs \ "accessPoints").as[List[JsValue]])
           return RESPONSE.gzipJsonOk(res, "Fetched precompute of accessPointsWifi")
         } else {
           try {
-            val accessPoints = pds.getIDatasource.getAPsByBuildingFloor(buid, floor)
+            val accessPoints = pds.db.getAPsByBuildingFloor(buid, floor)
             LOG.D3("mdb " + accessPoints.size)
             val uniqueAPs: util.HashMap[String, JsValue] = new util.HashMap()
             for (accessPoint <- accessPoints) {
@@ -464,9 +464,9 @@ class MappingController @Inject()(cc: ControllerComponents,
               uniqueAPs.put(id, ap.as[JsObject])
             }
 
-            if (accessPoints == null) return RESPONSE.BAD("Space does not exist or could not be retrieved.")
+            if (accessPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
             val newAccessPoint = Json.obj(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor, "accessPoints" -> uniqueAPs.values().asScala)
-            pds.getIDatasource.addJsonDocument(SCHEMA.cAccessPointsWifi, newAccessPoint.toString())
+            pds.db.addJson(SCHEMA.cAccessPointsWifi, newAccessPoint.toString())
             val res: JsValue = Json.obj("accessPoints" -> new util.ArrayList[JsValue](uniqueAPs.values()).asScala)
             try {
               RESPONSE.gzipJsonOk(res, "Generated precompute of accessPointsWifi")
@@ -588,30 +588,30 @@ class MappingController @Inject()(cc: ControllerComponents,
           json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2")
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val floorNum = (json \ SCHEMA.fFloor).as[String]
         val lat1 = (json \ "lat1").as[String]
         val lon1 = (json \ "lon1").as[String]
         val lat2 = (json \ "lat2").as[String]
         val lon2 = (json \ "lon2").as[String]
         try {
-          val fingerprints: List[JsValue] = pds.getIDatasource.getFingerPrintsBBox(
-            buid, floor_number, lat1, lon1, lat2, lon2)
+          val fingerprints: List[JsValue] = pds.db.getFingerPrintsBBox(
+            buid, floorNum, lat1, lon1, lat2, lon2)
           if (fingerprints.isEmpty)
-            return RESPONSE.BAD("Fingerprints does not exist or could not be retrieved.")
+            return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
 
           LOG.D2("FingerPrintsDelete: will delete " + fingerprints.size + " fingerprints.")
           for (fingerprint <- fingerprints) {
-            pds.getIDatasource.deleteFingerprint(fingerprint)
+            pds.db.deleteFingerprint(fingerprint)
           }
-          pds.getIDatasource.deleteAffectedHeatmaps(buid,floor_number)
+          pds.db.deleteAffectedHeatmaps(buid,floorNum)
           val res: JsValue = Json.obj("fingerprints" -> fingerprints)
-          Future { mapHelper.updateFrozenRadioMap(buid, floor_number) }(ec)
+          Future { mapHelper.updateFrozenRadioMap(buid, floorNum) }(ec)
           return RESPONSE.gzipJsonOk(res, "Deleted " + fingerprints.size + " fingerprints and returning them.")
         } catch {
           case e: Exception =>
-            return RESPONSE.internal_server_error("FingerPrintsDelete: " + e.getClass + ": " + e.getMessage)
+            return RESPONSE.ERROR_INTERNAL("FingerPrintsDelete: " + e.getClass + ": " + e.getMessage)
         }
       }
 
@@ -630,7 +630,7 @@ class MappingController @Inject()(cc: ControllerComponents,
           json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val floorNum = (json \ SCHEMA.fFloor).as[String]
         val lat1 = (json \ "lat1").as[String]
         val lon1 = (json \ "lon1").as[String]
         val lat2 = (json \ "lat2").as[String]
@@ -638,18 +638,18 @@ class MappingController @Inject()(cc: ControllerComponents,
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-          val fingerprints: List[JsValue] = pds.getIDatasource.getFingerPrintsTimestampBBox(buid, floor_number, lat1, lon1, lat2, lon2, timestampX, timestampY)
+          val fingerprints: List[JsValue] = pds.db.getFingerPrintsTimestampBBox(buid, floorNum, lat1, lon1, lat2, lon2, timestampX, timestampY)
           if (fingerprints.isEmpty)
-            return RESPONSE.BAD("FingerPrints does not exist or could not be retrieved!")
+            return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
           for (fingerprint <- fingerprints)
-            pds.getIDatasource.deleteFingerprint(fingerprint)
-          pds.getIDatasource.deleteAffectedHeatmaps(buid,floor_number)
+            pds.db.deleteFingerprint(fingerprint)
+          pds.db.deleteAffectedHeatmaps(buid,floorNum)
           // TODO:NN below comment?
           // TODO:do also 1 and 2
-          pds.getIDatasource.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floor_number, 3)
+          pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floorNum, 3)
           val res: JsValue = Json.obj("radioPoints" -> fingerprints)
           try {
-            Future { mapHelper.updateFrozenRadioMap(buid, floor_number) }(ec)
+            Future { mapHelper.updateFrozenRadioMap(buid, floorNum) }(ec)
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
             case ioe: IOException =>
@@ -680,15 +680,15 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val floorNum = (json \ SCHEMA.fFloor).as[String]
 
         // create cache-collections
-        pds.getIDatasource.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp1, buid, floor_number, 1)
-        pds.getIDatasource.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp2, buid, floor_number, 2)
-        pds.getIDatasource.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floor_number, 3)
+        pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp1, buid, floorNum, 1)
+        pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp2, buid, floorNum, 2)
+        pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floorNum, 3)
 
         try {
-          val radioPoints: List[JsValue] = pds.getIDatasource.getFingerprintsByTime(buid, floor_number)
+          val radioPoints: List[JsValue] = pds.db.getFingerprintsByTime(buid, floorNum)
           if (radioPoints.isEmpty) return RESPONSE.BAD("Fingerprints do not exist.")
           val res: JsValue = Json.obj("radioPoints" -> radioPoints)
           try {
@@ -719,7 +719,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         //  return An/yResponseHelper.requiredFieldsMissing(requiredMissing)
 
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val floorNum = (json \ SCHEMA.fFloor).as[String]
 
         /*
          * BuxFix : Server side localization API
@@ -753,18 +753,18 @@ class MappingController @Inject()(cc: ControllerComponents,
         val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
         /* CHECK:NN
          * REVIEWLS . Leaving bugfix from develop
-            val floor_number = (json \ SCHEMA.fFloor).as[String]
+            val floorNum = (json \ SCHEMA.fFloor).as[String]
             val jsonstr=(json\"APs").as[String]
             val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
             val floors: Array[JsonObject] = pds.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
             val algorithm_choice = (json\"algorithm_choice").as[String].toInt
             */
 
-        val rmapFile = new File(radioMapsFrozenDir + api.URL_SEP + buid + api.URL_SEP +
-          floor_number + api.URL_SEP + "indoor-radiomap-mean.txt")
+        val rmapFile = new File(radioMapsFrozenDir + api.sep + buid + api.sep +
+          floorNum + api.sep + "indoor-radiomap-mean.txt")
 
         if (!rmapFile.exists()) {  // Regenerate the radiomap files
-          mapHelper.updateFrozenRadioMap(buid, floor_number)
+          mapHelper.updateFrozenRadioMap(buid, floorNum)
         }
 
         /*
@@ -810,18 +810,18 @@ class MappingController @Inject()(cc: ControllerComponents,
           return RESPONSE.MISSING_FIELDS(requiredMissing)
         val lat = (json \ SCHEMA.fCoordinatesLat).as[String]
         val lon = (json \ SCHEMA.fCoordinatesLon).as[String]
-        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val floorNum = (json \ SCHEMA.fFloor).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
         val strRange = (json \ "range").as[String]
         val weight = (json \ SCHEMA.fWeight).as[String]
         val range = strRange.toInt
         try {
           var radioPoints: util.List[JsValue] = null
-          if (weight.compareTo("false") == 0) radioPoints = pds.getIDatasource.getRadioHeatmapBBox2(lat, lon, buid, floor_number, range)
-          else if (weight.compareTo("true") == 0) radioPoints = pds.getIDatasource.getRadioHeatmapBBox(lat, lon, buid, floor_number, range)
-          else if (weight.compareTo("no spatial") == 0) radioPoints = pds.getIDatasource.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floor_number, range)
+          if (weight.compareTo("false") == 0) radioPoints = pds.db.getRadioHeatmapBBox2(lat, lon, buid, floorNum, range)
+          else if (weight.compareTo("true") == 0) radioPoints = pds.db.getRadioHeatmapBBox(lat, lon, buid, floorNum, range)
+          else if (weight.compareTo("no spatial") == 0) radioPoints = pds.db.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floorNum, range)
           if (radioPoints == null)
-            return RESPONSE.BAD("Space does not exist or could not be retrieved.")
+            return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           val res = Json.obj("radioPoints" -> radioPoints.asScala)
           // CHECK: NN comments below?
           try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
@@ -849,8 +849,8 @@ class MappingController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         LOG.D2("deleteRadiosInBox: " + Utils.stripJson(json))
         try {
-          if (!pds.getIDatasource.deleteRadiosInBox()) {
-            return RESPONSE.BAD("Space exists or could not be added")
+          if (!pds.db.deleteRadiosInBox()) {
+            return RESPONSE.BAD_CANNOT_ADD_SPACE
           }
           return RESPONSE.OK("Success")
         } catch {
@@ -874,7 +874,7 @@ class MappingController @Inject()(cc: ControllerComponents,
           SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fSpaceType)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
           var space: Space = null
@@ -884,8 +884,8 @@ class MappingController @Inject()(cc: ControllerComponents,
           } catch {
             case e: NumberFormatException => return RESPONSE.BAD("Space coordinates are invalid.")
           }
-          if (!pds.getIDatasource.addJsonDocument(SCHEMA.cSpaces, space.toGeoJSON())) {
-            return RESPONSE.BAD("Space exists or could not be added.")
+          if (!pds.db.addJson(SCHEMA.cSpaces, space.toGeoJSON())) {
+            return RESPONSE.BAD_CANNOT_ADD_SPACE
           }
           val res: JsValue = Json.obj(SCHEMA.fBuid -> space.getId())
           return RESPONSE.OK(res, "Successfully added space.")
@@ -916,11 +916,11 @@ class MappingController @Inject()(cc: ControllerComponents,
 
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space: JsValue = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Space does not exist or could not be retrieved.")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
-          val space = new Space(stored_space)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.appendCoOwners(json)))
+          val storedSpace: JsValue = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          val space = new Space(storedSpace)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.appendCoOwners(json)))
             return RESPONSE.BAD("Space could not be updated.")
 
           return RESPONSE.OK("Successfully updated space")
@@ -944,7 +944,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "new_owner")
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val validation = VALIDATE.fields(json, SCHEMA.fBuid, "new_owner")
         if (validation.failed()) return validation.response()
@@ -953,11 +953,11 @@ class MappingController @Inject()(cc: ControllerComponents,
         var newOwner = (json \ "new_owner").as[String]
         newOwner = appendGoogleIdIfNeeded(newOwner)
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
-          val space = new Space(stored_space)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.changeOwner(newOwner))) return RESPONSE.BAD("Building could not be updated!")
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          val space = new Space(storedSpace)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.changeOwner(newOwner))) return RESPONSE.BAD("Space could not be updated!")
           return RESPONSE.OK("Successfully updated space!")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -979,39 +979,39 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          var storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
           if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
             val is_published = (json \ SCHEMA.fIsPublished).as[String]
             if (is_published == "true" || is_published == "false")
-              stored_space = stored_space.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
+              storedSpace = storedSpace.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           }
           if (json.\(SCHEMA.fName).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
           if (json.\(SCHEMA.fBuCode).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fBuCode -> JsString((json \ SCHEMA.fBuCode).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fBuCode -> JsString((json \ SCHEMA.fBuCode).as[String]))
           if (json.\(SCHEMA.fDescription).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fDescription -> JsString((json \ SCHEMA.fDescription).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fDescription -> JsString((json \ SCHEMA.fDescription).as[String]))
           if (json.\(SCHEMA.fURL).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fURL -> JsString((json \ SCHEMA.fURL).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fURL -> JsString((json \ SCHEMA.fURL).as[String]))
           if (json.\(SCHEMA.fAddress).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fAddress -> JsString((json \ SCHEMA.fAddress).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fAddress -> JsString((json \ SCHEMA.fAddress).as[String]))
           if (json.\(SCHEMA.fCoordinatesLat).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fCoordinatesLat -> JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fCoordinatesLat -> JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
           if (json.\(SCHEMA.fCoordinatesLon).getOrElse(null) != null)
-            stored_space = stored_space.as[JsObject] + (SCHEMA.fCoordinatesLon -> JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
+            storedSpace = storedSpace.as[JsObject] + (SCHEMA.fCoordinatesLon -> JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
           if (json.\(SCHEMA.fSpaceType).getOrElse(null) != null) {
             val spaceType = (json \ SCHEMA.fSpaceType).as[String]
             if (SCHEMA.fSpaceTypes.contains(spaceType))
-              stored_space = stored_space.as[JsObject] + (SCHEMA.fSpaceType -> JsString(spaceType))
+              storedSpace = storedSpace.as[JsObject] + (SCHEMA.fSpaceType -> JsString(spaceType))
           }
-          val space = new Space(stored_space)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJSON())) return RESPONSE.BAD("Building could not be updated!")
+          val space = new Space(storedSpace)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJSON())) return RESPONSE.BAD("Space could not be updated!")
           return RESPONSE.OK("Successfully updated space!")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -1034,20 +1034,20 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         if (String(json, SCHEMA.fBuid) == null)
           return RESPONSE.BAD("Buid field must be String!")
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
         try {
-          val deleted = pds.getIDatasource.deleteAllByBuilding(buid)
+          val deleted = pds.db.deleteAllByBuilding(buid)
           if (deleted == false)
             return RESPONSE.BAD("Some items related to the deleted space could not be deleted.")
         } catch {
@@ -1058,7 +1058,7 @@ class MappingController @Inject()(cc: ControllerComponents,
           val buidfile = new File(filePath)
           if (buidfile.exists()) HelperMethods.recDeleteDirFile(buidfile)
         } catch {
-          case e: IOException => return RESPONSE.internal_server_error("500: " + e.getMessage + "] while deleting floor plans." +
+          case e: IOException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage + "] while deleting floorplans." +
             "\nAll related information is deleted from the database!")
         }
         return RESPONSE.OK("Successfully deleted everything related to space!")
@@ -1076,7 +1076,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         LOG.D2("spaceAll: " + Utils.stripJson(json))
         try {
-          val spaces = pds.getIDatasource.getAllBuildings()
+          val spaces = pds.db.getAllBuildings()
           val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1103,7 +1103,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          var space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          var space = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (space != null && (space \ SCHEMA.fBuid) != JsDefined(JsNull) &&
             (space \ SCHEMA.fCoordinatesLat) != JsDefined(JsNull) &&
             (space \ SCHEMA.fCoordinatesLon) != JsDefined(JsNull) &&
@@ -1118,7 +1118,7 @@ class MappingController @Inject()(cc: ControllerComponents,
               case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved the space!")
             }
           }
-          return RESPONSE.NOT_FOUND("Building not found.")
+          return RESPONSE.NOT_FOUND("Space not found.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1141,10 +1141,10 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
 
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         try {
           LOG.D3("owner_id = " + owner_id)
-          val spaces = pds.getIDatasource.getAllBuildingsByOwner(owner_id)
+          val spaces = pds.db.getAllBuildingsByOwner(owner_id)
           val res: JsValue = Json.obj("spaces" -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1170,9 +1170,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         LOG.D2("spaceOwned: " + Utils.stripJson(json))
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         try {
-          val spaces = pds.getIDatasource.getAllSpaceOwned(owner_id)
+          val spaces = pds.db.getAllSpaceOwned(owner_id)
           val res: JsValue = Json.obj("spaces" -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1198,7 +1198,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val bucode = (json \ SCHEMA.fBuCode).as[String]
         try {
-          val spaces = pds.getIDatasource.getAllBuildingsByBucode(bucode)
+          val spaces = pds.db.getAllBuildingsByBucode(bucode)
           val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1240,12 +1240,12 @@ class MappingController @Inject()(cc: ControllerComponents,
         }
 
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
           val lat = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLat).as[String])
           val lon = java.lang.Double.parseDouble((json \ SCHEMA.fCoordinatesLon).as[String])
-          val spaces = pds.getIDatasource.getAllBuildingsNearMe(lat, lon, range, owner_id)
+          val spaces = pds.db.getAllBuildingsNearMe(lat, lon, range, owner_id)
           val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1262,7 +1262,7 @@ class MappingController @Inject()(cc: ControllerComponents,
 
 
   /**
-   * Retrieve the building Set.
+   * Retrieve the Space Set.
    *
    * @return
    */
@@ -1278,7 +1278,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
-          val campus = pds.getIDatasource.getBuildingSet(cuid)
+          val campus = pds.db.getBuildingSet(cuid)
           if (campus.size == 0) {
             return RESPONSE.NOT_FOUND("Campus '" + cuid + "' not found!")
           } else if (campus.size > 1) {
@@ -1293,19 +1293,19 @@ class MappingController @Inject()(cc: ControllerComponents,
             }
           }
 
-          val buildings = new util.ArrayList[JsValue]
+          val spaces = new util.ArrayList[JsValue]
           for (b <- buids.asScala) {
-            val building = pds.getIDatasource.getFromKey(SCHEMA.cSpaces, SCHEMA.fBuid, b)
-            if (building != null) // some buildings are deleted but still exist in buids[] of a campus
-              buildings.add(building.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCoOwners - SCHEMA.fGeometry - SCHEMA.fType - SCHEMA.fOwnerId)
+            val space = pds.db.getFromKey(SCHEMA.cSpaces, SCHEMA.fBuid, b)
+            if (space != null) // some spaces are deleted but still exist in buids[] of a campus
+              spaces.add(space.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCoOwners - SCHEMA.fGeometry - SCHEMA.fType - SCHEMA.fOwnerId)
           }
 
           val res = campus(0).as[JsObject] - SCHEMA.fBuids - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCampusCuid - SCHEMA.fDescription +
-            (SCHEMA.cSpaces -> Json.toJson(buildings.asScala))
+            (SCHEMA.cSpaces -> Json.toJson(spaces.asScala))
           try
             RESPONSE.gzipJsonOk(res.toString)
           catch {
-            case ioe: IOException => RESPONSE.OK(res, "Successfully retrieved buildingsSets")
+            case ioe: IOException => RESPONSE.OK(res, "Successfully retrieved spaceSets")
           }
         } catch {
           case e: DatasourceException => RESPONSE.ERROR(e)
@@ -1316,41 +1316,40 @@ class MappingController @Inject()(cc: ControllerComponents,
   }
 
   /**
-   * Adds a new building set to the database
+   * Adds a new Space set to the database
    *
-   * @return the newly created Building ID is included in the response if success
+   * @return the newly created Space ID is included in the response if success
    */
-  def buildingSetAdd = Action {
+  def spaceSetAdd = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         val apiKey = anyReq.getAccessToken()
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody())
-          return RESPONSE
-            .BAD(RESPONSE.ERROR_JSON_PARSE)
+          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("buildingSetAdd: " + Utils.stripJson(json))
+        LOG.D2("spaceSetAdd: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fDescription, SCHEMA.fName, SCHEMA.fBuids, SCHEMA.fGreeklish)
         if (checkRequirements != null) return checkRequirements
         var owner_id = user.authorize(apiKey)
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
         try {
           val cuid = (json \ SCHEMA.fCampusCuid).as[String]
-          val campus = pds.getIDatasource.BuildingSetsCuids(cuid)
-          if (campus) return RESPONSE.BAD("Building set already exists!")
+          val campus = pds.db.BuildingSetsCuids(cuid)
+          if (campus) return RESPONSE.BAD("Space set already exists.")
           else {
             var buildingset: BuildingSet = null
             try {
               buildingset = new BuildingSet(json)
             } catch {
               case e: NumberFormatException =>
-                return RESPONSE.BAD("Building coordinates are invalid!")
+                return RESPONSE.BAD("Space coordinates are invalid.")
             }
-            if (!pds.getIDatasource.addJsonDocument(SCHEMA.cCampuses, buildingset.addBuids()))
-              return RESPONSE.BAD("Building set already exists or could not be added!")
+            if (!pds.db.addJson(SCHEMA.cCampuses, buildingset.addBuids()))
+              return RESPONSE.BAD_CANNOT_ADD_SPACE
             val res: JsValue = Json.obj(SCHEMA.fCampusCuid -> buildingset.getId())
-            return RESPONSE.OK(res, "Successfully added building Set!")
+            return RESPONSE.OK(res, "Successfully added Space Set.")
           }
         } catch {
           case e: DatasourceException =>
@@ -1362,7 +1361,7 @@ class MappingController @Inject()(cc: ControllerComponents,
   }
 
   /**
-   * Update the building information. Building to update is specified by buid
+   * Update the Space information. Space to update is specified by buid
    *
    * @return
    */
@@ -1379,49 +1378,49 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
-          var stored_campus = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid)
-          if (stored_campus == null)
-            return RESPONSE.BAD("Campus does not exist or could not be retrieved!")
-          if (!isCampusOwner(stored_campus, owner_id))
+          var storedCampus = pds.db.getFromKeyAsJson(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid)
+          if (storedCampus == null)
+            return RESPONSE.BAD_CANNOT_RETRIEVE_CAMPUS
+          if (!isCampusOwner(storedCampus, owner_id))
             return RESPONSE.UNAUTHORIZED("Unauthorized")
           // check for values to update
           if ((json \ SCHEMA.fName).toOption.isDefined) {
             val temp = (json \ SCHEMA.fName).as[String]
             if (temp != "-" && temp != "") {
-              stored_campus = stored_campus.as[JsObject] + (SCHEMA.fName -> JsString(temp))
+              storedCampus = storedCampus.as[JsObject] + (SCHEMA.fName -> JsString(temp))
             } else {
-              stored_campus = stored_campus.as[JsObject] - SCHEMA.fName
+              storedCampus = storedCampus.as[JsObject] - SCHEMA.fName
             }
           }
           if ((json \ SCHEMA.fDescription).toOption.isDefined) {
             val temp = (json \ SCHEMA.fDescription).as[String]
             if (temp != "-" && temp != "") {
-              stored_campus = stored_campus.as[JsObject] + (SCHEMA.fDescription, JsString(temp))
+              storedCampus = storedCampus.as[JsObject] + (SCHEMA.fDescription, JsString(temp))
             } else
-              stored_campus = stored_campus.as[JsObject] - SCHEMA.fDescription
+              storedCampus = storedCampus.as[JsObject] - SCHEMA.fDescription
           }
           if ((json \ "cuidnew").toOption.isDefined) {
             val temp = (json \ SCHEMA.fCampusCuid).as[String]
             if (temp != "-" && temp != "")
-              stored_campus = stored_campus.as[JsObject] + (SCHEMA.fCampusCuid, JsString(temp))
+              storedCampus = storedCampus.as[JsObject] + (SCHEMA.fCampusCuid, JsString(temp))
           }
           if ((json \ SCHEMA.fGreeklish).toOption.isDefined) {
             val temp = (json \ SCHEMA.fGreeklish).as[Boolean]
-            stored_campus = stored_campus.as[JsObject] + (SCHEMA.fGreeklish -> JsString(temp.toString))
+            storedCampus = storedCampus.as[JsObject] + (SCHEMA.fGreeklish -> JsString(temp.toString))
           }
           if ((json \ SCHEMA.fBuids).toOption.isDefined) {
             LOG.D2(json.toString())
             var buids = (json \ SCHEMA.fBuids).as[List[String]]
-            stored_campus = stored_campus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buids))
+            storedCampus = storedCampus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buids))
           }
-          val campus = new BuildingSet(stored_campus)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJSON()))
-            return RESPONSE.BAD("Campus could not be updated!")
-          return RESPONSE.OK("Successfully updated campus!")
+          val campus = new BuildingSet(storedCampus)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJSON()))
+            return RESPONSE.BAD("Campus could not be updated.")
+          return RESPONSE.OK("Successfully updated campus.")
         } catch {
           case e: DatasourceException =>
             return RESPONSE.ERROR(e)
@@ -1431,7 +1430,7 @@ class MappingController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def buildingsetAllByOwner = Action {
+  def spaceSetAllByOwner = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -1439,18 +1438,18 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("buildingsetAllByOwner: " + Utils.stripJson(json))
+        LOG.D2("spaceSetAllByOwner: " + Utils.stripJson(json))
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         try {
-          val buildingsets = pds.getIDatasource.getAllBuildingsetsByOwner(owner_id)
+          val buildingsets = pds.db.getAllBuildingsetsByOwner(owner_id)
           val res: JsValue = Json.obj("buildingsets" -> buildingsets)
           try
             RESPONSE.gzipJsonOk(res.toString)
           catch {
             case ioe: IOException =>
-              return RESPONSE.OK(res, "Successfully retrieved all buildingsets!")
+              return RESPONSE.OK(res, "Successfully retrieved all buildingsets.")
           }
         } catch {
           case e: DatasourceException =>
@@ -1479,22 +1478,22 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
-          val stored_campus = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid)
-          if (stored_campus == null)
-            return RESPONSE.BAD("Campus does not exist or could not be retrieved!")
-          if (!isCampusOwner(stored_campus, owner_id))
+          val storedCampus = pds.db.getFromKeyAsJson(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid)
+          if (storedCampus == null)
+            return RESPONSE.BAD_CANNOT_RETRIEVE_CAMPUS
+          if (!isCampusOwner(storedCampus, owner_id))
             return RESPONSE.UNAUTHORIZED("Unauthorized")
-          if (!pds.getIDatasource.deleteFromKey(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid))
-            return RESPONSE.internal_server_error("500: Failed to delete Campus")
+          if (!pds.db.deleteFromKey(SCHEMA.cCampuses, SCHEMA.fCampusCuid, cuid))
+            return RESPONSE.ERROR_INTERNAL("500: Failed to delete Campus")
         } catch {
           case e: DatasourceException =>
             return RESPONSE.ERROR(e)
         }
-        return RESPONSE.OK("Successfully deleted everything related to building!")
+        return RESPONSE.OK("Successfully deleted everything related to building.")
       }
 
       inner(request)
@@ -1522,23 +1521,25 @@ class MappingController @Inject()(cc: ControllerComponents,
           SCHEMA.fDescription, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
-        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
-        if (!Floor.checkFloorNumberFormat(floor_number)) return RESPONSE.BAD("Floor number cannot contain whitespace!")
+        val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
+        if (!Floor.checkFloorNumberFormat(floorNum)) return RESPONSE.BAD("Floor number cannot contain whitespace.")
         try {
           json = json.as[JsObject] - SCHEMA.fAccessToken
           val floor = new Floor(json)
-          if (!pds.getIDatasource.addJsonDocument(SCHEMA.cFloorplans, Utils.stripJson(floor.toValidMongoJson()))) return RESPONSE.BAD("Floor already exists or could not be added!")
-          return RESPONSE.OK("Successfully added floor " + floor_number + "!")
+          if (!pds.db.addJson(SCHEMA.cFloorplans, Utils.stripJson(floor.toJson())))
+            return RESPONSE.BAD_CANNOT_ADD_FLOOR
+
+          return RESPONSE.OK("Successfully added floor " + floorNum + ".")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1560,32 +1561,32 @@ class MappingController @Inject()(cc: ControllerComponents,
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
-        val floor_number = (json \ "fllor_number").as[String]
-        if (!Floor.checkFloorNumberFormat(floor_number)) return RESPONSE.BAD("Floor number cannot contain whitespace!")
+        val floorNum = (json \ "fllor_number").as[String]
+        if (!Floor.checkFloorNumberFormat(floorNum)) return RESPONSE.BAD("Floor number cannot contain whitespace.")
         try {
-          val fuid = Floor.getId(buid, floor_number)
-          var stored_floor = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
-          if (stored_floor == null) return RESPONSE.BAD("Floor does not exist or could not be retrieved!")
+          val fuid = Floor.getId(buid, floorNum)
+          var storedFloor = pds.db.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
+          if (storedFloor == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOOR
           if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null)
-            stored_floor = stored_floor.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
+            storedFloor = storedFloor.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           if (json.\(SCHEMA.fFloorName).getOrElse(null) != null)
-            stored_floor = stored_floor.as[JsObject] + (SCHEMA.fFloorName, JsString((json \ SCHEMA.fFloorName).as[String]))
+            storedFloor = storedFloor.as[JsObject] + (SCHEMA.fFloorName, JsString((json \ SCHEMA.fFloorName).as[String]))
           if (json.\(SCHEMA.fDescription).getOrElse(null) != null)
-            stored_floor = stored_floor.as[JsObject] + (SCHEMA.fDescription, JsString((json \ SCHEMA.fDescription).as[String]))
-          val floor = new Floor(stored_floor)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, floor.getId(), floor.toValidMongoJson().toString))
-            return RESPONSE.BAD("Floor could not be updated!")
-          return RESPONSE.OK("Successfully updated floor!")
+            storedFloor = storedFloor.as[JsObject] + (SCHEMA.fDescription, JsString((json \ SCHEMA.fDescription).as[String]))
+          val floor = new Floor(storedFloor)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, floor.getId(), floor.toJson().toString))
+            return RESPONSE.BAD("Floor could not be updated.")
+          return RESPONSE.OK("Successfully updated floor.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1606,34 +1607,34 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
         try {
-          val deleted = pds.getIDatasource.deleteAllByFloor(buid, floor_number)
+          val deleted = pds.db.deleteAllByFloor(buid, floorNum)
           if (deleted == false)
             return RESPONSE.BAD("Some items related to the floor could not be deleted.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
-        val filePath = tilerHelper.getFloorPlanFor(buid, floor_number)
+        val filePath = tilerHelper.getFloorPlanFor(buid, floorNum)
         try {
           val floorfile = new File(filePath)
-          // CHECK:NN BUGFIX: Fixing floor plan files and directory removal during floor delete
+          // CHECK:NN BUGFIX: Fixing floorplan files and directory removal during floor delete
           if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile())
         } catch {
-          case e: IOException => return RESPONSE.internal_server_error("500: " + e.getMessage + "] while deleting floor plan." +
-            "\nAll related information is deleted from the database!")
+          case e: IOException => return RESPONSE.ERROR("While deleting floorplan." +
+            "\nRelated data are deleted from the database.", e)
         }
-        return RESPONSE.OK("Successfully deleted everything related to the floor!")
+        return RESPONSE.OK("Successfully deleted everything related to the floor.")
       }
 
       inner(request)
@@ -1650,12 +1651,12 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val floors = pds.getIDatasource.floorsByBuildingAsJson(buid)
+          val floors = pds.db.floorsByBuildingAsJson(buid)
           val res: JsValue = Json.obj("floors" -> floors.asScala)
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all floors!")
+            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all floors.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -1680,21 +1681,21 @@ class MappingController @Inject()(cc: ControllerComponents,
           SCHEMA.fFloorNumber, SCHEMA.fName, SCHEMA.fPoisType, SCHEMA.fIsDoor, SCHEMA.fIsBuildingEntrance, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id)) - SCHEMA.fAccessToken
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
         try {
           val poi = new Poi(json)
-          if (!pds.getIDatasource.addJsonDocument(SCHEMA.cPOIS, poi.toGeoJSON())) return RESPONSE.BAD("Poi already exists or could not be added!")
+          if (!pds.db.addJson(SCHEMA.cPOIS, poi.toGeoJSON())) return RESPONSE.BAD_CANNOT_RETRIEVE_POI
           val res: JsValue = Json.obj(SCHEMA.fPuid -> poi.getId())
-          return RESPONSE.OK(res, "Successfully added poi!")
+          return RESPONSE.OK(res, "Successfully added POI.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1715,53 +1716,53 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val puid = (json \ SCHEMA.fPuid).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
         try {
-          var stored_poi = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
-          if (stored_poi == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          var storedPoi = pds.db.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
+          if (storedPoi == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
             val is_published = (json \ SCHEMA.fIsPublished).as[String]
             if (is_published == "true" || is_published == "false")
-              stored_poi = stored_poi.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
+              storedPoi = storedPoi.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           }
           if (json.\(SCHEMA.fName).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
           if (json.\(SCHEMA.fDescription).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fDescription -> JsString((json \ SCHEMA.fDescription).as[String]))
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fDescription -> JsString((json \ SCHEMA.fDescription).as[String]))
           if (json.\(SCHEMA.fURL).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fURL -> JsString((json \ SCHEMA.fURL).as[String]))
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fURL -> JsString((json \ SCHEMA.fURL).as[String]))
           if (json.\(SCHEMA.fPoisType).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fPoisType -> JsString((json \ SCHEMA.fPoisType).as[String]))
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fPoisType -> JsString((json \ SCHEMA.fPoisType).as[String]))
           if (json.\(SCHEMA.fIsDoor).getOrElse(null) != null) {
             val is_door = (json \ SCHEMA.fIsDoor).as[String]
             if (is_door == "true" || is_door == "false")
-              stored_poi = stored_poi.as[JsObject] + (SCHEMA.fIsDoor -> JsString((json \ SCHEMA.fIsDoor).as[String]))
+              storedPoi = storedPoi.as[JsObject] + (SCHEMA.fIsDoor -> JsString((json \ SCHEMA.fIsDoor).as[String]))
           }
           if (json.\(SCHEMA.fIsBuildingEntrance).getOrElse(null) != null) {
             val is_building_entrance = (json \ SCHEMA.fIsBuildingEntrance).as[String]
             if (is_building_entrance == "true" || is_building_entrance == "false")
-              stored_poi = stored_poi.as[JsObject] + (SCHEMA.fIsBuildingEntrance, JsString((json \ SCHEMA.fIsBuildingEntrance).as[String]))
+              storedPoi = storedPoi.as[JsObject] + (SCHEMA.fIsBuildingEntrance, JsString((json \ SCHEMA.fIsBuildingEntrance).as[String]))
           }
           if (json.\(SCHEMA.fImage).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fImage, JsString((json \ SCHEMA.fImage).as[String]))
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fImage, JsString((json \ SCHEMA.fImage).as[String]))
           if (json.\(SCHEMA.fCoordinatesLat).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fCoordinatesLat, JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fCoordinatesLat, JsString((json \ SCHEMA.fCoordinatesLat).as[String]))
           if (json.\(SCHEMA.fCoordinatesLon).getOrElse(null) != null)
-            stored_poi = stored_poi.as[JsObject] + (SCHEMA.fCoordinatesLon, JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
-          val poi = new Poi(stored_poi)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cPOIS, SCHEMA.fPuid, poi.getId(), poi.toGeoJSON()))
-            return RESPONSE.BAD("Poi could not be updated!")
-          return RESPONSE.OK("Successfully updated poi!")
+            storedPoi = storedPoi.as[JsObject] + (SCHEMA.fCoordinatesLon, JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
+          val poi = new Poi(storedPoi)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cPOIS, SCHEMA.fPuid, poi.getId(), poi.toGeoJSON()))
+            return RESPONSE.BAD("Poi could not be updated.")
+          return RESPONSE.OK("Successfully updated poi.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1782,26 +1783,26 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         val puid = (json \ SCHEMA.fPuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
         try {
-          val all_items_failed = pds.getIDatasource.deleteAllByPoi(puid)
+          val all_items_failed = pds.db.deleteAllByPoi(puid)
           if (all_items_failed.size > 0) {
             val res = Json.obj("ids" -> all_items_failed.asScala)
             return RESPONSE.BAD(res, "Some items related to the deleted poi could not be deleted: " +
               all_items_failed.size +
               " items.")
           }
-          return RESPONSE.OK("Successfully deleted everything related to the poi!")
+          return RESPONSE.OK("Successfully deleted everything related to the poi.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1821,17 +1822,16 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD(
-            "Space does not exist or could not be retrieved.")
-          val pois = pds.getIDatasource.poisByBuildingFloorAsJson(buid, floor_number)
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          val pois = pds.db.poisByBuildingFloorAsJson(buid, floorNum)
           val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois)
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case _: IOException => return RESPONSE.OK(res, "Retrieved pois. floor: " + floor_number)
+            case _: IOException => return RESPONSE.OK(res, "Retrieved pois. floor: " + floorNum)
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -1852,10 +1852,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD(
-            "Space does not exist or could not be retrieved.")
-          val pois = pds.getIDatasource.poisByBuildingAsJson(buid)
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          val pois = pds.db.poisByBuildingAsJson(buid)
           val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois.asScala)
           try {
             RESPONSE.gzipJsonOk(res.toString)
@@ -1896,11 +1895,11 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           var result: List[JsValue] = null
           if (cuid.compareTo("") == 0)
-            result = pds.getIDatasource.poisByBuildingAsJson3(buid, letters)
+            result = pds.db.poisByBuildingAsJson3(buid, letters)
           else if (greeklish.compareTo("true") == 0)
-            result = pds.getIDatasource.poisByBuildingAsJson2GR(cuid, letters)
+            result = pds.db.poisByBuildingAsJson2GR(cuid, letters)
           else
-            result = pds.getIDatasource.poisByBuildingAsJson2(cuid, letters)
+            result = pds.db.poisByBuildingAsJson2(cuid, letters)
           val res: JsValue = Json.obj(SCHEMA.cPOIS -> result)
           try
             RESPONSE.gzipJsonOk(res.toString)
@@ -1934,16 +1933,16 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!requiredMissing.isEmpty)
           return RESPONSE.MISSING_FIELDS(requiredMissing)
         if (String(json, SCHEMA.fBuid) == null)
-          return RESPONSE.BAD("buid field must be String!")
+          return RESPONSE.BAD("buid field must be String.")
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val pois = pds.getIDatasource.poisByBuildingIDAsJson(buid)
+          val pois = pds.db.poisByBuildingIDAsJson(buid)
           val res: JsValue = Json.obj(SCHEMA.cPOIS -> pois)
           try
             RESPONSE.gzipJsonOk(res.toString)
           catch {
             case ioe: IOException =>
-              return RESPONSE.OK(res, "Successfully retrieved all pois from buid " + buid + "!")
+              return RESPONSE.OK(res, "Successfully retrieved all pois from buid " + buid + ".")
           }
         } catch {
           case e: DatasourceException =>
@@ -1967,20 +1966,20 @@ class MappingController @Inject()(cc: ControllerComponents,
           SCHEMA.fBuidA, SCHEMA.fPoisB, SCHEMA.fFloorB, SCHEMA.fBuidB, SCHEMA.fBuid, SCHEMA.fEdgeType)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid = (json \ SCHEMA.fBuid).as[String]
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
-          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
-          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+          var storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1992,20 +1991,20 @@ class MappingController @Inject()(cc: ControllerComponents,
         val pois_a = (json \ SCHEMA.fPoisA).as[String]
         val pois_b = (json \ SCHEMA.fPoisB).as[String]
 
-        if (!pds.getIDatasource.poiByBuidFloorPuid(buid1, (json \ SCHEMA.fFloorA).as[String], (json \ SCHEMA.fPoisA).as[String]))
-          return RESPONSE.BAD("pois_a does not exist or could not be retrieved!")
-        if (!pds.getIDatasource.poiByBuidFloorPuid(buid2, (json \ SCHEMA.fFloorB).as[String], (json \ SCHEMA.fPoisB).as[String]))
-          return RESPONSE.BAD("pois_b does not exist or could not be retrieved!")
+        if (!pds.db.poiByBuidFloorPuid(buid1, (json \ SCHEMA.fFloorA).as[String], (json \ SCHEMA.fPoisA).as[String]))
+          return RESPONSE.BAD_CANNOT_RETRIEVE("POI-A")
+        if (!pds.db.poiByBuidFloorPuid(buid2, (json \ SCHEMA.fFloorB).as[String], (json \ SCHEMA.fPoisB).as[String]))
+          return RESPONSE.BAD_CANNOT_RETRIEVE("POI-B")
         try {
           val weight = calculateWeightOfConnection(pois_a, pois_b)
           json = json.as[JsObject] + (SCHEMA.fWeight -> JsString(java.lang.Double.toString(weight)))
           if (edge_type == Connection.EDGE_TYPE_ELEVATOR || edge_type == Connection.EDGE_TYPE_STAIR) {
           }
           val conn = new Connection(json)
-          if (!pds.getIDatasource.addJsonDocument(SCHEMA.cEdges, conn.toValidMongoJson().toString))
-            return RESPONSE.BAD("Connection already exists or could not be added!")
+          if (!pds.db.addJson(SCHEMA.cEdges, conn.toJson().toString))
+            return RESPONSE.BAD_CANNOT_ADD_CONNECTION
           val res: JsValue = Json.obj(SCHEMA.fConCuid -> conn.getId())
-          return RESPONSE.OK(res, "Successfully added new connection!")
+          return RESPONSE.OK(res, "Successfully added new connection.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2034,19 +2033,19 @@ class MappingController @Inject()(cc: ControllerComponents,
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
-          if (stored_space == null)
-            return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
-          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
-          if (stored_space == null)
-            return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          var storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (storedSpace == null)
+            return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (storedSpace == null)
+            return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2054,13 +2053,13 @@ class MappingController @Inject()(cc: ControllerComponents,
           val pois_a = (json \ SCHEMA.fPoisA).as[String]
           val pois_b = (json \ SCHEMA.fPoisB).as[String]
           val cuid = Connection.getId(pois_a, pois_b)
-          var stored_conn = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cEdges, SCHEMA.fConCuid, cuid)
-          if (stored_conn == null)
-            return RESPONSE.BAD("Connection does not exist or could not be retrieved!")
+          var storedConn = pds.db.getFromKeyAsJson(SCHEMA.cEdges, SCHEMA.fConCuid, cuid)
+          if (storedConn == null)
+            return RESPONSE.BAD_CANNOT_RETRIEVE_CONNECTION
           if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
             val is_published = (json \ SCHEMA.fIsPublished).as[String]
             if (is_published == "true" || is_published == "false")
-              stored_conn = stored_conn.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
+              storedConn = storedConn.as[JsObject] + (SCHEMA.fIsPublished -> JsString((json \ SCHEMA.fIsPublished).as[String]))
           }
           if (json.\(SCHEMA.fEdgeType).getOrElse(null) != null) {
             val edge_type = (json \ SCHEMA.fEdgeType).as[String]
@@ -2068,12 +2067,12 @@ class MappingController @Inject()(cc: ControllerComponents,
               edge_type != Connection.EDGE_TYPE_ROOM && edge_type != Connection.EDGE_TYPE_OUTDOOR &&
               edge_type != Connection.EDGE_TYPE_STAIR)
               return RESPONSE.BAD("Invalid edge type specified.")
-            stored_conn = stored_conn.as[JsObject] + (SCHEMA.fEdgeType -> JsString(edge_type))
+            storedConn = storedConn.as[JsObject] + (SCHEMA.fEdgeType -> JsString(edge_type))
           }
-          val conn = new Connection(stored_conn)
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cEdges, SCHEMA.fConCuid, conn.getId(), conn.toValidMongoJson().toString))
-            return RESPONSE.BAD("Connection could not be updated!")
-          return RESPONSE.OK("Successfully updated connection!")
+          val conn = new Connection(storedConn)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cEdges, SCHEMA.fConCuid, conn.getId(), conn.toJson().toString))
+            return RESPONSE.BAD("Connection could not be updated.")
+          return RESPONSE.OK("Successfully updated connection.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2091,21 +2090,21 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.I("AnyplaceMapping::poiDelete(): " + Utils.stripJson(json))
+        LOG.D2("connectionDelete: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
         val buid1 = (json \ SCHEMA.fBuidA).as[String]
         val buid2 = (json \ SCHEMA.fBuidB).as[String]
         try {
-          var stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
-          if (stored_space == null) return RESPONSE.BAD("Building_a does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
-          stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
-          if (stored_space == null) return RESPONSE.BAD("Building_b does not exist or could not be retrieved!")
-          if (!user.hasAccess(stored_space, owner_id)) return RESPONSE.UNAUTHORIZED_USER()
+          var storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid1)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE("SpaceA")
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid2)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE("SpaceB")
+          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -2113,9 +2112,9 @@ class MappingController @Inject()(cc: ControllerComponents,
         val pois_b = (json \ SCHEMA.fPoisB).as[String]
         try {
           val cuid = Connection.getId(pois_a, pois_b)
-          val all_items_failed = pds.getIDatasource.deleteAllByConnection(cuid)
+          val all_items_failed = pds.db.deleteAllByConnection(cuid)
           if (all_items_failed == null) {
-            LOG.I("AnyplaceMapping::connectionDelete(): " + cuid + " not found.")
+            LOG.E("connectionDelete: " + cuid + " not found.")
             return RESPONSE.BAD("POI Connection not found")
           }
           if (all_items_failed.size > 0) {
@@ -2123,7 +2122,7 @@ class MappingController @Inject()(cc: ControllerComponents,
             return RESPONSE.BAD(obj, "Some items related to the deleted connection could not be deleted: " +
               all_items_failed.size + " items.")
           }
-          return RESPONSE.OK("Successfully deleted everything related to the connection!")
+          return RESPONSE.OK("Successfully deleted everything related to the connection.")
         } catch {
           case e: DatasourceException => RESPONSE.ERROR(e)
         }
@@ -2142,24 +2141,24 @@ class MappingController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          val stored_floors = pds.getIDatasource.floorsByBuildingAsJson(buid)
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          val storedFloors = pds.db.floorsByBuildingAsJson(buid)
           var floorExists = false
-          for (floor <- stored_floors.asScala)
-            if ((floor \ SCHEMA.fFloorNumber).as[String] == floor_number)
+          for (floor <- storedFloors.asScala)
+            if ((floor \ SCHEMA.fFloorNumber).as[String] == floorNum)
               floorExists = true
-          if (!floorExists) return RESPONSE.BAD("Floor does not exist or could not be retrieved!")
+          if (!floorExists) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOOR
 
-          val pois = pds.getIDatasource.connectionsByBuildingFloorAsJson(buid, floor_number)
+          val pois = pds.db.connectionsByBuildingFloorAsJson(buid, floorNum)
           val res: JsValue = Json.obj("connections" -> pois)
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all pois from floor " + floor_number +
-              "!")
+            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all pois from floor " + floorNum +
+              ".")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -2192,15 +2191,15 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val stored_space = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (stored_space == null) return RESPONSE.BAD("Building does not exist or could not be retrieved!")
-          val pois = pds.getIDatasource.connectionsByBuildingAllFloorsAsJson(buid)
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          val pois = pds.db.connectionsByBuildingAllFloorsAsJson(buid)
           val res: JsValue = Json.obj("connections" -> pois)
           try
             RESPONSE.gzipJsonOk(res.toString)
           catch {
             case ioe: IOException =>
-              return RESPONSE.OK(res, "Successfully retrieved all pois from all floors !")
+              return RESPONSE.OK(res, "Successfully retrieved all pois from all floors .")
           }
         } catch {
           case e: DatasourceException =>
@@ -2217,7 +2216,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     var lat_b = 0.0
     var lon_b = 0.0
     val nf = NumberFormat.getInstance(Locale.ENGLISH)
-    val pa = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, pois_a)
+    val pa = pds.db.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, pois_a)
     if (pa == null) {
       lat_a = 0.0
       lon_a = 0.0
@@ -2227,7 +2226,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     } catch {
       case e: ParseException => e.printStackTrace()
     }
-    val pb = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, pois_b)
+    val pb = pds.db.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, pois_b)
     if (pb == null) {
       lat_b = 0.0
       lon_b = 0.0
@@ -2240,7 +2239,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     GeoPoint.getDistanceBetweenPoints(lat_a, lon_a, lat_b, lon_b, "K")
   }
 
-  def serveFloorPlanBinary(buid: String, floor_number: String) = Action {
+  def serveFloorPlanBinary(buid: String, floorNum: String) = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -2248,23 +2247,23 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("serveFloorPlanBinary: " + Utils.stripJson(json))
-        val filePath = tilerHelper.getFloorPlanFor(buid, floor_number)
+        val filePath = tilerHelper.getFloorPlanFor(buid, floorNum)
         LOG.D2("requested: " + filePath)
         try {
           val file = new File(filePath)
           // LPLogger.debug("filePath " + file.getAbsolutePath.toString)
-          if (!file.exists()) return RESPONSE.BAD("Floor plan does not exist: " + floor_number)
-          if (!file.canRead()) return RESPONSE.BAD("Floor plan cannot be read: " + floor_number)
+          if (!file.exists()) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOORPLAN(floorNum)
+          if (!file.canRead()) return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
           Ok.sendFile(file)
         } catch {
-          case e: FileNotFoundException => return RESPONSE.internal_server_error("Could not read floor plan.")
+          case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL("Could not read floorplan.")
         }
       }
 
       inner(request)
   }
 
-  def serveFloorPlanTilesZip(buid: String, floor_number: String) = Action {
+  def serveFloorPlanTilesZip(buid: String, floorNum: String) = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -2272,24 +2271,23 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.I("AnyplaceMapping::serveFloorPlanTilesZip(): " + Utils.stripJson(json))
-        if (!Floor.checkFloorNumberFormat(floor_number)) return RESPONSE.BAD("Floor number cannot contain whitespace!")
-        val filePath = tilerHelper.getFloorTilesZipFor(buid, floor_number)
+        if (!Floor.checkFloorNumberFormat(floorNum)) return RESPONSE.BAD("Floor number cannot contain whitespace.")
+        val filePath = tilerHelper.getFloorTilesZipFor(buid, floorNum)
         LOG.I("requested: " + filePath)
         try {
           val file = new File(filePath)
-          if (!file.exists()) return RESPONSE.BAD("Requested floor plan does not exist");
-          if (!file.canRead()) return RESPONSE.BAD("Requested floor plan cannot be read: " +
-            floor_number)
+          if (!file.exists()) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOORPLAN(floorNum)
+          if (!file.canRead) return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
           Ok.sendFile(file)
         } catch {
-          case e: FileNotFoundException => return RESPONSE.internal_server_error("Could not read floor plan.")
+          case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL("Could not read floorplan.")
         }
       }
 
       inner(request)
   }
 
-  def serveFloorPlanTilesZipLink(buid: String, floor_number: String) = Action {
+  def serveFloorPlanTilesZipLink(buid: String, floorNum: String) = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -2297,29 +2295,28 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.I("AnyplaceMapping::serveFloorPlanTilesZipLink(): " + Utils.stripJson(json))
-        if (!Floor.checkFloorNumberFormat(floor_number)) return RESPONSE.BAD("Floor number cannot contain whitespace!")
-        val filePath = tilerHelper.getFloorTilesZipFor(buid, floor_number)
+        if (!Floor.checkFloorNumberFormat(floorNum)) return RESPONSE.BAD("Floor number cannot contain whitespace.")
+        val filePath = tilerHelper.getFloorTilesZipFor(buid, floorNum)
         LOG.I("requested: " + filePath)
         val file = new File(filePath)
-        if (!file.exists()) return RESPONSE.BAD("Requested floor plan does not exist");
-        if (!file.canRead()) return RESPONSE.BAD("Requested floor plan cannot be read: " +
-          floor_number)
-        val res: JsValue = Json.obj("tiles_archive" -> tilerHelper.getFloorTilesZipLinkFor(buid, floor_number))
-        return RESPONSE.OK(res, "Successfully fetched link for the tiles archive!")
+        if (!file.exists()) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOORPLAN(floorNum)
+        if (!file.canRead) return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
+        val res: JsValue = Json.obj("tiles_archive" -> tilerHelper.getFloorTilesZipLinkFor(buid, floorNum))
+        return RESPONSE.OK(res, "Successfully fetched link for the tiles archive.")
       }
 
       inner(request)
   }
 
-  def serveFloorPlanTilesStatic(buid: String, floor_number: String, path: String) = Action {
+  def serveFloorPlanTilesStatic(buid: String, floorNum: String, path: String) = Action {
     def inner(): Result = {
-      if (path == null || buid == null || floor_number == null ||
+      if (path == null || buid == null || floorNum == null ||
         path.trim().isEmpty ||
         buid.trim().isEmpty ||
-        floor_number.trim().isEmpty) NotFound(<h1>Page not found</h1>)
+        floorNum.trim().isEmpty) NotFound(<h1>Page not found</h1>)
       var filePath: String = null
       filePath = if (path == tilerHelper.FLOOR_TILES_ZIP_NAME) tilerHelper.getFloorTilesZipFor(buid,
-        floor_number) else tilerHelper.getFloorTilesDirFor(buid, floor_number) +
+        floorNum) else tilerHelper.getFloorTilesDirFor(buid, floorNum) +
         path
       try {
         val file = new File(filePath)
@@ -2327,27 +2324,26 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (!file.exists() || !file.canRead()) return RESPONSE.OK("File requested not found")
         Ok.sendFile(file)
       } catch {
-        case e: FileNotFoundException => return RESPONSE.internal_server_error("Could not read floor plan.")
+        case _: FileNotFoundException => return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
       }
     }
 
     inner()
   }
 
-  def serveFloorPlanBase64(buid: String, floor_number: String) = Action {
+  def serveFloorPlanBase64(buid: String, floorNum: String) = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
         LOG.D2("serveFloorPlanBase64: " + Utils.stripJson(json))
-        val filePath = tilerHelper.getFloorPlanFor(buid, floor_number)
+        val filePath = tilerHelper.getFloorPlanFor(buid, floorNum)
         LOG.D2("requested: " + filePath)
         val file = new File(filePath)
         try {
-          if (!file.exists()) return RESPONSE.BAD("Requested floor plan does not exist");
-          if (!file.canRead()) return RESPONSE.BAD("Requested floor plan cannot be read: " +
-            floor_number)
+          if (!file.exists()) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOORPLAN(floorNum)
+          if (!file.canRead) return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
 
           try {
             val s = Utils.encodeFileToBase64Binary(fu, filePath)
@@ -2357,12 +2353,11 @@ class MappingController @Inject()(cc: ControllerComponents,
               case ioe: IOException => Ok(s)
             }
           } catch {
-            case e: IOException => return RESPONSE.BAD("Requested floor plan cannot be encoded in base64 properly! (" +
-              floor_number +
-              ")")
+            case e: IOException => return RESPONSE.BAD("Requested floorplan cannot be encoded in base64 properly: " +
+              floorNum)
           }
         } catch {
-          case e: Exception => return RESPONSE.internal_server_error("Unknown server error during floor plan delivery!")
+          case e: Exception => return RESPONSE.ERROR_INTERNAL("Unknown server error during floorplan delivery.")
         }
       }
 
@@ -2374,18 +2369,18 @@ class MappingController @Inject()(cc: ControllerComponents,
    * Returns the floorplan in base64 form. Used by the Anyplace websites
    *
    * @param buid
-   * @param floor_number
+   * @param floorNum
    * @return
    */
-  def serveFloorPlanBase64all(buid: String, floor_number: String) = Action {
+  def serveFloorPlanBase64all(buid: String, floorNum: String) = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("serveFloorPlanBase64all: " + Utils.stripJson(json) + " " + floor_number)
-        val floors = floor_number.split(" ")
+        LOG.D2("serveFloorPlanBase64all: " + Utils.stripJson(json) + " " + floorNum)
+        val floors = floorNum.split(" ")
         val all_floors = new util.ArrayList[String]
         var z = 0
         while (z < floors.length) {
@@ -2399,11 +2394,11 @@ class MappingController @Inject()(cc: ControllerComponents,
               all_floors.add(s)
             } catch {
               case e: IOException =>
-                return RESPONSE.BAD("Requested floor plan cannot be encoded in base64 properly: " + floors(z))
+                return RESPONSE.BAD("Requested floorplan cannot be encoded in base64 properly: " + floors(z))
             }
           catch {
             case e: Exception =>
-              return RESPONSE.internal_server_error("Unknown server error during floor plan delivery.")
+              return RESPONSE.ERROR_INTERNAL("Unknown server error during floorplan delivery.")
           }
           //{
           z += 1
@@ -2415,7 +2410,7 @@ class MappingController @Inject()(cc: ControllerComponents,
           RESPONSE.gzipJsonOk(res.toString)
         catch {
           case ioe: IOException =>
-            return RESPONSE.OK(res, "Successfully retrieved all floors!")
+            return RESPONSE.OK(res, "Successfully retrieved all floors.")
         }
       }
 
@@ -2433,9 +2428,9 @@ class MappingController @Inject()(cc: ControllerComponents,
 
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
-        if (body == null) return RESPONSE.BAD("Invalid request type - Not Multipart!")
+        if (body == null) return RESPONSE.BAD("Invalid request type - Not Multipart.")
         var floorplan = body.file("floorplan").get
-        if (floorplan == null) return RESPONSE.BAD("Cannot find the floor plan file in your request!")
+        if (floorplan == null) return RESPONSE.BAD("Cannot find the floorplan file in your request.")
         val urlenc = body.asFormUrlEncoded
         val json_str = urlenc.get("json").get.head // CHECK:NN get("json").get(0)
         if (json_str == null) return RESPONSE.BAD("Cannot find json in the request.")
@@ -2443,7 +2438,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         try {
           json = Json.parse(json_str)
         } catch {
-          case e: IOException => return RESPONSE.BAD("Cannot parse json in the request.")
+          case e: IOException => return RESPONSE.BAD_PARSE_JSON
         }
         LOG.I("Floorplan Request[json]: " + json.toString)
         LOG.I("Floorplan Request[floorplan]: " + floorplan.filename)
@@ -2451,39 +2446,39 @@ class MappingController @Inject()(cc: ControllerComponents,
           SCHEMA.fLonBottomLeft, SCHEMA.fLatTopRight, SCHEMA.fLonTopRight)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
         val bottom_left_lat = (json \ SCHEMA.fLatBottomLeft).as[String]
         val bottom_left_lng = (json \ SCHEMA.fLonBottomLeft).as[String]
         val top_right_lat = (json \ SCHEMA.fLatTopRight).as[String]
         val top_right_lng = (json \ SCHEMA.fLonTopRight).as[String]
-        val fuid = Floor.getId(buid, floor_number)
+        val fuid = Floor.getId(buid, floorNum)
         try {
-          var stored_floor = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
-          if (stored_floor == null) return RESPONSE.BAD("Floor does not exist or could not be retrieved!")
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatBottomLeft -> JsString(bottom_left_lat))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonBottomLeft -> JsString(bottom_left_lng))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, stored_floor.toString))
-            return RESPONSE.BAD("Floor plan could not be updated in the database!")
+          var storedFloor = pds.db.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
+          if (storedFloor == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOOR
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLatBottomLeft -> JsString(bottom_left_lat))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLonBottomLeft -> JsString(bottom_left_lng))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
+          if (!pds.db.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, storedFloor.toString))
+            return RESPONSE.BAD("floorplan could not be updated in the database.")
         } catch {
-          case e: DatasourceException => return RESPONSE.internal_server_error("Error while reading from our backend service!")
+          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("Error while reading from our backend service.")
         }
         var floor_file: File = null
         try {
-          floor_file = tilerHelper.storeFloorPlanToServer(buid, floor_number, floorplan.ref.file)
+          floor_file = tilerHelper.storeFloorPlanToServer(buid, floorNum, floorplan.ref.file)
         } catch {
-          case e: AnyPlaceException => return RESPONSE.BAD("Cannot save floor plan on the server!")
+          case e: AnyPlaceException => return RESPONSE.BAD("Cannot save floorplan on the server.")
         }
         val top_left_lat = top_right_lat
         val top_left_lng = bottom_left_lng
         try {
           tilerHelper.tileImage(floor_file, top_left_lat, top_left_lng)
         } catch {
-          case e: AnyPlaceException => return RESPONSE.BAD("Could not create floor plan tiles on the server!")
+          case e: AnyPlaceException => return RESPONSE.BAD("Could not create floorplan tiles on the server.")
         }
         LOG.I("Successfully tiled: " + floor_file.toString)
-        return RESPONSE.OK("Successfully updated floor plan!")
+        return RESPONSE.OK("Successfully updated floorplan.")
       }
 
       inner(request)
@@ -2492,7 +2487,7 @@ class MappingController @Inject()(cc: ControllerComponents,
   /**
    * After a floor was added, this endpoints:
    *    1. uploads a floorplan (filesystem)
-   *    2. updates the floor with the coordinates of the floor plan (db)
+   *    2. updates the floor with the coordinates of the floorplan (db)
    */
   def floorPlanUploadWithZoom() = Action {
     implicit request =>
@@ -2501,20 +2496,18 @@ class MappingController @Inject()(cc: ControllerComponents,
         LOG.D2("floorPlanUploadWithZoom")
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
-        if (body == null) return RESPONSE.BAD("Invalid request type - Not Multipart!")
+        if (body == null) return RESPONSE.BAD("Invalid request type - Not Multipart.")
         val floorplan = body.file("floorplan").get
-        if (floorplan == null) return RESPONSE.BAD("Cannot find the floor plan file in your request!")
+        if (floorplan == null) return RESPONSE.BAD("Cannot find the floorplan file in your request.")
         val urlenc = body.asFormUrlEncoded
         val json_str = urlenc.get("json").get(0)
-        if (json_str == null) return RESPONSE.BAD("Cannot find json in the request!")
+        if (json_str == null) return RESPONSE.BAD("Cannot find json in the request.")
         var json: JsValue = null
         try {
           json = Json.parse(json_str)
         } catch {
-          case e: IOException => return RESPONSE.BAD("Cannot parse json in the request!")
+          case _: IOException => return RESPONSE.BAD_PARSE_JSON
         }
-        //LPLogger.info("Floorplan Request[json]: " + json.toString)
-        //LPLogger.info("Floorplan Request[floorplan]: " + floorplan.filename)
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber, SCHEMA.fLatBottomLeft,
           SCHEMA.fLonBottomLeft, SCHEMA.fLatTopRight, SCHEMA.fLonTopRight, SCHEMA.fZoom)
         if (checkRequirements != null) return checkRequirements
@@ -2523,46 +2516,47 @@ class MappingController @Inject()(cc: ControllerComponents,
         val zoom_number = zoom.toInt
         if (zoom_number < 20)
           return RESPONSE.BAD("You have provided zoom level " + zoom + ". You have to zoom at least to level 20 to upload the floorplan.")
-        val floor_number = (json \ SCHEMA.fFloorNumber).as[String]
+        val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
         val bottom_left_lat = (json \ SCHEMA.fLatBottomLeft).as[String]
         val bottom_left_lng = (json \ SCHEMA.fLonBottomLeft).as[String]
         val top_right_lat = (json \ SCHEMA.fLatTopRight).as[String]
         val top_right_lng = (json \ SCHEMA.fLonTopRight).as[String]
-        val fuid = Floor.getId(buid, floor_number)
+        val fuid = Floor.getId(buid, floorNum)
         try {
-          var stored_floor = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
-          if (stored_floor == null) return RESPONSE.BAD("Floor does not exist or could not be retrieved!")
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fZoom -> JsString(zoom))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatBottomLeft -> JsString(bottom_left_lat))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonBottomLeft -> JsString(bottom_left_lng))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
-          stored_floor = stored_floor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
-          if (!pds.getIDatasource.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, stored_floor.toString)) {
-            return RESPONSE.BAD("Floor plan could not be updated in the database!")
+          var storedFloor = pds.db.getFromKeyAsJson(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid)
+          if (storedFloor == null) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOOR
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fZoom -> JsString(zoom))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLatBottomLeft -> JsString(bottom_left_lat))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLonBottomLeft -> JsString(bottom_left_lng))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
+          storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
+          if (!pds.db.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, storedFloor.toString)) {
+            return RESPONSE.BAD("floorplan could not be updated in the database.")
           }
         } catch {
-          case e: DatasourceException => return RESPONSE.internal_server_error("Error while reading from our backend service!")
+          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("Error while reading from our backend service.")
         }
         var floor_file: File = null
         try {
-          floor_file = tilerHelper.storeFloorPlanToServer(buid, floor_number, floorplan.ref.path.toFile)
+          floor_file = tilerHelper.storeFloorPlanToServer(buid, floorNum, floorplan.ref.path.toFile)
         } catch {
-          case e: AnyPlaceException => return RESPONSE.BAD("Cannot save floor plan on the server!")
+          case e: AnyPlaceException => return RESPONSE.BAD("Cannot save floorplan on the server.")
         }
         val top_left_lat = top_right_lat
         val top_left_lng = bottom_left_lng
         try {
           tilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng, zoom)
         } catch {
-          case e: AnyPlaceException => return RESPONSE.BAD("Could not create floor plan tiles on the server!")
+          case e: AnyPlaceException => return RESPONSE.BAD("Could not create floorplan tiles on the server.")
         }
         LOG.I("Successfully tiled: " + floor_file.toString)
-        return RESPONSE.OK("Successfully updated floor plan!")
+        return RESPONSE.OK("Successfully updated floorplan.")
       }
 
       inner(request)
   }
 
+  // CHECK:NN
   // TODO: Implement
   // TODO new object with above but password encrypt (salt)
   // TODO add this to mongo (insert)
@@ -2594,7 +2588,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         LOG.D2("maintenance: " + Utils.stripJson(json))
         try {
-          if (!pds.getIDatasource.deleteNotValidDocuments()) return RESPONSE.BAD("None valid documents.")
+          if (!pds.db.deleteNotValidDocuments()) return RESPONSE.BAD("None valid documents.")
           return RESPONSE.OK("Success")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -2605,9 +2599,9 @@ class MappingController @Inject()(cc: ControllerComponents,
   }
 
   // CHECK:NN
-  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String): Option[RadioMapMean] = {
+  private def getRadioMapMeanByBuildingFloor(buid: String, floorNum: String): Option[RadioMapMean] = {
     val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
-    val rmapDir = new File(radioMapsFrozenDir + File.separatorChar + buid + File.separatorChar + floor_number)
+    val rmapDir = new File(radioMapsFrozenDir + File.separatorChar + buid + File.separatorChar + floorNum)
     val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
     if (rmapDir.exists() && meanFile.exists()) {
       val folder = rmapDir.toString
@@ -2625,7 +2619,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     fout = new FileOutputStream(radio)
     LOG.D5(radio.toPath.getFileName.toString)
     var floorFetched: Long = 0L
-    floorFetched = pds.getIDatasource.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floor_number)
+    floorFetched = pds.db.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floorNum)
     try {
       fout.close()
     } catch {
@@ -2639,6 +2633,7 @@ class MappingController @Inject()(cc: ControllerComponents,
     var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
     var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
     val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
+
     // BUG CHECK this
     val resCreate = rm.createRadioMap()
     if (resCreate != null) {
@@ -2646,210 +2641,8 @@ class MappingController @Inject()(cc: ControllerComponents,
     }
     val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
     rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
-    return Option[RadioMapMean](rm_mean)
+
+    Option[RadioMapMean](rm_mean)
   }
 
-  // CHECK:NN
-  //  private def getRadioMapMeanByBuildingFloor(buid: String, floor_number: String) : Option[RadioMapMean] = {
-  //    val rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floor_number)
-  //    val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
-  //    if (rmapDir.exists() && meanFile.exists()) {
-  //      LPLogger.info("AnyplaceMapping::getRadioMapMeanByBuildingFloor(): necessary files exist:"
-  //        + rmapDir.toString + ", " + meanFile.toString)
-  //      val folder = rmapDir.toString
-  //      var radiomap_mean_filename = new File(folder + File.separatorChar + "indoor-radiomap-mean.txt").getAbsolutePath
-  //      val api = AnyplaceServerAPI.SERVER_API_ROOT
-  //      var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
-  //      radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
-  //      val rm = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
-  //      rm.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
-  //      return Option[RadioMapMean](rm)
-  //    }
-  //    LPLogger.info("AnyplaceMapping::getRadioMapMeanByBuildingFloor(): necessary files do not exist:"
-  //      + rmapDir.toString + ", " + meanFile.toString)
-  //    if (!rmapDir.mkdirs() && !rmapDir.exists()) {
-  //      throw new IOException("Could not create %s".format(rmapDir.toString))
-  //    }
-  //    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
-  //    var fout: FileOutputStream = null
-  //    fout = new FileOutputStream(radio)
-  //    LPLogger.debug(radio.toPath().getFileName.toString)
-  //
-  //    var floorFetched: Long = 0l
-  //    floorFetched = pds.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
-  //    try {
-  //      fout.close()
-  //    } catch {
-  //      case e: IOException => LPLogger.error("Error while closing the file output stream for the dumped rss logs")
-  //    }
-  //
-  //    if (floorFetched == 0) {
-  //      return Option[RadioMapMean](null)
-  //    }
-  //
-  //    val folder = rmapDir.toString
-  //    val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath
-  //    var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
-  //    val api = AnyplaceServerAPI.SERVER_API_ROOT
-  //    var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
-  //    radiomap_mean_filename = api + radiomap_mean_filename.substring(pos)
-  //    val rm = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
-  //    rm.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
-  //    return Option[RadioMapMean](rm)
-  //  }
-
-
-  // CLR:NN
-  //@deprecated("Removing acces")
-  //def getAccesHeatmapByBuildingFloor() = Action {
-  //  implicit request =>
-  //
-  //    def inner(request: Request[AnyContent]): Result = {
-  //      val anyReq = new OAuth2Request(request)
-  //      if (!anyReq.assertJsonBody()) {
-  //        LPLogger.info("getAccesHeatmapByBuildingFloor: assert json anyreq")
-  //        return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-  //      }
-  //      val json = anyReq.getJsonBody()
-  //      LPLogger.info("getAccesHeatmapByBuildingFloor(): " + Utils.stripJson(json))
-  //      val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
-  //      if (!requiredMissing.isEmpty) {
-  //        return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-  //      }
-  //      val floor_number = (json \ SCHEMA.fFloor).as[String]
-  //      val buid = (json \ SCHEMA.fBuid).as[String]
-  //      val cut_k_features = (json \ "cut_k_features").asOpt[Int]
-  //      //Default 5 meter grid step
-  //      val h = (json \ "h").asOpt[Double].getOrElse(5.0)
-  //
-  //      if (!Floor.checkFloorNumberFormat(floor_number)) {
-  //        return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-  //      }
-  //      try {
-  //        val rm = getRadioMapMeanByBuildingFloor(buid = buid, floor_number = floor_number)
-  //        if (rm.isEmpty) {
-  //          return AnyResponseHelper.bad_request("Area not supported yet!")
-  //        } else {
-  //          val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
-  //            cut_k_features = cut_k_features, h = h)
-  //          if (latlon_predict == null) {
-  //
-  //            // TODO:PM : update application.conf
-  //            val crlb_filename = Play.application().configuration().getString("crlbsDir") +
-  //              File.separatorChar + buid + File.separatorChar + "fl_" + floor_number + ".txt"
-  //            val crlb_filename_lock = crlb_filename + ".lock"
-  //            val lockInstant =
-  //              Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
-  //            val requestExpired = lockInstant.
-  //              plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
-  //            var msg = ""
-  //            if (requestExpired) {
-  //              // TODO if ACCES generation happens asynchronously we can skip the extra step
-  //              // This is just to show a warning message to the user.
-  //              val file_lock = new File(crlb_filename_lock)
-  //              file_lock.delete()
-  //              msg = "Generating ACCES has previously failed. Please retry."
-  //            } else {
-  //              msg = "Generating ACCES map in another background thread!"
-  //            }
-  //
-  //            return AnyResponseHelper.bad_request(msg)
-  //          }
-  //
-  //          val res = JsonObject.empty()
-  //          res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
-  //          res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.asScala)))
-  //          return AnyResponseHelper.ok(res, "Successfully served ACCES map.")
-  //        }
-  //      } catch {
-  //        case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
-  //          "Cannot create radiomap:mapping:FNFE:" + e.getMessage)
-  //        case e: DatasourceException => return AnyResponseHelper.ERROR(e)
-  //        case e: IOException => return AnyResponseHelper.internal_server_error(
-  //          "Cannot create radiomap:IOE:" + e.getMessage)
-  //        case e: Exception => return AnyResponseHelper.ERROR(e)
-  //        case _: Throwable => return AnyResponseHelper.internal_server_error("500: ")
-  //      }
-  //    }
-  //
-  //    inner(request)
-  //}
-
-
-
-  // CLR:NN
-  //@deprecated("Removing acces")
-  //def getAccesHeatmapByBuildingFloor() = Action {
-  //  implicit request =>
-  //
-  //    def inner(request: Request[AnyContent]): Result = {
-  //      val anyReq = new OAuth2Request(request)
-  //      if (!anyReq.assertJsonBody()) {
-  //        LPLogger.info("getAccesHeatmapByBuildingFloor: assert json anyreq")
-  //        return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON)
-  //      }
-  //      val json = anyReq.getJsonBody()
-  //      LPLogger.info("getAccesHeatmapByBuildingFloor(): " + Utils.stripJson(json))
-  //      val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fFloor, SCHEMA.fBuid)
-  //      if (!requiredMissing.isEmpty) {
-  //        return AnyResponseHelper.requiredFieldsMissing(requiredMissing)
-  //      }
-  //      val floor_number = (json \ SCHEMA.fFloor).as[String]
-  //      val buid = (json \ SCHEMA.fBuid).as[String]
-  //      val cut_k_features = (json \ "cut_k_features").asOpt[Int]
-  //      //Default 5 meter grid step
-  //      val h = (json \ "h").asOpt[Double].getOrElse(5.0)
-  //
-  //      if (!Floor.checkFloorNumberFormat(floor_number)) {
-  //        return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!")
-  //      }
-  //      try {
-  //        val rm = getRadioMapMeanByBuildingFloor(buid = buid, floor_number = floor_number)
-  //        if (rm.isEmpty) {
-  //          return AnyResponseHelper.bad_request("Area not supported yet!")
-  //        } else {
-  //          val (latlon_predict, crlbs) = getAccesMap(rm = rm.get, buid = buid, floor_number = floor_number,
-  //            cut_k_features = cut_k_features, h = h)
-  //          if (latlon_predict == null) {
-  //
-  //            // TODO:PM : update application.conf
-  //            val crlb_filename = Play.application().configuration().getString("crlbsDir") +
-  //              File.separatorChar + buid + File.separatorChar + "fl_" + floor_number + ".txt"
-  //            val crlb_filename_lock = crlb_filename + ".lock"
-  //            val lockInstant =
-  //              Files.getLastModifiedTime(Paths.get(crlb_filename_lock)).toInstant
-  //            val requestExpired = lockInstant.
-  //              plus(ACCES_RETRY_AMOUNT, ACCES_RETRY_UNIT) isBefore Instant.now
-  //            var msg = ""
-  //            if (requestExpired) {
-  //              // TODO if ACCES generation happens asynchronously we can skip the extra step
-  //              // This is just to show a warning message to the user.
-  //              val file_lock = new File(crlb_filename_lock)
-  //              file_lock.delete()
-  //              msg = "Generating ACCES has previously failed. Please retry."
-  //            } else {
-  //              msg = "Generating ACCES map in another background thread!"
-  //            }
-  //
-  //            return AnyResponseHelper.bad_request(msg)
-  //          }
-  //
-  //          val res = JsonObject.empty()
-  //          res.put("geojson", JsonObject.fromJson(latlon_predict.toGeoJSON().toString))
-  //          res.put("crlb", JsonArray.from(new util.ArrayList[Double](crlbs.toArray.asScala)))
-  //          return AnyResponseHelper.ok(res, "Successfully served ACCES map.")
-  //        }
-  //      } catch {
-  //        case e: FileNotFoundException => return AnyResponseHelper.internal_server_error(
-  //          "Cannot create radiomap:mapping:FNFE:" + e.getMessage)
-  //        case e: DatasourceException => return AnyResponseHelper.ERROR(e)
-  //        case e: IOException => return AnyResponseHelper.internal_server_error(
-  //          "Cannot create radiomap:IOE:" + e.getMessage)
-  //        case e: Exception => return AnyResponseHelper.ERROR(e)
-  //        case _: Throwable => return AnyResponseHelper.internal_server_error("500: ")
-  //      }
-  //    }
-  //
-  //    inner(request)
-  //}
 }

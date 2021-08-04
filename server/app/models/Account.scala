@@ -73,7 +73,7 @@ class Account(hm: java.util.HashMap[String, String]) extends AbstractModel {
   }
 
   def getId(): String = fields.get(SCHEMA.fOwnerId)
-  override def toValidMongoJson(): JsValue = toJson()
-  override def toString(): String = toJson().toString()
+  override def toJson(): JsValue = _toJsonInternal()
+  override def toString(): String = _toJsonInternal().toString()
   override def toGeoJSON(): String = ???
 }

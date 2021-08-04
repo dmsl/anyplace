@@ -40,7 +40,7 @@ class UserController @Inject()(cc: ControllerComponents,
         LOG.D4("login: " + json)
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
-        val storedUser = pds.getIDatasource.login(SCHEMA.cUsers, username, encryptPwd(password))
+        val storedUser = pds.db.login(SCHEMA.cUsers, username, encryptPwd(password))
         if (storedUser == null) return RESPONSE.BAD("Incorrect username or password.")
         if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
         val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
@@ -66,7 +66,7 @@ class UserController @Inject()(cc: ControllerComponents,
         LOG.D4("refresh: " + json)
         val accessToken = (json \ SCHEMA.fAccessToken).as[String]
 
-        val storedUser = pds.getIDatasource.getUserFromAccessToken(SCHEMA.cUsers, accessToken)
+        val storedUser = pds.db.getUserFromAccessToken(accessToken)
         if (storedUser == null) return RESPONSE.BAD("User not found.")
         if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
 
@@ -97,15 +97,15 @@ class UserController @Inject()(cc: ControllerComponents,
         var accType = "user"
 
         // if first user then assign as admin
-        if (pds.getIDatasource.isAdmin(SCHEMA.cUsers))
+        if (pds.db.isAdmin(SCHEMA.cUsers))
           accType = "admin"
         // Check if the email is unique
-        val storedEmail = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
+        val storedEmail = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
         if (storedEmail != null) return RESPONSE.BAD("There is already an account with this email.")
         // Check if the username is unique
-        val storedUsername = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
+        val storedUsername = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
         if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
-        val newUser = pds.getIDatasource.register(SCHEMA.cUsers, name, email, username, encryptPwd(password), external, accType)
+        val newUser = pds.db.register(SCHEMA.cUsers, name, email, username, encryptPwd(password), external, accType)
         if (newUser == null) return RESPONSE.BAD("Please try again.")
         val res: JsValue = Json.obj("newUser" -> newUser)
         return RESPONSE.OK(res,"Successfully registered.")
@@ -207,7 +207,7 @@ class UserController @Inject()(cc: ControllerComponents,
     if (!hasExternal.isEmpty) return RESPONSE.MISSING_FIELDS(hasExternal)
 
     var id = verifyGoogleAuthentication((json \ SCHEMA.fAccessToken).as[String])
-    if (id == null) return RESPONSE.UNAUTHORIZED_USER()
+    if (id == null) return RESPONSE.UNAUTHORIZED_USER
     id = Utils.appendGoogleIdIfNeeded(id)
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
 
@@ -218,11 +218,11 @@ class UserController @Inject()(cc: ControllerComponents,
       val newAccessToken = MongodbDatasource.generateAccessToken(false)
       user = user.as[JsObject] + (SCHEMA.fAccessToken -> JsString(newAccessToken)) +
         (SCHEMA.fSchema -> JsNumber(MongodbDatasource.__SCHEMA))
-      pds.getIDatasource.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId,
+      pds.db.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId,
         (json \ SCHEMA.fOwnerId).as[String], user.toString())
     }
     var userType = "user"
-    if (pds.getIDatasource.isAdmin(SCHEMA.cUsers))
+    if (pds.db.isAdmin(SCHEMA.cUsers))
       userType = "admin"
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id)) +
       (SCHEMA.fType -> JsString(userType))
@@ -230,7 +230,7 @@ class UserController @Inject()(cc: ControllerComponents,
       return RESPONSE.OK(user, "User Exists.") // its not AnyResponseHelperok
     } else {  // new user created CHECK:NN .. how token is on local account?
       val user = new Account(json)
-      pds.getIDatasource.addJsonDocument(SCHEMA.cUsers, user.toString())
+      pds.db.addJson(SCHEMA.cUsers, user.toString())
       return RESPONSE.OK(user.toJson(), "Added new google user.")
     }
   }
@@ -281,14 +281,14 @@ class UserController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
 
         val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER()
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
 
         val userOwnerId = (json \ SCHEMA.fOwnerId).as[String]
         // only admin can update a user, or the user can update it self
         if (owner_id != userOwnerId && !MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
           return RESPONSE.UNAUTHORIZED("Users can only update themselves, unless they are moderators.")
 
-        val storedUser = pds.getIDatasource.getUserFromOwnerId(userOwnerId)
+        val storedUser = pds.db.getUserFromOwnerId(userOwnerId)
         if (storedUser == null) return RESPONSE.BAD("User not found.")
         var newUser: JsValue = storedUser(0)
 
@@ -297,13 +297,13 @@ class UserController @Inject()(cc: ControllerComponents,
         }
         if ((json \ SCHEMA.fEmail).toOption.isDefined) {
           val email = (json \ SCHEMA.fEmail).as[String]
-          val storedEmail = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
+          val storedEmail = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
           if (storedEmail != null) return RESPONSE.BAD("There is already an account with this email.")
           newUser = newUser.as[JsObject] + (SCHEMA.fEmail -> JsString(email))
         }
         if ((json \ SCHEMA.fUsername).toOption.isDefined) {
           val username = (json \ SCHEMA.fUsername).as[String]
-          val storedUsername = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
+          val storedUsername = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
           if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
           newUser = newUser.as[JsObject] + (SCHEMA.fUsername -> JsString(username))
         }
@@ -325,9 +325,9 @@ class UserController @Inject()(cc: ControllerComponents,
             return RESPONSE.FORBIDDEN("Unauthorized. Only admins can change user type.")
           }
         }
-        if (pds.getIDatasource.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId, userOwnerId, newUser.toString()))
+        if (pds.db.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId, userOwnerId, newUser.toString()))
           return RESPONSE.OK("Successfully updated user.")
-        return RESPONSE.internal_server_error("Could not update user.")
+        return RESPONSE.ERROR_INTERNAL("Could not update user.")
       }
 
       inner(request)
@@ -337,7 +337,11 @@ class UserController @Inject()(cc: ControllerComponents,
     val salt = conf.get[String]("password.salt")
     val pepper = conf.get[String]("password.pepper")
 
-    encryptPassword(salt + password + pepper)
+    val str = salt + password + pepper
+    LOG.D("pwd: '" + str + "'")
+    val encryptedPwd = encryptPassword(str)
+    LOG.D("encrypted: '" + encryptedPwd + "'")
+    encryptedPwd
   }
 
   def encryptPassword(password: String): String = {

@@ -109,9 +109,9 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     cuid
   }
 
-  def toValidMongoJson(): JsValue = {
+  def toJson(): JsValue = {
     getId()
-    toJson()
+    _toJsonInternal()
   }
 
   def toGeoJSON(): String = {
@@ -132,5 +132,5 @@ class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  override def toString(): String = toJson().toString()
+  override def toString(): String = _toJsonInternal().toString()
 }

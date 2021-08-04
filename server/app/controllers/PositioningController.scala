@@ -224,14 +224,14 @@ class PositioningController @Inject()(cc: ControllerComponents,
           }
         }
         if (!rmapDir.mkdirs()) {
-          return RESPONSE.internal_server_error("Can't create radiomap on-the-fly.")
+          return RESPONSE.ERROR_INTERNAL("Can't create radiomap on-the-fly.")
         }
-        val radio = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
+        val radio = new File(rmapDir.getAbsolutePath + api.sep + "rss-log")
         var fout: FileOutputStream = null
         var floorFetched: Long = 0L
         try {
           fout = new FileOutputStream(radio)
-          floorFetched = proxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+          floorFetched = proxyDataSource.db.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
           fout.close()
 
           if (floorFetched == 0) {
@@ -239,7 +239,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
           }
 
           val folder = rmapDir.toString
-          val radiomap_filename = new File(folder + api.URL_SEP + "indoor-radiomap.txt")
+          val radiomap_filename = new File(folder + api.sep + "indoor-radiomap.txt")
             .getAbsolutePath
           var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
           var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
@@ -247,7 +247,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
           val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
           val resCreate = rm.createRadioMap()
           if (resCreate != null) {
-            return RESPONSE.internal_server_error("radioDownloadByBuildingFloor: radiomap on-the-fly: " + resCreate)
+            return RESPONSE.ERROR_INTERNAL("radioDownloadByBuildingFloor: radiomap on-the-fly: " + resCreate)
           }
           val url = api.SERVER_API_ROOT
           var pos = radiomap_mean_filename.indexOf("radiomaps_frozen")
@@ -311,31 +311,31 @@ class PositioningController @Inject()(cc: ControllerComponents,
               pos = fu.getFilePos(radiomap_parameters_filename)
               radiomap_parameters_filename = url + radiomap_parameters_filename.substring(pos)
             } catch {
-              case e: Exception => return RESPONSE.internal_server_error("Error serving radiomap : " + e.getMessage)
+              case e: Exception => return RESPONSE.ERROR_INTERNAL("Error serving radiomap : " + e.getMessage)
             }
           }
           if (!rmapDir.exists())
             if (!rmapDir.mkdirs()) {
-              return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly.")
+              return RESPONSE.ERROR_INTERNAL("Error while creating Radio Map on-the-fly.")
             }
-          val radio = new File(rmapDir.getAbsolutePath + api.URL_SEP + "rss-log")
+          val radio = new File(rmapDir.getAbsolutePath + api.sep + "rss-log")
           var fout: FileOutputStream = null
           try {
             fout = new FileOutputStream(radio)
           } catch {
-            case e: FileNotFoundException => return RESPONSE.internal_server_error(
+            case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL(
               "Cannot create radiomap:3: " + e.getMessage)
           }
           var floorFetched: Long = 0L
           try {
-            floorFetched = proxyDataSource.getIDatasource.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            floorFetched = proxyDataSource.db.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
             try {
               fout.close()
             } catch {
               case e: IOException => LOG.E("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
-            case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage)
+            case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
           }
           if (floorFetched != 0) {
 
@@ -348,7 +348,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
               val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
               val resCreate = rm.createRadioMap()
               if (resCreate != null) {
-                return RESPONSE.internal_server_error("radioDownloadByBuildingFloorall: Error: on-the-fly radioMap: " + resCreate)
+                return RESPONSE.ERROR_INTERNAL("radioDownloadByBuildingFloorall: Error: on-the-fly radioMap: " + resCreate)
               }
               val url = api.SERVER_API_ROOT
               var pos = fu.getFilePos(radiomap_mean_filename)
@@ -358,10 +358,10 @@ class PositioningController @Inject()(cc: ControllerComponents,
               pos = fu.getFilePos(radiomap_parameters_filename)
               radiomap_parameters_filename = url + radiomap_parameters_filename.substring(pos)
             } catch {
-              case e: Exception => return RESPONSE.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage)
+              case e: Exception => return RESPONSE.ERROR_INTERNAL("Error while creating Radio Map on-the-fly! : " + e.getMessage)
             }
 
-            val source = scala.io.Source.fromFile(rmapDir.getAbsolutePath + api.URL_SEP + "indoor-radiomap.txt")
+            val source = scala.io.Source.fromFile(rmapDir.getAbsolutePath + api.sep + "indoor-radiomap.txt")
             val lines = try source.mkString finally source.close()
             radiomap_mean_filename.add(floor_number)
             rss_log_files.add(lines)
@@ -388,17 +388,15 @@ class PositioningController @Inject()(cc: ControllerComponents,
         }
         val json = anyReq.getJsonBody()
         //LPLogger.info("AnyplacePosition::serveRadioMap(): " + json.toString)
-        val filePath = "radiomaps" + api.URL_SEP + radio_folder + api.URL_SEP +
-          fileName
+        val filePath = "radiomaps" + api.sep + radio_folder + api.sep + fileName
         LOG.D2("serveRadioMap: requested: " + filePath)
         val file = new File(filePath)
         try {
-          if (!file.exists()) return RESPONSE.BAD("Requested file does not exist");
-          if (!file.canRead()) return RESPONSE.BAD("Requested file cannot be read: " +
-            fileName)
+          if (!file.exists()) return RESPONSE.BAD("File does not exist: " + fileName)
+          if (!file.canRead) return RESPONSE.BAD("File cannot be read: " + fileName)
           Ok.sendFile(file)
         } catch {
-          case e: FileNotFoundException => RESPONSE.internal_server_error("500: " + e.getMessage)
+          case e: FileNotFoundException => RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
         }
       }
 
@@ -408,9 +406,9 @@ class PositioningController @Inject()(cc: ControllerComponents,
   def serveFrozenRadioMap(building: String, floor: String, fileName: String) = Action {
     def inner(): Result = {
       val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
-      val filePath = radioMapsFrozenDir + api.URL_SEP + building + api.URL_SEP +
+      val filePath = radioMapsFrozenDir + api.sep + building + api.sep +
         floor +
-        api.URL_SEP +
+        api.sep +
         fileName
       LOG.D2("serveFrozenRadioMap: requested: " + filePath)
       val file = new File(filePath)
@@ -420,7 +418,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
           fileName)
         Ok.sendFile(file)
       } catch {
-        case e: FileNotFoundException => return RESPONSE.internal_server_error("500: " + e.getMessage)
+        case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
       }
     }
 
@@ -478,13 +476,13 @@ class PositioningController @Inject()(cc: ControllerComponents,
       }
 
       // Before add check if already exists, if exists ignore and notify
-      if (proxyDataSource.getIDatasource.fingerprintExists(SCHEMA.cFingerprintsWifi, fingerprintToks(7),
+      if (proxyDataSource.db.fingerprintExists(SCHEMA.cFingerprintsWifi, fingerprintToks(7),
         fingerprintToks(6), fingerprintToks(1), fingerprintToks(2), fingerprintToks(3))) {
         return 1.toString()
       } else {
         try {
-          proxyDataSource.getIDatasource.addJsonDocument(SCHEMA.cFingerprintsWifi, rmr.addMeasurements(measurements))
-          proxyDataSource.getIDatasource.deleteAffectedHeatmaps(fingerprintToks(7), fingerprintToks(6))
+          proxyDataSource.db.addJson(SCHEMA.cFingerprintsWifi, rmr.addMeasurements(measurements))
+          proxyDataSource.db.deleteAffectedHeatmaps(fingerprintToks(7), fingerprintToks(6))
         } catch {
           case e: DatasourceException => return "Internal server error while trying to save rss entry."
         }
@@ -579,7 +577,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
           LOG.D2("strongestMAC " + strongestMAC)
           var res: JsValue = Json.obj()
           var msg = ""
-          if (proxyDataSource.getIDatasource.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
+          if (proxyDataSource.db.predictFloor(alg1, bbox, strongestMAC.toArray(Array.ofDim[String](1)))) {
             res = Json.obj(SCHEMA.fFloor -> alg1.getFloor())
             msg = "Successfully predicted floor."
           } else {
@@ -588,7 +586,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
           }
           RESPONSE.OK(res, msg)
         } catch {
-          case e: Exception => RESPONSE.internal_server_error("500: " + e.getMessage + ": " + e.getCause)
+          case e: Exception => RESPONSE.ERROR_INTERNAL("500: " + e.getMessage + ": " + e.getCause)
         }
       }
 

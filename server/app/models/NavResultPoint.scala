@@ -47,7 +47,7 @@ class NavResultPoint {
   var floor_number: String = _
   var pois_type: String = _
 
-  def toValidMongoJson(): JsValue = {
+  def toJson(): JsValue = {
     Json.obj(
       "lat" -> lat,
       "lon" -> lon,

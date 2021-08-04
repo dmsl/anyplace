@@ -52,7 +52,8 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 // import scala.collection.JavaConversions._
 
 @Singleton
-class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSource) extends AbstractController(cc) {  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
+class NavigationController @Inject()(cc: ControllerComponents,
+                                     pds: ProxyDataSource) extends AbstractController(cc) {  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
 
   def getBuildingById() = Action {
     implicit request =>
@@ -67,13 +68,13 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
-          val doc = pds.getIDatasource.buildingFromKeyAsJson(buid)
+          val doc = pds.db.buildingFromKeyAsJson(buid)
           if (doc == null) {
-            return RESPONSE.BAD("Building does not exist or could not be retrieved!")
+            return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
           }
-          return RESPONSE.OK(doc, "Successfully fetched building information!")
+          return RESPONSE.OK(doc, "Successfully fetched building information.")
         } catch {
-          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage + "]")
+          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage + "]")
         }
       }
 
@@ -93,14 +94,14 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
         if (checkRequirements != null) return checkRequirements
         val puid = (json \ SCHEMA.cPOIS).as[String]
         try {
-          var doc = pds.getIDatasource.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
+          var doc = pds.db.poiFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid)
           if (doc == null) {
-            return RESPONSE.BAD("Document does not exist or could not be retrieved.")
+            return RESPONSE.BAD_CANNOT_RETRIEVE_POI
           }
           doc = doc.as[JsObject] - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema
           return RESPONSE.OK(doc, "Fetched POI information.")
         } catch {
-          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage + "]")
+          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage + "]")
         }
       }
 
@@ -124,13 +125,13 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
           return RESPONSE.BAD("Destination and Source is the same.")
         }
         try {
-          val poiFrom = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_from)
+          val poiFrom = pds.db.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_from)
           if (poiFrom == null) {
-            return RESPONSE.BAD("Source POI does not exist or could not be retrieved.")
+            return RESPONSE.BAD_CANNOT_RETRIEVE("Source POI")
           }
-          val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
+          val poiTo = pds.db.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
-            return RESPONSE.BAD("Destination POI does not exist or could not be retrieved.")
+            return RESPONSE.BAD_CANNOT_RETRIEVE("Destination POI")
           }
           val buid_from = (poiFrom \ SCHEMA.fBuid).as[String]
           val floor_from = (poiFrom \ SCHEMA.fFloorNumber).as[String]
@@ -149,7 +150,7 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
           val res: JsValue = Json.obj("num_of_pois" -> points.size, SCHEMA.cPOIS -> points.asScala)
           return RESPONSE.OK(res, "Plotted navigation.")
         } catch {
-          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage)
+          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
         }
       }
 
@@ -172,17 +173,17 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
         val puid_to = (json \ "pois_to").as[String]
         var res: Result = null
         try {
-          val poiTo = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
+          val poiTo = pds.db.getFromKeyAsJson(SCHEMA.cPOIS, SCHEMA.fPuid, puid_to)
           if (poiTo == null) {
-            return RESPONSE.BAD("Destination POI does not exist or could not be retrieved!")
+            return RESPONSE.BAD("Destination POI does not exist or could not be retrieved.")
           }
           val buid_to = (poiTo \ SCHEMA.fBuid).as[String]
           val floor_to = (poiTo \ SCHEMA.fFloorNumber).as[String]
           val dlat = java.lang.Double.parseDouble(coordinates_lat)
           val dlon = java.lang.Double.parseDouble(coordinates_lon)
-          val floorPois = pds.getIDatasource.poisByBuildingFloorAsJson(buid_to, floor_number)
+          val floorPois = pds.db.poisByBuildingFloorAsJson(buid_to, floor_number)
           if (0 == floorPois.size) {
-            return RESPONSE.BAD("Navigation is not supported on your floor!")
+            return RESPONSE.BAD("Navigation is not supported on your floor.")
           }
 
           var dlat2: Double = 0.0
@@ -225,7 +226,7 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
           return RESPONSE.OK(json, "Successfully plotted navigation.")
         } catch {
           //case e: DatasourceException => AnyResponseHelper.internal_server_error("500: " + e.getMessage)
-          case e: Exception => return RESPONSE.internal_server_error(e.getClass.toString + ": " + e.getMessage)
+          case e: Exception => return RESPONSE.ERROR_INTERNAL(e.getClass.toString + ": " + e.getMessage)
         }
       }
 
@@ -233,14 +234,14 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
   }
 
   private def navigateSameFloor(from: JsValue, to: JsValue): List[JsValue] = {
-    navigateSameFloor(from, to, pds.getIDatasource.poisByBuildingFloorAsMap((from \ SCHEMA.fBuid).as[String],
+    navigateSameFloor(from, to, pds.db.poisByBuildingFloorAsMap((from \ SCHEMA.fBuid).as[String],
       (from \ SCHEMA.fFloorNumber).as[String]))
   }
 
   private def navigateSameFloor(from: JsValue, to: JsValue, floorPois: List[HashMap[String, String]]): List[JsValue] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
-    graph.addEdges(pds.getIDatasource.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
+    graph.addEdges(pds.db.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     val routePois = Dijkstra.getShortestPath(graph, (from \ SCHEMA.fPuid).as[String], (to \ SCHEMA.fPuid).as[String])
 
     val final_points = new ArrayList[JsValue]()
@@ -253,15 +254,15 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
       p.buid = poi.get(SCHEMA.fBuid)
       p.floor_number = poi.get(SCHEMA.fFloorNumber)
       p.pois_type = poi.get(SCHEMA.fPoisType)
-      final_points.add(p.toValidMongoJson())
+      final_points.add(p.toJson())
     }
     final_points
   }
 
   private def navigateSameBuilding(from: JsValue, to: JsValue): List[JsValue] = {
     val graph = new Dijkstra.Graph()
-    graph.addPois(pds.getIDatasource.poisByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
-    graph.addEdges(pds.getIDatasource.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
+    graph.addPois(pds.db.poisByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
+    graph.addEdges(pds.db.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     val routePois = Dijkstra.getShortestPath(graph, (from \ SCHEMA.fPuid).as[String], (to \ SCHEMA.fPuid).as[String])
     val final_points = new ArrayList[JsValue]()
     var p: NavResultPoint = null
@@ -272,7 +273,7 @@ class NavigationController @Inject()(cc: ControllerComponents, pds: ProxyDataSou
       p.puid = poi.get(SCHEMA.fPuid)
       p.buid = poi.get(SCHEMA.fBuid)
       p.floor_number = poi.get(SCHEMA.fFloorNumber)
-      final_points.add(p.toValidMongoJson())
+      final_points.add(p.toJson())
     }
     final_points
   }

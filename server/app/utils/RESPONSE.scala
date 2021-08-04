@@ -121,11 +121,32 @@ object RESPONSE {
     def OK(json: JsValue, msg: String): Result = CreateResultResponse(Response.OK, json, msg)
     def BAD(json: JsValue, msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, json, msg)
     def OK(msg: String): Result = CreateResultResponse(Response.OK, null, msg)
-    def DEPRECATED(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, "Deprecated API endpoint: " + msg)
     def BAD(msg: String): Result = CreateResultResponse(Response.BAD_REQUEST, null, msg)
     def FORBIDDEN(msg: String): Result = CreateResultResponse(Response.FORBIDDEN, null, msg)
     def UNAUTHORIZED(msg: String): Result = CreateResultResponse(Response.UNAUTHORIZED_ACCESS, null, msg)
-    def UNAUTHORIZED_USER() : Result = UNAUTHORIZED("Unauthorized user.")
+    def UNAUTHORIZED_USER : Result = UNAUTHORIZED("Unauthorized user.")
+
+    def DEPRECATED(msg: String): Result = BAD("Deprecated API endpoint: " + msg)
+    def BAD_PARSE_JSON : Result = BAD("Cannot parse json in body.")
+
+
+    def BAD_CANNOT_ADD(str: String): Result = BAD("Exists or cannot add" + str)
+    def BAD_CANNOT_ADD_SPACE: Result = BAD_CANNOT_ADD("Space")
+    def BAD_CANNOT_ADD_CONNECTION: Result = BAD_CANNOT_ADD("Connection")
+    def BAD_CANNOT_ADD_FLOOR: Result = BAD_CANNOT_ADD("Floor")
+
+    def BAD_CANNOT_RETRIEVE(str: String): Result = BAD("Cannot retrieve " + str)
+    def BAD_CANNOT_RETRIEVE_SPACE: Result = BAD_CANNOT_RETRIEVE("Space")
+    def BAD_CANNOT_RETRIEVE_CAMPUS: Result = BAD_CANNOT_RETRIEVE("Campus")
+    def BAD_CANNOT_RETRIEVE_POI: Result = BAD_CANNOT_RETRIEVE("POI")
+    def BAD_CANNOT_RETRIEVE_FLOOR: Result = BAD_CANNOT_RETRIEVE("Floor")
+    def BAD_CANNOT_RETRIEVE_CONNECTION: Result = BAD_CANNOT_RETRIEVE("Connection")
+    def BAD_CANNOT_RETRIEVE_FLOORPLAN(floorNum: String): Result = BAD_CANNOT_RETRIEVE("Floorplan: " + floorNum)
+    def BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI: Result = BAD_CANNOT_RETRIEVE("Wi-Fi Fingeprints")
+
+    def BAD_CANNOT_READ(element: String, floorNum: String): Result = BAD("Cannot read "+ element +": " + floorNum)
+    def BAD_CANNOT_READ_FLOORPLAN(floorNum: String): Result = BAD_CANNOT_READ("Floorplan", floorNum)
+
     private def prettyException(e: Exception): String = s"500: ${e.getClass}: ${e.getMessage}"
 
     def ERROR(e: Exception): Result = {
@@ -137,7 +158,7 @@ object RESPONSE {
         CreateResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
     }
 
-    def internal_server_error(msg: String): Result =
+    def ERROR_INTERNAL(msg: String): Result =
         CreateResultResponse(Response.INTERNAL_SERVER_ERROR, null, msg)
 
     def NOT_FOUND(msg: String): Result = CreateResultResponse(Response.NOT_FOUND, null, msg)

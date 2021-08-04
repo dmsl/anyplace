@@ -49,7 +49,7 @@ class User @Inject()(pds: ProxyDataSource){
    * @return the owner_id of the user.
    */
   def authorize(apiKey: String): String = {
-    val user = pds.getIDatasource.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fAccessToken, apiKey)
+    val user = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fAccessToken, apiKey)
     if (user != null)
       return (user \ SCHEMA.fOwnerId).as[String]
     null

@@ -41,7 +41,7 @@ import java.util.HashMap
 
 import modules.floor.IAlgo
 import play.api.libs.json.JsValue
-import utils.GeoPoint // TODO: Will use play.json
+import utils.GeoPoint
 
 trait IDatasource {
 
@@ -58,8 +58,7 @@ trait IDatasource {
    * @param accessToken
    * @return
    */
-  //TODO:PM remove collection
-  def getUserFromAccessToken(collection: String, accessToken: String): List[JsValue]
+  def getUserFromAccessToken(accessToken: String): List[JsValue]
 
   def getUserFromOwnerId(owner_id: String): List[JsValue]
 
@@ -77,7 +76,7 @@ trait IDatasource {
 
   def init(): Boolean
 
-  def addJsonDocument(col: String, document: String): Boolean
+  def addJson(col: String, document: String): Boolean
 
   def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean
 

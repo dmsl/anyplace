@@ -40,10 +40,10 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AnyplaceServerAPI @Inject() (conf: Configuration) {
-  val URL_SEP = '/'
+  val sep = '/'
   val SERVER_ADDRESS: String = conf.get[String]("server.address")
   val SERVER_PORT: String = conf.get[String]("server.port")
   val SERVER_FULL_URL: String = SERVER_ADDRESS + ":" + SERVER_PORT
-  val SERVER_API_ROOT: String = SERVER_FULL_URL + URL_SEP + "anyplace" + URL_SEP
-  val ANDROID_API_ROOT: String = SERVER_FULL_URL + URL_SEP + "android" + URL_SEP
+  val SERVER_API_ROOT: String = SERVER_FULL_URL + sep + "anyplace" + sep
+  val ANDROID_API_ROOT: String = SERVER_FULL_URL + sep + "android" + sep
 }

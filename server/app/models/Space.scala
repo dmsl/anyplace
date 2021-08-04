@@ -110,7 +110,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
 
   def toGeoJSON(): String = {
     val sb = new StringBuilder()
-    var json = toValidMongoJson()
+    var json = toJson()
     try {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
         new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
@@ -122,14 +122,14 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  def toValidMongoJson(): JsValue = {
+  def toJson(): JsValue = {
     getId()
-    toJson().as[JsObject] + (SCHEMA.fCoOwners -> Json.toJson(co_owners))
+    _toJsonInternal().as[JsObject] + (SCHEMA.fCoOwners -> Json.toJson(co_owners))
   }
 
   def appendCoOwners(jsonReq: JsValue): String = {
     val sb = new StringBuilder()
-    var json = toValidMongoJson()
+    var json = toJson()
     try {
       if ((json \ SCHEMA.fOwnerId) == null || ((json \ SCHEMA.fOwnerId).as[String] != (jsonReq \ SCHEMA.fOwnerId).as[String])) {
         return json.toString
@@ -158,7 +158,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
 
   def changeOwner(newOwnerId: String): String = {
     val sb = new StringBuilder()
-    var json = cleanupJson(toValidMongoJson())
+    var json = cleanupJson(_toJsonInternal())
     try {
       val newCoOwners: util.ArrayList[String] = new util.ArrayList[String]()
       this.fields.put(SCHEMA.fOwnerId, newOwnerId)
@@ -217,5 +217,5 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     }
   }
 
-  override def toString(): String = toJson().toString()
+  override def toString(): String = _toJsonInternal().toString()
 }

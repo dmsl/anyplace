@@ -27,15 +27,14 @@ app.controller('ControlBarController',
     $scope.gmapService = GMapService;
     $scope.isAuthenticated = false;
 
-    $scope.user = undefined; // local or google
+    // $scope.user = undefined; // local or google
 
     $scope.creds = { //TODO:NN delete eventually..
         fullName: undefined,
         username: undefined,
         password: undefined
     };
-
-    $scope.user = {
+    $scope.emptyUser = {
         name: undefined,
         email: undefined,
         id: undefined,
@@ -44,11 +43,13 @@ app.controller('ControlBarController',
         access_token: undefined
     }
 
+    $scope.user = $scope.emptyUser
+
     var self = this; //to be able to reference to it in a callback, you could use $scope instead
 
     angular.element(document).ready(function () {
         // if a local user was already logged in (in cookies) then refresh it (with the server)
-        if ($scope.user.access_token == undefined) {
+        if ($scope.user == undefined || $scope.user.access_token == undefined) {
             $scope.refreshLocalLogin()
         }
     });
@@ -99,7 +100,7 @@ app.controller('ControlBarController',
             location.reload();
         }
         $scope.setAuthenticated(true);
-        $scope.user = {}
+        $scope.user = $scope.emptyUser
         $scope.user.google = {}
 
         var googleAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
@@ -233,7 +234,7 @@ app.controller('ControlBarController',
                 if ($scope.user && $scope.user.id) { $scope.$broadcast('loggedIn', []); }
             },
             function (resp) {
-                ShowError($scope, resp,"Login failed.", true)
+                ShowError($scope, resp,"Login failed", true)
                 $scope.deleteCookie("localAccessToken");
             }
         );
@@ -260,20 +261,17 @@ app.controller('ControlBarController',
     };
 
     $scope.signOut = function () {
-        // $scope.setCookie("reloadedAfterLogin", "", 365); // CLR:PM
-        $scope.deleteCookie("reloadedAfterLogin");
         var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then(function () {
-            console.log('User signed out.');
-        });
+        auth2.signOut().then(function () { LOG.D('User signed out.'); });
         $scope.isAuthenticated = false;
 
         $scope.$broadcast('loggedOff', []);
-        $scope.user= undefined;
+        $scope.user={};
 
         clearFingerprintCoverage();
         clearFingerprintHeatmap();
 
+        $scope.deleteCookie("reloadedAfterLogin");
         $scope.deleteCookie("localAccessToken");
     };
 

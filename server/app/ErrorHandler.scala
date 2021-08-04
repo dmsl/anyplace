@@ -43,67 +43,49 @@ import play.api.mvc._
 import play.api.mvc.Results._
 import utils.{RESPONSE, LOG, Utils}
 
-// TODO: will only emit json for all endpoints that contain /api
+// TODO: only emit json for all endpoints that contain /api
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
 
-    def infoGithub(eid: String) : String = {
-        //"\n\n\nIf you think this is an error, open a new issue at:" +
-        //"\nhttps://github.com/dmsl/anyplace/issues"  +
-        "ErrorID:" + eid
-    }
-
     def errorMsg(request: RequestHeader): String = {
-        // can also use request.path instead of uri
         "Requested: " + request.method + " "  + request.uri +
-            " SSL:" + request.secure + " HOST:" + request.host
+          " SSL:" + request.secure + " HOST:" + request.host
     }
 
     def fullStacktrace(exception: Throwable): String= {
         val sw = new StringWriter
         exception.printStackTrace(new PrintWriter(sw))
-       "StackTrace: " + sw.toString
+        "StackTrace: " + sw.toString
     }
 
     def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-        // do NOT log any errors regarding this legacy code.
+        // WORKAROUND: do NOT log any errors regarding this legacy code.
         // Remove this dependency if is not used
         if(request.path ==
-        "/architect/bower_components/angularjs-dropdown-multiselect/pages/images/hr.png") {
+          "/architect/bower_components/angularjs-dropdown-multiselect/pages/images/hr.png") {
             return Future.successful(Status(statusCode))
         }
-
 
         val eid = Utils.genErrorUniqueID()
         val errInt = "404: ID: " + eid
         val errPub =  "Client Error: 404: Error ID: " + eid
-
         val msg = errInt + " " + errorMsg(request)
 
         LOG.E(msg)
 
-        // API requests return an API answer.
-        if(request.path.startsWith("/api")) {
-            return Future.successful(RESPONSE.BAD(msg))
-        } else {
+        if(request.path.startsWith("/api")) { // API requests return json
+            Future.successful(RESPONSE.BAD(msg))
+        } else { // otherwise HTML
             Future.successful(Status(statusCode)(
                 errPub + "\n\n\n" + errorMsg(request)))
         }
-
     }
 
     def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
         val eid = Utils.genErrorUniqueID()
         val errInt = "500: ID: " + eid + ":"
-        val errPub =  "500 Internal Server Error: Error ID: " + eid
-
         val msg : String = errInt + " " + errorMsg(request) + "\n" + exception.getClass + ": " + exception.getMessage
-
         LOG.E(msg)
-        //LOG.E("Cause: " + exception.getCause)
-        //if(request.path.startsWith("/api")) { // API requests return JSON
-        //    return Future.successful(RESPONSE.BAD(msg))
-        //}
 
         if (exception.isInstanceOf[MatchError]) {
             // CHECK if OK leave like this
@@ -113,16 +95,16 @@ class ErrorHandler extends HttpErrorHandler {
             LOG.E("StackTrace: " + fullStacktrace(exception))
         }
 
-      //  Handle:
-      //  p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
-      ////  java.lang.IllegalArgumentException: empty text
-      //  val msg =  errPub + "\n\n\n" + errorMsg(request) +
-      //    "\nCause: " + exception.getMessage + infoGithub(eid)
+        //  Handle:
+        //  p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
+        ////  java.lang.IllegalArgumentException: empty text
+        //  val msg =  errPub + "\n\n\n" + errorMsg(request) +
+        //    "\nCause: " + exception.getMessage + infoGithub(eid)
 
         if(request.path.startsWith("/api")) { // return JSON
-            return Future.successful(RESPONSE.BAD(msg))
-        }  else {
-            return Future.successful(InternalServerError(msg))
+            Future.successful(RESPONSE.BAD(msg))
+        }  else { // return HTML
+            Future.successful(InternalServerError(msg))
         }
     }
 }

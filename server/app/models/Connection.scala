@@ -40,7 +40,6 @@ import java.util.HashMap
 import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue}
 
-
 object Connection {
   val EDGE_TYPE_STAIR = "stair"
   val EDGE_TYPE_ELEVATOR = "elevator"
@@ -108,11 +107,11 @@ class Connection(hm: HashMap[String, String]) extends AbstractModel {
     cuid
   }
 
-  def toValidMongoJson(): JsValue = {
+  def toJson(): JsValue = {
     getId()
-    toJson()
+    _toJsonInternal()
   }
 
-  override def toGeoJSON(): String = toJson().toString
-  override def toString(): String = this.toJson().toString
+  override def toGeoJSON(): String = _toJsonInternal().toString
+  override def toString(): String = this._toJsonInternal().toString
 }

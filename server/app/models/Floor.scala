@@ -99,12 +99,12 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
     newFuid
   }
 
-  def toValidMongoJson(): JsValue = {
+  def toJson(): JsValue = {
     getId()  // initialize id if not initialized
     fields.remove("username")
-    toJson()
+    _toJsonInternal()
   }
 
-  override def toGeoJSON(): String = toJson().toString
-  override def toString(): String = this.toJson().toString
+  override def toGeoJSON(): String = _toJsonInternal().toString
+  override def toString(): String = this._toJsonInternal().toString
 }

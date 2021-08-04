@@ -519,7 +519,7 @@ POST        /api/mapping/campus/get                         controllers.MappingC
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/add                    controllers.MappingController.buildingSetAdd()
+POST        /api/auth/mapping/campus/add                    controllers.MappingController.spaceSetAdd()
 
 # CHECK:NN CHECK:PM on frontend(js) buildings and greeklish are not set in the form
 
@@ -596,7 +596,7 @@ POST        /api/auth/mapping/campus/delete                 controllers.MappingC
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/user                   controllers.MappingController.buildingsetAllByOwner()
+POST        /api/auth/mapping/campus/user                   controllers.MappingController.spaceSetAllByOwner()
 
 ###
 #      tags:

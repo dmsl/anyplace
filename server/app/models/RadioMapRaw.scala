@@ -162,13 +162,13 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
       fields.get(SCHEMA.fMac)
   }
 
-  def toValidMongoJson(): JsValue = {
-    toJson()
+  def toJson(): JsValue = {
+    _toJsonInternal()
   }
 
   def addMeasurements(measurements: List[List[String]]): String = {
     val sb = new StringBuilder()
-    var json = toValidMongoJson()
+    var json = toJson()
     try {
       val timestampToSec = (json \ SCHEMA.fTimestamp).as[String].toLong / 1000 // milliseconds to seconds
       val roundTimestamp = (timestampToSec - (timestampToSec % 86400)) * 1000 // rounds down to day
@@ -192,7 +192,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
 
   def toGeoJSON(): String = {
     val sb = new StringBuilder()
-    var json = toValidMongoJson()
+    var json = toJson()
     try {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
         new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
@@ -205,7 +205,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
   }
 
 
-  override def toString(): String = toJson().toString()
+  override def toString(): String = _toJsonInternal().toString()
 
   def toRawRadioMapRecord(): String = {
     val sb = new StringBuilder()

@@ -1,0 +1,8 @@
+###################
+# Unused Endpoints
+###################
+POST        /anyplace/mapping/building/coowners                controllers.MappingController.spaceUpdateCoOwners()
+POST        /anyplace/mapping/building/all_bucode              controllers.MappingController.spaceByBucode()
+POST        /anyplace/mapping/building/newowner                controllers.MappingController.spaceUpdateOwner()
+POST        /anyplace/mapping/pois/all_pois_nconnectors        controllers.MappingController.poisBySpaceConnectors()
+POST        /anyplace/mapping/radio/radio_buid_floor           controllers.MappingController.getRadioHeatmapBbox()

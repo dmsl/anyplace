@@ -69,8 +69,8 @@ class UserAdminController @Inject()(cc: ControllerComponents,
         if (!MongodbDatasource.getAdmins.contains(appendGoogleIdIfNeeded(owner_id))) {
           return RESPONSE.FORBIDDEN("Unauthorized. Only admins can generate heatmaps.")
         }
-        if (!pds.getIDatasource.generateHeatmaps())
-          return RESPONSE.internal_server_error("Couldn't generate Heatmaps")
+        if (!pds.db.generateHeatmaps())
+          return RESPONSE.ERROR_INTERNAL("Couldn't generate Heatmaps")
         return RESPONSE.OK("Generated heatmaps successfully")
       }
       inner(request)
@@ -96,11 +96,11 @@ class UserAdminController @Inject()(cc: ControllerComponents,
         if (!MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
           return RESPONSE.FORBIDDEN("Only moderators users can see all accounts.")
         try {
-          val users: List[JsValue] = pds.getIDatasource.getAllAccounts()
+          val users: List[JsValue] = pds.db.getAllAccounts()
           val res: JsValue = Json.obj("users_num" -> users.length, SCHEMA.cUsers -> Json.arr(users))
           RESPONSE.gzipJsonOk(res, "Successfully retrieved all accounts!")
         } catch {
-          case e: DatasourceException => return RESPONSE.internal_server_error("500: " + e.getMessage)
+          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
         }
       }
       inner(request)

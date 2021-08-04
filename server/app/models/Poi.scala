@@ -145,14 +145,14 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
   }
 
 
-  def toValidMongoJson(): JsValue = {
+  def toJson(): JsValue = {
     getId()
-    toJson()
+    _toJsonInternal()
   }
 
   def toGeoJSON(): String = {
     val sb = new StringBuilder()
-    var json = toValidMongoJson()
+    var json = toJson()
     try {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
         new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
@@ -164,5 +164,5 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
     sb.toString
   }
 
-  override def toString(): String = toJson().toString
+  override def toString(): String = _toJsonInternal().toString
 }

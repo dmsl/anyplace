@@ -48,7 +48,7 @@ abstract class AbstractModel {
 
     def getFields(): HashMap[String, String] = fields
     def getId(): String
-    def toValidMongoJson(): JsValue
+    def toJson(): JsValue
     def toGeoJSON(): String
 
     def setFields(f: HashMap[String, String]): Unit = {
@@ -56,7 +56,7 @@ abstract class AbstractModel {
         getId()
     }
 
-    def toJson(): JsValue = {
+    def _toJsonInternal(): JsValue = {
         val sMap: Map[String, String] = this.getFields().asScala.toMap
         val res = Json.toJson(sMap)
         // convert some keys to primitive types

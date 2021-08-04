@@ -8,11 +8,4 @@
 # CHECK:NN (CLR if needed)
 #  /login/google/anyplace_token generate and return anyplaceToken (in order to replace old token)
 
-### NoDocs ###
-POST        /api/user/auth/admin/migration/run                                  controllers.UserAdminController.migrateToMongoDB()
-
-# POST         /user/logout                                                  controllers.UserController.logout()
-# ADMIN
-
-
 
