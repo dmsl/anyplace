@@ -19,7 +19,7 @@ MDB_USER = "anyplace"
 MDB_PASSWORD = "new_db_password"
 
 from helpers.helper import *
-checkWritable(DIR_MIGRATION):
+checkWritable(DIR_MIGRATION)
 
 def getDocumentsPath():
     return DIR_MIGRATION + "/docs"
