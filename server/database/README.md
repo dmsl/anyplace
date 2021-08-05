@@ -2,11 +2,8 @@
 
 ## 1. [Install MongoDB](./MONGO.INSTALL.md)
 
-### 1.1 [Tutorial](./MONGO.GUIDE.md)
-See sample commands:
-- mongo shell:  `mongosh`
-- MongoDB Compass queries
-- Scala sample queries.
+### 1.1 [Tutorial: Hands on with MongoDB](./MONGO.GUIDE.md)
+
 
 ## 2. [Migration from Couchbase](migration/README.md)
 

@@ -1,4 +1,4 @@
-# CHANGELOG: nneofy01 thesis:  
+# CHANGELOG of nneofy01 BSc Thesis:
 You can use the Anyplace service or Postman [Instructions](./POSTMAN.md) in some cases to evaluate the bellow endpoints.
 
 ### Icon map:
