@@ -1,6 +1,9 @@
 import json
 from helpers.config import *
 
+###
+# Applies several schema fixes
+###
 
 def fixBUILDING(obj, outrangedCoordsFile):
     fixed = obj

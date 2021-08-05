@@ -174,7 +174,7 @@ mongo --host $HOSTNAME --port $PORT --username $USERNAME --password $PASSWORD
 
 ***
 
-## Uninstalling:
+## 4. Uninstalling:
 In case any errors were introduced (see official documentation).
 
 **Sample commands:**
@@ -185,8 +185,11 @@ sudo rm -r /var/log/mongodb
 sudo rm -r /var/lib/mongodb
 ```
 
+## 5. Scripts:
 
-
+#### initUser.py:
+Not in use. Sample code for automatically creating the `anyplace` user.
+This is already done by this guide.
 
 
 

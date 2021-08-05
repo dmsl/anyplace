@@ -5,6 +5,11 @@ from pathlib import Path
 import os
 import shutil
 
+###
+# Reads from all pull data from couchbase and it breaks them down into folders.
+## TODO:PM tree output...
+###
+
 def getKey(obj):
     s = ""
     for key in obj.keys():
@@ -18,10 +23,6 @@ def isFingerprint(json_obj):
             and "geometry" in json_obj.keys():
         return True
     return False
-
-
-# def isFingerprintStrongestWifi(json_obj):
-
 
 def isFloorPlan(json_obj):
     # "bottom_left_lat" in json_obj.keys() and "bottom_left_lng" in json_obj.keys() and \

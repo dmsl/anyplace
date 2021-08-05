@@ -8,6 +8,6 @@ See sample commands:
 - MongoDB Compass queries
 - Scala sample queries.
 
-## 2. [Migration from Couchbase](./MONGO.MIGRATION.md)
+## 2. [Migration from Couchbase](migration/README.md)
 
 ## 3. [Backup MongoDB](./MONGO.BACKUP.md)
