@@ -1,8 +1,11 @@
-# Anyplace v4
+# Anyplace
+
+---
+### A free and open Indoor Navigation Service with superb accuracy!
+---
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A free and open Indoor Navigation Service with superb accuracy!
 
 ## Preface 
 
@@ -42,6 +45,11 @@ If you install Anyplace on your own servers, please record your URL
 
 # Components 
 
+<details open>
+<summary>
+Server
+</summary>
+
 ## A. [Server](server):
 
 The server entails all components to run the anyplace service on your own server. 
@@ -53,20 +61,21 @@ The server entails all components to run the anyplace service on your own server
 
 #### Server: [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
 The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
-- Documentation/Source: [./server/public/anyplace_viewer](server/public/anyplace_viewer)
+- More: [./server/public/anyplace_viewer](server/public/anyplace_viewer)
 
 #### Server: [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
 The source code of Anyplace HTML5/CSS3 Architect Tool. 
-- Documentation/Source: [./server/public/anyplace_architect](server/public/anyplace_architect)
+- More: [./server/public/anyplace_architect](server/public/anyplace_architect)
 
 #### Server: [API](https://anyplace.cs.ucy.ac.cy/developers/)
-The source code of Anyplace JSON API.  
-- Documentation/Source: [./server/public/anyplace_developers](server/public/anyplace_developers)
+Swagger/ OpenAPI documentatoin.
+- More: [./server/public/developers](server/public/developers)
+</details>
 
-#### Server: Data Store:
-To setup Anyplace with Couchbase follow the general server instructions here:
-- Instructions: [Link](server)
-- Couchbase: [./server/anyplace_views](server/anyplace_views)
+<details open>
+<summary>
+Clients
+</summary>
 
 ## B. [Clients](clients):
 - [Android](clients/android/)
@@ -75,9 +84,9 @@ To setup Anyplace with Couchbase follow the general server instructions here:
 - [RobotOS](clients/robotos/)
 - [Linux](clients/linux/)
 - [macOS](clients/macos/)
+- [Simulator](clients/simulator)
 
-## C. [Simulator](simulator):
-- Documentation/Source: [simulator](simulator)
+</details>
 
 ## LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
