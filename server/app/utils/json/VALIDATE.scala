@@ -34,7 +34,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package json
+package utils.json
 
 import java.util
 

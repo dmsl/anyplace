@@ -1,8 +1,10 @@
 ###################
 # Unused Endpoints
 ###################
-POST        /anyplace/mapping/building/coowners                controllers.MappingController.spaceUpdateCoOwners()
-POST        /anyplace/mapping/building/all_bucode              controllers.MappingController.spaceByBucode()
-POST        /anyplace/mapping/building/newowner                controllers.MappingController.spaceUpdateOwner()
-POST        /anyplace/mapping/pois/all_pois_nconnectors        controllers.MappingController.poisBySpaceConnectors()
-POST        /anyplace/mapping/radio/radio_buid_floor           controllers.MappingController.getRadioHeatmapBbox()
+POST        /api/auth/space/coowners/update                controllers.MapSpaceController.spaceUpdateCoOwners()
+POST        /api/auth/space/owner/update                controllers.MapSpaceController.spaceUpdateOwner()
+POST        /api/auth/space/bucode              controllers.MapSpaceController.spaceByBucode()
+
+POST        /api/auth/pois/nconnectors/all        controllers.MapPoiController.byConnectors()
+# TODO:NN what does it do? to decide on a name..
+POST        /api/aup/radio/radio_buid_floor           controllers.RadiomapController.getBoundingBox()

@@ -39,7 +39,6 @@ package controllers
 
 import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import models.oauth.OAuth2Request
-
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -48,7 +47,6 @@ import utils.{LOG, RESPONSE}
 
 @Singleton
 class UserAdminController @Inject()(cc: ControllerComponents,
-                                    mdb: MongodbDatasource,
                                     pds: ProxyDataSource,
                                     user: helper.User)
   extends AbstractController(cc) {
@@ -57,8 +55,7 @@ class UserAdminController @Inject()(cc: ControllerComponents,
   def migrateToMongoDB() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        // TODO:NN call python migration scripts from here
-
+        // TODO:NN call python migration scripts from here?
         // Generate heatmaps
         val anyReq = new OAuth2Request(request)
         val apiKey = anyReq.getAccessToken()
@@ -86,7 +83,7 @@ class UserAdminController @Inject()(cc: ControllerComponents,
   def fetchAllAccounts() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LOG.I("fetchAllAccounts: ")
+        LOG.D("User: fetchAllAccounts: ")
         val anyReq: OAuth2Request = new OAuth2Request(request)
         val apiKey = anyReq.getAccessToken()
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()

@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-
 import pymongo
 import json
 from helpers.config import *
 
-
 def printJson(obj):
     print(json.dumps(obj, indent=2, sort_keys=True))
-
 
 def pushFingerprintsHeatmap(database):
     colFW = db["fingerprintsWifi"]

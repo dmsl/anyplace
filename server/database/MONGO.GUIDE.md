@@ -10,6 +10,6 @@ Download MongoDB Compass from [here](https://www.mongodb.com/try/download/compas
 Sample queries
 TODO:NN
 
-### Scala Sample Qeuries:
+### Scala Sample Queries:
 - Scala sample queries.
   TODO:NN

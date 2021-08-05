@@ -682,12 +682,17 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     var overlay = new google.maps.OverlayView();
-    overlay.draw = function () {
-    };
+    overlay.draw = function () { };
     overlay.setMap(GMapService.gmap);
+
 
     $("#draggable-building").draggable({
         helper: 'clone',
+        start: function() {
+            // BUG: setting the size of the draggable building.
+            // The first time it does not work for some reason.
+            $(this).height(50).width(50);
+        },
         stop: function (e) {
             var point = new google.maps.Point(e.pageX, e.pageY);
             var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
@@ -706,7 +711,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             return;
         }
 
-         // resize building
+         // resize building (after it is placed on the map)
         var icon_building = {
             url: IMG_BUILDING_ARCHITECT,
             scaledSize: new google.maps.Size(50, 50), // scaled size

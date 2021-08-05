@@ -166,7 +166,7 @@ def defineCollections(file):
     p.close()
     u.close()
     orc.close()
-    print("OBJECT REPORT:\n", "Buildinds: ", buildings, 
+    print("Object Report:\n", "Buildings: ", buildings,
 		"\nCampus:", campus, "\nEdge: ", edges, "\nFingerprints: ", fingerprints,
         "\nFloorplans: ", floorplans, "\nPois: ", pois, "\nUsers: ", users, "\nUndefined: ", undefined)
 

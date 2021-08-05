@@ -1,13 +1,12 @@
 package controllers
 
 import java.security.MessageDigest
-
 import datasources.MongodbDatasource.updateCachedModerators
-import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 
 import scala.concurrent.duration.Duration
 import javax.inject.{Inject, Singleton}
-import json.VALIDATE
+import utils.json.VALIDATE
 import models.{Account, ExternalType}
 import models.ExternalType.ExternalType
 import models.oauth.OAuth2Request
@@ -83,7 +82,6 @@ class UserController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-
   def register() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -124,7 +122,7 @@ class UserController @Inject()(cc: ControllerComponents,
   def loginGoogle() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LOG.D1("loginGoogle")
+        LOG.D2("loginGoogle")
         val auth = new OAuth2Request(request)
         if (!auth.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = auth.getJsonBody()
@@ -143,6 +141,114 @@ class UserController @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
+
+
+  // CHECK:NN who calls this?!
+  // TODO: Implement
+  // TODO new object with above but password encrypt (salt)
+  // TODO add this to mongo (insert)
+  // TODO Generate access_token: "local_VERY LONG SHA"
+  def addLocalAccount(json: JsValue): Result = {
+
+    // call appendUserType
+    // ----------------------------
+    //  requirePropertiesInJson: email, username, password
+    val mdb: MongoDatabase = mongoDB.getMDB
+    val collection = mdb.getCollection(SCHEMA.cUsers)
+    val userLookUp = collection.find(equal("username", (json \ "username").as[String]))
+    val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
+    val res = awaited.toList
+    if (res.size != 0) {
+      // TODO user must have unique username (query username in mongo)
+    }
+    null
+  }
+
+  def updateUser() = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+        LOG.D2("updateUser:")
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUserId)
+        if (checkRequirements != null) return checkRequirements
+
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
+
+        val userOwnerId = (json \ SCHEMA.fUserId).as[String]
+        // only admin can update a user, or the user can update it self
+        if (owner_id != userOwnerId && !MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
+          return RESPONSE.UNAUTHORIZED("Users can only update themselves, unless they are moderators.")
+
+        val storedUser = pds.db.getUserFromOwnerId(userOwnerId)
+        if (storedUser == null) return RESPONSE.BAD("User not found.")
+        var newUser: JsValue = storedUser(0)
+
+        if ((json \ SCHEMA.fName).toOption.isDefined) {
+          newUser = newUser.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
+        }
+        if ((json \ SCHEMA.fEmail).toOption.isDefined) {
+          val email = (json \ SCHEMA.fEmail).as[String]
+          val storedEmail = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
+          if (storedEmail != null) return RESPONSE.BAD("There is already an account with this email.")
+          newUser = newUser.as[JsObject] + (SCHEMA.fEmail -> JsString(email))
+        }
+        if ((json \ SCHEMA.fUsername).toOption.isDefined) {
+          val username = (json \ SCHEMA.fUsername).as[String]
+          val storedUsername = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
+          if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
+          newUser = newUser.as[JsObject] + (SCHEMA.fUsername -> JsString(username))
+        }
+        if ((json \ SCHEMA.fPassword).toOption.isDefined) {
+          newUser = newUser.as[JsObject] + (SCHEMA.fPassword -> JsString(encryptPwd((json \ SCHEMA.fPassword).as[String])))
+        }
+        // Only admins can change type of user
+        if ((json \ SCHEMA.fType).toOption.isDefined) {
+          if (MongodbDatasource.getAdmins.contains(userOwnerId))
+            return RESPONSE.FORBIDDEN("Cannot change type of an admin.")
+          if (MongodbDatasource.getAdmins.contains(owner_id)) {
+            val _type = (json \ SCHEMA.fType).as[String]
+            if (_type.equals("moderator") || _type.equals("user")) {
+              newUser = newUser.as[JsObject] + (SCHEMA.fType -> JsString(_type))
+            } else {
+              return RESPONSE.FORBIDDEN("Cannot change to type '" + _type + "'")
+            }
+          } else {
+            return RESPONSE.FORBIDDEN("Unauthorized. Only admins can change user type.")
+          }
+        }
+        if (pds.db.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId, userOwnerId, newUser.toString()))
+          return RESPONSE.OK("Successfully updated user.")
+        return RESPONSE.ERROR_INTERNAL("Could not update user.")
+      }
+
+      inner(request)
+  }
+
+  // CHECK:NN
+  @deprecated("NotNeeded")
+  def maintenance(): Action[AnyContent] = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        LOG.D2("maintenance: " + Utils.stripJson(json))
+        try {
+          if (!pds.db.deleteNotValidDocuments()) return RESPONSE.BAD("None valid documents.")
+          return RESPONSE.OK("Success")
+        } catch {
+          case e: DatasourceException => return RESPONSE.ERROR(e)
+        }
+      }
+
+      inner(request)
+  }
+
 
   // TODO if json has not type add type = user
   def appendUserType(json: JsValue): JsValue = {
@@ -273,70 +379,7 @@ class UserController @Inject()(cc: ControllerComponents,
     null
   }
 
-  def updateUser() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        val apiKey = anyReq.getAccessToken()
-        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
-        LOG.D2("updateUser:")
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUserId)
-        if (checkRequirements != null) return checkRequirements
 
-        val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
-
-        val userOwnerId = (json \ SCHEMA.fUserId).as[String]
-        // only admin can update a user, or the user can update it self
-        if (owner_id != userOwnerId && !MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
-          return RESPONSE.UNAUTHORIZED("Users can only update themselves, unless they are moderators.")
-
-        val storedUser = pds.db.getUserFromOwnerId(userOwnerId)
-        if (storedUser == null) return RESPONSE.BAD("User not found.")
-        var newUser: JsValue = storedUser(0)
-
-        if ((json \ SCHEMA.fName).toOption.isDefined) {
-          newUser = newUser.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
-        }
-        if ((json \ SCHEMA.fEmail).toOption.isDefined) {
-          val email = (json \ SCHEMA.fEmail).as[String]
-          val storedEmail = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
-          if (storedEmail != null) return RESPONSE.BAD("There is already an account with this email.")
-          newUser = newUser.as[JsObject] + (SCHEMA.fEmail -> JsString(email))
-        }
-        if ((json \ SCHEMA.fUsername).toOption.isDefined) {
-          val username = (json \ SCHEMA.fUsername).as[String]
-          val storedUsername = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
-          if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
-          newUser = newUser.as[JsObject] + (SCHEMA.fUsername -> JsString(username))
-        }
-        if ((json \ SCHEMA.fPassword).toOption.isDefined) {
-          newUser = newUser.as[JsObject] + (SCHEMA.fPassword -> JsString(encryptPwd((json \ SCHEMA.fPassword).as[String])))
-        }
-        // Only admins can change type of user
-        if ((json \ SCHEMA.fType).toOption.isDefined) {
-          if (MongodbDatasource.getAdmins.contains(userOwnerId))
-            return RESPONSE.FORBIDDEN("Cannot change type of an admin.")
-          if (MongodbDatasource.getAdmins.contains(owner_id)) {
-            val _type = (json \ SCHEMA.fType).as[String]
-            if (_type.equals("moderator") || _type.equals("user")) {
-              newUser = newUser.as[JsObject] + (SCHEMA.fType -> JsString(_type))
-            } else {
-              return RESPONSE.FORBIDDEN("Cannot change to type '" + _type + "'")
-           }
-          } else {
-            return RESPONSE.FORBIDDEN("Unauthorized. Only admins can change user type.")
-          }
-        }
-        if (pds.db.replaceJsonDocument(SCHEMA.cUsers, SCHEMA.fOwnerId, userOwnerId, newUser.toString()))
-          return RESPONSE.OK("Successfully updated user.")
-        return RESPONSE.ERROR_INTERNAL("Could not update user.")
-      }
-
-      inner(request)
-  }
 
   def encryptPwd(password: String): String = {
     val salt = conf.get[String]("password.salt")

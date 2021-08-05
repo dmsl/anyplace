@@ -42,7 +42,7 @@ import java.nio.file.Files
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models.Floor
 import javax.inject.Inject
-import json.VALIDATE.{Coordinate, StringNumber}
+import utils.json.VALIDATE.{Coordinate, StringNumber}
 import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result

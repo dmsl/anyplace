@@ -169,6 +169,7 @@ function getMapsIconBuildingViewer(scope, latLong) {
     });
 }
 
+// for items that existed on the map
 function getMapsIconBuildingArchitect(gmap, latLong) {
     return new google.maps.Marker({
         position: latLong,

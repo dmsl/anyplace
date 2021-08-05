@@ -43,11 +43,11 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JsonUtils.convertToInt
 import utils.Utils
 
-class BuildingSet(hm: HashMap[String, String]) extends AbstractModel {
+class SpaceSet(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
   private var lat: Double = _
   private var lng: Double = _
-  private var admins: Array[String] = Array("112997031510415584062_google")
+  private var admins: Array[String] = Array("112997031510415584062_google") // TODO:NN
 
   this.fields = hm
 

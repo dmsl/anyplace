@@ -1,8 +1,5 @@
 # Migration guide
-
-***
 This guide will help you migrate from CouchbaseDB to MongoDB.
-***
 
 ## 0. Create config.py
 Copy [helpers/config.example.py](helpers/config.example.py) to helpers/config.py
@@ -30,13 +27,13 @@ It also assumes that cbexport is installed at:
 ```
 Date:  05/08/2021
 
-Buildinds:       4439
-Campus:          258
-Edge:            45269
-Fingerprints:    11142975
-Floorplans:      3975
-Pois:            49037
-Users:           4353
+Buildings:       4884
+Campus:          295
+Edge:            48260
+Fingerprints:    12626054
+Floorplans:      4356
+Pois:            52677
+Users:           4782
 Undefined:       2
 ```
 </details>
@@ -71,11 +68,22 @@ For the Anyplace database the migration takes roughly the below:
 
 ---
 
-# Other files
+## Unused scripts
 
-## [testDefineCollections.py](testDefineCollections.py)
+### [testDefineCollections.py](testDefineCollections.py)
 Uses a cached copy of pulled json objects from CDB and defines the collections.
 Used only for tests.
 
-- [CHANGES.COLLECTIONS.md](CHANGES.COLLECTIONS.md)  
+### [testGenreateHeatmaps.py](testGenreateHeatmaps.py)
+Used to generate all of the Heatmaps from python.
+No longer in use as the play app automatically creates the heatmap caches
+on the intial request and deletes (cascading) on relevant object updates.  
+
+
+i.e., when new fingerprints are uploaded, all heatmap caches are deleted.  
+Then, on a subsequent request they will be generated once again.
+
+---
+
+## [CHANGES.COLLECTIONS.md](CHANGES.COLLECTIONS.md)  
 Contains some more detailed changes made when the project moved from Couchbase from MongoDB.

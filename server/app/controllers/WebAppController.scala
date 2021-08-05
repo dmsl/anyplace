@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -54,27 +54,6 @@ class WebAppController @Inject()(cc: ControllerComponents,
     serveFile(archiDir, file)
   }
 
-  // CLR:PM
-  //def servePortal(file: String) = Action {
-  //  val viewerDir = "web_apps/anyplace_portal"
-  //  serveFile(viewerDir, file)
-  //}
-  //
-  //def servePortalTos(file: String) = Action {
-  //  val viewerDir = "web_apps/anyplace_portal/tos"
-  //  serveFile(viewerDir, file)
-  //}
-  //
-  //def servePortalPrivacy(file: String) = Action {
-  //  val viewerDir = "web_apps/anyplace_portal/privacy"
-  //  serveFile(viewerDir, file)
-  //}
-  //
-  //def servePortalMail(file: String) = Action {
-  //  val viewerDir = "web_apps/anyplace_portal/mail"
-  //  serveFile(viewerDir, file)
-  //}
-
   def serveViewer(file: String) = Action { implicit request =>
     val mode = request.getQueryString("mode").getOrElse("")
     var viewerDir = "public/anyplace_viewer"
@@ -95,43 +74,10 @@ class WebAppController @Inject()(cc: ControllerComponents,
     serveFile(viewerDir, file)
   }
 
-  //def serveViewer2(file: String) = Action { request =>
-  //  val mode = request.getQueryString("mode").getOrElse("")
-  //  if (mode == null || !mode.equalsIgnoreCase("widget")) {
-  //    var bid = request.getQueryString("buid").getOrElse("")
-  //    var pid = request.getQueryString("selected").getOrElse("")
-  //    var floor = request.getQueryString(SCHEMA.fFloor).getOrElse("")
-  //  }
-  //  val viewerDir = "public/anyplace_viewer_campus"
-  //  serveFile(viewerDir, file)
-  //}
-
   def serveDevelopers(file: String) = Action {
     val devsDir = "public/developers"
     serveFile(devsDir, file)
   }
-
-  //def parseCookieForUsername(request: Http.Request): String = {
-  //  val cookie = request.cookie("PLAY_SESSION").value()
-  //  val data = cookie.substring(cookie.indexOf('-') + 1)
-  //  val pairs = data.split(" ")
-  //  for (pair <- pairs) {
-  //    val dat = pair.split("%3A")
-  //    val key = dat(0)
-  //    val value = dat(1)
-  //    if (key == "username") {
-  //      return value
-  //    }
-  //  }
-  //  ""
-  //}
-  //
-  //// The action that serves the Admin website
-  //@Security.Authenticated(classOf[Secured])
-  //def serveAdmin(file: String) = Action {
-  //  val accountsDir = "web_apps/anyplace_accounts"
-  //  serveFile(accountsDir, file)
-  //}
 
   def serveFile(appDir: String, file_in: String): Result = {
     var header = ("", "")

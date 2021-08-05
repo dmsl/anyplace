@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -36,24 +36,23 @@
  */
 package controllers
 
-import java.util.{ArrayList, HashMap, List}
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models.NavResultPoint
-
-import javax.inject.{Inject, Singleton}
-import json.VALIDATE
 import models.oauth.OAuth2Request
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
 import utils._
+import utils.json.VALIDATE
 
+import java.util.{ArrayList, HashMap, List}
+import javax.inject.{Inject, Singleton}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
-//remove if not needed
-// import scala.collection.JavaConversions._
 
 @Singleton
 class NavigationController @Inject()(cc: ControllerComponents,
-                                     pds: ProxyDataSource) extends AbstractController(cc) {  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
+                                     pds: ProxyDataSource)
+  extends AbstractController(cc) {
+  val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
 
   def getBuildingById() = Action {
     implicit request =>
