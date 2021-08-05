@@ -15,6 +15,8 @@ path = getDocumentsPath()
 allDocs = path + "/all_docs.jsonrows"
 Path(path).mkdir(parents=True, exist_ok=True)
 
+checkTools(CBEXPORT)
+
 URL = CDB_DOMAIN_NAME + ":" + CDB_PORT
 print("Exporting documents:")
 print("  - Couchbase: " + URL)

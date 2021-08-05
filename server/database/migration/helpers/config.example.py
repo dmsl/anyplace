@@ -20,7 +20,6 @@ MDB_PASSWORD = "MDB_PASSWORD"
 from helpers.helper import *
 backupDirNotFoundMsg="Please create the backup directory and give relevant permissions."
 checkWritable(DIR_MIGRATION, backupDirNotFoundMsg)
-checkTools(CBEXPORT)
 
 def getDocumentsPath():
     return DIR_MIGRATION + "/docs"

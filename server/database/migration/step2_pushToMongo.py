@@ -331,7 +331,7 @@ elif countCollections < 9:
     if fingerprintsWifi == False:
         pushFingerprintsWifi(db)
     else:
-        print("Fingerprints Wifi already exists.")
+        print("Fingerprints WiFi already exists.")
         print("Do you want to check them anyway? [Y/N]. (Recommended if the script crashed before adding all fingerprins)")
         value = input()
         if value == "y" or value == "Y" or value == "yes" or value == "YES":
@@ -339,7 +339,7 @@ elif countCollections < 9:
     if fingerprintsBle == False:
         pushFingerprintsBle(db)  # creating empty collection for now
     else:
-        print("Fingerprints Ble already exists.")
+        print("Fingerprints BLE already exists.")
     if floorplans == False:
         pushFloorplans(db)
     else:
