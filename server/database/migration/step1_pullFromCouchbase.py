@@ -16,9 +16,9 @@ allDocs = path + "/all_docs.jsonrows"
 Path(path).mkdir(parents=True, exist_ok=True)
 
 URL = CDB_DOMAIN_NAME + ":" + CDB_PORT
-print("Exporting documents from couchbase..")
+print("Exporting documents from couchbase: " + URL)
 subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", CDB_USERNAME, "-p", CDB_PASSWORD, "-b", CDB_BUCKET, "-f", "lines", "-o", allDocs])
-print("Exporting documents from couchbase: Done")
+print("Exporting documents from couchbase: DONE\n\n")
 
 print("Splitting documents..")
 fAllDocs = open(allDocs, encoding="utf8")
