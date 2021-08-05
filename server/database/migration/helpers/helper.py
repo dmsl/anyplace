@@ -19,6 +19,8 @@ def checkWritable(dirName, msg):
     except FileNotFoundError as error:
             die(msg+"\nDirectory not found: " + dirName)
 
+    checkTools()
+
 def checkTools():
  if not os.path.exists(CBEXPORT):
     die("Tool not found: " + CBEXPORT)
