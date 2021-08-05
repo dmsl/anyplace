@@ -130,9 +130,13 @@ POST        /api/user/login/google                          controllers.UserCont
 #        - User
 #      summary: Update user
 #      description: |
-#       User: can change name, username, password, email
-#       Moderator: can edit users
-#       Admin: can edit users and also promote them do moderators
+#       Provide a `user_id` and at least one optional of the sample parameters to update a user.
+#
+#       The below operations can be performed, according to user `type`:
+#       `User`: normal users can update their information: `name`, `username`, `password`, `email`/
+#       `Moderator`: can also edit users
+#       `Admin`: can also promote users to `moderators`.
+#
 #      operationId: usersAll
 #      consumes:
 #        - application/json
@@ -221,10 +225,12 @@ POST        /api/mapping/space/public                       controllers.MappingC
 #          description: Space description
 #          required: true
 #          schema:
-#            $ref: '#/definitions/Buid'
+#            $ref: '#/definitions/SpaceId'
 #      responses:
 #        '200':
 #          description: Successful operation
+#          schema:
+#            $ref: '#/definitions/SpaceGetResp'
 ###
 POST        /api/mapping/space/get                          controllers.MappingController.spaceGetOne()
 
@@ -328,7 +334,7 @@ POST        /api/auth/mapping/space/delete                  controllers.MappingC
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/accessible                    controllers.MappingController.spaceAllByOwner()
+POST        /api/auth/mapping/space/accessible                    controllers.MappingController.spaceAccessible()
 
 ###
 #      tags:

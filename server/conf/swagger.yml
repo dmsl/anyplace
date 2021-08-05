@@ -57,6 +57,37 @@ definitions:
       buid:
         type: string
         example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+  SpaceGetResp:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: '35.14442624023263'
+      description:
+        type: string
+        example: |-
+          Κοσμητεία ΣΘΕΕ
+          Τμήμα Βιολογικών Επιστημών
+          Τμήμα Φυσικής
+          Τμήμα Χημείας
+      name:
+        type: string
+        example: UCY, FST02/ΘΕΕ02, New Campus, Nicosia, Cyprus
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      bucode:
+        type: string
+        example: FST02
+      coordinates_lon:
+        type: string
+        example: '33.41047257184982'
+      is_published:
+        type: string
+        example: 'true'
+      "type":
+        type: string
+        example: building
   SpaceAdd:
     type: object
     properties:
@@ -339,7 +370,7 @@ definitions:
     properties:
       name:
         type: string
-        example: Alan Tur
+        example: Alan Turing
       username:
         type: string
         example: username2
@@ -352,7 +383,7 @@ definitions:
       "type":
         type: string
         example: moderator
-      owner_id:
+      user_id:
         type: string
         example: username_18925790_231645_local
   FloorAdd:

@@ -42,7 +42,7 @@ import com.google.common.collect.Lists
 import datasources.SCHEMA._
 import play.api.libs.json.{JsLookupResult, JsResultException, JsValue}
 import play.api.mvc.Result
-import utils.{JsonUtils, LOG, RESPONSE}
+import utils.{JsonUtils, RESPONSE}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -178,6 +178,9 @@ object VALIDATE {
         val r = userFields(json, k, value)
         if (r != null) errors.add(r)
       } else if (k == fPoisA || k == fPoisB || k == "pois_from" || k == "pois_to" || k == fCampusCuid) {
+        val r = stringField(json, k)
+        if (r != null) errors.add(r)
+      } else if (k == fUserId || k == fOwnerId ) {
         val r = stringField(json, k)
         if (r != null) errors.add(r)
       }

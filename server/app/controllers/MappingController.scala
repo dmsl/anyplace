@@ -41,11 +41,11 @@ import java.text.{NumberFormat, ParseException}
 import java.time.temporal.{ChronoUnit, TemporalUnit}
 import java.util
 import java.util.Locale
-import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 
+import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
 import javax.inject.{Inject, Singleton}
 import json.VALIDATE
-import json.VALIDATE.{String, floor}
+import json.VALIDATE.String
 import location.Algorithms
 import models._
 import modules.radiomapserver.RadioMap.RadioMap
@@ -60,8 +60,8 @@ import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
 import utils.Utils.appendGoogleIdIfNeeded
 import utils.{JsonUtils, LOG, RESPONSE, _}
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.jdk.CollectionConverters._
 import scala.util.control.Breaks
 
@@ -712,71 +712,21 @@ class MappingController @Inject()(cc: ControllerComponents,
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("findPosition: " + Utils.stripJson(json))
-        // CHECK:NN
-        //val requiredMissing = JsonUtils.requirePropertiesInJson(json, SCHEMA.fBuid, SCHEMA.fFloor,"APs","algorithm_choice")
-        // LPLogger.debug("json: "+json)
-        //if (!requiredMissing.isEmpty)
-        //  return An/yResponseHelper.requiredFieldsMissing(requiredMissing)
-
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor,"APs","algorithm_choice")
+        if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floorNum = (json \ SCHEMA.fFloor).as[String]
-
-        /*
-         * BuxFix : Server side localization API
-         * Fixing JSON Parse error
-         */
-        val accessOpt = Json.parse((json \ "APs").as[String]).validate[List[JsValue]] match {
-          case s: JsSuccess[List[JsValue]] => {
-            Some(s.get)
-          }
-          case e: JsError =>
-            LOG.E("accessOpt Errors: " + JsError.toJson(e).toString())
-            None
-        }
-        val accessPoints = accessOpt.get
-
-        /*
-         * BuxFix : Server side localization API
-         * Fixing JSON Parse error [String vs Int]
-         */
-        val algorithm_choice: Int = (json \ "algorithm_choice").validate[String] match {
-          case s: JsSuccess[String] => {
-            if (s.get != null && s.get.trim != "") {
-              Integer.parseInt(s.get)
-            } else {
-              conf.get[Int]("defaultPositionAlgorithm")
-            }
-          }
-          case _: JsError => conf.get[Int]("defaultPositionAlgorithm")
-        }
-
+        val floor = (json \ SCHEMA.fFloor).as[String]
+        val accessOpt = Json.parse((json \ "APs").as[String])
+        val tempAP = Json.obj("accessPoint" -> accessOpt)
+        val accessPoints = (tempAP \ "accessPoint").as[List[JsValue]]
+        val algorithm_choice: Int = (json \ "algorithm_choice").as[String].toInt
         val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
-        /* CHECK:NN
-         * REVIEWLS . Leaving bugfix from develop
-            val floorNum = (json \ SCHEMA.fFloor).as[String]
-            val jsonstr=(json\"APs").as[String]
-            val accessPoints= Json.parse(jsonstr).as[List[JsValue]]
-            val floors: Array[JsonObject] = pds.getIDatasource.floorsByBuildingAsJson(buid).iterator().toArray
-            val algorithm_choice = (json\"algorithm_choice").as[String].toInt
-            */
-
         val rmapFile = new File(radioMapsFrozenDir + api.sep + buid + api.sep +
-          floorNum + api.sep + "indoor-radiomap-mean.txt")
-
+          floor + api.sep + "indoor-radiomap-mean.txt")
         if (!rmapFile.exists()) {  // Regenerate the radiomap files
-          mapHelper.updateFrozenRadioMap(buid, floorNum)
+          mapHelper.updateFrozenRadioMap(buid, floor)
         }
-
-        /*
-         * BuxFix : Server side localization API
-         * Fixing null pointer error for latestScanList
-         */
         val latestScanList: util.ArrayList[location.LogRecord] = new util.ArrayList[location.LogRecord]()
-
-        /* CHECK:NN ..
-         * REVIEWLS Leaving bugfix from develop
-           val latestScanList = new  util.ArrayList[location.LogRecord]
-        */
         var i = 0
         for (i <- 0 until accessPoints.size) {
           val bssid = (accessPoints(i) \ "bssid").as[String]
@@ -784,6 +734,7 @@ class MappingController @Inject()(cc: ControllerComponents,
           latestScanList.add(new location.LogRecord(bssid, rss))
         }
 
+        LOG.D2(latestScanList.toString)
         val radioMap: location.RadioMap = new location.RadioMap(rmapFile)
         var response = Algorithms.ProcessingAlgorithms(latestScanList, radioMap, algorithm_choice)
 
@@ -1007,12 +958,15 @@ class MappingController @Inject()(cc: ControllerComponents,
             storedSpace = storedSpace.as[JsObject] + (SCHEMA.fCoordinatesLon -> JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
           if (json.\(SCHEMA.fSpaceType).getOrElse(null) != null) {
             val spaceType = (json \ SCHEMA.fSpaceType).as[String]
-            if (SCHEMA.fSpaceTypes.contains(spaceType))
+            if (SCHEMA.fSpaceTypes.contains(spaceType)) {
               storedSpace = storedSpace.as[JsObject] + (SCHEMA.fSpaceType -> JsString(spaceType))
+            } else
+              return RESPONSE.BAD("Invalid space type. Use: `building` or `vessel`")
           }
           val space = new Space(storedSpace)
-          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJSON())) return RESPONSE.BAD("Space could not be updated!")
-          return RESPONSE.OK("Successfully updated space!")
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJSON()))
+            return RESPONSE.BAD("Space could not be updated.")
+          return RESPONSE.OK("Successfully updated space.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -1127,7 +1081,7 @@ class MappingController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceAllByOwner() = Action {
+  def spaceAccessible() = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -1136,7 +1090,7 @@ class MappingController @Inject()(cc: ControllerComponents,
 
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceAllByOwner: " + Utils.stripJson(json))
+        LOG.D2("spaceAccessible: " + Utils.stripJson(json))
         val checkRequirements = VALIDATE.checkRequirements(json) // , SCHEMA.fAccessToken
         if (checkRequirements != null) return checkRequirements
 
@@ -1144,7 +1098,7 @@ class MappingController @Inject()(cc: ControllerComponents,
         if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         try {
           LOG.D3("owner_id = " + owner_id)
-          val spaces = pds.db.getAllBuildingsByOwner(owner_id)
+          val spaces = pds.db.getSpaceAccessible(owner_id)
           val res: JsValue = Json.obj("spaces" -> spaces)
           try {
             RESPONSE.gzipJsonOk(res.toString)

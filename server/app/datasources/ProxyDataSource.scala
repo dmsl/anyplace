@@ -250,9 +250,9 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.getAllBuildings()
   }
 
-  override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
+  override def getSpaceAccessible(oid: String): List[JsValue] = {
     checkHasActiveDB()
-    activeDB.getAllBuildingsByOwner(oid)
+    activeDB.getSpaceAccessible(oid)
   }
 
   override def getAllSpaceOwned(owner_id: String): List[JsValue] = {

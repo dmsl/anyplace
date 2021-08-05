@@ -101,8 +101,7 @@ object MongodbDatasource {
     val collections = mdb.listCollectionNames()
     val awaited = Await.result(collections.toFuture(), Duration.Inf)
     val res = awaited.toList
-    admins = loadAdmins()
-    moderators = loadModerators()
+    updateCachedModerators()
     new MongodbDatasource()
   }
 
@@ -132,6 +131,11 @@ object MongodbDatasource {
    */
   def loadAdmins(): List[String] = {
     queryUsers(BsonDocument(SCHEMA.fType -> "admin"))
+  }
+
+  def updateCachedModerators(): Unit = {
+    admins = loadAdmins()
+    moderators = loadModerators()
   }
 
   def queryUsers(query: BsonDocument): List[String] = {
@@ -1450,16 +1454,23 @@ class MongodbDatasource @Inject() () extends IDatasource {
     newList.toList
   }
 
-  override def getAllBuildingsByOwner(oid: String): List[JsValue] = {
+  override def getSpaceAccessible(oid: String): List[JsValue] = {
     val collection = mdb.getCollection(SCHEMA.cSpaces)
-    var buildingLookUp = collection.find(or(equal(SCHEMA.fOwnerId, oid),
-      equal(SCHEMA.fCoOwners, oid)))
+    var buildingLookUp: FindObservable[Document] = null
+    LOG.D2(moderators.toString())
+    LOG.D2(admins.toString())
     if (admins.contains(oid) || moderators.contains(oid)) {
+      LOG.D("Doing mod lookup")
       buildingLookUp = collection.find()
+    } else {
+      buildingLookUp = collection.find(or(equal(SCHEMA.fOwnerId, oid),
+        equal(SCHEMA.fCoOwners, oid)))
+      LOG.D("Doing user lookup")
     }
     val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
     val res = awaited.toList
     val listJson = convertJson(res)
+
     val buildings = new java.util.ArrayList[JsValue]()
     for (building <- listJson) {
       buildings.add(building.as[JsObject] - SCHEMA.fCoOwners - SCHEMA.fGeometry

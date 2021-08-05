@@ -90,10 +90,10 @@ API.Mapping.BUILDING_UPDATE = "/auth/mapping/space/update";
 API.Mapping.BUILDING_UPDATE_URL = API.url + API.Mapping.BUILDING_UPDATE;
 API.Mapping.BUILDING_DELETE = "/auth/mapping/space/delete";
 API.Mapping.BUILDING_DELETE_URL = API.url + API.Mapping.BUILDING_DELETE;
-API.Mapping.BUILDING_ALL = "/mapping/space/public";
-API.Mapping.BUILDING_ALL_URL = API.url + API.Mapping.BUILDING_ALL;
-API.Mapping.BUILDING_ALL_OWNER = "/auth/mapping/space/accessible";
-API.Mapping.BUILDING_ALL_OWNER_URL = API.url + API.Mapping.BUILDING_ALL_OWNER;
+API.Mapping.SPACE_PUBLIC = "/mapping/space/public";
+API.Mapping.SPACE_PUBLIC_URL = API.url + API.Mapping.SPACE_PUBLIC;
+API.Mapping.SPACE_ACCESSIBLE = "/auth/mapping/space/accessible";
+API.Mapping.SPACE_ACCESSIBLE_URL = API.url + API.Mapping.SPACE_ACCESSIBLE;
 
 API.Mapping.CAMPUS_ALL = "/auth/mapping/campus/user";
 API.Mapping.CAMPUS_ALL_URL = API.url + API.Mapping.CAMPUS_ALL;
@@ -507,10 +507,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
-    apiService.allBuildings = function (json_req) {
+    apiService.spacePublic = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDING_ALL_URL,
+            url: API.Mapping.SPACE_PUBLIC_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -520,10 +520,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
-    apiService.allOwnerBuildings = function (json_req) {
+    apiService.spaceAccessible = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDING_ALL_OWNER_URL,
+            url: API.Mapping.SPACE_ACCESSIBLE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

@@ -155,7 +155,7 @@ trait IDatasource {
 
   def getAllBuildings(): List[JsValue]
 
-  def getAllBuildingsByOwner(oid: String): List[JsValue]
+  def getSpaceAccessible(oid: String): List[JsValue]
 
   def getAllSpaceOwned(owner_id: String): List[JsValue]
 
