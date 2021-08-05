@@ -22,7 +22,7 @@ class AccessPointController @Inject()(cc: ControllerComponents,
                                       env: Environment)
   extends AbstractController(cc) {
 
-  def byFloor() = Action {
+  def byFloor(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -95,7 +95,7 @@ class AccessPointController @Inject()(cc: ControllerComponents,
   /**
    * @return
    */
-  def getIDs() = Action {
+  def getIDs: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -169,7 +169,7 @@ class AccessPointController @Inject()(cc: ControllerComponents,
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved IDs for Access Points.")
+            case _: IOException => return RESPONSE.OK(res, "Successfully retrieved IDs for Access Points.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)

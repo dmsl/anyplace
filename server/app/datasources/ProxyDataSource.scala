@@ -72,8 +72,6 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   private def setActiveDatabase(ds: IDatasource): Unit = { this.activeDB = ds }
 
-  override def init(): Boolean = true
-
   override def addJson(col: String, document: String): Boolean = {
     checkHasActiveDB()
     activeDB.addJson(col, document)
@@ -181,11 +179,6 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.deleteAllByPoi(puid)
   }
 
-  override def getRadioHeatmap(): java.util.List[JsValue] = {
-    checkHasActiveDB()
-    activeDB.getRadioHeatmap()
-  }
-
   override def getRadioHeatmapByBuildingFloor(buid: String, floor: String): List[JsValue] = {
     checkHasActiveDB()
     activeDB.getRadioHeatmapByBuildingFloor(buid, floor)
@@ -280,11 +273,6 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.dumpRssLogEntriesWithCoordinates(floor_number: String, lat, lon)
   }
 
-  override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
-    checkHasActiveDB()
-    activeDB.dumpRssLogEntriesByBuildingACCESFloor(outFile, buid, floor_number)
-  }
-
   override def dumpRssLogEntriesByBuildingFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = {
     checkHasActiveDB()
     activeDB.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number)
@@ -349,14 +337,9 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.generateHeatmaps()
   }
 
-  override def deleteNotValidDocuments(): Boolean ={
+  override def deleteCachedDocuments(buid: String, floor_number: String): Boolean = {
     checkHasActiveDB()
-    activeDB.deleteNotValidDocuments()
-  }
-
-  override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
-    checkHasActiveDB()
-    activeDB.deleteAffectedHeatmaps(buid, floor_number)
+    activeDB.deleteCachedDocuments(buid, floor_number)
   }
 
   override def deleteFingerprint(fingerprint: JsValue): Boolean = {
@@ -364,9 +347,9 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.deleteFingerprint(fingerprint)
   }
 
-  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) = {
+  override def cacheHeatmapByTime(col: String, buid: String, floor: String, level: Int) = {
     checkHasActiveDB()
-    activeDB.createTimestampHeatmap(col, buid, floor, level)
+    activeDB.cacheHeatmapByTime(col, buid, floor, level)
   }
 
   override def login(collection: String, username: String, password: String): List[JsValue] = {
@@ -404,18 +387,4 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.deleteAllByXsYs(buid,floor,x,y)
   }
 
-  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsValue] = {
-    checkHasActiveDB()
-    activeDB.getRadioHeatmapByBuildingFloor2(lat,lon,buid,floor,range)
-  }
-
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsValue] = {
-    checkHasActiveDB()
-    activeDB.getRadioHeatmapBBox(lat,lon,buid,floor,range)
-  }
-
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): util.List[JsValue] = {
-    checkHasActiveDB()
-    activeDB.getRadioHeatmapBBox2(lat,lon,buid,floor,range)
-  }
 }

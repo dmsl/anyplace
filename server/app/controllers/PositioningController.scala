@@ -60,7 +60,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
   extends AbstractController(cc) {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  def predictFloorAlgo1() = Action {
+  def predictFloorAlgo1(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         LOG.D2("Positioning: predictFloorAlgo1:")
@@ -104,8 +104,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-
-  def estimatePosition() = Action {
+  def estimatePosition(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)

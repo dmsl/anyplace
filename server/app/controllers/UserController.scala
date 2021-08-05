@@ -28,7 +28,7 @@ class UserController @Inject()(cc: ControllerComponents,
                                user: helper.User)
   extends AbstractController(cc) {
 
-  def login() = Action {
+  def login(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -56,7 +56,7 @@ class UserController @Inject()(cc: ControllerComponents,
     inner(request)
   }
 
-  def refresh() = Action {
+  def refresh(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -82,7 +82,7 @@ class UserController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def register() = Action {
+  def register(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq: OAuth2Request = new OAuth2Request(request)
@@ -119,7 +119,7 @@ class UserController @Inject()(cc: ControllerComponents,
    *
    * @return type(admin, user, .. etc) + message
    */
-  def loginGoogle() = Action {
+  def loginGoogle(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         LOG.D2("loginGoogle")
@@ -127,8 +127,7 @@ class UserController @Inject()(cc: ControllerComponents,
         if (!auth.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = auth.getJsonBody()
         if (isNullOrEmpty(json)) return RESPONSE.BAD(RESPONSE.ERROR_API_USAGE)
-        json = appendUserType(json) //# TODO auth.appendUserType() // update json directly.. inside auth object..
-        // auth.isGoogleUser() // and hide the below functionality....
+        json = appendUserType(json)
         val external = json \ SCHEMA.fExternal
 
         if (external.toOption.isDefined && external.as[String] == "google") {
@@ -142,29 +141,7 @@ class UserController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-
-  // CHECK:NN who calls this?!
-  // TODO: Implement
-  // TODO new object with above but password encrypt (salt)
-  // TODO add this to mongo (insert)
-  // TODO Generate access_token: "local_VERY LONG SHA"
-  def addLocalAccount(json: JsValue): Result = {
-
-    // call appendUserType
-    // ----------------------------
-    //  requirePropertiesInJson: email, username, password
-    val mdb: MongoDatabase = mongoDB.getMDB
-    val collection = mdb.getCollection(SCHEMA.cUsers)
-    val userLookUp = collection.find(equal("username", (json \ "username").as[String]))
-    val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
-    val res = awaited.toList
-    if (res.size != 0) {
-      // TODO user must have unique username (query username in mongo)
-    }
-    null
-  }
-
-  def updateUser() = Action {
+  def updateUser(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -229,35 +206,13 @@ class UserController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  // CHECK:NN
-  @deprecated("NotNeeded")
-  def maintenance(): Action[AnyContent] = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        LOG.D2("maintenance: " + Utils.stripJson(json))
-        try {
-          if (!pds.db.deleteNotValidDocuments()) return RESPONSE.BAD("None valid documents.")
-          return RESPONSE.OK("Success")
-        } catch {
-          case e: DatasourceException => return RESPONSE.ERROR(e)
-        }
-      }
-
-      inner(request)
-  }
-
-
-  // TODO if json has not type add type = user
   def appendUserType(json: JsValue): JsValue = {
     if ((json \ SCHEMA.fType).toOption.isDefined) {
-      LOG.I("user type exists: " + (json \ SCHEMA.fType).as[String]) // Might crash
+      LOG.I("appendUserType: type exists: " + (json \ SCHEMA.fType).as[String]) // Might crash
       return json
     } else {
       var userType: String = ""
-      if (isFirstUser()) {
+      if (isFirstUser) {
         userType = "admin"
         LOG.I("Initializing admin user.")
       } else {
@@ -277,7 +232,7 @@ class UserController @Inject()(cc: ControllerComponents,
     ExternalType.LOCAL
   }
 
-  def isFirstUser(): Boolean = {
+  def isFirstUser: Boolean = {
     val mdb: MongoDatabase = mongoDB.getMDB
     val collection = mdb.getCollection(SCHEMA.cUsers)
     val users = collection.find()
@@ -287,43 +242,49 @@ class UserController @Inject()(cc: ControllerComponents,
     res.isEmpty
   }
 
-  def getUser(json: JsValue): JsValue = {
-    // val mdb: MongoDatabase = mongoDB.getMDB  CHECK:NN
-    // val collection = mdb.getCollection(SCHEMA.cUsers)
+  def getGoogleUser(json: JsValue): JsValue = {
     var user: JsValue = null
     getAccountType(json) match {
       case ExternalType.GOOGLE =>
-        val mdb: MongoDatabase = mongoDB.getMDB
+      val mdb: MongoDatabase = mongoDB.getMDB
         val collection = mdb.getCollection(SCHEMA.cUsers)
         val ownerId = (json \ SCHEMA.fOwnerId).as[String]
         val userLookUp = collection.find(equal(SCHEMA.fOwnerId, ownerId))
         val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
         val res = awaited.toList
         if (res.size == 1) {
-          user = mongoDB.convertJson(res.head) // CHECK:NN was (0)
+          user = mongoDB.convertJson(res.head)
         } else if (res.size > 1) {
           LOG.E("User exists. More than one user with id: " + ownerId)
         }
-      case ExternalType.LOCAL => LOG.D("TODO: query unique email") // CHECK:NN ??
+      case _ => LOG.E("Not a Google User.")
     }
 
     user
   }
 
-  // TODO:NN explain this.... REVIEW with PM
+  /**
+   * Checks that a Google user was in the database, otherwise it
+   * creates a new anyplace account for that user.
+   *
+   * NOTE: An anyplace specific Access Token is generated for a Google User as well
+   *
+   * @param auth
+   * @return
+   */
   def authorizeGoogleAccount(auth: OAuth2Request): Result = {
-    LOG.I("authorizeGoogleAccount")
+    LOG.D2("User: authorizeGoogleAccount")
     var json = auth.getJsonBody()
     val hasExternal = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
     if (!hasExternal.isEmpty) return RESPONSE.MISSING_FIELDS(hasExternal)
 
-    var id = verifyGoogleAuthentication((json \ SCHEMA.fAccessToken).as[String])
+    var id = verifyGoogleUser((json \ SCHEMA.fAccessToken).as[String])
     if (id == null) return RESPONSE.UNAUTHORIZED_USER
     id = Utils.appendGoogleIdIfNeeded(id)
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
 
     // if user exists but has no anyplace access_token: create one and put on db
-    var user = getUser(json)
+    var user = getGoogleUser(json)
     val hasAccessToken = !(user \ SCHEMA.fAccessToken).toOption.isEmpty
     if (hasAccessToken && user != null) { // add access_token to db if !exists
       val newAccessToken = MongodbDatasource.generateAccessToken(false)
@@ -338,35 +299,34 @@ class UserController @Inject()(cc: ControllerComponents,
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id)) +
       (SCHEMA.fType -> JsString(userType))
     if (user != null) { // user and access_token exists
-      return RESPONSE.OK(user, "User Exists.") // its not AnyResponseHelperok
-    } else {  // new user created CHECK:NN .. how token is on local account?
+      return RESPONSE.OK(user, "User Exists.")
+    } else {  // new user created
       val user = new Account(json)
       pds.db.addJson(SCHEMA.cUsers, user.toString())
       return RESPONSE.OK(user.toJson(), "Added new google user.")
     }
   }
 
-
   /**
-   * TODO:NN move from here. Maybe to UserController? (or some Util object?). Does it work with local accounts?
-   * @param authToken
+   * Calls Google API to verify a Google users access token, which was sent by the client.
+   *
+   * @param authToken Google Authentication Token (OAuth)
    * @return
    */
-  def verifyGoogleAuthentication(authToken: String): String = {
+  def verifyGoogleUser(authToken: String): String = {
     // remove the double string quotes due to json processing
     val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
     var res = ""
     try {
       res = Network.GET(gURL)
     } catch {
-      case e: Exception => { LOG.E("verifyId", e)}
+      case e: Exception => LOG.E("verifyId", e)
     }
     if (res != null) {
       try {
-        // CHECK:PM CHECK:NN bug on main branch (JsonObject.fromJson())
         val json = Json.parse(res)
-        val uid = (json \ "user_id")
-        val sub = (json \ "sub")
+        val uid = json \ "user_id"
+        val sub = json \ "sub"
         if (uid.toOption.isDefined)
           return uid.as[String]
         if (sub.toOption.isDefined)
@@ -378,8 +338,6 @@ class UserController @Inject()(cc: ControllerComponents,
     }
     null
   }
-
-
 
   def encryptPwd(password: String): String = {
     val salt = conf.get[String]("password.salt")

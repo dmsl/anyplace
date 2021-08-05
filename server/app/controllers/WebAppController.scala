@@ -37,7 +37,7 @@ package controllers
 
 import datasources.SCHEMA
 import play.api.Environment
-import play.api.mvc.{AbstractController, ControllerComponents, Result}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Result}
 //import play.Play
 import javax.inject.{Inject, Singleton}
 
@@ -45,16 +45,21 @@ import javax.inject.{Inject, Singleton}
 class WebAppController @Inject()(cc: ControllerComponents,
                                  env: Environment) extends AbstractController(cc) {
 
-  def AddTrailingSlash() = Action { implicit request =>
+  def serveDevelopers(file: String): Action[AnyContent] = Action {
+    val devsDir = "public/developers"
+    serveFile(devsDir, file)
+  }
+
+  def AddTrailingSlash(): Action[AnyContent] = Action { implicit request =>
     MovedPermanently(request.path + "/")
   }
 
-  def serveArchitect(file: String) = Action {
+  def serveArchitect(file: String): Action[AnyContent] = Action {
     val archiDir = "public/anyplace_architect"
     serveFile(archiDir, file)
   }
 
-  def serveViewer(file: String) = Action { implicit request =>
+  def serveViewer(file: String): Action[AnyContent] = Action { implicit request =>
     val mode = request.getQueryString("mode").getOrElse("")
     var viewerDir = "public/anyplace_viewer"
     if (mode == null || !mode.equalsIgnoreCase("widget")) {
@@ -72,11 +77,6 @@ class WebAppController @Inject()(cc: ControllerComponents,
 
     }
     serveFile(viewerDir, file)
-  }
-
-  def serveDevelopers(file: String) = Action {
-    val devsDir = "public/developers"
-    serveFile(devsDir, file)
   }
 
   def serveFile(appDir: String, file_in: String): Result = {

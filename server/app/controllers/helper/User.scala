@@ -55,13 +55,17 @@ class User @Inject()(pds: ProxyDataSource){
     null
   }
 
-
-  def hasAccess(space: JsValue, userId: String): Boolean = {
+  def isAdminOrModerator(userId: String): Boolean = {
     // Admin
     if (MongodbDatasource.getAdmins.contains(userId)) return true
     else if (MongodbDatasource.getModerators.contains(userId)) return true
 
-     (isSpaceOwner(space, userId) || isSpaceCoOwner(space, userId))
+    false
+  }
+
+  def canAccessSpace(space: JsValue, userId: String): Boolean = {
+    if (isAdminOrModerator(userId)) return true
+     isSpaceOwner(space, userId) || isSpaceCoOwner(space, userId)
   }
 
   private def isSpaceOwner(building: JsValue, userId: String): Boolean = {

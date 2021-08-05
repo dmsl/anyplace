@@ -25,16 +25,12 @@
  THE SOFTWARE.
  */
 
-// TODO:NN once all done, and commited. rename ONLY this to API
 var API = {};
-API.old = "../anyplace";
 API.url = "../api"
 
 API.VERSION = API.url + "/version";
 
-/**
- * MAPPING API
- */
+/** MAPPING API */
 API.Mapping = {};
 API.Navigation = {};
 API.Other = {};
@@ -69,42 +65,35 @@ API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3 = API.url + API.Mapping.RADIO_HEATMA
 API.Mapping.RADIO_HEATMAP_BY_TIME_TILES = "/heatmap/floor/average/timestamp/tiles";
 API.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = API.url + API.Mapping.RADIO_HEATMAP_BY_TIME_TILES;
 
-API.Mapping.RADIOMAP_DELETE = "/position/radio/heatmap_building_floor_delete";
-API.Mapping.RADIOMAP_DELETE_URL = API.old + API.Mapping.RADIOMAP_DELETE;
-// AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES = "/position/radio/acces";
-// AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES_URL = AnyplaceAPI.BASE_URL + AnyplaceAPI.Mapping.RADIO_HEATMAP_RSS_ACCES;
-API.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
-API.Mapping.RADIO_HEATMAP_URL_POI = API.old + API.Mapping.RADIO_HEATMAP_POI;
+API.Mapping.RADIOMAP_DELETE = "/api/auth/radiomap/delete"
+API.Mapping.RADIOMAP_DELETE_URL = API.url + API.Mapping.RADIOMAP_DELETE;
 
-API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL = "/radiomap/floor/all";
-API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = API.url + API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL;
-API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
-API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = API.old + API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
+API.Mapping.RADIOMAP_FLOOR_ALL = "/radiomap/floor/all";
+API.Mapping.RADIOMAP_FLOOR_ALL_URL = API.url + API.Mapping.RADIOMAP_FLOOR_ALL;
 
-// TODO:NN replace BUILDING to SPACE everywhere here..
-API.Mapping.BUILDING_ADD = "/auth/mapping/space/add";
-API.Mapping.BUILDING_ADD_URL = API.url + API.Mapping.BUILDING_ADD;
-API.Mapping.BUILDING_ONE = "/mapping/space/get";
-API.Mapping.BUILDING_ONE_URL = API.url + API.Mapping.BUILDING_ONE;
-API.Mapping.BUILDING_UPDATE = "/auth/mapping/space/update";
-API.Mapping.BUILDING_UPDATE_URL = API.url + API.Mapping.BUILDING_UPDATE;
-API.Mapping.BUILDING_DELETE = "/auth/mapping/space/delete";
-API.Mapping.BUILDING_DELETE_URL = API.url + API.Mapping.BUILDING_DELETE;
+API.Mapping.SPACE_ADD = "/auth/mapping/space/add";
+API.Mapping.SPACE_ADD_URL = API.url + API.Mapping.SPACE_ADD;
+API.Mapping.SPACE_GET = "/mapping/space/get";
+API.Mapping.SPACE_GET_URL = API.url + API.Mapping.SPACE_GET;
+API.Mapping.SPACE_UPDATE = "/auth/mapping/space/update";
+API.Mapping.SPACE_UPDATE_URL = API.url + API.Mapping.SPACE_UPDATE;
+API.Mapping.SPACE_DELETE = "/auth/mapping/space/delete";
+API.Mapping.SPACE_DELETE_URL = API.url + API.Mapping.SPACE_DELETE;
 API.Mapping.SPACE_PUBLIC = "/mapping/space/public";
 API.Mapping.SPACE_PUBLIC_URL = API.url + API.Mapping.SPACE_PUBLIC;
 API.Mapping.SPACE_ACCESSIBLE = "/auth/mapping/space/accessible";
 API.Mapping.SPACE_ACCESSIBLE_URL = API.url + API.Mapping.SPACE_ACCESSIBLE;
 
-API.Mapping.CAMPUS_ALL = "/auth/mapping/campus/user";
-API.Mapping.CAMPUS_ALL_URL = API.url + API.Mapping.CAMPUS_ALL;
+API.Mapping.CAMPUS_USER = "/auth/mapping/campus/user";
+API.Mapping.CAMPUS_USER_URL = API.url + API.Mapping.CAMPUS_USER;
+API.Mapping.CAMPUS_GET = "/mapping/campus/get";
+API.Mapping.CAMPUS_GET_URL = API.url + API.Mapping.CAMPUS_GET;
 API.Mapping.CAMPUS_UPDATE = "/auth/mapping/campus/update";
 API.Mapping.CAMPUS_UPDATE_URL = API.url + API.Mapping.CAMPUS_UPDATE;
 API.Mapping.CAMPUS_DELETE = "/auth/mapping/campus/delete";
 API.Mapping.CAMPUS_DELETE_URL = API.url + API.Mapping.CAMPUS_DELETE;
-API.Mapping.BUILDINGSET_ADD = "/auth/mapping/campus/add";
-API.Mapping.BUILDINGSET_ADD_URL = API.url + API.Mapping.BUILDINGSET_ADD;
-API.Mapping.BUILDINGSET_ALL = "/mapping/campus/get";
-API.Mapping.BUILDINGSET_ALL_URL = API.url + API.Mapping.BUILDINGSET_ALL;
+API.Mapping.CAMPUS_ADD = "/auth/mapping/campus/add";
+API.Mapping.CAMPUS_ADD_URL = API.url + API.Mapping.CAMPUS_ADD;
 
 API.Mapping.FLOOR_ADD = "/auth/mapping/floor/add";
 API.Mapping.FLOOR_ADD_URL = API.url + API.Mapping.FLOOR_ADD;
@@ -136,8 +125,6 @@ API.Mapping.ALL_POIS_URL = API.url + API.Mapping.ALL_POIS;
 
 API.Mapping.CONNECTION_ADD = "/auth/mapping/connection/add";
 API.Mapping.CONNECTION_ADD_URL = API.url + API.Mapping.CONNECTION_ADD;
-API.Mapping.CONNECTION_UPDATE = "/auth/mapping/connection/update";
-API.Mapping.CONNECTION_UPDATE_URL = API.old + API.Mapping.CONNECTION_UPDATE;
 API.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
 API.Mapping.CONNECTION_DELETE_URL = API.url + API.Mapping.CONNECTION_DELETE;
 API.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/floor/all";
@@ -393,7 +380,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getRadioByBuildingFloorAll = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
+            url: API.Mapping.RADIOMAP_FLOOR_ALL_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -405,7 +392,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getRadioByBuildingFloorTxt = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
+            url: API.Mapping.RADIOMAP_FLOOR_ALL_TXT_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -420,7 +407,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDING_ADD_URL,
+            url: API.Mapping.SPACE_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -432,7 +419,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.addBuildingSet = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDINGSET_ADD_URL,
+            url: API.Mapping.CAMPUS_ADD_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -444,7 +431,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.updateBuilding = function (jsonReq) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDING_UPDATE_URL,
+            url: API.Mapping.SPACE_UPDATE_URL,
             data: jsonReq
         }).success(function (data, status) {
             return data;
@@ -470,7 +457,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.deleteBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDING_DELETE_URL,
+            url: API.Mapping.SPACE_DELETE_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -480,7 +467,11 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
-    // lsolea01
+    /**
+     * Deletes a Radiomap. This was used only in ACCES.
+     * Now its not needed, as a Radiomap will be deleted
+     * and regenerated as necessary when the fingeprints are modified
+     */
     apiService.deleteRadiomaps = function (json_req) {
         return $http({
             method: "POST",
@@ -491,7 +482,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         }).error(function (data, status) {
             return data;
         });
-
     };
 
     apiService.deleteCampus = function (json_req) {
@@ -533,10 +523,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
-    apiService.allCucodeCampus = function (json_req) {
+    apiService.getCampusById = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDINGSET_ALL_URL,
+            url: API.Mapping.CAMPUS_GET_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -546,10 +536,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
     };
 
-    apiService.allCampus = function (json_req) {
+    apiService.getCampusUser = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.CAMPUS_ALL_URL,
+            url: API.Mapping.CAMPUS_USER_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -821,7 +811,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     apiService.getOneBuilding = function (json_req) {
         return $http({
             method: "POST",
-            url: API.Mapping.BUILDING_ONE_URL,
+            url: API.Mapping.SPACE_GET_URL,
             data: json_req
         }).success(function (data, status) {
             return data;

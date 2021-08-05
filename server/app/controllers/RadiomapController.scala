@@ -35,7 +35,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    *
    * @return deleted fingerprints (so JS update UI)
    */
-  def delete() = Action {
+  def delete(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -66,7 +66,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
           for (fingerprint <- fingerprints) {
             pds.db.deleteFingerprint(fingerprint)
           }
-          pds.db.deleteAffectedHeatmaps(buid,floorNum)
+          pds.db.deleteCachedDocuments(buid,floorNum)
           val res: JsValue = Json.obj("fingerprints" -> fingerprints)
           Future { mapHelper.updateFrozenRadioMap(buid, floorNum) }(ec)
           return RESPONSE.gzipJsonOk(res, "Deleted " + fingerprints.size + " fingerprints and returning them.")
@@ -79,7 +79,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def deleteTimestamp() = Action {
+  def deleteTimestamp(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -99,22 +99,20 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
-          val fingerprints: List[JsValue] = pds.db.getFingerPrintsTimestampBBox(buid, floorNum, lat1, lon1, lat2, lon2, timestampX, timestampY)
+          val fingerprints: List[JsValue] = pds.db.getFingerPrintsTimestampBBox(
+            buid, floorNum, lat1, lon1, lat2, lon2, timestampX, timestampY)
           if (fingerprints.isEmpty)
             return RESPONSE.BAD_CANNOT_RETRIEVE_FINGERPRINTS_WIFI
           for (fingerprint <- fingerprints)
             pds.db.deleteFingerprint(fingerprint)
-          pds.db.deleteAffectedHeatmaps(buid,floorNum)
-          // TODO:NN below comment?
-          // TODO:do also 1 and 2
-          pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floorNum, 3)
+          pds.db.deleteCachedDocuments(buid,floorNum)
           val res: JsValue = Json.obj("radioPoints" -> fingerprints)
           try {
             Future { mapHelper.updateFrozenRadioMap(buid, floorNum) }(ec)
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException =>
-              return RESPONSE.OK(res, "Successfully retrieved all Fingerprints!")
+            case _: IOException =>
+              return RESPONSE.OK(res, "Successfully retrieved all Fingerprints.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -130,7 +128,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    *
    * @return a list of the number of fingerprints stored, and date.
    */
-  def byTime() = Action {
+  def byTime(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -144,9 +142,9 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         val floorNum = (json \ SCHEMA.fFloor).as[String]
 
         // create cache-collections
-        pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp1, buid, floorNum, 1)
-        pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp2, buid, floorNum, 2)
-        pds.db.createTimestampHeatmap(SCHEMA.cHeatmapWifiTimestamp3, buid, floorNum, 3)
+        pds.db.cacheHeatmapByTime(SCHEMA.cHeatmapWifiTimestamp1, buid, floorNum, 1)
+        pds.db.cacheHeatmapByTime(SCHEMA.cHeatmapWifiTimestamp2, buid, floorNum, 2)
+        pds.db.cacheHeatmapByTime(SCHEMA.cHeatmapWifiTimestamp3, buid, floorNum, 3)
 
         try {
           val radioPoints: List[JsValue] = pds.db.getFingerprintsByTime(buid, floorNum)
@@ -160,51 +158,6 @@ class RadiomapController @Inject()(cc: ControllerComponents,
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
-        }
-      }
-      inner(request)
-  }
-
-
-  // TODO:NN  convert to jsvalue so it works????? or delete
-  def getBoundingBox = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody())
-          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        LOG.D2("Radiomap: getBoundingBox: " + Utils.stripJson(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloor, SCHEMA.fBuid, "range")
-        if (!requiredMissing.isEmpty)
-          return RESPONSE.MISSING_FIELDS(requiredMissing)
-        val lat = (json \ SCHEMA.fCoordinatesLat).as[String]
-        val lon = (json \ SCHEMA.fCoordinatesLon).as[String]
-        val floorNum = (json \ SCHEMA.fFloor).as[String]
-        val buid = (json \ SCHEMA.fBuid).as[String]
-        val strRange = (json \ "range").as[String]
-        val weight = (json \ SCHEMA.fWeight).as[String]
-        val range = strRange.toInt
-        try {
-          var radioPoints: util.List[JsValue] = null
-          if (weight.compareTo("false") == 0) radioPoints = pds.db.getRadioHeatmapBBox2(lat, lon, buid, floorNum, range)
-          else if (weight.compareTo("true") == 0) radioPoints = pds.db.getRadioHeatmapBBox(lat, lon, buid, floorNum, range)
-          else if (weight.compareTo("no spatial") == 0) radioPoints = pds.db.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floorNum, range)
-          if (radioPoints == null)
-            return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          val res = Json.obj("radioPoints" -> radioPoints.asScala)
-          // CHECK: NN comments below?
-          try //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-            RESPONSE.gzipJsonOk(res.toString)
-            //                }
-            //                return AnyResponseHelper.ok(res.toString());
-          catch {
-            case ioe: IOException =>
-              return RESPONSE.OK(res, "Successfully retrieved radio points.")
-          }
-        } catch {
-          case e: DatasourceException =>
-            return RESPONSE.ERROR(e)
         }
       }
       inner(request)
@@ -236,10 +189,13 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def upload() = Action {
+  def upload(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+
         val body = anyReq.getMultipartFormData()
         if (body == null) {return RESPONSE.BAD("Invalid request type: Not multipart.")}
         var rssLog: File = null
@@ -252,14 +208,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         if (body_form == null) {
           return RESPONSE.BAD("Invalid request type - Cannot be parsed as form data.")
         }
-        // XXX:NN TODO:NN why checking on the body? isnt this on the eheaders?
-        // there is a check
-        if (!body_form.contains(SCHEMA.fAccessToken)) {
-          // TODO:NN we have a dedicated method for this.
-          return RESPONSE.BAD("Cannot find access_token in the request.")
-        }
-        val access_token = body_form.get(SCHEMA.fAccessToken).get.head
-        if (user.authorize(access_token) == null) return RESPONSE.FORBIDDEN("Unauthorized")
+
         var ret: String = ""
         val newBuildingsFloors = RadioMap.verifyRssLogAndGetBuildingFloors(rssLog)
         if (newBuildingsFloors == null) {
@@ -297,7 +246,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def getFloor() = Action {
+  def getFloor(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -315,7 +264,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getByFloorBoundingBox() = Action {
+  def getByFloorBoundingBox(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -342,7 +291,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def getByFloor() = Action {
+  def getByFloor(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -439,7 +388,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    *
    * @return a link to the radio_map file
    */
-  def getByFloorsAll() = Action {
+  def getByFloorsAll(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
 
@@ -544,7 +493,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def get(radio_folder: String, fileName: String) = Action {
+  def get(radio_folder: String, fileName: String): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -567,7 +516,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getFrozen(building: String, floor: String, fileName: String) = Action {
+  def getFrozen(building: String, floor: String, fileName: String): Action[AnyContent] = Action {
     def inner(): Result = {
       val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
       val filePath = radioMapsFrozenDir + api.sep + building + api.sep +
@@ -589,55 +538,6 @@ class RadiomapController @Inject()(cc: ControllerComponents,
     inner()
   }
 
-  // CHECK:NN
-  private def getRadioMapMeanByBuildingFloor(buid: String, floorNum: String): Option[RadioMapMean] = {
-    val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
-    val rmapDir = new File(radioMapsFrozenDir + File.separatorChar + buid + File.separatorChar + floorNum)
-    val meanFile = new File(rmapDir.toString + File.separatorChar + "indoor-radiomap-mean.txt")
-    if (rmapDir.exists() && meanFile.exists()) {
-      val folder = rmapDir.toString
-      val radiomap_mean_filename = new File(folder + File.separatorChar + "indoor-radiomap-mean.txt").getAbsolutePath
-      val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
-      rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
-      return Option[RadioMapMean](rm_mean)
-    }
-
-    if (!rmapDir.mkdirs() && !rmapDir.exists()) {
-      throw new IOException("Could not create %s".format(rmapDir.toString))
-    }
-    val radio = new File(rmapDir.getAbsolutePath + File.separatorChar + "rss-log")
-    var fout: FileOutputStream = null
-    fout = new FileOutputStream(radio)
-    LOG.D5(radio.toPath.getFileName.toString)
-    var floorFetched: Long = 0L
-    floorFetched = pds.db.dumpRssLogEntriesByBuildingACCESFloor(fout, buid, floorNum)
-    try {
-      fout.close()
-    } catch {
-      case e: IOException => LOG.E("Closing the output stream for the dumped rss logs", e)
-    }
-    if (floorFetched == 0) { Option[RadioMapMean](null) }
-
-    val folder = rmapDir.toString
-    val radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath
-    val radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
-    var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
-    var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
-    val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
-
-    // BUG CHECK this
-    val resCreate = rm.createRadioMap()
-    if (resCreate != null) {
-      throw new Exception("getRadioMapMeanByBuildingFloor: Error: on-the-fly radioMap: " + resCreate)
-    }
-    val rm_mean = new RadioMapMean(isIndoor = true, defaultNaNValue = -110)
-    rm_mean.ConstructRadioMap(inFile = new File(radiomap_mean_filename))
-
-    Option[RadioMapMean](rm_mean)
-  }
-
-
-
   /**
    * Processes a row rss log file (the one that was uploaded)
    * This is a raw rss window (optimised by mongoDB)
@@ -645,7 +545,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
    * @param values
    * @return
    */
-  private def storeFloorRssWindowToDB(values: ArrayList[String]): String = {
+  private def storeFloorRssWindowToDB(values: util.ArrayList[String]): String = {
     if (values.size > 0) {
       var maxMac = ""
       var maxRss = java.lang.Integer.MIN_VALUE
@@ -695,7 +595,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       } else {
         try {
           pds.db.addJson(SCHEMA.cFingerprintsWifi, rmr.addMeasurements(measurements))
-          pds.db.deleteAffectedHeatmaps(fingerprintToks(7), fingerprintToks(6))
+          pds.db.deleteCachedDocuments(fingerprintToks(7), fingerprintToks(6))
         } catch {
           case e: DatasourceException => return "Internal server error while trying to save rss entry."
         }
@@ -756,5 +656,5 @@ class RadiomapController @Inject()(cc: ControllerComponents,
     return totalExists.toString + "/" + totalRss.toString
   }
 
-  def isAllDigits(x: String) = x forall Character.isDigit
+  def isAllDigits(x: String): Boolean = x forall Character.isDigit
 }

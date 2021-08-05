@@ -238,8 +238,10 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     };
 
     $scope.getCampuses = function () {
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
-        var promise = $scope.anyAPI.allCucodeCampus(jsonReq);
+        var jsonReq = { "access-control-allow-origin": "",
+            "content-encoding": "gzip",    "access-control-allow-credentials": "true",
+            "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
+        var promise = $scope.anyAPI.getCampusById(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;

@@ -19,26 +19,22 @@ class MapCampusController @Inject()(cc: ControllerComponents,
                                    user: helper.User)
   extends AbstractController(cc) {
 
-  // TODO:NN replace with user.isModerator(): will return true if user is mod or admin
-  private val ADMIN_ID = "112997031510415584062_google"
-
   /**
-   * Retrieve the Space Set.
+   * Returns a campus.
    */
-  def get = Action {
+  def get: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody())
-          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Campus: get" + Utils.stripJson(json))
+        LOG.D2("Campus: get")
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
         val cuid = (json \ SCHEMA.fCampusCuid).as[String]
         try {
           val campus = pds.db.getBuildingSet(cuid)
-          if (campus.size == 0) {
+          if (campus.isEmpty) {
             return RESPONSE.NOT_FOUND("Campus '" + cuid + "' not found!")
           } else if (campus.size > 1) {
             return RESPONSE.NOT_FOUND("Something went wrong. More than one matches for '" + cuid + "'!")
@@ -59,7 +55,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
               spaces.add(space.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCoOwners - SCHEMA.fGeometry - SCHEMA.fType - SCHEMA.fOwnerId)
           }
 
-          val res = campus(0).as[JsObject] - SCHEMA.fBuids - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCampusCuid - SCHEMA.fDescription +
+          val res = campus.head.as[JsObject] - SCHEMA.fBuids - SCHEMA.fOwnerId - SCHEMA.fId - SCHEMA.fSchema - SCHEMA.fCampusCuid - SCHEMA.fDescription +
             (SCHEMA.cSpaces -> Json.toJson(spaces.asScala))
           try
             RESPONSE.gzipJsonOk(res.toString)
@@ -74,13 +70,12 @@ class MapCampusController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  // TODO:NN ? where? adds a new space to a campus?
   /**
    * Adds a new Space set to the database
    *
    * @return the newly created Space ID is included in the response if success
    */
-  def add = Action {
+  def add: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -89,7 +84,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Campus: add: " + Utils.stripJson(json))
+        LOG.D2("Campus: add")
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fDescription, SCHEMA.fName, SCHEMA.fBuids, SCHEMA.fGreeklish)
         if (checkRequirements != null) return checkRequirements
         var owner_id = user.authorize(apiKey)
@@ -97,14 +92,13 @@ class MapCampusController @Inject()(cc: ControllerComponents,
         try {
           val cuid = (json \ SCHEMA.fCampusCuid).as[String]
           val campus = pds.db.BuildingSetsCuids(cuid)
-          if (campus) return RESPONSE.BAD("Space set already exists.")
+          if (campus) return RESPONSE.BAD("Campus already exists.")
           else {
-            var spaceSet: SpaceSet = null
+            var spaceSet: Campus = null
             try {
-              spaceSet = new SpaceSet(json)
+              spaceSet = new Campus(json)
             } catch {
-              case e: NumberFormatException =>
-                return RESPONSE.BAD("Space coordinates are invalid.")
+              case _: NumberFormatException => return RESPONSE.BAD("Space coordinates are invalid.")
             }
             if (!pds.db.addJson(SCHEMA.cCampuses, spaceSet.addBuids()))
               return RESPONSE.BAD_CANNOT_ADD_SPACE
@@ -125,7 +119,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def update = Action {
+  def update: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -177,7 +171,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
             var buids = (json \ SCHEMA.fBuids).as[List[String]]
             storedCampus = storedCampus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buids))
           }
-          val campus = new SpaceSet(storedCampus)
+          val campus = new Campus(storedCampus)
           if (!pds.db.replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJSON()))
             return RESPONSE.BAD("Campus could not be updated.")
           return RESPONSE.OK("Successfully updated campus.")
@@ -190,7 +184,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def byOwner = Action {
+  def byOwner: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -225,7 +219,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def delete = Action {
+  def delete: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -260,8 +254,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
   }
 
   private def isCampusOwner(campus: JsValue, userId: String): Boolean = {
-    if (userId.equals(ADMIN_ID)) // admin TODO:NN moderator or admin .. (>= moderator)
-      return true
+    if (user.isAdminOrModerator(userId)) return true
     if (campus != null && (campus \ SCHEMA.fOwnerId).toOption.isDefined) {  // check if owner
       return (campus \ SCHEMA.fOwnerId).as[String].equals(userId)
     }

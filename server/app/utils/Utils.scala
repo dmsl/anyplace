@@ -158,7 +158,7 @@ object Utils {
             null
     }
 
-    def encodeFileToBase64Binary(fu: FileUtils, fileName: String) = {
+    def encodeFileToBase64Binary(fu: FileUtils, fileName: String): String = {
         val file = new File(fileName)
         val bytes = fu.LoadFile(file)
         val encoded = Base64.encodeBase64(bytes)
@@ -166,7 +166,6 @@ object Utils {
         encodedString
     }
 
-    // CHECK:NN do we salt & pepper the local passwords before we save them?
     def secureEncrypt(password: String, plaintext: String): String = {
         try {
             val keyLength = SECURE_KEY_LENGTH
@@ -224,7 +223,7 @@ object Utils {
         null
     }
 
-    def gzip(input: String) = {
+    def gzip(input: String): ByteArrayOutputStream = {
         val inputStream = new ByteArrayInputStream(input.getBytes)
         val stringOutputStream = new ByteArrayOutputStream((input.length * 0.75).toInt)
         val gzipOutputStream = new GZIPOutputStream(stringOutputStream)
@@ -239,7 +238,6 @@ object Utils {
         gzipOutputStream.close()
         stringOutputStream
     }
-
 
     def appendGoogleIdIfNeeded(id: String): String = {
         if (id.contains("_local"))  id

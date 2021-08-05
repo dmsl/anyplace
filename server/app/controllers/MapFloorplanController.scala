@@ -21,7 +21,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
   extends AbstractController(cc) {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  def serveFloorPlanBinary(buid: String, floorNum: String) = Action {
+  def serveFloorPlanBinary(buid: String, floorNum: String): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -33,19 +33,18 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
         LOG.D2("requested: " + filePath)
         try {
           val file = new File(filePath)
-          // LPLogger.debug("filePath " + file.getAbsolutePath.toString)
           if (!file.exists()) return RESPONSE.BAD_CANNOT_RETRIEVE_FLOORPLAN(floorNum)
-          if (!file.canRead()) return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
+          if (!file.canRead) return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
           Ok.sendFile(file)
         } catch {
-          case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL("Could not read floorplan.")
+          case _: FileNotFoundException => return RESPONSE.ERROR_INTERNAL("Could not read floorplan.")
         }
       }
 
       inner(request)
   }
 
-  def getTilesZip(buid: String, floorNum: String) = Action {
+  def getTilesZip(buid: String, floorNum: String): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -69,7 +68,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getZipLink(buid: String, floorNum: String) = Action {
+  def getZipLink(buid: String, floorNum: String): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -90,7 +89,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getStaticTiles(buid: String, floorNum: String, path: String) = Action {
+  def getStaticTiles(buid: String, floorNum: String, path: String): Action[AnyContent] = Action {
     def inner(): Result = {
       if (path == null || buid == null || floorNum == null ||
         path.trim().isEmpty ||
@@ -103,7 +102,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
       try {
         val file = new File(filePath)
         //send ok message to tiler
-        if (!file.exists() || !file.canRead()) return RESPONSE.OK("File requested not found")
+        if (!file.exists() || !file.canRead) return RESPONSE.OK("File requested not found")
         Ok.sendFile(file)
       } catch {
         case _: FileNotFoundException => return RESPONSE.BAD_CANNOT_READ_FLOORPLAN(floorNum)
@@ -113,7 +112,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
     inner()
   }
 
-  def getBase64(buid: String, floorNum: String) = Action {
+  def getBase64(buid: String, floorNum: String): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -146,7 +145,6 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-
   /**
    * Returns the floorplan in base64 form. Used by the Anyplace websites
    *
@@ -154,13 +152,13 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
    * @param floorNum
    * @return
    */
-  def getAllBase64(buid: String, floorNum: String) = Action {
+  def getAllBase64(buid: String, floorNum: String): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        var json = anyReq.getJsonBody()
+        val json = anyReq.getJsonBody()
         LOG.D2("Floorplan: getAllBase64: " + Utils.stripJson(json) + " " + floorNum)
         val floors = floorNum.split(" ")
         val all_floors = new util.ArrayList[String]
@@ -175,23 +173,20 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
               val s = Utils.encodeFileToBase64Binary(fu, filePath)
               all_floors.add(s)
             } catch {
-              case e: IOException =>
+              case _: IOException =>
                 return RESPONSE.BAD("Requested floorplan cannot be encoded in base64 properly: " + floors(z))
             }
           catch {
-            case e: Exception =>
+            case _: Exception =>
               return RESPONSE.ERROR_INTERNAL("Unknown server error during floorplan delivery.")
           }
-          //{
           z += 1
-          //z - 1 // CHECK:NN what was that?
-          //}
         }
         val res: JsValue = Json.obj("all_floors" -> all_floors.asScala)
         try
           RESPONSE.gzipJsonOk(res.toString)
         catch {
-          case ioe: IOException =>
+          case _: IOException =>
             return RESPONSE.OK(res, "Successfully retrieved all floors.")
         }
       }
@@ -199,22 +194,18 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  // CHECK:NN why deprecated?
   @deprecated("NotInUse")
-  def floorPlanUpload() = Action {
+  def upload(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
-
-        return RESPONSE.DEPRECATED("Invalid request type: Not Multipart")
-
         val anyReq = new OAuth2Request(request)
         val body = anyReq.getMultipartFormData()
         if (body == null) return RESPONSE.BAD("Invalid request type - Not Multipart.")
-        var floorplan = body.file("floorplan").get
+        val floorplan = body.file("floorplan").get
         if (floorplan == null) return RESPONSE.BAD("Cannot find the floorplan file in your request.")
         val urlenc = body.asFormUrlEncoded
-        val json_str = urlenc.get("").get.head // CHECK:NN get("json").get(0)
+        val json_str = urlenc("").head
         if (json_str == null) return RESPONSE.BAD("Cannot find json in the request.")
         var json: JsValue = null
         try {
@@ -244,7 +235,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
           if (!pds.db.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, storedFloor.toString))
             return RESPONSE.BAD("floorplan could not be updated in the database.")
         } catch {
-          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("Error while reading from our backend service.")
+          case _: DatasourceException => return RESPONSE.ERROR_INTERNAL("Error while reading from our backend service.")
         }
         var floor_file: File = null
         try {
@@ -271,7 +262,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
    *    1. uploads a floorplan (filesystem)
    *    2. updates the floor with the coordinates of the floorplan (db)
    */
-  def uploadWithZoom() = Action {
+  def uploadWithZoom(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -282,7 +273,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
         val floorplan = body.file("floorplan").get
         if (floorplan == null) return RESPONSE.BAD("Cannot find the floorplan file in your request.")
         val urlenc = body.asFormUrlEncoded
-        val json_str = urlenc.get("json").get(0)
+        val json_str = urlenc("json").head
         if (json_str == null) return RESPONSE.BAD("Cannot find json in the request.")
         var json: JsValue = null
         try {
@@ -329,7 +320,7 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
         try {
           tilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng, zoom)
         } catch {
-          case e: AnyPlaceException => return RESPONSE.BAD("Could not create floorplan tiles on the server.")
+          case _: AnyPlaceException => return RESPONSE.BAD("Could not create floorplan tiles on the server.")
         }
         LOG.I("Successfully tiled: " + floor_file.toString)
         return RESPONSE.OK("Successfully updated floorplan.")
@@ -337,6 +328,5 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
-
 
 }

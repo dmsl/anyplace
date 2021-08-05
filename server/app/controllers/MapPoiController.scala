@@ -17,7 +17,8 @@ class MapPoiController @Inject()(cc: ControllerComponents,
                                            pds: ProxyDataSource,
                                            user: helper.User)
   extends AbstractController(cc) {
-  def add() = Action {
+
+  def add(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -38,7 +39,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -55,7 +56,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def update() = Action {
+  def update(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -74,7 +75,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -122,7 +123,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def delete() = Action {
+  def delete(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -141,7 +142,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -163,7 +164,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def byFloor() = Action {
+  def byFloor(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -192,7 +193,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def bySpace() = Action {
+  def bySpace(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -226,7 +227,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def search = Action {
+  def search: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         LOG.D2("POI: search")
@@ -272,7 +273,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def byConnectors = Action {
+  def byConnectors: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -303,6 +304,5 @@ class MapPoiController @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
-
 
 }

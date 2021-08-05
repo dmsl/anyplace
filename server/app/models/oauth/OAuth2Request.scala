@@ -106,7 +106,6 @@ class OAuth2Request(request: Request[AnyContent], enableCORS: Boolean) {
     if (hasJsonBody()) {
       return (this.mJsonBody \ property).toString
     } else if (hasFormEncodedBody()) {
-      // return this.mFormBody.get(property).get.head // CHECK:NN see below1
       return this.mFormBody(property).head
     }
     null

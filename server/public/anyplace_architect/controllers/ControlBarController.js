@@ -27,13 +27,12 @@ app.controller('ControlBarController',
     $scope.gmapService = GMapService;
     $scope.isAuthenticated = false;
 
-    // $scope.user = undefined; // local or google
-
-    $scope.creds = { //TODO:NN delete eventually..
+    $scope.creds = {
         fullName: undefined,
         username: undefined,
         password: undefined
     };
+
     $scope.emptyUser = {
         name: undefined,
         email: undefined,
@@ -94,7 +93,6 @@ app.controller('ControlBarController',
     };
 
     $scope.onSignIn = function (googleUser) {
-        // TODO:NN set cookies for local login as well (see from this one)
         if ($scope.getCookie("reloadedAfterLogin") === "") {
             $scope.setCookie("reloadedAfterLogin", "true", 365);
             location.reload();

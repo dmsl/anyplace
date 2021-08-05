@@ -255,8 +255,4 @@ class GeoPoint {
 		new GeoPoint(lat2, lon2)
 	}
 
-	def getBoundingBox(distance_in_meters: Double): Array[GeoPoint] = GeoPoint.getGeoBoundingBox(this.dlat, this.dlon, distance_in_meters)
-
-
-
 }

@@ -6,5 +6,3 @@ POST        /api/auth/space/owner/update                controllers.MapSpaceCont
 POST        /api/auth/space/bucode              controllers.MapSpaceController.spaceByBucode()
 
 POST        /api/auth/pois/nconnectors/all        controllers.MapPoiController.byConnectors()
-# TODO:NN what does it do? to decide on a name..
-POST        /api/aup/radio/radio_buid_floor           controllers.RadiomapController.getBoundingBox()

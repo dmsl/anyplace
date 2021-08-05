@@ -35,12 +35,14 @@
  */
 
 package utils
-import play.api.{Configuration}
+import play.api.Configuration
+
+import java.io.File
 import javax.inject.{Inject, Singleton}
 
 @Singleton
 class AnyplaceServerAPI @Inject() (conf: Configuration) {
-  val sep = '/'
+  val sep = File.separatorChar
   val SERVER_ADDRESS: String = conf.get[String]("server.address")
   val SERVER_PORT: String = conf.get[String]("server.port")
   val SERVER_FULL_URL: String = SERVER_ADDRESS + ":" + SERVER_PORT

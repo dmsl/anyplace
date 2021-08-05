@@ -19,7 +19,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
                                    user: helper.User)
   extends AbstractController(cc) {
 
-  def add() = Action {
+  def add(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -38,7 +38,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -60,7 +60,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
   }
 
   @deprecated("NotInUse")
-  def floorUpdate() = Action {
+  def floorUpdate(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -78,7 +78,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -106,7 +106,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def delete() = Action {
+  def delete(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -125,13 +125,13 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
         try {
           val deleted = pds.db.deleteAllByFloor(buid, floorNum)
-          if (deleted == false)
+          if (!deleted)
             return RESPONSE.BAD("Some items related to the floor could not be deleted.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -139,8 +139,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         val filePath = tilerHelper.getFloorPlanFor(buid, floorNum)
         try {
           val floorfile = new File(filePath)
-          // CHECK:NN BUGFIX: Fixing floorplan files and directory removal during floor delete
-          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile())
+          if (floorfile.exists()) HelperMethods.recDeleteDirFile(floorfile.getParentFile)
         } catch {
           case e: IOException => return RESPONSE.ERROR("While deleting floorplan." +
             "\nRelated data are deleted from the database.", e)
@@ -151,7 +150,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def all() = Action {
+  def all(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -176,4 +175,5 @@ class MapFloorController @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
+
 }

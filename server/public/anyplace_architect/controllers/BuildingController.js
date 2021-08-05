@@ -102,7 +102,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.$on("loggedIn", function (event, mass) {
         $scope.getSpacesAccessible();
-        $scope.fetchAllCampus();
+        $scope.getUserCampuses();
     });
 
     $scope.$on("loggedOff", function (event, mass) {
@@ -434,9 +434,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
 
-    // REVIEWLS what does this actually delete?
-    $scope.deleteRadiomaps = function () {
 
+    $scope.deleteRadiomaps = function () {
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
@@ -506,10 +505,10 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     };
 
-    $scope.fetchAllCampus = function () {
+    $scope.getUserCampuses = function () {
         var jsonReq = {};
         $scope.myCampus = [];
-        var promise = $scope.anyAPI.allCampus(jsonReq);
+        var promise = $scope.anyAPI.getCampusUser(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;

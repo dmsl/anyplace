@@ -44,6 +44,7 @@ import play.api.mvc._
 import utils._
 import utils.json.VALIDATE
 
+import java.util
 import java.util.{ArrayList, HashMap, List}
 import javax.inject.{Inject, Singleton}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
@@ -54,7 +55,7 @@ class NavigationController @Inject()(cc: ControllerComponents,
   extends AbstractController(cc) {
   val ROUTE_MAX_DISTANCE_ALLOWED = 5.0
 
-  def getBuildingById() = Action {
+  def getBuildingById: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -80,7 +81,7 @@ class NavigationController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getPoisById() = Action {
+  def getPoisById: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -107,7 +108,7 @@ class NavigationController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getNavigationRoute() = Action {
+  def getNavigationRoute: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -136,7 +137,7 @@ class NavigationController @Inject()(cc: ControllerComponents,
           val floor_from = (poiFrom \ SCHEMA.fFloorNumber).as[String]
           val buid_to = (poiTo \ SCHEMA.fBuid).as[String]
           val floor_to = (poiTo \ SCHEMA.fFloorNumber).as[String]
-          var points: List[JsValue] = null
+          var points: util.List[JsValue] = null
           if (buid_from.equalsIgnoreCase(buid_to)) {
             if (floor_from.equalsIgnoreCase(floor_to)) {
               points = navigateSameFloor(poiFrom, poiTo)
@@ -156,14 +157,15 @@ class NavigationController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getNavigationRouteXY() = Action {
+  def getNavigationRouteXY: Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("getNavigationRouteXY: " + json.toString)
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
+        val checkRequirements = VALIDATE.checkRequirements(json,
+          SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fFloorNumber,
           "pois_to")
         if (checkRequirements != null) return checkRequirements
         val coordinates_lat = (json \ SCHEMA.fCoordinatesLat).as[String]
@@ -213,10 +215,10 @@ class NavigationController @Inject()(cc: ControllerComponents,
           LOG.D3("min_distance: " + min_distance)
           val buid_from = (startingPoi \ SCHEMA.fBuid).as[String]
           val floor_from = (startingPoi \ SCHEMA.fFloorNumber).as[String]
-          var points: List[JsValue] = null
+          var points: util.List[JsValue] = null
           if (buid_from.equalsIgnoreCase(buid_to)) {
-            points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(startingPoi, poiTo) else navigateSameBuilding(startingPoi,
-              poiTo)
+            points = if (floor_from.equalsIgnoreCase(floor_to)) navigateSameFloor(startingPoi, poiTo)
+            else navigateSameBuilding(startingPoi, poiTo)
           } else {
             val msg  = "Navigation between buildings not supported yet."
             return RESPONSE.BAD(msg)
@@ -237,13 +239,13 @@ class NavigationController @Inject()(cc: ControllerComponents,
       (from \ SCHEMA.fFloorNumber).as[String]))
   }
 
-  private def navigateSameFloor(from: JsValue, to: JsValue, floorPois: List[HashMap[String, String]]): List[JsValue] = {
+  private def navigateSameFloor(from: JsValue, to: JsValue, floorPois: util.List[HashMap[String, String]]): util.List[JsValue] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(floorPois)
     graph.addEdges(pds.db.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     val routePois = Dijkstra.getShortestPath(graph, (from \ SCHEMA.fPuid).as[String], (to \ SCHEMA.fPuid).as[String])
 
-    val final_points = new ArrayList[JsValue]()
+    val final_points = new util.ArrayList[JsValue]()
     var p: NavResultPoint = null
     for (poi <- routePois.asScala) {
       p = new NavResultPoint()
@@ -258,12 +260,12 @@ class NavigationController @Inject()(cc: ControllerComponents,
     final_points
   }
 
-  private def navigateSameBuilding(from: JsValue, to: JsValue): List[JsValue] = {
+  private def navigateSameBuilding(from: JsValue, to: JsValue): util.List[JsValue] = {
     val graph = new Dijkstra.Graph()
     graph.addPois(pds.db.poisByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     graph.addEdges(pds.db.connectionsByBuildingAsMap((from \ SCHEMA.fBuid).as[String]))
     val routePois = Dijkstra.getShortestPath(graph, (from \ SCHEMA.fPuid).as[String], (to \ SCHEMA.fPuid).as[String])
-    val final_points = new ArrayList[JsValue]()
+    val final_points = new util.ArrayList[JsValue]()
     var p: NavResultPoint = null
     for (poi <- routePois.asScala) {
       p = new NavResultPoint()

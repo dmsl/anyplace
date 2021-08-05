@@ -20,11 +20,9 @@ GET        /api/version                                     controllers.MainCont
 ################
 ### USERS
 ################
-# TODO:NN EXAMPLE RESPONSE TO PUT BELOW:
+# TODO:NN /developers object responses/inputs, and mention `deleteCachedDocuments` in a few places..
 # {"name":"Alang Turning","owner_id":"123_google","external":"google","type":"user","access_token":"apGoogle_ABC123ap",
 # "_schema":0,"status":"success","message":"User Exists.","status_code":200}
-# TODO:NN remove _schema from this response!
-
 
 ###
 #      tags:
@@ -100,11 +98,9 @@ POST        /api/user/refresh                                 controllers.UserCo
 ###
 #  summary: Login for Google users
 #  description: |
-#       TODO:NN put arguments: they are: "name" (not used probably"
-#       TODO:NN. see also notes in api.old.routes
+#       CHECK:NN /developers: put arguments: they are: "name" (not used probably"
 #       "external" example: "google"
-#       "access_token": Google OAuth access token for anyplacej
-#       TODO:NN put return result: (see EXAMPLE RESPONSE ABOVE)
+#       "access_token": Google OAuth access token for anyplace
 #       Also put this in the other endpoints as well!
 #  tags:
 #    - User
@@ -284,8 +280,6 @@ POST        /api/auth/mapping/space/add                     controllers.MapSpace
 ###
 POST        /api/auth/mapping/space/update                  controllers.MapSpaceController.spaceUpdate()
 
-# TODO:NN verified all except fingerprints: must also delete radiomaps_frozen
-
 ###
 #      tags:
 #        - Space
@@ -464,20 +458,21 @@ POST        /api/auth/mapping/floor/add                     controllers.MapFloor
 ###
 POST        /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
 
-# TODO:NN put docs on below as well.
-# SPACE:FLOOR:FLOORPLAN
+# TODO:NN /developers put others from routes here as well (and rename)
+# `ag` on the master branch to see if the others are used.
+# PROBABLY this is how viewer gets its floorplans. Maybe the android apps as well..
+# TAG: SPACE:FLOORPLAN
 ### NoDocs ###
 POST        /api/floorplans64/:buid/:floor_number                               controllers.MapFloorplanController.getBase64( buid: String, floor_number: String )
 ### NoDocs ###
 POST        /api/floorplans64/all/:buid/:floor_number                            controllers.MapFloorplanController.getAllBase64( buid: String, floor_number: String )
-
-
-# CHECK:PM ASK:DZ is setting floorplan description obsolete?
-
+# TAG: SPACE:FLOORPLAN
 # floor/floorplan/upload
 POST        /api/mapping/floor/floorplan/upload              controllers.MapFloorplanController.uploadWithZoom()
 
+################
 # Campus
+################
 
 ###
 #      tags:
@@ -527,13 +522,12 @@ POST        /api/mapping/campus/get                         controllers.MapCampu
 ###
 POST        /api/auth/mapping/campus/add                    controllers.MapCampusController.add()
 
-# CHECK:NN CHECK:PM on frontend(js) buildings and greeklish are not set in the form
-
 ###
 #      tags:
 #        - Campus
 #      summary: Update Campus
-#      description: ""
+#      description: |
+#        CHECK: On frontend(js) buildings and greeklish are not set in the form.
 #      operationId: campusUpdate
 #      consumes:
 #        - application/json
@@ -1356,7 +1350,7 @@ POST        /api/heatmap/floor/average/timestamp/2          controllers.HeatmapC
 #      tags:
 #        - Heatmap
 #      summary: Get heatmaps with time zoom 3
-#      description: ""
+#      description: "It is shown at WiFi Coverage at the highest zoom level, and a few levels before"
 #      operationId: heatmapAvgTime3
 #      consumes:
 #        - application/json
@@ -1379,7 +1373,7 @@ POST        /api/heatmap/floor/average/timestamp/3          controllers.HeatmapC
 #      tags:
 #        - Heatmap
 #      summary: Get heatmaps tiles with time
-#      description: ""
+#      description: "Used by Fingerptints, at the highest zoom level"
 #      operationId: heatmapAvgTimeTiles
 #      consumes:
 #        - application/json

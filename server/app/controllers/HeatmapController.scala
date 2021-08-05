@@ -32,26 +32,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
     Array[Int](sxtile, sytile)
   }
 
-  // CHECK:NN
-  def getRadioHeatmap() = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        LOG.D2("Heatmap: get: " + Utils.stripJson(anyReq.getJsonBody()))
-        try {
-          val radioPoints = pds.db.getRadioHeatmap()
-          if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          val res = Json.obj("radioPoints" -> radioPoints.asScala)
-          return RESPONSE.OK(res, "Successfully retrieved radio points.")
-        } catch {
-          case e: DatasourceException => return RESPONSE.ERROR(e)
-        }
-      }
-      inner(request)
-  }
-
-  def floorWifiAVG1() = Action {
+  def floorWifiAVG1(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -79,7 +60,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def floorWifiAVG2() = Action {
+  def floorWifiAVG2(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -113,7 +94,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
    *
    * @return a json list of count, total, average
    */
-  def floorWifiAVG3() = Action {
+  def floorWifiAVG3(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -146,7 +127,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def floorWifiAVG3tiles() = Action {
+  def floorWifiAVG3tiles(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -189,7 +170,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def floorWifiTimestampAVG1() = Action {
+  def floorWifiTimestampAVG1(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -219,7 +200,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def floorWifiTimestampAVG2() = Action {
+  def floorWifiTimestampAVG2(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -249,20 +230,21 @@ class HeatmapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  // CHECK:NN is this indeed LVL3?
-  // CHECK:NN in the routs, we are NOT calling it?
-  // Is it unused?
   /**
+   * We use AVG2 on level3 because we dont want to show the tiles (individual radio points)
+   *
    * Called by crossfilter when on zoom level 21.
    */
-  def floorWifiTimestampAVG3() = Action {
+  @deprecated("notInUse")
+  def floorWifiTimestampAVG3(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("Heatmap: floorWifiTimestampAVG3: " + Utils.stripJson(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
+        val checkRequirements = VALIDATE.checkRequirements(json,
+          SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
@@ -290,7 +272,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
    * Called by crossfilter when on maximum zoom level (22).
    * Called many times from clients, for each tile.
    */
-  def floorWifiTimestampTiles() = Action {
+  def floorWifiTimestampTiles(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)

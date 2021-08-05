@@ -21,7 +21,7 @@ sudo chown anyplace:anyplace /data/db/migration-couchbase/
 It also assumes that cbexport is installed at:
 `opt/couchbase/bin/cbexport`
 
-### Report from official database:
+## Report from official dataset:
 #### Completion time: ~15mins
 #### Objects
 ```
@@ -54,6 +54,32 @@ sudo apt install python-pip
 pip install pymongo
 ```
 
+## Report from official dataset:
+#### Completion time: ~4 hours
+188.1MB after space optimization
+#### Objects
+```
+FingerprintsWifi:  429731 were pushed in total.
+Floorplans:           4356
+POIs:                 52677
+Users:                4782
+Spaces:               4450
+Edges:                45281
+Campuses:             258
+------
+AccessPointsWifi:
+Heatmaps:             
+     - HeatmapWifi1
+     - HeatmapWifi2
+     - HeatmapWifi3
+     - HeatmapWifiTimestamp1
+     - HeatmapWifiTimestamp2
+     - HeatmapWifiTimestamp3
+
+                      Those are cached, and dynamically created,
+                      therefore they are excluded.
+```
+
 
 ##### Caching fingerprints while migrating:
 Fetches from the `fingerprintWifi` exported raw data, according to the buildings (`buid`).
@@ -62,8 +88,9 @@ to the MongoDB collection.
 
 This allows the script to resume from that point in case the migration is interrupted.
 For the Anyplace database the migration takes roughly the below:
-- `fingerPrintsWiFi`: 6 hours TODO:NN (fill the below..)
-- `otherCollection`: N hours TODO:NN
+- 4 hours needed
+
+
 </details>
 
 ---

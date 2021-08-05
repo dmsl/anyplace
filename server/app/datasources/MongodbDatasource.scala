@@ -862,7 +862,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def deleteAllByFloor(buid: String, floor_number: String): Boolean = {
-    LOG.D3("deleteAllByFloor::")
+    LOG.D2("deleteAllByFloor:")
     LOG.D3("Cascade deletion: edges reaching this floor, edges of this floor," +
       " pois of this floor, floorplan(mongoDB), floorplan image(server)")
     var collection = mdb.getCollection(SCHEMA.cEdges)
@@ -892,7 +892,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val bool3 = res.wasAcknowledged()
     LOG.D("pois in building with buid: " + buid + " " + res.toString)
 
-    // delets 7 cached collections
+    // deletes 7 cached collections
     val queryCached = BsonDocument(SCHEMA.fBuid -> buid)
     collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
     deleted = collection.deleteMany(queryCached)
@@ -900,7 +900,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     res = awaited
     val bool4 = res.wasAcknowledged()
     LOG.D("fingerprints with buid " + buid + " " + res.toString)
-    val bool5 = deleteAffectedHeatmaps(buid, floor_number)
+    val bool5 = deleteCachedDocuments(buid, floor_number)
 
     // this query will delete the floor it self
     collection = mdb.getCollection(SCHEMA.cFloorplans)
@@ -1460,12 +1460,12 @@ class MongodbDatasource @Inject() () extends IDatasource {
     LOG.D2(moderators.toString())
     LOG.D2(admins.toString())
     if (admins.contains(oid) || moderators.contains(oid)) {
-      LOG.D("Doing mod lookup")
+      LOG.D2("Doing mod lookup")
       buildingLookUp = collection.find()
     } else {
       buildingLookUp = collection.find(or(equal(SCHEMA.fOwnerId, oid),
         equal(SCHEMA.fCoOwners, oid)))
-      LOG.D("Doing user lookup")
+      LOG.D3("Doing user lookup")
     }
     val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
     val res = awaited.toList
@@ -1622,7 +1622,6 @@ class MongodbDatasource @Inject() () extends IDatasource {
     totalFetched
   }
 
-  override def dumpRssLogEntriesByBuildingACCESFloor(outFile: FileOutputStream, buid: String, floor_number: String): Long = ???
 
   override def getAllAccounts(): List[JsValue] = {
     val collection = mdb.getCollection(SCHEMA.cUsers)
@@ -1751,16 +1750,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
     true
   }
 
-  override def deleteNotValidDocuments(): Boolean = ???
-
-  private def connect(): Boolean = { // CHECK:NN
-    //    LPLogger.info("Mongodb: connecting to: " + mHostname + ":" + mPort + " bucket[" +
-    //      mBucket + "]")
-    false
-  }
-
-  override def deleteAffectedHeatmaps(buid: String, floor_number: String): Boolean = {
-    LOG.D2("Deleting generated heatmaps..")
+  override def deleteCachedDocuments(buid: String, floor_number: String): Boolean = {
+    LOG.D2("deleteCachedDocuments")
     val collections = Array(cHeatmapWifi1, cHeatmapWifi2, cHeatmapWifi3, cHeatmapWifiTimestamp1,
       cHeatmapWifiTimestamp2, cHeatmapWifiTimestamp3, cAccessPointsWifi)
     val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor_number)
@@ -1801,7 +1792,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
    * @param floor
    * @param level
    */
-  override def createTimestampHeatmap(col: String, buid: String, floor: String, level: Int) : Unit = {
+  override def cacheHeatmapByTime(col: String, buid: String, floor: String, level: Int) : Unit = {
     val collection = mdb.getCollection(col)
     val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor)
     val heatmapLookUp = collection.find(query).first()
@@ -1863,12 +1854,5 @@ class MongodbDatasource @Inject() () extends IDatasource {
 
     json.as[JsObject] - SCHEMA.fPassword
   }
-
-  override def init(): Boolean = ???
-
-  override def getRadioHeatmapByBuildingFloor2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
-  override def getRadioHeatmapBBox(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
-  override def getRadioHeatmapBBox2(lat: String, lon: String, buid: String, floor: String, range: Int): java.util.List[JsValue] = ???
-  override def getRadioHeatmap(): java.util.List[JsValue] = ???
 }
 

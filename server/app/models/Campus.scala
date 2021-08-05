@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -43,11 +43,10 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JsonUtils.convertToInt
 import utils.Utils
 
-class SpaceSet(hm: HashMap[String, String]) extends AbstractModel {
+class Campus(hm: HashMap[String, String]) extends AbstractModel {
   private var json: JsValue = _
   private var lat: Double = _
   private var lng: Double = _
-  private var admins: Array[String] = Array("112997031510415584062_google") // TODO:NN
 
   this.fields = hm
 

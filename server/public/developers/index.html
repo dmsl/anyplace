@@ -35,7 +35,6 @@
 <script>
     window.onload = function () {
         $.getJSON("/api/version", function (result) {
-            // TODO:NN replace here the swagger options with the version data
             version = JSON.parse(JSON.stringify(result));
             console.log("VERSION");
             console.log(version);

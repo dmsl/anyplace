@@ -23,14 +23,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
   val NEARBY_BUILDINGS_RANGE = 50
   val NEARBY_BUILDINGS_RANGE_MAX = 500
 
-  // TODO:NN
-  def deletePrecomputed(): Unit = {
-    // TODO:NN what is the method that does this now? We might have to rename it.
-    // TODO: delete accessPointsWifi: buid, floor
-  }
-
-
-  def spaceAdd() = Action {
+  def spaceAdd(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -66,9 +59,8 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-
-  // CHECK:NN is this in use by JS? or needed?
-  def spaceUpdateCoOwners() = Action {
+  // unused.routes
+  def spaceUpdateCoOwners(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -88,7 +80,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace: JsValue = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
           val space = new Space(storedSpace)
           if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.appendCoOwners(json)))
             return RESPONSE.BAD("Space could not be updated.")
@@ -102,7 +94,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceUpdateOwner() = Action {
+  def spaceUpdateOwner(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -125,7 +117,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
           val space = new Space(storedSpace)
           if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.changeOwner(newOwner))) return RESPONSE.BAD("Space could not be updated!")
           return RESPONSE.OK("Successfully updated space!")
@@ -137,7 +129,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceUpdate() = Action {
+  def spaceUpdate(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -155,7 +147,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         try {
           var storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
           if (json.\(SCHEMA.fIsPublished).getOrElse(null) != null) {
             val is_published = (json \ SCHEMA.fIsPublished).as[String]
             if (is_published == "true" || is_published == "false")
@@ -194,7 +186,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceDelete() = Action {
+  def spaceDelete(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -215,7 +207,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         try {
           val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
           if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.hasAccess(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -240,14 +232,14 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceAll = Action {
+  def spaceAll: Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceAll: " + Utils.stripJson(json))
+        LOG.D2("Space: all: ")
         try {
           val spaces = pds.db.getAllBuildings()
           val res: JsValue = Json.obj(SCHEMA.cSpaces -> spaces)
@@ -265,7 +257,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceGet() = Action {
+  def spaceGet(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -300,7 +292,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceAccessible() = Action {
+  def spaceAccessible(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -332,7 +324,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceOwned() = Action {
+  def spaceOwned(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -360,7 +352,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceByBucode() = Action {
+  def spaceByBucode(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -386,7 +378,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceCoordinates() = Action {
+  def spaceCoordinates(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -432,6 +424,5 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
 
       inner(request)
   }
-
 
 }

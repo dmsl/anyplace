@@ -86,8 +86,7 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
 }
 
 
-// CHECK:PM CHECK:NN from Global.scala
-/*
+/* // CHECK: from Global.scala
 override def onHandlerNotFound(request: RequestHeader) = {
   Future.successful(NotFound(Json.obj("error" -> "Not Found")))
 }
