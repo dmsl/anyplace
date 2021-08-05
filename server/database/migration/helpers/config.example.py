@@ -19,7 +19,8 @@ MDB_USER = "anyplace"
 MDB_PASSWORD = "new_db_password"
 
 from helpers.helper import *
-checkWritable(DIR_MIGRATION)
+backupDirNotFoundMsg="Please create the backup directory and give relevant permissions."
+checkWritable(DIR_MIGRATION, backupDirNotFoundMsg)
 
 def getDocumentsPath():
     return DIR_MIGRATION + "/docs"

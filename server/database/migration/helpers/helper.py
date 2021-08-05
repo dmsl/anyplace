@@ -11,12 +11,12 @@ def isWritable(dirname):
      (mode & stat.S_IWOTH)
      )
 
-def checkWritable(dirName):
+def checkWritable(dirName, msg):
     try:
         if not isWritable(dirName):
-            die("Directory not writable: " + dirName)
+            die(msg+"\nDirectory not writable: " + dirName)
     except FileNotFoundError as error:
-            die("Directory not found: " + dirName)
+            die(msg+"\nDirectory not found: " + dirName)
 
 def die(msg):
     print (msg)
