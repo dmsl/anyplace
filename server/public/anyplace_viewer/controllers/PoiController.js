@@ -627,7 +627,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.startNavFromPoi = function () {
         $scope.poiRouteState.from = $scope.anyService.selectedPoi;
-        _suc($scope, "Now you can click on another POI to draw the indoor path between the 2 points.");
+        _suc($scope, "Click to another POI to get directions.");
     };
 
     $scope.getHtml5GeoLocation = function (callback, errCallback) {
