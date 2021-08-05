@@ -462,13 +462,38 @@ POST        /api/auth/mapping/floor/delete                  controllers.MapFloor
 # `ag` on the master branch to see if the others are used.
 # PROBABLY this is how viewer gets its floorplans. Maybe the android apps as well..
 # TAG: SPACE:FLOORPLAN
+
+################
+# Floorplan
+################
+# TODO:NN fill the rest endpoints
+
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: ""
+#      description: ""
+#      operationId: floorplan64BuidFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+###
+POST        /api/floorplans64/:buid/:floor_number               controllers.MapFloorplanController.getBase64( buid: String, floor_number: String )
 ### NoDocs ###
-POST        /api/floorplans64/:buid/:floor_number                               controllers.MapFloorplanController.getBase64( buid: String, floor_number: String )
-### NoDocs ###
-POST        /api/floorplans64/all/:buid/:floor_number                            controllers.MapFloorplanController.getAllBase64( buid: String, floor_number: String )
+POST        /api/floorplans64/all/:buid/:floor_number           controllers.MapFloorplanController.getAllBase64( buid: String, floor_number: String )
 # TAG: SPACE:FLOORPLAN
 # floor/floorplan/upload
-POST        /api/mapping/floor/floorplan/upload              controllers.MapFloorplanController.uploadWithZoom()
+POST        /api/mapping/floor/floorplan/upload                 controllers.MapFloorplanController.uploadWithZoom()
+
+POST        /api/floortiles/:buid/:floor_number                 controllers.MapFloorplanController.getZipLink( buid: String, floor_number: String )
+GET         /api/floortiles/:buid/:floor_number/*file           controllers.MapFloorplanController.getStaticTiles( buid: String, floor_number: String, file: String )
+# USED BY: Android Navigator:
+POST        /api/floortiles/zip/:buid/:floor_number             controllers.MapFloorplanController.getTilesZip( buid: String, floor_number: String )
+# USED BY: Web apps
+POST        /api/radiomaps_frozen/:building/:floor/:filename    controllers.RadiomapController.getFrozen(building: String, floor: String, filename: String)
+POST        /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get( radio_folder: String, filename: String )
+
 
 ################
 # Campus
@@ -968,6 +993,10 @@ POST        /api/navigation/pois/id                         controllers.Navigati
 #          description: Successful operation
 ###
 POST        /api/position/predictFloorAlgo1                 controllers.PositioningController.predictFloorAlgo1()
+
+
+POST        /api/position/estimate                          controllers.PositioningController.estimatePosition()
+
 
 
 ################

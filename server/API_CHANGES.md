@@ -41,8 +41,8 @@
 | /anyplace/navigation/building/id                                      | /api/navigation/space/id |       V          |
 | /anyplace/navigation/pois/id                                          | /api/navigation/pois/id |      V           |
 | POSITION | |                                                                                                             |
-| /anyplace/position/predictFloorAlgo1                                  |  |                  |
-| /anyplace/position/estimate_position                                  |  |          |
+| /anyplace/position/predictFloorAlgo1                                  | /api/position/predictFloorAlgo1 |                  |
+| /anyplace/position/estimate_position                                  | /api/position/estimate |          |
 | /anyplace/position/radio/delete                                       | /api/radiomap/delete |        |
 | /anyplace/position/radio_by_building_floor_all                        | /api/radiomap/floor/all |      |
 | /anyplace/position/radio_by_floor_bbox                                | /api/radiomap/floor/bbox |    |
@@ -63,8 +63,13 @@
 | /anyplace/position/radio/heatmap_building_floor_timestamp_average_2   | /api/heatmap/floor/average/timestamp/2 |      V          |
 | /anyplace/position/radio/heatmap_building_floor_timestamp_average_3   | /api/heatmap/floor/average/timestamp/3 |     V     |
 | /anyplace/position/radio/heatmap_building_floor_timestamp_tiles       | /api/heatmap/floor/average/timestamp/tiles |      V      |
-| OTHERS | |                                                                                                               |
+| MISC | |                                                                                                               |
 | /anyplace/version                                                     | /api/version   |                                 |
+| Unused | | |
+| /anyplace/mapping/building/coowners           |  /api/auth/space/coowners/updat  | | 
+| /anyplace/mapping/building/all_bucode         |  /api/auth/space/bucode          | | 
+| /anyplace/mapping/building/newowner           |  /api/auth/space/owner/update    | | 
+| /anyplace/mapping/pois/all_pois_nconnectors   |  /api/auth/pois/nconnectors/all  | | 
 
 																														   
 
