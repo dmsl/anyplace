@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 from helpers.config import *
 from helpers.defineCollections import *
 import subprocess
