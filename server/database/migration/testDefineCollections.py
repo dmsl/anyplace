@@ -1,4 +1,4 @@
-from defineCollections import *
+from helpers.defineCollections import *
 
 # Used only for testing. It creates just the collection folders.
 
