@@ -1,8 +1,8 @@
 CDB_NAME = "localhost"
 DIR_MIGRATION = "/data/db/migration-couchbase/" # temporary location for the migration
 
-USERNAME=anyplace
-HOST=YOUR_HOSTNAME
+USERNAME="anyplace"
+HOST="YOUR_HOSTNAME"
 
 # COUCHBASE CONF:
 CDB_PORT = "8091"

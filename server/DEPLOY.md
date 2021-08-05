@@ -191,4 +191,4 @@ Any contributions from the community on `docker` are welcome.
 
 ---
 
-## 5. Testing: with [POSTMAN](/database/POSTMAN.GUIDE.md)
+## 5. Testing: with [POSTMAN](/database/postman/README.md)
