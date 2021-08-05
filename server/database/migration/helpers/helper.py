@@ -1,4 +1,5 @@
 import os, stat
+# from os import path
 
 def isWritable(dirname):
   uid = os.geteuid()
@@ -17,6 +18,10 @@ def checkWritable(dirName, msg):
             die(msg+"\nDirectory not writable: " + dirName)
     except FileNotFoundError as error:
             die(msg+"\nDirectory not found: " + dirName)
+
+def checkTools():
+ if not os.path.exists(CBEXPORT):
+    die("Tool not found: " + CBEXPORT)
 
 def die(msg):
     print (msg)

@@ -10,6 +10,15 @@ and modify as necessary.
 
 ## 2. [step1_pullCouchbase.py](step1_pullCouchbase.py)
 
+Might need to create the migration folder:
+```bash
+sudo mkdir -p /data/db/migration-couchbase/
+sudo chown anyplace:anyplace /data/db/migration-couchbase/
+```
+
+It also assumes that cbexport is installed at:
+`opt/couchbase/bin/cbexport`
+
 ## 2. [step3_pullCouchbase.py](step1_pullCouchbase.py)
 
 Pull data from couchbase
