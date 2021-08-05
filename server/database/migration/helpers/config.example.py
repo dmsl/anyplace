@@ -14,6 +14,7 @@ CBEXPORT = "/opt/couchbase/bin/cbexport"
 #MDB_ADMIN_PASSWORD = "admin_password" required only for initUser.py
 # (which has some sample code and is not in use)
 MDB_DOMAIN_NAME = "HOST"
+MDB_PORT= "27017"
 MDB_DATABASE = "anyplace"
 MDB_USER = "anyplace"
 MDB_PASSWORD = "MDB_PASSWORD"

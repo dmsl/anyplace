@@ -115,43 +115,42 @@ def defineCollections(file):
     und = open(pathUND, "w")
     orc = open(outrangedCoords, "w")
     i = 0
-    keepIt = False
     while True:
         line = file.readline()
         if not line:
             break
         obj = json.loads(line)
         count += 1
-        if isBuilding(obj) and keepIt:
+        if isBuilding(obj):
             fixed_obj = fixBUILDING(obj, orc)
             b.write(json.dumps(fixed_obj))
             b.write("\n")
             buildings += 1
-        elif isCampus(obj) and keepIt:
+        elif isCampus(obj):
             fixed_obj = fixCAMPUS(obj)
             c.write(json.dumps(fixed_obj))
             c.write("\n")
             campus += 1
-        elif isEdge(obj) and keepIt:
+        elif isEdge(obj):
             fixed_obj = fixEDGES(obj)
             e.write(json.dumps(fixed_obj))
             e.write("\n")
             edges +=1 
-        elif isFingerprint(obj) and keepIt:
+        elif isFingerprint(obj):
             fixed_obj = fixFINGERPRINT(obj, orc)
             splitToBuid(fixed_obj, fingPath)
             fingerprints += 1
-        elif isFloorPlan(obj) and keepIt:
+        elif isFloorPlan(obj):
             fixed_obj = fixFLOORPLAN(obj, orc)
             fl.write(json.dumps(fixed_obj))
             fl.write("\n")
             floorplans += 1
-        elif isPois(obj) and keepIt:
+        elif isPois(obj):
             fixed_obj = fixPOIS(obj, orc)
             p.write(json.dumps(fixed_obj))
             p.write("\n")
             pois += 1
-        elif isUser(obj) and keepIt:
+        elif isUser(obj):
             fixed_obj = fixUSER(obj)
             u.write(json.dumps(fixed_obj))
             u.write("\n")

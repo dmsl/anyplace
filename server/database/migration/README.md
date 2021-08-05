@@ -73,5 +73,9 @@ For the Anyplace database the migration takes roughly the below:
 
 # Other files
 
+## [testDefineCollections.py](testDefineCollections.py)
+Uses a cached copy of pulled json objects from CDB and defines the collections.
+Used only for tests.
+
 - [CHANGES.COLLECTIONS.md](CHANGES.COLLECTIONS.md)  
 Contains some more detailed changes made when the project moved from Couchbase from MongoDB.
