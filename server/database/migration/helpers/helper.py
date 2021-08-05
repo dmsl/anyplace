@@ -16,7 +16,7 @@ def checkWritable(dirName):
         if not isWritable(dirName):
             die("Directory not writable: " + dirName)
     except FileNotFoundError as error:
-            die("Error: " + error +": "  + dirName)
+            die("Error: " + str(error) +": "  + dirName)
 
 def die(msg):
     print (msg)
