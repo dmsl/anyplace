@@ -2,6 +2,7 @@ package controllers
 
 import java.security.MessageDigest
 
+import datasources.MongodbDatasource.updateCachedModerators
 import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
 
 import scala.concurrent.duration.Duration
@@ -48,6 +49,8 @@ class UserController @Inject()(cc: ControllerComponents,
 
         val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
         val res = Json.obj("user" -> user)
+
+        updateCachedModerators()
         return RESPONSE.OK(res, "Successfully found user.")
       }
 
@@ -73,6 +76,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
         val res = Json.obj("user" -> user)
 
+        updateCachedModerators()
         RESPONSE.OK(res, "Successfully found user.")
       }
 
@@ -130,6 +134,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val external = json \ SCHEMA.fExternal
 
         if (external.toOption.isDefined && external.as[String] == "google") {
+          updateCachedModerators()
           authorizeGoogleAccount(auth)
         } else {
           RESPONSE.BAD("Not a google account.")
@@ -201,7 +206,7 @@ class UserController @Inject()(cc: ControllerComponents,
 
   // TODO:NN explain this.... REVIEW with PM
   def authorizeGoogleAccount(auth: OAuth2Request): Result = {
-    LOG.I("addGoogleAccount")
+    LOG.I("authorizeGoogleAccount")
     var json = auth.getJsonBody()
     val hasExternal = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
     if (!hasExternal.isEmpty) return RESPONSE.MISSING_FIELDS(hasExternal)
@@ -277,13 +282,13 @@ class UserController @Inject()(cc: ControllerComponents,
         LOG.D2("updateUser:")
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fOwnerId)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUserId)
         if (checkRequirements != null) return checkRequirements
 
         val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
 
-        val userOwnerId = (json \ SCHEMA.fOwnerId).as[String]
+        val userOwnerId = (json \ SCHEMA.fUserId).as[String]
         // only admin can update a user, or the user can update it self
         if (owner_id != userOwnerId && !MongodbDatasource.getAdmins.contains(owner_id) && !MongodbDatasource.getModerators.contains(owner_id))
           return RESPONSE.UNAUTHORIZED("Users can only update themselves, unless they are moderators.")

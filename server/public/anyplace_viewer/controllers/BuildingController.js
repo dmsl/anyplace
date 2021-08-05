@@ -180,12 +180,12 @@ app.controller('BuildingController',
         )
     };
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getSpacesPublic = function () {
         var jsonReq = {};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.spacePublic(jsonReq);
         promise.then(
             function (resp) {
                 // on success
@@ -290,7 +290,7 @@ app.controller('BuildingController',
         );
     };
 
-    $scope.fetchAllBuildings();
+    $scope.getSpacesPublic();
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {

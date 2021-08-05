@@ -101,7 +101,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.$on("loggedIn", function (event, mass) {
-        $scope.fetchAllBuildings();
+        $scope.getSpacesAccessible();
         $scope.fetchAllCampus();
     });
 
@@ -258,11 +258,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         return undefined;
     };
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getSpacesAccessible = function () {
         var jsonReq = {};
-        LOG.D2("fetchAllBuildings");
+        LOG.D2("getSpacesAccessible");
         LOG.D4(jsonReq);
-        var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
+        var promise = $scope.anyAPI.spaceAccessible(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
@@ -387,7 +387,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                     },
                     function (resp) {
-                      ShowError($scope, resp, "Something went wrong while adding the building.", true);
+                      ShowError($scope, resp);
                     }
                 );
             } else {
@@ -500,7 +500,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 _suc($scope, "Successfully updated building.")
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while updating building.", true);
+              ShowError($scope, resp);
             }
         );
 
@@ -582,7 +582,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 _suc($scope, "Successfully updated campus.")
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while updating campus.", true);
+              ShowError($scope, resp);
             }
         );
 
@@ -675,7 +675,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while adding the building.", true);
+              ShowError($scope, resp);
             }
         );
 
@@ -1151,7 +1151,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.uploadloop(position, oJS, last_buid);
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while fetching POIs", true);
+              ShowError($scope, resp);
             }
         );
     };

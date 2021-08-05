@@ -63,6 +63,7 @@ object SCHEMA {
   val fMeasurements = "measurements"
   val fName = "name"
   val fOwnerId = "owner_id"
+  val fUserId = "user_id" // eventually replace owner_id with this
   val fPassword = "password"
   val fPoisA = "pois_a"
   val fPoisB = "pois_b"

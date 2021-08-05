@@ -237,7 +237,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     };
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getCampuses = function () {
         var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
         var promise = $scope.anyAPI.allCucodeCampus(jsonReq);
         promise.then(
@@ -337,7 +337,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             }
         );
     };
-    $scope.fetchAllBuildings();
+    $scope.getCampuses();
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {
