@@ -18,6 +18,7 @@ MDB_PORT= "27017"
 MDB_DATABASE = "anyplace"
 MDB_USER = "anyplace"
 MDB_PASSWORD = "MDB_PASSWORD"
+ADMINS = [] # makes some of the users admins in the migrated data
 
 from helpers.helper import *
 backupDirNotFoundMsg="Please create the backup directory and give relevant permissions."
