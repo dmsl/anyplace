@@ -5,6 +5,12 @@
 A free and open Indoor Navigation Service with superb accuracy!
 
 ## Preface 
+
+<details open>
+<summary>
+Preface
+</summary>
+
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones. 
 	 
@@ -32,6 +38,7 @@ If you install Anyplace on your own servers, please record your URL
   **Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti**  
   _IEEE Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015_
 
+</details>
 
 # Components 
 
