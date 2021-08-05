@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from helpers.defineCollections import *
 
 # Used only for testing. It creates just the collection folders.
