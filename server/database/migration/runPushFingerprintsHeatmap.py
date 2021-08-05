@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import pymongo
 import json
 from helpers.config import *
