@@ -19,6 +19,10 @@ sudo chown anyplace:anyplace /data/db/migration-couchbase/
 It also assumes that cbexport is installed at:
 `opt/couchbase/bin/cbexport`
 
+
+
+> 2021-08-05T13:18:52.896+03:00 WARN: Value of key `<ud>NaNNaN89.0253614805139326628a:15:14:43:76:e1</ud>` is not valid json, skipping -- jsondata.(*jsonLineCallbacks).Mutation() at lines_exporter.go:69
+
 ## 2. [step3_pullCouchbase.py](step1_pullCouchbase.py)
 
 Pull data from couchbase

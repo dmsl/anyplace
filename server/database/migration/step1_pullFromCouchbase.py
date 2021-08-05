@@ -16,7 +16,16 @@ allDocs = path + "/all_docs.jsonrows"
 Path(path).mkdir(parents=True, exist_ok=True)
 
 URL = CDB_DOMAIN_NAME + ":" + CDB_PORT
-print("Exporting documents from couchbase: " + URL)
+print("Exporting documents:")
+print("  - Couchbase: " + URL)
+print("  - Export dir: " + DIR_MIGRATION)
+
+subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", CDB_USERNAME, "-p", CDB_PASSWORD, "-b", CDB_BUCKET, "-f", "lines", "-o", allDocs])
+print("Exporting documents from couchbase: DONE\n\n")
+
+print("Splitting documents..")
+fAllDocs = open(allDocs, encoding="utf8")
+defineCollections(fAllDocs)  # printing unique json keys with extra fields representing similar json keys
 subprocess.run(["/opt/couchbase/bin/cbexport", "json", "-c", URL, "-u", CDB_USERNAME, "-p", CDB_PASSWORD, "-b", CDB_BUCKET, "-f", "lines", "-o", allDocs])
 print("Exporting documents from couchbase: DONE\n\n")
 
