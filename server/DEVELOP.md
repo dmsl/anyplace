@@ -4,7 +4,7 @@ Workflow:
 1. Write code locally
 2. Sync code to remote for compilation, and view the result from the browser
 
-See [deploy](./deploy)
+See [deploy](./deploy/README.md)
 
 ## Run on different port:
 `sbt "run 9001"`

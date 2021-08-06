@@ -1,6 +1,6 @@
 # MongoDB Datasource
 
-## 1. [Install MongoDB](./MONGO.INSTALL.md)
+## 2. [Install MongoDB](./MONGO.INSTALL.md)
 
 ### 1.1 [Tutorial: Hands on with MongoDB](./MONGO.GUIDE.md)
 
