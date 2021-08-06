@@ -23,7 +23,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
   val NEARBY_BUILDINGS_RANGE = 50
   val NEARBY_BUILDINGS_RANGE_MAX = 500
 
-  def spaceAdd(): Action[AnyContent] = Action {
+  def add(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -129,7 +129,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceUpdate(): Action[AnyContent] = Action {
+  def update(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -186,7 +186,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceDelete(): Action[AnyContent] = Action {
+  def delete(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -232,7 +232,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceAll: Action[AnyContent] = Action {
+  def public: Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -257,7 +257,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceGet(): Action[AnyContent] = Action {
+  def get(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -292,7 +292,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceAccessible(): Action[AnyContent] = Action {
+  def userAccessible(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -324,7 +324,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceOwned(): Action[AnyContent] = Action {
+  def userOwned(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
@@ -378,7 +378,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def spaceCoordinates(): Action[AnyContent] = Action {
+  def byCoordinates(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
