@@ -16,9 +16,9 @@ Docker is not supported for 4.2+.
 
 # 1. [Install MongoDB](./database/README.md)
 
-# 2. [DEPLOY Server](./DEPLOY.md)
+# 2. [Deploy Server](./deploy/README.md)
 
-# 3. [SETUP IntelliJ](./SETUP.md) 
+# 3. [Setup IDE (IntelliJ)](./SETUP.md) 
 
 # 4. Connect Android client
 
