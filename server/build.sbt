@@ -9,6 +9,7 @@ lazy val root = (project in file("."))
   .settings(
     name := appName,
     version := appVersion,
+    maintainer := "anyplace@cs.ucy.ac.cy",
     scalaVersion := "2.13.6",
     libraryDependencies ++= Seq(
       guice,
