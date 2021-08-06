@@ -112,12 +112,11 @@ Prevent collection fingerprints to add JSON objects without the field geometry.
 mongosh
 </summary>
 
-To open `mongosh` you can:
-- use it from terminal:
-- `mongo --host HOST --port 27018 --username admin --password PASS`
-- use the the [mongo.sh](mongo.sh) wrapper
+To open `mongosh` you can use:
+- the [admin/mongosh.sh](admin/mongosh.sh) wrapper
+- the terminal: `mongo --host HOST --port 27018 --username admin --password PASS`
 
-- or within Mongo Compass:
+- Mongo Compass:
 
 ![mongosh](https://user-images.githubusercontent.com/36662690/128305911-4a5fce2f-1307-4a25-bd23-2e820f90fb8b.PNG)
 
