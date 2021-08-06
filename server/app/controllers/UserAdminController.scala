@@ -82,7 +82,7 @@ class UserAdminController @Inject()(cc: ControllerComponents,
    *
    * @return
    */
-  def fetchAllAccounts(): Action[AnyContent] = Action {
+  def all(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         LOG.D("User: fetchAllAccounts")

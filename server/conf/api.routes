@@ -176,7 +176,7 @@ POST        /api/auth/user/update                           controllers.UserCont
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/moderator/users/all                   controllers.UserAdminController.fetchAllAccounts()
+POST        /api/auth/moderator/users/all                   controllers.UserAdminController.all()
 
 ################
 # Spaces
@@ -203,7 +203,7 @@ POST        /api/auth/moderator/users/all                   controllers.UserAdmi
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/space/public                       controllers.MapSpaceController.spaceAll()
+POST        /api/mapping/space/public                       controllers.MapSpaceController.public()
 
 ###
 #      tags:
@@ -228,7 +228,7 @@ POST        /api/mapping/space/public                       controllers.MapSpace
 #          schema:
 #            $ref: '#/definitions/SpaceGetResp'
 ###
-POST        /api/mapping/space/get                          controllers.MapSpaceController.spaceGet()
+POST        /api/mapping/space/get                          controllers.MapSpaceController.get()
 
 ###
 #      tags:
@@ -253,7 +253,7 @@ POST        /api/mapping/space/get                          controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/add                     controllers.MapSpaceController.spaceAdd()
+POST        /api/auth/mapping/space/add                     controllers.MapSpaceController.add()
 
 ###
 #      tags:
@@ -278,7 +278,7 @@ POST        /api/auth/mapping/space/add                     controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/update                  controllers.MapSpaceController.spaceUpdate()
+POST        /api/auth/mapping/space/update                  controllers.MapSpaceController.update()
 
 ###
 #      tags:
@@ -303,7 +303,7 @@ POST        /api/auth/mapping/space/update                  controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/delete                  controllers.MapSpaceController.spaceDelete()
+POST        /api/auth/mapping/space/delete                  controllers.MapSpaceController.delete()
 
 ###
 #      tags:
@@ -328,7 +328,7 @@ POST        /api/auth/mapping/space/delete                  controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/accessible                    controllers.MapSpaceController.spaceAccessible()
+POST        /api/auth/mapping/space/accessible                    controllers.MapSpaceController.userAccessible()
 
 ###
 #      tags:
@@ -353,7 +353,7 @@ POST        /api/auth/mapping/space/accessible                    controllers.Ma
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/user                          controllers.MapSpaceController.spaceOwned()
+POST        /api/auth/mapping/space/user                          controllers.MapSpaceController.userOwned()
 
 ###
 #      tags:
@@ -381,7 +381,7 @@ POST        /api/auth/mapping/space/user                          controllers.Ma
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/coordinates             controllers.MapSpaceController.spaceCoordinates()
+POST        /api/auth/mapping/space/coordinates             controllers.MapSpaceController.byCoordinates()
 
 # Floors
 
