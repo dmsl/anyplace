@@ -6,7 +6,7 @@
 
 ## 2. [Migration from Couchbase](migration/README.md)
 
-## 3. [Administration of MongoDB](./MONGO.ADMIN.md)
+## 3. [Administration of MongoDB](./admin/README.md)
 - backup
 - restore
 - mongo shell
