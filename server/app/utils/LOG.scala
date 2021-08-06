@@ -35,11 +35,12 @@
  */
 package utils
 
+import com.typesafe.config.ConfigFactory
 import play.api.Logger
 
 object LOG {
   val logger: Logger = Logger(this.getClass)
-  private val LEVEL: Int = 2
+  val LEVEL: Int = ConfigFactory.load().getInt("application.debug.level")
 
   def D(message: String): Unit = logger.debug(String.format("%s", message))
   def I(message: String): Unit = logger.info(String.format("%s", message))

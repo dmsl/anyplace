@@ -2,7 +2,7 @@ package controllers
 
 import java.security.MessageDigest
 import datasources.MongodbDatasource.updateCachedModerators
-import datasources.{DatasourceException, MongodbDatasource, ProxyDataSource, SCHEMA}
+import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
 
 import scala.concurrent.duration.Duration
 import javax.inject.{Inject, Singleton}
@@ -22,7 +22,7 @@ import scala.concurrent.Await
 
 @Singleton
 class UserController @Inject()(cc: ControllerComponents,
-                                pds: ProxyDataSource,
+                               pds: ProxyDataSource,
                                mongoDB: MongodbDatasource,
                                conf: Configuration,
                                user: helper.User)
@@ -46,7 +46,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
         if (accessToken == null) return RESPONSE.BAD("User doesn't have access token.")
 
-        val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
+        val user = storedUser.head.as[JsObject] - SCHEMA.fPassword
         val res = Json.obj("user" -> user)
 
         updateCachedModerators()

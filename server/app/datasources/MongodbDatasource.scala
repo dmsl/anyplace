@@ -68,6 +68,7 @@ import scala.util.control.Breaks
 
 object MongodbDatasource {
   val __SCHEMA: Int = 0
+  val TAG : String = MongoDatabase.getClass.getSimpleName.toString
   private var mdb: MongoDatabase = null
   private var mongoClient: MongoClient = null
   private var sInstance: MongodbDatasource = null
@@ -90,6 +91,7 @@ object MongodbDatasource {
     val hostname = conf.get[String]("mongodb.hostname")
     val port = conf.get[String]("mongodb.port")
     val database = conf.get[String]("mongodb.database")
+    LOG.I(TAG, "connecting")
     sInstance = createInstance(hostname, database, username, password, port)
   }
 
@@ -98,10 +100,12 @@ object MongodbDatasource {
     mongoClient = MongoClient(uri)
     // TODO check if database anyplace exists
     mdb = mongoClient.getDatabase(database)
+    LOG.I(TAG, "connected to database.")
     val collections = mdb.listCollectionNames()
     val awaited = Await.result(collections.toFuture(), Duration.Inf)
-    val res = awaited.toList
+    val _ = awaited.toList
     updateCachedModerators()
+
     new MongodbDatasource()
   }
 
