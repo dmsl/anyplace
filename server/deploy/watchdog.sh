@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DOMAIN=
+PORT=
 ./sync.sh
 
 watchmedo shell-command \
