@@ -7,8 +7,9 @@ module.exports = function (grunt) {
     concat: {
       js: {
         src: [
-          'app.js',
-          '../js/shared.js',
+          '../shared/js/*.js',                  // FIRST
+          'app.js',                             // SECOND
+          '../shared/js/anyplace-core-js/*.js',
           'scripts/*.js',
           'controllers/*.js'
         ],
@@ -16,8 +17,8 @@ module.exports = function (grunt) {
       },
       css: {
         src: [
+          '../shared/css/*.css',
           'style/*.css',
-          '../style/*.css',
         ],
         dest: 'build/css/anyplace.css'
       }
@@ -47,37 +48,40 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: 'images/',
-          src: ['**/*.{png,jpg,gif}'],
+          src: ['**/*.{png,jpg,gif,svg}'],
           dest: 'build/images/'
         },
-          // shared images folder
-          {
+          { // shared images folder
             expand: true,
-            cwd: '../images/',
-            src: ['**/*.{png,jpg,gif}'],
+            cwd: '../shared/images/',
+            src: ['**/*.{png,jpg,gif,svg}'],
             dest: 'build/images/'
           }
         ]
       }
     },
-
     watch: {
       js: {
-        files: ['app.js', '../js/shared.js', 'scripts/*.js', 'controllers/*.js'],
+        files: [
+          'app.js',
+          '../shared/js/*.js',
+          '../shared/js/anyplace-core-js/*.js',
+          'scripts/*.js',
+          'controllers/*.js'],
         tasks: ['concat:js', 'uglify'],
         options: {
           spawn: false
         }
       },
       css: {
-        files: ['style/*.css', '../style/*.css'],
+        files: ['style/*.css', '../shared/css/*.css'],
         tasks: ['concat:css', 'cssmin'],
         options: {
           spawn: false
         }
       },
       images: {
-        files: ['../images/*'],
+        files: ['../shared/images/*'],
         tasks: ['imagemin'],
         options: {
           spawn: false
@@ -96,6 +100,9 @@ module.exports = function (grunt) {
   //grunt.loadNpmTasks('grunt-contrib-compress');
 
   grunt.loadNpmTasks('grunt-contrib-watch');
+
+  // Show notifications on recompilations
+  grunt.loadNpmTasks('grunt-notify');
 
   // 4. Tasks:
   // default: keep recompiling the code on each change (watch)

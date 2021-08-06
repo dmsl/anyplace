@@ -1,8 +1,20 @@
+# DEPRECATED!
+
+Docker has been deprecated as of 4.3+ version.
+The backend was completely re-written to MongoDB and updated to recent SBT, Play, Scala versions.
+It might return at some point when we adopt a new architecture:
+- `server/`: will be a pure backend RESTFUL service
+- `client/webapp/`: will provide the Architect and Viewer web apps, on a new web server (NGinX probably).
+
+Contributions are welcome!
+
+---
+
 # Anyplace Docker: version 4.0
 <p align="center">
 <img
 src="https://gist.githubusercontent.com/Paschalis/09af7e45f069582a3e97a7021be2a729/raw/560245f7d9021f32da64ee7d7c195ba9b8a60c49/anyplace-docker.png"
-width="250">
+    width="250">
 </p>
 
 [Watch the video](https://www.youtube.com/embed/dRDnF2wCoUo)
@@ -12,37 +24,25 @@ width="250">
 
 It helps setting up and running Anyplace 4.0 software stack within minutes.
 
+Docker was verified in the following platforms:
+* Ubuntu Server 18.04
+* MacOSX Catalina
+
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Requirements
-## 1. Docker:
-Follow instructions here:
-https://docs.docker.com/get-docker/
 
-Convenience script:
-```
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-```
+## 1. ![Docker](https://t.ly/O7m8 "Docker") [Docker](DOCKER.md)
 
-## Docker without sudo
-```
-sudo usermod -aG docker $USER
-```
-
-## 2. docker-compose
-Follow instructions here:
-https://docs.docker.com/compose/install/
-
-## 3. Docker `anyplace-base` image¹
+## 2. `anyplace-base` image<!-- ¹ -->
 ```
 docker build anyplace-base/ -t anyplace-base
 ```
 
 It contains all the necessary software stack for the backend.
-We expect this image to be updated infrequently.
+This image is expected to be updated infrequently.
 
-¹ will be published in [Docker Hub](https://hub.docker.com/).
+<!-- ¹ will be published in [Docker Hub](https://hub.docker.com/). -->
 
 ---
 
@@ -92,7 +92,7 @@ docker-compose up
 
 NOTE: use `-d` to start the container in detached mode.
 
-### On first run:
+### 4. On first run:
 ```
 ./post_install.sh
 ```
@@ -103,6 +103,42 @@ the anyplace service expects to find. The initialization is done
 according to the `.env` file.
 
 ---
+
+# Troubleshooting:
+
+## 1: Quota issue
+> Total quota (YYYYMB) exceeds the maximum allowed quota (XXXXMB) on node
+
+This really depends on your system's available RAM (that goes through docker).
+Adjust the `.env` accordingly:
+```
+COUCHBASE_RAM=XXXX
+```
+Then continue with the steps. 
+
+## 2: Problem with the images
+Verify that you have the following images needed by anyplace:
+```
+docker images
+```
+
+> REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
+> anyplace-couchbase   v4.0-dev            d84cc60e22fe        2 minutes ago       506MB
+> anyplace             v4.0-dev            af98db5863c6        3 minutes ago       1.54GB
+> anyplace-base        latest              e950dabce290        8 minutes ago       1.01GB
+> ubuntu               18.04               56def654ec22        2 weeks ago         63.2MB
+> couchbase            community-6.0.0     0d4122aca7c1        7 months ago        506MB
+
+## 2: Failed to connect to couchbase
+The following message indicates an a connection issue from play to couchbase:
+
+> 500: Cannot connect to Couchbase: No valid node found to bootstrap from. Please check your network configuration.
+
+The relevant entry in .env is `COUCHBASE_HOSTNAME`
+It is automatically picekd by conf/application.conf when Play boots up.
+
+---
+
 
 # Advanced modifications:
 
@@ -173,6 +209,27 @@ docker-compose up anyplace
 <img src="https://gist.githubusercontent.com/Paschalis/09af7e45f069582a3e97a7021be2a729/raw/468c2e6caaf4afc4c95ec940181b21416ee0ad4a/architecture-new-ppt-1.jpg"
 width="800">
 </p>
+
+
+---
+
+# More information:
+
+#### `cache_cert.sh`: Certificate caching (for docker deployment):
+The process of providing external certificates, or reusing the same self-signed certificate is done through this caching mechanism.
+The latter is used for the docker deployment  in order to speed up the image generation when purging the container instance and the container iamge.
+
+Anyplace Docker expects to find a certificate at: ./anyplace/cache/
+If it does not exist, then it will go ahead and generate a new one and subsequently use it with the process explained above.
+
+### .env:
+    - files that are used during build as ARGS (when building the image)
+    - and ENV stuff when running the container
+### conf:
+It is the play framework configuration. It should not be modified directly, as it is initialized with the `.env` file.
+Depending on the Version installed (dev or stable) it uses the relevant `application.conf` file. It is located at:
+conf/<environment>/application.conf
+
 
 # Links
 ## [Contributing](CONTRIBUTING.md)

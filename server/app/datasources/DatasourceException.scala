@@ -39,7 +39,6 @@ import java.io.PrintWriter
 import java.io.StringWriter
 
 class DatasourceException(msg: String) extends Exception(msg) {
-
     def getStacktrace(): String = {
         val sw = new StringWriter()
         this.printStackTrace(new PrintWriter(sw))

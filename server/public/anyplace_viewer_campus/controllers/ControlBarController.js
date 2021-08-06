@@ -33,9 +33,18 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     $scope.isFirefox = navigator.userAgent.search("Firefox") > -1;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
+    }
 
     $scope.tab = 1;
 
@@ -171,7 +180,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                 },
                 function (err) {
                     $scope.$apply(function () {
-                       HandleGeolocationError(err.code);
+                       HandleGeolocationError($scope, err.code);
                     });
                 });
         } else {

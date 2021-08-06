@@ -1,3 +1,5 @@
+target
+
 ### Linux ###
 *~
 
@@ -66,3 +68,13 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+clients/android-new/demo/src/debug/res/values/google_maps_api.xml
+clients/android-new/logger/src/debug/res/values/google_maps_api.xml
+clients/android-new/secure.properties
+clients/android-new/navigator/release/output-metadata.json
+clients/bin/Anyplace.jar
+clients/core/bin/Anyplace.jar
+
+*.swp
+
+server/.idea/play2_project_settings.xml

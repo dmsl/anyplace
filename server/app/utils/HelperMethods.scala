@@ -35,17 +35,11 @@
  */
 package utils
 
-import org.apache.commons.codec.binary.Base64
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.nio.file.Files
-import java.util.HashMap
-import play.Play
 
-import com.couchbase.client.java.document.json.JsonObject
+import org.apache.commons.codec.binary.Base64
 //remove if not needed
-import scala.collection.JavaConversions._
 
 object HelperMethods {
 
@@ -54,67 +48,16 @@ object HelperMethods {
           password.length > 0
     }
 
-    def checkEmptyParameter(par_name: String, par: String, result: JsonObject): Boolean = {
-        if (par == null || par == "") {
-            result.put("status", "error")
-            result.put("message", "Missing or Invalid parameter [" + par_name + "]")
-            return false
-        }
-        true
-    }
-
-    def checkEmptyParameter(par_name: String,
-                            par: String,
-                            result: JsonObject,
-                            fields: HashMap[String, String],
-                            field_name: String): Boolean = {
-        if (par == null || par == "") {
-            result.put("status", "error")
-            result.put("message", "Missing or Invalid parameter [" + par_name + "]")
-            return false
-        }
-        fields.put(field_name, par)
-        true
-    }
-
     def decodeBase64(base64_in: String): Array[Byte] = Base64.decodeBase64(base64_in.getBytes)
 
     def base64ToString(base64_in: String): String = new String(decodeBase64(base64_in))
-
-    def storeRadioMapToServer(file: File): Boolean = {
-        /*
-        * FeatureAdd : Configuring location for server generated files
-        */
-        //val radio_dir = "radio_maps_raw/"
-        val radio_dir = Play.application().configuration().getString("radioMapRawDir")
-        val dir = new File(radio_dir)
-        dir.mkdirs()
-        if (!dir.isDirectory || !dir.canWrite() || !dir.canExecute()) {
-            return false
-        }
-        val name = "radiomap_" + LPUtils.generateRandomToken() + System.currentTimeMillis()
-        //FeatureAdd : Configuring location for server generated files
-        val dest_f = new File(radio_dir + AnyplaceServerAPI.URL_SEPARATOR + name)
-        var fout: FileOutputStream = null
-        try {
-            fout = new FileOutputStream(dest_f)
-            Files.copy(file.toPath(), fout)
-            fout.close()
-        } catch {
-            case e: IOException => {
-                e.printStackTrace()
-                return false
-            }
-        }
-        true
-    }
 
      /*
      * DELETE FLOOR : BuxFix
      * Fixing function as parent level floor plan files and directory 
      * was not getting removed during floor delete
      */
-    def recDeleteDirFile(f: File, root: Boolean =true) {
+    def recDeleteDirFile(f: File, root: Boolean =true): Unit ={
         if (f.isFile) {
             Files.delete(f.toPath())
         } else if (f.isDirectory) {

@@ -1,0 +1,24 @@
+{
+	"id": "890a977d-f7c5-4b2e-b783-e15946ba55f8",
+	"name": "MongoDB",
+	"values": [
+		{
+			"key": "HOST",
+			"value": "http://ap-dev.cs.ucy.ac.cy",
+			"enabled": true
+		},
+		{
+			"key": "PORT",
+			"value": "9003",
+			"enabled": true
+		},
+		{
+			"key": "ACCESS_TOKEN",
+			"value": "",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2021-06-02T16:19:43.088Z",
+	"_postman_exported_using": "Postman/8.5.1"
+}

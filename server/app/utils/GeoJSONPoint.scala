@@ -35,17 +35,20 @@
  */
 package utils
 
-import com.couchbase.client.java.document.json.{JsonArray, JsonObject}
+import java.util
+
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class GeoJSONPoint(var lat: Double, var lon: Double) {
 
-    def toGeoJSON(): JsonObject = {
-        val jo = JsonObject.empty()
-        val ja = JsonArray.empty()
+    def toGeoJSON(): JsValue = {
+        val ja = new util.ArrayList[Double]
         ja.add(this.lat)
         ja.add(this.lon)
-        jo.put("coordinates",ja)
-        jo.put("type", "Point")
+        var jo = Json.obj("coordinates" -> Json.toJson(ja.asScala))
+        jo = jo.as[JsObject] + ("type" -> JsString("Point"))
         jo
     }
 }

@@ -82,10 +82,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     });
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
-        //if (newVal && newVal.buid && newVal.poistypeid) {
-        //$scope.fetchAllPoisTypes(newVal.poistypeid);
-        //}
-        //else {
         $scope.poisTypes = [
             "Disabled Toilets",
             "Elevator",
@@ -223,96 +219,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 break;
             }
         }
-    };
-
-    $scope.addcategory = function () {
-
-        var name_element = document.getElementById("poistype");
-        var name = "\"poistype\":\"" + name_element.value + "\"";
-
-        function S4() {
-            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
-
-        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
-        var d = new Date();
-
-
-        var poistypeid = "poistypeid_" + guid + "_" + d.getTime();
-        poistypeid = "\"poistypeid\":\"" + poistypeid + "\"";
-
-        var sz = $scope.poicategories.length;
-
-        if (sz == 0) {
-            _err($scope, "No categories added.");
-            return;
-        }
-
-        var types = "\"types\":[";
-        for (var i = sz - 1; i > 0; i--) {
-            if ($scope.poicategories[i].poicat != "") {
-                types = types + "\"" + $scope.poicategories[i].poicat + "\",";
-            }
-        }
-        types = types + "\"" + $scope.poicategories[0].poicat + "\"]";
-
-        var jreq = "{" + name + "," + poistypeid + "," + types + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
-
-        var promise = $scope.anyAPI.addCategory(jreq);
-        promise.then(
-            function (resp) {
-                // on success
-                var data = resp.data;
-                _suc($scope, "Successfully added category.");
-            },
-            function (resp) {
-                ShowError($scope, resp, "Something went wrong while adding the category.", true);
-            }
-        );
-
-    };
-
-
-    $scope.fetchAllPoisTypes = function (poistypeid) {
-
-        //TODO: validation
-
-        var jsonReq = $scope.anyService.jsonReq;
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-        jsonReq.owner_id = $scope.owner_id;
-        jsonReq.access_token = $scope.gAuth.access_token;
-        jsonReq.poistypeid = poistypeid;
-
-        if (!jsonReq.owner_id) {
-            _err($scope, ERR_USER_AUTH);
-            return;
-        }
-        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
-        promise.then(
-            function (resp) {
-                var data = resp.data;
-
-                var poistypes = data.poistypes;
-
-                var sz = poistypes.length;
-                for (var i = sz - 1; i >= 0; i--) {
-                    if (poistypes[i].poistypeid == poistypeid) {
-                        var types = poistypes[i].types;
-                        break;
-                    }
-                }
-
-                var sz = types.length;
-                for (var i = sz - 1; i >= 0; i--) {
-                    $scope.poisTypes[i] = types[i];
-                }
-            },
-            function (resp) {
-                ShowError($scope, resp,"Something went wrong while fetching POIs types", true);
-            }
-        );
     };
 
 
@@ -474,9 +380,18 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
     };
 
-    var _POI_CONNECTOR_IMG = 'build/images/edge-connector-icon.png';
-    var _POI_EXISTING_IMG = 'build/images/any-poi-icon.png';
-    var _POI_NEW_IMG = 'build/images/poi-icon.png';
+    // TODO put these in common..
+    var _POI_CONNECTOR_IMG = 'build/images/edge-connector.png';
+    // PM: CLR
+    // var markerPoiConnector= new google.maps.MarkerImage(_POI_CONNECTOR_IMG,
+    //     new google.maps.Size(22, 22),
+    //     new google.maps.Point(0, 0),
+    //     new google.maps.Point(11, 11));
+    // var _POI_EXISTING_IMG = 'build/images/any-poi-icon.png';
+    // var _POI_NEW_IMG = 'build/images/poi-icon.png';
+    var _POI_EXISTING_IMG = 'build/images/poi.png';
+    var _POI_NEW_IMG = 'build/images/poi-new.png';
+
 
     var _latLngFromPoi = function (p) {
         if (p && p.coordinates_lat && p.coordinates_lon) {
@@ -549,30 +464,34 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     marker = new google.maps.Marker({
                         position: _latLngFromPoi(p),
                         draggable: true,
-                        icon: new google.maps.MarkerImage(
+			icon: new google.maps.MarkerImage(
                             _POI_CONNECTOR_IMG,
                             null, /* size is determined at runtime */
                             null, /* origin is 0,0 */
-                            null, /* anchor is bottom center of the scaled image */
+                            new google.maps.Point(11, 11),
+                            // null, /* anchor is bottom center of the scaled image */
                             new google.maps.Size(21, 21)
                         )
                     });
-                    if(_POIS_IS_ON)
-                        marker.setMap(GMapService.gmap);
+
+                    if(_POIS_IS_ON) marker.setMap(GMapService.gmap);
 
                     htmlContent = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
+                        + '<div class="infowindow-title">Connector</div>'
+                        + '<input value="'+ p.puid+'" type="text" class="form-control input-tiny" onClick="selectAllInputText(this)" readonly/>'
+                        + '<br>'
                         + '<fieldset class="form-group" style="display: inline-block; width: 73%;">'
                         + '<button type="submit" class="btn btn-success add-any-button" ng-click="updatePoi(\'' + p.puid + '\')"><span class="glyphicon glyphicon-pencil"></span> Update'
                         + '</button>'
                         + '</fieldset>'
                         + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
-                        + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(\'' + p.puid + '\')"><span class="glyphicon glyphicon-remove"></span>'
+                        + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(\'' + p.puid + '\')"><i class="fa fa-trash text-white"></i>'
                         + '</button>'
                         + '</fieldset>'
                         + '</div>';
                 } else {
                     var imgType = _POI_EXISTING_IMG;
-                    var size = new google.maps.Size(21, 32);
+                    var size = new google.maps.Size(32, 32);
 
 //                if (p.pois_type === "Entrance") {
 //                    imgType = "images/door.png";
@@ -597,11 +516,14 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         )
                     });
 
-                    if(_POIS_IS_ON)
-                    marker.setMap(GMapService.gmap);
+                    if(_POIS_IS_ON) marker.setMap(GMapService.gmap);
 
                     htmlContent = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
-                        + '<form name="poiForm">'
+                        + '<form name="poiForm" class="mapForm">'
+                        // PUID
+                        + '<div class="infowindow-title">POI</div>'
+                        + '<input ng-model="myPois[' + i + '].puid" type="text" class="form-control input-tiny" onClick="selectAllInputText(this)" readonly/>'
+                        + '<br>'
                         + '<fieldset class="form-group">'
                         + '<textarea ng-model="myPois[' + i + '].name" id="poi-name" type="text" class="form-control" placeholder="poi name" tabindex="1" autofocus></textarea>'
                         + '</fieldset>'
@@ -609,11 +531,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         + '<textarea ng-model="myPois[' + i + '].description" id="poi-description" type="text" class="form-control" placeholder="poi description" tabindex="5"></textarea>'
                         + '</fieldset>'
                         + '<fieldset class="form-group">'
+                        + '<div>POI Type:</div>'
                         + '<select ng-model="myPois[' + i + '].pois_type" class="form-control" ng-options="type for type in poisTypes" title="POI Types" tabindex="2">'
-                        + '<option value="">Select POI Type</option>'
+                        + '<option value="">POI Type</option>'
                         + '</select>'
                         + '</fieldset class="form-group">'
-                        + '<fieldset class="form-group">Or enter your own type:'
+                        + '<fieldset class="form-group"><div>Custom type:</div>'
                         + '<input ng-model="myPois[' + i + '].pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
                         + '</fieldset>'
                         + '<fieldset class="form-group">'
@@ -625,7 +548,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         + '</button>'
                         + '</fieldset>'
                         + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
-                        + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(\'' + p.puid + '\')" tabindex="6"><span class="glyphicon glyphicon-remove"></span>'
+                        + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(\'' + p.puid + '\')" tabindex="6"><i class="fa fa-trash text-white"></i>'
                         + '</button>'
                         + '</fieldset>'
                         + '</div>'
@@ -637,20 +560,14 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                 marker.tpl2 = tpl;
                 marker.model = p;
-
                 marker.infowindow = infowindow;
-
                 $scope.myPoisHashT[p.puid].marker = marker;
                 $scope.anyService.setAllPois($scope.myPoisHashT);
-
                 google.maps.event.addListener(marker, 'click', function () {
-
                     if ($scope.edgeMode) {
                         if ($scope.connectPois.prev) {
-
                             if ($scope.connectPois.prev == this) {
                                 $scope.connectPois.prev = undefined;
-
                                 if (this.model.pois_type === "None") {
                                     this.setIcon(_getConnectorIconNormal());
                                 } else {
@@ -658,14 +575,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 }
                                 return;
                             }
-
                             // No longer the beginning of an edge, make smaller.
                             if ($scope.connectPois.prev.model.pois_type === "None") {
                                 $scope.connectPois.prev.setIcon(_getConnectorIconNormal());
                             } else {
                                 $scope.connectPois.prev.setIcon(_getNormalPoiIconNormal());
                             }
-
                             var flightPath = new google.maps.Polyline({
                                 path: [this.position, $scope.connectPois.prev.position],
                                 geodesic: true,
@@ -673,64 +588,45 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 strokeOpacity: 0.5,
                                 strokeWeight: 4
                             });
-
                             flightPath.setMap(GMapService.gmap);
-
                             // Construct the request
                             var poiA = $scope.connectPois.prev.model;
                             var poiB = this.model;
-
                             if (!poiA || !poiB || !poiA.puid || !poiB.puid || !poiA.buid || !poiB.buid || LPUtils.isNullOrUndefined(poiA.floor_number) || LPUtils.isNullOrUndefined(poiB.floor_number)) {
                                 _err($scope, "One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
                                 return;
                             }
-
                             var jsonReq = {
-
-                                username: $scope.creds.username,
-                                password: $scope.creds.password,
                                 owner_id: $scope.owner_id,
-
                                 pois_a: poiA.puid,
                                 floor_a: poiA.floor_number,
                                 buid_a: poiA.buid,
-
                                 // insert the connection buid ( needed by the Dijkstra algorithm at the moment )
                                 buid: poiA.buid,
-
                                 pois_b: poiB.puid,
                                 floor_b: poiB.floor_number,
                                 buid_b: poiB.buid,
-
                                 is_published: 'true',
                                 edge_type: 'hallway'
                             };
-
                             flightPath.model = jsonReq;
-
-                            // make the request at AnyplaceAPI
-
-                            var promise = $scope.anyAPI.addConnection(jsonReq);
+                            var promise = $scope.anyAPI.addConnection(jsonReq); // make the request at AnyplaceAPI
                             promise.then(
                                 function (resp) {
                                     var data = resp.data;
                                     var cuid = data.cuid;
-
                                     flightPath.model.cuid = cuid;
                                     var cloneModel = flightPath.model;
                                     cloneModel.polyLine = flightPath;
                                     $scope.myConnectionsHashT[cuid] = cloneModel;
                                     $scope.anyService.setAllConnection($scope.myConnectionsHashT);
-
                                     flightPath.setOptions({
-                                        strokeColor: '#0000FF',
-                                        strokeOpacity: 0.5
+					strokeColor: '#503C8E',
+                                        strokeOpacity: 0.7
                                     });
-
                                     google.maps.event.addListener(flightPath, 'click', function () {
                                         $scope.$apply(_deleteConnection(this));
                                     });
-
                                 },
                                 function (resp) {
                                     ShowError($scope, resp,
@@ -739,13 +635,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                     flightPath.setMap(null);
                                 }
                             );
-
                             $scope.connectPois.prev = undefined;
-
                         } else {
-
                             $scope.connectPois.prev = this;
-
                             // Increase the size of markers to indicate as the start of an edge
                             if (this.model.pois_type === "None") {
                                 this.setIcon(_getConnectorIconBigger());
@@ -753,7 +645,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 this.setIcon(_getNormalPoiIconBigger());
                             }
                         }
-
                     } else {
                         infowindow.setContent(this.tpl2[0]);
                         infowindow.open(GMapService.gmap, this);
@@ -761,6 +652,13 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         $scope.$apply(function () {
                             if (self.model && self.model.puid) {
                                 $scope.anyService.selectedPoi = self.model;
+                                // TODO Close infowindow of the open building
+                                // (the below do not work)
+                                // console.log($scope.anyService.selectedBuilding);
+                                // $scope.anyService.selectedBuilding=null;
+                                // var open_buid=$scope.anyService.selectedBuilding.buid;
+                                // This hides the building icon:
+                                // $scope.myBuildingsHashT[open_buid].marker.setVisible(false);
                             }
                         })
                     }
@@ -856,7 +754,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _deleteConnection = function (fp) {
 
         if (!$scope.edgeMode) {
-            _err($scope, "Enable \"Edge Mode\" so you can delete connections by clicking on them.");
+            _info($scope, "Enable \"Edge Mode\" so you can delete connections by clicking on them.");
             return;
         }
 
@@ -875,9 +773,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
         // there is a connection selected and loaded so use it for update
         var obj = _checkConnectionFormat(conn);
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-        obj.owner_id = $scope.owner_id;
 
         if (LPUtils.isNullOrUndefined(obj.pois_a) || LPUtils.isStringBlankNullUndefined(obj.pois_a)) {
             _err($scope, "No valid connection has been selected. Missing POI A.");
@@ -915,8 +810,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.fetchAllPoisForFloor = function (fl) {
-
-        //TODO: validation
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = AnyplaceService.getBuildingId();
         jsonReq.floor_number = AnyplaceService.getFloorNumber();
@@ -925,33 +818,25 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         promise.then(
             function (resp) {
                 var data = resp.data;
-
                 $scope.clearPoisOnMap();
-
                 $scope.myPois = data.pois;
-
                 var sz = $scope.myPois.length;
                 for (var i = sz - 1; i >= 0; i--) {
                     // insert the pois inside the hashtable
                     // TODO clone (?)
                     var puid = $scope.myPois[i].puid;
-
                     if ($scope.myPois[i].is_building_entrance == 'true') {
                         $scope.myPois[i].is_building_entrance = true;
                     } else {
                         $scope.myPois[i].is_building_entrance = false;
                     }
-
                     $scope.myPois[i].pois_type2=$scope.myPois[i].pois_type;
-
                     $scope.myPoisHashT[puid] = {};
                     $scope.myPoisHashT[puid].model = $scope.myPois[i];
                     $scope.anyService.setAllPois($scope.myPoisHashT);
                 }
-
                 // draw the markers
                 $scope.drawPoisOnMap();
-
                 //_suc($scope, "Successfully fetched all POIs.");
             },
             function (resp) {
@@ -967,98 +852,71 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.addPoi = function (id) {
         if ($scope.myMarkers[id] && $scope.myMarkers[id].marker) {
-
             if ($scope.myMarkers[id].model.pois_type2.localeCompare("")!=0){
                 $scope.myMarkers[id].model.pois_type=$scope.myMarkers[id].model.pois_type2;
             }
-
             var poi = $scope.myMarkers[id].model;
-
-            // set owner id
-            poi.owner_id = $scope.owner_id;
-
             poi.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
             poi.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
-
             poi.is_building_entrance = String(poi.is_building_entrance);
-
             if (poi.coordinates_lat === undefined || poi.coordinates_lat === null) {
                 _err($scope, "POI has invalid latitude format");
                 return;
             }
-
             if (poi.coordinates_lon === undefined || poi.coordinates_lon === null) {
                 _err($scope, "POI has invalid longitude format");
                 return;
             }
-
-            if (poi.owner_id && poi.name && poi.buid && poi.pois_type
+            if (poi.name && poi.buid && poi.pois_type
                 && !LPUtils.isNullOrUndefined(poi.is_building_entrance)
                 && !LPUtils.isNullOrUndefined(poi.is_published)
                 && !LPUtils.isNullOrUndefined(poi.is_door)
                 && !LPUtils.isNullOrUndefined(poi.floor_name)
                 && !LPUtils.isNullOrUndefined(poi.floor_number)) {
-
                 if (poi.is_building_entrance == 'true') {
                     poi.is_building_entrance = 'true';
                 } else {
                     poi.is_building_entrance = 'false';
                 }
-
                 var json_req = poi;
-
                 // make the request at AnyplaceAPI
                 var promise = $scope.anyAPI.addPois(json_req);
                 promise.then(
                     function (resp) {
                         var data = resp.data;
-
                         poi.puid = data.puid;
-
                         if (poi.is_building_entrance == 'true') {
                             poi.is_building_entrance = true;
                         } else {
                             poi.is_building_entrance = false;
                         }
-
                         // insert the newly created building inside the loadedBuildings
                         $scope.myPois.push(poi);
                         $scope.anyService.selectedPoi = $scope.myPois[$scope.myPois.length - 1];
-
                         // update the hashtable
-
                         $scope.myPoisHashT[poi.puid] = {
                             model: poi,
                             marker: $scope.myMarkers[id].marker
                         };
                         $scope.anyService.setAllPois($scope.myPoisHashT);
-
                         $scope.myMarkers[id].model = poi;
-
                         if ($scope.myMarkers[id].infowindow) {
                             $scope.myMarkers[id].infowindow.close();
                             $scope.myMarkers[id].infowindow.setContent($scope.myMarkers[id].marker.tpl2[0]);
                         }
-
                         $scope.myMarkers[id].marker.model = poi;
-
                         if ($scope.myMarkers[id].marker.model.pois_type == "None") {
                             $scope.myMarkers[id].marker.setIcon(_getConnectorIconNormal());
                         } else {
                             $scope.myMarkers[id].marker.setIcon(_getNormalPoiIconNormal());
                         }
-
                         google.maps.event.clearListeners($scope.myMarkers[id].marker, 'click');
-
                         var infowindow = $scope.myMarkers[id].infowindow;
-
                         google.maps.event.addListener($scope.myMarkers[id].marker, 'click', function () {
                             if ($scope.edgeMode) {
                                 if ($scope.connectPois.prev) {
-
                                     if ($scope.connectPois.prev == this) {
                                         $scope.connectPois.prev = undefined;
-
                                         if (this.model.pois_type === "None") {
                                             this.setIcon(_getConnectorIconNormal());
                                         } else {
@@ -1066,14 +924,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                         }
                                         return;
                                     }
-
                                     // No longer the beginning of an edge, make smaller.
                                     if ($scope.connectPois.prev.model.pois_type === "None") {
                                         $scope.connectPois.prev.setIcon(_getConnectorIconNormal());
                                     } else {
                                         $scope.connectPois.prev.setIcon(_getNormalPoiIconNormal());
                                     }
-
                                     var flightPath = new google.maps.Polyline({
                                         path: [this.position, $scope.connectPois.prev.position],
                                         geodesic: true,
@@ -1081,64 +937,45 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                         strokeOpacity: 0.5,
                                         strokeWeight: 4
                                     });
-
                                     flightPath.setMap(GMapService.gmap);
-
                                     // Construct the request
                                     var poiA = $scope.connectPois.prev.model;
                                     var poiB = this.model;
-
                                     if (!poiA || !poiB || !poiA.puid || !poiB.puid || !poiA.buid || !poiB.buid || LPUtils.isNullOrUndefined(poiA.floor_number) || LPUtils.isNullOrUndefined(poiB.floor_number)) {
                                         _err($scope, "One or both of the POIs attempted to be connected seem to be be malformed. Please refresh.");
                                         return;
                                     }
-
                                     var jsonReq = {
-
-                                        username: $scope.creds.username,
-                                        password: $scope.creds.password,
-                                        owner_id: $scope.owner_id,
-
                                         pois_a: poiA.puid,
                                         floor_a: poiA.floor_number,
                                         buid_a: poiA.buid,
-
                                         // insert the connection buid ( needed by the Dijkstra algorithm at the moment )
                                         buid: poiA.buid,
-
                                         pois_b: poiB.puid,
                                         floor_b: poiB.floor_number,
                                         buid_b: poiB.buid,
-
                                         is_published: 'true',
                                         edge_type: 'hallway'
                                     };
-
                                     flightPath.model = jsonReq;
-
                                     // make the request at AnyplaceAPI
-
                                     var promise = $scope.anyAPI.addConnection(jsonReq);
                                     promise.then(
                                         function (resp) {
                                             var data = resp.data;
                                             var cuid = data.cuid;
-
                                             flightPath.model.cuid = cuid;
                                             var cloneModel = flightPath.model;
                                             cloneModel.polyLine = flightPath;
                                             $scope.myConnectionsHashT[cuid] = cloneModel;
                                             $scope.anyService.setAllConnection($scope.myConnectionsHashT);
-
                                             flightPath.setOptions({
                                                 strokeColor: '#0000FF',
                                                 strokeOpacity: 0.5
                                             });
-
                                             google.maps.event.addListener(flightPath, 'click', function () {
                                                 $scope.$apply(_deleteConnection(this));
                                             });
-
                                         },
                                         function (resp) {
                                             ShowError($scope, resp,
@@ -1146,11 +983,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                             flightPath.setMap(null);
                                         }
                                     );
-
                                     $scope.connectPois.prev = undefined;
                                 } else {
                                     $scope.connectPois.prev = this;
-
                                     // Increase the size of markers to indicate as the start of an edge
                                     if (this.model.pois_type === "None") {
                                         this.setIcon(_getConnectorIconBigger());
@@ -1169,16 +1004,13 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                                 })
                             }
                         });
-
                         google.maps.event.addListener($scope.myMarkers[id].marker, "dragend", function (event) {
                             if (this.model && this.model.puid) {
                                 $scope.updatePoiPosition(this);
                             }
                         });
-
                         // Too spammy.
                         //_suc($scope, "Successfully added new POI.");
-
                     },
                     function (resp) {
                         ShowError($scope, resp, "Something went wrong while adding the new POI.", true);
@@ -1225,10 +1057,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
 
         var obj = bobj.model;
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-
-        obj.owner_id = $scope.owner_id;
 
         var delPuid = obj.puid;
         // make the request at AnyplaceAPI
@@ -1295,32 +1123,22 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.updatePoi = function (id) {
         var bobj = $scope.myPoisHashT[id];
-
         if (!bobj || !bobj.model || !bobj.model.puid) {
             if ($scope.myPoisHashT && $scope.myMarkers && $scope.myMarkers[id] && $scope.myMarkers[id].model && $scope.myPoisHashT[$scope.myMarkers[id].model.puid]) {
-
                 bobj = $scope.myPoisHashT[$scope.myMarkers[id].model.puid];
-
                 if (!bobj || !bobj.model || !bobj.model.puid) {
                     _err($scope, "No valid POI selected to be updated.");
                     return;
                 }
-
             } else {
                 _err($scope, "No valid POI selected to be updated.");
                 return;
             }
         }
-
         if (bobj.model.pois_type2.localeCompare("")!=0){
             bobj.model.pois_type = bobj.model.pois_type2;
         }
-
         var obj = bobj.model;
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-        obj.owner_id = $scope.owner_id;
-
         var marker = bobj.marker;
         if (marker) {
             var latLng = marker.position;
@@ -1329,43 +1147,35 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 obj.coordinates_lon = String(latLng.lng());
             }
         }
-
         if (obj.is_building_entrance) {
             obj.is_building_entrance = 'true';
         } else {
             obj.is_building_entrance = 'false';
         }
-
         // make the request at AnyplaceAPI
         var promise = $scope.anyAPI.updatePois(obj);
         promise.then(
             function (resp) {
                 // success
                 var data = resp.data;
-
                 if (marker) {
                     marker.infowindow.setMap(null);
                 }
-
                 if (obj.is_building_entrance == 'true') {
                     obj.is_building_entrance = true;
                 } else {
                     obj.is_building_entrance = false;
                 }
-
                 for (var c in $scope.myConnectionsHashT) {
                     if ($scope.myConnectionsHashT.hasOwnProperty(c)) {
                         if ($scope.myConnectionsHashT[c].pois_a == obj.puid
                             || $scope.myConnectionsHashT[c].pois_b == obj.puid) {
-
                             var pa = $scope.myConnectionsHashT[c].pois_a;
                             var pb = $scope.myConnectionsHashT[c].pois_b;
-
                             var flightPlanCoordinates = [
                                 new google.maps.LatLng($scope.myPoisHashT[pa].model.coordinates_lat, $scope.myPoisHashT[pa].model.coordinates_lon),
                                 new google.maps.LatLng($scope.myPoisHashT[pb].model.coordinates_lat, $scope.myPoisHashT[pb].model.coordinates_lon)
                             ];
-
                             $scope.myConnectionsHashT[c].polyLine.setPath(flightPlanCoordinates);
                             $scope.anyService.setAllConnection($scope.myConnectionsHashT);
                             $scope.anyService.setAllPois($scope.myPoisHashT);
@@ -1383,23 +1193,15 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     $scope.updatePoiPosition = function (marker) {
-
         var obj;
-
         if (marker && marker.model) {
             obj = marker.model;
         }
-
-        obj.username = $scope.creds.username;
-        obj.password = $scope.creds.password;
-        obj.owner_id = $scope.owner_id;
-
         var latLng = marker.position;
         if (latLng && latLng.lat() && latLng.lng()) {
             obj.coordinates_lat = String(latLng.lat());
             obj.coordinates_lon = String(latLng.lng());
         }
-
         if (obj.is_building_entrance) {
             obj.is_building_entrance = 'true';
         } else {
@@ -1412,33 +1214,27 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             function (resp) {
                 // success
                 var data = resp.data;
-
                 if (obj.is_building_entrance == 'true' || obj.is_building_entrance === true) {
                     obj.is_building_entrance = true;
                 } else {
                     obj.is_building_entrance = false;
                 }
-
                 for (var c in $scope.myConnectionsHashT) {
                     if ($scope.myConnectionsHashT.hasOwnProperty(c)) {
                         if ($scope.myConnectionsHashT[c].pois_a == marker.model.puid
                             || $scope.myConnectionsHashT[c].pois_b == marker.model.puid) {
-
                             var pa = $scope.myConnectionsHashT[c].pois_a;
                             var pb = $scope.myConnectionsHashT[c].pois_b;
-
                             var flightPlanCoordinates = [
                                 new google.maps.LatLng($scope.myPoisHashT[pa].model.coordinates_lat, $scope.myPoisHashT[pa].model.coordinates_lon),
                                 new google.maps.LatLng($scope.myPoisHashT[pb].model.coordinates_lat, $scope.myPoisHashT[pb].model.coordinates_lon)
                             ];
-
                             $scope.myConnectionsHashT[c].polyLine.setPath(flightPlanCoordinates);
                             $scope.anyService.setAllConnection($scope.myConnectionsHashT);
                             $scope.anyService.setAllPois($scope.myPoisHashT);
                         }
                     }
                 }
-
             },
             function (resp) {
                 ShowError($scope, resp, "Something went wrong while moving POI.", true);
@@ -1515,19 +1311,21 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
-            + '<fieldset class="form-group">Or ender your one type name:'
+            + '<div>'
+            + '<fieldset class="form-group"><div>Custom type:</div>'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
             + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
             + '</fieldset>'
+            + '</div>'
             + '<div style="text-align: center;">'
             + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
             + '<button type="submit" class="btn btn-success add-any-button" ng-click="addPoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-plus"></span> Add'
             + '</button>'
             + '</fieldset>'
             + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
-            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')" tabindex="6"><span class="glyphicon glyphicon-remove"></span>'
+            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')" tabindex="6"><i class="fa fa-trash text-white"></i>'
             + '</button>'
             + '</fieldset>'
             + '</div>'
@@ -1555,19 +1353,21 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
-            + '<fieldset class="form-group">Or ender your one type name:'
+            + '<div>'
+            + '<fieldset class="form-group"><div>Custom type:</div>'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
             + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
             + '</fieldset>'
+            + '</div>'
             + '<div style="text-align: center;">'
             + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
             + '<button type="submit" class="btn btn-success add-any-button" ng-click="updatePoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-pencil"></span> Update'
             + '</button>'
             + '</fieldset>'
             + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
-            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')" tabindex="6"><span class="glyphicon glyphicon-remove"></span>'
+            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')" tabindex="6"><i class="fa fa-trash text-white"></i>'
             + '</button>'
             + '</fieldset>'
             + '</div>'
@@ -1581,7 +1381,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '</button>'
             + '</fieldset>'
             + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
-            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')"><span class="glyphicon glyphicon-remove"></span>'
+            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')"><i class="fa fa-trash text-white"></i>'
             + '</button>'
             + '</fieldset>'
             + '</div>';
@@ -1589,17 +1389,110 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         var htmlConnector2 = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
             + '<div style="margin-bottom: 5px">POI Connector</div>'
             + '<fieldset class="form-group">'
-            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')"><span class="glyphicon glyphicon-remove"></span> Remove'
+            + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')"><i class="fa fa-trash text-white"></i> Remove'
             + '</button>'
             + '</fieldset>'
             + '</div>';
 
         if (type == 'poi') {
+            var htmlContent = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
+                + '<form name="poiForm">'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="poi-name" type="text" class="form-control" placeholder="poi name" tabindex="1" autofocus/>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="poi-description" type="text" class="form-control" placeholder="poi description" tabindex="5"></textarea>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<select ng-model="myMarkers[' + marker.myId + '].model.pois_type" class="form-control" ng-options="type for type in poisTypes" title="POI Types" tabindex="2">'
+                + '<option value="">Select POI Type</option>'
+                + '</select>'
+                + '</fieldset class="form-group">'
+                + '<fieldset class="form-group">Or ender your one type name:'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
+                + '</fieldset>'
+                + '<div style="text-align: center;">'
+                + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
+                + '<button type="submit" class="btn btn-success add-any-button" ng-click="addPoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-plus"></span> Add'
+                + '</button>'
+                + '</fieldset>'
+                + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')" tabindex="6"><i class="fa fa-trash text-white"></i>'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>'
+                + '</form>'
+                + '</div>';
+
+            //var htmlContent2 = '<div class="infowindow-scroll-fix">'
+            //    + '<h5 style="margin: 0">Name:</h5>'
+            //    + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
+            //    + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+            //    + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
+            //    + '<h5 style="margin: 8px 0 0 0">Type:</h5>'
+            //    + '<span>{{myMarkers[' + marker.myId + '].model.pois_type}}</span>'
+            //    + '</div>';
+            var htmlContent2 = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
+                + '<form name="poiForm">'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="poi-name" type="text" class="form-control" placeholder="poi name" tabindex="1" autofocus/>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="poi-description" type="text" class="form-control" placeholder="poi description" tabindex="5"></textarea>'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<select ng-model="myMarkers[' + marker.myId + '].model.pois_type" class="form-control" ng-options="type for type in poisTypes" title="POI Types" tabindex="2">'
+                + '<option value="">Select POI Type</option>'
+                + '</select>'
+                + '</fieldset class="form-group">'
+                + '<fieldset class="form-group">Or ender your one type name:'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+                + '</fieldset>'
+                + '<fieldset class="form-group">'
+                + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
+                + '</fieldset>'
+                + '<div style="text-align: center;">'
+                + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
+                + '<button type="submit" class="btn btn-success add-any-button" ng-click="updatePoi(' + marker.myId + ')" tabindex="3"><span class="glyphicon glyphicon-pencil"></span> Update'
+                + '</button>'
+                + '</fieldset>'
+                + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')" tabindex="6"><i class="fa fa-trash text-white"></i>'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>'
+                + '</form>'
+                + '</div>';
+
+
             var tpl = $compile(htmlContent)($scope);
             marker.tpl2 = $compile(htmlContent2)($scope);
             infowindow.setContent(tpl[0]);
             infowindow.open(GMapService.gmap, marker);
         } else if (type == 'connector') {
+            var htmlConnector = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
+                + '<div style="margin-bottom: 5px">POI Connector</div>'
+                + '<fieldset class="form-group" style="display: inline-block; width: 73%;">'
+                + '<button type="submit" class="btn btn-success add-any-button" ng-click="addPoi(' + marker.myId + ')"><span class="glyphicon glyphicon-plus"></span> Add'
+                + '</button>'
+                + '</fieldset>'
+                + '<fieldset class="form-group" style="display: inline-block;width: 23%;">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deleteTempPoi(' + marker.myId + ')"><i class="fa fa-trash text-white"></i>'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>';
+
+            var htmlConnector2 = '<div class="infowindow-scroll-fix" style="text-align: center; width:170px">'
+                + '<div style="margin-bottom: 5px">POI Connector</div>'
+                + '<fieldset class="form-group">'
+                + '<button type="submit" class="btn btn-danger add-any-button" style="margin-left:2px" ng-click="deletePoi(' + marker.myId + ')"><i class="fa fa-trash text-white"></i> Remove'
+                + '</button>'
+                + '</fieldset>'
+                + '</div>';
+
             var tplConn = $compile(htmlConnector)($scope);
             marker.tpl2 = $compile(htmlConnector2)($scope);
             infowindow.setContent(tplConn[0]);
@@ -1634,7 +1527,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         $scope.edgeMode = !$scope.edgeMode;
         if (!$scope.edgeMode) {
             $scope.connectPois.prev = undefined;
+            document.getElementById("poi-edge-mode").classList.remove('draggable-border-selected');
+        } else {
+            document.getElementById("poi-edge-mode").classList.add('draggable-border-selected');
+
         }
+
     };
 
     $("#draggable-poi").draggable({
@@ -1646,7 +1544,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 $scope.$apply(_warn($scope, "The marker was placed too far away from the selected building."));
                 return;
             }
-            $scope.placeMarker(ll, _POI_NEW_IMG, new google.maps.Size(21, 32), 'poi');
+            $scope.placeMarker(ll, _POI_NEW_IMG, new google.maps.Size(32, 32), 'poi');
         }
     });
 

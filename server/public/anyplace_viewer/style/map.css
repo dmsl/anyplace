@@ -124,6 +124,7 @@ body {
     display: inline-block;
 }
 
+/* ugly border. WHY? */
 .draggable-border-green {
     border: 3px solid green;
     border-radius: 6px;

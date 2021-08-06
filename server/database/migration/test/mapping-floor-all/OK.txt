@@ -1,0 +1,6 @@
+CouchDB total json objects:  4
+MongoDB total json objects:  4
+There are 0 - or "" or null fields
+description 0
+username_creator 0
+Files are same.

@@ -1,0 +1,2 @@
+Skipping pois comparison due to CouchDB bug.(Fetching floors instead of Pois.)
+Files are same.

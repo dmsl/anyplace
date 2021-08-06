@@ -35,19 +35,17 @@
  */
 
 package utils
+import play.api.Configuration
 
-import play.Play
+import java.io.File
+import javax.inject.{Inject, Singleton}
 
-object AnyplaceServerAPI {
-  val URL_SEPARATOR = '/'
-
-  val SERVER_ADDRESS = Play.application().configuration().getString("server.address")
-
-  val SERVER_PORT = Play.application().configuration().getString("server.port")
-
-  val SERVER_FULL_URL = SERVER_ADDRESS + ":" + SERVER_PORT
-
-  val SERVER_API_ROOT = SERVER_FULL_URL + URL_SEPARATOR + "anyplace" + URL_SEPARATOR
-
-  val ANDROID_API_ROOT = SERVER_FULL_URL + URL_SEPARATOR + "android" + URL_SEPARATOR
+@Singleton
+class AnyplaceServerAPI @Inject() (conf: Configuration) {
+  val sep = File.separatorChar
+  val SERVER_ADDRESS: String = conf.get[String]("server.address")
+  val SERVER_PORT: String = conf.get[String]("server.port")
+  val SERVER_FULL_URL: String = SERVER_ADDRESS + ":" + SERVER_PORT
+  val SERVER_API_ROOT: String = SERVER_FULL_URL + sep + "anyplace" + sep
+  val ANDROID_API_ROOT: String = SERVER_FULL_URL + sep + "android" + sep
 }

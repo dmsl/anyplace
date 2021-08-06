@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.json:json:20180813'
+    compile 'com.squareup.okhttp3:okhttp:4.3.1'
+    compile 'com.squareup.okio:okio:2.4.1'
+    testImplementation 'junit:junit:4.13'
+
+}

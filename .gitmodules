@@ -1,0 +1,6 @@
+[submodule "clients/core/lib"]
+	path = clients/core/lib
+	url = git@github.com:dmsl/anyplace-lib-core.git
+[submodule "clients/android-new/lib"]
+	path = clients/android-new/lib
+	url = git@github.com:dmsl/anyplace-lib-android.git

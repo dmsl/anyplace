@@ -1,0 +1,10 @@
+CouchDB total json objects:  2895
+MongoDB total json objects:  2895
+Files are same.
+
+There are 8884 - or "" or null fields
+address 2885
+description 1746
+url 2884
+bucode 1368
+username_creator 1

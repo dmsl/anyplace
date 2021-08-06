@@ -35,13 +35,14 @@
  */
 package utils
 
-import org.codehaus.jettison.json.JSONArray
-import org.codehaus.jettison.json.JSONException
-import org.codehaus.jettison.json.JSONObject
-import java.util.ArrayList
-import java.util.List
+import java.util.{ArrayList, List}
+
+import org.codehaus.jettison.json.{JSONArray, JSONObject}
+
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 //remove if not needed
-import scala.collection.JavaConversions._
+// import scala.collection.JavaConversions._
 
 class GeoJSONMultiPoint(points_in: GeoPoint*) {
 
@@ -55,7 +56,7 @@ class GeoJSONMultiPoint(points_in: GeoPoint*) {
         var ja: JSONArray = null
         var jall = new JSONArray()
 
-        for (p <- this.points) {
+        for (p <- this.points.asScala) {
             ja = new JSONArray()
             ja.put(p.dlat)
             ja.put(p.dlon)

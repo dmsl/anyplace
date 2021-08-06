@@ -1,0 +1,115 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+  <style name="MyTheme" parent="Widget.AppCompat.Light.ActionBar.Solid">
+    <item name="android:background">@color/action_bar</item>
+    <item name="background">@color/action_bar</item>
+
+    <item name="titleTextStyle">@style/TextStyle</item>
+
+    <item name="logo">@drawable/action_bar_logo</item>
+    <item name="icon">@drawable/logo_white_small</item>
+    <item name="displayOptions">useLogo|showHome|showTitle</item>
+    <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
+    <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
+    <item name="progressBarPadding">32dip</item>
+
+    <item name="android:paddingLeft">0dip</item>
+    <item name="android:paddingTop">0dip</item>
+    <item name="android:paddingRight">0dip</item>
+    <item name="android:paddingBottom">0dip</item>
+
+  </style>
+
+
+
+  <style name="TextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+
+<!--    <item name="android:textColor">@color/floor_arrow</item>-->
+    <item name="android:textSize">25sp</item>
+    <item name="textAllCaps">false</item>
+
+  </style>
+
+
+  <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+  <style name="AppBaseTheme" parent="android:Theme.Light">
+    <!--
+        Theme customizations available in newer API levels can go in
+        res/values-vXX/styles.xml, while customizations related to
+        backward-compatibility can go here.
+    -->
+  </style>
+
+
+
+  <style name="Theme.AnyplaceTheme.ProgressBarHorizontal" parent="Widget.AppCompat.ProgressBar.Horizontal">
+    <item name="android:minHeight">10dip</item>
+    <item name="android:maxHeight">10dip</item>
+  </style>
+
+
+  <style name="Theme.AnyplaceTheme" parent="Theme.AppCompat">
+    <item name="actionBarStyle">@style/Widget.AnyplaceTheme.ActionBar</item>
+<!--    <item name="actionBarStyle">@style/MyTheme</item>-->
+<!--    <item name="android:windowActionBarOverlay">true</item>-->
+
+        <item name="android:actionBarStyle">@style/Widget.AnyplaceTheme.ActionBar</item>
+<!--    <item name="android:actionBarStyle">@style/MyTheme</item>-->
+<!--    <item name="windowActionBarOverlay">true</item>-->
+
+  </style>
+
+
+  <style name="Widget.AnyplaceTheme" />
+
+  <style name="Widget" />
+
+
+
+
+    <style name="Widget.AnyplaceTheme.ActionBar" parent="Widget.AppCompat.ActionBar">
+      <item name="android:background">@color/action_bar</item>
+      <item name="background">@color/action_bar</item>
+
+      <item name="titleTextStyle">@style/TextStyle</item>
+
+      <item name="logo">@drawable/action_bar_logo</item>
+    <item name="displayOptions">useLogo|showHome|showTitle</item>
+    <item name="height">?attr/actionBarSize</item>
+    <item name="android:paddingLeft">0dip</item>
+    <item name="android:paddingTop">0dip</item>
+    <item name="android:paddingRight">0dip</item>
+    <item name="android:paddingBottom">0dip</item>
+
+    <item name="divider">?attr/dividerVertical</item>
+    <item name="progressBarStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
+    <item name="indeterminateProgressStyle">@style/Widget.AppCompat.ProgressBar.Horizontal</item>
+    <item name="progressBarPadding">32dip</item>
+    <item name="itemPadding">8dip</item>
+  </style>
+
+
+  <!--  <item name="homeLayout">@layout/abs__action_bar_home</item>-->
+<!--  <item name="titleTextStyle">@style/TextAppearance.Sherlock.Widget.ActionBar.Title</item>-->
+<!--  <item name="subtitleTextStyle">@style/TextAppearance.Sherlock.Widget.ActionBar.Subtitle</item>-->
+<!--  <item name="backgroundStacked">@drawable/abs__ab_stacked_transparent_dark_holo</item>-->
+<!--  <item name="backgroundSplit">@drawable/abs__ab_bottom_transparent_dark_holo</item>-->
+
+
+
+
+
+
+
+</resources>
