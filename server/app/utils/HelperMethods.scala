@@ -37,9 +37,7 @@ package utils
 
 import java.io.File
 import java.nio.file.Files
-import java.util.HashMap
 
-import com.couchbase.client.java.document.json.JsonObject
 import org.apache.commons.codec.binary.Base64
 //remove if not needed
 
@@ -48,29 +46,6 @@ object HelperMethods {
     def checkUserCredentials(username: String, password: String): Boolean = {
         username != null && password != null && username.length > 0 &&
           password.length > 0
-    }
-
-    def checkEmptyParameter(par_name: String, par: String, result: JsonObject): Boolean = {
-        if (par == null || par == "") {
-            result.put("status", "error")
-            result.put("message", "Missing or Invalid parameter [" + par_name + "]")
-            return false
-        }
-        true
-    }
-
-    def checkEmptyParameter(par_name: String,
-                            par: String,
-                            result: JsonObject,
-                            fields: HashMap[String, String],
-                            field_name: String): Boolean = {
-        if (par == null || par == "") {
-            result.put("status", "error")
-            result.put("message", "Missing or Invalid parameter [" + par_name + "]")
-            return false
-        }
-        fields.put(field_name, par)
-        true
     }
 
     def decodeBase64(base64_in: String): Array[Byte] = Base64.decodeBase64(base64_in.getBytes)

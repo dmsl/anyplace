@@ -1,10 +1,13 @@
-# Anyplace v4.2 (MongoDB)
+# Anyplace
+
+---
+### A free and open Indoor Navigation Service with superb accuracy!
+---
 
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A free and open Indoor Navigation Service with superb accuracy!
 
-## Cloning instructions
+## 1. Clone
 To include the submodules (`anyplace-lib`, and `anyplace-lib-android`) please clone using:
 ```
 git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
@@ -13,7 +16,13 @@ git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 Fetching those git submodules can be also done at a later stage.
 These submodules are needed when developing on the libraries or the client apps.
 
-## Preface 
+## 2. Preface 
+
+<details open>
+<summary>
+Preface
+</summary>
+
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones. 
 	 
@@ -45,62 +54,53 @@ If you install Anyplace on your own servers, please record your URL
   **Kyriakos Georgiou, Timotheos Constambeys, Christos Laoudias, Lambros Petrou, Georgios Chatzimilioudis and Demetrios Zeinalipour-Yazti**  
   _IEEE Mobile Data Management (MDM ’15), IEEE Press, Volume 2, Pages: 291-294, 2015_
 
+</details>
 
 # Components 
 
-## A. [Server](server):
+<details open>
+<summary>
+Server
+</summary>
 
-The server entails all components to run the anyplace service on your own server. 
+## 3. [Server](server):
 
-- Executable (Binary): Visit our Github [releases](https://github.com/dmsl/anyplace/releases)
-- Source Code (including IntelliJ IDE SBT file) : [master.zip](https://github.com/dmsl/anyplace/archive/master.zip)
-- Instructions: [Link](server)
-- Current Leaders: Constantinos Costa, Paschalis Mpeis, Kyriakos Georgiou
+#### 3.1 [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
 
-#### Server: [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
-The source code of Anyplace HTML5/CSS3 Viewer Client (IP localization). 
-- Documentation/Source: [./server/public/anyplace_viewer](server/public/anyplace_viewer)
+#### 3.2 [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
 
-#### Server: [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
-The source code of Anyplace HTML5/CSS3 Architect Tool. 
-- Documentation/Source: [./server/public/anyplace_architect](server/public/anyplace_architect)
+#### 3.3 [API](https://anyplace.cs.ucy.ac.cy/developers/)
+</details>
 
-#### Server: [API](https://anyplace.cs.ucy.ac.cy/developers/)
-The source code of Anyplace JSON API.  
-- Documentation/Source: [./server/public/anyplace_developers](server/public/anyplace_developers)
+<details open>
+<summary>
+Clients
+</summary>
 
-#### Server: Data Store:
-To setup Anyplace with Couchbase follow the general server instructions here:
-- Instructions: [Link](server)
-- Couchbase: [./server/anyplace_views](server/anyplace_views)
-
-## B. [Clients](clients):
+## 4. [Clients](clients):
 - [Android](clients/android/)
 - [iOS](clients/deprecated/ios/)
 - [Windows Phone](clients/deprecated/windows-phone/)
 - [RobotOS](clients/robotos/)
 - [Linux](clients/linux/)
 - [macOS](clients/macos/)
+- [Simulator](clients/simulator)
 
-## C. [Simulator](simulator):
-- Documentation/Source: [simulator](simulator)
+</details>
 
-## LATEST DEVELOPMENT VERSION
+## 5. LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
 
 DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 
-#### Important:
-
-    - On the given service, you can observe the latest bug fixes and additions. 
-    - It uses the SAME database as the live service so be careful when deleting data.
+---
 
 # Contributors: 
 - University of Cyprus (Cyprus)
-- Alstom (France)
-- Infosys (India)
 - University of Pittsburgh (USA)
 - University of Mannheim (Germany)
+- Alstom (France)
+- Infosys (India)
 
 ---
 

@@ -4,10 +4,10 @@
 # Any updates to application.conf must be done by enabling tracking to the file, and
 # subsequently disabling itit.
 #   - Disable tracking:
-#       git update-index --assume-unchanged application.conf
+#       git update-index --assume-unchanged app.private.conf
 #   - Enable tracking:
-#       git update-index --no-assume-unchanged application.conf
+#       git update-index --no-assume-unchanged app.private.conf
 ##############################################
-application.conf
-application.conf.*
-!application.conf.example
+#
+app.private.conf
+app.private.remote.conf

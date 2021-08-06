@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -35,77 +35,76 @@
  */
 
 import java.io.{PrintWriter, StringWriter}
-
 import play.api.http.HttpErrorHandler
 
 import scala.concurrent._
 import javax.inject.Singleton
 import play.api.mvc._
 import play.api.mvc.Results._
-import utils.{LPLogger, LPUtils}
+import utils.{RESPONSE, LOG, Utils}
 
+// TODO: only emit json for all endpoints that contain /api
 @Singleton
 class ErrorHandler extends HttpErrorHandler {
 
-    def infoGithub(eid: String) : String = {
-        //"\n\n\nIf you think this is an error, open a new issue at:" +
-        //"\nhttps://github.com/dmsl/anyplace/issues"  +
-        "ErrorID:" + eid
-    }
-
     def errorMsg(request: RequestHeader): String = {
-        // can also use request.path instead of uri
         "Requested: " + request.method + " "  + request.uri +
-            " SSL:" + request.secure + " HOST:" + request.host
+          " SSL:" + request.secure + " HOST:" + request.host
     }
 
     def fullStacktrace(exception: Throwable): String= {
         val sw = new StringWriter
         exception.printStackTrace(new PrintWriter(sw))
-       "StackTrace: " + sw.toString
+        "StackTrace: " + sw.toString
     }
 
     def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-        // do NOT log any errors regarding this legacy code.
+        // WORKAROUND: do NOT log any errors regarding this legacy code.
         // Remove this dependency if is not used
         if(request.path ==
-        "/architect/bower_components/angularjs-dropdown-multiselect/pages/images/hr.png") {
+          "/architect/bower_components/angularjs-dropdown-multiselect/pages/images/hr.png") {
             return Future.successful(Status(statusCode))
         }
 
-        val eid = LPUtils.genErrorUniqueID()
+        val eid = Utils.genErrorUniqueID()
         val errInt = "404: ID: " + eid
         val errPub =  "Client Error: 404: Error ID: " + eid
+        val msg = errInt + " " + errorMsg(request)
 
-        LPLogger.error(errInt + " " + errorMsg(request))
+        LOG.E(msg)
 
-        Future.successful(Status(statusCode)(
-            errPub + "\n\n\n" + errorMsg(request) + infoGithub(eid)))
+        if(request.path.startsWith("/api")) { // API requests return json
+            Future.successful(RESPONSE.BAD(msg))
+        } else { // otherwise HTML
+            Future.successful(Status(statusCode)(
+                errPub + "\n\n\n" + errorMsg(request)))
+        }
     }
 
     def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
-        val eid = LPUtils.genErrorUniqueID()
+        val eid = Utils.genErrorUniqueID()
         val errInt = "500: ID: " + eid + ":"
-        val errPub =  "500 Internal Server Error: Error ID: " + eid
+        val msg : String = errInt + " " + errorMsg(request) + "\n" + exception.getClass + ": " + exception.getMessage
+        LOG.E(msg)
 
-        LPLogger.error(errInt + " " + errorMsg(request))
-
-        LPLogger.error("Message: " + exception.getMessage)
-        LPLogger.error("Cause: " + exception.getCause)
         if (exception.isInstanceOf[MatchError]) {
             // CHECK if OK leave like this
-            LPLogger.error("Skip full stacktrace?")
+            LOG.D("Skip full stacktrace?") // CHECK::NN
+            return Future.successful(InternalServerError(msg))
         } else {
-            LPLogger.error("StackTrace: " + fullStacktrace(exception))
+            LOG.E("StackTrace: " + fullStacktrace(exception))
         }
 
-      //  Handle:
-//        p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
-//          java.lang.IllegalArgumentException: empty text
+        //  Handle:
+        //  p.c.s.n.PlayDefaultU | 24/07/20 01:37:58 | ERROR | Exception caught in Netty
+        ////  java.lang.IllegalArgumentException: empty text
+        //  val msg =  errPub + "\n\n\n" + errorMsg(request) +
+        //    "\nCause: " + exception.getMessage + infoGithub(eid)
 
-
-        Future.successful(InternalServerError(
-            errPub + "\n\n\n" + errorMsg(request) +
-            "\nCause: " + exception.getMessage + infoGithub(eid)))
+        if(request.path.startsWith("/api")) { // return JSON
+            Future.successful(RESPONSE.BAD(msg))
+        }  else { // return HTML
+            Future.successful(InternalServerError(msg))
+        }
     }
 }

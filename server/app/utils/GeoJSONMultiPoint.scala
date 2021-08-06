@@ -40,6 +40,7 @@ import java.util.{ArrayList, List}
 import org.codehaus.jettison.json.{JSONArray, JSONObject}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 //remove if not needed
 // import scala.collection.JavaConversions._
 

@@ -43,7 +43,7 @@ import java.util.Date
 
 import java.util.Locale
 
-
+// CLR:PM
 object AndroidAPKFile {
 
   class AndroidAPKComparator extends Comparator[AndroidAPKFile] {
@@ -58,61 +58,37 @@ object AndroidAPKFile {
           val a: Int = java.lang.Integer.parseInt(segsThis(i))
           val b: Int = java.lang.Integer.parseInt(segsThat(i))
           if (a < b) {
-            -1
+            return -1
           } else if (a > b) {
-            1
+            return 1
           }
         }
         if (thiss.isRelease()) -1 else 1
       } catch {
-        case e: NumberFormatException => -1
-
+        case _: NumberFormatException => -1
       }
-
   }
-
 }
 
 class AndroidAPKFile(private var mFile: File) {
-
-
   private var mFileBasename: String = mFile.getAbsolutePath.substring(
     mFile.getAbsolutePath.lastIndexOf(File.separatorChar) + 1)
-
   val segs: Array[String] = mFileBasename.split("_")
-
-
   private var mUrl: String = _
-
-  private var mVersion: String = segs(2)
-
-  private var mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
-
-  private var mIsDev: Boolean = !mIsRelease
-
-  private var mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
-
+  private val mVersion: String = segs(2)
+  private val mIsRelease: Boolean = segs(3).toLowerCase(Locale.ENGLISH).contains("release")
+  private val mIsDev: Boolean = !mIsRelease
+  private val mDate: Date = new Date(mFile.getAbsoluteFile.lastModified())
 
   def getVersion(): String = mVersion
-
   def isRelease(): Boolean = mIsRelease
-
   def isDev(): Boolean = mIsDev
-
   def getFile(): File = mFile
-
   def getDate(): Date = mDate
-
   def getFilePath(): String = mFile.getAbsolutePath
-
   def getFilePathBasename(): String = mFileBasename
-
-  def setDownloadUrl(url: String): Unit = {
-    mUrl = url
-  }
-
+  def setDownloadUrl(url: String): Unit = mUrl = url
   def getDownloadUrl(): String = mUrl
-
 }
 
 // Android apks are in the form:

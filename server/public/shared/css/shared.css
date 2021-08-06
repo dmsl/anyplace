@@ -26,12 +26,48 @@
     opacity: 0.6;
 }
 
+.center-delete-div {
+    text-align: center;
+    padding: 0 0 10px 0;
+}
+
+.center-div {
+    text-align: center;
+}
 .logo-header-img {
     width: 140px;
     /*margin-bottom: -2px;*/
 }
 
-.textUserAdmin {
-    font-weight: bolder;
-    color: #ff0000;
+.btn-user {
+    cursor: pointer;
 }
+
+.btn-user:hover {
+    font-weight: 900;
+}
+
+.userModerator {
+    font-weight: bolder;
+    color: #A10000FF;
+}
+
+/* FIX for updated jquery
+   Issue: ng-dropdown-multiselect was showing twice the dropdown arrow (caret)
+ */
+.dropdown-multiselect .caret{
+    display: none;
+}
+
+/*INFO this hides the new building window..*/
+/*!* Hide 'View on Google Maps' links*!*/
+/*gm-style-iw-t*/
+/*gm-style-iw-d*/
+/*.gm-style-iw-t {*/
+/*    display: none !important;*/
+/*}*/
+/*.gm-style .gm-style-iw, .gm-style-iw-t::after, .poi-info-window {*/
+.poi-info-window {
+    display: none !important;
+}
+

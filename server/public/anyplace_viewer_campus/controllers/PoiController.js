@@ -36,7 +36,7 @@
 
 app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
-    var _POI_CONNECTOR_IMG = 'build/images/edge-connector-icon.png';
+    var _POI_CONNECTOR_IMG = 'build/images/edge-connector.png';
     var _POI_EXISTING_IMG = 'build/images/any-poi-icon-blue.png';
     var _POI_NEW_IMG = 'build/images/poi-icon.png';
 
@@ -643,7 +643,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.startNavFromPoi = function () {
         $scope.poiRouteState.from = $scope.anyService.selectedPoi;
-        _suc($scope, "Now you can click on another POI to draw the indoor path between the 2 points.");
+        _suc($scope, "Click to another POI to get directions.");
     };
 
     $scope.getHtml5GeoLocation = function (callback, errcallback) {
@@ -781,7 +781,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                      HandleGeolocationError($scope, err.code);
                     });
                 }
             );
@@ -874,7 +874,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 + '</div>'
                 + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
                 + '<div>Share URL:</div>'
-                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)"/>'
+                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)" readonly/>'
                 + /**
                  +'<ul class="rrssb-buttons">'
                  +'<li class="rrssb-facebook">'
@@ -919,7 +919,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                  +'</ul>'
                  */
                 '<div>Embed:</div>'
-                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)"/>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)" readonly/>'
                 + '</div>'
                 + '</div>';
 

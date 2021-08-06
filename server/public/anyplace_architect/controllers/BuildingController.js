@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou,Loukas Solea, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2015, Kyriakos Georgiou, Marileni Angelidou, Loukas Solea, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -70,7 +70,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             function (resp) { // on success
                 var data = resp.data;
                 var prettyVersion=getPrettyVersion(data);
-                console.log("VERSION:: " + prettyVersion);
+                LOG.D3("Anyplace Version: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
                 element.textContent = "v"+prettyVersion;
             },
@@ -86,13 +86,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             return;
         }
         var b = $scope.myBuildingsHashT[$scope.anyService.getBuildingId()];
-        if (!b) {
-            return;
-        }
+        if (!b) { return; }
         var m = b.marker;
-        if (!m) {
-            return;
-        }
+        if (!m) { return; }
         // edit building
         if (n === 2) {
             m.setDraggable(true);
@@ -105,9 +101,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.$on("loggedIn", function (event, mass) {
-        //_suc('Successfully logged in.');
-        $scope.fetchAllBuildings();
-        $scope.fetchAllCampus();
+        $scope.getSpacesAccessible();
+        $scope.getUserCampuses();
     });
 
     $scope.$on("loggedOff", function (event, mass) {
@@ -220,14 +215,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.$watch('anyService.selectedBuilding', function () {
         $scope.spaceTypes = [
-            "Building",
-            "Vessel"
+            "building",
+            "vessel"
         ];
         $scope.spacecategories = [{
-            spacecat: "Building",
+            spacecat: "building",
             id: "type1"
         },{
-            spacecat: "Vessel",
+            spacecat: "vessel",
             id: "type2"
         }
         ];
@@ -263,11 +258,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         return undefined;
     };
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getSpacesAccessible = function () {
         var jsonReq = {};
-        // jsonReq.owner_id = $scope.owner_id;
-        jsonReq.access_token = $scope.user.access_token;
-        var promise = $scope.anyAPI.allOwnerBuildings(jsonReq);
+        LOG.D2("getSpacesAccessible");
+        LOG.D4(jsonReq);
+        var promise = $scope.anyAPI.spaceAccessible(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
@@ -295,11 +290,14 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                     }
                     var marker = getMapsIconBuildingArchitect(GMapService.gmap, _latLngFromBuilding(b))
                     var htmlContent = '<div class="infowindow-scroll-fix">'
-                        + '<h5>Building:</h5>'
-                        + '<span>' + b.name + '</span>'
-                        + '<h5>Description:</h5>'
+                        + '<div class="infowindow-title">'+b.name+'</div>'
+                        + '<div class="font-weight-bold">BUID:</div>'
+                        + '<input class="form-control input-tiny" value="'+b.buid+'" onClick="selectAllInputText(this)" readonly/>'
+                        + '<div class="infowindow-title">Description:</div>'
                         + '<textarea class="infowindow-text-area"  rows="3" readonly>' + b.description + '</textarea>'
                         + '</div>';
+
+
                     marker.infoContent = htmlContent;
                     marker.building = b;
                     $scope.myBuildingsHashT[b.buid] = {
@@ -351,7 +349,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 building.is_published = "false";
             }
             if (!building.description) {
-                building.description = "-";
+                building.description = "-"; // puts an empty description. mongodb will ignore it
             }
             if (building.name && building.description && building.is_published && building.url && building.address && building.space_type) {
                 var promise = $scope.anyAPI.addBuilding(building);
@@ -389,7 +387,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                     },
                     function (resp) {
-                      ShowError($scope, resp, "Something went wrong while adding the building.", true);
+                      ShowError($scope, resp);
                     }
                 );
             } else {
@@ -436,9 +434,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
 
-    // REVIEWLS what does this actually delete?
-    $scope.deleteRadiomaps = function () {
 
+    $scope.deleteRadiomaps = function () {
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
@@ -479,6 +476,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         if (isNullOrEmpty(b.bucode)) {
             reqObj.bucode = "";
         }
+        reqObj.space_type = b.type;
         LOG.D2(b);
         var marker = $scope.myBuildingsHashT[b.buid].marker;
         if (marker) {
@@ -501,16 +499,16 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 _suc($scope, "Successfully updated building.")
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while updating building.", true);
+              ShowError($scope, resp);
             }
         );
 
     };
 
-    $scope.fetchAllCampus = function () {
+    $scope.getUserCampuses = function () {
         var jsonReq = {};
         $scope.myCampus = [];
-        var promise = $scope.anyAPI.allCampus(jsonReq);
+        var promise = $scope.anyAPI.getCampusUser(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
@@ -566,11 +564,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             _err($scope, "No buildings selected.");
             return;
         }
-        var buids = "[";
+        var buids = [];
         for (var i = sz - 1; i > 0; i--) {
-            buids = buids + "\"" + $scope.example9modeledit[i].id + "\",";
+            buids[i] = ($scope.example9modeledit[i].id);
         }
-        buids = buids + "\"" + $scope.example9modeledit[0].id + "\"]";
+        buids[0] = ($scope.example9modeledit[0].id);
+        LOG.D2(buids);
         reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
         reqObj.buids = buids;
         var promise = $scope.anyAPI.updateCampus(reqObj);
@@ -582,7 +581,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 _suc($scope, "Successfully updated campus.")
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while updating campus.", true);
+              ShowError($scope, resp);
             }
         );
 
@@ -648,7 +647,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             buids = buids + "\"" + $scope.example9model[i].id + "\",";
         }
         buids = buids + "\"" + $scope.example9model[0].id + "\"]";
-        var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
+        var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name
+            + ",\"owner_id\":\"" + $scope.owner_id +
+            "\",\"access_token\":\"" + $scope.user.access_token + "\"}";
         //alert(document.getElementById("Greeklish-OnOff").checked);
         var promise = $scope.anyAPI.addBuildingSet(jreq);
         promise.then(
@@ -673,19 +674,24 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while adding the building.", true);
+              ShowError($scope, resp);
             }
         );
 
     };
 
     var overlay = new google.maps.OverlayView();
-    overlay.draw = function () {
-    };
+    overlay.draw = function () { };
     overlay.setMap(GMapService.gmap);
+
 
     $("#draggable-building").draggable({
         helper: 'clone',
+        start: function() {
+            // BUG: setting the size of the draggable building.
+            // The first time it does not work for some reason.
+            $(this).height(50).width(50);
+        },
         stop: function (e) {
             var point = new google.maps.Point(e.pageX, e.pageY);
             var ll = overlay.getProjection().fromContainerPixelToLatLng(point);
@@ -699,16 +705,26 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         if (prevMarker && prevMarker.marker && prevMarker.marker.getMap() && prevMarker.marker.getDraggable()) {
             // TODO: alert for already pending building.
-            console.log('there is a building pending, please add 1 at a time');
+            _warn_autohide($scope, 'Finish adding the previous building..');
+            LOG.D('there is a building pending, please add 1 at a time');
             return;
         }
+
+         // resize building (after it is placed on the map)
+        var icon_building = {
+            url: IMG_BUILDING_ARCHITECT,
+            scaledSize: new google.maps.Size(50, 50), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // anchor
+        };
 
         var marker = new google.maps.Marker({
             position: location,
             map: GMapService.gmap,
-            icon: IMG_BUILDING_ARCHITECT,
+            icon: icon_building,
             draggable: true
         });
+
 
         var infowindow = new google.maps.InfoWindow({
             content: '-',
@@ -1139,7 +1155,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.uploadloop(position, oJS, last_buid);
             },
             function (resp) {
-              ShowError($scope, resp, "Something went wrong while fetching POIs", true);
+              ShowError($scope, resp);
             }
         );
     };
@@ -1576,65 +1592,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         );
     };
 
-    $scope.signLocalAccount = function () {
-        var jsonReq = {};
-        jsonReq.username = $scope.user.username;
-        jsonReq.password = $scope.user.password;
-
-        var promise = $scope.anyAPI.signLocalAccount(jsonReq);
-        promise.then(
-            function (resp) { // on success
-
-                var data = resp.data;
-                $scope.user.username = data.user.username;
-                $scope.user.name = data.user.name;
-                $scope.user.email = data.user.email;
-                // $scope.user.owner_id = data.user.owner_id;
-                // $scope.user.access_token = data.user.access_token;
-
-                $scope.gAuth.access_token = data.user.access_token;
-                app.access_token = data.user.access_token;
-                $scope.setAuthenticated(true);
-
-                // $scope.person = resp.getBasicProfile(); // BUG
-                // $scope.person.image = $scope.person.getImageUrl(); // BUG
-                // $scope.person.id = $scope.person.getId(); // BUG
-                // $scope.person.displayName = $scope.person.getName();
-                // $scope.displayName = $scope.person.displayName;
-
-                $scope.fetchAllBuildings();
-                $scope.fetchAllCampus();
-                _suc($scope, "Successfully logged in.");
-            },
-            function (resp) {
-                ShowError($scope, resp,"Something went wrong at login.", true)
-            }
-        );
-    };
-
-    $scope.registerLocalAccount = function () {
-        var jsonReq = {};
-        jsonReq.name = $scope.user.name;
-        jsonReq.email = $scope.user.email;
-        jsonReq.username = $scope.user.username;
-        jsonReq.password = $scope.user.password;
-
-        var promise = $scope.anyAPI.registerLocalAccount(jsonReq);
-        promise.then(
-            function (resp) {
-                // on success
-                var data = resp.data;
-
-                _suc($scope, "Successfully registered!");
-            },
-            function (resp) {
-                ShowError($scope, resp,"Something went wrong at registration.", true)
-            }
-        );
-    };
-
     //set cookies
-
     $('#dismiss').on('click', function () {
         // set expire date.
         if (typeof(Storage) !== "undefined" && localStorage) {

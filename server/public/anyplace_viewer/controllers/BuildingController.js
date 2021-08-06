@@ -37,26 +37,20 @@
 app.controller('BuildingController',
   ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService',
   function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
-
     $scope.gmapService = GMapService;
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
-
     $scope.myBuildings = [];
-
     $scope.myBuildingsHashT = {};
 
-      $scope.fetchVersion = function () {
+    $scope.fetchVersion = function () {
           var jsonReq = {};
           var promise = $scope.anyAPI.version(jsonReq);
           promise.then(
               function (resp) { // on success
                   var data = resp.data;
-                  var prettyVersion=data.version;
-                  if(data.variant !== "") {
-                      data+="-"+data.variant;
-                  }
-                  console.log("VERSION:: " + data);
+                  var prettyVersion=getPrettyVersion(data);
+                  LOG.D3("Anyplace Version: " + prettyVersion);
                   var element = document.getElementById("anyplace-version");
                   element.textContent = "v"+prettyVersion;
               },
@@ -66,7 +60,7 @@ app.controller('BuildingController',
       $scope.fetchVersion();
 
     var markerCluster = new MarkerClusterer($scope.gmapService.gmap);
-    
+
     var _setBuildingMarkesVisibility = function (bool) {
         for (var buid in $scope.myBuildingsHashT) {
             if ($scope.myBuildingsHashT.hasOwnProperty(buid)) {
@@ -77,7 +71,6 @@ app.controller('BuildingController',
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         if (newVal && newVal.coordinates_lat && newVal.coordinates_lon) {
-
             // Hide the building's marker for less clutter
             if (!newVal.buid) {
                 _err($scope, "Some information is missing from the building and it could not be loaded.");
@@ -104,7 +97,6 @@ app.controller('BuildingController',
                     localStorage.setItem("lastBuilding", newVal.buid);
                 }
             } catch (e) {
-
             }
         } else {
             _setBuildingMarkesVisibility(true);
@@ -151,7 +143,6 @@ app.controller('BuildingController',
                 var marker = getMapsIconBuildingViewer($scope, _latLngFromBuilding(b))
                 markerCluster.addMarker(marker);
 
-
                 var htmlContent = '<div class="infowindow-scroll-fix">'
                     + '<h5>Building:</h5>'
                     + '<span>' + b.name + '</span>'
@@ -187,15 +178,14 @@ app.controller('BuildingController',
                 _err($scope, "No matching building found");
             }
         )
-
     };
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getSpacesPublic = function () {
         var jsonReq = {};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.spacePublic(jsonReq);
         promise.then(
             function (resp) {
                 // on success
@@ -300,7 +290,7 @@ app.controller('BuildingController',
         );
     };
 
-    $scope.fetchAllBuildings();
+    $scope.getSpacesPublic();
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {
@@ -315,9 +305,7 @@ app.controller('BuildingController',
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     };
 
-    $scope.orderByName = function (v) {
-        return v.name;
-    };
+    $scope.orderByName = function (v) { return v.name; };
 
     $scope.orderByDistCentre = function (v) {
         if ($scope.anyService.selectedBuilding)
@@ -325,5 +313,4 @@ app.controller('BuildingController',
         var c = $scope.gmapService.gmap.getCenter();
         return _calcDistance(parseFloat(v.coordinates_lat), parseFloat(v.coordinates_lon), c.lat(), c.lng());
     }
-
 }]);

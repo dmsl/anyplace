@@ -10,7 +10,7 @@ FLAGS+=" -avr"
 FLAGS+=" --delete"
 
 excludes+="--exclude=anyplace_views "
-excludes+="--exclude=application.conf "
+excludes+="--exclude=app.private*.conf "
 excludes+="--exclude=logs "
 excludes+="--exclude=dist "
 excludes+="--exclude=tmp "
@@ -30,7 +30,6 @@ excludes+="--exclude=target "
 excludes+="--exclude=test " # scala testing
 
 lfolders="$LFOLDER"
-
 
 function pushCode() {
   rfolder=$1

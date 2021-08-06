@@ -1,15 +1,42 @@
-# WEB APPLICATIONS:
-Separate web application frontends written in Angular-JS.
-They utilize Google Maps JS. In future work we aim to migrate to Leaflet/Angular.
-They share some common resources:
-- images
-- js/css
+# WEB APPS:
 
-#### 1. [architect](./anyplace_architect)
-#### 2. [viewer](./anyplace_viewer)
-#### 3. [viewer_campus](./anyplace_viewer_campus)
+<details open>
+<summary>
+General Info
+</summary>
 
-##  Compilation:
+### General Info:
+Separate web application frontends written in `AngularJS`/`GoogleMapsJS`.  
+
+In future work we aim to migrate to: `Leaflet`/`VueJS`.  
+
+All web apps [share](./shared/) some resources:
+```
+shared
+├── css
+├── images
+└── js/
+    └── anyplace-core-js
+```
+
+All current web apps are built into the generated `Play` package.  
+In the future, we will bundle the backend (`/api` + `/developers`) separately than the front-ends
+to significantly reduce development/testing time.
+
+The back-end service will run on a dedicated port.
+
+</details>
+
+### Current Web Apps:
+1. [architect](./anyplace_architect): `AngularJS` + `Grunt`
+2. [viewer](./anyplace_viewer): `AngularJS` + `Grunt`
+3. [viewer_campus](./anyplace_viewer_campus): `AngularJS` + `Grunt`
+4. [developers](./developers): `sbt-play-swagger` + `swagger-ui`
+
+
+---
+
+# Compilation Tutorial:
 To compile the
 [architect](./anyplace_architect), [viewer](./anyplace_viewer), or  [viewer_campus](./anyplace_viewer_campus)
 please follow the below instructions:
@@ -79,12 +106,7 @@ For security purposes, AnyplaceServer accepts Cross-Origin requests from *localh
 
 </details>
 
+
 ---
 
-# DOCUMENTATION:
-- [developers](./developers): Uses `Swagger-UI`
-
-# Common resources:
-- [images](./images): Common images shared between above web applications.
-- [js](./js): Common JavaScript shared between above web applications.
-- [style](./style): Common CSS shared between above web applications.
+# - [DOCUMENTATION](developers/README.md)

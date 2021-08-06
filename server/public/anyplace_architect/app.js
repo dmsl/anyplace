@@ -28,11 +28,8 @@
 var app = angular.module('anyArchitect', ['ngCookies', 'angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
-
     this.gmap = {};
-
     var self = this;
-
     var element = document.getElementById("map-canvas");
 
     /**
@@ -159,7 +156,6 @@ app.service('GMapService', function () {
         zoom: 3,
         mapTypeId: mapTypeId,
         mapTypeControlOptions: {
-            // TODO:NN if cartodark exists un-comment
             mapTypeIds: ['OSM', /* 'CartoDark',*/ 'CartoLight', /* 'coordinate',*/ 'roadmap', 'satellite'],
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             position: google.maps.ControlPosition.LEFT_CENTER
@@ -167,21 +163,8 @@ app.service('GMapService', function () {
     });
 
     self.gmap.addListener('maptypeid_changed', function () {
-        // BUGFIX: Loading of maps fail when zoomed to MAX level with fingerprints enabled.
-        //Issue happens due to setting of custom maptype Id
-        if (self.gmap.getMapTypeId() === 'my_custom_layer1' && self.gmap.zoom < 22) {
-            self.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
-        } 
-        else if (self.gmap.getMapTypeId() !== 'my_custom_layer1' && self.gmap.zoom === 22){
-            localStorage.setItem("previousMapTypeId",self.gmap.getMapTypeId());
-        }
-
-        var showStreetViewControl = self.gmap.getMapTypeId() === 'roadmap' || self.gmap.getMapTypeId() === 'satellite';
         localStorage.setItem("mapTypeId",self.gmap.getMapTypeId());
         customMapAttribution(self.gmap);
-        self.gmap.setOptions({
-            streetViewControl: showStreetViewControl
-        });
     });
 
     function customMapAttribution(map) {
@@ -217,10 +200,16 @@ app.service('GMapService', function () {
     self.gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
     self.searchBox = new google.maps.places.SearchBox((input));
 
-    // reveal maps search box after 2s (once the website has loaded)
-  setTimeout(function(){
-    $("#pac-input").fadeIn(500);
-  }, 2000);
+    // WORKAROUNDS:
+    google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+        // Once map object is rendered, hide gmaps warning (billing account)
+        // We are migrating to leaflet for this.
+        $(".dismissButton").click();
+        google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+            // once some tiles are shown, show the maps search box
+            $("#pac-input").fadeIn(500);
+        });
+    });
 
     google.maps.event.addListener(self.searchBox, 'places_changed', function () {
         var places = self.searchBox.getPlaces();
@@ -243,9 +232,7 @@ app.service('GMapService', function () {
 
 
 app.factory('AnyplaceService', function () {
-
     var anyService = {};
-
     anyService.selectedBuilding = undefined;
     anyService.selectedFloor = undefined;
     anyService.selectedPoi = undefined;
@@ -258,8 +245,6 @@ app.factory('AnyplaceService', function () {
     anyService.radioHeatmapLocalization = false; //lsolea01
     anyService.fingerPrintsTimeMode = false;
     anyService.radioHeatmapRSSTimeMode = false;
-
-
     anyService.alerts = [];
 
     anyService.jsonReq = {
@@ -397,9 +382,7 @@ app.factory('AnyplaceService', function () {
 
 app.factory('Alerter', function () {
     var alerter = {};
-
     alerter.AlertCtrl = '-';
-
     return alerter;
 });
 
@@ -465,19 +448,22 @@ app.filter('propsFilter', function() {
   };
 });
 
-app.factory('myInterceptor', [function () {
+
+app.factory('requestInterceptor', [function () {
+    // Intercepting /api/auth requests and adding in the headers the anyplace access_token
     var requestInterceptor = {
         request: function (config) {
+            if (config.url !== undefined) {
+                var loggedIn = (app.user != null)
+                if (config.url.startsWith(API.url+"/auth/")) {
 
-            if (config.url !== undefined)
-                if (config.url.indexOf(AnyplaceAPI.BASE_URL) !== 0) {
-                    return config;
+                    if (!loggedIn) LOG.E("ERROR: user not logged in and requested: " + config.url)
+                    if (loggedIn) config.headers.access_token = app.user.access_token;
+
+                    // CLR:PM
+                    // if (config.data) { if (loggedIn) config.data.access_token = app.user.access_token; }
                 }
-
-            if (config.data) {
-                config.data.access_token = app.access_token;
             }
-
             return config;
         }
     };
@@ -486,5 +472,5 @@ app.factory('myInterceptor', [function () {
 }]);
 
 app.config(['$httpProvider', function ($httpProvider) {
-    $httpProvider.interceptors.push('myInterceptor');
+    $httpProvider.interceptors.push('requestInterceptor');
 }]);

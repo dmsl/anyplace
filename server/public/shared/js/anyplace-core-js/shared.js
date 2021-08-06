@@ -41,19 +41,23 @@
  *
  */
 
+var IMG_ACCESS_POINT_ARCHITECT = 'build/images/wireless-router-icon-bg.png';
+var IMG_BUILDING_ARCHITECT = 'build/images/building-icon.png';
+// PM: For some reason different dimensions are used for viewer
+var IMG_BUILDING_VIEWER = 'build/images/building-icon-viewer.png';
+var IMG_FINGERPRINT_RED_SPOT= 'build/images/red_dot.png';
+
 // Activate tooltips
 $('document').ready(function(){
-    // Hide tooltip on click
-    // $('body').tooltip({
-    //     selector: '[data-toggle="tooltip"]'
-    // }).click(function () {
-    //     $('[data-toggle="tooltip"]').tooltip("hide");
-    // });
-
     // modal focus fix
     $('#myModal_Welcome').on('shown.bs.modal', function () {
         $('#myModal_Welcome').trigger('focus')
     });
+
+    // Activate tooltips
+    if ($("[rel=tooltip]").length) {
+        $("[rel=tooltip]").tooltip();
+    }
 });
 
 function __addAlert(scope, level, msg) {
@@ -85,7 +89,7 @@ var _warn_autohide = function (scope, msg) {
 };
 
 var _info = function (scope, msg) {
-  __addAlert('info', msg);
+  __addAlert(scope, 'info', msg);
   window.setTimeout(function() {
     $(".alert-info").fadeTo(500, 0).slideUp(500, function(){
       $(this).remove();
@@ -132,49 +136,40 @@ function ShowWarningAutohide(scope, response, defaultMsg, showDefaultMessage) {
   _ShowAlert(scope, _warn_autohide, response, defaultMsg, showDefaultMessage)
 }
 
-function HandleGeolocationError(errorCode) {
-  if (err.code == 1) {
-    _err($scope, ERR_GEOLOC_DEVICE_SETTINGS)
-  } else if (err.code == 2) {
-    _err($scope, ERR_GEOLOC_NET_OR_SATELLITES)
-  } else if (err.code == 3) {
-    _err($scope, ERR_GEOLOC_TIMEOUT)
+function HandleGeolocationError(scope, errorCode) {
+  if (errorCode === 1) {
+    _warn_autohide(scope, ERR_GEOLOC_DEVICE_SETTINGS)
+  } else if (errorCode === 2) {
+      _warn_autohide(scope, ERR_GEOLOC_NET_OR_SATELLITES)
+  } else if (errorCode === 3) {
+      _warn_autohide(scope, ERR_GEOLOC_TIMEOUT)
   } else {
-    _err($scope, ERR_GEOLOC_UNKNOWN);
+      _warn_autohide(scope, ERR_GEOLOC_UNKNOWN);
   }
 }
 
 function selectAllInputText(element) {
-  console.log("Runned!");
   element.setSelectionRange(0, element.value.length)
 }
 
-
-
-var IMG_ACCESS_POINT_ARCHITECT = 'build/images/wireless-router-icon-bg.png';
-var IMG_BUILDING_ARCHITECT = 'build/images/building-icon.png';
-// PM: For some reason different dimensions are used for viewer
-var IMG_BUILDING_VIEWER = 'build/images/building-icon-viewer.png';
-var IMG_FINGERPRINT_RED_SPOT= 'build/images/red_dot.png';
-
-
 function getMapsIconBuildingViewer(scope, latLong) {
     // console.log("getMapsIconBuildingViewer")
-    var s = new google.maps.Size(55, 80);
+    var s = new google.maps.Size(27.5, 40);
     if (scope.isFirefox)
-        s = new google.maps.Size(110, 160);
+        s = new google.maps.Size(55, 80);
 
     return new google.maps.Marker({
         position: latLong,
         icon: {
             url: IMG_BUILDING_VIEWER,
             size: s,
-            scaledSize: new google.maps.Size(55, 80)
+            scaledSize: new google.maps.Size(27.5, 40)
         },
         draggable: false
     });
 }
 
+// for items that existed on the map
 function getMapsIconBuildingArchitect(gmap, latLong) {
     return new google.maps.Marker({
         position: latLong,
@@ -275,16 +270,19 @@ function getPrettyVersion(version) {
    return s;
 }
 
-
 var LOG = {};
-LOG.level = 3;
+LOG.level = 2;
 LOG.DBG1 = function() { return 1 <= LOG.level; }
 LOG.DBG2 = function() { return 2 <= LOG.level; }
 LOG.DBG3 = function() { return 3 <= LOG.level; }
 LOG.DBG4 = function() { return 4 <= LOG.level; }
 
+LOG.W = function(msg) { console.log("WARN: " + msg);}
+LOG.E = function(msg) { console.log("ERR: " + msg);}
+LOG.D = function(msg) { console.log(msg);}
 LOG.F = function(msg) { alert(msg); window.stop(); }
 LOG.D1 = function(msg) { if (LOG.DBG1()) console.log(msg);}
 LOG.D2 = function(msg) { if (LOG.DBG2()) console.log(msg);}
 LOG.D3 = function(msg) { if (LOG.DBG3()) console.log(msg);}
 LOG.D4 = function(msg) { if (LOG.DBG4()) console.log(msg);}
+

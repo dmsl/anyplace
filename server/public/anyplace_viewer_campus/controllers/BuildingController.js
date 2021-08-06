@@ -67,11 +67,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
-                var prettyVersion=data.version;
-                if(data.variant !== "") {
-                    data+="-"+data.variant;
-                }
-                console.log("VERSION:: " + data);
+                var prettyVersion=getPrettyVersion(data);
+                LOG.D3("Anyplace Version: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
                 element.textContent = "v"+prettyVersion;
             },
@@ -240,9 +237,11 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     };
 
-    $scope.fetchAllBuildings = function () {
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
-        var promise = $scope.anyAPI.allCucodeCampus(jsonReq);
+    $scope.getCampuses = function () {
+        var jsonReq = { "access-control-allow-origin": "",
+            "content-encoding": "gzip",    "access-control-allow-credentials": "true",
+            "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
+        var promise = $scope.anyAPI.getCampusById(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
@@ -340,7 +339,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             }
         );
     };
-    $scope.fetchAllBuildings();
+    $scope.getCampuses();
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {

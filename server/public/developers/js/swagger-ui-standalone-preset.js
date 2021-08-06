@@ -11419,28 +11419,24 @@
                             className: "download-url-button",
                             onClick: this.downloadUrl
                         }, "Explore"));
-                        return y.a.createElement("div", {className: "topbar"}, y.a.createElement("div", {className: "wrapper"}, y.a.createElement("div", {className: "topbar-wrapper"}, y.a.createElement(o, null, y.a.createElement("img", {
-                            height: "40",
-
-                            // src: "images/logo.gif",
-                            src: "images/anyplace_logo_text_white3_4.png",
-                                //align: "left",
-                                //textContent:"<span>CAPRIO-HealthDist</span>",//D.a,
-                            alt: "Swagger UI"
-                        }),
-                            y.a.createElement("span", {
-                                className: "anyplaceText"
-                            }),
-                            ),
-                        y.a.createElement("span", {
-                            className: "admtCopyright"
-                        })
-                            /*, y.a.createElement("form", {
-                            className: "download-url-wrapper",
-                            onSubmit: f
-                        }, N()(c).call(c, (function (t, e) {
-                            return Object(d.cloneElement)(t, {key: e})
-                        })))*/)))
+                            return y.a.createElement("span", {className: "emptyTopBar"})
+                        // return y.a.createElement("div", {className: "topbar"},
+                        //     y.a.createElement("div", {className: "wrapper"},
+                        //         y.a.createElement("div", {className: "topbar-wrapper"},
+                        //             y.a.createElement(o, null, y.a.createElement("img", {
+                        //                     height: "40",
+                        //                     src: "images/logo-white.png",
+                        //                     textContent:"<span class='logo-text'>nyplace</span>",
+                        //                     alt: "A"
+                        //                 }),
+                        //     y.a.createElement("span", {
+                        //         className: "anyplaceText"
+                        // }),
+                        //     ),
+                        // y.a.createElement("span", {
+                        //     id:"anyplace-version",
+                        //     className: "version"
+                        // }))))
                     }
                 }]), n
             }(y.a.Component), O = n(74), E = n.n(O), C = function (t, e) {

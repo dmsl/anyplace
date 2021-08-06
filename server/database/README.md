@@ -1,13 +1,12 @@
-# Testing
-	
-This file `postman_anyplace.json` can be imported to postman. 
-Not all endpoints are included.
-You can read [CHANGELOG.nneof01.md](./CHANGELOG.nneof01.md) for more detailed explanation. 
+# MongoDB Datasource
 
-# Migration guide from CouchBase to mongoDB
+## 1. [Install MongoDB](./MONGO.INSTALL.md)
 
+### 1.1 [Tutorial: Hands on with MongoDB](./MONGO.GUIDE.md)
 
-The migration_0.py script is trying to fetch from database the fingerprintWifi according to 'buid'.  
-If not found then its starting to adding fingerprints of that buid. The reason is in case the script dies while adding fingerprints the next time you try to add them its going to continue where it left.  
-Therefore even all fingerprints are in database the script will fetch them to make sure that everything is okay.
-TODO pull
+## 2. [Migration from Couchbase](migration/README.md)
+
+## 3. [Administration of MongoDB](./admin/README.md)
+- backup
+- restore
+- mongo shell

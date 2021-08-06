@@ -1,4 +1,4 @@
-!test/
+!migration/test/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -28,3 +28,6 @@ ENV/
 env.bak/
 venv.bak/
 pythonenv*
+
+
+config.sh

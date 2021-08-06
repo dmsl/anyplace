@@ -1,9 +1,22 @@
+# CHANGELOG
+#### Archive: [changelog](changelog/README.md)
 
-# Version 4.20
+---
+
+# Version 4.2
 <details open>
 <summary>
 Details..
 </summary>
+
+This release contain major code base updates.
+Large portion of the code base was rewritten to the latest version of the below:
+- Play: `2.8.8`(latest release, April'21)
+- Scala: `2.13.x` (from 2.11)
+- sbt: `1.5.x`
+
+Also most of the endpoints are now in MondoDB, and Couchbase is anticipated to
+be completely removed in the coming weeks.
 
 <details open>
 <summary>

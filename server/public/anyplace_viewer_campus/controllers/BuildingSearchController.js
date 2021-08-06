@@ -125,12 +125,12 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
         }
     });
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getSpacesPublic = function () {
         var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.spacePublic(jsonReq);
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
@@ -151,7 +151,7 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
         );
     };
 
-    $scope.fetchAllBuildings();
+    $scope.getSpacesPublic();
 
     var _latLngFromBuilding = function (b) {
         if (b && b.coordinates_lat && b.coordinates_lon) {

@@ -26,13 +26,10 @@ import java.util.Comparator;
  * Created by panag on 4/27/2016.
  */
 public class Algorithms {
-
 	final static String K = "4";
 
 	public static String ProcessingAlgorithms(ArrayList<LogRecord> latestScanList, RadioMap RM, int algorithm_choice) {
-
 		int i, j;
-
 		ArrayList<String> MacAdressList = RM.getMacAdressList();
 		ArrayList<String> Observed_RSS_Values = new ArrayList<String>();
 		LogRecord temp_LR;
@@ -42,11 +39,8 @@ public class Algorithms {
 
 		// Check which mac addresses of radio map, we are currently listening.
 		for (i = 0; i < MacAdressList.size(); ++i) {
-
 			for (j = 0; j < latestScanList.size(); ++j) {
-
 				temp_LR = latestScanList.get(j);
-
 				// MAC Address Matched
 				if (MacAdressList.get(i).compareTo(temp_LR.getBssid()) == 0) {
 					Observed_RSS_Values.add(String.valueOf(temp_LR.getRss()));
@@ -60,17 +54,14 @@ public class Algorithms {
 			}
 		}
 
-		if (notFoundCounter == MacAdressList.size())
-			return null;
+		if (notFoundCounter == MacAdressList.size())  return null;
 
 		// Read parameter of algorithm
 		String parameter = readParameter(RM, algorithm_choice);
 
-		if (parameter == null)
-			return null;
+		if (parameter == null) return null;
 
 		switch (algorithm_choice) {
-
 		case 1:
 			return KNN_WKNN_Algorithm(RM, Observed_RSS_Values, parameter, false);
 		case 2:
@@ -81,11 +72,9 @@ public class Algorithms {
 		 return MAP_MMSE_Algorithm(RM, Observed_RSS_Values, parameter, true);
 		}
 		return null;
-
 	}
 	
 	private static String MAP_MMSE_Algorithm(RadioMap RM, ArrayList<String> Observed_RSS_Values, String parameter, boolean isWeighted) {
-
 		ArrayList<String> RSS_Values;
 		double curResult = 0.0d;
 		String myLocation = null;
@@ -112,18 +101,15 @@ public class Algorithms {
 				myLocation = location;
 			}
 
-			if (isWeighted)
-				LocDistance_Results_List.add(0, new LocDistance(curResult, location));
+			if (isWeighted) LocDistance_Results_List.add(0, new LocDistance(curResult, location));
 		}
 
-		if (isWeighted)
-			myLocation = calculateWeightedAverageProbabilityLocations(LocDistance_Results_List);
+		if (isWeighted) myLocation = calculateWeightedAverageProbabilityLocations(LocDistance_Results_List);
 
 		return myLocation;
 	}
 	
 	public static String calculateWeightedAverageProbabilityLocations(ArrayList<LocDistance> LocDistance_Results_List) {
-
 		double sumProbabilities = 0.0f;
 		double WeightedSumX = 0.0f;
 		double WeightedSumY = 0.0f;
@@ -147,19 +133,15 @@ public class Algorithms {
 			}
 
 			NP = LocDistance_Results_List.get(i).getDistance() / sumProbabilities;
-
 			WeightedSumX += (x * NP);
 			WeightedSumY += (y * NP);
-
 		}
 
 		return WeightedSumX + " " + WeightedSumY;
-
 	}
 
 	
 	public static double calculateProbability(ArrayList<String> l1, ArrayList<String> l2, float sGreek) {
-
 		double finalResult = 1;
 		float v1;
 		float v2;
@@ -167,7 +149,6 @@ public class Algorithms {
 		String str;
 
 		for (int i = 0; i < l1.size(); ++i) {
-
 			try {
 				str = l1.get(i);
 				v1 = Float.valueOf(str.trim()).floatValue();
@@ -178,11 +159,8 @@ public class Algorithms {
 			}
 
 			temp = v1 - v2;
-
 			temp *= temp;
-
 			temp = -temp;
-
 			temp /= (double) (sGreek * sGreek);
 			temp = (double) Math.exp(temp);
 
@@ -192,12 +170,8 @@ public class Algorithms {
 		}
 		return finalResult;
 	}
-
-
 	private static String readParameter(RadioMap RM, int algorithm_choice) {
-
 		String parameter = null;
-
 		if (algorithm_choice == 0) {
 			parameter = RM.getNaN();
 		} else if (algorithm_choice == 1) {
@@ -213,13 +187,11 @@ public class Algorithms {
 			// && ("MMSE")
 			parameter = K;
 		}
-
 		return parameter;
 	}
 
 	private static String KNN_WKNN_Algorithm(RadioMap RM, ArrayList<String> Observed_RSS_Values, String parameter,
 			boolean isWeighted) {
-
 		ArrayList<String> RSS_Values;
 		double curResult = 0;
 		ArrayList<LocDistance> LocDistance_Results_List = new ArrayList<LocDistance>();
@@ -237,16 +209,13 @@ public class Algorithms {
 		for (String location : RM.getLocationRSS_HashMap().keySet()) {
 			RSS_Values = RM.getLocationRSS_HashMap().get(location);
 			curResult = calculateEuclideanDistance(RSS_Values, Observed_RSS_Values);
-
-			if (curResult == Float.NEGATIVE_INFINITY)
-				return null;
+			if (curResult == Float.NEGATIVE_INFINITY) return null;
 
 			LocDistance_Results_List.add(0, new LocDistance(curResult, location));
 		}
 
 		// Sort locations-distances pairs based on minimum distances
 		Collections.sort(LocDistance_Results_List, new Comparator<LocDistance>() {
-
 			public int compare(LocDistance gd1, LocDistance gd2) {
 				return (gd1.getDistance() > gd2.getDistance() ? 1 : (gd1.getDistance() == gd2.getDistance() ? 0 : -1));
 			}
@@ -259,20 +228,16 @@ public class Algorithms {
 		}
 
 		return myLocation;
-
 	}
 
-	public static String calculateWeightedAverageKDistanceLocations(ArrayList<LocDistance> LocDistance_Results_List,
-			int K) {
-
+	public static String calculateWeightedAverageKDistanceLocations(
+			ArrayList<LocDistance> LocDistance_Results_List, int K) {
 		double LocationWeight = 0.0f;
 		double sumWeights = 0.0f;
 		double WeightedSumX = 0.0f;
 		double WeightedSumY = 0.0f;
-
 		String[] LocationArray = new String[2];
 		float x, y;
-
 		int K_Min = K < LocDistance_Results_List.size() ? K : LocDistance_Results_List.size();
 
 		// Calculate the weighted sum of X and Y
@@ -304,13 +269,10 @@ public class Algorithms {
 	}
 
 	private static String calculateAverageKDistanceLocations(ArrayList<LocDistance> LocDistance_Results_List, int K) {
-
 		double sumX = 0.0d;
 		double sumY = 0.0d;
-
 		String[] LocationArray = new String[2];
 		double x, y;
-
 		int K_Min = K < LocDistance_Results_List.size() ? K : LocDistance_Results_List.size();
 
 		// Calculate the sum of X and Y
@@ -331,15 +293,10 @@ public class Algorithms {
 		// Calculate the average
 		sumX /= K_Min;
 		sumY /= K_Min;
-
 		return sumX + " " + sumY;
-
 	}
 
 	private static double calculateEuclideanDistance(ArrayList<String> l1, ArrayList<String> l2) {
-
-		// LPLogger.debug("Calculating Distance between " + l1 + "\n" + l2);
-
 		double finalResult = 0;
 		double v1;
 		double v2;
@@ -347,7 +304,6 @@ public class Algorithms {
 		String str;
 
 		for (int i = 0; i < l1.size(); ++i) {
-
 			try {
 				str = l1.get(i);
 				v1 = Double.valueOf(str.trim()).doubleValue();
@@ -357,15 +313,11 @@ public class Algorithms {
 				return Double.NEGATIVE_INFINITY;
 			}
 
-			// do the procedure
 			temp = v1 - v2;
 			temp *= temp;
-
-			// do the procedure
 			finalResult += temp;
 		}
 		double res = (double) Math.sqrt(finalResult);
-		//float res = ((float) Math.sqrt(finalResult));
 		return res;
 	}
 }
