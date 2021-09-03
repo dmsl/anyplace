@@ -28,7 +28,7 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("PoiConnection: add: " + Utils.stripJson(json))
+        LOG.D2("PoiConnection: add: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fPoisA, SCHEMA.fFloorA,
           SCHEMA.fBuidA, SCHEMA.fPoisB, SCHEMA.fFloorB, SCHEMA.fBuidB, SCHEMA.fBuid, SCHEMA.fEdgeType)
         if (checkRequirements != null) return checkRequirements
@@ -68,7 +68,7 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
           if (edge_type == Connection.EDGE_TYPE_ELEVATOR || edge_type == Connection.EDGE_TYPE_STAIR) {
           }
           val conn = new Connection(json)
-          if (!pds.db.addJson(SCHEMA.cEdges, conn.toJson().toString))
+          if (!pds.db.addJson(SCHEMA.cEdges, conn.toJson()))
             return RESPONSE.BAD_CANNOT_ADD_CONNECTION
           val res: JsValue = Json.obj(SCHEMA.fConCuid -> conn.getId())
           return RESPONSE.OK(res, "Successfully added new connection.")
@@ -96,7 +96,7 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("PoiConnection: update: " + Utils.stripJson(json))
+        LOG.D2("PoiConnection: update: " + Utils.stripJsValueStr(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val owner_id = user.authorize(apiKey)
@@ -157,7 +157,7 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("PoiConnection: delete: " + Utils.stripJson(json))
+        LOG.D2("PoiConnection: delete: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
@@ -204,7 +204,7 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("PoiConnection: byFloor: " + Utils.stripJson(json))
+        LOG.D2("PoiConnection: byFloor: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -248,7 +248,7 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.I("PoiConnection: byFloorsAll: " + Utils.stripJson(json))
+        LOG.I("PoiConnection: byFloorsAll: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]

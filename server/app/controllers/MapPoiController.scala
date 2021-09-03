@@ -28,7 +28,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
 
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("POI: add: " + Utils.stripJson(json))
+        LOG.D2("POI: add: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
           SCHEMA.fFloorNumber, SCHEMA.fName, SCHEMA.fPoisType, SCHEMA.fIsDoor, SCHEMA.fIsBuildingEntrance, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
         if (checkRequirements != null) return checkRequirements
@@ -45,7 +45,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         }
         try {
           val poi = new Poi(json)
-          if (!pds.db.addJson(SCHEMA.cPOIS, poi.toGeoJSON())) return RESPONSE.BAD_CANNOT_RETRIEVE_POI
+          if (!pds.db.addJson(SCHEMA.cPOIS, poi.toGeoJson())) return RESPONSE.BAD_CANNOT_RETRIEVE_POI
           val res: JsValue = Json.obj(SCHEMA.fPuid -> poi.getId())
           return RESPONSE.OK(res, "Successfully added POI.")
         } catch {
@@ -64,7 +64,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("POI: update: " + Utils.stripJson(json))
+        LOG.D2("POI: update: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
@@ -112,7 +112,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
           if (json.\(SCHEMA.fCoordinatesLon).getOrElse(null) != null)
             storedPoi = storedPoi.as[JsObject] + (SCHEMA.fCoordinatesLon, JsString((json \ SCHEMA.fCoordinatesLon).as[String]))
           val poi = new Poi(storedPoi)
-          if (!pds.db.replaceJsonDocument(SCHEMA.cPOIS, SCHEMA.fPuid, poi.getId(), poi.toGeoJSON()))
+          if (!pds.db.replaceJsonDocument(SCHEMA.cPOIS, SCHEMA.fPuid, poi.getId(), poi.toGeoJsonStr()))
             return RESPONSE.BAD("Poi could not be updated.")
           return RESPONSE.OK("Successfully updated poi.")
         } catch {
@@ -131,7 +131,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("POI: delete: " + Utils.stripJson(json))
+        LOG.D2("POI: delete: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPuid, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
@@ -170,7 +170,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("POI: byFloor: " + Utils.stripJson(json))
+        LOG.D2("POI: byFloor: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -199,7 +199,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("POI: bySpace: " + Utils.stripJson(json))
+        LOG.D2("POI: bySpace: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -280,7 +280,7 @@ class MapPoiController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.I("POI: byConnectors" + Utils.stripJson(json))
+        LOG.I("POI: byConnectors" + Utils.stripJsValueStr(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
         if (!requiredMissing.isEmpty)
           return RESPONSE.MISSING_FIELDS(requiredMissing)
