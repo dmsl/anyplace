@@ -113,22 +113,25 @@ class Campus(hm: HashMap[String, String]) extends AbstractModel {
     _toJsonInternal()
   }
 
-  def toGeoJSON(): String = {
+  def toGeoJsonStr(): String = {
     val sb: StringBuilder = new StringBuilder()
-    json = json.as[JsObject] - SCHEMA.fAccessToken
-    sb.append(this.json.toString)
+    sb.append(this.toGeoJson())
     sb.toString
   }
 
-  def addBuids(): String = {
-    val sb: StringBuilder = new StringBuilder()
+  def toGeoJson(): JsValue = {
+    json = json.as[JsObject] - SCHEMA.fAccessToken
+    this.json
+  }
+
+  def addBuids(): JsValue = {
     if ((this.json \ SCHEMA.fDescription).as[String] == "" || (this.json \ SCHEMA.fDescription).as[String] == "-")
       this.json = this.json.as[JsObject] - SCHEMA.fDescription
     if ((this.json \ SCHEMA.fName).as[String] == "" || (this.json \ SCHEMA.fName).as[String] == "-")
       this.json = this.json.as[JsObject] - SCHEMA.fName
     this.json = convertToInt(SCHEMA.fSchema, this.json)
-    sb.append(this.json.toString())
-    sb.toString
+
+    this.json
   }
 
   override def toString(): String = _toJsonInternal().toString()

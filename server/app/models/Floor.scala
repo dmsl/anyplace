@@ -105,6 +105,7 @@ class Floor(hm: HashMap[String, String]) extends AbstractModel {
     _toJsonInternal()
   }
 
-  override def toGeoJSON(): String = _toJsonInternal().toString
+  override def toGeoJsonStr(): String = toGeoJson().toString()
+  override def toGeoJson(): JsValue = _toJsonInternal()
   override def toString(): String = this._toJsonInternal().toString
 }

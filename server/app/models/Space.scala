@@ -42,7 +42,7 @@ import java.util.HashMap
 
 import datasources.SCHEMA
 import play.api.libs.json._
-import utils.{GeoJSONPoint, Utils}
+import utils.{GeoJsonPoint, Utils}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -108,17 +108,21 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     buid
   }
 
-  def toGeoJSON(): String = {
-    val sb = new StringBuilder()
+  def toGeoJson(): JsValue = {
     var json = toJson()
     try {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
-        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
-          java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
+        new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).get()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
-    sb.append(json.toString)
+    json
+  }
+
+  def toGeoJsonStr(): String = {
+    val sb = new StringBuilder()
+    sb.append(toGeoJson().toString)
     sb.toString
   }
 
@@ -146,8 +150,8 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
       }
       val arr = Json.toJson(ja.asScala)
       json = Json.toJson(json.as[JsObject] + (SCHEMA.fCoOwners -> arr))
-      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
-        java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
+      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
+        java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).get()))
 
     } catch {
       case e: IOException => e.printStackTrace()
@@ -175,8 +179,9 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
           }
         }
       }
-      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
-        java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
+      json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
+        new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
+        java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).get()))
       json = Json.toJson(json.as[JsObject] + (SCHEMA.fOwnerId -> JsString(newOwnerId)))
       json = Json.toJson(json.as[JsObject] + (SCHEMA.fCoOwners -> Json.toJson(newCoOwners.asScala)))
     } catch {
