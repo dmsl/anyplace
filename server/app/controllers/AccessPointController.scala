@@ -28,7 +28,7 @@ class AccessPointController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("AccessPointController: byFloor: " + Utils.stripJson(json))
+        LOG.D2("AccessPointController: byFloor: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -76,7 +76,7 @@ class AccessPointController @Inject()(cc: ControllerComponents,
 
             if (accessPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
             val newAccessPoint = Json.obj(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor, "accessPoints" -> uniqueAPs.values().asScala)
-            pds.db.addJson(SCHEMA.cAccessPointsWifi, newAccessPoint.toString())
+            pds.db.addJson(SCHEMA.cAccessPointsWifi, newAccessPoint)
             val res: JsValue = Json.obj("accessPoints" -> new util.ArrayList[JsValue](uniqueAPs.values()).asScala)
             try {
               RESPONSE.gzipJsonOk(res, "Generated precompute of accessPointsWifi")

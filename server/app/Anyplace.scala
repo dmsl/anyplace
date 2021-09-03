@@ -59,14 +59,14 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
 
   /** Play Application started */
   def OnAnyplaceStart(): Unit = {
-    LOG.I(prettyDate + " | Anyplace backend: started.")
+    LOG.I("Anyplace: starting server..")
     MongodbDatasource.initialize(conf)
     logAnalyticsInstallation()
   }
 
   /** Play Application stopped */
   def OnAnyplaceStop(): Unit = {
-    LOG.I(prettyDate + " | Anyplace backend: stopped.")
+    LOG.I("Anyplace: stopping server..")
     try {
       MongodbDatasource.instance.disconnect()
     } catch {
@@ -82,6 +82,7 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
     val config = new AnalyticsConfigData("UA-61313158-2")
     val tracker = new JGoogleAnalyticsTracker(config, GoogleAnalyticsVersion.V_4_7_2)
     tracker.trackEvent("Anyplace Installation", "Anyplace Server start", "Anyplace logging")
+    LOG.D("logAnalyticsInstallation: done")
   }
 }
 

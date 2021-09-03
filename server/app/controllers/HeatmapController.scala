@@ -38,7 +38,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiAVG1: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiAVG1: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -66,7 +66,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiAVG2: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiAVG2: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -100,7 +100,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiAVG3: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiAVG3: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -133,7 +133,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiAVG3tiles: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiAVG3tiles: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fX, SCHEMA.fY, "z")
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -176,7 +176,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiTimestampAVG1: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiTimestampAVG1: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -206,7 +206,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiTimestampAVG2: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiTimestampAVG2: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -242,7 +242,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Heatmap: floorWifiTimestampAVG3: " + Utils.stripJson(json))
+        LOG.D2("Heatmap: floorWifiTimestampAVG3: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json,
           SCHEMA.fFloor, SCHEMA.fBuid, SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
@@ -278,7 +278,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D3("Heatmap: floorWifiTimestampTiles: " + Utils.stripJson(json))
+        LOG.D3("Heatmap: floorWifiTimestampTiles: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor, SCHEMA.fTimestampX,
           SCHEMA.fTimestampY, SCHEMA.fX, SCHEMA.fY, "z")
         if (checkRequirements != null) return checkRequirements
