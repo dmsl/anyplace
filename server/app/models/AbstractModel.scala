@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -49,7 +49,8 @@ abstract class AbstractModel {
     def getFields(): HashMap[String, String] = fields
     def getId(): String
     def toJson(): JsValue
-    def toGeoJSON(): String
+    def toGeoJsonStr(): String
+    def toGeoJson(): JsValue
 
     def setFields(f: HashMap[String, String]): Unit = {
         this.fields = f

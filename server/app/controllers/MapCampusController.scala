@@ -128,7 +128,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Campus: update: " + Utils.stripJson(json))
+        LOG.D2("Campus: update: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
@@ -172,7 +172,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
             storedCampus = storedCampus.as[JsObject] + (SCHEMA.fBuids -> Json.toJson(buids))
           }
           val campus = new Campus(storedCampus)
-          if (!pds.db.replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJSON()))
+          if (!pds.db.replaceJsonDocument(SCHEMA.cCampuses, SCHEMA.fCampusCuid, campus.getId(), campus.toGeoJsonStr()))
             return RESPONSE.BAD("Campus could not be updated.")
           return RESPONSE.OK("Successfully updated campus.")
         } catch {
@@ -192,7 +192,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Campus: byOwner: " + Utils.stripJson(json))
+        LOG.D2("Campus: byOwner: " + Utils.stripJsValueStr(json))
         val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
@@ -228,7 +228,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Campus: delete: " + Utils.stripJson(json))
+        LOG.D2("Campus: delete: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCampusCuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)

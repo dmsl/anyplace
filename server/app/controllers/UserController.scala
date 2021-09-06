@@ -24,11 +24,10 @@ import scala.concurrent.Await
 class UserController @Inject()(cc: ControllerComponents,
                                pds: ProxyDataSource,
                                mongoDB: MongodbDatasource,
-                               conf: Configuration,
                                user: helper.User)
   extends AbstractController(cc) {
 
-  def login(): Action[AnyContent] = Action {
+  def loginLocal(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -37,17 +36,17 @@ class UserController @Inject()(cc: ControllerComponents,
         val json = anyReq.getJsonBody()
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
         if (checkRequirements != null) return checkRequirements
-        LOG.D4("login: " + json)
+        LOG.D4("loginLocal: " + json)
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
-        val storedUser = pds.db.login(SCHEMA.cUsers, username, encryptPwd(password))
+        val storedUser = pds.db.login(SCHEMA.cUsers, username, user.getEncryptedPassword(password))
         if (storedUser == null) return RESPONSE.BAD("Incorrect username or password.")
         if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
-        val accessToken = (storedUser(0) \ SCHEMA.fAccessToken).as[String]
+        val accessToken = (storedUser.head \ SCHEMA.fAccessToken).as[String]
         if (accessToken == null) return RESPONSE.BAD("User doesn't have access token.")
 
-        val user = storedUser.head.as[JsObject] - SCHEMA.fPassword
-        val res = Json.obj("user" -> user)
+        val userJson = storedUser.head.as[JsObject] - SCHEMA.fPassword
+        val res = Json.obj("user" -> userJson)
 
         updateCachedModerators()
         return RESPONSE.OK(res, "Successfully found user.")
@@ -56,7 +55,7 @@ class UserController @Inject()(cc: ControllerComponents,
     inner(request)
   }
 
-  def refresh(): Action[AnyContent] = Action {
+  def refreshLocal(): Action[AnyContent] = Action {
     implicit request =>
 
       def inner(request: Request[AnyContent]): Result = {
@@ -99,7 +98,7 @@ class UserController @Inject()(cc: ControllerComponents,
         var accType = "user"
 
         // if first user then assign as admin
-        if (pds.db.isAdmin(SCHEMA.cUsers))
+        if (pds.db.isAdmin())
           accType = "admin"
         // Check if the email is unique
         val storedEmail = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fEmail, email)
@@ -107,7 +106,7 @@ class UserController @Inject()(cc: ControllerComponents,
         // Check if the username is unique
         val storedUsername = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
         if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
-        val newUser = pds.db.register(SCHEMA.cUsers, name, email, username, encryptPwd(password), external, accType)
+        val newUser = pds.db.register(SCHEMA.cUsers, name, email, username, user.getEncryptedPassword(password), external, accType)
         if (newUser == null) return RESPONSE.BAD("Please try again.")
         val res: JsValue = Json.obj("newUser" -> newUser)
         return RESPONSE.OK(res,"Successfully registered.")
@@ -122,7 +121,7 @@ class UserController @Inject()(cc: ControllerComponents,
   def loginGoogle(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-        LOG.D2("loginGoogle")
+        LOG.D2("User: loginGoogle")
         val auth = new OAuth2Request(request)
         if (!auth.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = auth.getJsonBody()
@@ -131,8 +130,10 @@ class UserController @Inject()(cc: ControllerComponents,
         val external = json \ SCHEMA.fExternal
 
         if (external.toOption.isDefined && external.as[String] == "google") {
+          val result = authorizeGoogleAccount(auth)
           updateCachedModerators()
-          authorizeGoogleAccount(auth)
+
+          result
         } else {
           RESPONSE.BAD("Not a google account.")
         }
@@ -163,7 +164,7 @@ class UserController @Inject()(cc: ControllerComponents,
 
         val storedUser = pds.db.getUserFromOwnerId(userOwnerId)
         if (storedUser == null) return RESPONSE.BAD("User not found.")
-        var newUser: JsValue = storedUser(0)
+        var newUser: JsValue = storedUser.head
 
         if ((json \ SCHEMA.fName).toOption.isDefined) {
           newUser = newUser.as[JsObject] + (SCHEMA.fName -> JsString((json \ SCHEMA.fName).as[String]))
@@ -181,7 +182,7 @@ class UserController @Inject()(cc: ControllerComponents,
           newUser = newUser.as[JsObject] + (SCHEMA.fUsername -> JsString(username))
         }
         if ((json \ SCHEMA.fPassword).toOption.isDefined) {
-          newUser = newUser.as[JsObject] + (SCHEMA.fPassword -> JsString(encryptPwd((json \ SCHEMA.fPassword).as[String])))
+          newUser = newUser.as[JsObject] + (SCHEMA.fPassword -> JsString(user.getEncryptedPassword((json \ SCHEMA.fPassword).as[String])))
         }
         // Only admins can change type of user
         if ((json \ SCHEMA.fType).toOption.isDefined) {
@@ -285,8 +286,16 @@ class UserController @Inject()(cc: ControllerComponents,
 
     // if user exists but has no anyplace access_token: create one and put on db
     var user = getGoogleUser(json)
-    val hasAccessToken = !(user \ SCHEMA.fAccessToken).toOption.isEmpty
-    if (hasAccessToken && user != null) { // add access_token to db if !exists
+    var hasAccessToken = false
+    LOG.D4("authorizeGoogleAccount: hasAccessToken: " + hasAccessToken)
+    if (user != null) {
+      hasAccessToken = (user \ SCHEMA.fAccessToken).toOption.isDefined
+    }
+    // user existed but had no Anyplace-specific Access Token
+    // This happens when an existing Google User has logged in for the first time
+    // in the MDB 4.2+ version.
+    if (!hasAccessToken && user != null) {
+      LOG.D2("Generating access token for existing Google User")
       val newAccessToken = MongodbDatasource.generateAccessToken(false)
       user = user.as[JsObject] + (SCHEMA.fAccessToken -> JsString(newAccessToken)) +
         (SCHEMA.fSchema -> JsNumber(MongodbDatasource.__SCHEMA))
@@ -294,16 +303,16 @@ class UserController @Inject()(cc: ControllerComponents,
         (json \ SCHEMA.fOwnerId).as[String], user.toString())
     }
     var userType = "user"
-    if (pds.db.isAdmin(SCHEMA.cUsers))
-      userType = "admin"
+    if (pds.db.isAdmin()) userType = "admin"
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id)) +
       (SCHEMA.fType -> JsString(userType))
     if (user != null) { // user and access_token exists
       return RESPONSE.OK(user, "User Exists.")
     } else {  // new user created
       val user = new Account(json)
-      pds.db.addJson(SCHEMA.cUsers, user.toString())
-      return RESPONSE.OK(user.toJson(), "Added new google user.")
+      pds.db.addJson(SCHEMA.cUsers, user.toJson())
+
+      return RESPONSE.OK(user.toJson(), "Created new google user.")
     }
   }
 
@@ -314,11 +323,13 @@ class UserController @Inject()(cc: ControllerComponents,
    * @return
    */
   def verifyGoogleUser(authToken: String): String = {
+    LOG.D3("User: verifyGoogleUser")
     // remove the double string quotes due to json processing
     val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
     var res = ""
     try {
       res = Network.GET(gURL)
+      LOG.D5("res: " + res)
     } catch {
       case e: Exception => LOG.E("verifyId", e)
     }
@@ -335,39 +346,10 @@ class UserController @Inject()(cc: ControllerComponents,
         case iae: IllegalArgumentException => LOG.E("verifyId: " + iae.getMessage + "String: '" + res + "'");
         case e: Exception => LOG.E("verifyId", e)
       }
+    } else {
+      LOG.E("User: VerifyGoogleUser: failed.")
     }
     null
   }
-
-  def encryptPwd(password: String): String = {
-    val salt = conf.get[String]("password.salt")
-    val pepper = conf.get[String]("password.pepper")
-
-    val str = salt + password + pepper
-    LOG.D("pwd: '" + str + "'")
-    val encryptedPwd = encryptPassword(str)
-    LOG.D("encrypted: '" + encryptedPwd + "'")
-    encryptedPwd
-  }
-
-  def encryptPassword(password: String): String = {
-    val algorithm: MessageDigest = MessageDigest.getInstance("SHA-256")
-    val defaultBytes: Array[Byte] = password.getBytes
-    algorithm.reset
-    algorithm.update(defaultBytes)
-    val messageDigest: Array[Byte] = algorithm.digest
-    getHexString(messageDigest)
-  }
-
-  def getHexString(messageDigest: Array[Byte]): String = {
-    val hexString: StringBuffer = new StringBuffer
-    messageDigest foreach { digest =>
-      val hex = Integer.toHexString(0xFF & digest)
-      if (hex.length == 1) hexString.append('0') else hexString.append(hex)
-    }
-    hexString.toString
-  }
-
 }
-
 

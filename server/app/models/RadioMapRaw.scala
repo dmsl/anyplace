@@ -87,8 +87,8 @@ object RadioMapRaw {
     var json = Json.obj(SCHEMA.fBuid -> (rss \ SCHEMA.fBuid).as[String], SCHEMA.fFloor -> (rss \ SCHEMA.fFloor).as[String],
       SCHEMA.fX -> (rss \ SCHEMA.fX).as[String], SCHEMA.fY -> (rss \ SCHEMA.fY).as[String], SCHEMA.fHeading -> (rss \ SCHEMA.fHeading).as[String],
       SCHEMA.fTimestamp -> (rss \ SCHEMA.fTimestamp).as[String], SCHEMA.fMac -> measurement(0), SCHEMA.fRSS -> measurement(1),
-      (SCHEMA.fGeometry -> Json.toJson(new GeoJSONPoint(java.lang.Double.parseDouble((rss \ SCHEMA.fX).as[String]),
-        java.lang.Double.parseDouble((rss \ SCHEMA.fY).as[String])).toGeoJSON())))
+      (SCHEMA.fGeometry -> Json.toJson(new GeoJsonPoint(java.lang.Double.parseDouble((rss \ SCHEMA.fX).as[String]),
+        java.lang.Double.parseDouble((rss \ SCHEMA.fY).as[String])).get())))
     if ((rss \ SCHEMA.fStrongestWifi).toOption.isDefined)
       json = json.as[JsObject] + (SCHEMA.fStrongestWifi -> JsString((rss \ SCHEMA.fStrongestWifi).as[String]))
     return json
@@ -166,8 +166,7 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     _toJsonInternal()
   }
 
-  def addMeasurements(measurements: List[List[String]]): String = {
-    val sb = new StringBuilder()
+  def addMeasurements(measurements: List[List[String]]): JsValue = {
     var json = toJson()
     try {
       val timestampToSec = (json \ SCHEMA.fTimestamp).as[String].toLong / 1000 // milliseconds to seconds
@@ -175,8 +174,8 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
       json = json.as[JsObject] + (SCHEMA.fMeasurements -> Json.toJson(measurements)) +
         (SCHEMA.fTimestamp -> JsString(s"$roundTimestamp"))
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
-        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
-          java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).toGeoJSON()))
+        new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).get()))
       var sum = 0
       for (measurement <- measurements) {
         sum = sum + measurement(1).toInt
@@ -186,22 +185,25 @@ class RadioMapRaw(h: HashMap[String, String]) extends AbstractModel {
     } catch {
       case e: IOException => e.printStackTrace()
     }
-    sb.append(json.toString)
+    json
+  }
+
+  def toGeoJsonStr(): String = {
+    val sb = new StringBuilder()
+    sb.append(toGeoJson().toString)
     sb.toString
   }
 
-  def toGeoJSON(): String = {
-    val sb = new StringBuilder()
+  def toGeoJson(): JsValue  = {
     var json = toJson()
     try {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
-        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
-          java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).toGeoJSON()))
+        new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fX)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fY))).get()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
-    sb.append(json.toString)
-    sb.toString
+    json
   }
 
 

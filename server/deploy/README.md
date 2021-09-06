@@ -82,9 +82,9 @@ Contains the remaining of the Play configuration.
 
 + (Optional) Install a free load balancer from 
   [HAProxy](http://www.haproxy.org/) to scale your installation 
-  to multiple Anplace servers. 
+  to multiple Anyplace servers. 
   In case of Anyplace cluster configuration, 
-  please install the certificate on the load balancer.
+  please install the certificate on the Load Balancer.
 
 ***
 

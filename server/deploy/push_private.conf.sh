@@ -2,7 +2,13 @@
 __dir="$(dirname "$0")"
 source $__dir/config.sh
 
-remoteConf=$__dir"/../conf/app.private.remote.conf"
+
+if [[ $DOMAIN == "ap-dev.cs"* ]]; then
+  remoteConf=$__dir"/../conf/app.private.remote-dev.conf"
+else
+  remoteConf=$__dir"/../conf/app.private.remote-rc.conf"
+  echo "Pushing release-candidate conf."
+fi
 
 if [ ! -f $remoteConf ]; then
   echo "ERROR: Create the remote configuration file first:"

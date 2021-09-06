@@ -111,7 +111,7 @@ class PositioningController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Positioning: estimatePosition: " + Utils.stripJson(json))
+        LOG.D2("Positioning: estimatePosition: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor,"APs","algorithm_choice")
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]

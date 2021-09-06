@@ -57,7 +57,7 @@ import play.api.Configuration
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue, Json}
 import play.twirl.api.TwirlHelperImports.twirlJavaCollectionToScala
 import utils.JsonUtils.cleanupMongoJson
-import utils.{GeoJSONPoint, GeoPoint, JsonUtils, LOG}
+import utils.{GeoJsonPoint, GeoPoint, JsonUtils, LOG}
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Await
@@ -68,7 +68,7 @@ import scala.util.control.Breaks
 
 object MongodbDatasource {
   val __SCHEMA: Int = 0
-  val TAG : String = MongoDatabase.getClass.getSimpleName.toString
+  val TAG : String = MongodbDatasource.getClass.getSimpleName
   private var mdb: MongoDatabase = null
   private var mongoClient: MongoClient = null
   private var sInstance: MongodbDatasource = null
@@ -76,9 +76,8 @@ object MongodbDatasource {
   private var admins: List[String] = List[String]()
   private var moderators: List[String] = List[String]()
 
-
-  def getAdmins: List[String] = { return admins}
-  def getModerators: List[String] = { return moderators}
+  def getAdmins: List[String] = admins
+  def getModerators: List[String] = moderators
 
   def instance: MongodbDatasource = {
     if (sInstance == null) throw new RuntimeException("Mongodb not initialized")
@@ -91,7 +90,7 @@ object MongodbDatasource {
     val hostname = conf.get[String]("mongodb.hostname")
     val port = conf.get[String]("mongodb.port")
     val database = conf.get[String]("mongodb.database")
-    LOG.I(TAG, "connecting")
+    LOG.I(TAG, "connecting..")
     sInstance = createInstance(hostname, database, username, password, port)
   }
 
@@ -579,25 +578,28 @@ class MongodbDatasource @Inject() () extends IDatasource {
 
         case 'z' =>
           myChars(i) = 'ζ'
-
         case _ =>
-
       }
 
       {
-        i += 1;
+        i += 1
         i - 1
       }
     }
     String.valueOf(myChars)
   }
 
-  override def addJson(col: String, document: String): Boolean = {
+  override def addJson(col: String, json: JsValue): Boolean = {
+    var finalJson = json
+    if ((json \ SCHEMA.fSchema).toOption.isEmpty) {
+      finalJson = json.as[JsObject] + (SCHEMA.fSchema -> JsNumber(SCHEMA.VERSION))
+    }
+    val document = finalJson.toString()
     val collection = mdb.getCollection(col)
     val addJson = collection.insertOne(Document.apply(document))
     val awaited = Await.result(addJson.toFuture(), Duration.Inf)
     val res = awaited
-    if (res.toString() == "The operation completed successfully")
+    if (res.toString == "The operation completed successfully")
       true
     else
       false
@@ -635,14 +637,16 @@ class MongodbDatasource @Inject() () extends IDatasource {
       (SCHEMA.cPOIS -> Json.toJson(pois.toList))
   }
 
-  override def isAdmin(col: String): Boolean = {
-    val collection = mdb.getCollection(col)
+  override def isAdmin(): Boolean = isFirstUser()
+
+  private def isFirstUser(): Boolean = {
+    val collection = mdb.getCollection(SCHEMA.cUsers)
     val userLookUp = collection.find().first()
     val awaited = Await.result(userLookUp.toFuture(), Duration.Inf)
-    val res = awaited.asInstanceOf[Document]
-    if (res == null)
-      return true
-    return false
+    val res = awaited
+
+    if (res == null) return true
+    false
   }
 
   override def getFromKeyAsJson(collection: String, key: String, value: String): JsValue = {
@@ -852,6 +856,12 @@ class MongodbDatasource @Inject() () extends IDatasource {
     (ret && bool)
   }
 
+  /**
+   * TODO FUTURE: ideal scenario for DB consistency:
+   * In here check that it had SCHEMA.fSchema. if not add it.
+   * if it had, it must check that version match, otherwise a migration mechanism must be added
+   *
+   */
   override def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean = {
     val collection = mdb.getCollection(col)
     val query = BsonDocument(key -> value)
@@ -1195,7 +1205,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val storedHeatmap = fetchStoredHeatmap(collectionName, fingerprint, level, hasTimestamp)
     if (storedHeatmap == null) {
       val heatmap = createHeatmap(fingerprint, level, hasTimestamp)
-      addJson(collectionName, heatmap.toString())
+      addJson(collectionName, heatmap)
     } else {
       val newSum = confirmNegativity((fingerprint \ "sum").as[Int]) + confirmNegativity((storedHeatmap \ "sum").as[Int])
       val newCount = (fingerprint \ "count").as[Int] + (storedHeatmap \ "count").as[Int]
@@ -1211,8 +1221,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
       heatmap = heatmap.as[JsObject] - SCHEMA.fTimestamp
     val location = trimCoordinates(fingerprint, level)
     if (location == null) return null
-    heatmap = heatmap.as[JsObject] + (SCHEMA.fLocation -> Json.toJson(new GeoJSONPoint(location.get(0),
-      location.get(1)).toGeoJSON()))
+    heatmap = heatmap.as[JsObject] + (SCHEMA.fLocation -> Json.toJson(new GeoJsonPoint(location.get(0),
+      location.get(1)).get()))
     return heatmap
   }
 
@@ -1461,15 +1471,13 @@ class MongodbDatasource @Inject() () extends IDatasource {
   override def getSpaceAccessible(oid: String): List[JsValue] = {
     val collection = mdb.getCollection(SCHEMA.cSpaces)
     var buildingLookUp: FindObservable[Document] = null
-    LOG.D2(moderators.toString())
-    LOG.D2(admins.toString())
+    LOG.D4("getSpaceAccessible: mods: " + moderators.toString())
+    LOG.D4("getSpaceAccessible: admins: " + admins.toString())
     if (admins.contains(oid) || moderators.contains(oid)) {
-      LOG.D2("Doing mod lookup")
       buildingLookUp = collection.find()
     } else {
       buildingLookUp = collection.find(or(equal(SCHEMA.fOwnerId, oid),
         equal(SCHEMA.fCoOwners, oid)))
-      LOG.D3("Doing user lookup")
     }
     val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
     val res = awaited.toList
@@ -1854,7 +1862,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
       SCHEMA.fUsername -> JsString(username), SCHEMA.fPassword -> JsString(password),
       SCHEMA.fAccessToken -> JsString(accessToken), SCHEMA.fExternal -> JsString(external),
       SCHEMA.fType -> JsString(accType), SCHEMA.fOwnerId -> JsString(owner_id))
-    addJson(SCHEMA.cUsers, json.toString())
+    addJson(SCHEMA.cUsers, json)
 
     json.as[JsObject] - SCHEMA.fPassword
   }

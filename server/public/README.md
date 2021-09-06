@@ -45,6 +45,17 @@ please follow the below instructions:
 <summary>
 Show Compilation Instructions
 </summary>
+
+0. Install dependency tools
+
+Sample commands on ubuntu:
+```bash
+sudo apt install npm
+sudo npm install -g bower
+sudo apt install node-grunt-cli
+```
+
+
 1. `cd` to the relevant web app directory
 
 2. Install [Bower](http://bower.io/) dependencies:

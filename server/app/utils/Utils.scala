@@ -255,8 +255,10 @@ object Utils {
      * @param jsVal
      * @return
      */
-    def stripJson(jsVal: JsValue): String =
-        (jsVal.as[JsObject] - SCHEMA.fAccessToken - "password" - "username").toString()
+    def stripJsValueStr(jsVal: JsValue): String = stripJsValue(jsVal).toString()
+
+    def stripJsValue(jsVal: JsValue): JsValue =
+        (jsVal.as[JsObject] - SCHEMA.fAccessToken - "password" - "username")
 
 }
 

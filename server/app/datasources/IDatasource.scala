@@ -76,7 +76,14 @@ trait IDatasource {
   def poisByBuildingAsJson2(cuid: String, letters: String): List[JsValue]
   def poisByBuildingAsJson2GR(cuid: String, letters: String): List[JsValue]
   def poisByBuildingAsJson3(buid: String, letters: String): List[JsValue]
-  def addJson(col: String, document: String): Boolean
+
+  /**
+   * Adds a json to a collection. It appends the SCHEMA.VERSION
+   *
+   * @param col collection
+   * @param json to add
+   */
+  def addJson(col: String, json: JsValue): Boolean
   def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean
   def deleteFromKey(col: String, key: String, value: String): Boolean
   def getFromKey(collection: String, key: String, value: String): JsValue
@@ -164,6 +171,6 @@ trait IDatasource {
   def getBuildingSet(cuid: String): List[JsValue]
   def getAllBuildingsetsByOwner(owner_id: String): List[JsValue]
   def generateHeatmaps(): Boolean
-  def isAdmin(col: String): Boolean
+  def isAdmin(): Boolean
   def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String]
 }
