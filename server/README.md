@@ -18,16 +18,17 @@ Docker is not supported for 4.2+.
 
 # 2. [Deploy Server](./deploy/README.md)
 
-# 3. [Setup IDE (IntelliJ)](./SETUP.md) 
+# 3. [Setup IDE (IntelliJ)](./SETUP_IDE.md) 
 
-# 4. Connect Android client
+# 4. [Compile Web apps](./public/README.md)
 
+# 5. Connect Android app
 <details>
 <summary>
 Android Client Details
 </summary>
 
-##### Connecting the Anyplace Android Client
+###### Connecting the Anyplace Android Client
 4.1. Download the Android Client from the Play Store: [com.dmsl.anyplace (old)](https://play.google.com/store/apps/details?id=com.dmsl.anyplace&hl=en)
 
 4.2. Under settings in the Android App, change the DNS of the Anyplace server to your own server IP/DNS.

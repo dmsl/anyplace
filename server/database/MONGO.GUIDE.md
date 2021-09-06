@@ -15,15 +15,16 @@ Scala queries
 
 
 
-### MongoDB Compass 
+### MongoDB Compass Queries
 
 <details> 
 <summary>
-MongoDB Compass Queries
+Compass Queries
 </summary>
   
 [MongoDB Compass](https://www.mongodb.com/products/compass) is the primary interface of mongoDB where users can interact with their data. 
   
+#### Filters
 <details> 
 <summary>
 Documents: filters
@@ -33,28 +34,33 @@ Documents: filters
 
 Provide the filters on the first section in order to use them. Make sure you are in the correct collection.
 
-Sort a collection based on insertion time:
+##### Sort a collection based on insertion time:
 ```bash
 filter: 
 { _id: -1}
 ```
-  
-Find objects with-in a bounding box:
+
+##### Regex: [link](https://docs.mongodb.com/manual/reference/operator/query/regex/)
+```bash
+{ 'name': /George/ }
+```
+
+##### Find objects within a bounding box:
 ```bash
 {geometry: { $geoWithin: { $box:  [ [ 33.0, 33.0 ], [ 35.0, 35.0 ] ] } }}
 ```
 
-Find fingerprints with-in a time-span:
+##### Find fingerprints within a time-span:
 ```
 { timestamp : { $gt :  "0000000000000", $lt : "1532759230143"}}
 ```
 
-Find objects with-in a bounding box on a time-span:
+##### Find objects within a bounding box on a time-span:
 ```
 {geometry: { $geoWithin: { $box:  [ [ 33.0, 33.0 ], [ 35.0, 35.0 ] ] } }, timestamp : { $gt :  "0000000000000", $lt : "1617117985695"}, buid: "building_8d9753f0-9dae-4772-81a6-942940ade718_1616948897991"}
 ```
 
-Find objects where floor are not -1, 0, 1, 2.
+##### Find objects where floor are not -1, 0, 1, 2.
 (Used in fingerprints collection)
 ```
 {$and:[ {buid: "username_1373876832005"}, {floor: {$ne: "1"}}, {floor: {$ne: "2"}}, {floor: {$ne: "0"}},{floor: {$ne: "-1"}} ]}
@@ -62,12 +68,16 @@ Find objects where floor are not -1, 0, 1, 2.
 
 </details>
 
+#### Validation
 <details> 
 <summary>
-Validation
+Documents: Validation
 </summary>
 
-Prevent collection fingerprints to add JSON objects without the field geometry.
+##### Prevent object addition to `fingerprints` collection
+The object must have geometry with valid coordinates:
+- ranges: -90 to 90, and -180 to 180
+
 ```
 {
   $jsonSchema: {
