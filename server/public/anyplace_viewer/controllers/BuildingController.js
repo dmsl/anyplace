@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -126,20 +126,6 @@ app.controller('BuildingController',
 
                 $scope.myBuildings.push(b);
 
-                // var s = new google.maps.Size(55, 80);
-                // if ($scope.isFirefox)
-                //     s = new google.maps.Size(110, 160);
-                //
-                // var marker = new google.maps.Marker({
-                //     position: _latLngFromBuilding(b),
-                //     icon: {
-                //         url: 'build/images/building-icon.png',
-                //         size: s,
-                //         scaledSize: new google.maps.Size(55, 80)
-                //     },
-                //     draggable: false
-                // });
-                // markerCluster.addMarker(marker);
                 var marker = getMapsIconBuildingViewer($scope, _latLngFromBuilding(b))
                 markerCluster.addMarker(marker);
 

@@ -31,7 +31,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("spaceAdd: " + Utils.stripJson(json))
+        LOG.D2("spaceAdd: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fName, SCHEMA.fDescription,
           SCHEMA.fURL, SCHEMA.fAddress, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon, SCHEMA.fSpaceType)
         if (checkRequirements != null) return checkRequirements
@@ -46,7 +46,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           } catch {
             case e: NumberFormatException => return RESPONSE.BAD("Space coordinates are invalid.")
           }
-          if (!pds.db.addJson(SCHEMA.cSpaces, space.toGeoJSON())) {
+          if (!pds.db.addJson(SCHEMA.cSpaces, space.toGeoJson())) {
             return RESPONSE.BAD_CANNOT_ADD_SPACE
           }
           val res: JsValue = Json.obj(SCHEMA.fBuid -> space.getId())
@@ -68,7 +68,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("spaceUpdateCoOwners: " + Utils.stripJson(json))
+        LOG.D2("spaceUpdateCoOwners: " + Utils.stripJsValueStr(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fCoOwners)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         var owner_id = user.authorize(apiKey)
@@ -102,7 +102,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("spaceUpdateOwner: " + Utils.stripJson(json))
+        LOG.D2("spaceUpdateOwner: " + Utils.stripJsValueStr(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "new_owner")
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val owner_id = user.authorize(apiKey)
@@ -137,7 +137,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("spaceUpdate: " + Utils.stripJson(json))
+        LOG.D2("spaceUpdate: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
@@ -175,7 +175,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
               return RESPONSE.BAD("Invalid space type. Use: `building` or `vessel`")
           }
           val space = new Space(storedSpace)
-          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJSON()))
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.toGeoJsonStr()))
             return RESPONSE.BAD("Space could not be updated.")
           return RESPONSE.OK("Successfully updated space.")
         } catch {
@@ -213,7 +213,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         }
         try {
           val deleted = pds.db.deleteAllByBuilding(buid)
-          if (deleted == false)
+          if (!deleted)
             return RESPONSE.BAD("Some items related to the deleted space could not be deleted.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -263,7 +263,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceGetOne: " + Utils.stripJson(json))
+        LOG.D2("spaceGetOne: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -301,7 +301,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
 
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceAccessible: " + Utils.stripJson(json))
+        LOG.D2("spaceAccessible: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json) // , SCHEMA.fAccessToken
         if (checkRequirements != null) return checkRequirements
 
@@ -314,7 +314,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all spaces!")
+            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all spaces.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -333,7 +333,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
 
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceOwned: " + Utils.stripJson(json))
+        LOG.D2("spaceOwned: " + Utils.stripJsValueStr(json))
         val owner_id = user.authorize(apiKey)
         if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
         try {
@@ -358,7 +358,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceByBucode: " + Utils.stripJson(json))
+        LOG.D2("spaceByBucode: " + Utils.stripJsValueStr(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuCode)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val bucode = (json \ SCHEMA.fBuCode).as[String]
@@ -386,7 +386,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("spaceCoordinates: " + Utils.stripJson(json))
+        LOG.D2("spaceCoordinates: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fCoordinatesLat, SCHEMA.fCoordinatesLon)
         if (checkRequirements != null) return checkRequirements
         var range = NEARBY_BUILDINGS_RANGE

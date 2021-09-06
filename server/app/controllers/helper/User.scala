@@ -36,11 +36,17 @@
 package controllers.helper
 
 import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
+import play.api.Configuration
+
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.JsValue
+import utils.LOG
+
+import java.security.MessageDigest
 
 @Singleton
-class User @Inject()(pds: ProxyDataSource){
+class User @Inject()(pds: ProxyDataSource,
+                     conf: Configuration){
 
   /**
    * Checks in database if a user exists with the access_token of the json.
@@ -87,5 +93,34 @@ class User @Inject()(pds: ProxyDataSource){
       }
     }
     false
+  }
+
+  def getEncryptedPassword(password: String): String = {
+    val salt = conf.get[String]("password.salt")
+    val pepper = conf.get[String]("password.pepper")
+
+    val str = salt + password + pepper
+    val encryptedPwd = encryptInternal(str)
+    LOG.D5("pwd: '" + str + "'")
+    LOG.D5("encrypted: '" + encryptedPwd + "'")
+    encryptedPwd
+  }
+
+  private def encryptInternal(password: String): String = {
+    val algorithm: MessageDigest = MessageDigest.getInstance("SHA-256")
+    val defaultBytes: Array[Byte] = password.getBytes
+    algorithm.reset()
+    algorithm.update(defaultBytes)
+    val messageDigest: Array[Byte] = algorithm.digest
+    getHexString(messageDigest)
+  }
+
+  private def getHexString(messageDigest: Array[Byte]): String = {
+    val hexString: StringBuffer = new StringBuffer
+    messageDigest foreach { digest =>
+      val hex = Integer.toHexString(0xFF & digest)
+      if (hex.length == 1) hexString.append('0') else hexString.append(hex)
+    }
+    hexString.toString
   }
 }

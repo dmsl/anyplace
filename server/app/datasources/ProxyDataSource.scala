@@ -72,9 +72,9 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
 
   private def setActiveDatabase(ds: IDatasource): Unit = { this.activeDB = ds }
 
-  override def addJson(col: String, document: String): Boolean = {
+  override def addJson(col: String,  json: JsValue): Boolean = {
     checkHasActiveDB()
-    activeDB.addJson(col, document)
+    activeDB.addJson(col, json)
   }
 
   override def replaceJsonDocument(col: String, key: String, value: String, document: String): Boolean = {
@@ -377,9 +377,9 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.register(collection, name, email, username, password, external, accType)
   }
 
-  override def isAdmin(col: String): Boolean = {
+  override def isAdmin(): Boolean = {
     checkHasActiveDB()
-    activeDB.isAdmin(col)
+    activeDB.isAdmin()
   }
 
   override def deleteAllByXsYs(buid: String,floor: String,x: String,y: String): java.util.List[String] = {

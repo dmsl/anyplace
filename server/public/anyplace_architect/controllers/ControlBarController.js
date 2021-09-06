@@ -157,8 +157,10 @@ app.controller('ControlBarController',
                 if ($scope.user && $scope.user.id) { $scope.$broadcast('loggedIn', []); }
             },
             function (resp) {
-                LOG.E("error: googleUserLookup")
-                LOG.D(resp)
+                LOG.D3(resp)
+                ShowError($scope, resp)
+                $scope.setAuthenticated(false);
+                $scope.user = $scope.emptyUser
             }
         );
     };

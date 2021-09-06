@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -35,36 +35,20 @@
  */
 package utils
 
-import java.util.{ArrayList, List}
+import java.util
 
-import org.codehaus.jettison.json.{JSONArray, JSONObject}
+import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-//remove if not needed
-// import scala.collection.JavaConversions._
+class GeoJsonPoint(var lat: Double, var lon: Double) {
 
-class GeoJSONMultiPoint(points_in: GeoPoint*) {
-
-    var points: List[GeoPoint] = new ArrayList[GeoPoint]()
-
-    for (p <- points_in) {
-        points.add(p)
-    }
-
-    def toGeoJSON(): JSONObject = {
-        var ja: JSONArray = null
-        var jall = new JSONArray()
-
-        for (p <- this.points.asScala) {
-            ja = new JSONArray()
-            ja.put(p.dlat)
-            ja.put(p.dlon)
-            jall.put(ja)
-        }
-        val jo = new JSONObject()
-        jo.put("type", "MultiPoint")
-        jo.put("coordinates", jall)
+    def get(): JsValue = {
+        val ja = new util.ArrayList[Double]
+        ja.add(this.lat)
+        ja.add(this.lon)
+        var jo = Json.obj("coordinates" -> Json.toJson(ja.asScala))
+        jo = jo.as[JsObject] + ("type" -> JsString("Point"))
         jo
     }
 }

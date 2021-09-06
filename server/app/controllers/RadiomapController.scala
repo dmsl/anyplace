@@ -44,7 +44,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Radiomap: delete: " + Utils.stripJson(json))
+        LOG.D2("Radiomap: delete: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(
           json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2")
         if (checkRequirements != null) return checkRequirements
@@ -86,7 +86,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Radiomap: deleteTimestamp: " + Utils.stripJson(json))
+        LOG.D2("Radiomap: deleteTimestamp: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(
           json, SCHEMA.fBuid, SCHEMA.fFloor, "lat1", "lon1", "lat2", "lon2", SCHEMA.fTimestampX, SCHEMA.fTimestampY)
         if (checkRequirements != null) return checkRequirements
@@ -135,7 +135,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Radiomap: byTime: " + Utils.stripJson(json))
+        LOG.D2("Radiomap: byTime: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
@@ -170,7 +170,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Radiomap: deleteBoundingBox: " + Utils.stripJson(json))
+        LOG.D2("Radiomap: deleteBoundingBox: " + Utils.stripJsValueStr(json))
         try {
           if (!pds.db.deleteRadiosInBox()) {
             return RESPONSE.BAD_CANNOT_ADD_SPACE

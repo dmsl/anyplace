@@ -27,7 +27,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Floor: add: " + Utils.stripJson(json))
+        LOG.D2("Floor: add: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fIsPublished, SCHEMA.fBuid, SCHEMA.fFloorName,
           SCHEMA.fDescription, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
@@ -47,7 +47,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         try {
           json = json.as[JsObject] - SCHEMA.fAccessToken
           val floor = new Floor(json)
-          if (!pds.db.addJson(SCHEMA.cFloorplans, Utils.stripJson(floor.toJson())))
+          if (!pds.db.addJson(SCHEMA.cFloorplans, Utils.stripJsValue(floor.toJson())))
             return RESPONSE.BAD_CANNOT_ADD_FLOOR
 
           return RESPONSE.OK("Successfully added floor " + floorNum + ".")
@@ -68,7 +68,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Floor: update: " + Utils.stripJson(json))
+        LOG.D2("Floor: update: " + Utils.stripJsValueStr(json))
         val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
         val owner_id = user.authorize(apiKey)
@@ -114,7 +114,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("Floor: delete: " + Utils.stripJson(json))
+        LOG.D2("Floor: delete: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloorNumber)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)
@@ -156,7 +156,7 @@ class MapFloorController @Inject()(cc: ControllerComponents,
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Floor: all: " + Utils.stripJson(json))
+        LOG.D2("Floor: all: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]

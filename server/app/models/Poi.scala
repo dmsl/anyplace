@@ -40,7 +40,7 @@ import java.io.IOException
 import java.util.HashMap
 import datasources.SCHEMA
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import utils.{GeoJSONPoint, Utils}
+import utils.{GeoJsonPoint, Utils}
 
 object Poi {
   val POIS_TYPE_NONE = "None"
@@ -150,17 +150,22 @@ class Poi(hm: HashMap[String, String]) extends AbstractModel {
     _toJsonInternal()
   }
 
-  def toGeoJSON(): String = {
-    val sb = new StringBuilder()
+
+  def toGeoJson(): JsValue = {
     var json = toJson()
     try {
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(
-        new GeoJSONPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
-          java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).toGeoJSON()))
+        new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
+          java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).get()))
     } catch {
       case e: IOException => e.printStackTrace()
     }
-    sb.append(json.toString)
+    json
+  }
+
+  def toGeoJsonStr(): String = {
+    val sb = new StringBuilder()
+    sb.append(toGeoJson().toString)
     sb.toString
   }
 

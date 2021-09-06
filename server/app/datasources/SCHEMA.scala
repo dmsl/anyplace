@@ -1,6 +1,7 @@
 package datasources
 
 object SCHEMA {
+  val VERSION = 0
 
   // COLLECTIONS
   val cAccessPointsWifi = "accessPointsWifi"
