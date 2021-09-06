@@ -42,7 +42,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _POI_EXISTING_IMG = 'build/images/poi.png';
     var _POI_NEW_IMG = 'build/images/poi-new.png';
 
-
     var _MARKERS_IMG_RAW_SIZE = new google.maps.Size(62, 93);
     var _MARKERS_IMG_RAW_SIZEsq = new google.maps.Size(93, 93);
 
@@ -245,8 +244,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     // standard poi icon requires a square NxN size
     var _getImageIconSizeForPoi = function (poi) {
         var sz=_MARKERS_SIZE_NORMALsq;
-        if ($scope.isFirefox)
-            sz=_MARKERS_IMG_RAW_SIZEsq;
+        if ($scope.isFirefox) sz=_MARKERS_IMG_RAW_SIZEsq;
 
         if (poi.is_building_entrance && poi.is_building_entrance ||
         poi.pois_type === "Stair" ||
@@ -261,8 +259,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
 
     var _getImageIconForPoi = function (poi) {
-        // var img = 'build/images/any-poi-icon-blue.png';
-	var _POI_EXISTING_IMG = 'build/images/poi.png';
+        // var _POI_EXISTING_IMG = 'build/images/poi.png';
         var img = _POI_EXISTING_IMG;
 
         if (poi.is_building_entrance && poi.is_building_entrance !== "false") {
@@ -277,7 +274,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     var _getBiggerPoiIcon = function (poi) {
-	// var img = _getImageIconForPoi(poi).replace(/\-[a-z]+\.png/gi, "-red.png");
         var _POI_NEW_IMG = 'build/images/poi-new.png';
         var img = _POI_NEW_IMG;
 
