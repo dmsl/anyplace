@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -41,9 +41,9 @@ import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-class GeoJSONPoint(var lat: Double, var lon: Double) {
+class GeoJsonPoint(var lat: Double, var lon: Double) {
 
-    def toGeoJSON(): JsValue = {
+    def get(): JsValue = {
         val ja = new util.ArrayList[Double]
         ja.add(this.lat)
         ja.add(this.lon)
