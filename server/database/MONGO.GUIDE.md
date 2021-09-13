@@ -10,7 +10,59 @@ Some quick tutorials on MongoDB
 <summary>
 Scala queries
 </summary>
- TODO:NN MDB TUT  
+
+  Find all published buildings.
+  ```
+  val collection = mdb.getCollection(SCHEMA.cSpaces)
+  val query = BsonDocument(SCHEMA.fIsPublished -> "true")
+  val buildings = collection.find(query)
+  val awaited = Await.result(buildings.toFuture(), Duration.Inf)
+  val res = awaited.toList
+  ```
+  
+  Get all near-by buildings, using bounding-box.
+  ```
+  val bbox = GeoPoint.getGeoBoundingBox(lat, lng, range)
+  val collection = mdb.getCollection(SCHEMA.cSpaces)
+  val buildingLookUp = collection.find(and(geoWithinBox(SCHEMA.fGeometry, bbox(0).dlat, bbox(0).dlon, bbox(1).dlat,
+      bbox(1).dlon),
+      or(equal(SCHEMA.fIsPublished, "true"),
+      and(equal(SCHEMA.fIsPublished, "false"), equal(SCHEMA.fOwnerId, owner_id)))))
+  val awaited = Await.result(buildingLookUp.toFuture(), Duration.Inf)
+  val res = awaited.toList
+  ```
+  
+  Get fingerprints between two timestamps and sort them.
+  ```
+  val collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
+  val fingerprints = collection.find(and(
+    and(gt(SCHEMA.fTimestamp, "0"), lt(SCHEMA.fTimestamp, "999999999999999")),
+    and(equal(SCHEMA.fBuid, buid)), equal(SCHEMA.fFloor, floor))
+  ).sort(orderBy(ascending(SCHEMA.fTimestamp)))
+  val awaited = Await.result(fingerprints.toFuture(), Duration.Inf)
+  val res = awaited.toList
+  ```
+  
+  Get heatmaps based on buid and floor, but only project locatio, sum and count.
+  ```
+  val collection = mdb.getCollection(SCHEMA.cHeatmapWifi1)
+  val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor)
+  val radioPoints = collection.aggregate(Seq(
+    Aggregates.filter(query),
+    project(
+      Document(SCHEMA.fLocation -> "$location", "sum" -> "$sum", "count" -> "$count")
+    )))
+  val awaited = Await.result(radioPoints.toFuture(), Duration.Inf)
+  val res = awaited.toList
+  ```
+  
+  Delete all edges of a floor.
+  ```
+  var collection = mdb.getCollection(SCHEMA.cEdges)
+  val queryBuidA = BsonDocument(SCHEMA.fBuidA -> buid, SCHEMA.fFloorA -> floor_number)
+  var deleted = collection.deleteMany(queryBuidA)
+  ```
+
 </details>
 
 
