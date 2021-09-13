@@ -27,59 +27,6 @@ class UserController @Inject()(cc: ControllerComponents,
                                user: helper.User)
   extends AbstractController(cc) {
 
-  def loginLocal(): Action[AnyContent] = Action {
-    implicit request =>
-
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
-        if (checkRequirements != null) return checkRequirements
-        LOG.D4("loginLocal: " + json)
-        val username = (json \ SCHEMA.fUsername).as[String]
-        val password = (json \ SCHEMA.fPassword).as[String]
-        val storedUser = pds.db.login(SCHEMA.cUsers, username, user.getEncryptedPassword(password))
-        if (storedUser == null) return RESPONSE.BAD("Incorrect username or password.")
-        if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
-        val accessToken = (storedUser.head \ SCHEMA.fAccessToken).as[String]
-        if (accessToken == null) return RESPONSE.BAD("User doesn't have access token.")
-
-        val userJson = storedUser.head.as[JsObject] - SCHEMA.fPassword
-        val res = Json.obj("user" -> userJson)
-
-        updateCachedModerators()
-        return RESPONSE.OK(res, "Successfully found user.")
-      }
-
-    inner(request)
-  }
-
-  def refreshLocal(): Action[AnyContent] = Action {
-    implicit request =>
-
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq: OAuth2Request = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        val json = anyReq.getJsonBody()
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
-        if (checkRequirements != null) return checkRequirements
-        LOG.D4("refresh: " + json)
-        val accessToken = (json \ SCHEMA.fAccessToken).as[String]
-
-        val storedUser = pds.db.getUserFromAccessToken(accessToken)
-        if (storedUser == null) return RESPONSE.BAD("User not found.")
-        if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
-
-        val user = storedUser(0).as[JsObject] - SCHEMA.fPassword
-        val res = Json.obj("user" -> user)
-
-        updateCachedModerators()
-        RESPONSE.OK(res, "Successfully found user.")
-      }
-
-      inner(request)
-  }
 
   def register(): Action[AnyContent] = Action {
     implicit request =>
@@ -111,6 +58,61 @@ class UserController @Inject()(cc: ControllerComponents,
         val res: JsValue = Json.obj("newUser" -> newUser)
         return RESPONSE.OK(res,"Successfully registered.")
       }
+      inner(request)
+  }
+
+
+  def loginLocal(): Action[AnyContent] = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUsername, SCHEMA.fPassword)
+        if (checkRequirements != null) return checkRequirements
+        LOG.D4("loginLocal: " + json)
+        val username = (json \ SCHEMA.fUsername).as[String]
+        val password = (json \ SCHEMA.fPassword).as[String]
+        val storedUser = pds.db.login(SCHEMA.cUsers, username, user.getEncryptedPassword(password))
+        if (storedUser == null) return RESPONSE.BAD("Incorrect username or password.")
+        if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
+        val accessToken = (storedUser.head \ SCHEMA.fAccessToken).as[String]
+        if (accessToken == null) return RESPONSE.BAD("User doesn't have access token.")
+
+        val userJson = storedUser.head.as[JsObject] - SCHEMA.fPassword
+        val res = Json.obj("user" -> userJson)
+
+        updateCachedModerators()
+        return RESPONSE.OK(res, "Successfully found user.")
+      }
+
+      inner(request)
+  }
+
+  def refreshLocal(): Action[AnyContent] = Action {
+    implicit request =>
+
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq: OAuth2Request = new OAuth2Request(request)
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        val json = anyReq.getJsonBody()
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fAccessToken)
+        if (checkRequirements != null) return checkRequirements
+        LOG.D4("refresh: " + json)
+        val accessToken = (json \ SCHEMA.fAccessToken).as[String]
+
+        val storedUser = pds.db.getUserFromAccessToken(accessToken)
+        if (storedUser == null) return RESPONSE.BAD("User not found.")
+        if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
+
+        val user = storedUser.head.as[JsObject] - SCHEMA.fPassword
+        val res = Json.obj("user" -> user)
+
+        updateCachedModerators()
+        RESPONSE.OK(res, "Successfully found user.")
+      }
+
       inner(request)
   }
 
@@ -306,14 +308,17 @@ class UserController @Inject()(cc: ControllerComponents,
     if (pds.db.isAdmin()) userType = "admin"
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id)) +
       (SCHEMA.fType -> JsString(userType))
+    var msg=""
     if (user != null) { // user and access_token exists
-      return RESPONSE.OK(user, "User Exists.")
+      msg="User Exists."
     } else {  // new user created
       val user = new Account(json)
       pds.db.addJson(SCHEMA.cUsers, user.toJson())
-
-      return RESPONSE.OK(user.toJson(), "Created new google user.")
+      msg="Created new google user."
     }
+
+    val response = Json.obj("user" -> user)
+    RESPONSE.OK(response, msg)
   }
 
   /**

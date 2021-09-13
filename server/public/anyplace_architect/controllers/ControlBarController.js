@@ -145,15 +145,12 @@ app.controller('ControlBarController',
         });
 
         promise.then(function (resp) {
-                // console.log(resp)
-                var data =resp.data;
+                var data =resp.data.user;
                 $scope.user.type = data.type;
                 // anyplace access token
                 $scope.user.access_token = data.access_token; // anyplace token
                 $scope.user.id =  data.owner_id; // anyplace id
                 app.user=$scope.user;
-
-                // $scope.user.access_token = resp.data.access_token; CLR
                 if ($scope.user && $scope.user.id) { $scope.$broadcast('loggedIn', []); }
             },
             function (resp) {
