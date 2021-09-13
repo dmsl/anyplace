@@ -1,8 +1,9 @@
 # MongoDB Tutorial
 Some quick tutorials on MongoDB
 
-
-
+See also:
+- [SCHEMA](./schema.png)
+- [How endpoints are invoked](./howto_endpoints.pdf)
 
 ### Scala Sample Queries:
 
@@ -12,7 +13,7 @@ Scala queries
 </summary>
 
   Find all published buildings.
-  ```
+  ```scala
   val collection = mdb.getCollection(SCHEMA.cSpaces)
   val query = BsonDocument(SCHEMA.fIsPublished -> "true")
   val buildings = collection.find(query)
@@ -21,7 +22,7 @@ Scala queries
   ```
   
   Get all near-by buildings, using bounding-box.
-  ```
+  ```scala
   val bbox = GeoPoint.getGeoBoundingBox(lat, lng, range)
   val collection = mdb.getCollection(SCHEMA.cSpaces)
   val buildingLookUp = collection.find(and(geoWithinBox(SCHEMA.fGeometry, bbox(0).dlat, bbox(0).dlon, bbox(1).dlat,
@@ -33,7 +34,7 @@ Scala queries
   ```
   
   Get fingerprints between two timestamps and sort them.
-  ```
+  ```scala
   val collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
   val fingerprints = collection.find(and(
     and(gt(SCHEMA.fTimestamp, "0"), lt(SCHEMA.fTimestamp, "999999999999999")),
@@ -44,7 +45,7 @@ Scala queries
   ```
   
   Get heatmaps based on buid and floor, but only project locatio, sum and count.
-  ```
+  ```scala
   val collection = mdb.getCollection(SCHEMA.cHeatmapWifi1)
   val query = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor)
   val radioPoints = collection.aggregate(Seq(
@@ -57,14 +58,13 @@ Scala queries
   ```
   
   Delete all edges of a floor.
-  ```
+  ```scala
   var collection = mdb.getCollection(SCHEMA.cEdges)
   val queryBuidA = BsonDocument(SCHEMA.fBuidA -> buid, SCHEMA.fFloorA -> floor_number)
   var deleted = collection.deleteMany(queryBuidA)
   ```
 
 </details>
-
 
 
 ### MongoDB Compass Queries
