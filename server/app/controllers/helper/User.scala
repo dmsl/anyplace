@@ -39,14 +39,53 @@ import datasources.{MongodbDatasource, ProxyDataSource, SCHEMA}
 import play.api.Configuration
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.JsValue
-import utils.LOG
+import play.api.libs.json.{JsValue, Json}
+import utils.{LOG, Network}
 
 import java.security.MessageDigest
 
 @Singleton
 class User @Inject()(pds: ProxyDataSource,
                      conf: Configuration){
+
+
+  /**
+   * Calls Google API to verify a Google users access token, which was sent by the client.
+   *
+   * @param authToken Google Authentication Token (OAuth)
+   * @return
+   */
+  def verifyGoogleUser(authToken: String): String = {
+    LOG.D3("User: verifyGoogleUser")
+    // remove the double string quotes due to json processing
+    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
+    var res = ""
+    try {
+      res = Network.GET(gURL)
+      LOG.D2("verifyGoogleUser: " + res)
+    } catch {
+      case e: Exception => LOG.E("verifyId", e)
+    }
+    if (res != null) {
+      try {
+        val json = Json.parse(res)
+        val uid = json \ "user_id"
+        val sub = json \ "sub"
+
+
+        if (uid.toOption.isDefined)
+          return uid.as[String]
+        if (sub.toOption.isDefined)
+          return sub.as[String]
+      } catch {
+        case iae: IllegalArgumentException => LOG.E("verifyId: " + iae.getMessage + "String: '" + res + "'");
+        case e: Exception => LOG.E("verifyId", e)
+      }
+    } else {
+      LOG.E("User: VerifyGoogleUser: failed.")
+    }
+    null
+  }
 
   /**
    * Checks in database if a user exists with the access_token of the json.
