@@ -24,7 +24,7 @@ import scala.concurrent.Await
 class UserController @Inject()(cc: ControllerComponents,
                                pds: ProxyDataSource,
                                mongoDB: MongodbDatasource,
-                               user: helper.User)
+                               userHelper: helper.User)
   extends AbstractController(cc) {
 
 
@@ -53,7 +53,7 @@ class UserController @Inject()(cc: ControllerComponents,
         // Check if the username is unique
         val storedUsername = pds.db.getFromKeyAsJson(SCHEMA.cUsers, SCHEMA.fUsername, username)
         if (storedUsername != null) return RESPONSE.BAD("Username is already taken.")
-        val newUser = pds.db.register(SCHEMA.cUsers, name, email, username, user.getEncryptedPassword(password), external, accType)
+        val newUser = pds.db.register(SCHEMA.cUsers, name, email, username, userHelper.getEncryptedPassword(password), external, accType)
         if (newUser == null) return RESPONSE.BAD("Please try again.")
         val res: JsValue = Json.obj("newUser" -> newUser)
         return RESPONSE.OK(res,"Successfully registered.")
@@ -74,7 +74,7 @@ class UserController @Inject()(cc: ControllerComponents,
         LOG.D4("loginLocal: " + json)
         val username = (json \ SCHEMA.fUsername).as[String]
         val password = (json \ SCHEMA.fPassword).as[String]
-        val storedUser = pds.db.login(SCHEMA.cUsers, username, user.getEncryptedPassword(password))
+        val storedUser = pds.db.login(SCHEMA.cUsers, username, userHelper.getEncryptedPassword(password))
         if (storedUser == null) return RESPONSE.BAD("Incorrect username or password.")
         if (storedUser.size > 1) return RESPONSE.BAD("More than one users were found.")
         val accessToken = (storedUser.head \ SCHEMA.fAccessToken).as[String]
@@ -156,7 +156,7 @@ class UserController @Inject()(cc: ControllerComponents,
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fUserId)
         if (checkRequirements != null) return checkRequirements
 
-        val owner_id = user.authorize(apiKey)
+        val owner_id = userHelper.authorize(apiKey)
         if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
 
         val userOwnerId = (json \ SCHEMA.fUserId).as[String]
@@ -184,7 +184,8 @@ class UserController @Inject()(cc: ControllerComponents,
           newUser = newUser.as[JsObject] + (SCHEMA.fUsername -> JsString(username))
         }
         if ((json \ SCHEMA.fPassword).toOption.isDefined) {
-          newUser = newUser.as[JsObject] + (SCHEMA.fPassword -> JsString(user.getEncryptedPassword((json \ SCHEMA.fPassword).as[String])))
+          newUser = newUser.as[JsObject] + (SCHEMA.fPassword ->
+            JsString(userHelper.getEncryptedPassword((json \ SCHEMA.fPassword).as[String])))
         }
         // Only admins can change type of user
         if ((json \ SCHEMA.fType).toOption.isDefined) {
@@ -281,7 +282,7 @@ class UserController @Inject()(cc: ControllerComponents,
     val hasExternal = JsonUtils.hasProperties(json, SCHEMA.fExternal) // TODO
     if (!hasExternal.isEmpty) return RESPONSE.MISSING_FIELDS(hasExternal)
 
-    var id = verifyGoogleUser((json \ SCHEMA.fAccessToken).as[String])
+    var id = userHelper.verifyGoogleUser((json \ SCHEMA.fAccessToken).as[String])
     if (id == null) return RESPONSE.UNAUTHORIZED_USER
     id = Utils.appendGoogleIdIfNeeded(id)
     json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(id))
@@ -293,6 +294,7 @@ class UserController @Inject()(cc: ControllerComponents,
     if (user != null) {
       hasAccessToken = (user \ SCHEMA.fAccessToken).toOption.isDefined
     }
+
     // user existed but had no Anyplace-specific Access Token
     // This happens when an existing Google User has logged in for the first time
     // in the MDB 4.2+ version.
@@ -312,8 +314,14 @@ class UserController @Inject()(cc: ControllerComponents,
     if (user != null) { // user and access_token exists
       msg="User Exists."
     } else {  // new user created
-      val user = new Account(json)
-      pds.db.addJson(SCHEMA.cUsers, user.toJson())
+
+      if((json \ SCHEMA.fName).toOption.isEmpty) {
+        return RESPONSE.BAD_API("A name must be provided when registering new Google account.")
+      }
+
+      LOG.D2("Registering new google user..")
+      user = new Account(json).toJson()
+      pds.db.addJson(SCHEMA.cUsers, user)
       msg="Created new google user."
     }
 
@@ -321,40 +329,5 @@ class UserController @Inject()(cc: ControllerComponents,
     RESPONSE.OK(response, msg)
   }
 
-  /**
-   * Calls Google API to verify a Google users access token, which was sent by the client.
-   *
-   * @param authToken Google Authentication Token (OAuth)
-   * @return
-   */
-  def verifyGoogleUser(authToken: String): String = {
-    LOG.D3("User: verifyGoogleUser")
-    // remove the double string quotes due to json processing
-    val gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken
-    var res = ""
-    try {
-      res = Network.GET(gURL)
-      LOG.D5("res: " + res)
-    } catch {
-      case e: Exception => LOG.E("verifyId", e)
-    }
-    if (res != null) {
-      try {
-        val json = Json.parse(res)
-        val uid = json \ "user_id"
-        val sub = json \ "sub"
-        if (uid.toOption.isDefined)
-          return uid.as[String]
-        if (sub.toOption.isDefined)
-          return sub.as[String]
-      } catch {
-        case iae: IllegalArgumentException => LOG.E("verifyId: " + iae.getMessage + "String: '" + res + "'");
-        case e: Exception => LOG.E("verifyId", e)
-      }
-    } else {
-      LOG.E("User: VerifyGoogleUser: failed.")
-    }
-    null
-  }
 }
 

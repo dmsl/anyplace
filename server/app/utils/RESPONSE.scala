@@ -127,8 +127,9 @@ object RESPONSE {
     def UNAUTHORIZED_USER : Result = UNAUTHORIZED("Unauthorized user.")
 
     def DEPRECATED(msg: String): Result = BAD("Deprecated API endpoint: " + msg)
-    def BAD_PARSE_JSON : Result = BAD("Cannot parse json in body.")
 
+    def BAD_API(msg: String): Result = BAD(msg + "(API ERROR)")
+    def BAD_PARSE_JSON : Result = BAD("Cannot parse json in body.")
 
     def BAD_CANNOT_ADD(str: String): Result = BAD("Exists or cannot add" + str)
     def BAD_CANNOT_ADD_SPACE: Result = BAD_CANNOT_ADD("Space")

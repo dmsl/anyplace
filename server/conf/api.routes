@@ -114,18 +114,21 @@ POST        /api/user/refresh                                 controllers.UserCo
 ###
 #  summary: Login for Google users
 #  description: |
-#       CHECK:NN /developers: put arguments:
-#       they are: "name"
-#       "external": "google"
-#       "access_token": Google OAuth access token for anyplace
-#       Also put this in the other endpoints as well!
+#       Login or register (on the first login) to Anyplace using a Google account.
+#
+#       The Google OAuth token is used retrieving the anyplace account.
+#       For all other requests, it uses the Anyplace Access Token, just like the local accounts.
 #  tags:
 #    - User
 #  parameters: [
 #   {
 #       "in": "body",
 #       "name": "Body",
-#       "description": "External Google account and Google Access Token",
+#       "description":
+#           "Login using a Google account.\n\n
+#           On the **first** login an Anyplace account is created.\n\n
+#           With the registration (initial login) please also provide the user's `name`
+#           in the json arguments. In all other cases it is ignored.",
 #       "required": true,
 #       "schema": {
 #           "$ref": "#/definitions/UserLoginGoogle"

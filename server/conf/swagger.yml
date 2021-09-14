@@ -331,7 +331,7 @@ definitions:
     properties:
       name:
         type: string
-        example: Alan Turing
+        example: "Alan Turing"
       email:
         type: string
         example: my_email@gmail.com
@@ -350,6 +350,9 @@ definitions:
       access_token:
           type: string
           example: AccessTokenFromGoogle
+      name:
+        type: string
+        example: "Alan Turing"
   UserLogin:
     type: object
     properties:
