@@ -70,6 +70,22 @@ POST        /api/user/register                              controllers.UserCont
 #  responses:
 #   200:
 #     description: success
+#     examples:
+#       application/json: |
+#            {
+#               "user":{
+#                  "name":"Alan Turing",
+#                  "email":"Alan@turing.com",
+#                  "username":"turing",
+#                  "access_token":"apLocal_ABC123ap",
+#                  "external":"anyplace",
+#                  "type":"user",
+#                  "owner_id":"turing_12341234_local"
+#               },
+#               "status":"success",
+#               "message":"Successfully found user.",
+#               "status_code":200
+#            }
 ###
 POST        /api/user/login                                 controllers.UserController.loginLocal()
 
@@ -98,17 +114,21 @@ POST        /api/user/refresh                                 controllers.UserCo
 ###
 #  summary: Login for Google users
 #  description: |
-#       CHECK:NN /developers: put arguments: they are: "name" (not used probably"
-#       "external" example: "google"
-#       "access_token": Google OAuth access token for anyplace
-#       Also put this in the other endpoints as well!
+#       Login or register (on the first login) to Anyplace using a Google account.
+#
+#       The Google OAuth token is used retrieving the anyplace account.
+#       For all other requests, it uses the Anyplace Access Token, just like the local accounts.
 #  tags:
 #    - User
 #  parameters: [
 #   {
 #       "in": "body",
 #       "name": "Body",
-#       "description": "External Google account and Google Access Token",
+#       "description":
+#           "Login using a Google account.\n\n
+#           On the **first** login an Anyplace account is created.\n\n
+#           With the registration (initial login) please also provide the user's `name`
+#           in the json arguments. In all other cases it is ignored.",
 #       "required": true,
 #       "schema": {
 #           "$ref": "#/definitions/UserLoginGoogle"
@@ -118,6 +138,20 @@ POST        /api/user/refresh                                 controllers.UserCo
 #  responses:
 #   200:
 #     description: success
+#     examples:
+#       application/json: |
+#            {
+#               "user":{
+#                  "name":"Alan Turing",
+#                  "access_token":"apGoogle_ABC123ap",
+#                  "external":"google",
+#                  "type":"user",
+#                  "owner_id":"123123_google"
+#               },
+#               "status":"success",
+#               "message":"User exists (or created).",
+#               "status_code":200
+#            }
 ###
 POST        /api/user/login/google                          controllers.UserController.loginGoogle()
 
