@@ -84,9 +84,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
 import cy.ac.ucy.cs.anyplace.lib.android.consts.DEFAULT;
 
-
-public class SelectBuildingActivity extends FragmentActivity implements FloorAnyplaceFloorListener,
-        ErrorAnyplaceFloorListener {
+public class SelectBuildingActivityOLD extends FragmentActivity implements FloorAnyplaceFloorListener,
+                                                                           ErrorAnyplaceFloorListener {
 
   public enum Mode {
     NONE, NEAREST, // Automatically show nearby Building
@@ -251,7 +250,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
     }
     // start automatically the buildings task if invisible mode
     if (mode != Mode.NONE) {
-      floorSelectorDialog = new ProgressDialog(SelectBuildingActivity.this);
+      floorSelectorDialog = new ProgressDialog(SelectBuildingActivityOLD.this);
       floorSelectorDialog.setIndeterminate(true);
       floorSelectorDialog.setTitle("Detecting floor");
       floorSelectorDialog.setMessage("Please be patient...");
@@ -371,7 +370,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
                 public void onErrorOrCancel(String result) {
                   Toast.makeText(getBaseContext(), result, Toast.LENGTH_SHORT).show();
                 }
-              }, SelectBuildingActivity.this, buid).execute();
+              }, SelectBuildingActivityOLD.this, buid).execute();
             } catch (Exception e) {
               Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -576,7 +575,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
       // only one
       if (floors.isEmpty()) {
         Toast.makeText(getBaseContext(), "No floors exist for the selected building!", Toast.LENGTH_SHORT).show();
-        SelectBuildingActivity.this.finish();
+        SelectBuildingActivityOLD.this.finish();
       } else if (floors.size() == 1) {
         if (mode == Mode.INVISIBLE)
           startFloorPlanTask();
@@ -651,7 +650,7 @@ public class SelectBuildingActivity extends FragmentActivity implements FloorAny
 
         @Override
         public void onPrepareLongExecute() {
-          dialog = new ProgressDialog(SelectBuildingActivity.this);
+          dialog = new ProgressDialog(SelectBuildingActivityOLD.this);
           dialog.setIndeterminate(true);
           dialog.setTitle("Downloading floor plan");
           dialog.setMessage("Please be patient...");

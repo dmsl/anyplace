@@ -1,15 +1,16 @@
-plugins {
-  id 'com.android.application'
-  id 'kotlin-android'
-
-  id 'androidx.navigation.safeargs'
-}
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'  // to send safeArgs between different fragments we must parcelize
+apply plugin: "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.safeargs'
+apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'maven-publish'  // CHECK:PM needed for jitpack.io?
 
 android {
   //  compileSdkVersion 29
   //  buildToolsVersion "30.0.2"
   compileSdkVersion 30
-  buildToolsVersion "30.0.2"
+  buildToolsVersion "30.0.3"
 
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.logger"
@@ -29,6 +30,8 @@ android {
       file("../secure.properties")?.withInputStream { secureProps.load(it) }
     }
     resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
+    resValue "string", "server_google_oauth_client_id", (
+            secureProps.getProperty("SERVER_GOOGLE_OAUTH_CLIENT_ID") ?: "")
   }
 
   kotlinOptions {
@@ -41,11 +44,10 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
-
   buildFeatures {
+    dataBinding true
     viewBinding true
   }
-
   packagingOptions {
     exclude 'META-INF/DEPENDENCIES'
   }
@@ -55,16 +57,19 @@ dependencies {
 
   // CORE
   //// KOTLIN
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
+//  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
   //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
-  implementation "androidx.core:core-ktx:1.3.2"
+  implementation "androidx.core:core-ktx:1.6.0"
+  //// UI NAVIGATION
+  implementation "androidx.navigation:navigation-fragment-ktx:$ver_nav"
+  implementation "androidx.navigation:navigation-ui-ktx:$ver_nav"
 
   //CHECK:PM CLR all deps that are already in lib?
   //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
   //  implementation 'androidx.core:core-ktx:1.3.2'
 
   // Internal libraries
-  implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation 'androidx.appcompat:appcompat:1.3.1'
   //// COROUTINES
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$ver_coroutines"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_coroutines"
@@ -78,27 +83,35 @@ dependencies {
   //// FusedLocation (coarse/fine grain)
   implementation 'com.google.android.gms:play-services-location:18.0.0'
   //// GOOGLE MAPS & UTILS
-  implementation 'com.google.android.gms:play-services-maps:17.0.0'
+  implementation 'com.google.android.gms:play-services-maps:17.0.1'
   implementation 'com.google.maps.android:android-maps-utils:2.2.2' // updated from 0.3 !
 
   implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
   implementation 'androidx.preference:preference-ktx:1.1.1'
-  //  implementation 'com.google.android.material:material:1.2.1'
-  implementation 'com.google.android.material:material:1.3.0'
+  implementation 'com.google.android.material:material:1.4.0'
+
+  //// DEPENDENCY INJECTION (dagger/hilt)
+  implementation "com.google.dagger:hilt-android:2.35"
+  implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  kapt "com.google.dagger:hilt-android-compiler:2.35"
 
   //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
   //  implementation 'androidx.activity:activity:1.2.0-alpha08'
-  implementation 'com.google.android.gms:play-services-maps:17.0.0'
   implementation 'com.google.android.gms:play-services-location:18.0.0'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
   implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+  // Retrofit
+  implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+  implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+
 
   //  implementation 'com.google.maps.android:android-maps-utils:2.2.0'
   //  implementation(name: 'androidsdk-release', ext: 'aar') // CLR
 
   /***                Anyplace libraries:                           ***/
-  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'           // JitPack
+  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'           // JitPack
   //  implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'   // JitPack
   // local inclusion: requires pulling the all submodules (see README.md)
   // implementation project(path: ':lib-core')

@@ -43,17 +43,18 @@ import android.content.pm.PackageManager
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import android.content.Intent
 import android.view.View
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.MapsActivity
+import cy.ac.ucy.cs.anyplace.lib.android.ui.login.LoginActivity
+import cy.ac.ucy.cs.anyplace.lib.android.ui.selector.space.SelectSpaceActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-// import cy.ac.ucy.cs.anyplace.logger.R // CHECK ?
-// import cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity
-
 class StartActivity : Activity() {
-
-  private val SPLASH_TIME_OUT = 2000L
+  private val TAG = StartActivity::class.java.simpleName
+  private val SPLASH_TIME_OUT = 100L
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -66,12 +67,31 @@ class StartActivity : Activity() {
     } catch (e: PackageManager.NameNotFoundException) {
       LOG.E("Cannot get version name.")
     }
+  }
 
+  override fun onResume() {
+    super.onResume()
     CoroutineScope(Main).launch {
       delay(SPLASH_TIME_OUT)
-      // startActivity(Intent(this@StartActivity, TestActivity::class.java))
-      startActivity(Intent(this@StartActivity, LoggerActivityOLD::class.java))
-      LOG.E("STARTING LOGGER OLD")
+
+      LOG.D2(TAG, "Opening map activity")
+      startActivity(Intent(this@StartActivity, MapsActivity::class.java))
+      // openInitialActivity()
+    }
+  }
+
+  private fun openInitialActivity() {
+    CoroutineScope(Main).launch {
+      // val user = app.dataStoreUser.readUser.first()
+      // if (user.accessToken.isNotBlank()) {
+      //   // TODO if space is selected, then open map directly
+      //   LOG.D2(TAG, "Opening SelectSpace activity")
+      //   // startActivity(Intent(this@StartFragmentActivity, SelectSpaceFragmentActivity::class.java))
+      // } else {
+      //   LOG.D2(TAG, "Opening Login activity")
+      //   // Start login activity
+      //   // startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
+      // }
       finish()
     }
   }

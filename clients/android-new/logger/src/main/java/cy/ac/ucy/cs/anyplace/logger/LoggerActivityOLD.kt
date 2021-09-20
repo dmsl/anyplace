@@ -44,8 +44,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.maps.android.clustering.ClusterManager
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes
-import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager
-import cy.ac.ucy.cs.anyplace.lib.android.wifi.WifiReceiver
+import cy.ac.ucy.cs.anyplace.lib.android.sensors.wifi.SimpleWifiManager
+import cy.ac.ucy.cs.anyplace.lib.android.sensors.wifi.WifiReceiver
 import android.app.ProgressDialog
 import android.content.SharedPreferences
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsMain
@@ -98,6 +98,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.sensors.thermal.FlirUtils
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.FileUtils
+import cy.ac.ucy.cs.anyplace.lib.android.utils.network.OLDNetworkUtils
 import cy.ac.ucy.cs.anyplace.logger.databinding.ActivityLoggerOldBinding
 import java.io.File
 import java.lang.Exception
@@ -124,14 +125,11 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private val PLAY_SERVICES_RESOLUTION_REQUEST = 9001
   private val PREFS_LOGGER_RESULT = 1114
   private val SELECT_PLACE_ACTIVITY_RESULT = 1112
-
   val mInitialZoomLevel = 18.0f
 
   // Google API
   // private val mLocationListener: LocationListener = this
-
   // TODO:PM Make most nullable vars lateinit
-
   // Location API
   // private LocationClient mLocationClient; // CLR ?
   // Define an object that holds accuracy and frequency parameters
@@ -1134,14 +1132,14 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
           // XXX WHAT IS THIS?!?! and WHY here?!?!
           LOG.E(TAG, "XXX: onLocationChanged(currentLocation)")
           // onLocationChanged(currentLocation)
-          val placeIntent = Intent(this@LoggerActivityOLD, SelectBuildingActivity::class.java)
+          val placeIntent = Intent(this@LoggerActivityOLD, SelectBuildingActivityOLD::class.java)
           val b = Bundle()
           if (currentLocation != null) {
             b.putString("coordinates_lat", currentLocation.latitude.toString())
             b.putString("coordinates_lon", currentLocation.longitude.toString())
           }
           if (buildingCurrent == null) {
-            b.putSerializable("mode", SelectBuildingActivity.Mode.NEAREST)
+            b.putSerializable("mode", SelectBuildingActivityOLD.Mode.NEAREST)
           }
           placeIntent.putExtras(b)
           startActivityForResult(placeIntent, SELECT_PLACE_ACTIVITY_RESULT)
@@ -1467,7 +1465,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private fun uploadRSSLog() {
     synchronized(upInProgressLock) {
       if (!upInProgress) {
-        if (!NetworkUtils.isOnline(this@LoggerActivityOLD)) {
+        if (!OLDNetworkUtils.isOnline(this@LoggerActivityOLD)) {
           Toast.makeText(applicationContext, "No Internet Connection", Toast.LENGTH_SHORT).show()
           return
         }
