@@ -3,13 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="lib-android/src/main/res/drawable/bottom_sheet_cv_logging_bg.xml" value="0.4197916666666667" />
         <entry key="lib-android/src/main/res/drawable/button_login.xml" value="0.4197916666666667" />
         <entry key="lib-android/src/main/res/drawable/button_login_google.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/button_login_local.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/button_logout.xml" value="0.4197916666666667" />
+        <entry key="lib-android/src/main/res/drawable/button_settings_circle.xml" value="0.4197916666666667" />
         <entry key="lib-android/src/main/res/drawable/button_settings_dialog.xml" value="0.21979166666666666" />
         <entry key="lib-android/src/main/res/drawable/button_settings_menu.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/button_settings_menu_item.xml" value="0.3963541666666667" />
+        <entry key="lib-android/src/main/res/drawable/button_settings_round.xml" value="0.4197916666666667" />
         <entry key="lib-android/src/main/res/drawable/custom_button.xml" value="0.41333333333333333" />
         <entry key="lib-android/src/main/res/drawable/custom_edittext.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/custom_input.xml" value="0.2911458333333333" />
@@ -31,23 +34,28 @@
         <entry key="lib-android/src/main/res/drawable/ic_password_focused.xml" value="0.2911458333333333" />
         <entry key="lib-android/src/main/res/drawable/ic_sad.xml" value="0.25885416666666666" />
         <entry key="lib-android/src/main/res/drawable/ic_settings.xml" value="0.3046875" />
+        <entry key="lib-android/src/main/res/drawable/ic_settings_dark.xml" value="0.4197916666666667" />
         <entry key="lib-android/src/main/res/drawable/ic_show_password.xml" value="0.2866666666666667" />
         <entry key="lib-android/src/main/res/drawable/ic_user.xml" value="0.2911458333333333" />
         <entry key="lib-android/src/main/res/drawable/ic_user_focused.xml" value="0.2911458333333333" />
         <entry key="lib-android/src/main/res/drawable/rounded_dialog.xml" value="0.15677083333333333" />
         <entry key="lib-android/src/main/res/drawable/settings_dialog_button.xml" value="0.21979166666666666" />
         <entry key="lib-android/src/main/res/layout-w1240dp/activity_login.xml" value="0.25937081659973227" />
+        <entry key="lib-android/src/main/res/layout-w1240dp/bottom_sheet_cv_logging.xml" value="0.25937081659973227" />
         <entry key="lib-android/src/main/res/layout-w936dp/activity_login.xml" value="0.302734375" />
         <entry key="lib-android/src/main/res/layout/activity_base_settings.xml" value="0.25" />
+        <entry key="lib-android/src/main/res/layout/activity_cv_logger.xml" value="0.31929347826086957" />
         <entry key="lib-android/src/main/res/layout/activity_login.xml" value="0.4474708171206226" />
         <entry key="lib-android/src/main/res/layout/activity_maps.xml" value="0.22418478260869565" />
         <entry key="lib-android/src/main/res/layout/activity_select_space.xml" value="0.23697916666666666" />
+        <entry key="lib-android/src/main/res/layout/bottom_sheet_cv_logging.xml" value="0.25" />
         <entry key="lib-android/src/main/res/layout/dialog_logger_settings.xml" value="0.25" />
         <entry key="lib-android/src/main/res/layout/dialog_main_settings.xml" value="0.37228260869565216" />
         <entry key="lib-android/src/main/res/layout/fragment_spaces_list.xml" value="0.2869791666666667" />
         <entry key="lib-android/src/main/res/layout/fragment_spaces_map.xml" value="0.2869791666666667" />
         <entry key="lib-android/src/main/res/layout/placeholder_space_row_layout.xml" value="0.23697916666666666" />
         <entry key="lib-android/src/main/res/layout/settings_activity.xml" value="0.24010416666666667" />
+        <entry key="lib-android/src/main/res/layout/space_filter_bottom_sheet.xml" value="0.3179347826086957" />
         <entry key="lib-android/src/main/res/layout/space_row_layout.xml" value="0.23697916666666666" />
         <entry key="lib-android/src/main/res/menu/main_menu.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/main_menu_base_settings.xml" value="0.3802083333333333" />
@@ -58,6 +66,7 @@
         <entry key="lib-android/src/main/res/xml/preferences_logger.xml" value="0.28854166666666664" />
         <entry key="lib-android/src/main/res/xml/prefs_main.xml" value="0.28854166666666664" />
         <entry key="lib-android/src/main/res/xml/root_preferences.xml" value="0.4036458333333333" />
+        <entry key="logger/src/main/res/layout/queried_pois_item_1_searchactivity.xml" value="0.3179347826086957" />
       </map>
     </option>
   </component>

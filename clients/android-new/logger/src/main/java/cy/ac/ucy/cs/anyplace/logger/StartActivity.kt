@@ -43,7 +43,8 @@ import android.content.pm.PackageManager
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import android.content.Intent
 import android.view.View
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.MapsActivity
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.logger.CvLoggerActivity
 import cy.ac.ucy.cs.anyplace.lib.android.ui.login.LoginActivity
 import cy.ac.ucy.cs.anyplace.lib.android.ui.selector.space.SelectSpaceActivity
 import kotlinx.coroutines.CoroutineScope
@@ -54,7 +55,7 @@ import kotlinx.coroutines.launch
 
 class StartActivity : Activity() {
   private val TAG = StartActivity::class.java.simpleName
-  private val SPLASH_TIME_OUT = 100L
+  private val SPLASH_TIME_OUT = 0L // TODO 100L ?
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -74,23 +75,26 @@ class StartActivity : Activity() {
     CoroutineScope(Main).launch {
       delay(SPLASH_TIME_OUT)
 
-      LOG.D2(TAG, "Opening map activity")
-      startActivity(Intent(this@StartActivity, MapsActivity::class.java))
-      // openInitialActivity()
+      // startActivity(Intent(this@StartActivity, MapsActivity::class.java))
+      openInitialActivity()
     }
   }
 
   private fun openInitialActivity() {
+    LOG.D2(TAG, "openInitialActivity")
     CoroutineScope(Main).launch {
+      startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
+
+      // SAMPLE CODE:
       // val user = app.dataStoreUser.readUser.first()
       // if (user.accessToken.isNotBlank()) {
       //   // TODO if space is selected, then open map directly
       //   LOG.D2(TAG, "Opening SelectSpace activity")
-      //   // startActivity(Intent(this@StartFragmentActivity, SelectSpaceFragmentActivity::class.java))
+      //   startActivity(Intent(this@StartFragmentActivity, SelectSpaceFragmentActivity::class.java))
       // } else {
       //   LOG.D2(TAG, "Opening Login activity")
       //   // Start login activity
-      //   // startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
+      //   startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
       // }
       finish()
     }
