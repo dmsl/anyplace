@@ -38,9 +38,10 @@
 -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:id="@+id/logger_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/loggerView"
@@ -68,7 +69,7 @@
 
 
         <Button
-            android:id="@+id/recordBtn"
+            android:id="@+id/btnRecord"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/logger_btn_record"
             android:layout_alignParentBottom="true"
@@ -108,7 +109,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/detectedAPs"
+            android:id="@+id/scanResults"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/textFloor"
@@ -132,31 +133,38 @@
 
         />
 
-      <ImageButton
+      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
+          custom:type="solid"
           android:id="@+id/btnFloorUp"
-          android:layout_width="50dp"
-          android:layout_height="50dp"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="50sp"
+          android:textColor="#000"
+          android:text="@string/fas_arrow_circle_up"
           android:layout_alignParentEnd="true"
           android:layout_marginRight="20dp"
           android:layout_centerInParent="true"
-          android:background="@drawable/arrow_up"
-          android:backgroundTint="@color/floor_arrow"
           android:contentDescription="Go one floor up"
           android:scaleType="fitCenter"
           />
+<!--      custom:type="solid"-->
 
-      <ImageButton
+      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
           android:id="@+id/btnFloorDown"
-          android:layout_width="50dp"
-          android:layout_height="50dp"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="50sp"
+          android:text="@string/fas_arrow_circle_up"
+          android:textColor="#000"
+          android:rotation="180"
+          android:contentDescription="Go one floor down"
+          android:scaleType="fitCenter"
           android:layout_alignParentEnd="true"
           android:layout_below="@+id/btnFloorUp"
           android:layout_marginRight="20dp"
           android:layout_marginTop="8dp"
-          android:background="@drawable/arrow"
-          android:contentDescription="Go one floor down"
-          android:scaleType="fitCenter"
           />
+
 
     </RelativeLayout>
 

@@ -1,106 +1,126 @@
 apply plugin: 'com.android.application'
-
-//def githubProperties = new Properties()
-//githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'  // to send safeArgs between different fragments we must parcelize
+apply plugin: "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.safeargs'
+apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'maven-publish'  // CHECK:PM needed for jitpack.io?
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+  //  compileSdkVersion 29
+  //  buildToolsVersion "30.0.2"
+  compileSdkVersion 30
+  buildToolsVersion "30.0.3"
 
-    defaultConfig {
-        applicationId "cy.ac.ucy.cs.anyplace.logger"
-        minSdkVersion 28
-        targetSdkVersion 29
-        versionCode 2
-        versionName "4.0"
+  defaultConfig {
+    applicationId "cy.ac.ucy.cs.anyplace.logger"
+    minSdkVersion 28
+    //   fffnoinspection OldTargetApi,ExpiredTargetSdkVersion
+    targetSdkVersion 30
+    versionCode 2
+    versionName "4.0"
 
-        //testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner' CHECK REMOVE?
+    // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
-        // Read the API key from ./secure.properties into R.string.maps_api_key
-        def secureProps = new Properties()
-        if (file("../secure.properties").exists()) {
-          file("../secure.properties")?.withInputStream { secureProps.load(it) }
-        }
-        resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
-
+    // INFO: reads Google Maps API key from secure.properties and
+    // puts into the resource: R.string.maps_api_key
+    // Read the API key from ./secure.properties into R.string.maps_api_key
+    def secureProps = new Properties()
+    if (file("../secure.properties").exists()) {
+      file("../secure.properties")?.withInputStream { secureProps.load(it) }
     }
+    resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
+    resValue "string", "server_google_oauth_client_id", (
+            secureProps.getProperty("SERVER_GOOGLE_OAUTH_CLIENT_ID") ?: "")
+  }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+  kotlinOptions {
+    jvmTarget = '1.8'
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
-
-//  repositories {
-//    maven {
-//      name = "GitHubPackages"
-//      /** Configure path of your package repository on Github
-//       ** Replace GITHUB_USERID with your/organisation Github userID
-//       ** and REPOSITORY with the repository name on GitHub
-//       */
-//      url = uri("https://maven.pkg.github.com/dmsl/anyplace-lib-android")
-//      credentials {
-//        /** Create github.properties in root project folder file with
-//         ** gpr.usr=GITHUB_USER_ID & gpr.key=PERSONAL_ACCESS_TOKEN
-//         ** Set env variable GPR_USER & GPR_API_KEY if not adding a properties file**/
-//
-//        username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
-//        password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
-//      }
-//    }
-//  }
+  }
+  buildFeatures {
+    dataBinding true
+    viewBinding true
+  }
   packagingOptions {
-    exclude 'kotlin/internal/internal.kotlin_builtins'
-    exclude 'kotlin/reflect/reflect.kotlin_builtins'
-    exclude 'okhttp3/internal/publicsuffix/NOTICE'
-    exclude 'kotlin/kotlin.kotlin_builtins'
-    exclude 'kotlin/coroutines/coroutines.kotlin_builtins'
-
     exclude 'META-INF/DEPENDENCIES'
-    exclude 'META-INF/LICENSE'
-    exclude 'META-INF/LICENSE.txt'
-    exclude 'META-INF/license.txt'
-    exclude 'META-INF/NOTICE'
-    exclude 'META-INF/NOTICE.txt'
-    exclude 'META-INF/notice.txt'
-    exclude 'META-INF/ASL2.0'
-    exclude 'kotlin/collections/collections.kotlin_builtins'
-    exclude 'kotlin/annotation/annotation.kotlin_builtins'
-    exclude("META-INF/*.kotlin_module")
-    exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
-    exclude 'kotlin/ranges/ranges.kotlin_builtins'
-
   }
 }
 
 dependencies {
 
-  implementation 'androidx.appcompat:appcompat:1.2.0'
-  implementation 'com.google.android.gms:play-services-maps:17.0.0'
-  implementation 'com.google.android.gms:play-services-location:17.1.0'
-  implementation 'com.google.android.gms:play-services-auth:18.1.0'
-  implementation 'com.google.maps.android:android-maps-utils:0.3.4'
-  implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+  // CORE
+  //// KOTLIN
+//  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
+  //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
+  implementation "androidx.core:core-ktx:1.6.0"
+  //// UI NAVIGATION
+  implementation "androidx.navigation:navigation-fragment-ktx:$ver_nav"
+  implementation "androidx.navigation:navigation-ui-ktx:$ver_nav"
 
-  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
-  // INFO: To include the module locally
-  // (This requires pulling the submodules from our github - see README
-//   implementation project(path: ':lib-core')
+  //CHECK:PM CLR all deps that are already in lib?
+  //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
+  //  implementation 'androidx.core:core-ktx:1.3.2'
 
-//  implementation project(path: ':lib')
+  // Internal libraries
+  implementation 'androidx.appcompat:appcompat:1.3.1'
+  //// COROUTINES
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$ver_coroutines"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_coroutines"
+  implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle"
+  implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
 
-    implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'
-  //
+  //  implementation 'com.google.android.gms:play-services-auth:19.0.0' // CLR?
+  // FusedLocation provider (coarse/fine grain)
+  //  implementation 'com.google.android.gms:play-services-location:17.1.0' // CLR?
+  // GOOGLE SERVICES
+  //// FusedLocation (coarse/fine grain)
+  implementation 'com.google.android.gms:play-services-location:18.0.0'
+  //// GOOGLE MAPS & UTILS
+  implementation 'com.google.android.gms:play-services-maps:17.0.1'
+  implementation 'com.google.maps.android:android-maps-utils:2.2.2' // updated from 0.3 !
 
-//  implementation("com.github.dmsl:anyplace-lib-android:1.0")1
-  implementation 'androidx.activity:activity:1.2.0-alpha08'
-  implementation 'androidx.preference:preference:1.1.0'
-  implementation 'com.google.android.material:material:1.0.0'
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+  implementation 'androidx.preference:preference-ktx:1.1.1'
+  implementation 'com.google.android.material:material:1.4.0'
 
-    testImplementation 'junit:junit:4.13'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+  //// DEPENDENCY INJECTION (dagger/hilt)
+  implementation "com.google.dagger:hilt-android:2.35"
+  implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  kapt "com.google.dagger:hilt-android-compiler:2.35"
+
+  //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
+  //  implementation 'androidx.activity:activity:1.2.0-alpha08'
+  implementation 'com.google.android.gms:play-services-location:18.0.0'
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+  implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+  // Retrofit
+  implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+  implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
 
+
+  //  implementation 'com.google.maps.android:android-maps-utils:2.2.0'
+  //  implementation(name: 'androidsdk-release', ext: 'aar') // CLR
+
+  /***                Anyplace libraries:                           ***/
+  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'           // JitPack
+  //  implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'   // JitPack
+  // local inclusion: requires pulling the all submodules (see README.md)
+  // implementation project(path: ':lib-core')
+  implementation project(path: ':lib-android')
+  implementation project(path: ':lib-core')
+
+
+  // Testing:
+  // testImplementation 'junit:junit:4.13'
+  // androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+  // androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

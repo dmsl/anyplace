@@ -1,45 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cy.ac.ucy.cs.anyplace.logger">
+  package="cy.ac.ucy.cs.anyplace.logger">
 
+  <!-- FLIR attachable usb unit -->
+  <uses-feature android:name="android.hardware.usb.host" android:required="true" />
 
+  <!-- CHECK: FLIR requires gles3.0. is yolo ok with that? anyplace? -->
+  <!-- <uses-feature android:glEsVersion="0x00020000" android:required="true" />-->
+  <uses-feature android:glEsVersion="0x00030000" android:required="true" />
 
-
-<!--  <permission-->
-<!--      android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"-->
-<!--      android:protectionLevel="signature" />-->
-
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+  <!--  TODO XXX FIX external access.. -->
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
   <!--
        The following two permissions are not required to use
        Google Maps Android API v2, but are recommended.
   -->
-  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-  <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-  <uses-feature
-      android:glEsVersion="0x00020000"
-      android:required="true" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+  <!--  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
+  <permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+
+  <!--  <permission-->
+  <!--      android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"-->
+  <!--      android:protectionLevel="signature" />-->
+
+
+  <!-- android:requestLegacyExternalStorage="true"-->
+  <!--android:theme="@style/Theme.AnyplaceTheme"-->
   <application
-      android:allowBackup="true"
-      android:icon="@drawable/anyplace_logo_icon_bg"
-      android:label="@string/app_name"
-      android:theme="@style/Theme.AnyplaceTheme" >
-
+    android:name=".LoggerApp"
+    android:icon="@drawable/ic_launcher_logger"
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme"
+    >
     <activity
-        android:name="StartActivity"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+      android:name="StartActivity"
+      android:label="@string/app_name"
+      android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -47,38 +57,37 @@
       </intent-filter>
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.AnyplaceAboutActivity"
-        android:label="@string/app_name_about"
-        android:theme="@android:style/Theme.Dialog" >
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
+      android:name="cy.ac.ucy.cs.anyplace.logger.AnyplaceAboutActivity"
+      android:label="@string/app_name_about"
+      android:theme="@android:style/Theme.Dialog" >
+      <!--      <intent-filter>-->
+      <!--        <action android:name="android.intent.action.MAIN" />-->
+      <!--        <category android:name="android.intent.category.DEFAULT" />-->
+      <!--      </intent-filter>-->
     </activity>
 
     <!-- singleTop before <0.8 ! -->
 
     <activity
-        android:name="SearchPOIActivity"
-        android:label="Search POI"
-        android:launchMode="singleTop"
-        android:screenOrientation="portrait"
-        android:theme="@android:style/Theme.Light" >
+      android:name="SearchPOIActivity"
+      android:label="Search POI"
+      android:launchMode="singleTop"
+      android:screenOrientation="portrait"
+      android:theme="@android:style/Theme.Light" >
       <intent-filter>
         <action android:name="android.intent.action.SEARCH" />
       </intent-filter>
 
       <meta-data
-          android:name="android.app.searchable"
-          android:resource="@xml/searchable" />
+        android:name="android.app.searchable"
+        android:resource="@xml/searchable" />
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.SelectBuildingActivity"
-        android:excludeFromRecents="true"
-        android:label="@string/app_name"
-        android:screenOrientation="portrait"
-        android:theme="@android:style/Theme.Dialog" >
+      android:name="cy.ac.ucy.cs.anyplace.logger.SelectBuildingActivityOLD"
+      android:excludeFromRecents="true"
+      android:label="@string/app_name"
+      android:screenOrientation="portrait"
+      android:theme="@android:style/Theme.Dialog" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -86,47 +95,52 @@
       </intent-filter>
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.AnyplaceLoggerActivity"
-        android:configChanges="keyboardHidden|orientation"
-        android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-        android:label="@string/app_name_logger"
-        android:screenOrientation="nosensor" >
+      android:name="cy.ac.ucy.cs.anyplace.logger.LoggerActivityOLD"
+      android:configChanges="keyboardHidden|orientation"
+      android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+      android:label="@string/app_name_logger"
+      android:screenOrientation="nosensor" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
+
+      <intent-filter>
+        <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+      </intent-filter>
+      <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+        android:resource="@xml/flir_usb_device_filter" />
     </activity>
     <activity
-        android:name="AnyplacePrefs"
-        android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-        android:label="@string/prefs_name_anyplace"
-        android:screenOrientation="nosensor" >
+      android:name="AnyplacePrefs"
+      android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+      android:label="@string/prefs_name_anyplace"
+      android:screenOrientation="nosensor" >
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.LoggerPrefs"
-        android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-        android:label="@string/prefs_name_logger"
-        android:screenOrientation="nosensor" >
+      android:name="cy.ac.ucy.cs.anyplace.logger.LoggerPrefs"
+      android:icon="@drawable/anyplace_logo_icon_actionbar_white"
+      android:label="@string/prefs_name_logger"
+      android:screenOrientation="nosensor" >
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.AndroidFileBrowser"
-        android:label="@string/app_choose_folder"
-        android:screenOrientation="portrait" >
+      android:name="cy.ac.ucy.cs.anyplace.logger.AndroidFileBrowser"
+      android:label="@string/app_choose_folder"
+      android:screenOrientation="portrait" >
     </activity>
     <activity
-        android:name="cy.ac.ucy.cs.anyplace.logger.SettingsActivity"
-        android:label="@string/prefs_name_anyplace"
-        android:screenOrientation="portrait" >
+      android:name="cy.ac.ucy.cs.anyplace.logger.OLDLoggerSettingsActivity"
+      android:label="@string/prefs_name_anyplace"
+      android:screenOrientation="portrait" >
     </activity>
 
     <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
+      android:name="com.google.android.gms.version"
+      android:value="@integer/google_play_services_version" />
 
     <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="@string/maps_api_key" />
+      android:name="com.google.android.geo.API_KEY"
+      android:value="@string/maps_api_key" />
   </application>
 
 </manifest>

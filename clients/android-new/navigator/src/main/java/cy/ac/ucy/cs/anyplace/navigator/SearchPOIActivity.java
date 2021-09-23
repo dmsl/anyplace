@@ -59,6 +59,7 @@ import android.widget.Toast;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.FragmentActivity;
 
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.IPoisClass;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
@@ -76,9 +77,14 @@ public class SearchPOIActivity extends FragmentActivity {
 
 	private AnyPlaceSeachingHelper.SearchTypes mSearchType;
 
+
+  private AnyplaceApp app;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		app = (AnyplaceApp) getApplication();
 
 		setTitle("Points of Interest");
 		setContentView(R.layout.activity_search_poi);
@@ -126,7 +132,9 @@ public class SearchPOIActivity extends FragmentActivity {
 			double lat = intent.getDoubleExtra("lat", 0);
 			double lng = intent.getDoubleExtra("lng", 0);
           String key = getString(R.string.maps_api_key);
-			AnyplaceSuggestionsTask mSuggestionsTask = new AnyplaceSuggestionsTask(new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
+			AnyplaceSuggestionsTask mSuggestionsTask = new AnyplaceSuggestionsTask(
+			        app,
+			        new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
 
 				@Override
 				public void onSuccess(String result, List<? extends IPoisClass> pois) {
@@ -186,7 +194,7 @@ public class SearchPOIActivity extends FragmentActivity {
 					txtResultsFound.setText("Results found [ " + cursor.getCount() + " ]");
 				}
 
-			}, this, mSearchType, new GeoPoint(lat, lng), query, key);
+			}, mSearchType, new GeoPoint(lat, lng), query, key);
 			mSuggestionsTask.execute();
 
 		}
