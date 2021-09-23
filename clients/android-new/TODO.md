@@ -73,12 +73,6 @@ Legacy Anyplace stores them at:
 ## CLEANUP OF TASKS:
 ### FetchPoiByPuidTask
 
-# DEPRECATE
-## jcenter() (easypermissions)
-Very soon will go down. should use mavenCentral()
-easypermissions is still migrating though.
-MORE: https://github.com/googlesamples/easypermissions/issues/319
-
 # CLEANUP
 ## possible whatever class implements Serializable
 - Use ROOM + Gson

@@ -1,31 +1,27 @@
-// Top-level build file:  configuration common to all sub-projects/modules.
-
 buildscript {
   ext {
-    ver_android_gradle_plugin = '4.2.1'
-    ver_kotlin= '1.4.32' // kapt fails with higher version (w/ hilt)
-
-    // ver_hilt= '2.33-beta' // TODO::PM This is out of beta! Use it!
-    nav_version = "2.3.5"
+    ver_android_gradle_plugin = '7.0.2'
+    ver_kotlin= '1.5.21' // kapt fails with higher version (w/ hilt)
+    ver_hilt= '2.36' // 2.35 had issues
+    // CHECK: 2.4.0-alpha05
+    ver_nav = "2.3.5" // has warning: BaseVariant.getApplicationIdTextResource
+    // ver_nav_ui ="2.3.5" // CLR:PM
     ver_lifecycle = "2.3.1"
     ver_coroutines = '1.4.3-native-mt'
-    ver_nav_ui ="2.3.5"
   }
 
   repositories {
     google()
     mavenCentral()
-    jcenter()  // DEPRECATE (easypermissions)
   }
 
   dependencies {  // No app dependencies here (those in individual modules)
     classpath "com.android.tools.build:gradle:${ver_android_gradle_plugin}"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$ver_kotlin"
-
-    // Navigation
-    classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
-    // Dependency injection
-    // classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
+    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
+    // for Navigation Component
+    classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$ver_nav"
+    // for Dependency injection
+    classpath "com.google.dagger:hilt-android-gradle-plugin:$ver_hilt"
   }
 }
 
@@ -33,10 +29,7 @@ allprojects {
   repositories {
     google()
     mavenCentral()
-    jcenter()  // DEPRECATE (easypermissions)
-    maven {
-      url 'https://jitpack.io'
-    }
+    maven { url 'https://jitpack.io' } // for publishing
   }
 }
 

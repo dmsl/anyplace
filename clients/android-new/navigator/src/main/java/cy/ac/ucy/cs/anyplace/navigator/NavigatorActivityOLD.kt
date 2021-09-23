@@ -103,10 +103,10 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.NavOutdoorTask.NavDirectionsListe
 import cy.ac.ucy.cs.anyplace.lib.android.tracker.AnyplaceTracker.*
 import cy.ac.ucy.cs.anyplace.lib.android.tracker.TrackerLogicPlusIMU
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils
-import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils
+// import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint
-import cy.ac.ucy.cs.anyplace.lib.android.utils.NetworkUtils
-import cy.ac.ucy.cs.anyplace.lib.android.wifi.SimpleWifiManager
+import cy.ac.ucy.cs.anyplace.lib.android.utils.network.OLDNetworkUtils
+import cy.ac.ucy.cs.anyplace.lib.android.sensors.wifi.SimpleWifiManager
 import cy.ac.ucy.cs.anyplace.navigator.databinding.ActivityNavigatorOldBinding
 import java.io.File
 import java.util.*
@@ -447,7 +447,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
     }
     val wifi = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
     val isWifiOn = wifi.isWifiEnabled
-    val isOnline = NetworkUtils.isOnline(this@NavigatorActivityOLD)
+    val isOnline = OLDNetworkUtils.isOnline(this@NavigatorActivityOLD)
     if (!isOnline) {
       AndroidUtils.showWifiSettings(this, "No Internet Connection", null, checkGPS)
     } else if (!isWifiOn) {
@@ -1341,7 +1341,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
 
   // </ NAVIGATION FUNCTIONS
   private fun startNavigationTask(id: String) {
-    if (!NetworkUtils.isOnline(this)) {
+    if (!OLDNetworkUtils.isOnline(this)) {
       Toast.makeText(this, WARN_NO_NETWORK, Toast.LENGTH_SHORT).show()
       return
     }

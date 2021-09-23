@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 
-class SettingsActivity : AppCompatActivity() {
+class OLDLoggerSettingsActivity : AppCompatActivity() {
   companion object {
     private val TAG = SettingsFragment::class.java.simpleName
   }
