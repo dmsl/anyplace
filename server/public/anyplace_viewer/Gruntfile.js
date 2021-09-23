@@ -7,8 +7,9 @@ module.exports = function (grunt) {
     concat: {
       js: {
         src: [
-          'app.js',
-          '../js/shared.js',
+          '../shared/js/*.js',                  // FIRST
+          'app.js',                             // SECOND
+          '../shared/js/anyplace-core-js/*.js',
           'scripts/*.js',
           'controllers/*.js'
         ],
@@ -16,8 +17,8 @@ module.exports = function (grunt) {
       },
       css: {
         src: [
-          'style/*.css',
-          '../style/*.css'
+          '../shared/css/*.css',
+          'style/*.css'
         ],
         dest: 'build/css/anyplace.css'
       }
@@ -49,10 +50,9 @@ module.exports = function (grunt) {
           src: ['**/*.{png,jpg,gif,svg}'],
           dest: 'build/images/'
         },
-          // shared images folder
-          {
+          {  // shared images folder
             expand: true,
-            cwd: '../images/',
+            cwd: '../shared/images/',
             src: ['**/*.{png,jpg,gif,svg}'],
             dest: 'build/images/'
           },
@@ -60,42 +60,34 @@ module.exports = function (grunt) {
       }
     },
 
-    //compress: {
-    //    main: {
-    //        options: {
-    //            mode: 'gzip'
-    //        },
-    //        files: [
-    //            {expand: true, src: ['build/js/*.min.js'], dest: '.', ext: '.min.js.gz'},
-    //            {expand: true, src: ['build/css/*.min.css'], dest: '.', ext: '.min.css.gz'}
-    //        ]
-    //    }
-    //},
-
     watch: {
       js: {
-        files: ['app.js', '../js/shared.js', 'scripts/*.js', 'controllers/*.js'],
+        files: [
+          'app.js',
+          '../shared/js/*.js',
+          '../shared/js/anyplace-core-js/*.js',
+          'scripts/*.js',
+          'controllers/*.js'],
         tasks: ['concat:js', 'uglify'],
         options: {
           spawn: false
         }
       },
       css: {
-        files: ['style/*.css', '../style/*.css'],
+        files: ['style/*.css', '../shared/css/*.css'],
         tasks: ['concat:css', 'cssmin'],
         options: {
           spawn: false
         }
       },
       images: {
-        files: ['../images/*'],
+        files: ['../shared/images/*'],
         tasks: ['imagemin'],
         options: {
           spawn: false
         }
       }
     }
-
   });
 
   // 3. Where we tell Grunt we plan to use this plug-in.

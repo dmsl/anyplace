@@ -42,9 +42,18 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     $scope.isFirefox = navigator.userAgent.search("Firefox") > -1;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
+    }
 
     $scope.tab = 1;
 
@@ -151,7 +160,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                     //var radius = position.coords.accuracy;
 
                     $scope.userPosition = posLatlng;
-
                     $scope.displayMyLocMarker(posLatlng);
 
                     var infowindow = new google.maps.InfoWindow({
@@ -172,8 +180,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                         });
                     }
 
-
-
                     if (!pannedToUserPosOnce) {
                         GMapService.gmap.panTo(posLatlng);
                         GMapService.gmap.setZoom(19);
@@ -182,7 +188,8 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                        LOG.D2("ControlBarController: geolocation")
+                        HandleGeolocationError($scope, err.code);
                     });
                 },     {
                     enableHighAccuracy: false,
@@ -231,13 +238,10 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     };
 
     // check if android device to prompt.
-
     var ua = navigator.userAgent.toLowerCase();
     var isAndroid = ua.indexOf("android") > -1 && !ua.indexOf("windows") > -1;
     var d = $('#android_top_DIV_1');
-    if (d)
-        if (isAndroid)
-            d.css({display: 'block'});
+    if (d) if (isAndroid)  d.css({display: 'block'});
 
     $scope.centerViewToSelectedItem = function () {
         var position = {};

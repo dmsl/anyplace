@@ -1,7 +1,0 @@
-{
-					"views": {
-						"all_by_cuid": {
-							"map": "function (doc, meta) {\n  if( doc.cuid && !doc.buid)\n    // delete pois & floor & building & connection\n  \temit( doc.cuid, meta.id);\n  \n}"
-						}
-					}
-				}

@@ -40,10 +40,18 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
     $scope.anyAPI = AnyplaceAPIService;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
 
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
+    }
 
     $scope.myBuildings = [];
 
@@ -86,19 +94,21 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
 
     $scope.fetchAllPoi = function (letters , cuid) {
 
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus, "letters":letters, "greeklish":$scope.greeklish };
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",
+            "access-control-allow-credentials": "true",    "content-length": "17516",
+            "content-type": "application/json" , "buid":$scope.buid , "cuid":$scope.urlCampus,
+            "letters":letters, "greeklish":$scope.greeklish };
+        if (jsonReq.greeklish == null) jsonReq.greeklish = "true";
+
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
                 var data = resp.data;
                 $scope.myallPois = data.pois;
-
                 var sz = $scope.myallPois.length;
-
                 for (var i = sz - 1; i >= 0; i--) {
                     $scope.myallPois[i].buname=$scope.myBuildingsnames[$scope.myallPois[i].buid];
                 }
-
             },
             function (resp) {
                 var data = resp.data;
@@ -115,18 +125,16 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
         }
     });
 
-    $scope.fetchAllBuildings = function () {
+    $scope.getSpacesPublic = function () {
         var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
 
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+        var promise = $scope.anyAPI.spacePublic(jsonReq);
         promise.then(
-            function (resp) {
-                // on success
+            function (resp) { // on success
                 var data = resp.data;
-                //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
                 $scope.greeklish = data.greeklish;
 
                 for (var i = 0; i < $scope.myBuildings.length; i++) {
@@ -143,7 +151,7 @@ app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService',
         );
     };
 
-    $scope.fetchAllBuildings();
+    $scope.getSpacesPublic();
 
     var _latLngFromBuilding = function (b) {
         if (b && b.coordinates_lat && b.coordinates_lon) {

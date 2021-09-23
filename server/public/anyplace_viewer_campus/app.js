@@ -27,16 +27,11 @@
 
 var app = angular.module('anyViewer', ['ngRoute', 'ui.bootstrap', 'ui.select', 'ngSanitize', 'ngMaterial', 'angular-loading-bar']);
 
-
 app.service('GMapService', function () {
-
     this.gmap = {};
     this.directionsDisplay = undefined;
     this.directionsService = undefined;
-//    this.searchBox = {};
-
     var self = this;
-
     var element = document.getElementById("map-canvas");
 
     /**
@@ -142,15 +137,12 @@ app.service('GMapService', function () {
         return tile;
     };
 
-
-    var mapTypeId = "roadmap";
+    var mapTypeId = DEFAULT_MAP_TILES;
     if (typeof(Storage) !== "undefined" && localStorage) {
-        if (localStorage.getItem('mapTypeId'))
-            mapTypeId = localStorage.getItem('mapTypeId');
-        else
-            localStorage.setItem("mapTypeId", "roadmap");
+        localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);// FORCE OSM
+        // if (localStorage.getItem('mapTypeId')) mapTypeId = localStorage.getItem('mapTypeId');
+        // else localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);
     }
-
 
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
@@ -170,6 +162,13 @@ app.service('GMapService', function () {
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             position: google.maps.ControlPosition.LEFT_CENTER
         }
+    });
+
+    // WORKAROUNDS:
+    google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+        // Once map object is rendered, hide gmaps warning (billing account)
+        // We are migrating to leaflet for this.
+        $(".dismissButton").click();
     });
 
   self.gmap.addListener('maptypeid_changed', function () {
@@ -207,7 +206,6 @@ app.service('GMapService', function () {
         if (self.gmap.getMapTypeId() === "CartoLight")
             attributionElm.innerHTML = '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>';
     }
-
 
     //Define OSM map type pointing at the OpenStreetMap tile server
     self.gmap.mapTypes.set("OSM", new OSMMapType(new google.maps.Size(256, 256)));

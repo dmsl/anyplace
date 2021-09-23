@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -36,15 +36,20 @@
 
 app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
-    var _POI_CONNECTOR_IMG = 'build/images/edge-connector-icon.png';
-    var _POI_EXISTING_IMG = 'build/images/any-poi-icon-blue.png';
-    var _POI_NEW_IMG = 'build/images/poi-icon.png';
+    // var _POI_CONNECTOR_IMG = 'build/images/edge-connector.png';
+    // var _POI_EXISTING_IMG = 'build/images/any-poi-icon-blue.png';
+
+    var _POI_EXISTING_IMG = 'build/images/poi.png';
+    var _POI_NEW_IMG = 'build/images/poi-new.png';
 
     var _MARKERS_IMG_RAW_SIZE = new google.maps.Size(62, 93);
+    var _MARKERS_IMG_RAW_SIZEsq = new google.maps.Size(93, 93);
+
     // 21, 32 old size
     var _MARKERS_SIZE_NORMAL = new google.maps.Size(21, 32);
-    var _MARKERS_SIZE_BIG = new google.maps.Size(31, 48);
-
+    var _MARKERS_SIZE_NORMALsq = new google.maps.Size(32, 32);
+    // var _MARKERS_SIZE_BIG = new google.maps.Size(31, 48);
+    var _MARKERS_SIZE_BIGsq = new google.maps.Size(48, 48);
     var HIDE_POIS_ZOOM_LEVEL = 17;
 
     $scope.anyService = AnyplaceService;
@@ -105,8 +110,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     }
 
     $scope.fetchAllPoi = function (letters , buid) {
-
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters , "greeklish":$scope.greeklish};
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",
+            "access-control-allow-credentials": "true",    "content-length": "17516",
+            "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters , "greeklish":$scope.greeklish};
+        if (jsonReq.greeklish == null) jsonReq.greeklish = "true";
         var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
         promise.then(
             function (resp) {
@@ -204,10 +211,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         GMapService.gmap.panTo(_latLngFromPoi(newVal));
         GMapService.gmap.setZoom(20);
 
-
-
         // make previous selected POI's marker smaller
-        if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] && $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
+        if (prevSelectedPoi && prevSelectedPoi.puid && $scope.myPoisHashT[prevSelectedPoi.puid] &&
+            $scope.myPoisHashT[prevSelectedPoi.puid].marker) {
             $scope.myPoisHashT[prevSelectedPoi.puid].marker.setIcon(_getNormalPoiIconNormal(prevSelectedPoi));
             if (GMapService.gmap.getZoom() <= HIDE_POIS_ZOOM_LEVEL) {
                 $scope.myPoisHashT[prevSelectedPoi.puid].marker.setVisible(false);
@@ -251,14 +257,31 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         return parseInt(value.floor_number) + value.name;
     };
 
-    var _getImageIconForPoi = function (poi) {
-        var img = 'build/images/any-poi-icon-blue.png';
+    // standard poi icon requires a square NxN size
+    var _getImageIconSizeForPoi = function (poi) {
+        var sz=_MARKERS_SIZE_NORMALsq;
+        if ($scope.isFirefox) sz=_MARKERS_IMG_RAW_SIZEsq;
 
-        if (poi.is_building_entrance  && poi.is_building_entrance !== "false") {
+        if (poi.is_building_entrance && poi.is_building_entrance ||
+            poi.pois_type === "Stair" ||
+            poi.pois_type === "Elevator") {
+            sz=_MARKERS_SIZE_NORMAL;
+            if ($scope.isFirefox)
+                sz=_MARKERS_IMG_RAW_SIZE;
+        }
+
+        return sz;
+    }
+
+    var _getImageIconForPoi = function (poi) {
+        // var _POI_EXISTING_IMG = 'build/images/poi.png';
+        var img = _POI_EXISTING_IMG;
+
+        if (poi.is_building_entrance && poi.is_building_entrance !== "false") {
             img = 'build/images/poi_icon_entrance-green.png';
-        } else if (poi.pois_type == "Stair") {
+        } else if (poi.pois_type === "Stair") {
             img = 'build/images/poi_icon_stairs-orange.png';
-        } else if (poi.pois_type == "Elevator") {
+        } else if (poi.pois_type === "Elevator") {
             img = 'build/images/poi_icon_elevator-purple.png';
         }
 
@@ -266,32 +289,25 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     };
 
     var _getBiggerPoiIcon = function (poi) {
-        var img = _getImageIconForPoi(poi).replace(/\-[a-z]+\.png/gi, "-red.png");
+        // var _POI_NEW_IMG = 'build/images/poi-new.png';
+        var img = _POI_NEW_IMG;
 
-        var s = _MARKERS_SIZE_BIG;
-        if ($scope.isFirefox)
-            s = _MARKERS_IMG_RAW_SIZE;
-
+        var s = _MARKERS_SIZE_BIGsq;
+        if ($scope.isFirefox) s = _MARKERS_IMG_RAW_SIZE;
 
         return {
             url: img,
             size: s,
-            scaledSize: _MARKERS_SIZE_BIG
+            scaledSize: _MARKERS_SIZE_BIGsq
         }
     };
 
     var _getNormalPoiIconNormal = function (poi) {
-
-        var s = _MARKERS_SIZE_NORMAL;
-        if ($scope.isFirefox)
-            s = _MARKERS_IMG_RAW_SIZE;
-
         return {
             url: _getImageIconForPoi(poi),
-            size: s,
-            scaledSize: _MARKERS_SIZE_NORMAL
-        }
-    };
+            size: _getImageIconSizeForPoi(poi),
+            scaledSize: _getImageIconSizeForPoi(poi)}
+    }
 
     var _clearPoiRoutePolyline = function () {
         for (var fkey in poiRoutePolyline) {
@@ -641,7 +657,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.startNavFromPoi = function () {
         $scope.poiRouteState.from = $scope.anyService.selectedPoi;
-        _suc($scope, "Now you can click on another POI to draw the indoor path between the 2 points.");
+        _suc($scope, "Click to another POI to get directions.");
     };
 
     $scope.getHtml5GeoLocation = function (callback, errcallback) {
@@ -779,7 +795,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 },
                 function (err) {
                     $scope.$apply(function () {
-                      HandleGeolocationError(err.code);
+                      HandleGeolocationError($scope, err.code);
                     });
                 }
             );
@@ -837,13 +853,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             }
 
             var imgType = _getImageIconForPoi(p);
-
-            var size = _MARKERS_SIZE_NORMAL;
+            var size = _getImageIconSizeForPoi(p);
 
             if ($scope.isFirefox)
                 size = new google.maps.Size(62, 93);
 
-            var scaledSize = _MARKERS_SIZE_NORMAL;
+            var scaledSize = _getImageIconSizeForPoi(p);
 
             marker = new google.maps.Marker({
                 position: _latLngFromPoi(p),
@@ -872,7 +887,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 + '</div>'
                 + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
                 + '<div>Share URL:</div>'
-                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)"/>'
+                + '<input class="form-control" id="myText" value="{{poiShareUrl.url}}" onClick="selectAllInputText(this)" readonly/>'
                 + /**
                  +'<ul class="rrssb-buttons">'
                  +'<li class="rrssb-facebook">'
@@ -917,7 +932,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                  +'</ul>'
                  */
                 '<div>Embed:</div>'
-                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)"/>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}" onClick="selectAllInputText(this)" readonly/>'
                 + '</div>'
                 + '</div>';
 

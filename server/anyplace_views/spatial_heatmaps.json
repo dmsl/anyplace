@@ -1,5 +1,0 @@
-{
-	"spatial":{
-		"heatmap_by_floor_building":"function (doc) {\n  \n  if (doc.buid && doc.floor && doc.rss && doc.MAC && doc.heading && doc.x && doc.y) {\n   if (doc.geometry) {\n    \n    emit(doc.geometry, {\"info\":[doc.buid, doc.floor, doc.x, doc.y], \"rss\":doc.rss});\n  }\n  }\n}"
-	}
-}

@@ -75,16 +75,16 @@ app.service('GMapService', function () {
     OSMMapType.prototype.name = 'OSM';
     OSMMapType.prototype.alt = 'Tile OSM Map Type';
     OSMMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
-        if (zoom>19)
-            return null;
+        // CHECK:PM no tiles for lower level
+        if (zoom>19) return null;
         var tilesPerGlobe = 1 << zoom;
         var x = coord.x % tilesPerGlobe;
         if (x < 0) {
             x = tilesPerGlobe+x;
         }
         var tile = ownerDocument.createElement('img');
-          // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
-        tile.src =  "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";;
+        // Wrap y (latitude) in a like manner if you want to enable vertical infinite scroll
+        tile.src =  "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
         tile.style.width = this.tileSize.width + 'px';
         tile.style.height = this.tileSize.height + 'px';
         return tile;
@@ -103,7 +103,6 @@ app.service('GMapService', function () {
     CartoLightMapType.prototype.alt = 'Tile Carto Light Map Type';
     CartoLightMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
         var url="https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
-
         url=url.replace('{x}', coord.x)
             .replace('{y}', coord.y)
             .replace('{z}', zoom);
@@ -140,15 +139,12 @@ app.service('GMapService', function () {
         return tile;
     };
 
-
-    var mapTypeId = "roadmap";
+    var mapTypeId = DEFAULT_MAP_TILES;
     if (typeof(Storage) !== "undefined" && localStorage) {
-        if (localStorage.getItem('mapTypeId'))
-            mapTypeId = localStorage.getItem('mapTypeId');
-        else
-            localStorage.setItem("mapTypeId", "roadmap");
+        localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);// FORCE OSM
+        // if (localStorage.getItem('mapTypeId')) mapTypeId = localStorage.getItem('mapTypeId');
+        // else localStorage.setItem("mapTypeId", DEFAULT_MAP_TILES);
     }
-
 
     self.gmap = new google.maps.Map(element, {
         center: new google.maps.LatLng(57, 21),
@@ -168,6 +164,13 @@ app.service('GMapService', function () {
             style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
             position: google.maps.ControlPosition.LEFT_CENTER
         }
+    });
+
+    // WORKAROUNDS:
+    google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
+        // Once map object is rendered, hide gmaps warning (billing account)
+        // We are migrating to leaflet for this.
+        $(".dismissButton").click();
     });
 
   self.gmap.addListener('maptypeid_changed', function () {

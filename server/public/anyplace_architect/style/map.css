@@ -17,6 +17,20 @@ footer{
     margin-top: 0px !important;
 }
 
+.nav-tabs {
+    border-bottom: 2px solid #ddd !important;
+}
+
+.nav-tabs > li > a {
+    border: 2px solid transparent;
+}
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+    color: black;
+    border: 2px solid #ddd;
+    border-bottom: 0px !important;
+}
+
 #login-details {
     float: right;
     font-size: 16px;
@@ -34,6 +48,34 @@ footer{
   background: white;
   border-radius: 5px;
     margin-bottom: 10px;
+}
+
+.input-tiny {
+    font-size: 8px !important;
+}
+
+.mapForm {
+    /*border-radius: 5px;*/
+    background: white;
+    padding: 0px 5px 0px;
+}
+
+.div-api-key {
+    width: 100% !important;
+}
+.api-key {
+    font-size: 8px !important;
+}
+
+.user-name {
+    padding-left: 10px;
+}
+
+/*.gm-style-iw .gm-style-iw-c {*/
+.gm-style-iw {
+    /*border-radius: 5px;*/
+    border-width: 2px;
+    border-color: gray;
 }
 
 .fa-window-minimize, .fa-window-maximize{
@@ -142,12 +184,20 @@ footer{
 }
 /*,#POIs-mode-btn*/
 #draggable-poi {
-    width: 21px !important;
-    height: 32px !important;
+    width: 30px !important;
+    height: 30px !important;
     z-index: 1000000000 !important;
 }
 
+#edge-mode-btn {
+    height: 30px;
+    width: 30px;
+    outline-style: none;
+}
 
+#poi-edge-mode {
+    padding: 4px;
+}
 
 #control-bar {
   width: auto;
@@ -343,8 +393,7 @@ padding: 8px !important;
     padding-right: 20%;
 }
 
-.
-contextmenu {
+.contextmenu {
     visibility: hidden;
     background: #ffffff;
     border: 1px solid #8888FF;
@@ -359,6 +408,49 @@ contextmenu {
 
 .add-any-button {
     width: 100%;
+}
+
+.button-style {
+    display: block;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.sub-btn {
+    color: #857e7e;
+    background-color: white;
+    font-size: small;
+    font-weight: bolder;
+    border: none;
+    font-family: Arial;
+    box-shadow: 2px 2px lightgrey;
+    width: 100%;
+}
+
+.sub-btn:hover {
+    box-shadow: 0 5px 15px #35ece6;
+}
+
+.menu-btn {
+    color: #857e7e;
+    background-color: white;
+    font-size: medium;
+    font-weight: bolder;
+    border: none;
+    font-family: Arial;
+    box-shadow: 2px 2px lightgrey;
+    width: 100%;
+}
+
+.menu-btn:hover {
+    background: #ddd;
+}
+
+.login-img{
+    float: left;
+    width: 20px;
+    height: auto;
 }
 
 #top-bar {
@@ -384,15 +476,6 @@ contextmenu {
     height: 30px;
 }
 
-#poi-edge-mode {
-    padding: 4px;
-}
-
-#edge-mode-btn {
-    height: 30px;
-    width: 30px;
-    outline-style: none;
-}
 
 /*,#connections-mode #POIs-mode, fingerPrints-time-mode radioHeatmapRSS-mode#delete-mode,*/
 #APs-mode, #fingerPrints-mode, #localizationAccuracy-mode,#radioHeatmapRSS-time-mode{
@@ -429,17 +512,32 @@ contextmenu {
 .quickaction-selected .btn-quickactions {
     border-color: #202B7B !important;
 }
-/* Fixed placement of the delete button */
-#deleteFingerprintsSpn{
+
+/* Fixed placement of  buttons */
+.fms-row2 { /* assumes a col was used */
+  top: 50px !important;
+}
+
+.fms-row3 { /* assumes a col was used */
+    top: 98px !important;
+}
+
+.fms-col2 {
+    position:fixed;
+    top:2px;
+    left:50px;
+}
+
+.fms-col3{ /* Chronological filtering */
     position:fixed;
     top:2px;
     left:99px;
 }
 
-#FPs_2{
+.fms-col4{
     position:fixed;
     top:2px;
-    left:50px;
+    left:148px;
 }
 
 .fa-margin-left-fix-lg {
@@ -480,25 +578,34 @@ margin-left: -0.15em;
 }
 
 /* */
-.draggable-border-green {
-    border: 3px solid green;
-    border-radius: 6px;
-    padding: 4px;
-    display: inline-block;
-}
-.draggable-border-blue{
-    border: 3px solid #202B7B;
-    border-radius: 6px;
-    padding: 4px;
-    display: inline-block;
-}
+/* .draggable-border-green { */
+    /* border: 3px solid green; */
+    /* border-radius: 6px; */
+    /* padding: 4px; */
+    /* display: inline-block; */
+/* } */
+/* .draggable-border-blue{ */
+    /* border: 3px solid #202B7B; */
+    /* border-radius: 6px; */
+    /* padding: 4px; */
+    /* display: inline-block; */
+/* } */
 
 .draggable-border {
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: 6px;
     padding: 4px;
     display: inline-block;
 }
+.draggable-border-selected {
+    border: 2px solid #202B7B;
+    /*border-radius: 6px;*/
+    /*padding: 4px;*/
+    /*display: inline-block;*/
+}
+
+
+
 .divider-top-5 {
     margin-top: 5px;
 }
@@ -591,20 +698,13 @@ margin-left: -0.15em;
 
 #date-chart svg:not(:root) {
   overflow: hidden;
+  border-width: 2px;
+  border-color: gray;
   border-radius: 5px;
 }
 
 .alert {
     margin-bottom: 5px !important;
-}
-
-.center-delete-div {
-    text-align: center;
-    padding: 0 0 10px 0;
-}
-
-.center-wifi-div {
-    text-align: center;
 }
 
 .form-group {
@@ -613,6 +713,17 @@ margin-left: -0.15em;
 
 .b-more-button {
     display: inline-block;
+}
+
+.btn-logout {
+    margin: 0 !important;
+    width: 40%;
+}
+
+.btn-about {
+    margin: 0 !important;
+    margin-bottom: 10px !important;
+    width: 40%;
 }
 
 /* Prevent text overflow in Bootstrap */
@@ -874,6 +985,8 @@ margin-left: -0.15em;
 
 .infowindow-scroll-fix.h5, .infowindow-scroll-fix h5:before{
     margin: 0 !important;
+    border-width: 2px;
+    border-color: gray;
 }
 
 .infowindow-text-area{
@@ -881,8 +994,22 @@ margin-left: -0.15em;
     border:0px
 }
 
-/*Style for Crossfilter*/
+.infowindow-title {
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+}
 
+.info-btn{ /* Shown in the top-right menu*/
+    width: 40px;
+    float: right;
+    border: 2px solid #ddd !important;
+    border-radius: 6px !important;
+    padding: 4px;
+    display: inline-block;
+}
+
+/*Style for Crossfilter*/
 #charts {
     padding: 0;
 }
@@ -893,10 +1020,22 @@ margin-left: -0.15em;
     margin-bottom: 20px;
 }
 
-.reset {
+.chart div {
+    font-weight: 600;
+    padding-left: 0.3rem;
+}
+
+.chart div .reset {
+    /* padding-left: 0.7em; */
+    /*font-size: smaller;*/
+    /* color: darkgray; */
+
     padding-left: 1em;
-    font-size: smaller;
-    color: #ccc;
+    /*font-size: smaller;*/
+    color: gray;
+    /*-webkit-text-stroke-width: 1px;*/
+    /*-webkit-text-stroke-color: gray;*/
+
 }
 
 .background.bar {
@@ -950,4 +1089,136 @@ svg {
     transform-origin: 20px 61px;
     -webkit-transform-origin: 20px 61px;
     background: white;
+}
+
+/* Full-width input fields */
+input[type=text], input[type=password], [type=email] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+.lgn-btn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.lgn-btn:hover {
+    opacity: 0.8;
+}
+
+/* Extra styles for the cancel button */
+.cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+}
+
+/* Center the image and position the close button */
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+    position: relative;
+}
+
+img.avatar {
+    width: 40%;
+    border-radius: 50%;
+}
+
+.cntnr {
+    padding: 16px;
+}
+
+span.psw {
+    float: right;
+    padding-top: 16px;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+/* Modal Content/Box */
+.mdl-content {
+    background-color: #fefefe;
+    margin: auto auto auto auto;
+    border: 1px solid #888;
+    max-width: 400px;
+}
+
+/* The Close Button (x) */
+.cls {
+    position: absolute;
+    right: 25px;
+    top: 0;
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.cls:hover,
+.cls:focus {
+    color: red;
+    cursor: pointer;
+}
+
+/* Add Zoom Animation */
+.anmt {
+    -webkit-animation: animatezoom 0.6s;
+    animation: animatezoom 0.6s
+}
+
+@-webkit-keyframes animatezoom {
+    from {-webkit-transform: scale(0)}
+    to {-webkit-transform: scale(1)}
+}
+
+@keyframes animatezoom {
+    from {transform: scale(0)}
+    to {transform: scale(1)}
+}
+
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+    span.psw {
+        display: block;
+        float: none;
+    }
+    .cancelbtn {
+        width: 100%;
+    }
+}
+
+.mdl {
+    display: none;
+    width: 100%;
+}
+
+.rborder {
+    border-radius: 10px;
+    border: 1px solid #3277de;
+    width: 100%;
+    padding: 4px;
+    margin: 10px;
 }

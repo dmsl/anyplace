@@ -1,0 +1,720 @@
+---
+swagger: "2.0"
+schemes: [https, http]
+info:
+  title: "Anyplace API"
+  description: |
+    ## A free and open Indoor Navigation Service with superb accuracy!
+
+    ### Authentication:
+    For `/api/auth` endpoints, the `access_token` must be put in the request headers.
+    In swagger you can use `Authenticate`.
+
+    Google sign in is supported. Anyplace specific key is provided for those cases as well.
+
+    #### API KEY:
+    Find your key from [/architect](../architect/#tab-user)
+  license:
+    name: "MIT License"
+    url: "https://opensource.org/licenses/MIT"
+  contact:
+    email: "anyplace@cs.ucy.ac.cy"
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+tags:
+  - name: "User"
+    description: "Anyplace accounts (local or a Google account)."
+  - name: "Space"
+    description: "An indoor space (`building` or a `vessel`)."
+  - name: "Space:Floor"
+    description: "A `floor` within a space."
+  - name: "Space:POI"
+    description: "A Point of Interest (POI) in a floor."
+  - name: "Space:Campus"
+    description: "A group of spaces."
+  - name: "Space:Connection"
+    description: "A route in a building. It joins two connector POIs."
+  - name: "Navigation"
+    description: "Indoor navigation endpoints."
+  - name: "Heatmap"
+    description: "Heatmap visualization endpoints. These are cached in MongoDB, created on first request."
+
+securityDefinitions:
+  api_key:
+    description: "Obtain the API key from /developers.\nAll keys must end with `ap`.\n\n\n"
+    type: "apiKey"
+    name: "access_token"
+    in: "header"
+
+definitions:
+  SpaceId:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+  SpaceGetResp:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: '35.14442624023263'
+      description:
+        type: string
+        example: |-
+          Κοσμητεία ΣΘΕΕ
+          Τμήμα Βιολογικών Επιστημών
+          Τμήμα Φυσικής
+          Τμήμα Χημείας
+      name:
+        type: string
+        example: UCY, FST02/ΘΕΕ02, New Campus, Nicosia, Cyprus
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      bucode:
+        type: string
+        example: FST02
+      coordinates_lon:
+        type: string
+        example: '33.41047257184982'
+      is_published:
+        type: string
+        example: 'true'
+      "type":
+        type: string
+        example: building
+  SpaceAdd:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 203
+      description:
+        type: string
+        example: Conference room
+      url:
+        type: string
+        example: www.myBuildingUrl.com
+      address:
+        type: string
+        example: 2783 Harper Street
+      coordinates_lat:
+        type: string
+        example: 25.00683111039714
+      coordinates_lon:
+        type: string
+        example: 55.52313655614853
+      space_type:
+        type: string
+        example: building, vessel
+      is_published:
+        type: string
+        example: "true"
+  SpaceUpdate:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_abc-1234-abc_567
+      name:
+        type: string
+        example: 302
+      description:
+        type: string
+        example: Conference room 2
+      url:
+        type: string
+        example: www.myBuildingUrl2.com
+      address:
+        type: string
+        example: 2781 Harper Street
+      coordinates_lat:
+        type: string
+        example: 35.00683111039714
+      coordinates_lon:
+        type: string
+        example: 45.52313655614853
+      space_type:
+        type: string
+        example: building
+      is_published:
+        type: string
+        example: "true"
+  SpaceDelete:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794
+  SpaceCoords:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: 25.00683111039714
+      coordinates_lon:
+        type: string
+        example: 55.52313655614853
+      range:
+        type: integer
+        example: 100
+  PoisAdd:
+    type: object
+    properties:
+      name:
+        type: string
+        example: stairs
+      buid:
+        type: string
+        example: building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794
+      floor_name:
+        type: string
+        example: 1
+      floor_number:
+        type: string
+        example: 1
+      is_building_entrance:
+        type: string
+        example: "true"
+      is_door:
+        type: string
+        example: "false"
+      description:
+        type: string
+        example: Entrance staircase
+      coordinates_lat:
+        type: string
+        example: 25.00683111039714
+      coordinates_lon:
+        type: string
+        example: 55.52313655614853
+      pois_type:
+        type: string
+        example: Stair
+      is_published:
+        type: string
+        example: "true"
+  PoisUpdate:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794
+      puid:
+        type: string
+        example: poi_f387b832-301e-4f9a-b735-1ee5dabc1ed0
+      name:
+        type: string
+        example: Main door
+      is_building_entrance:
+        type: string
+        example: "false"
+      is_door:
+        type: string
+        example: "true"
+      description:
+        type: string
+        example: Entrance door
+      coordinates_lat:
+        type: string
+        example: 35.00683111039714
+      coordinates_lon:
+        type: string
+        example: 45.52313655614853
+      pois_type:
+        type: string
+        example: Entrance
+      is_published:
+        type: string
+        example: "true"
+  PoisDelete:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794
+      puid:
+        type: string
+        example: poi_f387b832-301e-4f9a-b735-1ee5dabc1ed0
+  FloorAll:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor_number:
+        type: string
+        example: 1
+  SpaceAll:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+  PoisSearch:
+    type: object
+    properties:
+      cuid:
+        type: string
+        example: ucy
+      letters:
+        type: string
+        example: toual
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      greeklish:
+        type: string
+        example: "true"
+  ConnectionAdd:
+    type: object
+    properties:
+      is_published:
+        type: string
+        example: "true"
+      buid_a:
+        type: string
+        example: building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149725
+      floor_a:
+        type: string
+        example: 0
+      pois_a:
+        type: string
+        example: poi_4e9806d4-a0a7-4107-87ff-485b80570471
+      buid_b:
+        type: string
+        example: building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149727
+      floor_b:
+        type: string
+        example: 0
+      pois_b:
+        type: string
+        example: poi_4e9806d4-a0a7-4107-87ff-485b80570473
+      buid:
+        type: string
+        example: building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149725
+      edge_type:
+        type: string
+        example: hallway
+  ConnectionDelete:
+    type: object
+    properties:
+      buid_a:
+        type: string
+        example: building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149725
+      pois_a:
+        type: string
+        example: poi_4e9806d4-a0a7-4107-87ff-485b80570471
+      buid_b:
+        type: string
+        example: building_84c01910-f4a4-4b63-a0d5-d74300e30be6_1617443149727
+      pois_b:
+        type: string
+        example: poi_4e9806d4-a0a7-4107-87ff-485b80570473
+  Version:
+    type: object
+    properties:
+      version:
+        type: string
+        example: 1.0.0
+      variant:
+        type: string
+        description: "Values: alpha, or beta, or empty."
+        example: alpha
+  UserRegister:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Alan Turing"
+      email:
+        type: string
+        example: my_email@gmail.com
+      username:
+        type: string
+        example: username
+      password:
+        type: string
+        example: password
+  UserLoginGoogle:
+    type: object
+    properties:
+      external:
+          external: string
+          example: google
+      access_token:
+          type: string
+          example: AccessTokenFromGoogle
+      name:
+        type: string
+        example: "Alan Turing"
+  UserLogin:
+    type: object
+    properties:
+      username:
+        type: string
+        example: username
+      password:
+        type: string
+        example: password
+  LocalAccessToken:
+    type: object
+    properties:
+      access_token:
+        type: string
+        example: apLocal_123ABC_ap
+  UserUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Alan Turing
+      username:
+        type: string
+        example: username2
+      password:
+        type: string
+        example: password2
+      email:
+        type: string
+        example: my_email2@gmail.com
+      "type":
+        type: string
+        example: moderator
+      user_id:
+        type: string
+        example: username_18925790_231645_local
+  FloorAdd:
+    type: object
+    properties:
+      is_published:
+        type: string
+        example: "false"
+      buid:
+        type: string
+        example: building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794
+      floor_name:
+        type: string
+      description:
+        type: string
+        example: first floor
+      floor_number:
+        type: string
+        example: "-1"
+  FloorDelete:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_636caa6f-7ad4-4303-87fb-63cee9a482d0_1626681930794
+      floor_number:
+        type: string
+        example: "-1"
+  CampusGet:
+    type: object
+    properties:
+      cuid:
+        type: string
+        example: ucy
+  CampusDelete:
+    type: object
+    properties:
+      cuid:
+        type: string
+        example: Aphrodite
+  CampusAdd:
+    type: object
+    properties:
+      cuid:
+        type: string
+        example: ucy
+      description:
+        type: string
+        example: University campus located at..
+      name:
+        type: string
+        example: ucy campus
+      greeklish:
+        type: string
+        example: "true"
+      buids:
+        type: array
+        items:
+          type: string
+        example: [ buid-1, buid-2, buid-3]
+  CampusUpdate:
+    type: object
+    properties:
+      cuid:
+        type: string
+        example: Alpha
+      description:
+        type: string
+        example: University campus
+      name:
+        type: string
+        example: ucy
+      greeklish:
+        type: boolean
+        example: false
+      buids:
+        type: array
+        items:
+          type: string
+        example: [buid-1, buid-2]
+  RouteXY:
+    type: object
+    properties:
+      coordinates_lon:
+        type: string
+        example: 33.41028
+      coordinates_lat:
+        type: string
+        example: 35.1450
+      floor_number:
+        type: string
+        example: 1
+      pois_to:
+        type: string
+        example: poi_8a5ac942-3a02-453e-8cda-5b6870ecf92b
+  Route:
+    type: object
+    properties:
+      pois_from:
+        type: string
+        example: poi_908db729-0edd-4817-ac34-ca99b25d0f3d
+      pois_to:
+        type: string
+        example: poi_bcf9d54a-9f9f-4ae6-957e-2d37787e3dfb
+  SpacePOI:
+    type: object
+    properties:
+      pois:
+        type: string
+        example: poi_a7035659-881f-4169-9737-914081ee2f61
+  Heatmap:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+  HeatmapTiles:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+      x:
+        type: integer
+        example: 2486415
+      y:
+        type: integer
+        example: 1659305
+      z:
+        type: integer
+        example: 22
+  HeatmapTime:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+      timestampX:
+        type: string
+        example: 1000
+      timestampY:
+        type: string
+        example: 1579620960000
+  HeatmapTimeTiles:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+      x:
+        type: integer
+        example: 2486415
+      y:
+        type: integer
+        example: 1659305
+      z:
+        type: integer
+        example: 22
+      timestampX:
+        type: string
+        example: 1319572080000
+      timestampY:
+        type: string
+        example: 1579620960000
+  PredictFloor:
+    type: object
+    properties:
+      first:
+        type: object
+        example: { "MAC": "04:a1:51:a3:13:25", "rss": "-76" }
+      wifi:
+        type: array
+        items:
+          type: string
+        example: [
+            "{\"MAC\": \"24:b6:57:ae:40:30\", \"rss\": \"-85\"}",
+            "{\"MAC\": \"04:a1:51:a3:13:25\", \"rss\": \"-76\"}",
+            "{\"MAC\": \"24:b6:57:7b:e9:60\", \"rss\": \"-87\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2c:70\", \"rss\": \"-92\"}",
+            "{\"MAC\": \"d4:d7:48:b0:8d:20\", \"rss\": \"-93\"}",
+            "{\"MAC\": \"00:0b:fd:4a:71:d6\", \"rss\": \"-87\"}",
+            "{\"MAC\": \"00:0b:fd:4a:71:ce\", \"rss\": \"-88\"}",
+            "{\"MAC\": \"00:0b:fd:4a:71:ab\", \"rss\": \"-89\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2e:70\", \"rss\": \"-89\"}",
+            "{\"MAC\": \"24:b6:57:b4:f6:20\", \"rss\": \"-96\"}",
+            "{\"MAC\": \"00:0b:fd:f3:ab:0b\", \"rss\": \"-90\"}",
+            "{\"MAC\": \"24:b6:57:7b:e8:a0\", \"rss\": \"-93\"}",
+            "{\"MAC\": \"d4:d7:48:b0:97:10\", \"rss\": \"-94\"}",
+            "{\"MAC\": \"00:0e:84:4b:0b:e8\", \"rss\": \"-95\"}",
+            "{\"MAC\": \"d4:d7:48:b0:95:f0\", \"rss\": \"-92\"}",
+            "{\"MAC\": \"10:40:f3:9f:06:cc\", \"rss\": \"-85\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2b:00\", \"rss\": \"-90\"}",
+            "{\"MAC\": \"00:0e:84:4b:0c:0a\", \"rss\": \"-98\"}",
+            "{\"MAC\": \"d4:d7:48:d8:2f:a0\", \"rss\": \"-96\"}"
+        ]
+      dlat:
+        type: number
+        example: 35.14451561520357
+      dlong:
+        type: number
+        example: 33.4112872928381
+  APs:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+  APsId:
+    type: object
+    properties:
+      ids:
+        type: array
+        items:
+          type: string
+        example: [
+            "00:11:74:b3:a6:e1",
+            "00:11:74:b3:a6:c1",
+            "8c:dc:02:d0:d3:0c",
+            "30:e1:71:1e:d0:43"
+        ]
+  RadiomapUpload:
+    type: object
+  RadiomapFloor:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: "35.14447778163889"
+      coordinates_lon:
+        type: string
+        example: "33.41125577688217"
+      floor_number:
+        type: string
+        example: "1"
+  RadiomapFloorAll:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 0
+  RadiomapBbox:
+    type: object
+    properties:
+      coordinates_lat:
+        type: string
+        example: "35.14447778163889"
+      coordinates_lon:
+        type: string
+        example: "33.41125577688217"
+      floor_number:
+        type: string
+        example: "0"
+      range:
+        type: string
+        example: "222"
+  RadiomapSpace:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
+      floor:
+        type: string
+        example: 1
+  RadiomapDelete:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_12345678-1234-1234-1234-123456789123_1234567891234
+      floor:
+        type: string
+        example: 0
+      lat1:
+        type: string
+        example: 34.9203791974277
+      lon1:
+        type: string
+        example: 3.013322331003295
+      lat2:
+        type: string
+        example: 34.92033411232339
+      lon2:
+        type: string
+        example: 33.01325326412116
+  RadiomapDeleteTime:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_12345678-1234-1234-1234-123456789123_1234567891234
+      floor:
+        type: string
+        example: 0
+      lat1:
+        type: string
+        example: 34.9203791974277
+      lon1:
+        type: string
+        example: 33.013322331003295
+      lat2:
+        type: string
+        example: 34.92033411232339
+      lon2:
+        type: string
+        example: 33.01325326412116
+      timestampX:
+        type: string
+        example: 00
+      timestampY:
+        type: string
+        example: 1617117985695
+

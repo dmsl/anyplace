@@ -1,8 +1,4 @@
 secure.properties
-# Should be OK to remove
-#navigator/release/output-metadata.json
-#demo/src/debug/res/values/google_maps_api.xml
-#logger/src/debug/res/values/google_maps_api.xml
 
 #
 ### Android ###

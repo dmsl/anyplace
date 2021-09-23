@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -40,9 +40,18 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.anyAPI = AnyplaceAPIService;
 
     $scope.creds = {
-        username: 'username',
-        password: 'password'
+        username: undefined,
+        password: undefined
     };
+
+    $scope.user = {
+        name: undefined,
+        email: undefined,
+        username: undefined,
+        password: undefined,
+        owner_id: undefined,
+        access_token: undefined
+    }
 
     $scope.myBuildings = [];
 
@@ -58,9 +67,10 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
-                // console.log("VERSION: " + data);
+                var prettyVersion=getPrettyVersion(data);
+                LOG.D3("Anyplace Version: " + prettyVersion);
                 var element = document.getElementById("anyplace-version");
-                element.textContent = "v"+data;
+                element.textContent = "v"+prettyVersion;
             },
             function (resp) { console.log("Failed to get version: " + resp.data); }
         );
@@ -169,7 +179,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) {
                 var data = resp.data;
-                var b = data.building;
+                var b = data.space;
 
                 $scope.myBuildings.push(b);
 
@@ -227,58 +237,47 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     };
 
-    $scope.fetchAllBuildings = function () {
-        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
-        var promise = $scope.anyAPI.allBuildings(jsonReq);
+    $scope.getCampuses = function () {
+        var jsonReq = { "access-control-allow-origin": "",
+            "content-encoding": "gzip",    "access-control-allow-credentials": "true",
+            "content-length": "17516",    "content-type": "application/json" , "cuid":$scope.urlCampus};
+        var promise = $scope.anyAPI.getCampusById(jsonReq);
         promise.then(
-            function (resp) {
-                // on success
+            function (resp) { // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                $scope.myBuildings = data.spaces;
                 $scope.anyService.selectedCampus = data.name;
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',
                     maxWidth: 500
                 });
-
                 var localStoredBuildingIndex = -1;
                 var localStoredBuildingId = undefined;
-
                 try {
                     if (typeof(Storage) !== "undefined" && localStorage && localStorage.getItem('lastBuilding')) {
                         localStoredBuildingId = localStorage.getItem('lastBuilding');
                     }
                 } catch (e) {
-
                 }
-
                 var loadBuidFromUrl = -1;
-
                 for (var i = 0; i < $scope.myBuildings.length; i++) {
                     var b = $scope.myBuildings[i];
                     if (i==0){
                         $scope.gmapService.gmap.panTo(_latLngFromBuilding(b));
                         $scope.gmapService.gmap.setZoom(13);
                     }
-
                     if (localStoredBuildingId && localStoredBuildingId === b.buid) {
                         localStoredBuildingIndex = i;
                     }
-
                     if (b.is_published === 'true' || b.is_published == true) {
                         b.is_published = true;
                     } else {
                         b.is_published = false;
                     }
-
                     if ($scope.urlBuid && $scope.urlBuid == b.buid) {
                         loadBuidFromUrl = i;
                     }
-
                     // var s = new google.maps.Size(55, 80);
                     // if ($scope.isFirefox)
                     //     s = new google.maps.Size(110, 160);
@@ -340,7 +339,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             }
         );
     };
-    $scope.fetchAllBuildings();
+    $scope.getCampuses();
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {

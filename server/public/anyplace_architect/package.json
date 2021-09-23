@@ -9,6 +9,7 @@
         "grunt-contrib-imagemin": "^3.1.0",
         "grunt-contrib-uglify": "~4.0.1",
         "grunt-contrib-watch": "~1.1.0",
+        "grunt-notify": "^0.4.5",
         "gulp-uglify-es": "^2.0.0"
     },
     "dependencies": {

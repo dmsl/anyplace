@@ -319,12 +319,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         $('#input-floor-plan').prop('disabled', false);
         $scope.isCanvasOverlayActive = false;
 
+        // This if is never true (?) CHECK
         if (_floorNoExists($scope.newFloorNumber)) {
             for (var i = 0; i < $scope.xFloors.length; i++) {
                 var f = $scope.xFloors[i];
                 if (!LPUtils.isNullOrUndefined(f)) {
                     if (f.floor_number === String($scope.newFloorNumber)) {
-                        $scope.uploadFloorPlanBase64($scope.anyService.selectedBuilding, f, $scope.data);
+                        $scope.uploadWithZoom($scope.anyService.selectedBuilding, f, $scope.data);
                         break;
                     }
                 }
@@ -360,29 +361,15 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     $scope.addFloorObject = function (flJson, selectedBuilding, flData) {
         var obj = _checkFloorFormat(flJson);
-
-        obj.owner_id = $scope.owner_id;
-
-        if (!obj.owner_id) {
-            _err($scope, ERR_USER_AUTH);
-            return;
-        }
-
-        // make the request at AnyplaceAPI
-        var promise = $scope.anyAPI.addFloor(obj);
+        var promise = $scope.anyAPI.addFloor(obj); // make the request at AnyplaceAPI
         promise.then(
-            function (resp) {
-                // on success
+            function (resp) { // on success
                 var data = resp.data;
                 // insert the newly created building inside the loadedBuildings
                 $scope.xFloors.push(obj);
-
                 $scope.anyService.selectedFloor = $scope.xFloors[$scope.xFloors.length - 1];
-
                 _suc($scope, "Successfully added new floor");
-
-                $scope.uploadFloorPlanBase64(selectedBuilding, obj, flData);
-
+                $scope.uploadWithZoom(selectedBuilding, obj, flData);
             },
             function (resp) {
               ShowError($scope, resp,
@@ -414,49 +401,34 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     };
 
     $scope.deleteFloor = function () {
-
         var bobj = $scope.anyService.getFloor();
-
         if (LPUtils.isNullOrUndefined(bobj) || LPUtils.isStringBlankNullUndefined(bobj.floor_number) || LPUtils.isStringBlankNullUndefined(bobj.buid)) {
             _err($scope, "No floor seems to be selected.");
             return;
         }
-
-        bobj.username = $scope.creds.username;
-        bobj.password = $scope.creds.password;
-        bobj.owner_id = $scope.owner_id;
-
-        console.log(bobj);
-
-        // make the request at AnyplaceAPI
-        var promise = $scope.anyAPI.deleteFloor(bobj);
+        var promise = $scope.anyAPI.deleteFloor(bobj); // make the request at AnyplaceAPI
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
-
                 // delete the building from the loadedBuildings
                 var lf = $scope.xFloors;
                 var sz = lf.length;
-
                 for (var i = 0; i < sz; i++) {
                     if (lf[i].floor_number == bobj.floor_number) {
                         lf.splice(i, 1);
                         break;
                     }
                 }
-
                 if ($scope.data.floor_plan_groundOverlay != null) {
                     $scope.data.floor_plan_groundOverlay.setMap(null);
                     $scope.data.floor_plan_groundOverlay = null;
                 }
-
                 if ($scope.xFloors && $scope.xFloors.length > 0) {
                     $scope.anyService.selectedFloor = $scope.xFloors[0];
                 } else {
                     $scope.anyService.selectedFloor = undefined;
                 }
-
                 _suc($scope, "Successfully deleted floor.");
             },
             function (resp) {
@@ -487,7 +459,8 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         return n;
     };
 
-    $scope.uploadFloorPlanBase64 = function (sb, sf, flData) {
+
+    $scope.uploadWithZoom = function (sb, sf, flData) {
         if (LPUtils.isNullOrUndefined(canvasOverlay)) {
             return;
         }
@@ -568,16 +541,6 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
     };
 
-    $scope.toggleRadioHeatmap = function () {
-        if (heatmap && heatmap.getMap()) {
-            heatmap.setMap(null);
-            return;
-        }
-
-        $scope.showRadioHeatmap();
-    };
-
-
     $scope.showRadioHeatmapPoi = function () {
         var jsonReq = {
             "buid": $scope.anyService.getBuildingId(),
@@ -627,52 +590,5 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
             }
         );
     }
-
-    $scope.showRadioHeatmap = function () {
-        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
-
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
-        var promise = $scope.anyAPI.getRadioHeatmap(jsonReq);
-        promise.then(
-            function (resp) {
-                // on success
-                var data = resp.data;
-
-                var heatMapData = [];
-
-                var i = resp.data.radioPoints.length;
-
-                if (i <= 0) {
-                    _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
-                    return;
-                }
-
-                while (i--) {
-                    var rp = resp.data.radioPoints[i];
-                    heatMapData.push(
-                        {location: new google.maps.LatLng(rp.x, rp.y), weight: 1}
-                    );
-                    resp.data.radioPoints.splice(i, 1);
-                }
-
-                if (heatmap && heatmap.getMap()) {
-                    heatmap.setMap(null);
-                }
-
-                heatmap = new google.maps.visualization.HeatmapLayer({
-                    data: heatMapData
-                });
-                heatmap.setMap($scope.gmapService.gmap);
-            },
-            function (resp) {
-                // on error
-                var data = resp.data;
-                ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
-            }
-        );
-    }
-
 }
 ]);

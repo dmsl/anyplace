@@ -1,0 +1,1456 @@
+# NOTE: This file uses github.com/iheartradio/play-swagger to automatically create the API documentation.
+
+
+################
+# MISC
+################
+
+###
+#  summary: Returns Anyplace Version
+#  tags:
+#    - Misc
+#  responses:
+#    200:
+#      description: success
+#      schema:
+#        $ref: '#/definitions/Version'
+###
+GET        /api/version                                     controllers.MainController.getVersion
+
+################
+### USERS
+################
+# TODO:NN /developers object responses/inputs, and mention `deleteCachedDocuments` in a few places..
+# {"name":"Alang Turning","owner_id":"123_google","external":"google","type":"user","access_token":"apGoogle_ABC123ap",
+# "_schema":0,"status":"success","message":"User Exists.","status_code":200}
+
+###
+#      tags:
+#        - User
+#      summary: Adds a new user
+#      description: |-
+#        Registers a local user.
+#
+#
+#        One could use an external account (Google) to use the service.
+#        For those see endpoint XXX.
+#      operationId: userRegister
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Name and Surname
+#          required: true
+#          schema:
+#            $ref: '#/definitions/UserRegister'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/user/register                              controllers.UserController.register()
+
+###
+#  summary: Login for local users
+#  tags:
+#    - User
+#  parameters: [
+#   {
+#       "in": "body",
+#       "name": "Body",
+#       "description": "Name and Surname",
+#       "required": true,
+#       "schema": {
+#           "$ref": "#/definitions/UserLogin"
+#       }
+#   }
+#  ]
+#  responses:
+#   200:
+#     description: success
+#     examples:
+#       application/json: |
+#            {
+#               "user":{
+#                  "name":"Alan Turing",
+#                  "email":"Alan@turing.com",
+#                  "username":"turing",
+#                  "access_token":"apLocal_ABC123ap",
+#                  "external":"anyplace",
+#                  "type":"user",
+#                  "owner_id":"turing_12341234_local"
+#               },
+#               "status":"success",
+#               "message":"Successfully found user.",
+#               "status_code":200
+#            }
+###
+POST        /api/user/login                                 controllers.UserController.loginLocal()
+
+###
+#  summary: Refreshes a user login using the local access_token.
+#  note: Only for local accounts.
+#  tags:
+#    - User
+#  parameters: [
+#   {
+#       "in": "body",
+#       "name": "Body",
+#       "description": "accessToken",
+#       "required": true,
+#       "schema": {
+#           "$ref": "#/definitions/LocalAccessToken"
+#       }
+#   }
+#  ]
+#  responses:
+#   200:
+#     description: success
+###
+POST        /api/user/refresh                                 controllers.UserController.refreshLocal()
+
+###
+#  summary: Login for Google users
+#  description: |
+#       Login or register (on the first login) to Anyplace using a Google account.
+#
+#       The Google OAuth token is used retrieving the anyplace account.
+#       For all other requests, it uses the Anyplace Access Token, just like the local accounts.
+#  tags:
+#    - User
+#  parameters: [
+#   {
+#       "in": "body",
+#       "name": "Body",
+#       "description":
+#           "Login using a Google account.\n\n
+#           On the **first** login an Anyplace account is created.\n\n
+#           With the registration (initial login) please also provide the user's `name`
+#           in the json arguments. In all other cases it is ignored.",
+#       "required": true,
+#       "schema": {
+#           "$ref": "#/definitions/UserLoginGoogle"
+#       }
+#   }
+#  ]
+#  responses:
+#   200:
+#     description: success
+#     examples:
+#       application/json: |
+#            {
+#               "user":{
+#                  "name":"Alan Turing",
+#                  "access_token":"apGoogle_ABC123ap",
+#                  "external":"google",
+#                  "type":"user",
+#                  "owner_id":"123123_google"
+#               },
+#               "status":"success",
+#               "message":"User exists (or created).",
+#               "status_code":200
+#            }
+###
+POST        /api/user/login/google                          controllers.UserController.loginGoogle()
+
+###
+#      tags:
+#        - User
+#      summary: Update user
+#      description: |
+#       Provide a `user_id` and at least one optional of the sample parameters to update a user.
+#
+#       The below operations can be performed, according to user `type`:
+#       `User`: normal users can update their information: `name`, `username`, `password`, `email`/
+#       `Moderator`: can also edit users
+#       `Admin`: can also promote users to `moderators`.
+#
+#      operationId: usersAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/UserUpdate'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/user/update                           controllers.UserController.updateUser()
+
+###
+#      tags:
+#        - User:Admin
+#      summary: Retrieves all user accounts
+#      description: "Only for the moderators."
+#      operationId: usersAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description:
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/moderator/users/all                   controllers.UserAdminController.all()
+
+################
+# Spaces
+################
+
+###
+#      tags:
+#        - Space
+#      summary: Get all spaces
+#      description: ""
+#      operationId: spaceAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/space/public                       controllers.MapSpaceController.public()
+
+###
+#      tags:
+#        - Space
+#      summary: Get a space
+#      description: "Based on the buid retrieve a space."
+#      operationId: spaceGet
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceId'
+#      responses:
+#        '200':
+#          description: Successful operation
+#          schema:
+#            $ref: '#/definitions/SpaceGetResp'
+###
+POST        /api/mapping/space/get                          controllers.MapSpaceController.get()
+
+###
+#      tags:
+#        - Space
+#      summary: Add a space
+#      description: ""
+#      operationId: addSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceAdd'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/add                     controllers.MapSpaceController.add()
+
+###
+#      tags:
+#        - Space
+#      summary: Update a space
+#      description: "Provide the new fields that you wish to update."
+#      operationId: updateSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceUpdate'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/update                  controllers.MapSpaceController.update()
+
+###
+#      tags:
+#        - Space
+#      summary: Delete a Space
+#      description: "Provide the buid and your access token."
+#      operationId: deleteSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/delete                  controllers.MapSpaceController.delete()
+
+###
+#      tags:
+#        - Space
+#      summary: Get user owned/co-owned spaces
+#      description: "Based on user's `owner_id` all the spaces are retrieved."
+#      operationId: spaceAllOwner
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/accessible                    controllers.MapSpaceController.userAccessible()
+
+###
+#      tags:
+#        - Space
+#      summary: Get user owned spaces
+#      description: "Based on user's `owner_id` all the spaces are retrieved."
+#      operationId: spaceAllOwned
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description:
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/user                          controllers.MapSpaceController.userOwned()
+
+###
+#      tags:
+#        - Space
+#      summary: Get near-by spaces
+#      description: |
+#       Returns spaces near to the given coordinates.
+#       `range` is in meters and is optional. If not given it uses a default range of `50`.
+#       The maximum range is `500`.
+#      operationId: spaceCoords
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceCoords'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/space/coordinates             controllers.MapSpaceController.byCoordinates()
+
+# Floors
+
+###
+#      tags:
+#        - Space:Floor
+#      summary: Get all floors
+#      description: ""
+#      operationId: floorAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceAll'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/floor/all                          controllers.MapFloorController.all()
+
+###
+#      tags:
+#        - Space:Floor
+#      summary: Add floor
+#      description: ""
+#      operationId: floorAdd
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Floor description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/FloorAdd'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/floor/add                     controllers.MapFloorController.add()
+
+###
+#      tags:
+#        - Space:Floor
+#      summary: Delete floor
+#      description: ""
+#      operationId: floorDelete
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Floor description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/FloorDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
+
+# TODO:NN /developers put others from routes here as well (and rename)
+# `ag` on the master branch to see if the others are used.
+# PROBABLY this is how viewer gets its floorplans. Maybe the android apps as well..
+# TAG: SPACE:FLOORPLAN
+
+################
+# Floorplan
+################
+# TODO:NN fill the rest endpoints
+
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: ""
+#      description: ""
+#      operationId: floorplan64BuidFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+###
+POST        /api/floorplans64/:buid/:floor_number               controllers.MapFloorplanController.getBase64( buid: String, floor_number: String )
+### NoDocs ###
+POST        /api/floorplans64/all/:buid/:floor_number           controllers.MapFloorplanController.getAllBase64( buid: String, floor_number: String )
+# TAG: SPACE:FLOORPLAN
+# floor/floorplan/upload
+POST        /api/mapping/floor/floorplan/upload                 controllers.MapFloorplanController.uploadWithZoom()
+
+POST        /api/floortiles/:buid/:floor_number                 controllers.MapFloorplanController.getZipLink( buid: String, floor_number: String )
+GET         /api/floortiles/:buid/:floor_number/*file           controllers.MapFloorplanController.getStaticTiles( buid: String, floor_number: String, file: String )
+# USED BY: Android Navigator:
+POST        /api/floortiles/zip/:buid/:floor_number             controllers.MapFloorplanController.getTilesZip( buid: String, floor_number: String )
+# USED BY: Web apps
+POST        /api/radiomaps_frozen/:building/:floor/:filename    controllers.RadiomapController.getFrozen(building: String, floor: String, filename: String)
+POST        /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get( radio_folder: String, filename: String )
+
+
+################
+# Campus
+################
+
+###
+#      tags:
+#        - Campus
+#      summary: Get the SpaceSet of a campus
+#      description: "Returns a group of Spaces that belong to a Campus"
+#      operationId: campusGet
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Campus description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/CampusGet'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/campus/get                         controllers.MapCampusController.get()
+
+###
+#      tags:
+#        - Campus
+#      summary: Add Campus
+#      description: ""
+#      operationId: campusAdd
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Campus description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/CampusAdd'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/campus/add                    controllers.MapCampusController.add()
+
+###
+#      tags:
+#        - Campus
+#      summary: Update Campus
+#      description: |
+#        CHECK: On frontend(js) buildings and greeklish are not set in the form.
+#      operationId: campusUpdate
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Campus description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/CampusUpdate'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/campus/update                 controllers.MapCampusController.update()
+
+###
+#      tags:
+#        - Campus
+#      summary: Delete Campus
+#      description: ""
+#      operationId: campusDelete
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Campus description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/CampusDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/campus/delete                 controllers.MapCampusController.delete()
+
+###
+#      tags:
+#        - Campus
+#      summary: Get user's Campus
+#      description: ""
+#      operationId: campusUser
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Campus description
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/campus/user                   controllers.MapCampusController.byOwner()
+
+###
+#      tags:
+#        - Space:POI
+#      summary: Get POIs of a floor
+#      description: "Provide buid and floor in order to retrieve all POIs of that floor"
+#      operationId: poisAllFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/FloorAll'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/pois/floor/all                     controllers.MapPoiController.byFloor()
+
+###
+#      tags:
+#        - Space:POI
+#      summary: Get POIs of a space
+#      description: "Provide buid in order to retrieve all POIs of that Space"
+#      operationId: poisAllBuilding
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/pois/space/all                  controllers.MapPoiController.bySpace()
+
+# RENAMED: all_pois -> search
+
+###
+#      tags:
+#        - Space:POI
+#      summary: Search for POIs
+#      description: "Provide cuid and buid to retrieve POIs based on letters. Supports greeklish search."
+#      operationId: poisSearch
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/PoisSearch'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/pois/search                        controllers.MapPoiController.search()
+
+###
+#      tags:
+#        - Space:POI
+#      summary: Add a POI
+#      description: "Provide required fields in orded to add a POI in a specific floor, inside a space"
+#      operationId: poisAdd
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/PoisAdd'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/pois/add                      controllers.MapPoiController.add()
+
+###
+#      tags:
+#        - Space:POI
+#      summary: Delete a POI
+#      description: "Provide buid and puid in order to delete a POI"
+#      operationId: poisDelete
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/PoisDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/pois/delete                   controllers.MapPoiController.delete()
+
+###
+#      tags:
+#        - Space:POI
+#      summary: Update a POI
+#      description: "Provide the new fields that you wish to update"
+#      operationId: poisUpdate
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/PoisUpdate'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/pois/update                   controllers.MapPoiController.update()
+
+# Spaces: Connections
+
+###
+#      tags:
+#        - Space:Connection
+#      summary: Retrieve all connections of a floor
+#      description: "Provide buid and floor in order to retrieve all connections of that floor"
+#      operationId: conAllFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/FloorAll'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/connection/floor/all               controllers.MapPoiConnectionController.byFloor()
+
+###
+#      tags:
+#        - Space:Connection
+#      summary: Retrieve all connections of a space
+#      description: "Provide buid in order to retrieve all connections of that space"
+#      operationId: conAllFloors
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/mapping/connection/floors/all              controllers.MapPoiConnectionController.byFloorsAll()
+
+###
+#      tags:
+#        - Space:Connection
+#      summary: Add a connection
+#      description: "Provide information for two POIs in order to add a connection."
+#      operationId: conAdd
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/ConnectionAdd'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/connection/add                controllers.MapPoiConnectionController.add()
+
+###
+#      tags:
+#        - Space:Connection
+#      summary: Delete a connection
+#      description: "Provide information about the connection you wish to delete"
+#      operationId: conDelete
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Space description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/ConnectionDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/mapping/connection/delete             controllers.MapPoiConnectionController.delete()
+
+################
+### NAVIGATION
+################
+
+###
+#      tags:
+#        - Navigation
+#      summary: Find fastest route
+#      description: "Based on your current location, find the shortest route to a POI."
+#      operationId: routeXY
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RouteXY'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/route/coordinates               controllers.NavigationController.getNavigationRouteXY()
+
+###
+#      tags:
+#        - Navigation
+#      summary: Find fastest route
+#      description: "Find the shortest route between two POIs."
+#      operationId: route
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Route'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/route                           controllers.NavigationController.getNavigationRoute()
+
+# SPACE
+
+###
+#      tags:
+#        - Navigation
+#      summary: Get detailed space
+#      description: "Based on buid get a space with full description (floors, POIs)."
+#      operationId: navSpaceId
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpaceId'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/space/id                        controllers.NavigationController.getBuildingById()
+
+###
+#      tags:
+#        - Navigation
+#      summary: Get POI
+#      description: ""
+#      operationId: navPOIsId
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SpacePOI'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/navigation/pois/id                         controllers.NavigationController.getPoisById()
+
+################
+### POSITION
+################
+
+# used by android
+
+###
+#      tags:
+#        - Position
+#      summary: Predict floor
+#      description: "According near-by Wi-Fi measurements tries to predict the floor"
+#      operationId: predictFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/PredictFloor'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/position/predictFloorAlgo1                 controllers.PositioningController.predictFloorAlgo1()
+
+
+POST        /api/position/estimate                          controllers.PositioningController.estimatePosition()
+
+
+
+################
+### ACCESS POINTS
+################
+
+
+################
+### RADIOMAPS
+################
+
+# this endpoint has bug. fails to identify access points location
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get access points location
+#      description: "These are cached into the collection `accessPointsWifi`"
+#      operationId: getAPs
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/APs'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/wifi/access_points/floor                   controllers.AccessPointController.byFloor()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get access point's manufacturer
+#      description: ""
+#      operationId: APsId
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/APsId'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/wifi/access_points/ids                     controllers.AccessPointController.getIDs()
+
+
+# TODO TEST:NN TEST:PM test on mobile app
+
+POST        /api/radiomap/upload                            controllers.RadiomapController.upload()
+
+# TODO TEST:NN TEST:PM test on mobile app
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps of floor
+#      description: ""
+#      operationId: radiomapFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapFloor'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/floor                             controllers.RadiomapController.getFloor()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps of all floors
+#      description: ""
+#      operationId: radiomapFloorAll
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapFloorAll'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/floor/all                         controllers.RadiomapController.getByFloorsAll()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps in a bounding box
+#      description: ""
+#      operationId: radiomapFloorBbox
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapBbox'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/floor/bbox                        controllers.RadiomapController.getByFloorBoundingBox()
+
+# /api/radiomap/floor
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Get radiomaps of a space
+#      description: ""
+#      operationId: radiomapSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapSpace'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/space                             controllers.RadiomapController.getByFloor()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Generate time-based heatmaps for all zoom levels
+#      description: ""
+#      operationId: radiomapTime
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapSpace'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/radiomap/time                              controllers.RadiomapController.byTime()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Delete radiomaps in a bounding box in a time-span
+#      description: ""
+#      operationId: radiomapDeleteTime
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapDeleteTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/radiomap/delete/time                       controllers.RadiomapController.deleteTimestamp()
+
+###
+#      tags:
+#        - Radiomaps
+#      summary: Delete radiomaps in a bounding box
+#      description: ""
+#      operationId: radiomapDelete
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            $ref: '#/definitions/RadiomapDelete'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST        /api/auth/radiomap/delete                            controllers.RadiomapController.delete()
+
+################
+### HEATMAP DATA
+################
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps zoom 1
+#      description: ""
+#      operationId: heatmapAvg1
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Heatmap'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/1                    controllers.HeatmapController.floorWifiAVG1()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps zoom 2
+#      description: ""
+#      operationId: heatmapAvg2
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Heatmap'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/2                    controllers.HeatmapController.floorWifiAVG2()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps zoom 3
+#      description: ""
+#      operationId: heatmapAvg3
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/Heatmap'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/3                    controllers.HeatmapController.floorWifiAVG3()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps tiles
+#      description: ""
+#      operationId: heatmapAvgTiles
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTiles'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/3/tiles              controllers.HeatmapController.floorWifiAVG3tiles()
+
+# Time-based data
+
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps with time zoom 1
+#      description: ""
+#      operationId: heatmapAvgTime1
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/1          controllers.HeatmapController.floorWifiTimestampAVG1()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps with time zoom 2
+#      description: ""
+#      operationId: heatmapAvgTime2
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/2          controllers.HeatmapController.floorWifiTimestampAVG2()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps with time zoom 3
+#      description: "It is shown at WiFi Coverage at the highest zoom level, and a few levels before"
+#      operationId: heatmapAvgTime3
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTime'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/3          controllers.HeatmapController.floorWifiTimestampAVG2()
+
+###
+#      tags:
+#        - Heatmap
+#      summary: Get heatmaps tiles with time
+#      description: "Used by Fingerptints, at the highest zoom level"
+#      operationId: heatmapAvgTimeTiles
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Location description
+#          required: true
+#          schema:
+#            $ref: '#/definitions/HeatmapTimeTiles'
+#      responses:
+#        '200':
+#          description: Successful operation
+###
+POST        /api/heatmap/floor/average/timestamp/tiles      controllers.HeatmapController.floorWifiTimestampTiles()

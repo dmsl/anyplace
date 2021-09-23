@@ -1,5 +1,0 @@
-{
-	"spatial": {
-		"building_coordinates": "function (doc) { \n if (doc.geometry && doc.buid && !doc.floor_number && !doc.puid && !doc.rss) {\n    //emit(doc.geometry, doc);\n    emit(doc.geometry, null);\n  }\n}"
-	}
-}

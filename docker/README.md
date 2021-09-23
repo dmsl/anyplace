@@ -1,3 +1,15 @@
+# DEPRECATED!
+
+Docker has been deprecated as of 4.3+ version.
+The backend was completely re-written to MongoDB and updated to recent SBT, Play, Scala versions.
+It might return at some point when we adopt a new architecture:
+- `server/`: will be a pure backend RESTFUL service
+- `client/webapp/`: will provide the Architect and Viewer web apps, on a new web server (NGinX probably).
+
+Contributions are welcome!
+
+---
+
 # Anyplace Docker: version 4.0
 <p align="center">
 <img
