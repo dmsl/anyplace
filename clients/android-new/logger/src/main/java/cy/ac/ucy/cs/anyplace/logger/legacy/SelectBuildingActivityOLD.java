@@ -34,7 +34,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.logger.legacy;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -83,6 +83,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
 import cy.ac.ucy.cs.anyplace.lib.android.consts.DEFAULT;
+import cy.ac.ucy.cs.anyplace.logger.R;
 
 public class SelectBuildingActivityOLD extends FragmentActivity implements FloorAnyplaceFloorListener,
                                                                            ErrorAnyplaceFloorListener {

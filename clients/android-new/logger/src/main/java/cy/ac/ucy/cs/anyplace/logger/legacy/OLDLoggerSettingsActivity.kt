@@ -1,9 +1,10 @@
-package cy.ac.ucy.cs.anyplace.logger
+package cy.ac.ucy.cs.anyplace.logger.legacy
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.logger.R
 
 class OLDLoggerSettingsActivity : AppCompatActivity() {
   companion object {

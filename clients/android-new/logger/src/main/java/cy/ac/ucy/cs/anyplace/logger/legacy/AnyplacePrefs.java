@@ -34,7 +34,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.logger.legacy;
 
 import java.io.File;
 
@@ -42,13 +42,13 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.widget.Toast;
 
 import cy.ac.ucy.cs.anyplace.lib.android.LOG;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.DeleteFolderBackgroundTask;
+import cy.ac.ucy.cs.anyplace.logger.LoggerApp;
+import cy.ac.ucy.cs.anyplace.logger.R;
 
 /**
  * Defines the behavior of the preferences menu.
@@ -69,8 +69,7 @@ public class AnyplacePrefs extends PreferenceActivity {
    */
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    LOG.E("Logger Preferences: onCreate");
-    LOG.E("Logger Preferences: onCreate");
+    LOG.I("Logger Preferences: onCreate");
 
     super.onCreate(savedInstanceState);
     app = (LoggerApp) getApplication();

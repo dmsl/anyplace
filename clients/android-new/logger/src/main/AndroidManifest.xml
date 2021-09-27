@@ -14,7 +14,7 @@
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-  <!--  TODO XXX FIX external access.. -->
+  <!--  TODO do not use sd card any more. -->
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
@@ -57,7 +57,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.AnyplaceAboutActivity"
+      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.AnyplaceAboutActivity"
       android:label="@string/app_name_about"
       android:theme="@android:style/Theme.Dialog" >
       <!--      <intent-filter>-->
@@ -69,7 +69,7 @@
     <!-- singleTop before <0.8 ! -->
 
     <activity
-      android:name="SearchPOIActivity"
+      android:name=".legacy.SearchPOIActivity"
       android:label="Search POI"
       android:launchMode="singleTop"
       android:screenOrientation="portrait"
@@ -83,7 +83,7 @@
         android:resource="@xml/searchable" />
     </activity>
     <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.SelectBuildingActivityOLD"
+      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.SelectBuildingActivityOLD"
       android:excludeFromRecents="true"
       android:label="@string/app_name"
       android:screenOrientation="portrait"
@@ -95,7 +95,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.LoggerActivityOLD"
+      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.LoggerActivityOLD"
       android:configChanges="keyboardHidden|orientation"
       android:icon="@drawable/anyplace_logo_icon_actionbar_white"
       android:label="@string/app_name_logger"
@@ -112,24 +112,24 @@
         android:resource="@xml/flir_usb_device_filter" />
     </activity>
     <activity
-      android:name="AnyplacePrefs"
+      android:name=".legacy.AnyplacePrefs"
       android:icon="@drawable/anyplace_logo_icon_actionbar_white"
       android:label="@string/prefs_name_anyplace"
       android:screenOrientation="nosensor" >
     </activity>
     <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.LoggerPrefs"
+      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.LoggerPrefs"
       android:icon="@drawable/anyplace_logo_icon_actionbar_white"
       android:label="@string/prefs_name_logger"
       android:screenOrientation="nosensor" >
     </activity>
     <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.AndroidFileBrowser"
+      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.AndroidFileBrowser"
       android:label="@string/app_choose_folder"
       android:screenOrientation="portrait" >
     </activity>
     <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.OLDLoggerSettingsActivity"
+      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.OLDLoggerSettingsActivity"
       android:label="@string/prefs_name_anyplace"
       android:screenOrientation="portrait" >
     </activity>

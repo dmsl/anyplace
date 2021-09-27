@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.logger.legacy;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -47,6 +47,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import cy.ac.ucy.cs.anyplace.logger.R;
 
 /**
  * This Activity displays information about Anyplace and has logos that

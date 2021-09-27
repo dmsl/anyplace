@@ -33,7 +33,7 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package cy.ac.ucy.cs.anyplace.logger
+package cy.ac.ucy.cs.anyplace.logger.legacy
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
@@ -99,6 +99,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.FileUtils
 import cy.ac.ucy.cs.anyplace.lib.android.utils.network.OLDNetworkUtils
+import cy.ac.ucy.cs.anyplace.logger.LoggerApp
+import cy.ac.ucy.cs.anyplace.logger.R
 import cy.ac.ucy.cs.anyplace.logger.databinding.ActivityLoggerOldBinding
 import java.io.File
 import java.lang.Exception

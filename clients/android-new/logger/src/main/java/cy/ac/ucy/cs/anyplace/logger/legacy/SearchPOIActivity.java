@@ -34,7 +34,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.logger.legacy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +66,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.AnyplaceSuggestionsTask;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
+import cy.ac.ucy.cs.anyplace.logger.R;
 
 public class SearchPOIActivity extends FragmentActivity {
 

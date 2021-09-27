@@ -34,9 +34,10 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.logger.legacy;
 
-import cy.ac.ucy.cs.anyplace.logger.AndroidFileBrowser;
+import cy.ac.ucy.cs.anyplace.logger.R;
+import cy.ac.ucy.cs.anyplace.logger.legacy.AndroidFileBrowser;
 
 
 import android.app.Activity;

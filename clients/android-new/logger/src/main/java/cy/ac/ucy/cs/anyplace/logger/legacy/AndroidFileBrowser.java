@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.logger;
+package cy.ac.ucy.cs.anyplace.logger.legacy;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -62,6 +62,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import cy.ac.ucy.cs.anyplace.logger.R;
 
 public class AndroidFileBrowser extends ListActivity implements OnClickListener {
   private static final String TAG = AndroidFileBrowser.class.getSimpleName() ;

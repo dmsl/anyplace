@@ -75,7 +75,6 @@ class StartActivity : Activity() {
     CoroutineScope(Main).launch {
       delay(SPLASH_TIME_OUT)
 
-      // startActivity(Intent(this@StartActivity, MapsActivity::class.java))
       openInitialActivity()
     }
   }
@@ -90,13 +89,15 @@ class StartActivity : Activity() {
       // if (user.accessToken.isNotBlank()) {
       //   // TODO if space is selected, then open map directly
       //   LOG.D2(TAG, "Opening SelectSpace activity")
-      //   startActivity(Intent(this@StartFragmentActivity, SelectSpaceFragmentActivity::class.java))
+      //   startActivity(Intent(this@StartActivity, SelectSpaceActivity::class.java))
+      //   // startActivity(Intent(this@StartFragmentActivity, SelectSpaceFragmentActivity::class.java))
       // } else {
       //   LOG.D2(TAG, "Opening Login activity")
       //   // Start login activity
-      //   startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
+      //   startActivity(Intent(this@StartActivity, LoginActivity::class.java))
+      //   // startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
       // }
-      finish()
+      // finish()
     }
   }
 }
