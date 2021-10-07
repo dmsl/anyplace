@@ -7,6 +7,19 @@
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
+## 0. Public
+Latest Version 4.2.5 (MongoDB):
+- https://ap.cs.ucy.ac.cy/viewer/ 
+- https://ap.cs.ucy.ac.cy/architect
+- https://ap.cs.ucy.ac.cy/developers
+- Android: Currently not compatible as the endpoint structure has changed. A new Android Client to be released as part of Anyplace 5.0 (Early 2022)
+
+Deprecated Version 4.0.1 (Couchbase *** STALE DATA (not transferred to latest version ****)
+- https://ap.cs.ucy.ac.cy:9443/viewer
+- https://ap.cs.ucy.ac.cy:9443/architect
+- https://ap.cs.ucy.ac.cy:9443/developers
+- Android: Please insert the above IP/PORT in the settings to connect to the Deprecated service)
+
 ## 1. Clone
 To include the submodules (`anyplace-lib`, and `anyplace-lib-android`) please clone using:
 ```
