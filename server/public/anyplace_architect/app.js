@@ -25,6 +25,9 @@
  THE SOFTWARE.
  */
 
+
+// TODO:PV app.js must be unified in the lib (one for architect, viewer, etc..)
+
 var app = angular.module('anyArchitect', ['ngCookies', 'angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
@@ -233,6 +236,7 @@ app.service('GMapService', function () {
 
 app.factory('AnyplaceService', function () {
     var anyService = {};
+    anyService.prevBuilding = undefined;
     anyService.selectedBuilding = undefined;
     anyService.selectedFloor = undefined;
     anyService.selectedPoi = undefined;
@@ -286,6 +290,8 @@ app.factory('AnyplaceService', function () {
         return this.selectedFloor;
     };
 
+    anyService.hasSelectedFloor = function () { return this.selectedFloor !== undefined; };
+
     anyService.getFloorNumber = function () {
         if (!this.selectedFloor) {
             return 'N/A';
@@ -297,7 +303,10 @@ app.factory('AnyplaceService', function () {
         return this.selectedFloor.floor_name;
     };
 
+    // TODO:PV make this a stack. and pop on ($scope.deleteBuilding). and always select keep the top.
+    // if empty (after pop), then select using the normal way
     anyService.setBuilding = function (b) {
+        this.prevBuilding = this.selectedBuilding;
         this.selectedBuilding = b;
     };
 
@@ -370,6 +379,7 @@ app.factory('AnyplaceService', function () {
     anyService.clearAllData = function () {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
+        anyService.prevBuilding = undefined;
         anyService.selectedBuilding = undefined;
         anyService.selectedCampus = undefined;
         anyService.ShowShareProp = undefined;

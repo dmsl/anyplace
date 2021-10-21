@@ -169,10 +169,12 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         var promise = AnyplaceAPIService.downloadFloorPlan(this.anyService.jsonReq, buid, floor_number);
         promise.then(
             function (resp) {
+                LOG.D3("rendering floorplan: " + buid + " fl: " + floor_number)
 
                 // in case the building was switched too fast, don't load the old building's
                 // floorplan
-                if (buid == $scope.anyService.selectedBuilding.buid && floor_number == $scope.anyService.selectedFloor.floor_number) {
+                if (buid == $scope.anyService.selectedBuilding.buid &&
+                    floor_number == $scope.anyService.selectedFloor.floor_number) {
 
                     $scope.data.floor_plan_file = null;
                     $scope.data.floor_plan = null;

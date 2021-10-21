@@ -326,42 +326,30 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
     // notifications
     anyService.alerts = [];
 
-    anyService.getBuilding = function () {
-        return this.selectedBuilding;
-    };
+    anyService.getBuilding = function () { return this.selectedBuilding; };
 
     anyService.getBuildingId = function () {
-        if (!this.selectedBuilding) {
-            return undefined;
-        }
+        if (!this.selectedBuilding) { return undefined; }
         return this.selectedBuilding.buid;
     };
 
     anyService.getBuildingName = function () {
-        if (!this.selectedBuilding) {
-            return 'N/A';
-        }
+        if (!this.selectedBuilding) { return 'N/A'; }
         return this.selectedBuilding.name;
     };
 
-    anyService.getFloor = function () {
-        return this.selectedFloor;
-    };
+    anyService.getFloor = function () { return this.selectedFloor; };
+
+    anyService.hasSelectedFloor= function () { return this.selectedFloor !== undefined; };
 
     anyService.getFloorNumber = function () {
-        if (!this.selectedFloor) {
-            return 'N/A';
-        }
+        if (!this.selectedFloor) { return 'N/A'; }
         return String(this.selectedFloor.floor_number);
     };
 
-    anyService.setBuilding = function (b) {
-        this.selectedBuilding = b;
-    };
+    anyService.setBuilding = function (b) { this.selectedBuilding = b; };
 
-    anyService.setFloor = function (f) {
-        this.selectedFloor = f;
-    };
+    anyService.setFloor = function (f) { this.selectedFloor = f; };
 
     anyService.setSelectedFloorByNum = function (fnum) {
         this.selectedFloor = anyService.availableFloors[fnum];

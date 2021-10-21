@@ -17,7 +17,8 @@
     <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet" type="text/css"/>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
-    <script src="libs/jquery.ui.rotatable.min.js"></script>
+    <script src="libs/jquery.ui.rotatable.js"></script>
+<!--    <script src="libs/jquery.ui.rotatable.min.js"></script>-->
 
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8&libraries=places,visualization,drawing,geometry">
@@ -336,15 +337,13 @@
                             <div class="divider-top-10 center-delete-div"
                                  ng-show="isCrudTabSelected(3) && anyService.selectedBuilding">
 
-                                <div><b>WARNING</b>: Once you click the delete button below, every floor, POI and
-                                    connection
-                                    that is attached to the indoor space<i>{{anyService.getBuildingName()}}</i> will be
-                                    lost
-                                    <b>PERMANENTLY.</b></div>
+                                <div><b class="text-danger">WARNING:</b> Once you confirm, all floors, POIs and connections</div>
+                                <div>that relate to <i class="font-weight-bold">{{anyService.getBuildingName()}}</i> will be
+                                    lost <b class="text-danger">PERMANENTLY.</b>
+                                </div>
                                 <button class="btn btn-danger divider-top-10" ng-click="deleteBuilding()">Confirm
                                     Deletion
                                 </button>
-
                             </div>
 
                             <!-- Tab 4 -->
@@ -732,11 +731,11 @@
                                 </div>
                                 <div class="divider-top-10">
                                     <div class="subnote">
-                                        <b>Note:</b>
-                                        Zooming in the map as much as possible while placing the floor plan
-                                    </div>
-                                    <div class="subnote">
-                                        will result to better image quality.
+                                        <b>NOTES:</b>
+                                        <div class="text-warning font-weight-bold">• Aspect ratio is forcefully respected.</div>
+                                        <div class="font-weight-bold">• Image quality no longer depends on zoom level.</div>
+                                        <div class="font-weight-bold">• Image quality improves after floorplan submission.</div>
+                                        <div class="font-weight-bold">• Use max zoom level to improve placement accuracy.</div>
                                     </div>
                                 </div>
                             </div>

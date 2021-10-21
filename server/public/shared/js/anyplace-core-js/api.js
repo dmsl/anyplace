@@ -553,7 +553,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     /****************************************************
      * FLOOR FUNCTIONS
      */
-
     apiService.addFloor = function (json_req) {
         return $http({
             method: "POST",
@@ -589,11 +588,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         }).error(function (data, status) {
             return data;
         });
-
     };
 
-
     apiService.uploadFloorPlan = function (json_req, file) {
+        LOG.D3("uploadFloorPlan")
         return $http({
             method: "POST",
             url: API.Mapping.FLOOR_PLAN_UPLOAD_URL,
@@ -613,6 +611,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.uploadFloorPlan64 = function (json_req, file) {
+        LOG.D3("uploadFloorPlan64")
         var fl_data = file.replace('data:image/png;base64,', '');
         var uarray = LPUtils.Base64Binary.decode(fl_data);
         var blob = new Blob([uarray]);
