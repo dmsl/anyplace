@@ -156,12 +156,10 @@ CanvasOverlay.prototype.onAdd = function () {
         this.lastData = this.originalPosition;
 
         this.aspectRatio = (typeof o.aspectRatio === "number") ?
-            o.aspectRatio :
-            ((this.originalSize.width / this.originalSize.height) || 1);
+            o.aspectRatio : ((this.originalSize.width / this.originalSize.height) || 1);
 
         cursor = $(".ui-resizable-" + this.axis).css("cursor");
         $("body").css("cursor", cursor === "auto" ? this.axis + "-resize" : cursor);
-
         el.addClass("ui-resizable-resizing");
         this._propagate("start", event);
         return true;
@@ -173,7 +171,6 @@ CanvasOverlay.prototype.onAdd = function () {
         // patch: get the angle
         var angle = getAngle(this.element[0]);
         var angle_rad = angle * Math.PI / 180;
-
         var isShiftHold = event.shiftKey
         if (alwaysRespectAspectRatio) isShiftHold = true
 
@@ -212,7 +209,6 @@ CanvasOverlay.prototype.onAdd = function () {
         if (this._aspectRatio || isShiftHold ) { data = this._updateRatio(data, event); }
 
         data = this._respectSize(data, event);
-
         //patch: backup the position
         var oldPosition = {left: this.position.left, top: this.position.top};
         this._updateCache(data);
@@ -247,19 +243,15 @@ CanvasOverlay.prototype.onAdd = function () {
 
         // plugins callbacks need to be called first
         this._propagate("resize", event);
-
         //patch: calculate the difference in size
         var diff_w = init_w - this.size.width;
         var diff_h = init_h - this.size.height;
 
         //patch: get the offset based on angle
         var offset = $.getCorrection(init_w, init_h, diff_w, diff_h, angle);
-
         //patch: update the position
         this.position.left += offset.left;
         this.position.top -= offset.top;
-
-        // LOG.D5("_mouseDrag: position: " + this.position);
 
         if (this.position.top !== prevTop) { props.top = this.position.top + "px"; }
         if (this.position.left !== prevLeft) { props.left = this.position.left + "px"; }
@@ -297,9 +289,7 @@ CanvasOverlay.prototype.onAdd = function () {
             while(angle < 0) angle = 360+angle;
             // LOG.D("angle: " + angle) // CLR:PM
             return angle;
-        }
-        else
-            return 0;
+        } else return 0;
     }
 
     function _parseFloat(e) { return isNaN(parseFloat(e)) ? 0: parseFloat(e); }
@@ -321,7 +311,6 @@ CanvasOverlay.prototype.onAdd = function () {
             unfreezeMap(self);
 
             self.ctx.clearRect(0, 0, self.ctx.canvas.width, self.ctx.canvas.height);
-
             self.width = ui.size.width;
             self.height = ui.size.height;
 
@@ -348,7 +337,6 @@ CanvasOverlay.prototype.onAdd = function () {
                 // var width_bottom = round(calculate_distance(BR.lat(), BR.lng(), BL.lat(), BL.lng()), 1);
                 // var height_right = round(calculate_distance(TR.lat(), TR.lng(), BR.lat(), BR.lng()), 1);
                 // var diagonal = round(calculate_distance(TR.lat(), TR.lng(), BL.lat(), BL.lng()), 1);
-
                 var msg = "Dimensions: width: " + width_top + " height:" + height_left + " (meters)"
                 LOG.D(msg);
                 _info(self.angularScope, msg);
@@ -371,8 +359,7 @@ CanvasOverlay.prototype.onAdd = function () {
         },
         stop: function (event, ui) {
             unfreezeMap(self);
-            // update the coordinates
-            if (projection != null) {
+            if (projection != null) {  // update the coordinates
                 var left = $(this).position().left;
                 var top = $(this).position().top;
                 self.latlng = projection.fromDivPixelToLatLng(new google.maps.Point(left, top), true);
@@ -393,35 +380,10 @@ CanvasOverlay.prototype.onAdd = function () {
 
     // load the floor
     this.initImage();
-
     // We add an overlay to a map via one of the map's panes.
     // We'll add this overlay to the overlayImage pane.
     var panes = this.getPanes();
     panes.overlayImage.appendChild(this.div_);
-    // CLR:PM
-    // var that=this;
-    // var container=div;
-    // google.maps.event.addDomListener(this.get('map').getDiv(),
-    //     'mouseleave',
-    //     function(){
-    //         google.maps.event.trigger(container,'mouseup');
-    //     }
-    // );
-    // google.maps.event.addDomListener(container,
-    //     'mousedown',
-    //     function(e) {
-    //         // LOG.D("mousedown:");
-    //         this.style.cursor='move';
-    //         that.map_.set('draggable',false);
-    //         that.set('origin',e); }
-    // );
-    // google.maps.event.addDomListener(container,'mouseup',function(){  // BUG
-    //     that.map_.set('draggable',true);
-    //     this.style.cursor='default';
-    //     that.map_.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
-    //     google.maps.event.removeListener(that.moveHandler); // CHECK ?!
-    // });
-
     return this;
 }
 
@@ -429,13 +391,11 @@ function freezeMap(canvasOverlay) {
     document.body.style.cursor='move';
     canvasOverlay.map_.set('draggable', false);
     canvasOverlay.map_.setOptions({draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true});
-    // that.set('origin',e); CHECK ?
 }
 
 function unfreezeMap(canvasOverlay) {
     document.body.style.cursor='default';
     canvasOverlay.map_.setOptions({draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false});
-    // google.maps.event.removeListener(that.moveHandler); // CHECK ?!
 }
 
 
@@ -447,13 +407,8 @@ CanvasOverlay.prototype.draw = function () {
 CanvasOverlay.prototype.onRemove = function () { this.div_.parentNode.removeChild(this.div_); }
 
 // Note that the visibility property must be a string enclosed in quotes
-CanvasOverlay.prototype.hide = function () {
-    if (this.div_) { this.div_.style.visibility = 'hidden'; }
-}
-
-CanvasOverlay.prototype.show = function () {
-    if (this.div_) { this.div_.style.visibility = 'visible'; }
-}
+CanvasOverlay.prototype.hide = function () { if (this.div_) { this.div_.style.visibility = 'hidden'; } }
+CanvasOverlay.prototype.show = function () { if (this.div_) { this.div_.style.visibility = 'visible'; } }
 
 CanvasOverlay.prototype.toggle = function () {
     if (this.div_) {
@@ -466,19 +421,14 @@ CanvasOverlay.prototype.toggle = function () {
 }
 
 CanvasOverlay.prototype.toggleDOM = function () {
-    if (this.getMap()) {
-        this.setMap(null);
-    } else {
-        this.setMap(this.map_);
-    }
+    if (this.getMap()) this.setMap(null);
+    else this.setMap(this.map_);
 }
 
-/*************************
- * CANVAS METHODS
+/**
+ *  CANVAS METHODS
  */
-// CanvasOverlay.prototype.getCanvas = function () {
-//     return this.canvas;
-// }
+
 /**
  * WORKAROUND: creating a new canvas in which we place again the image
  * without resizing it as this significantly decreases the quality.
@@ -512,10 +462,9 @@ CanvasOverlay.prototype.getCanvas = function () {
 
 CanvasOverlay.prototype.getContext2d = function () { return this.ctx; }
 
-/*****************************
+/**
  * EDITING METHODS
  */
-
 CanvasOverlay.prototype.setCanvasSize = function () {
     this.ctx.canvas.width = this.width;
     this.ctx.canvas.height = this.height;
@@ -530,8 +479,6 @@ CanvasOverlay.prototype.initImage = function () {
     LOG.D4("initImage")
     this.setCanvasSize();
     this.ctx.save();
-    LOG.D5("canvas: h: " + this.ctx.canvas.height)
-    LOG.D5("canvas: w: " + this.ctx.canvas.width)
 
     this.ctx.translate((this.ctx.canvas.width / 2), (this.ctx.canvas.height / 2));
     this.ctx.rotate(this.angle);
@@ -589,7 +536,6 @@ CanvasOverlay.prototype.drawBoundingCanvas = function () {
     LOG.D3("drawBoundingCanvas")
     // convert degrees rotation to angle radians
     var degrees = getRotationDegrees($('#canvas_editor'));
-    //var degrees= parseFloat($('#rot_degrees').val());
     var rads = deg2rad(degrees);
 
     $('#canvas_editor').css({
@@ -604,7 +550,7 @@ CanvasOverlay.prototype.drawBoundingCanvas = function () {
     var oldCenter = getPositionData($('#canvas_editor'));
     this.lastCenter=oldCenter;
     this.lastRads = rads;
-    LOG.D("drawBoundingCanvas: lastRads: " + rads)
+    LOG.D5("drawBoundingCanvas: lastRads: " + rads)
 
     var rdata = calculateRotationCorners(oldCenter, rads, this.width, this.height);
 
@@ -635,15 +581,11 @@ CanvasOverlay.prototype.drawBoundingCanvas = function () {
     }
 }
 
-/***************************************
+/**
  * HELPER FUNCTIONS
  */
-function deg2rad(deg) {
-    return deg * Math.PI / 180;
-}
-function rad2deg(rad) {
-    return rad / Math.PI * 180;
-}
+function deg2rad(deg) { return deg * Math.PI / 180; }
+function rad2deg(rad) { return rad / Math.PI * 180; }
 
 function getRotationDegrees(obj) {
     var matrix = obj.css("-webkit-transform") ||
@@ -669,6 +611,7 @@ function getRotationDegrees(obj) {
     LOG.D4("getRotationDegrees: angle: " + angle)
     return angle;
 }
+
 // http://jsfiddle.net/Y8d6k/
 var getPositionData = function (el) {
     return $.extend({
