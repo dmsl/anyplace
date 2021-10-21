@@ -125,7 +125,7 @@ API.Mapping.ALL_POIS_URL = API.url + API.Mapping.ALL_POIS;
 
 API.Mapping.CONNECTION_ADD = "/auth/mapping/connection/add";
 API.Mapping.CONNECTION_ADD_URL = API.url + API.Mapping.CONNECTION_ADD;
-API.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
+API.Mapping.CONNECTION_DELETE = "/auth/mapping/connection/delete";
 API.Mapping.CONNECTION_DELETE_URL = API.url + API.Mapping.CONNECTION_DELETE;
 API.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/floor/all";
 API.Mapping.CONNECTION_ALL_FLOOR_URL = API.url + API.Mapping.CONNECTION_ALL_FLOOR;
@@ -169,7 +169,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_1 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_1");
+        LOG.D3("getRadioHeatmapRSS_1");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_1,
@@ -182,7 +182,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_2 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_2");
+        LOG.D3("getRadioHeatmapRSS_2");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_2,
@@ -195,7 +195,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_3 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_3");
+        LOG.D3("getRadioHeatmapRSS_3");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_3,
@@ -208,7 +208,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_3_Tiles = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_3_Tiles");
+        LOG.D3("getRadioHeatmapRSS_3_Tiles");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES,
@@ -222,7 +222,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.getRadioHeatmapRSSByTime_1 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_1");
+        LOG.D3("getRadioHeatmapRSSByTime_1");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1,
@@ -235,7 +235,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_2 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_2");
+        LOG.D3("getRadioHeatmapRSSByTime_2");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2,
@@ -248,7 +248,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_3 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_3");
+        LOG.D3("getRadioHeatmapRSSByTime_3");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3,
@@ -261,7 +261,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_Tiles = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_Tiles");
+        LOG.D3("getRadioHeatmapRSSByTime_Tiles");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL,
