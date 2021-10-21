@@ -235,7 +235,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
         $scope.data.floor_plan_coords.top_right_lat = tr.lat();
         $scope.data.floor_plan_coords.top_right_lng = tr.lng();
-        
+
         var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
         $scope.data.floor_plan_base64_data = data;
         var imageBounds = new google.maps.LatLngBounds(
