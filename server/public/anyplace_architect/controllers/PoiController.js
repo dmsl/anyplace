@@ -1095,7 +1095,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         break;
                     }
                 }
-                _suc($scope, "Successfully deleted POI.");
+                _info_autohide($scope, "POI deleted.", 1000);
             },
             function (resp) {
                 // on error

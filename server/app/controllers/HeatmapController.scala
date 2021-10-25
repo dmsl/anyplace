@@ -39,10 +39,12 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("Heatmap: floorWifiAVG1: " + Utils.stripJsValueStr(json))
+
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid, SCHEMA.fFloor)
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         try {
           val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage1(buid, floor)
           if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
@@ -71,6 +73,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         try {
           val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage2(buid, floor)
           if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
@@ -105,6 +108,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         try {
           val radioPoints = pds.db.getRadioHeatmapByBuildingFloorAverage3(buid, floor)
           if (radioPoints == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
@@ -138,6 +142,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         val tileX = (json \ SCHEMA.fX).as[Int]
         val tileY = (json \ SCHEMA.fY).as[Int]
         val zoomLevel = (json \ "z").as[Int]
@@ -181,6 +186,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
@@ -211,6 +217,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         try {
@@ -248,6 +255,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
 
@@ -284,6 +292,7 @@ class HeatmapController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val floor = (json \ SCHEMA.fFloor).as[String]
+        if (!pds.db.floorHasFingerprints(buid, floor)) return RESPONSE.BAD_NO_FINGERPRINTS
         val timestampX = (json \ SCHEMA.fTimestampX).as[String]
         val timestampY = (json \ SCHEMA.fTimestampY).as[String]
         val x = (json \ SCHEMA.fX).as[Int]
@@ -313,7 +322,6 @@ class HeatmapController @Inject()(cc: ControllerComponents,
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
-
       inner(request)
   }
 

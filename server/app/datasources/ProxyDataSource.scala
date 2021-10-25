@@ -87,6 +87,11 @@ class ProxyDataSource @Inject() (conf: Configuration) extends IDatasource {
     activeDB.deleteFromKey(col, key, value)
   }
 
+  def floorHasFingerprints(buid: String, floor: String): Boolean = {
+    checkHasActiveDB()
+    activeDB.floorHasFingerprints(buid, floor)
+  }
+
   override def getFromKey(collection:String, key: String, value: String):JsValue = {
     checkHasActiveDB()
     activeDB.getFromKey(collection, key, value)

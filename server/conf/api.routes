@@ -20,9 +20,6 @@ GET        /api/version                                     controllers.MainCont
 ################
 ### USERS
 ################
-# TODO:NN /developers object responses/inputs, and mention `deleteCachedDocuments` in a few places..
-# {"name":"Alang Turning","owner_id":"123_google","external":"google","type":"user","access_token":"apGoogle_ABC123ap",
-# "_schema":0,"status":"success","message":"User Exists.","status_code":200}
 
 ###
 #      tags:
@@ -31,9 +28,9 @@ GET        /api/version                                     controllers.MainCont
 #      description: |-
 #        Registers a local user.
 #
+#        Google login is also available.
+#        See endpoint: [/api/user/login/google](/#/User/loginGoogle)
 #
-#        One could use an external account (Google) to use the service.
-#        For those see endpoint XXX.
 #      operationId: userRegister
 #      consumes:
 #        - application/json
@@ -157,7 +154,7 @@ POST        /api/user/login/google                          controllers.UserCont
 
 ###
 #      tags:
-#        - User
+#        - User:Admin
 #      summary: Update user
 #      description: |
 #       Provide a `user_id` and at least one optional of the sample parameters to update a user.
@@ -492,50 +489,190 @@ POST        /api/auth/mapping/floor/add                     controllers.MapFloor
 ###
 POST        /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
 
-# TODO:NN /developers put others from routes here as well (and rename)
-# `ag` on the master branch to see if the others are used.
-# PROBABLY this is how viewer gets its floorplans. Maybe the android apps as well..
-# TAG: SPACE:FLOORPLAN
-
 ################
 # Floorplan
 ################
-# TODO:NN fill the rest endpoints
 
 ###
 #      tags:
 #        - Space:Floorplan
-#      summary: ""
+#      summary: "Download a floorplan in base64"
 #      description: ""
 #      operationId: floorplan64BuidFloor
 #      consumes:
 #        - application/json
 #      produces:
 #        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: Empty json
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-POST        /api/floorplans64/:buid/:floor_number               controllers.MapFloorplanController.getBase64( buid: String, floor_number: String )
-### NoDocs ###
-POST        /api/floorplans64/all/:buid/:floor_number           controllers.MapFloorplanController.getAllBase64( buid: String, floor_number: String )
-# TAG: SPACE:FLOORPLAN
-# floor/floorplan/upload
+POST        /api/floorplans64/:buid/:floor_number               controllers.MapFloorplanController.getBase64(buid: String, floor_number: String)
+
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: "Download multiple `floors` floorplans in base64"
+#      description:  |-
+#           Used by the backup operation.
+#           Floors are space separated: `-1 0 1`
+#      operationId: floorplan64AllBuidFloor
+#      consumes:
+#           - application/json
+#      produces:
+#           - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
+#     examples:
+#       application/json: |
+#            {
+#               "all_floors": [
+#                   "<floor1 BASE64>",
+#                   "<floor2 BASE64>"
+#               ]
+#            }
+###
+POST        /api/floorplans64/all/:buid/:floors           controllers.MapFloorplanController.getAllBase64( buid: String, floors: String )
+
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: "Uploads a floorplan"
+#      description:  |-
+#           Used by architect.
+#           Zoom level no longer affects the quality (handled in frontend).
+#           `MIN_ZOOM_UPLOAD` has to be respected though (to ensure that the space
+#           is accurately placed on the map).
+#      operationId: floorplanUpload
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+###
 POST        /api/mapping/floor/floorplan/upload                 controllers.MapFloorplanController.uploadWithZoom()
 
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: "Get link of a zip containing all the floor tiles"
+#      description: ""
+#      operationId: floorplanTilesZipLink
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+###
 POST        /api/floortiles/:buid/:floor_number                 controllers.MapFloorplanController.getZipLink( buid: String, floor_number: String )
+
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: "Download a specific tile file"
+#      description: "Not sure about that.."
+#      operationId: floorplanTilesFile
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+###
 GET         /api/floortiles/:buid/:floor_number/*file           controllers.MapFloorplanController.getStaticTiles( buid: String, floor_number: String, file: String )
-# USED BY: Android Navigator:
+
+###
+#      tags:
+#        - Space:Floorplan
+#      summary: "Gets a tile zip per floor?"
+#      description: "Used by Android Navigator"
+#      operationId: floorplanTilesZipFloor
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+###
 POST        /api/floortiles/zip/:buid/:floor_number             controllers.MapFloorplanController.getTilesZip( buid: String, floor_number: String )
-# USED BY: Web apps
-POST        /api/radiomaps_frozen/:building/:floor/:filename    controllers.RadiomapController.getFrozen(building: String, floor: String, filename: String)
-POST        /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get( radio_folder: String, filename: String )
+
+###
+#      tags:
+#        - Radiomap
+#      summary: "Gets a frozen radiomap"
+#      description: "Used by Web apps\nHow about Android though?"
+#      operationId: radiomapFrozenBuidFlrnumName
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+###
+POST        /api/radiomaps_frozen/:space/:floor/:filename    controllers.RadiomapController.getFrozen(space: String, floor: String, filename: String)
+###
+#      tags:
+#        - Radiomap
+#      summary: "Gets a particular radiomap."
+#      description: "Probably used in a conjuction with another endpoint?\n to know how to build those URLs"
+#      operationId: radiomapFolderFilename
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          required: true
+#          schema:
+#            type: object
+###
+POST        /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get(radio_folder: String, filename: String )
 
 
 ################
-# Campus
+# Space:Campus
 ################
 
 ###
 #      tags:
-#        - Campus
+#        - Space:Campus
 #      summary: Get the SpaceSet of a campus
 #      description: "Returns a group of Spaces that belong to a Campus"
 #      operationId: campusGet
@@ -558,7 +695,7 @@ POST        /api/mapping/campus/get                         controllers.MapCampu
 
 ###
 #      tags:
-#        - Campus
+#        - Space:Campus
 #      summary: Add Campus
 #      description: ""
 #      operationId: campusAdd
@@ -583,7 +720,7 @@ POST        /api/auth/mapping/campus/add                    controllers.MapCampu
 
 ###
 #      tags:
-#        - Campus
+#        - Space:Campus
 #      summary: Update Campus
 #      description: |
 #        CHECK: On frontend(js) buildings and greeklish are not set in the form.
@@ -609,7 +746,7 @@ POST        /api/auth/mapping/campus/update                 controllers.MapCampu
 
 ###
 #      tags:
-#        - Campus
+#        - Space:Campus
 #      summary: Delete Campus
 #      description: ""
 #      operationId: campusDelete
@@ -634,7 +771,7 @@ POST        /api/auth/mapping/campus/delete                 controllers.MapCampu
 
 ###
 #      tags:
-#        - Campus
+#        - Space:Campus
 #      summary: Get user's Campus
 #      description: ""
 #      operationId: campusUser
@@ -656,6 +793,11 @@ POST        /api/auth/mapping/campus/delete                 controllers.MapCampu
 #      - api_key: []
 ###
 POST        /api/auth/mapping/campus/user                   controllers.MapCampusController.byOwner()
+
+
+################
+# Space:POI
+################
 
 ###
 #      tags:
@@ -702,8 +844,6 @@ POST        /api/mapping/pois/floor/all                     controllers.MapPoiCo
 #          description: Successful operation
 ###
 POST        /api/mapping/pois/space/all                  controllers.MapPoiController.bySpace()
-
-# RENAMED: all_pois -> search
 
 ###
 #      tags:
@@ -1028,7 +1168,27 @@ POST        /api/navigation/pois/id                         controllers.Navigati
 ###
 POST        /api/position/predictFloorAlgo1                 controllers.PositioningController.predictFloorAlgo1()
 
-
+###
+#      tags:
+#        - Position
+#      summary: Estimate position.
+#      description: "Not sure if this is properly implemented"
+#      operationId: estimatePosition
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: TODO
+#          required: true
+#          schema:
+#            object
+#      responses:
+#        '200':
+#          description: Successful operation
+###
 POST        /api/position/estimate                          controllers.PositioningController.estimatePosition()
 
 
@@ -1037,18 +1197,13 @@ POST        /api/position/estimate                          controllers.Position
 ### ACCESS POINTS
 ################
 
-
-################
-### RADIOMAPS
-################
-
-# this endpoint has bug. fails to identify access points location
-
 ###
 #      tags:
-#        - Radiomaps
+#        - AccessPoint
 #      summary: Get access points location
-#      description: "These are cached into the collection `accessPointsWifi`"
+#      description: |-
+#        These are cached into the collection `accessPointsWifi`.
+#        This endpoint is buggy. It fails to identify access points location.
 #      operationId: getAPs
 #      consumes:
 #        - application/json
@@ -1069,7 +1224,7 @@ POST        /api/wifi/access_points/floor                   controllers.AccessPo
 
 ###
 #      tags:
-#        - Radiomaps
+#        - AccessPoint
 #      summary: Get access point's manufacturer
 #      description: ""
 #      operationId: APsId
@@ -1091,15 +1246,41 @@ POST        /api/wifi/access_points/floor                   controllers.AccessPo
 POST        /api/wifi/access_points/ids                     controllers.AccessPointController.getIDs()
 
 
-# TODO TEST:NN TEST:PM test on mobile app
+################
+### RADIOMAP
+################
 
+###
+#      tags:
+#        - Radiomap
+#      summary: Upload a radiomap
+#      description: |-
+#        TODO docs. Also make specific for radiomap type (CV, WiFi, BLE?)
+#        TODO require authentication? And test on mobile..
+#      operationId: radiomapUpload
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: ""
+#          required: true
+#          schema:
+#            object
+#      responses:
+#        '200':
+#          description: Successful operation
+###
 POST        /api/radiomap/upload                            controllers.RadiomapController.upload()
+
 
 # TODO TEST:NN TEST:PM test on mobile app
 
 ###
 #      tags:
-#        - Radiomaps
+#        - Radiomap
 #      summary: Get radiomaps of floor
 #      description: ""
 #      operationId: radiomapFloor
@@ -1122,10 +1303,10 @@ POST        /api/radiomap/floor                             controllers.Radiomap
 
 ###
 #      tags:
-#        - Radiomaps
-#      summary: Get radiomaps of all floors
+#        - Radiomap
+#      summary: Get Wi-Fi radiomaps for the given floors
 #      description: ""
-#      operationId: radiomapFloorAll
+#      operationId: radiomapFloors
 #      consumes:
 #        - application/json
 #      produces:
@@ -1136,16 +1317,16 @@ POST        /api/radiomap/floor                             controllers.Radiomap
 #          description: ""
 #          required: true
 #          schema:
-#            $ref: '#/definitions/RadiomapFloorAll'
+#            $ref: '#/definitions/RadiomapFloors'
 #      responses:
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/floor/all                         controllers.RadiomapController.getByFloorsAll()
+POST        /api/radiomap/floors                         controllers.RadiomapController.getByFloorsAll()
 
 ###
 #      tags:
-#        - Radiomaps
+#        - Radiomap
 #      summary: Get radiomaps in a bounding box
 #      description: ""
 #      operationId: radiomapFloorBbox
@@ -1170,7 +1351,7 @@ POST        /api/radiomap/floor/bbox                        controllers.Radiomap
 
 ###
 #      tags:
-#        - Radiomaps
+#        - Radiomap
 #      summary: Get radiomaps of a space
 #      description: ""
 #      operationId: radiomapSpace
@@ -1193,7 +1374,7 @@ POST        /api/radiomap/space                             controllers.Radiomap
 
 ###
 #      tags:
-#        - Radiomaps
+#        - Radiomap
 #      summary: Generate time-based heatmaps for all zoom levels
 #      description: ""
 #      operationId: radiomapTime
@@ -1216,7 +1397,7 @@ POST        /api/radiomap/time                              controllers.Radiomap
 
 ###
 #      tags:
-#        - Radiomaps
+#        - Radiomap
 #      summary: Delete radiomaps in a bounding box in a time-span
 #      description: ""
 #      operationId: radiomapDeleteTime
@@ -1241,7 +1422,7 @@ POST        /api/auth/radiomap/delete/time                       controllers.Rad
 
 ###
 #      tags:
-#        - Radiomaps
+#        - Radiomap
 #      summary: Delete radiomaps in a bounding box
 #      description: ""
 #      operationId: radiomapDelete

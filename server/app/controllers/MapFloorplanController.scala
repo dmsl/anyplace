@@ -1,5 +1,6 @@
 package controllers
 
+import controllers.FloorplanSettings.MIN_ZOOM_UPLOAD
 import datasources.{DatasourceException, ProxyDataSource, SCHEMA}
 import models._
 import models.oauth.OAuth2Request
@@ -13,6 +14,12 @@ import java.io._
 import java.util
 import javax.inject.{Inject, Singleton}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+object FloorplanSettings {
+  /** It no longer affects upload quality (fixed JS), but it might affect accuracy. */
+  var MIN_ZOOM_UPLOAD=18
+}
+
 @Singleton
 class MapFloorplanController @Inject()(cc: ControllerComponents,
                                        tilerHelper: AnyPlaceTilerHelper,
@@ -152,15 +159,15 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
    * @param floorNum
    * @return
    */
-  def getAllBase64(buid: String, floorNum: String): Action[AnyContent] = Action {
+  def getAllBase64(buid: String, requestedFloors: String): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
         val anyReq = new OAuth2Request(request)
         if (!anyReq.assertJsonBody())
           return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("Floorplan: getAllBase64: " + Utils.stripJsValueStr(json) + " " + floorNum)
-        val floors = floorNum.split(" ")
+        LOG.D2("Floorplan: getAllBase64: " + Utils.stripJsValueStr(json) + " " + requestedFloors)
+        val floors = requestedFloors.split(" ")
         val all_floors = new util.ArrayList[String]
         var z = 0
         while (z < floors.length) {
@@ -174,20 +181,21 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
               all_floors.add(s)
             } catch {
               case _: IOException =>
-                return RESPONSE.BAD("Requested floorplan cannot be encoded in base64 properly: " + floors(z))
+                return RESPONSE.BAD("Cannot encode floorplan: " + floors(z))
             }
           catch {
-            case _: Exception =>
-              return RESPONSE.ERROR_INTERNAL("Unknown server error during floorplan delivery.")
+            case e: Exception =>
+              return RESPONSE.ERROR_INTERNAL("Error while getting floorplans: " + requestedFloors +" : "
+              + e.getMessage)
           }
           z += 1
         }
         val res: JsValue = Json.obj("all_floors" -> all_floors.asScala)
-        try
+        try {
           RESPONSE.gzipJsonOk(res.toString)
-        catch {
+        } catch {
           case _: IOException =>
-            return RESPONSE.OK(res, "Successfully retrieved all floors.")
+            RESPONSE.OK(res, "Floors retrieved.")
         }
       }
 
@@ -286,9 +294,8 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
         if (checkRequirements != null) return checkRequirements
         val buid = (json \ SCHEMA.fBuid).as[String]
         val zoom = (json \ SCHEMA.fZoom).as[String]
-        val zoom_number = zoom.toInt
-        if (zoom_number < 20)
-          return RESPONSE.BAD("You have provided zoom level " + zoom + ". You have to zoom at least to level 20 to upload the floorplan.")
+        if (zoom.toInt < MIN_ZOOM_UPLOAD) return RESPONSE.BAD_FLOORPLAN_ZOOM_LEVEL(zoom)
+
         val floorNum = (json \ SCHEMA.fFloorNumber).as[String]
         val bottom_left_lat = (json \ SCHEMA.fLatBottomLeft).as[String]
         val bottom_left_lng = (json \ SCHEMA.fLonBottomLeft).as[String]
@@ -304,26 +311,27 @@ class MapFloorplanController @Inject()(cc: ControllerComponents,
           storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLatTopRight -> JsString(top_right_lat))
           storedFloor = storedFloor.as[JsObject] + (SCHEMA.fLonTopRight -> JsString(top_right_lng))
           if (!pds.db.replaceJsonDocument(SCHEMA.cFloorplans, SCHEMA.fFuid, fuid, storedFloor.toString)) {
-            return RESPONSE.BAD("floorplan could not be updated in the database.")
+            return RESPONSE.BAD("Could not update floorplan.")
           }
         } catch {
-          case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("Error while reading from our backend service.")
+          case _: DatasourceException => return RESPONSE.ERROR_INTERNAL("Error while reading from backend.")
         }
         var floor_file: File = null
         try {
           floor_file = tilerHelper.storeFloorPlanToServer(buid, floorNum, floorplan.ref.path.toFile)
         } catch {
-          case e: AnyPlaceException => return RESPONSE.BAD("Cannot save floorplan on the server.")
+          case _: AnyPlaceException => return RESPONSE.BAD("Cannot save floorplan.")
         }
         val top_left_lat = top_right_lat
         val top_left_lng = bottom_left_lng
         try {
           tilerHelper.tileImageWithZoom(floor_file, top_left_lat, top_left_lng, zoom)
         } catch {
-          case _: AnyPlaceException => return RESPONSE.BAD("Could not create floorplan tiles on the server.")
+          case _: AnyPlaceException => return RESPONSE.BAD("Cannot create floorplan tiles.")
         }
         LOG.I("Successfully tiled: " + floor_file.toString)
-        return RESPONSE.OK("Successfully updated floorplan.")
+
+       RESPONSE.OK("Uploaded floorplan.")
       }
 
       inner(request)

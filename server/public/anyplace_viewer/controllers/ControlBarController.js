@@ -34,7 +34,9 @@
  *
  */
 
-app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', '$location', '$compile', 'GMapService', 'AnyplaceService', function ($scope, $rootScope, $routeParams, $location, $compile, GMapService, AnyplaceService) {
+app.controller('ControlBarController',
+    ['$scope', '$rootScope', '$routeParams', '$location', '$compile', 'GMapService', 'AnyplaceService',
+        function ($scope, $rootScope, $routeParams, $location, $compile, GMapService, AnyplaceService) {
 
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;

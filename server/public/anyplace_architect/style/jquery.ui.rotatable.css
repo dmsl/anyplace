@@ -1,10 +1,10 @@
 .ui-rotatable-handle {
-    height: 16px;
-    width: 16px;
+    height: 28px;
+    width: 28px;
     cursor: pointer;
-    background-image: url(../images/jquery-ui-rotatable/alternate_rotate.png);
+    background-image: url(../images/icon-rotate.svg);
     background-size: 100%;
     position: absolute;
-    left: 50%;
-    top: -18px;
+    left: calc(50% - 14px);
+    bottom: -14px;
 }

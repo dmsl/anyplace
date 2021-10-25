@@ -62,7 +62,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.crudTabSelected = 1;
 
-
     $scope.fetchVersion = function () {
         var jsonReq = {};
         var promise = $scope.anyAPI.version(jsonReq);
@@ -101,6 +100,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     };
 
     $scope.$on("loggedIn", function (event, mass) {
+        // BUG: loggedIn event is raised multiple times (3) for some reason,
+        // even with the code below
+        LOG.D3("loggedIn: Handled")
         $scope.getSpacesAccessible();
         $scope.getUserCampuses();
     });
@@ -135,57 +137,57 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         reader.readAsDataURL(e.target.files[0]);
     });
 
-    $scope.setLogoPlan = function (cuid) {
-
-        var newFl = {
-            is_published: 'true',
-            cuid: cuid,
-            logo: String($scope.newFloorNumber),
-            description: String($scope.newFloorNumber),
-            floor_number: String($scope.newFloorNumber)
-        };
-
-        $scope.myFloors[$scope.myFloorId] = newFl;
-        $scope.myFloorId++;
-
-        // create the proper image inside the canvas
-        canvasOverlay.drawBoundingCanvas();
-
-        // create the ground overlay and destroy the canvasOverlay object
-        // and also set the floor_plan_coords in $scope.data
-        var bl = canvasOverlay.bottom_left_coords;
-        var tr = canvasOverlay.top_right_coords;
-        $scope.data.floor_plan_coords.bottom_left_lat = bl.lat();
-        $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
-        $scope.data.floor_plan_coords.top_right_lat = tr.lat();
-        $scope.data.floor_plan_coords.top_right_lng = tr.lng();
-        $scope.data.floor_plan_coords.zoom = GMapService.gmap.getZoom() + "";
-        var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
-        $scope.data.floor_plan_base64_data = data;
-        var imageBounds = new google.maps.LatLngBounds(
-            new google.maps.LatLng(bl.lat(), bl.lng()),
-            new google.maps.LatLng(tr.lat(), tr.lng()));
-        $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, data, GMapService.gmap);
-
-        canvasOverlay.setMap(null); // remove the canvas overlay since the groundoverlay is placed
-        $('#input-floor-plan').prop('disabled', false);
-        $scope.isCanvasOverlayActive = false;
-
-        if (_floorNoExists($scope.newFloorNumber)) {
-            for (var i = 0; i < $scope.xFloors.length; i++) {
-                var f = $scope.xFloors[i];
-                if (!LPUtils.isNullOrUndefined(f)) {
-                    if (f.floor_number === String($scope.newFloorNumber)) {
-                        $scope.uploadWithZoom($scope.anyService.selectedBuilding, f, $scope.data);
-                        break;
-                    }
-                }
-            }
-        } else {
-            $scope.addFloorObject(newFl, $scope.anyService.selectedBuilding, $scope.data);
-        }
-
-    };
+    // CHECK: what is LogoPlan ?!?
+    // $scope.setLogoPlan = function (cuid) {
+    //     LOG.D("setLogoPlan")
+    //     var newFl = {
+    //         is_published: 'true',
+    //         cuid: cuid,
+    //         logo: String($scope.newFloorNumber),
+    //         description: String($scope.newFloorNumber),
+    //         floor_number: String($scope.newFloorNumber)
+    //     };
+    //
+    //     $scope.myFloors[$scope.myFloorId] = newFl;
+    //     $scope.myFloorId++;
+    //
+    //     // create the proper image inside the canvas
+    //     canvasOverlay.drawBoundingCanvas();
+    //
+    //     // create the ground overlay and destroy the canvasOverlay object
+    //     // and also set the floor_plan_coords in $scope.data
+    //     var bl = canvasOverlay.bottom_left_coords;
+    //     var tr = canvasOverlay.top_right_coords;
+    //     $scope.data.floor_plan_coords.bottom_left_lat = bl.lat();
+    //     $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
+    //     $scope.data.floor_plan_coords.top_right_lat = tr.lat();
+    //     $scope.data.floor_plan_coords.top_right_lng = tr.lng();
+    //     $scope.data.floor_plan_coords.zoom = GMapService.gmap.getZoom() + "";
+    //     var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
+    //     $scope.data.floor_plan_base64_data = data;
+    //     var imageBounds = new google.maps.LatLngBounds(
+    //         new google.maps.LatLng(bl.lat(), bl.lng()),
+    //         new google.maps.LatLng(tr.lat(), tr.lng()));
+    //     $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, data, GMapService.gmap);
+    //
+    //     canvasOverlay.setMap(null); // remove the canvas overlay since the groundoverlay is placed
+    //     $('#input-floor-plan').prop('disabled', false);
+    //     $scope.isCanvasOverlayActive = false;
+    //
+    //     if (_floorNoExists($scope.newFloorNumber)) {
+    //         for (var i = 0; i < $scope.xFloors.length; i++) {
+    //             var f = $scope.xFloors[i];
+    //             if (!LPUtils.isNullOrUndefined(f)) {
+    //                 if (f.floor_number === String($scope.newFloorNumber)) {
+    //                     $scope.uploadWithZoom($scope.anyService.selectedBuilding, f, $scope.data);
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     } else {
+    //         $scope.addFloorObject(newFl, $scope.anyService.selectedBuilding, $scope.data);
+    //     }
+    // };
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         if (newVal && newVal.coordinates_lat && newVal.coordinates_lon) {
@@ -235,9 +237,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 localStorage.setItem("lastCampus", newVal.cuid);
             }
         }
-
     });
-
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {
@@ -288,7 +288,13 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                     } else {
                         b.is_published = false;
                     }
-                    var marker = getMapsIconBuildingArchitect(GMapService.gmap, _latLngFromBuilding(b))
+                    var marker;
+                    if (b.space_type == "vessel") {
+                        marker = getMapsIconVesselArchitect(GMapService.gmap, _latLngFromBuilding(b))
+                    } else {
+                        marker = getMapsIconBuildingArchitect(GMapService.gmap, _latLngFromBuilding(b))
+                    }
+
                     var htmlContent = '<div class="infowindow-scroll-fix">'
                         + '<div class="infowindow-title">'+b.name+'</div>'
                         + '<div class="font-weight-bold">BUID:</div>'
@@ -309,17 +315,17 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         infowindow.open(GMapService.gmap, this);
                         var self = this;
                         $scope.$apply(function () {
-                            $scope.anyService.selectedBuilding = self.building;
+                            $scope.anyService.setBuilding(self.building)
                         });
                     });
                 }
-                console.log("Loaded " + $scope.myBuildings.length + " buildings!")
+                LOG.D("Loaded spaces: " + $scope.myBuildings.length)
 
-                // using the latest building form localStorage
+                // using the latest building from localStorage
                 if (localStoredBuildingIndex >= 0) {
-                    $scope.anyService.selectedBuilding = $scope.myBuildings[localStoredBuildingIndex];
+                    $scope.anyService.setBuilding($scope.myBuildings[localStoredBuildingIndex]);
                 } else if ($scope.myBuildings[0]) {
-                    $scope.anyService.selectedBuilding = $scope.myBuildings[0];
+                    $scope.anyService.setBuilding($scope.myBuildings[0]);
                 }
 
                 // _suc('Successfully fetched buildings.');
@@ -354,13 +360,11 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             if (building.name && building.description && building.is_published && building.url && building.address && building.space_type) {
                 var promise = $scope.anyAPI.addBuilding(building);
                 promise.then(
-                    function (resp) {
-                        // on success
+                    function (resp) {  // on success
                         var data = resp.data;
-                        console.log("new buid: " + data.buid);
                         building.buid = data.buid;
 
-                        if (building.is_published === 'true' || building.is_published == true) {
+                        if (building.is_published === 'true' || building.is_published === true) {
                             building.is_published = true;
                         } else {
                             building.is_published = false;
@@ -368,10 +372,18 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                         // insert the newly created building inside the loadedBuildings
                         $scope.myBuildings.push(building);
-
-                        $scope.anyService.selectedBuilding = $scope.myBuildings[$scope.myBuildings.length - 1];
+                        $scope.anyService.setBuilding($scope.myBuildings[$scope.myBuildings.length - 1]);
 
                         $scope.myMarkers[id].marker.setDraggable(false);
+                        if (building.space_type === "vessel") {
+                            var icon_vessel= {
+                                url: IMG_VESSEL_ARCHITECT,
+                                scaledSize: new google.maps.Size(50, 50), // scaled size
+                                origin: new google.maps.Point(0,0), // origin
+                                anchor: new google.maps.Point(0, 0) // anchor
+                            };
+                            $scope.myMarkers[id].marker.icon = icon_vessel;
+                        }
 
                         $scope.myBuildingsHashT[building.buid] = {
                             marker: $scope.myMarkers[id].marker,
@@ -383,8 +395,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                             $scope.myMarkers[id].infowindow.close();
                         }
 
-                        _suc($scope, "Building added successfully.");
-
+                        _info_autohide($scope, "Added " + building.space_type);
                     },
                     function (resp) {
                       ShowError($scope, resp);
@@ -404,9 +415,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         promise.then(
             function (resp) { // on success
                 var data = resp.data;
-                console.log("building deleted: ", b);
-                // delete the building from the loadedBuildings
-                $scope.myBuildingsHashT[b.buid].marker.setMap(null);
+                // BUG does not disappear. They must be keeping references to the space in multiple places..
+                if($scope.myBuildingsHashT[b.buid].marker) {
+                    $scope.myBuildingsHashT[b.buid].marker.setMap(null);
+                    delete $scope.myBuildingsHashT[b.buid].marker;
+                }
+
                 delete $scope.myBuildingsHashT[b.buid];
                 var bs = $scope.myBuildings;
                 var sz = bs.length;
@@ -416,24 +430,21 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         break;
                     }
                 }
+
                 // update the selected building
-                if ($scope.myBuildings && $scope.myBuildings.length > 0) {
-                    $scope.anyService.selectedBuilding = $scope.myBuildings[0];
+                if ($scope.myBuildings && $scope.myBuildings.length > 0) {  // TODO:PV fix the logic
+                    // $scope.anyService.setBuilding($scope.anyService.prevBuilding);
+                    $scope.anyService.selectedBuilding = undefined;
                 }
                 $scope.setCrudTabSelected(1);
-                _suc($scope, "Successfully deleted indoor space.");
+                _info_autohide($scope, "Deleted " + b.space_type + ". Please refresh.");
             },
             function (resp) {
               ShowError($scope, resp,
-                "Something went wrong." +"" +
-                "It's likely that everything related to the indoor space is deleted " +
-                "but please refresh to make sure or try again.", true)
+                "Something's wrong. Please refresh. Info:", true)
             }
         );
-
     };
-
-
 
     $scope.deleteRadiomaps = function () {
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
@@ -687,9 +698,8 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $("#draggable-building").draggable({
         helper: 'clone',
-        start: function() {
-            // BUG: setting the size of the draggable building.
-            // The first time it does not work for some reason.
+        create: function(event, ui) {
+            // Resize as image is larger than the html element
             $(this).height(50).width(50);
         },
         stop: function (e) {
@@ -700,7 +710,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
     });
 
     $scope.placeMarker = function (location) {
-
         var prevMarker = $scope.myMarkers[$scope.myMarkerId - 1];
 
         if (prevMarker && prevMarker.marker && prevMarker.marker.getMap() && prevMarker.marker.getDraggable()) {
@@ -721,10 +730,9 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         var marker = new google.maps.Marker({
             position: location,
             map: GMapService.gmap,
-            icon: icon_building,
+            icon: icon_building, // assuming a building
             draggable: true
         });
-
 
         var infowindow = new google.maps.InfoWindow({
             content: '-',
@@ -743,6 +751,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 bucode: "",
                 type: undefined
             };
+
             $scope.myMarkers[marker.myId].marker = marker;
             $scope.myMarkers[marker.myId].infowindow = infowindow;
             $scope.myMarkerId++;
@@ -750,21 +759,21 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         var htmlContent = '<form name="buildingForm" class="infowindow-scroll-fix">'
             + '<fieldset class="form-group">'
-            + '<input ng-model="myMarkers[' + marker.myId + '].model.bucode" id="building-code" type="text" class="form-control" placeholder="Building Code (Optional)"/>'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.bucode" id="building-code" type="text" class="form-control" placeholder="Space Code (Optional)"/>'
             + '</fieldset>'
             + '<fieldset class="form-group">'
-            + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="building-name" type="text" class="form-control" placeholder="Building Name *"/>'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.name" id="building-name" type="text" class="form-control" placeholder="Space Name *"/>'
             + '</fieldset>'
             + '<fieldset class="form-group">'
-            + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Building Description (Optional)"></textarea>'
+            + '<textarea ng-model="myMarkers[' + marker.myId + '].model.description" id="building-description" type="text" class="form-control" placeholder="Space Description (Optional)"></textarea>'
             + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<select ng-model="myMarkers[' + marker.myId + '].model.space_type" class="form-control" ng-options="type for type in spaceTypes" title="Space Types" tabindex="2">'
-            + '<option value="">Select Space Type</option>'
+            + '<option value="">Space Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
             + '<fieldset class="form-group">'
-            + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make space public to view.</span>'
             + '</fieldset>'
             + '<fieldset class="form-group">'
             + '</fieldset class="form-group">'
@@ -782,7 +791,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
             + '</form>';
 
         var htmlContent2 = '<div class="infowindow-scroll-fix">'
-            + '<h5 style="margin: 0">Building:</h5>'
+            + '<h5 style="margin: 0">Space:</h5>'
             + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
             + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
             + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
@@ -1303,7 +1312,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.zip = new JSZip();
     $scope.DownloadBackup = function () {
-
+        LOG.D3("DownloadBackup")
         var b = $scope.anyService.selectedBuilding;
         var xFloors = [];
         var jsonReq = AnyplaceService.jsonReq;
@@ -1311,25 +1320,26 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         $scope.anyService.progress = 0;
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
-            function (resp) {
+            function (resp) { // success
+                _info_autohide_timeout($scope, "Fetched floors..", 1500)
                 xFloors = resp.data.floors;
                 var floor = 0;
-                var floor_number = "";
+                var floorNumbers = "";
                 for (var i = 0; i < xFloors.length; i++) {
                     if (i == 0) {
-                        floor_number = xFloors[i].floor_number;
+                        floorNumbers = xFloors[i].floor_number;
                     }
                     else {
-                        floor_number = floor_number + " " + xFloors[i].floor_number;
+                        floorNumbers = floorNumbers + " " + xFloors[i].floor_number;
                     }
                 }
                 $scope.anyService.progress = 10;
                 var buid = b.buid;
                 var jsonReq2 = AnyplaceService.jsonReq;
-                var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floor_number);
+                var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floorNumbers);
                 promise2.then(
-                    function (resp) {
-                        // on success
+                    function (resp) { // on success
+                        _info_autohide_timeout($scope, "Fetched floorplans..", 1500)
                         var data = resp.data;
                         var img = $scope.zip.folder("floor_plans");
                         for (var si = 0; si < data.all_floors.length; si++) {
@@ -1340,27 +1350,25 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         $scope.anyService.progress = 25;
                         var jsonReq3 = AnyplaceService.jsonReq;
                         jsonReq3.buid = buid;
-                        jsonReq3.floor = floor_number;
+                        jsonReq3.floors = floorNumbers;
                         var promise3 = AnyplaceAPIService.getRadioByBuildingFloorAll(jsonReq3);
-                        promise3.then(
-                            function (resp) {
+                        promise3.then(function (resp) {
+                                _info_autohide_timeout($scope, "Fetched radiomaps..", 1500)
                                 var data2 = resp.data;
                                 var logs = $scope.zip.folder("radiomaps");
                                 if (data2.rss_log_files) {
-                                    var urls = "";
                                     for (var si2 = 0; si2 < data2.rss_log_files.length; si2++) {
                                         logs.file(xFloors[si2].floor_number + "-radiomap.txt", data2.rss_log_files[si2]);
                                     }
                                 }
                                 $scope.anyService.progress = 70;
                                 $scope.exportPoisBuildingToJson();
-                            },
-                            function (resp) {
-
-                            }
-                        );
+                            }, function (resp) {
+                                ShowError($scope, resp, ERR_FETCH_ALL_RADIOMAPS, true);
+                            });
                     },
                     function (resp) {
+                	ShowError($scope, resp, ERR_FETCH_ALL_FLOORPLANS, true);
                     }
                 );
             },
@@ -1397,28 +1405,20 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.anyService.progress = 80;
                 if (floors) {
                     for (var i = 0; i < floors.length; i++) {
-
                         (function (jreq) {
                             var promise = AnyplaceAPIService.retrievePoisByBuildingFloor(jreq);
                             promise.then(
                                 function (resp) {
                                     var data = resp.data;
-
                                     var poisArray = data.pois;
-
                                     if (poisArray) {
-
                                         var flPois = [];
-
                                         if (poisArray[0] != undefined) {
                                             var fNo = poisArray[0].floor_number;
-
                                             for (var j = 0; j < poisArray.length; j++) {
                                                 var sPoi = poisArray[j];
 
-                                                if (sPoi.pois_type == "None") {
-                                                    continue;
-                                                }
+                                                if (sPoi.pois_type == "None") { continue; }
                                                 if (sPoi.overwrite) {
                                                     var tmp = {
                                                         name: sPoi.name,
@@ -1429,8 +1429,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                                         coordinates_lon: sPoi.coordinates_lon,
                                                         overwrite: sPoi.overwrite
                                                     };
-                                                }
-                                                else {
+                                                } else {
                                                     var tmp = {
                                                         name: sPoi.name,
                                                         description: sPoi.description,
@@ -1444,20 +1443,16 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                                                 if (sPoi.is_building_entrance == 'true') {
                                                     tmp.is_building_entrance = 'true';
-                                                }
-                                                else {
+                                                } else {
                                                     tmp.is_building_entrance = 'false';
                                                 }
-
                                                 flPois.push(tmp);
                                             }
 
-                                            resFloors.push(
-                                                {
+                                            resFloors.push({
                                                     floor_number: fNo,
                                                     pois: flPois
-                                                }
-                                            );
+                                                });
                                         }
                                         count++;
                                         if (count === floors.length) {
@@ -1471,7 +1466,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                 },
                                 function (resp) {
                                     var data = resp.data;
-                                    console.log(data.message);
+                                    LOG.E(data.message);
                                 });
                         }({
                             buid: building.buid,
@@ -1481,14 +1476,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 }
             },
             function (resp) {
-                // TODO: alert failure
-                console.log(resp.data.message);
+                LOG.E(resp.data.message);  // TODO: alert failure
             }
         );
     };
 
     $scope.exportConnectionBuildingToJson = function () {
-
         var building = $scope.anyService.selectedBuilding;
         if (LPUtils.isNullOrUndefined(building)) {
             _err('No building selected');
@@ -1502,39 +1495,29 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = building.buid;
-
         var count = 0;
-
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
             function (resp) {
                 var floors = resp.data.floors;
-
                 var resFloors = [];
 
                 if (floors) {
                     for (var i = 0; i < floors.length; i++) {
-
                         (function (jreq) {
                             var promise = AnyplaceAPIService.retrieveConnectionsByBuildingFloor(jreq);
                             promise.then(
                                 function (resp) {
                                     $scope.anyService.progress = 100;
                                     var data = resp.data;
-
                                     var connArray = data.connections;
 
                                     if (connArray) {
-
                                         var flConnections = [];
-
                                         if (connArray[0] != undefined) {
-
                                             var fNo = connArray[0].floor_a;
-
                                             for (var j = 0; j < connArray.length; j++) {
                                                 var sConnection = connArray[j];
-
                                                 var tmp = {
                                                     name: sConnection.name,
                                                     description: sConnection.description,
@@ -1548,21 +1531,17 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                                     buid_a: sConnection.buid_a,
                                                     buid_b: sConnection.buid_b
                                                 };
-
                                                 flConnections.push(tmp);
                                             }
 
-                                            resFloors.push(
-                                                {
+                                            resFloors.push({
                                                     floor_number: fNo,
                                                     connections: flConnections
-                                                }
-                                            );
+                                                });
                                         }
+
                                         count++;
-
                                         if (count === floors.length) {
-
                                             $scope.Connectionsresult.building.floors = resFloors;
                                             $scope.zip.file("allconnections.json", JSON.stringify($scope.Connectionsresult, null, 4));
 
@@ -1587,7 +1566,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 }
             },
             function (resp) {
-                console.log(resp.data.message);
+                LOG.E(resp.data.message);
             }
         );
     };
@@ -1598,7 +1577,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         if (typeof(Storage) !== "undefined" && localStorage) {
             localStorage.setItem('dismissClicked', 'YES');
         }
-
     });
 
     if (localStorage.getItem('dismissClicked') !== 'YES') {
@@ -1608,5 +1586,4 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         window.onload = showWelcomeMessage;
     }
-
 }]);

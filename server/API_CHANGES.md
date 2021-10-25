@@ -44,7 +44,7 @@
 | /anyplace/position/predictFloorAlgo1                                  | /api/position/predictFloorAlgo1 |                  |
 | /anyplace/position/estimate_position                                  | /api/position/estimate |          |
 | /anyplace/position/radio/delete                                       | /api/radiomap/delete |        |
-| /anyplace/position/radio_by_building_floor_all                        | /api/radiomap/floor/all |      |
+| /anyplace/position/radio_by_building_floor_all                        | /api/radiomap/floors |      |
 | /anyplace/position/radio_by_floor_bbox                                | /api/radiomap/floor/bbox |    |
 | /anyplace/position/radio_upload                                       | /api/radiomap/upload |       |
 | /anyplace/position/radio_download_floor                               | /api/radiomap/floor |       |

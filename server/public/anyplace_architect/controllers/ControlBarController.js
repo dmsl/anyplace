@@ -20,8 +20,10 @@
  THE SOFTWARE.
  */
 app.controller('ControlBarController',
-    ['$scope', '$rootScope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService',
-        function ($scope, $rootScope, AnyplaceService, GMapService, AnyplaceAPIService) {
+    ['$scope', '$rootScope',
+        'AnyplaceService', 'GMapService', 'AnyplaceAPIService',
+        function ($scope, $rootScope,
+                  AnyplaceService, GMapService, AnyplaceAPIService) {
 
     $scope.anyService = AnyplaceService;
     $scope.gmapService = GMapService;
@@ -43,7 +45,6 @@ app.controller('ControlBarController',
     }
 
     $scope.user = $scope.emptyUser
-
     var self = this; //to be able to reference to it in a callback, you could use $scope instead
 
     angular.element(document).ready(function () {
@@ -53,20 +54,13 @@ app.controller('ControlBarController',
         }
     });
 
-    $scope.setAuthenticated = function (bool) {
-        $scope.isAuthenticated = bool;
-    };
-
     $scope.showFullControls = true;
+    $scope.setAuthenticated = function (bool) { $scope.isAuthenticated = bool; };
+    $scope.toggleFullControls = function () { $scope.showFullControls = !$scope.showFullControls; };
 
-    $scope.toggleFullControls = function () {
-        $scope.showFullControls = !$scope.showFullControls;
-    };
-
-    // // not called
-    // var apiClientLoaded = function () {
-    //     gapi.client.plus.people.get({userId: 'me'}).execute(handleEmailResponse);
-    // };
+    // not called
+    // var apiClientLoaded = function () { gapi.client.plus.people.get({userId: 'me'}).execute(handleEmailResponse); };
+    // var handleEmailResponse = function (resp) { $scope.personLookUp(resp, googleAuth); };
 
     $scope.copyApiKey = function () {
         LOG.W("Copying api key")
@@ -76,11 +70,6 @@ app.controller('ControlBarController',
         document.execCommand("copy");
         _info($scope, "API key copied!");
     }
-
-    // var handleEmailResponse = function (resp) {
-    //     console.log("handleEmailResponse ?");
-    //     $scope.personLookUp(resp, googleAuth);
-    // };
 
     $scope.showGoogleID = function () {
         if (!$scope.user.google) { return; }
@@ -95,22 +84,20 @@ app.controller('ControlBarController',
     $scope.onSignIn = function (googleUser) {
         if ($scope.getCookie("reloadedAfterLogin") === "") {
             $scope.setCookie("reloadedAfterLogin", "true", 365);
+            LOG.D2("onSignIn: reloading")
             location.reload();
         }
+
         $scope.setAuthenticated(true);
         $scope.user = $scope.emptyUser
         $scope.user.google = {}
-
         var googleAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
         LOG.D4("user.google.auth")
         LOG.D4(googleAuth)
-
         $scope.googleUserLookup(googleUser, googleAuth);
     };
 
-    $scope.onSignInFailure = function () {
-        LOG.E('Signin failed');
-    };
+    $scope.onSignInFailure = function () { LOG.E('Signin failed'); };
 
     window.onSignIn = $scope.onSignIn;
     window.onSignInFailure = $scope.onSignInFailure;
@@ -137,7 +124,6 @@ app.controller('ControlBarController',
 
         // google id
         $scope.user.google.id = $scope.user.google._id + '_' + $scope.user.accountType;
-
         var promise = AnyplaceAPIService.loginGoogle({
             name: $scope.user.name,
             external: "google",
@@ -164,7 +150,6 @@ app.controller('ControlBarController',
 
     $scope.refreshLocalLogin = function () {
         LOG.D3("refreshLocalLogin");
-
         var jsonReq = {};
         var cookieAccessToken = $scope.getCookie("localAccessToken");
         if (cookieAccessToken === "") { return; }
@@ -172,7 +157,6 @@ app.controller('ControlBarController',
         jsonReq.access_token = cookieAccessToken;
         LOG.D2("Refreshing local login. token:" + cookieAccessToken);
 
-        // if ($scope.getCookie("localAccessToken") === "") {
         var promise = AnyplaceAPIService.refreshLocalAccount(jsonReq);
         promise.then(
             function (resp) { // on success
@@ -189,10 +173,7 @@ app.controller('ControlBarController',
                 $scope.user.access_token = data.user.access_token;
                 app.user=$scope.user;
                 $scope.setAuthenticated(true);
-
-                if ($scope.user && $scope.user.id) {
-                    $scope.$broadcast('loggedIn', []);
-                }
+                if ($scope.user && $scope.user.id) { $scope.$broadcast('loggedIn', []); }
             },
             function (resp) {
                 ShowError($scope, resp,"Login refresh failed.", true)
@@ -218,7 +199,6 @@ app.controller('ControlBarController',
                 $scope.user.id =  data.user.owner_id;
                 $scope.user.accountType = "local";
                 $scope.user.type = data.user.type;
-
                 $scope.user.access_token = data.user.access_token;
                 app.user=$scope.user;
                 $scope.setAuthenticated(true);
@@ -245,9 +225,7 @@ app.controller('ControlBarController',
         jsonReq.password = $scope.user.password;
 
         var promise = AnyplaceAPIService.registerLocalAccount(jsonReq);
-        promise.then(
-            function (resp) {
-                // on success
+        promise.then(function (resp) {  // on success
                 var data = resp.data;
                 _suc($scope, "Successfully registered!");
             },
@@ -264,10 +242,8 @@ app.controller('ControlBarController',
 
         $scope.$broadcast('loggedOff', []);
         $scope.user={};
-
         clearFingerprintCoverage();
         clearFingerprintHeatmap();
-
         $scope.deleteCookie("reloadedAfterLogin");
         $scope.deleteCookie("localAccessToken");
     };
@@ -275,7 +251,6 @@ app.controller('ControlBarController',
     function clearFingerprintCoverage() {
         var check = 0;
         if (heatMap[check] !== undefined && heatMap[check] !== null) {
-
             var i = heatMap.length;
             while (i--) {
                 heatMap[i].rectangle.setMap(null);
@@ -323,9 +298,7 @@ app.controller('ControlBarController',
             document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
             _HEATMAP_F_IS_ON = false;
             var i = heatmapFingerprints.length;
-            while (i--) {
-                heatmapFingerprints[i] = null;
-            }
+            while (i--) { heatmapFingerprints[i] = null; }
             heatmapFingerprints = [];
         }
     }
@@ -335,12 +308,8 @@ app.controller('ControlBarController',
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {
             var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
+            while (c.charAt(0) == ' ') { c = c.substring(1); }
+            if (c.indexOf(name) == 0) { return c.substring(name.length, c.length); }
         }
         return "";
     };
@@ -357,14 +326,8 @@ app.controller('ControlBarController',
     };
 
     $scope.tab = 1;
-
-    $scope.setTab = function (num) {
-        $scope.tab = num;
-    };
-
-    $scope.isTabSet = function (num) {
-        return $scope.tab === num;
-    };
+    $scope.setTab = function (num) { $scope.tab = num; };
+    $scope.isTabSet = function (num) { return $scope.tab === num; };
 
     $scope.isAdmin = function () {
         if ($scope.user == null) {
@@ -386,22 +349,15 @@ app.controller('ControlBarController',
         }
     };
 
-    var _err = function (msg) {
-        $scope.anyService.addAlert('danger', msg);
-    };
-
     var myLocMarker = undefined;
     $scope.userPosition = undefined;
     var pannedToUserPosOnce = false;
     $scope.isUserLocVisible = false;
 
-    $scope.getIsUserLocVisible = function () {
-        return $scope.isUserLocVisible;
-    };
+    $scope.getIsUserLocVisible = function () { return $scope.isUserLocVisible; };
 
     $scope.panToUserLocation = function () {
-        if (!$scope.userPosition)
-            return;
+        if (!$scope.userPosition)  return;
 
         GMapService.gmap.panTo($scope.userPosition);
         GMapService.gmap.setZoom(20);
@@ -420,8 +376,7 @@ app.controller('ControlBarController',
             return;
         }
         var s = new google.maps.Size(20, 20);
-        if ($scope.isFirefox)
-            s = new google.maps.Size(48, 48);
+        if ($scope.isFirefox) s = new google.maps.Size(48, 48);
 
         myLocMarker = new google.maps.Marker({
             position: posLatlng,
@@ -443,28 +398,19 @@ app.controller('ControlBarController',
         $scope.isUserLocVisible = false;
     };
 
-
     $scope.showUserLocation = function () {
-
         if ($scope.getIsUserLocVisible()) {
             $scope.hideUserLocation();
-
-            if (navigator.geolocation)
-                navigator.geolocation.clearWatch(watchPosNum);
-
+            if (navigator.geolocation)  navigator.geolocation.clearWatch(watchPosNum);
             return;
         }
 
         if (navigator.geolocation) {
             watchPosNum = navigator.geolocation.watchPosition(
                 function (position) {
-
                     var posLatlng = {lat: position.coords.latitude, lng: position.coords.longitude};
-                    //var radius = position.coords.accuracy;
-
                     $scope.userPosition = posLatlng;
                     $scope.displayMyLocMarker(posLatlng);
-
                     var infowindow = new google.maps.InfoWindow({
                         content: 'Your current location.',
                         maxWidth: 500
@@ -509,7 +455,7 @@ app.controller('ControlBarController',
 
     $scope.centerViewToSelectedItem = function () {
         if ($scope.anyService.selectedBuilding == null || $scope.anyService.selectedBuilding == undefined) {
-            _err($scope, "You have to select a building first");
+            _warn_autohide_timeout($scope, "Select a space first", 2000);
             return;
         }
         var position = {};

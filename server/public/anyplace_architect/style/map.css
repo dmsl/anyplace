@@ -100,7 +100,7 @@ footer{
   display: none;
   background-color: #fff;
   padding: 0 11px 0 13px;
-  border-width: 2px;
+  border-width: 3px;
   border-color: gray;
   border-radius: 5px;
   width: 400px;
@@ -112,8 +112,8 @@ footer{
 }
 
 #pac-input:focus {
-    border-color: #202B7B;
-    border-width: 2px;
+    border-color: #03878E;
+    border-width: 3px;
     border-radius: 5px;
     margin-left: -2px;
     padding-left: 15px; /* Regular padding-left + 1. */
@@ -499,7 +499,7 @@ padding: 8px !important;
 
 
 .btn-quickactions {
-    border: gray !important;
+    border: darkgray !important;
     border-style: solid !important;
     border-radius: 4px;
     margin-top: 2px;
@@ -510,7 +510,7 @@ padding: 8px !important;
 
 /* Show border colour when unselected */
 .quickaction-selected .btn-quickactions {
-    border-color: #202B7B !important;
+    border-color: #03878E !important;
 }
 
 /* Fixed placement of  buttons */
@@ -577,34 +577,18 @@ margin-left: -0.15em;
     max-width:none;
 }
 
-/* */
-/* .draggable-border-green { */
-    /* border: 3px solid green; */
-    /* border-radius: 6px; */
-    /* padding: 4px; */
-    /* display: inline-block; */
-/* } */
-/* .draggable-border-blue{ */
-    /* border: 3px solid #202B7B; */
-    /* border-radius: 6px; */
-    /* padding: 4px; */
-    /* display: inline-block; */
-/* } */
-
 .draggable-border {
-    border: 2px solid #ddd;
+    border: 3px solid #ddd;
     border-radius: 6px;
     padding: 4px;
     display: inline-block;
 }
 .draggable-border-selected {
-    border: 2px solid #202B7B;
+    border: 3px solid #03878E;
     /*border-radius: 6px;*/
     /*padding: 4px;*/
     /*display: inline-block;*/
 }
-
-
 
 .divider-top-5 {
     margin-top: 5px;
@@ -757,7 +741,7 @@ margin-left: -0.15em;
     font: normal normal normal normal 18px/27px 'Helvetica Neue', Arial, Helvetica, sans-serif;
     margin: 10px 0px 0px 10px;
     position: absolute;
-    top: 70%;
+    top: 80%;
     right: 10px;
 }
 

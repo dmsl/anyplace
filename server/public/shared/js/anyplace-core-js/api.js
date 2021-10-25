@@ -68,8 +68,8 @@ API.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL = API.url + API.Mapping.RADIO_HEATMA
 API.Mapping.RADIOMAP_DELETE = "/api/auth/radiomap/delete"
 API.Mapping.RADIOMAP_DELETE_URL = API.url + API.Mapping.RADIOMAP_DELETE;
 
-API.Mapping.RADIOMAP_FLOOR_ALL = "/radiomap/floor/all";
-API.Mapping.RADIOMAP_FLOOR_ALL_URL = API.url + API.Mapping.RADIOMAP_FLOOR_ALL;
+API.Mapping.RADIOMAP_FLOORS = "/radiomap/floors";
+API.Mapping.RADIOMAP_FLOORS_URL = API.url + API.Mapping.RADIOMAP_FLOORS;
 
 API.Mapping.SPACE_ADD = "/auth/mapping/space/add";
 API.Mapping.SPACE_ADD_URL = API.url + API.Mapping.SPACE_ADD;
@@ -125,7 +125,7 @@ API.Mapping.ALL_POIS_URL = API.url + API.Mapping.ALL_POIS;
 
 API.Mapping.CONNECTION_ADD = "/auth/mapping/connection/add";
 API.Mapping.CONNECTION_ADD_URL = API.url + API.Mapping.CONNECTION_ADD;
-API.Mapping.CONNECTION_DELETE = "/mapping/connection/delete";
+API.Mapping.CONNECTION_DELETE = "/auth/mapping/connection/delete";
 API.Mapping.CONNECTION_DELETE_URL = API.url + API.Mapping.CONNECTION_DELETE;
 API.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/floor/all";
 API.Mapping.CONNECTION_ALL_FLOOR_URL = API.url + API.Mapping.CONNECTION_ALL_FLOOR;
@@ -169,7 +169,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_1 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_1");
+        LOG.D3("getRadioHeatmapRSS_1");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_1,
@@ -182,7 +182,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_2 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_2");
+        LOG.D3("getRadioHeatmapRSS_2");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_2,
@@ -195,7 +195,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_3 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_3");
+        LOG.D3("getRadioHeatmapRSS_3");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_3,
@@ -208,7 +208,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSS_3_Tiles = function (json_req) {
-        LOG.D2("getRadioHeatmapRSS_3_Tiles");
+        LOG.D3("getRadioHeatmapRSS_3_Tiles");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_URL_3_TILES,
@@ -222,7 +222,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
 
 
     apiService.getRadioHeatmapRSSByTime_1 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_1");
+        LOG.D3("getRadioHeatmapRSSByTime_1");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_1,
@@ -235,7 +235,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_2 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_2");
+        LOG.D3("getRadioHeatmapRSSByTime_2");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_2,
@@ -248,7 +248,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_3 = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_3");
+        LOG.D3("getRadioHeatmapRSSByTime_3");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_RSS_BY_TIME_URL_3,
@@ -261,7 +261,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioHeatmapRSSByTime_Tiles = function (json_req) {
-        LOG.D2("getRadioHeatmapRSSByTime_Tiles");
+        LOG.D3("getRadioHeatmapRSSByTime_Tiles");
         return $http({
             method: "POST",
             url: API.Mapping.RADIO_HEATMAP_BY_TIME_TILES_URL,
@@ -378,9 +378,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.getRadioByBuildingFloorAll = function (json_req) {
+        LOG.D3("getRadioByBuildingFloorAll")
         return $http({
             method: "POST",
-            url: API.Mapping.RADIOMAP_FLOOR_ALL_URL,
+            url: API.Mapping.RADIOMAP_FLOORS_URL,
             data: json_req
         }).success(function (data, status) {
             return data;
@@ -389,17 +390,18 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    apiService.getRadioByBuildingFloorTxt = function (json_req) {
-        return $http({
-            method: "POST",
-            url: API.Mapping.RADIOMAP_FLOOR_ALL_TXT_URL,
-            data: json_req
-        }).success(function (data, status) {
-            return data;
-        }).error(function (data, status) {
-            return data;
-        });
-    };
+    // UNUSED
+    // apiService.getRadioByBuildingFloorTxt = function (json_req) {
+    //     return $http({
+    //         method: "POST",
+    //         url: API.Mapping.RADIOMAP_FLOOR_ALL_TXT_URL,
+    //         data: json_req
+    //     }).success(function (data, status) {
+    //         return data;
+    //     }).error(function (data, status) {
+    //         return data;
+    //     });
+    // };
 
     /**************************************************
      * BUILDING FUNCTIONS
@@ -553,7 +555,6 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     /****************************************************
      * FLOOR FUNCTIONS
      */
-
     apiService.addFloor = function (json_req) {
         return $http({
             method: "POST",
@@ -589,11 +590,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         }).error(function (data, status) {
             return data;
         });
-
     };
 
-
     apiService.uploadFloorPlan = function (json_req, file) {
+        LOG.D3("uploadFloorPlan")
         return $http({
             method: "POST",
             url: API.Mapping.FLOOR_PLAN_UPLOAD_URL,
@@ -613,6 +613,7 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     };
 
     apiService.uploadFloorPlan64 = function (json_req, file) {
+        LOG.D3("uploadFloorPlan64")
         var fl_data = file.replace('data:image/png;base64,', '');
         var uarray = LPUtils.Base64Binary.decode(fl_data);
         var blob = new Blob([uarray]);
@@ -648,10 +649,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
         });
     };
 
-    apiService.downloadFloorPlanAll = function (json_req, buid, floor_number) {
+    apiService.downloadFloorPlanAll = function (json_req, buid, floors) {
+        LOG.D("downloadFloorPlanAll")
+        LOG.D(floors)
         return $http({
             method: "POST",
-            url: API.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
+            url: API.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floors,
             data: json_req
         }).success(function (data, status) {
             return data;

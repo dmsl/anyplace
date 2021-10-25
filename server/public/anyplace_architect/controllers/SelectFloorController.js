@@ -47,28 +47,23 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
     };
 
     $scope.floorUp = function () {
-        //here new
         changedfloor = true;
         var next;
         for (var i = 0; i < $scope.xFloors.length; i++) {
             next = i + 1;
             if ($scope.xFloors[i].floor_number === $scope.anyService.selectedFloor.floor_number) {
-
                 if (next < $scope.xFloors.length) {
                     $scope.anyService.selectedFloor = $scope.xFloors[next];
                     return;
                 } else {
-                    //_warn("There is no other floor above.");
                     return;
                 }
             }
         }
-
         _err($scope, "Floor not found.");
     };
 
     $scope.floorDown = function () {
-
         changedfloor = true;
         var prev;
         for (var i = 0; i < $scope.xFloors.length; i++) {
@@ -79,12 +74,10 @@ app.controller('SelectFloorController', ['$scope', 'AnyplaceService', 'GMapServi
                     $scope.anyService.selectedFloor = $scope.xFloors[prev];
                     return;
                 } else {
-                    //_warn("There is no other floor below.");
                     return;
                 }
             }
         }
-
         _err($scope, "Floor not found.");
     };
 
