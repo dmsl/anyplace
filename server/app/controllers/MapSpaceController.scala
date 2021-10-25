@@ -264,8 +264,8 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
         LOG.D2("spaceGetOne: " + Utils.stripJsValueStr(json))
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
-        if (checkRequirements != null) return checkRequirements
+        val check = VALIDATE.checkRequirements(json, SCHEMA.fBuid)
+        if (check!= null) return check
         val buid = (json \ SCHEMA.fBuid).as[String]
         try {
           var space = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
@@ -276,14 +276,14 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
             (space \ SCHEMA.fName) != JsDefined(JsNull) &&
             (space \ SCHEMA.fDescription) != JsDefined(JsNull)) {
             space = space.as[JsObject] - SCHEMA.fOwnerId - SCHEMA.fCoOwners - SCHEMA.fId - SCHEMA.fSchema
-            val res: JsValue = Json.obj("space" -> space)
             try {
-              return RESPONSE.gzipJsonOk(res.toString)
+              return RESPONSE.gzipJsonOk(space.toString)
             } catch {
-              case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved the space!")
+              case _: IOException => return RESPONSE.OK(space, "Space retrieved.")
             }
           }
-          return RESPONSE.NOT_FOUND("Space not found.")
+
+          RESPONSE.NOT_FOUND("Space not found.")
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
@@ -301,7 +301,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
 
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         val json = anyReq.getJsonBody()
-        LOG.D2("spaceAccessible: " + Utils.stripJsValueStr(json))
+        LOG.D2("userAccessible: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json) // , SCHEMA.fAccessToken
         if (checkRequirements != null) return checkRequirements
 
@@ -314,7 +314,7 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all spaces.")
+            case ioe: IOException => return RESPONSE.OK(res, "Retrieved user spaces.")
           }
         } catch {
           case e: DatasourceException => return RESPONSE.ERROR(e)
@@ -415,10 +415,10 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           try {
             RESPONSE.gzipJsonOk(res.toString)
           } catch {
-            case ioe: IOException => return RESPONSE.OK(res, "Successfully retrieved all spaces near your position!")
+            case _: IOException => RESPONSE.OK(res, "Retrieved all spaces near user position")
           }
         } catch {
-          case e: DatasourceException => return RESPONSE.ERROR(e)
+          case e: DatasourceException => RESPONSE.ERROR(e)
         }
       }
 

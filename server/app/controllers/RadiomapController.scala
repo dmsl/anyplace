@@ -393,27 +393,26 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       def inner(request: Request[AnyContent]): Result = {
 
         val anyReq = new OAuth2Request(request)
-        if (!anyReq.assertJsonBody()) {
-          return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        }
+        if (!anyReq.assertJsonBody()) { return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE) }
+
         val json = anyReq.getJsonBody()
-        LOG.D2("radioDownloadByBuildingFloorall: " + json.toString)
-        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloor, SCHEMA.fBuid)
+        LOG.D2("getByFloorsAll: " + json.toString)
+        val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fFloors, SCHEMA.fBuid)
         if (checkRequirements != null) return checkRequirements
-        val floor_number = (json \ SCHEMA.fFloor).as[String]
+        val floorNumbers = (json \ SCHEMA.fFloors).as[String]
         val buid = (json \ SCHEMA.fBuid).as[String]
-        val floors = floor_number.split(" ")
+        val floors = floorNumbers.split(" ")
         val radiomap_mean_filename = new java.util.ArrayList[String]()
         val rss_log_files = new java.util.ArrayList[String]()
 
-        for (floor_number <- floors) {
-          val rmapDir = fu.getDirFrozenFloor(buid, floor_number)
-          val radiomapFile = fu.getRadiomapFile(buid, floor_number)
-          val meanFile = fu.getMeanFile(buid, floor_number)
+        for (floorNum <- floors) {
+          val rmapDir = fu.getDirFrozenFloor(buid, floorNum)
+          val radiomapFile = fu.getRadiomapFile(buid, floorNum)
+          val meanFile = fu.getMeanFile(buid, floorNum)
           if (rmapDir.exists() && radiomapFile.exists() && meanFile.exists()) {
             try {
               val folder = rmapDir.toString
-              val radiomap_filename = fu.getRadioMapFileName(buid, floor_number).getAbsolutePath
+              val radiomap_filename = fu.getRadioMapFileName(buid, floorNum).getAbsolutePath
               var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
               var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
               var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
@@ -430,7 +429,7 @@ class RadiomapController @Inject()(cc: ControllerComponents,
           }
           if (!rmapDir.exists())
             if (!rmapDir.mkdirs()) {
-              return RESPONSE.ERROR_INTERNAL("Error while creating Radio Map on-the-fly.")
+              return RESPONSE.ERROR_INTERNAL("getByFloorsAll: Can't create  radiomap on-the-fly.")
             }
           val radio = new File(rmapDir.getAbsolutePath + api.sep + "rss-log")
           var fout: FileOutputStream = null
@@ -438,31 +437,30 @@ class RadiomapController @Inject()(cc: ControllerComponents,
             fout = new FileOutputStream(radio)
           } catch {
             case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL(
-              "Cannot create radiomap:3: " + e.getMessage)
+              "getByFloorsAll: Cannot create radiomap: " + e.getMessage)
           }
           var floorFetched: Long = 0L
           try {
-            floorFetched = pds.db.dumpRssLogEntriesByBuildingFloor(fout, buid, floor_number)
+            floorFetched = pds.db.dumpRssLogEntriesByBuildingFloor(fout, buid, floorNum)
             try {
               fout.close()
             } catch {
-              case e: IOException => LOG.E("Error while closing the file output stream for the dumped rss logs")
+              case _: IOException => LOG.E("Error while closing the file output stream for the dumped rss logs")
             }
           } catch {
             case e: DatasourceException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
           }
           if (floorFetched != 0) {
-
             try {
               val folder = rmapDir.toString
-              val radiomap_filename = fu.getRadioMapFileName(buid, floor_number).getAbsolutePath
+              val radiomap_filename = fu.getRadioMapFileName(buid, floorNum).getAbsolutePath
               var radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt")
               var radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt")
               var radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt")
               val rm = new RadioMap(new File(folder), radiomap_filename, "", -110)
               val resCreate = rm.createRadioMap()
               if (resCreate != null) {
-                return RESPONSE.ERROR_INTERNAL("radioDownloadByBuildingFloorall: Error: on-the-fly radioMap: " + resCreate)
+                return RESPONSE.ERROR_INTERNAL("getByFloorsAll: Error: on-the-fly radioMap: " + resCreate)
               }
               val url = api.SERVER_API_ROOT
               var pos = fu.getFilePos(radiomap_mean_filename)
@@ -472,12 +470,12 @@ class RadiomapController @Inject()(cc: ControllerComponents,
               pos = fu.getFilePos(radiomap_parameters_filename)
               radiomap_parameters_filename = url + radiomap_parameters_filename.substring(pos)
             } catch {
-              case e: Exception => return RESPONSE.ERROR_INTERNAL("Error while creating Radio Map on-the-fly! : " + e.getMessage)
+              case e: Exception => return RESPONSE.ERROR_INTERNAL("Cant create radiomap on-the-fly: " + e.getMessage)
             }
 
             val source = scala.io.Source.fromFile(rmapDir.getAbsolutePath + api.sep + "indoor-radiomap.txt")
             val lines = try source.mkString finally source.close()
-            radiomap_mean_filename.add(floor_number)
+            radiomap_mean_filename.add(floorNum)
             rss_log_files.add(lines)
           }
           else {
@@ -485,9 +483,11 @@ class RadiomapController @Inject()(cc: ControllerComponents,
           }
         }
 
-        val res: JsValue = Json.obj("map_url_mean" -> radiomap_mean_filename.asScala,
+        val res: JsValue = Json.obj(
+          "map_url_mean" -> radiomap_mean_filename.asScala,
           "rss_log_files" -> rss_log_files.asScala)
-        return RESPONSE.OK(res, "Successfully served radio map.")
+
+        RESPONSE.OK(res, "Successfully served radio map.")
       }
 
       inner(request)
@@ -516,22 +516,20 @@ class RadiomapController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  def getFrozen(building: String, floor: String, fileName: String): Action[AnyContent] = Action {
+  def getFrozen(space: String, floor: String, fileName: String): Action[AnyContent] = Action {
     def inner(): Result = {
       val radioMapsFrozenDir = conf.get[String]("radioMapFrozenDir")
-      val filePath = radioMapsFrozenDir + api.sep + building + api.sep +
-        floor +
-        api.sep +
-        fileName
-      LOG.D2("serveFrozenRadioMap: requested: " + filePath)
+      val S = api.sep
+      val filePath = radioMapsFrozenDir + S + space + S + floor + S + fileName
+      LOG.D2("getFrozen: requested: " + filePath)
       val file = new File(filePath)
       try {
-        if (!file.exists()) return RESPONSE.BAD("Requested file does not exist");
-        if (!file.canRead()) return RESPONSE.BAD("Requested file cannot be read: " +
-          fileName)
+        if (!file.exists()) return RESPONSE.BAD("Requested file does not exist")
+        if (!file.canRead) return RESPONSE.BAD("Requested file cannot be read: " + fileName)
+
         Ok.sendFile(file)
       } catch {
-        case e: FileNotFoundException => return RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
+        case e: FileNotFoundException => RESPONSE.ERROR_INTERNAL("500: " + e.getMessage)
       }
     }
 

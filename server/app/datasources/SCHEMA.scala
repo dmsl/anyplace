@@ -42,6 +42,7 @@ object SCHEMA {
   val fEmail = "email"
   val fExternal = "external"
   val fFloor = "floor"
+  val fFloors = "floors" // separated by space: e.g. 0 -1 1
   val fFloorA = "floor_a"
   val fFloorB = "floor_b"
   val fFloorName = "floor_name"
