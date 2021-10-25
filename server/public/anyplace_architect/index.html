@@ -18,7 +18,7 @@
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
     <script src="libs/jquery.ui.rotatable.js"></script>
-<!--    <script src="libs/jquery.ui.rotatable.min.js"></script>-->
+    <!--<script src="libs/jquery.ui.rotatable.min.js"></script>-->
 
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDLSYNnIC93KfPnMYRL-7xI7yXjOhgulk8&libraries=places,visualization,drawing,geometry">
@@ -94,6 +94,8 @@
             </span>
         </div>
 
+        <!-- BUGFIX: architect used to initialize 3 times -->
+        <span ng-controller="BuildingController as buildingCtrl">
         <div id="sign-in-box" ng-hide="isAuthenticated || !showFullControls">
             <div id="google-border" class="rborder">
                 <span class="button-style">
@@ -138,13 +140,12 @@
                 </div>
 
                 <div id="id01" class="modal">
-
                     <form class="mdl-content anmt">
                         <div class="imgcontainer">
                             <span onclick="document.getElementById('id01').style.display='none'" class="cls" title="Close Modal">&times;</span>
                         </div>
 
-                        <div class="cntnr" ng-controller="BuildingController as buildingCtrl">
+                        <div class="cntnr">
                             <label for="uname"><b>Username</b></label>
                             <input ng-model="user.username" type="text" placeholder="Enter Username" name="uname" maxlength="32" required>
 
@@ -168,13 +169,12 @@
                 </div>
 
                 <div id="id02" class="modal">
-
                     <form class="mdl-content anmt">
                         <div class="imgcontainer">
                             <span onclick="document.getElementById('id02').style.display='none'" class="cls" title="Close Modal">&times;</span>
                         </div>
 
-                        <div class="cntnr" ng-controller="BuildingController as buildingCtrl">
+                        <div class="cntnr">
                             <label for="name"><b>Full Name</b></label>
                             <input ng-model="user.name" type="text" placeholder="Enter Name and Surname" name="name" maxlength="32" required>
 
@@ -192,47 +192,15 @@
 
                             <button type="submit"; class="lgn-btn" ng-click="registerLocalAccount()">Register</button>
                         </div>
-
                         <div class="cntnr" style="background-color:#f1f1f1">
                             <button type="btn" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn lgn-btn">Cancel</button>
                         </div>
                     </form>
                 </div>
             </div>
-
-            <script>
-                var modal = document.getElementById('id01');
-                var modal2 = document.getElementById('id02');
-                // When the user clicks anywhere outside of the modal, close it
-                window.onclick = function(event) {
-                    if (event.target == modal) {
-                        modal.style.display = "none";
-                    } else if (event.target == modal2) {
-                        modal2.style.display = "none";
-                    }
-                }
-
-                function showHideFun(divID) {
-                    var x = document.getElementById(divID);
-                    if (x.style.display !== "block") {
-                        x.style.display = "block";
-                    } else {
-                        x.style.display = "none";
-                    }
-                }
-
-                function showPassword(id) {
-                    var x = document.getElementById(id);
-                    if (x.type === "password") {
-                        x.type = "text";
-                    } else {
-                        x.type = "password";
-                    }
-                }
-            </script>
         </div>
 
-        <div ng-show="isAuthenticated" ng-controller="BuildingController as buildingCtrl">
+        <div ng-show="isAuthenticated">
             <ul id="ctrl-bar-tablist" class="nav nav-tabs" role="tablist" ng-show="showFullControls">
                 <li role="presentation" ng-class="{ active:isTabSet(1) }">
                     <a href="#tab-spaces" ng-click="setTab(1)">Spaces</a>
@@ -721,6 +689,12 @@
                                     <input class="form-control" type="file" id="input-floor-plan"
                                            name="files[]"
                                            data-file="param.file"/>
+
+                                    <input type="checkbox" id="overlay-mode" name="overlay-mode" checked>
+                                    <label for="overlay-mode">Overlay Mode</label><br>
+                                     <div class="subnote">
+                                        <div>• Keeps the previous floorplan to help align the new one.</div>
+                                    </div>
                                 </div>
 
                                 <div class="divider-top-10" ng-show="isCanvasOverlayActive">
@@ -732,10 +706,11 @@
                                 <div class="divider-top-10">
                                     <div class="subnote">
                                         <b>NOTES:</b>
-                                        <div class="text-warning font-weight-bold">• Aspect ratio is forcefully respected.</div>
-                                        <div class="font-weight-bold">• Image quality no longer depends on zoom level.</div>
-                                        <div class="font-weight-bold">• Image quality improves after floorplan submission.</div>
-                                        <div class="font-weight-bold">• Use max zoom level to improve placement accuracy.</div>
+                                        <!-- <div class="text-warning font-weight-bold">• Aspect ratio is forcefully respected.</div>-->
+                                        <!-- <div class="font-weight-bold">• Image quality no longer depends on zoom level.</div>-->
+                                        <!-- <div class="font-weight-bold">• Image quality improves after floorplan submission.</div>-->
+                                        <div class="font-weight-bold">• Use high zoom level to improve placement accuracy.</div>
+                                        <div class="font-weight-bold">• Zoom level affects real-life size of the floorplan.</div>
                                     </div>
                                 </div>
                             </div>
@@ -1234,6 +1209,7 @@
             </div>
             <!-- Wi-Fi ends -->
         </div>
+        </span>  <!-- Dependency on BuildingController -->
 
         <!-- TAB: User -->
         <div id="ctrl-bar-more" ng-show="isTabSet(5) && showFullControls">
@@ -1594,6 +1570,37 @@
         }
 
     });
+</script>
+
+<script>
+    var modal = document.getElementById('id01');
+    var modal2 = document.getElementById('id02');
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        } else if (event.target == modal2) {
+            modal2.style.display = "none";
+        }
+    }
+
+    function showHideFun(divID) {
+        var x = document.getElementById(divID);
+        if (x.style.display !== "block") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
+    function showPassword(id) {
+        var x = document.getElementById(id);
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
 </script>
 
 </html>
