@@ -1312,7 +1312,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
     $scope.zip = new JSZip();
     $scope.DownloadBackup = function () {
-
+        LOG.D3("DownloadBackup")
         var b = $scope.anyService.selectedBuilding;
         var xFloors = [];
         var jsonReq = AnyplaceService.jsonReq;
@@ -1320,25 +1320,26 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         $scope.anyService.progress = 0;
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
-            function (resp) {
+            function (resp) { // success
+                _info_autohide_timeout($scope, "Fetched floors..", 1500)
                 xFloors = resp.data.floors;
                 var floor = 0;
-                var floor_number = "";
+                var floorNumbers = "";
                 for (var i = 0; i < xFloors.length; i++) {
                     if (i == 0) {
-                        floor_number = xFloors[i].floor_number;
+                        floorNumbers = xFloors[i].floor_number;
                     }
                     else {
-                        floor_number = floor_number + " " + xFloors[i].floor_number;
+                        floorNumbers = floorNumbers + " " + xFloors[i].floor_number;
                     }
                 }
                 $scope.anyService.progress = 10;
                 var buid = b.buid;
                 var jsonReq2 = AnyplaceService.jsonReq;
-                var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floor_number);
+                var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floorNumbers);
                 promise2.then(
-                    function (resp) {
-                        // on success
+                    function (resp) { // on success
+                        _info_autohide_timeout($scope, "Fetched floorplans..", 1500)
                         var data = resp.data;
                         var img = $scope.zip.folder("floor_plans");
                         for (var si = 0; si < data.all_floors.length; si++) {
@@ -1349,27 +1350,25 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                         $scope.anyService.progress = 25;
                         var jsonReq3 = AnyplaceService.jsonReq;
                         jsonReq3.buid = buid;
-                        jsonReq3.floor = floor_number;
+                        jsonReq3.floors = floorNumbers;
                         var promise3 = AnyplaceAPIService.getRadioByBuildingFloorAll(jsonReq3);
-                        promise3.then(
-                            function (resp) {
+                        promise3.then(function (resp) {
+                                _info_autohide_timeout($scope, "Fetched radiomaps..", 1500)
                                 var data2 = resp.data;
                                 var logs = $scope.zip.folder("radiomaps");
                                 if (data2.rss_log_files) {
-                                    var urls = "";
                                     for (var si2 = 0; si2 < data2.rss_log_files.length; si2++) {
                                         logs.file(xFloors[si2].floor_number + "-radiomap.txt", data2.rss_log_files[si2]);
                                     }
                                 }
                                 $scope.anyService.progress = 70;
                                 $scope.exportPoisBuildingToJson();
-                            },
-                            function (resp) {
-
-                            }
-                        );
+                            }, function (resp) {
+                                ShowError($scope, resp, ERR_FETCH_ALL_RADIOMAPS, true);
+                            });
                     },
                     function (resp) {
+                	ShowError($scope, resp, ERR_FETCH_ALL_FLOORPLANS, true);
                     }
                 );
             },
@@ -1406,28 +1405,20 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 $scope.anyService.progress = 80;
                 if (floors) {
                     for (var i = 0; i < floors.length; i++) {
-
                         (function (jreq) {
                             var promise = AnyplaceAPIService.retrievePoisByBuildingFloor(jreq);
                             promise.then(
                                 function (resp) {
                                     var data = resp.data;
-
                                     var poisArray = data.pois;
-
                                     if (poisArray) {
-
                                         var flPois = [];
-
                                         if (poisArray[0] != undefined) {
                                             var fNo = poisArray[0].floor_number;
-
                                             for (var j = 0; j < poisArray.length; j++) {
                                                 var sPoi = poisArray[j];
 
-                                                if (sPoi.pois_type == "None") {
-                                                    continue;
-                                                }
+                                                if (sPoi.pois_type == "None") { continue; }
                                                 if (sPoi.overwrite) {
                                                     var tmp = {
                                                         name: sPoi.name,
@@ -1438,8 +1429,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                                         coordinates_lon: sPoi.coordinates_lon,
                                                         overwrite: sPoi.overwrite
                                                     };
-                                                }
-                                                else {
+                                                } else {
                                                     var tmp = {
                                                         name: sPoi.name,
                                                         description: sPoi.description,
@@ -1453,20 +1443,16 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
                                                 if (sPoi.is_building_entrance == 'true') {
                                                     tmp.is_building_entrance = 'true';
-                                                }
-                                                else {
+                                                } else {
                                                     tmp.is_building_entrance = 'false';
                                                 }
-
                                                 flPois.push(tmp);
                                             }
 
-                                            resFloors.push(
-                                                {
+                                            resFloors.push({
                                                     floor_number: fNo,
                                                     pois: flPois
-                                                }
-                                            );
+                                                });
                                         }
                                         count++;
                                         if (count === floors.length) {
@@ -1480,7 +1466,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                 },
                                 function (resp) {
                                     var data = resp.data;
-                                    console.log(data.message);
+                                    LOG.E(data.message);
                                 });
                         }({
                             buid: building.buid,
@@ -1490,14 +1476,12 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 }
             },
             function (resp) {
-                // TODO: alert failure
-                console.log(resp.data.message);
+                LOG.E(resp.data.message);  // TODO: alert failure
             }
         );
     };
 
     $scope.exportConnectionBuildingToJson = function () {
-
         var building = $scope.anyService.selectedBuilding;
         if (LPUtils.isNullOrUndefined(building)) {
             _err('No building selected');
@@ -1511,39 +1495,29 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = building.buid;
-
         var count = 0;
-
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
             function (resp) {
                 var floors = resp.data.floors;
-
                 var resFloors = [];
 
                 if (floors) {
                     for (var i = 0; i < floors.length; i++) {
-
                         (function (jreq) {
                             var promise = AnyplaceAPIService.retrieveConnectionsByBuildingFloor(jreq);
                             promise.then(
                                 function (resp) {
                                     $scope.anyService.progress = 100;
                                     var data = resp.data;
-
                                     var connArray = data.connections;
 
                                     if (connArray) {
-
                                         var flConnections = [];
-
                                         if (connArray[0] != undefined) {
-
                                             var fNo = connArray[0].floor_a;
-
                                             for (var j = 0; j < connArray.length; j++) {
                                                 var sConnection = connArray[j];
-
                                                 var tmp = {
                                                     name: sConnection.name,
                                                     description: sConnection.description,
@@ -1557,21 +1531,17 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                                                     buid_a: sConnection.buid_a,
                                                     buid_b: sConnection.buid_b
                                                 };
-
                                                 flConnections.push(tmp);
                                             }
 
-                                            resFloors.push(
-                                                {
+                                            resFloors.push({
                                                     floor_number: fNo,
                                                     connections: flConnections
-                                                }
-                                            );
+                                                });
                                         }
+
                                         count++;
-
                                         if (count === floors.length) {
-
                                             $scope.Connectionsresult.building.floors = resFloors;
                                             $scope.zip.file("allconnections.json", JSON.stringify($scope.Connectionsresult, null, 4));
 
@@ -1596,7 +1566,7 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
                 }
             },
             function (resp) {
-                console.log(resp.data.message);
+                LOG.E(resp.data.message);
             }
         );
     };
@@ -1607,7 +1577,6 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
         if (typeof(Storage) !== "undefined" && localStorage) {
             localStorage.setItem('dismissClicked', 'YES');
         }
-
     });
 
     if (localStorage.getItem('dismissClicked') !== 'YES') {
@@ -1617,5 +1586,4 @@ app.controller('BuildingController', ['$cookieStore', '$scope', '$compile', 'GMa
 
         window.onload = showWelcomeMessage;
     }
-
 }]);
