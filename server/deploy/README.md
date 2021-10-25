@@ -27,12 +27,12 @@ Deploy Production
     [Read more](https://www.playframework.com/documentation/2.8.x/ApplicationSecret).
 
 
-### 3. **Update [configuration](./conf/)**:
+### 3. **Update [configuration](../conf/)**:
 Configuration is split amongst these files:
 
-#### 3.1 [conf/.app.private.conf](./conf/app.private.example.conf)
+#### 3.1 [conf/.app.private.conf](../conf/app.private.example.conf)
 Private configuration. Never share online.
-Create this file by duplicating [app.private.example.conf](./conf/app.private.example.conf) 
+Create this file by duplicating [app.private.example.conf](../conf/app.private.example.conf) 
 and adapting as necessary.  
 
 - `application.secret` - Generated from Step 2.
@@ -47,13 +47,13 @@ and adapting as necessary.
   + `radioMapFrozenDir`: directory for the frozen radiomaps
   + `tilerRootDir`: directory of the tiler
 
-#### 3.2 [conf/app.base.conf](./conf/app.base.conf)
+#### 3.2 [conf/app.base.conf](../conf/app.base.conf)
 - `app.base.conf`: put the base configuration. Don't reference any variables as it is used by [build.sbt](build.sbt).
 
-#### 3.3 [conf/app.play.conf](./conf/app.play.conf)
+#### 3.3 [conf/app.play.conf](../conf/app.play.conf)
 Contains the remaining of the Play configuration.
 
-### 4. **Install [tiler dependencies](anyplace_tiler/README.md)**:
+### 4. **Install [tiler dependencies](../anyplace_tiler/README.md)**:
 
 ### 5. **Run anyplace service**:
 
@@ -111,15 +111,15 @@ There needs to be some remote scripts as well:
 
 
 ## 1. Setup
-Create `deploy/config.sh` from [deploy/config.example.sh](./deploy/config.example.sh)
+Create `deploy/config.sh` from [deploy/config.example.sh](../deploy/config.example.sh)
 
 ## 2. Push private configuration and install dependencies:
 
-#### 1.1 [deploy/push_private.conf.sh](./deploy/push_private.conf.sh):
+#### 1.1 [deploy/push_private.conf.sh](../deploy/push_private.conf.sh):
 Pushes the app.private.remote.conf, which contains the passwords, etc.
 
 #### 1.2 REMOTELY: Compile all dependencies
-See  [./public](public/README.md) for more.  
+See  [./public](../public/README.md) for more.  
 Must run remotely.
 
 ## 3. Sync any new changes
@@ -129,14 +129,14 @@ Must run remotely.
 
 # Used scripts:
 
-#### [deploy/watchdog.sh](./deploy/watchdog.sh):
+#### [deploy/watchdog.sh](../deploy/watchdog.sh):
 Watches for file changes and automatically calls sync.sh
 
-#### [deploy/sync.sh](./deploy/sync.sh):
+#### [deploy/sync.sh](../deploy/sync.sh):
 Wrapper over push_code.sh
 Also makes a curl request to trigger an automatic recompilation of the sources (sbt).
 
-#### [deploy/push_code.sh](./deploy/push_code.sh):
+#### [deploy/push_code.sh](../deploy/push_code.sh):
 Pushes any relevant Scala or JS code.
 
 ### TROUBLESHOOTING 
@@ -191,4 +191,4 @@ Any contributions from the community on `docker` are welcome.
 
 ---
 
-## 5. Testing: with [POSTMAN](/database/postman/README.md)
+## 5. Testing: with [POSTMAN](..//database/postman/README.md)
