@@ -35,12 +35,15 @@
  */
 package utils
 
+import controllers.FloorplanSettings.MIN_ZOOM_UPLOAD
+
 import java.util
 import play.api.libs.json.Json
 import play.api.libs.json.{JsNumber, JsObject, JsString, JsValue}
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import utils.RESPONSE.Response.Response
+
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.language.implicitConversions
 
@@ -136,6 +139,7 @@ object RESPONSE {
     def BAD_CANNOT_ADD_CONNECTION: Result = BAD_CANNOT_ADD("Connection")
     def BAD_CANNOT_ADD_FLOOR: Result = BAD_CANNOT_ADD("Floor")
 
+    def BAD_NO_FINGERPRINTS: Result = BAD("No fingerprints yet.")
     def BAD_CANNOT_RETRIEVE(str: String): Result = BAD("Cannot retrieve " + str)
     def BAD_CANNOT_RETRIEVE_SPACE: Result = BAD_CANNOT_RETRIEVE("Space")
     def BAD_CANNOT_RETRIEVE_CAMPUS: Result = BAD_CANNOT_RETRIEVE("Campus")
@@ -147,6 +151,7 @@ object RESPONSE {
 
     def BAD_CANNOT_READ(element: String, floorNum: String): Result = BAD("Cannot read "+ element +": " + floorNum)
     def BAD_CANNOT_READ_FLOORPLAN(floorNum: String): Result = BAD_CANNOT_READ("Floorplan", floorNum)
+    def BAD_FLOORPLAN_ZOOM_LEVEL(z: String): Result = BAD("Minimum zoom level is "+ MIN_ZOOM_UPLOAD +". Provided: " + z)
 
     private def prettyException(e: Exception): String = s"500: ${e.getClass}: ${e.getMessage}"
 

@@ -78,17 +78,22 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
      * @return
      */
     def storeFloorPlanToServer(buid: String, floor_number: String, file: File): File = {
+        LOG.D2("storeFloorPlanToServer")
         val dirS = getRootFloorPlansDirFor(buid, floor_number)
         val dir = new File(dirS)
+
+        LOG.D3("storeFloorPlanToServer: dir: " + dir.getAbsolutePath)
+        LOG.D3("storeFloorPlanToServer: file: " + file.getAbsolutePath)
+        LOG.D3("storeFloorPlanToServer: file size: " + file.length())
         dir.mkdirs()
-        if (!dir.isDirectory || !dir.canWrite() || !dir.canExecute()) {
+        if (!dir.isDirectory || !dir.canWrite || !dir.canExecute) {
             throw new AnyPlaceException("Floor plans directory is inaccessible!")
         }
         val name = "fl" + "_" + floor_number
         val dest_f = new File(dir, name)
         var fout: FileOutputStream = null
         fout = new FileOutputStream(dest_f)
-        Files.copy(file.toPath(), fout)
+        Files.copy(file.toPath, fout)
         fout.close()
         dest_f
     }
@@ -145,16 +150,14 @@ class AnyPlaceTilerHelper @Inject()(cc: ControllerComponents,
     }
 
     def tileImageWithZoom(imageFile: File, lat: String, lng: String, zoom:String): Boolean = {
-        if (!imageFile.isFile || !imageFile.canRead()) {
-            return false
-        }
+        if (!imageFile.isFile || !imageFile.canRead) { return false }
+
         val imageDir = imageFile.getParentFile
-        if (!imageDir.isDirectory || !imageDir.canWrite() || !imageDir.canRead()) {
+        if (!imageDir.isDirectory || !imageDir.canWrite || !imageDir.canRead) {
             throw new AnyPlaceException("Server do not have the permissions to tile the passed argument[" +
-              imageFile.toString +
-              "]")
+              imageFile.toString + "]")
         }
-        val pb = new ProcessBuilder(getTilerScriptStart(), imageFile.getAbsolutePath().toString(), lat,
+        val pb = new ProcessBuilder(getTilerScriptStart(), imageFile.getAbsolutePath, lat,
             lng,"-DISLOG",zoom)
         val log = new File(imageDir, "anyplace_tiler_" + imageFile.getName + ".log")
         pb.redirectErrorStream(true)

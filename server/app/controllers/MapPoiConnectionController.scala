@@ -14,6 +14,7 @@ import java.text.{NumberFormat, ParseException}
 import java.util.Locale
 import javax.inject.{Inject, Singleton}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
+
 @Singleton
 class MapPoiConnectionController @Inject()(cc: ControllerComponents,
                                    pds: ProxyDataSource,
@@ -151,13 +152,12 @@ class MapPoiConnectionController @Inject()(cc: ControllerComponents,
   def delete(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
-
+        LOG.D2("PoiConnection: delete")
         val anyReq = new OAuth2Request(request)
         val apiKey = anyReq.getAccessToken()
         if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
         if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
         var json = anyReq.getJsonBody()
-        LOG.D2("PoiConnection: delete: " + Utils.stripJsValueStr(json))
         val checkRequirements = VALIDATE.checkRequirements(json, SCHEMA.fPoisA, SCHEMA.fPoisB, SCHEMA.fBuidA, SCHEMA.fBuidB)
         if (checkRequirements != null) return checkRequirements
         val owner_id = user.authorize(apiKey)

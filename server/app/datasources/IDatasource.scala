@@ -109,6 +109,7 @@ trait IDatasource {
   def getRadioHeatmapByBuildingFloorAverage1(buid: String, floor: String): List[JsValue]
   def getRadioHeatmapByBuildingFloorAverage2(buid: String, floor: String): List[JsValue]
 
+
   /**
    * if heatmap do not exist, it creates them (heatmapWifi3).
    *
@@ -173,4 +174,7 @@ trait IDatasource {
   def generateHeatmaps(): Boolean
   def isAdmin(): Boolean
   def deleteAllByXsYs(buid: String, floor: String, x: String, y: String): java.util.List[String]
+
+  // Helper methods
+  def floorHasFingerprints(buid: String, floor: String): Boolean
 }
