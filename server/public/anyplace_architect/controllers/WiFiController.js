@@ -513,9 +513,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
             if (_APs_IS_ON) {
                 var i = APmap.length;
-
-                //hide Access Points
-                while (i--) {
+                while (i--) {  //hide Access Points
                     APmap[i].setMap(null);
                     APmap[i] = null;
                     $scope.example9data[i] = null;
@@ -537,9 +535,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             }
             if (_FINGERPRINTS_IS_ON) {
                 var i = fingerPrintsMap.length;
-
-                //hide fingerPrints
-                while (i--) {
+                while (i--) {  //hide fingerPrints
                     fingerPrintsMap[i].setMap(null);
                     fingerPrintsMap[i] = null;
                 }
@@ -547,11 +543,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
                 $scope.showFingerprintHeatmap();
                 if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
-
                     d3.selectAll("svg > *").remove();
                     $("svg").remove();
                     $scope.getFingerPrintsTime();
-
                 }
             }
 
@@ -560,9 +554,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 //hide fingerPrints heatmap
                 heatmap.setMap(null);
                 var i = heatmapFingerprints.length;
-                while (i--) {
-                    heatmapFingerprints[i] = null;
-                }
+                while (i--) { heatmapFingerprints[i] = null; }
                 heatmapFingerprints = [];
                 _HEATMAP_F_IS_ON = false;
 
@@ -576,8 +568,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 }
             }
 
-            if (heatmapAcc && heatmapAcc.getMap()) {
-                //hide acces heatmap
+            if (heatmapAcc && heatmapAcc.getMap()) {  // hide acces heatmap
                 heatmapAcc.setMap(null);
                 $scope.showLocalizationAccHeatmap();
             }
@@ -592,18 +583,14 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                             for (var key in connectionsMap) {
                                 if (connectionsMap.hasOwnProperty(key)) {
                                     var con = connectionsMap[key];
-                                    if (con && con.polyLine) {
-                                        con.polyLine.setMap(null);
-                                    }
+                                    if (con && con.polyLine) { con.polyLine.setMap(null); }
                                 }
-
                             }
                             $scope.anyService.setAllConnection(connectionsMap);
                             connectionsMap = {};
                         }
                     }
                 }
-
             }
 
             if (!_POIS_IS_ON) {
@@ -611,34 +598,36 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 if (POIsMap !== undefined) {
                     var key = Object.keys(POIsMap);
                     if (POIsMap[key[check]] !== undefined) {
-
                         if (POIsMap[key[check]].marker.getMap() !== null) {
-
                             for (var key in POIsMap) {
                                 if (POIsMap.hasOwnProperty(key)) {
 
                                     var p = POIsMap[key];
-                                    if (p && p.marker) {
-                                        p.marker.setMap(null);
-
-                                    }
+                                    if (p && p.marker) { p.marker.setMap(null); }
                                 }
                             }
-
                             $scope.anyService.setAllPois(POIsMap);
                             POIsMap = {};
-
                         }
                     }
                 }
             }
             changedfloor = false;
         }
-
     });
 
+    /**
+     * Shows the Wi-Fi Coverage:
+     * - draws boxes of colors green/yellow/darkYellow/Magenta/Red
+     * - these denote the signal coverage in the building.
+     * - It walls getRadioHeatmapRSS_N according to the zoom level (1 to 3, where 3 is max).
+     */
     $scope.toggleCoverage = function () {
         LOG.D2("toggleCoverage");
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for coverage).")
+            return;
+        }
 
         // if coverage map is combined with timestamp, on hide remove crossfilter bar
         if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
@@ -655,11 +644,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             $scope.anyService.fingerPrintsTimeMode = !$scope.anyService.fingerPrintsTimeMode;
         }
 
-        // if ()
-
         var check = 0;
         if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioHeatmapRSSTimeMode) {
-
             var i = heatMap.length;
             while (i--) {
                 heatMap[i].rectangle.setMap(null);
@@ -714,13 +700,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     };
 
     $scope.toggleAPs = function () {
-
         var check = 0;
-
-        if (APmap[check] !== undefined && APmap[check] !== null) {
+        if (APmap[check] !== undefined && APmap[check] !== null) {  // hide Access Points
             var i = APmap.length;
-
-            //hide Access Points
             while (i--) {
                 APmap[i].setMap(null);
                 APmap[i] = null;
@@ -733,60 +715,63 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 $scope.example8model[i] = null;
             }
 
-            APmap = [];
-            $scope.example9data = [];
-            $scope.example9model = [];
-            $scope.example8data = [];
-            $scope.example8model = [];
-            _APs_IS_ON = false;
-            $scope.filterByMAC = false;
-            $scope.filterByMAN = false;
-            document.getElementById("APs-mode").classList.remove('quickaction-selected');
-            $scope.APsMode = false;
-            if (typeof (Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('APsMode', 'NO');
-            }
+            $scope.prefDisableApsMode();
             return;
-
-        }
-        _APs_IS_ON = true;
-
-        $scope.APsMode = true;
-
-        if (typeof (Storage) !== "undefined" && localStorage) {
-            localStorage.setItem('APsMode', 'YES');
         }
 
-        document.getElementById("APs-mode").classList.add('quickaction-selected');
-
-        $scope.showAPs();
-
+        if ($scope.anyService.hasSelectedFloor()) {
+            $scope.prefEnableApsMode();
+            $scope.showAPs();
+        } else {
+            $scope.prefDisableApsMode();
+            _warn_autohide($scope, "No floor selected (for access points).");
+        }
     };
+
+    $scope.prefEnableApsMode = function () {
+        _APs_IS_ON = true;
+        $scope.APsMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) { localStorage.setItem('APsMode', 'YES'); }
+        document.getElementById("APs-mode").classList.add('quickaction-selected');
+    };
+
+    $scope.prefDisableApsMode = function () {
+        APmap = [];
+        $scope.example9data = [];
+        $scope.example9model = [];
+        $scope.example8data = [];
+        $scope.example8model = [];
+        _APs_IS_ON = false;
+        $scope.filterByMAC = false;
+        $scope.filterByMAN = false;
+        document.getElementById("APs-mode").classList.remove('quickaction-selected');
+        $scope.APsMode = false;
+        if (typeof (Storage) !== "undefined" && localStorage) { localStorage.setItem('APsMode', 'NO'); }
+    }
 
     $scope.toggleFingerPrints = function () {
         LOG.D2("toggleFingerPrints");
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for fingerprints).")
+            return;
+        }
+
         // if coverage and time are pressed, remove them when heatmaps are requested.
-        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) { //
+        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
+	    // is the logic here correct?
+            LOG.D2("coverage & time pressed");
             $scope.toggleCoverage();
-            $scope.toggleFingerPrints();
+            $scope.toggleFingerPrints(); // calling itself?!
             return
         }
 
-        $scope.fingerPrintsMode = !$scope.fingerPrintsMode;
-        if ($scope.fingerPrintsMode) {
-            document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
-            if (typeof (Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'YES');
-            }
+        if (!$scope.fingerPrintsMode) {
+            $scope.enableFingerprintsMode();
         } else {
-            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-            if (typeof (Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'NO');
-            }
+            $scope.disableFingerprintsMode();
         }
 
         var check = 0;
-
         if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
             var i = fingerPrintsMap.length;
 
@@ -811,12 +796,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
             }
             return;
-
         }
 
-        if (heatmap && heatmap.getMap()) {
-            //hide fingerPrints heatmap
-
+        if (heatmap && heatmap.getMap()) {  // hide fingerPrints heatmap
             heatmap.setMap(null);
             _FINGERPRINTS_IS_ON = false;
             document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
@@ -834,9 +816,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
             }
             var i = heatmapFingerprints.length;
-            while (i--) {
-                heatmapFingerprints[i] = null;
-            }
+            while (i--) { heatmapFingerprints[i] = null; }
             heatmapFingerprints = [];
             return;
         }
@@ -859,11 +839,27 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
 
     /**
+     * NOTE: the ACCES map functionality is now removed from the backend.
+     *
      * This methods asynchronoysly calls showLocalizationAccHeatmap, that will
      * eventually show the ACCES map. No UI changes should happen here as it returns immediately.
      *
-     * */
+     * It is a time consuming method that prepares in the background the access map.
+     * The code is buggy and based on obsolete Play/Scala libraries, so it was eventually removed.
+     *
+     */
     $scope.toggleLocalizationAccuracy = function () {
+        if ((true)) { // ACCES is now removed. Show warning and disable when toggled
+            _warn_autohide($scope, WARN_ACCES_REMOVED)
+            $scope.localizationAccMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('localizationAccMode', 'NO');
+            }
+            var el = document.getElementById("localizationAccuracy-mode")
+            el.classList.remove('quickaction-selected');
+            return;
+        }
+
         var check = 0;
         if ((heatMapAcces[check] !== undefined &&
             heatMapAcces[check] !== null) ||
@@ -874,7 +870,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 heatMapAcces[i] = null;
             }
             heatMapAcces = [];
-
             _HEATMAP_ACCES = false;
             // CHECK what is this?
             setColorClicked('g', false);
@@ -893,15 +888,19 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         $scope.showLocalizationAccHeatmap();
-
         document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
-        return;
     };
 
 
     $scope.toggleFingerPrintsTime = function () {
         LOG.D2("toggleFingerPrintsTime");
-        if ($scope.fingerPrintsMode) {
+        if (!$scope.anyService.hasSelectedFloor()) {
+           _warn_autohide($scope, "No floor selected (for fingerprints:time)")
+            return;
+        }
+
+        if ($scope.fingerPrintsMode) { // gmap heatmap mode (normal red/green/yellow maps heatmap)
+            LOG.D("fingerPrintsMode")
             $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
             if ($scope.fingerPrintsTimeMode) {
                 if (typeof (Storage) !== "undefined" && localStorage) {
@@ -915,7 +914,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             $scope.anyService.fingerPrintsTimeMode = !$scope.anyService.fingerPrintsTimeMode;
         }
 
-        if ($scope.radioHeatmapRSSMode) {
+        if ($scope.radioHeatmapRSSMode) { // square boxes overlay (showing quality of coverate)
+            LOG.D("radioHeatmapRSSMode")
             $scope.radioHeatmapRSSTimeMode = !$scope.radioHeatmapRSSTimeMode;
             if ($scope.radioHeatmapRSSTimeMode) {
                 if (typeof (Storage) !== "undefined" && localStorage) {
@@ -930,6 +930,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         if ($scope.radioHeatmapLocalization) {
+            LOG.D("radioHeatmapLocalization")
             clearLocalization();
             $scope.showFingerprintCoverage();
             $scope.radioHeatmapRSSMode = true;
@@ -942,6 +943,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         if (!$scope.fingerPrintsTimeMode && $scope.fingerPrintsMode) {
+            LOG.D("!fingerPrintsTimeMode && fingerPrintsMode: showFingerprintHeatmap")
             clearFingerprintHeatmap();
             $scope.showFingerprintHeatmap();
             document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
@@ -949,6 +951,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         if (!$scope.radioHeatmapRSSTimeMode && $scope.radioHeatmapRSSMode) {
+            LOG.D("!radioHeatmapRSSTimeMode && radioHeatmapRSSMode")
             clearFingerprintCoverage();
             $scope.showFingerprintCoverage();
             $scope.radioHeatmapRSSMode = true;
@@ -966,20 +969,22 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     };
 
     $scope.togglePOIs = function () {
-
         POIsMap = $scope.anyService.getAllPois();
         var key = Object.keys(POIsMap);
         var check = 0;
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for POIs)")
+            return;
+        }
+
         if (!POIsMap.hasOwnProperty(key[check])) {
-            _err($scope, "No POIs yet.")
+            _warn_autohide($scope, "No POIs yet.")
             return;
         }
 
         if (POIsMap[key[check]].marker.getMap() !== null && POIsMap[key[check]].marker.getMap() !== undefined) {
-
             for (var key in POIsMap) {
                 if (POIsMap.hasOwnProperty(key)) {
-
                     var p = POIsMap[key];
                     if (p && p.marker) {
                         p.marker.setMap(null);
@@ -998,7 +1003,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
         for (var key in POIsMap) {
             if (POIsMap.hasOwnProperty(key)) {
-
                 var p = POIsMap[key];
                 if (p && p.marker) {
                     p.marker.setMap(GMapService.gmap);
@@ -1015,30 +1019,26 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
 
     $scope.toggleConnections = function () {
-
         connectionsMap = $scope.anyService.getAllConnections();
         var key = Object.keys(connectionsMap);
         var check = 0;
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for edges)")
+            return;
+        }
         if (!connectionsMap.hasOwnProperty(key[check])) {
-            _warn_autohide($scope, "No edges yet.")
+            LOG.D2("No edges yet.")
             return;
         }
 
         if (connectionsMap[key[check]].polyLine !== undefined) {
-
             if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
                 if (connectionsMap[key[check]].polyLine.getMap() !== null) {
-
                     for (var key in connectionsMap) {
                         if (connectionsMap.hasOwnProperty(key)) {
-
                             var con = connectionsMap[key];
-                            if (con && con.polyLine) {
-
-                                con.polyLine.setMap(null);
-                            }
+                            if (con && con.polyLine) { con.polyLine.setMap(null); }
                         }
-
                     }
 
                     $scope.anyService.setAllConnection(connectionsMap);
@@ -1057,10 +1057,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
 
 
     $scope.getHeatMapButtonText = function () {
-
         var check = 0;
         return heatMap[check] !== undefined && heatMap[check] !== null ? "Hide WiFi Map" : "Show WiFi Map";
-
     };
 
     $scope.getAPsButtonText = function () {
@@ -1088,7 +1086,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
     }
 
     $scope.getPOIsButtonText = function () {
-
         POIsMap = $scope.anyService.getAllPois();
         var key = Object.keys(POIsMap);
         var check = 0;
@@ -1104,7 +1101,6 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         document.getElementById("POIs-mode").classList.remove('quickaction-selected');
         $scope.POIsMode = false;
         return "Show POIs";
-
     };
 
     $scope.getConnectionsButtonText = function () {
@@ -1655,7 +1651,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     $cookieStore.put('RSSClicked', 'YES');
                 },
                 function (resp) {
-                    ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
+                    ShowWarningAutohide($scope, resp, "", false);
                     if (!$scope.radioHeatmapRSSTimeMode) {
                         $scope.radioHeatmapRSSMode = false;
                         if (typeof (Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
@@ -1707,29 +1703,18 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 ShowError($scope, resp, "Something went wrong while fetching the ids of access points.", true);
             }
         );
-
-
     };
 
-
-    $scope.showAPs = function () {
-        //request for access points
+    $scope.showAPs = function () {  // request for access points
         var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
         var i;
-
         var promise = $scope.anyAPI.getAPs(jsonReq);
         promise.then(
-            function (resp) {
-                // on success
-
+            function (resp) {  // on success
                 i = resp.data.accessPoints.length;
-
                 if (i <= 0) {
-                    _warn_autohide($scope, "This floor seems not to be Access Point mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    _warn_autohide($scope, "Floor not mapped. Use logger to map it");
                     $scope.APsMode = false;
                     document.getElementById("APs-mode").classList.remove('quickaction-selected');
                     return;
@@ -1760,12 +1745,10 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     } else {
                         x = values[i].x;
                         y = values[i].y;
-
                     }
+
                     $scope.example9data.push({id: values[i].AP, label: values[i].AP});
                     $scope.example9model.push({id: values[i].AP, label: values[i].AP});
-
-                    //alert("x: "+x+" y: "+y);
 
                     var accessPoint = new google.maps.Marker({
                         id: values[i].AP,
@@ -1781,34 +1764,26 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                         )
                     });
 
-                    APmap.push(
-                        accessPoint
-                    );
-
+                    APmap.push(accessPoint);
                     jsonInfo.push(accessPoint.id);
-
                     var infowindow = new google.maps.InfoWindow();
                     if (!infowindow.getMap()) {
                         APmap[c].addListener('click', function () {
-
                             if (this.mun !== "N/A") {
                                 infowindow.setContent(this.id + "<br><center>-</center><br>" + this.mun);
                             } else {
                                 infowindow.setContent(this.id);
                             }
-
                             infowindow.open(this.gmap, this);
                         });
                     }
-
-
                     c++;
                 }
                 $scope.getAPsIds(jsonInfo);
             },
             function (resp) {
                 $scope.APsMode = false;
-                ShowError($scope, resp, 'Something went wrong while fetching Access Points.', true);
+                ShowError($scope, resp, 'Can\'t  fetch Access Points:', true);
                 document.getElementById("APs-mode").classList.remove('quickaction-selected');
             }
         );
@@ -1833,11 +1808,28 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 initializeTimeFunction();
             },
             function (resp) {
-                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS + ": timestamp.", true);
+                LOG.W(ERR_FETCH_FINGERPRINTS + " (getFingerPrintsTime)");
+                $scope.disableFingerprintsMode();
+                ShowWarningAutohide($scope, resp, "", false);
             }
         );
     };
+
+    $scope.enableFingerprintsMode = function () {
+        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+        $scope.fingerPrintsMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'YES');
+        }
+    }
+
+    $scope.disableFingerprintsMode = function () {
+        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        $scope.fingerPrintsMode = false;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'NO');
+        }
+    }
 
     /**
      *
@@ -1895,15 +1887,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                 _FINGERPRINTS_IS_ON = true;
                             },
                             function (resp) {
-                                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-                                if (!$scope.fingerPrintsMode) {
-                                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-                                    $scope.fingerPrintsMode = false;
-                                    if (typeof (Storage) !== "undefined" && localStorage) {
-                                        localStorage.setItem('fingerprintsMode', 'NO');
-                                    }
-                                }
+                                LOG.E(ERR_FETCH_FINGERPRINTS + ": showFingerprintHeatmap (disabling option).");
+                                $scope.disableFingerprintsMode();
+                                ShowWarningAutohide($scope, resp, "", false);
                             }
                         );
                         return null;
@@ -1959,14 +1945,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                             },
                             function (resp) {
                                 console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-                                if (!$scope.fingerPrintsMode) {
-                                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-                                    $scope.fingerPrintsMode = false;
-                                    if (typeof (Storage) !== "undefined" && localStorage) {
-                                        localStorage.setItem('fingerprintsMode', 'NO');
-                                    }
-                                }
+                                $scope.disableFingerprintsMode();
+                                ShowWarningAutohide($scope, resp, "", false);
                             }
                         );
                         var url = null;
@@ -2042,14 +2022,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 },
                 function (resp) {
                     console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                    // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-                    if (!$scope.fingerPrintsMode) {
-                        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-                        $scope.fingerPrintsMode = false;
-                        if (typeof (Storage) !== "undefined" && localStorage) {
-                            localStorage.setItem('fingerprintsMode', 'NO');
-                        }
-                    }
+                    $scope.disableFingerprintsMode();
+                    ShowWarningAutohide($scope, resp, "", false);
                 }
             );
         }
@@ -2073,14 +2047,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         laButton.prop('disabled', true);
         laButtonProgress.removeClass("hidden");
 
-        jsonReq.username = $scope.creds.username;
-        jsonReq.password = $scope.creds.password;
-
         var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);  // ACCES is removed
-        if ((true)) {
-            _warn_autohide($scope, WARN_ACCES_REMOVED)
-            return;
-        }
 
         var circleRadius = 1.5;
         // zoom

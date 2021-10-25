@@ -1,4 +1,34 @@
 # CHANGELOG
+
+# Version 4.2.6
+- search bar (pac-input):
+  - accepts coordinates in google maps format: LAT, LON
+    - moves map to that location
+  - previous functionality is not working due to GMap.js update
+- uploading floorplans
+  - `OverlayMode`:
+    - keep the previous floor's floorplan when uploading a new one to aid in aligning
+  - no longer rotating when zooming in. the `rotatable` plugin was also updated
+  - while zooming, rotating and panning a floorplan:
+    - most of the gmaps functionality is disabled (e.g, rotation, zoom, etc)
+    - using the proper callbacks now (from rotatable, resizable, etc)
+  - not required to zoom at full level to improve quality
+  - image is uploaded at max quality
+    - canvas is re-drawn before saving at full resolution
+    
+- share urls (and everything based on BASE_URL) is now relative
+  - e.g. sharing a building on ap-dev will generate an endpoint for ap-dev
+
+- BUGFIX: MDB issue when storing new documents
+  - affected vessel/building, floor creation, etc
+- BUGFIX: architect no longer loads 3x on `angular init`
+- BUGFIX: better handling of the cases where architect requests fingerprints/heatmaps/APs of unmapped floors.
+- BUGFIX: backup now works:
+  - related bugs: (endpoints updated)
+    - `/api/floorplans64/all/{buid}/{floors}`
+    - `/api/radiomap/floors`
+- BUGFIX: POI Connection delete
+
 #### Archive: [changelog](changelog/README.md)
 
 ---

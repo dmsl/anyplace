@@ -1,5 +1,6 @@
 .ui-resizable-se, .ui-resizable-sw, .ui-resizable-nw, .ui-resizable-ne {
-    background-color: red;
+    background-color: darkred;
+    border-radius: 2px;
 }
 
 .ui-resizable-se {

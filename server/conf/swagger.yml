@@ -1,6 +1,19 @@
 ---
+# INFO:
+# - IGNORE warning underline in IntelliJ. This is because this file is complementary to the api.routes docs,
+#   hence it is missing some fields.
 swagger: "2.0"
 schemes: [https, http]
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - in: body
+    name: Body
+    required: true
+    schema:
+    type: object
 info:
   title: "Anyplace API"
   description: |
@@ -12,7 +25,7 @@ info:
 
     Google sign in is supported. Anyplace specific key is provided for those cases as well.
 
-    #### API KEY:
+    #### API KEY (access_token):
     Find your key from [/architect](../architect/#tab-user)
   license:
     name: "MIT License"
@@ -20,36 +33,50 @@ info:
   contact:
     email: "anyplace@cs.ucy.ac.cy"
 
-consumes:
-  - application/json
-produces:
-  - application/json
-
+# DESCRIPTION OF EACH ENDPOINT CATEGORY
 tags:
   - name: "User"
-    description: "Anyplace accounts (local or a Google account)."
+    description: "Anyplace account: local or a Google account."
+  - name: "User:Admin"
+    description: "Priviledged tasks for `admin` or `moderators`"
   - name: "Space"
-    description: "An indoor space (`building` or a `vessel`)."
+    description: "An indoor space: a `building` or a `vessel`."
   - name: "Space:Floor"
     description: "A `floor` within a space."
+  - name: "Space:Floorplan"
+    description: "Floorplan images and floor tiles"
   - name: "Space:POI"
     description: "A Point of Interest (POI) in a floor."
-  - name: "Space:Campus"
-    description: "A group of spaces."
   - name: "Space:Connection"
     description: "A route in a building. It joins two connector POIs."
+  - name: "Space:Campus"
+    description: "A collection of spaces."
+  - name: "Radiomap"
+    description: "Maps constructed from WiFi fingerprints."
+  - name: "AccessPoint"
+    description: "Data related to access points, i.e., Wi-Fi routers."
   - name: "Navigation"
     description: "Indoor navigation endpoints."
+  - name: "Position"
+    description: "Acquiring a user's position."
   - name: "Heatmap"
     description: "Heatmap visualization endpoints. These are cached in MongoDB, created on first request."
+  - name: "Misc"
+    description: "Miscellaneous functionalities."
 
+
+# API KEY DEFINITION
 securityDefinitions:
   api_key:
-    description: "Obtain the API key from /developers.\nAll keys must end with `ap`.\n\n\n"
+    description: |-
+      Obtain the API key from [/architect](/architect/#tab-user).
+      A valid key ends with `ap`.
+
     type: "apiKey"
     name: "access_token"
     in: "header"
 
+# EXAMPLE MODELS. It is better to use json directly in api.routes (see some examples there, e.g. /api/user/login)
 definitions:
   SpaceId:
     type: object
@@ -636,15 +663,15 @@ definitions:
       floor_number:
         type: string
         example: "1"
-  RadiomapFloorAll:
+  RadiomapFloors:
     type: object
     properties:
       buid:
         type: string
         example: building_3ae47293-69d1-45ec-96a3-f59f95a70705_1423000957534
-      floor:
+      floors:
         type: string
-        example: 0
+        example: -1 0 1
   RadiomapBbox:
     type: object
     properties:

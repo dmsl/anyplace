@@ -25,7 +25,11 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['ngCookies', 'angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
+
+// TODO:PV app.js must be unified in the lib (one for architect, viewer, etc..)
+
+var app = angular.module('anyArchitect',
+    ['ngCookies', 'angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
     this.gmap = {};
@@ -208,15 +212,23 @@ app.service('GMapService', function () {
         google.maps.event.addListener(self.gmap, 'tilesloaded', function(){
             // once some tiles are shown, show the maps search box
             $("#pac-input").fadeIn(500);
+            $("#pac-input").on('keypress',function(e) {
+                if(e.which == 13) {
+                    $('#sub_btn').trigger('click');
+                    var coords = get_coordinates($("#pac-input").val());
+                    if (coords != null) {
+                        self.gmap.panTo(coords);
+                        self.gmap.setZoom(17);
+                    }
+                    return false;
+                }
+            });
         });
     });
 
     google.maps.event.addListener(self.searchBox, 'places_changed', function () {
         var places = self.searchBox.getPlaces();
-
-        if (places.length == 0) {
-            return;
-        }
+        if (places.length == 0) { return; }
 
         self.gmap.panTo(places[0].geometry.location);
         self.gmap.setZoom(17);
@@ -233,6 +245,7 @@ app.service('GMapService', function () {
 
 app.factory('AnyplaceService', function () {
     var anyService = {};
+    anyService.prevBuilding = undefined;
     anyService.selectedBuilding = undefined;
     anyService.selectedFloor = undefined;
     anyService.selectedPoi = undefined;
@@ -247,100 +260,68 @@ app.factory('AnyplaceService', function () {
     anyService.radioHeatmapRSSTimeMode = false;
     anyService.alerts = [];
 
-    anyService.jsonReq = {
-        username: 'username',
-        password: 'password'
-    };
-    anyService.BASE_URL = "https://ap.cs.ucy.ac.cy";
+    anyService.jsonReq = { };
 
-    anyService.getBuilding = function () {
-        return this.selectedBuilding;
-    };
+    anyService.BASE_URL = location.origin;
+    anyService.VIEWER_URL = location.origin + "/viewer";
 
-    anyService.getCampus = function () {
-        return this.selectedCampus;
-    };
+    anyService.getBuilding = function () { return this.selectedBuilding; };
+    anyService.getCampus = function () { return this.selectedCampus; };
 
     anyService.getBuildingId = function () {
-        if (!this.selectedBuilding) {
-            return undefined;
-        }
+        if (!this.selectedBuilding) { return undefined; }
         return this.selectedBuilding.buid;
     };
 
     anyService.getBuildingName = function () {
-        if (!this.selectedBuilding) {
-            return 'N/A';
-        }
+        if (!this.selectedBuilding) { return 'N/A'; }
         return this.selectedBuilding.name;
     };
 
     anyService.getCampusName = function () {
-        if (!this.selectedCampus) {
-            return 'N/A';
-        }
+        if (!this.selectedCampus) { return 'N/A'; }
         return this.selectedCampus.name;
     };
 
-    anyService.getFloor = function () {
-        return this.selectedFloor;
-    };
+    anyService.getFloor = function () { return this.selectedFloor; };
+    anyService.hasSelectedFloor = function () { return this.selectedFloor !== undefined; };
 
     anyService.getFloorNumber = function () {
-        if (!this.selectedFloor) {
-            return 'N/A';
-        }
+        if (!this.selectedFloor) { return 'N/A'; }
         return String(this.selectedFloor.floor_number);
     };
 
-    anyService.getFloorName = function () {
-        return this.selectedFloor.floor_name;
-    };
+    anyService.getFloorName = function () {return this.selectedFloor.floor_name; };
 
+    // TODO:PV make this a stack. and pop on ($scope.deleteBuilding). and always select keep the top.
+    // if empty (after pop), then select using the normal way
     anyService.setBuilding = function (b) {
+        this.prevBuilding = this.selectedBuilding;
         this.selectedBuilding = b;
     };
 
-    anyService.setFloor = function (f) {
-        this.selectedFloor = f;
-    };
-
-    anyService.addAlert = function (type, msg) {
-        // this.alerts[0] = ({msg: msg, type: type});
-        this.alerts[0] = ({msg: msg, type: type});
-
-    };
-
-    anyService.closeAlert = function (index) {
-        this.alerts.splice(index, 1);
-    };
+    anyService.setFloor = function (f) { this.selectedFloor = f; };
+    anyService.addAlert = function (type, msg) { this.alerts[0] = ({msg: msg, type: type}); };
+    anyService.closeAlert = function (index) { this.alerts.splice(index, 1); };
 
     anyService.getBuildingViewerUrl = function () {
-        if (!this.selectedBuilding || !this.selectedBuilding.buid) {
-            return "N/A";
-        }
+        if (!this.selectedBuilding || !this.selectedBuilding.buid) { return "N/A"; }
         return this.selectedBuilding.buid;
     };
 
     anyService.getBuildingViewerUrlEncoded = function () {
-        if (!this.selectedBuilding || !this.selectedBuilding.buid) {
-            return "N/A";
-        }
-        return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
+        if (!this.selectedBuilding || !this.selectedBuilding.buid) { return "N/A"; }
+        return encodeURIComponent(anyService.VIEWER_URL+"/?buid=" + this.selectedBuilding.buid);
     };
 
     anyService.getCampusViewerUrl = function () {
-        if (!this.selectedCampus || !this.selectedCampus.cuid) {
-            return "N/A";
-        }
-        return "https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
+        if (!this.selectedCampus || !this.selectedCampus.cuid) { return "N/A"; }
+        return anyService.VIEWER_URL+"/?cuid=" + this.selectedCampus.cuid;
     };
 
     anyService.getCampusViewerUrlEncoded = function () {
-        if (!this.selectedCampus || !this.selectedCampus.cuid) {
-            return "N/A";
-        }
-        return encodeURIComponent("https://ap.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
+        if (!this.selectedCampus || !this.selectedCampus.cuid) { return "N/A"; }
+        return encodeURIComponent(anyService.VIEWER_URL+"/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
     anyService.setAllPois = function (p) {
@@ -354,29 +335,25 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.getAllPois = function () {
-        if (!this.allPois) {
-            return 'N/A';
-        }
+        if (!this.allPois) { return 'N/A'; }
         return this.allPois;
     };
 
     anyService.getAllConnections = function () {
-        if (!this.allConnections) {
-            return 'N/A';
-        }
+        if (!this.allConnections) { return 'N/A'; }
         return this.allConnections;
     };
 
     anyService.clearAllData = function () {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
+        anyService.prevBuilding = undefined;
         anyService.selectedBuilding = undefined;
         anyService.selectedCampus = undefined;
         anyService.ShowShareProp = undefined;
         anyService.allPois = {};
         anyService.allConnections = {};
     };
-
     return anyService;
 });
 
@@ -389,9 +366,7 @@ app.factory('Alerter', function () {
 app.factory('formDataObject', function () {
     return function (data, headersGetter) {
         var formData = new FormData();
-        angular.forEach(data, function (value, key) {
-            formData.append(key, value);
-        });
+        angular.forEach(data, function (value, key) { formData.append(key, value); });
 
         var headers = headersGetter();
         delete headers['Content-Type'];
@@ -400,15 +375,17 @@ app.factory('formDataObject', function () {
 });
 
 app.config(['$locationProvider', function ($location) {
-    //now there won't be a hashbang within URLs for browsers that support HTML5 history
-    $location.html5Mode(true);
+    // now there won't be a hashbang within URLs for browsers that support HTML5 history
+    $location.html5Mode({
+        enabled: true,
+        requireBase: false
+    });
 }]);
 
-//from: https://stackoverflow.com/a/57713216/776345
+// from: https://stackoverflow.com/a/57713216/776345
 app.filter('propsFilter', function() {
   return function(items, props) {
     var out = [];
-
     if (angular.isArray(items)) {
       var keys = Object.keys(props);
       var propCache = {};
@@ -421,33 +398,25 @@ app.filter('propsFilter', function() {
 
       items.forEach(function(item) {
         var itemMatches = false;
-
         for (var i = 0; i < keys.length; i++) {
           var prop = keys[i];
           var text = propCache[props[prop]];
           // BUG: not sure what is this for. It doesn't work.
-          if(prop == null || item[prop] == null) {
-            continue;
-          }
+          if(prop == null || item[prop] == null) { continue; }
+
           if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
             itemMatches = true;
             break;
           }
         }
-
-        if (itemMatches) {
-          out.push(item);
-        }
+        if (itemMatches) { out.push(item); }
       });
-    } else {
-      // Let the output be the input untouched
+    } else { // Let the output be the input untouched
       out = items;
     }
-
     return out;
   };
 });
-
 
 app.factory('requestInterceptor', [function () {
     // Intercepting /api/auth requests and adding in the headers the anyplace access_token
@@ -456,18 +425,13 @@ app.factory('requestInterceptor', [function () {
             if (config.url !== undefined) {
                 var loggedIn = (app.user != null)
                 if (config.url.startsWith(API.url+"/auth/")) {
-
                     if (!loggedIn) LOG.E("ERROR: user not logged in and requested: " + config.url)
                     if (loggedIn) config.headers.access_token = app.user.access_token;
-
-                    // CLR:PM
-                    // if (config.data) { if (loggedIn) config.data.access_token = app.user.access_token; }
                 }
             }
             return config;
         }
     };
-
     return requestInterceptor;
 }]);
 

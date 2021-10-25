@@ -97,6 +97,12 @@ filter:
 { 'name': /George/ }
 ```
 
+##### Find in which documents a field exists
+FILTER:
+```bash
+{"space_type":{$exists:true}}
+
+
 ##### Find objects within a bounding box:
 ```bash
 {geometry: { $geoWithin: { $box:  [ [ 33.0, 33.0 ], [ 35.0, 35.0 ] ] } }}
@@ -188,7 +194,7 @@ Upon download of mongodb compass mongosh is also download. Can be accessed from 
   
   
 #### Switch to a database:
-```
+```bash
 use anyplace
 ```
 
@@ -198,8 +204,34 @@ db.users.deleteMany({external: "anyplace"})
 ```
 
 ### Delete a cache collection:
-```
+```bash
 db.heatmapWifiTimestamp1.deleteMany()
+```
+
+
+#### Rename all fields of a collection:
+In the collection spaces of the anyplace collection, it will
+rename all objects that have a field `type` to a field `space_type`.
+
+```bash
+use anyplace
+db.spaces.update(
+  {},
+  { $rename: { 'type': 'space_type' } },
+  { multi: true }
+)
+```
+
+###### Sample output:
+We should use a more up-to-date command actually.
+```bash
+
+'DeprecationWarning: Collection.update() is deprecated. Use updateOne, updateMany, or bulkWrite.'
+{ acknowledged: true,
+  insertedId: null,
+  matchedCount: 4464,
+  modifiedCount: 4438,
+  upsertedCount: 0 }
 ```
 
 ### Delete a database that only admin as access to:
@@ -212,6 +244,7 @@ db.grantRolesToUser("admin", ["root"]);
 use databaseToDelete;
 db.dropDatabase();
 ```
+
 
 </details>
 

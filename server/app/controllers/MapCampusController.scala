@@ -247,7 +247,8 @@ class MapCampusController @Inject()(cc: ControllerComponents,
           case e: DatasourceException =>
             return RESPONSE.ERROR(e)
         }
-        return RESPONSE.OK("Successfully deleted everything related to building.")
+
+        RESPONSE.OK("Deleted indoor campus (cascading).")
       }
 
       inner(request)

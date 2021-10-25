@@ -350,11 +350,11 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
     };
 
     anyService.getFloorNumber = function () {
-        if (!this.selectedFloor) {
-            return 'N/A';
-        }
+        if (!this.selectedFloor) { return 'N/A'; }
         return String(this.selectedFloor.floor_number);
     };
+
+    anyService.hasSelectedFloor= function () { return this.selectedFloor !== undefined; };
 
     anyService.setBuilding = function (b) {
         this.selectedBuilding = b;

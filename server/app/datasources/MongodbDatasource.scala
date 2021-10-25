@@ -590,6 +590,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
   }
 
   override def addJson(col: String, json: JsValue): Boolean = {
+    LOG.D5("addJson")
     var finalJson = json
     if ((json \ SCHEMA.fSchema).toOption.isEmpty) {
       finalJson = json.as[JsObject] + (SCHEMA.fSchema -> JsNumber(SCHEMA.VERSION))
@@ -599,10 +600,8 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val addJson = collection.insertOne(Document.apply(document))
     val awaited = Await.result(addJson.toFuture(), Duration.Inf)
     val res = awaited
-    if (res.toString == "The operation completed successfully")
-      true
-    else
-      false
+
+    res.getInsertedId != null
   }
 
   override def fingerprintExists(col: String, buid: String, floor: String, x: String, y: String, heading: String): Boolean = {
@@ -1001,8 +1000,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     LOG.D("size = " + foundHeatmaps.size)
     if (foundHeatmaps.size == 0) {
       foundHeatmaps = generateHeatmapsOnFly(SCHEMA.cHeatmapWifi1, buid, floor, query, 1, false)
-      if (foundHeatmaps == null)
-        return null
+      if (foundHeatmaps == null)  return null
     }
 
     val heatmaps = new util.ArrayList[JsValue]()
@@ -1162,6 +1160,17 @@ class MongodbDatasource @Inject() () extends IDatasource {
     return null
   }
 
+  def floorHasFingerprints(buid: String, floor: String): Boolean = {
+    LOG.I("onRequestCreateHeatmaps")
+    val collection = mdb.getCollection(SCHEMA.cFingerprintsWifi)
+    val query: BsonDocument = BsonDocument(SCHEMA.fBuid -> buid, SCHEMA.fFloor -> floor)
+    val fingerprintsLookup = collection.find(query)
+    val awaited = Await.result(fingerprintsLookup.toFuture(), Duration.Inf)
+    val res = awaited.toList
+
+    res.nonEmpty
+  }
+
   /**
    * Creates heatmaps and stores them in a collection according to the zoom level.
    *
@@ -1180,7 +1189,7 @@ class MongodbDatasource @Inject() () extends IDatasource {
     val res = awaited.toList
     val fingerprints = convertJson(res)
     if (fingerprints.size == 0) {
-      LOG.I("No fingerprints in the building.Can't generate heatmaps.")
+      LOG.I("Space has not fingerprints.")
       return false
     }
 

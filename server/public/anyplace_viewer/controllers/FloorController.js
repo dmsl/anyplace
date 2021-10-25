@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -100,7 +100,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
     };
 
     $scope.fetchAllFloorsForBuilding = function (b) {
-        // TODO: check for b.buid
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = b.buid;
 
@@ -108,7 +107,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         promise.then(
             function (resp) {
                 $scope.xFloors = resp.data.floors;
-
                 $scope.xFloors = $scope.xFloors.sort(function (a, b) {
                     return parseInt(a.floor_number) - parseInt(b.floor_number)
                 });
@@ -157,7 +155,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
                 }
             },
             function (resp) {
-                ShowError($scope, resp, "Something went wrong while fetching all floors", true);
+                ShowError($scope, resp, ERR_FETCH_ALL_FLOORS, true);
             }
         );
     };
@@ -169,10 +167,12 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         var promise = AnyplaceAPIService.downloadFloorPlan(this.anyService.jsonReq, buid, floor_number);
         promise.then(
             function (resp) {
+                LOG.D3("rendering floorplan: " + buid + " fl: " + floor_number)
 
                 // in case the building was switched too fast, don't load the old building's
                 // floorplan
-                if (buid == $scope.anyService.selectedBuilding.buid && floor_number == $scope.anyService.selectedFloor.floor_number) {
+                if (buid == $scope.anyService.selectedBuilding.buid &&
+                    floor_number == $scope.anyService.selectedFloor.floor_number) {
 
                     $scope.data.floor_plan_file = null;
                     $scope.data.floor_plan = null;
@@ -204,9 +204,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
     $scope.isCanvasOverlayActive = false;
 
     $scope.setFloorPlan = function () {
-        if (!canvasOverlay) {
-            return;
-        }
+        if (!canvasOverlay) { return; }
 
         if (AnyplaceService.getBuildingId() === null || AnyplaceService.getBuildingId() === undefined) {
             console.log('building is undefined');
@@ -235,6 +233,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
         $scope.data.floor_plan_coords.top_right_lat = tr.lat();
         $scope.data.floor_plan_coords.top_right_lng = tr.lng();
+
         var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
         $scope.data.floor_plan_base64_data = data;
         var imageBounds = new google.maps.LatLngBounds(
@@ -247,7 +246,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         $scope.isCanvasOverlayActive = false;
 
         $scope.addFloorObject(newFl, $scope.anyService.selectedBuilding, $scope.data);
-
     };
 
     $scope.removeFloorPlan = function () {

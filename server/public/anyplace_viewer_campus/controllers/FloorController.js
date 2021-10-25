@@ -166,7 +166,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
                 }
             },
             function (resp) {
-                ShowError($scope, resp, "Something went wrong while fetching all floors", true);
+                ShowError($scope, resp, ERR_FETCH_ALL_FLOORS, true);
             }
         );
     };
