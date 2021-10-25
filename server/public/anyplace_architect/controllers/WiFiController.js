@@ -757,23 +757,18 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
         }
 
         // if coverage and time are pressed, remove them when heatmaps are requested.
-        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) { //
+        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
+	    // is the logic here correct?
+            LOG.D2("coverage & time pressed");
             $scope.toggleCoverage();
-            $scope.toggleFingerPrints();
+            $scope.toggleFingerPrints(); // calling itself?!
             return
         }
 
-        $scope.fingerPrintsMode = !$scope.fingerPrintsMode;
-        if ($scope.fingerPrintsMode) {
-            document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
-            if (typeof (Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'YES');
-            }
+        if (!$scope.fingerPrintsMode) {
+            $scope.enableFingerprintsMode();
         } else {
-            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-            if (typeof (Storage) !== "undefined" && localStorage) {
-                localStorage.setItem('fingerprintsMode', 'NO');
-            }
+            $scope.disableFingerprintsMode();
         }
 
         var check = 0;
@@ -801,10 +796,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
             }
             return;
-
         }
 
-        if (heatmap && heatmap.getMap()) {  //hide fingerPrints heatmap
+        if (heatmap && heatmap.getMap()) {  // hide fingerPrints heatmap
             heatmap.setMap(null);
             _FINGERPRINTS_IS_ON = false;
             document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
@@ -1657,7 +1651,7 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                     $cookieStore.put('RSSClicked', 'YES');
                 },
                 function (resp) {
-                    ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
+                    ShowWarningAutohide($scope, resp, "", false);
                     if (!$scope.radioHeatmapRSSTimeMode) {
                         $scope.radioHeatmapRSSMode = false;
                         if (typeof (Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
@@ -1815,10 +1809,27 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
             },
             function (resp) {
                 LOG.W(ERR_FETCH_FINGERPRINTS + " (getFingerPrintsTime)");
-                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS + ": timestamp.", true);
+                $scope.disableFingerprintsMode();
+                ShowWarningAutohide($scope, resp, "", false);
             }
         );
     };
+
+    $scope.enableFingerprintsMode = function () {
+        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+        $scope.fingerPrintsMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'YES');
+        }
+    }
+
+    $scope.disableFingerprintsMode = function () {
+        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        $scope.fingerPrintsMode = false;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'NO');
+        }
+    }
 
     /**
      *
@@ -1876,15 +1887,9 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                                 _FINGERPRINTS_IS_ON = true;
                             },
                             function (resp) {
-                                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-                                if (!$scope.fingerPrintsMode) {
-                                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-                                    $scope.fingerPrintsMode = false;
-                                    if (typeof (Storage) !== "undefined" && localStorage) {
-                                        localStorage.setItem('fingerprintsMode', 'NO');
-                                    }
-                                }
+                                LOG.E(ERR_FETCH_FINGERPRINTS + ": showFingerprintHeatmap (disabling option).");
+                                $scope.disableFingerprintsMode();
+                                ShowWarningAutohide($scope, resp, "", false);
                             }
                         );
                         return null;
@@ -1940,14 +1945,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                             },
                             function (resp) {
                                 console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                                // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-                                if (!$scope.fingerPrintsMode) {
-                                    document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-                                    $scope.fingerPrintsMode = false;
-                                    if (typeof (Storage) !== "undefined" && localStorage) {
-                                        localStorage.setItem('fingerprintsMode', 'NO');
-                                    }
-                                }
+                                $scope.disableFingerprintsMode();
+                                ShowWarningAutohide($scope, resp, "", false);
                             }
                         );
                         var url = null;
@@ -2023,14 +2022,8 @@ app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', '
                 },
                 function (resp) {
                     console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
-                    // ShowError($scope, resp, ERR_FETCH_FINGERPRINTS, true);
-                    if (!$scope.fingerPrintsMode) {
-                        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
-                        $scope.fingerPrintsMode = false;
-                        if (typeof (Storage) !== "undefined" && localStorage) {
-                            localStorage.setItem('fingerprintsMode', 'NO');
-                        }
-                    }
+                    $scope.disableFingerprintsMode();
+                    ShowWarningAutohide($scope, resp, "", false);
                 }
             );
         }

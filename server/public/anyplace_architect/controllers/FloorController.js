@@ -526,7 +526,7 @@ app.controller('FloorController',
                 var i = resp.data.radioPoints.length;
 
                 if (i <= 0) {
-                    _err($scope, "Floor not mapped. Use Anyplace Logger from Google Play to map it.");
+                    _err($scope, "Floor not mapped. Use logger (Google Play) to map it.");
                     return;
                 }
 
@@ -541,7 +541,7 @@ app.controller('FloorController',
                 heatmap.setMap($scope.gmapService.gmap);
             },
             function (resp) {
-                ShowError($scope, resp, "Something went wrong while fetching radio heatmap.", true);
+                ShowWarningAutohide($scope, resp, "", false);
             }
         );
     }

@@ -1,5 +1,5 @@
 /*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+ * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
  *
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
@@ -100,7 +100,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
     };
 
     $scope.fetchAllFloorsForBuilding = function (b) {
-        // TODO: check for b.buid
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = b.buid;
 
@@ -108,7 +107,6 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         promise.then(
             function (resp) {
                 $scope.xFloors = resp.data.floors;
-
                 $scope.xFloors = $scope.xFloors.sort(function (a, b) {
                     return parseInt(a.floor_number) - parseInt(b.floor_number)
                 });
@@ -157,7 +155,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
                 }
             },
             function (resp) {
-                ShowError($scope, resp, "Something went wrong while fetching all floors", true);
+                ShowError($scope, resp, ERR_FETCH_ALL_FLOORS, true);
             }
         );
     };
