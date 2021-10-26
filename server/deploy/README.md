@@ -48,7 +48,7 @@ and adapting as necessary.
   + `tilerRootDir`: directory of the tiler
 
 #### 3.2 [conf/app.base.conf](../conf/app.base.conf)
-- `app.base.conf`: put the base configuration. Don't reference any variables as it is used by [build.sbt](build.sbt).
+- `app.base.conf`: put the base configuration. Don't reference any variables as it is used by [build.sbt](../build.sbt).
 
 #### 3.3 [conf/app.play.conf](../conf/app.play.conf)
 Contains the remaining of the Play configuration.
@@ -191,4 +191,4 @@ Any contributions from the community on `docker` are welcome.
 
 ---
 
-## 5. Testing: with [POSTMAN](..//database/postman/README.md)
+## 5. Testing: with [POSTMAN](../database/postman/README.md)
