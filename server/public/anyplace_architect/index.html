@@ -64,7 +64,6 @@
 <body>
 
 <div id="top-container">
-
     <div id="control-bar" class="ng-cloak box-shadow-1" ng-controller="ControlBarController as ctrlBarCtrl" ng-cloak>
         <button type="button" id="maximize-btn" class="btn btn-maximize" ng-click="showFullControls=true"
                 ng-show="!showFullControls">
@@ -1271,47 +1270,43 @@
             </div> <!-- isAuthenticated div -->
         </div>
 
-    <div id="notification_panel" ng-controller="AlertController as alertCtrl" ng-show="alerts.length">
-        <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="anyService.closeAlert($index)">
-            {{alert.msg}}
-        </alert>
-    </div>
-    <div id="my-loc-control" class="ng-cloak" ng-cloak>
-        <div ng-click="centerViewToSelectedItem()"
-             class="center-view-box-parent box-shadow-1">
-            <div id="center-view-box">
+        <div id="notification_panel" ng-controller="AlertController as alertCtrl" ng-show="alerts.length">
+            <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="anyService.closeAlert($index)">
+                {{alert.msg}}
+            </alert>
+        </div>
+        <div id="my-loc-control" class="ng-cloak" ng-cloak>
+            <div ng-click="centerViewToSelectedItem()"
+                 class="center-view-box-parent box-shadow-1">
+                <div id="center-view-box">
             <span>
                 <img width="25" height="25" src="build/images/any-bullseye.png">
             </span>
+                </div>
             </div>
-        </div>
 
-        <div ng-click="showUserLocation()" class="find-me-box-parent box-shadow-1">
-            <div id="find-me-box">
+            <div ng-click="showUserLocation()" class="find-me-box-parent box-shadow-1">
+                <div id="find-me-box">
             <span>
                 <img ng-show="getIsUserLocVisible()" width="25" height="25" src="build/images/html5-location-blue.png">
                 <img ng-hide="getIsUserLocVisible()" width="25" height="25" src="build/images/html5-location-grey.png">
             </span>
+                </div>
             </div>
-        </div>
 
-        <div ng-show="getIsUserLocVisible()" ng-click="panToUserLocation()"
-             class="pan-find-me-box-parent box-shadow-1">
-            <div id="pan-find-me-box">
+            <div ng-show="getIsUserLocVisible()" ng-click="panToUserLocation()"
+                 class="pan-find-me-box-parent box-shadow-1">
+                <div id="pan-find-me-box">
             <span>
                 <img width="25" height="25" src="build/images/bullseye.png">
             </span>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<input id="pac-input" class="controls" type="text" placeholder="Search for desired area to add a Space">
-<div id="map-canvas"></div>
-<!-- Logo at bottom right -->
-<!--<div id="div-logo">-->
-<!--<img style="width: 150px; height: auto" src="build/images/logo-blue-full.svg"/>-->
-<!--</div>-->
+    <input id="pac-input" class="controls" type="text" placeholder="Enter coordinates">
+    <div id="map-canvas"></div>
 </div>
 
 <div id="floor-controls">

@@ -302,12 +302,11 @@
 
 <div id="my-loc-control" class="ng-cloak" ng-cloak>
 
+<!--    TODO: don't recenter map when floor changes.-->
 
-    <div  ng-click="toggleRight()" class="buildings-btn-parent box-shadow-1">
-        <div id="buildings-btn">
-            <span>
-                <img width="25" src="build/images/buildings-img.png">
-            </span>
+    <div  ng-click="toggleRight()" class="spaces-btn-parent box-shadow-1">
+        <div id="spaces-btn">
+                Spaces
         </div>
     </div>
 
@@ -357,9 +356,9 @@
                     </div>
                 </span>
                 <div style="margin: 5px" >
-                    <input  type="text" id="myBuildingSelected" class="form-control" placeholder="Search for Building...">
+                    <input  type="text" id="myBuildingSelected" class="form-control" placeholder="Search for Space..">
                 </div>
-                <a href="https://anyplace.cs.ucy.ac.cy/viewer" target="_blank" style="margin-right: 5px; text-align:right;  font-size: 60%; color: #9E9E9E;">See Global Buildings</a>
+                <a href="https://anyplace.cs.ucy.ac.cy/viewer" target="_blank" style="margin-right: 5px; text-align:right;  font-size: 60%; color: #9E9E9E;">See Global Spaces</a>
             </md-toolbar>
             <button ng-click="close();anyService.selectedBuilding = b;"  style="width: 285px;" type="button" class="list-group-item" ng-repeat="b in ctrl.SearchBuilding()">
                 <div>{{b.name}}</div>
