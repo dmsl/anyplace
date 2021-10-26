@@ -63,8 +63,11 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
         if (newVal !== undefined && newVal !== null) {
             $scope.fetchFloorPlanOverlay(newVal);
-            GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
-            GMapService.gmap.setZoom(20);
+            // DONT change zoom level.
+            // TODO:PV: if floor is completely out of bounds (some meters maybe), then do the below.
+            // Otherwise dont
+            // GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
+            // GMapService.gmap.setZoom(20);
 
             try {
                 if (typeof(Storage) !== "undefined" && localStorage) {
@@ -179,9 +182,9 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
         promise.then(
             function (resp) {
 
-                // in case the building was switched too fast, don't load the old building's
-                // floorplan
-                if (buid == $scope.anyService.selectedBuilding.buid && floor_number == $scope.anyService.selectedFloor.floor_number) {
+                // in case the building was switched too fast, don't load the old building's floorplan
+                if (buid == $scope.anyService.selectedBuilding.buid && floor_number ==
+                    $scope.anyService.selectedFloor.floor_number) {
 
                     $scope.data.floor_plan_file = null;
                     $scope.data.floor_plan = null;
@@ -199,12 +202,11 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
                         new google.maps.LatLng(fl.bottom_left_lat, fl.bottom_left_lng),
                         new google.maps.LatLng(fl.top_right_lat, fl.top_right_lng));
 
-                    $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, "data:image/png;base64," + data, GMapService.gmap);
+                    $scope.data.floor_plan_groundOverlay =
+                        new USGSOverlay(imageBounds, "data:image/png;base64," + data, GMapService.gmap);
                 }
             },
-            function (resp) {
-                // on error
-                // TODO: alert failure
+            function (resp) {  // on error TODO: alert failure
             }
         );
     };

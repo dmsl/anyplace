@@ -63,8 +63,9 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
         if (newVal !== undefined && newVal !== null) {
             $scope.fetchFloorPlanOverlay(newVal);
-            GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
-            GMapService.gmap.setZoom(20);
+            // TODO:PV see equivalent point in anyplace_viewer_campus (also similar thing with architect)
+            // GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
+            // GMapService.gmap.setZoom(20);
 
             try {
                 if (typeof(Storage) !== "undefined" && localStorage) {
