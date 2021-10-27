@@ -190,7 +190,7 @@ app.controller('FloorController',
                 if ($scope.data.floor_plan_groundOverlay != null) {
                     $scope.data.floor_plan_groundOverlay.setMap(null);
                     $scope.data.floor_plan_groundOverlay = null;
-                    // hide the previous of the last overlay (maximum overlay history: 1)
+                    // hide the previous of the last overlay (showing the previous only on upload)
                     if ($scope.data.floorPlanPrevOverlay) {
                         LOG.D3("hiding previous");
                         $scope.data.floorPlanPrevOverlay.setMap(null);
@@ -208,15 +208,15 @@ app.controller('FloorController',
                 $scope.data.floor_plan_groundOverlay =
                     new USGSOverlay(imageBounds, "data:image/png;base64," + data, GMapService.gmap);
 
-                // pan to location and cache the floor num
-                GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
-                if (GMapService.gmap.getZoom() < 19) { GMapService.gmap.setZoom(19); }
+                // INFO do not pan to location
+                // GMapService.gmap.panTo(_latLngFromBuilding($scope.anyService.selectedBuilding));
+                // if (GMapService.gmap.getZoom() < 19) { GMapService.gmap.setZoom(19); }
                 if (typeof(Storage) !== "undefined" && localStorage) {
                     localStorage.setItem("lastFloor", floor_number);
                 }
             },
             function (resp) {
-              ShowWarningAutohide($scope, resp, "Error downloading floor plan");
+              ShowWarningAutohide($scope, resp, "Can't download floorplan");
             }
         );
     };

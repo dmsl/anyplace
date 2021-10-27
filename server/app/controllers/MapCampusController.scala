@@ -35,7 +35,7 @@ class MapCampusController @Inject()(cc: ControllerComponents,
         try {
           val campus = pds.db.getBuildingSet(cuid)
           if (campus.isEmpty) {
-            return RESPONSE.NOT_FOUND("Campus '" + cuid + "' not found!")
+            return RESPONSE.NOT_FOUND("Campus not found: '" + cuid + "'")
           } else if (campus.size > 1) {
             return RESPONSE.NOT_FOUND("Something went wrong. More than one matches for '" + cuid + "'!")
           }

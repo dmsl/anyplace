@@ -293,16 +293,23 @@ var regex_ck_lat = /^(-?[1-8]?\d(?:\.\d{1,18})?|90(?:\.0{1,18})?)$/;
 var regex_ck_lon = /^(-?(?:1[0-7]|[1-9])?\d(?:\.\d{1,18})?|180(?:\.0{1,18})?)$/;
 
 /**
- * accepts coordinates in google maps format:
- * @param str e.g., '57.693431580156464, 11.913933480401484'
+ * accepts string and return coordinates
+ * @param str coordinates in below formats:
+ *  - '57.693431580156464, 11.913933480401484'
+ *  - '57.693431580156464 11.913933480401484'
+ *  - '57.693431580156464,11.913933480401484'
  *
  * @returns {{}|null}
  */
 function get_coordinates(str){
     LOG.D4("get_coordinates: " + str)
     var spaces = str.split(" ");
+    if (spaces.length === 1) { spaces = str.split(","); } // try with comma
     if (spaces.length === 2) {
-        var lat = spaces[0].slice(0, -1); // remove last comma
+        var lat = spaces[0];
+        if (lat.charAt(lat.length-1) === ",") {
+            lat = lat.slice(0, -1); // remove last comma
+        }
         var lon = spaces[1]
         LOG.D3("lat: " + lat)
         LOG.D3("lon: " + lon)

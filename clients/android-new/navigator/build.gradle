@@ -1,84 +1,101 @@
-apply plugin: 'com.android.application'
+plugins {
+  id 'com.android.application'
+  id 'kotlin-android'
+
+  id 'androidx.navigation.safeargs'
+}
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+  compileSdkVersion 30
+  // buildToolsVersion "29.0.2" // CLR?
 
-    defaultConfig {
-        applicationId "cy.ac.ucy.cs.anyplace.navigator"
-        minSdkVersion 28
-        targetSdkVersion 29
-        versionCode 2
-        versionName "4.0"
+  defaultConfig {
+    applicationId "cy.ac.ucy.cs.anyplace.navigator"
+    // AndroidX (android 9)
+    minSdkVersion 28
+    targetSdkVersion 30
+    versionCode 2
+    versionName "4.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-      // Read the API key from ./secure.properties into R.string.maps_api_key
-      def secureProps = new Properties()
-      if (file("../secure.properties").exists()) {
-        file("../secure.properties")?.withInputStream { secureProps.load(it) }
-      }
-      resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    // INFO: reads Google Maps API key from secure.properties and
+    // puts into the resource: R.string.maps_api_key
+    def secureProps = new Properties()
+    if (file("../secure.properties").exists()) {
+      file("../secure.properties")?.withInputStream { secureProps.load(it) }
     }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
-  packagingOptions {
-    exclude 'kotlin/internal/internal.kotlin_builtins'
-    exclude 'kotlin/reflect/reflect.kotlin_builtins'
-    exclude 'okhttp3/internal/publicsuffix/NOTICE'
-    exclude 'kotlin/kotlin.kotlin_builtins'
-    exclude 'kotlin/coroutines/coroutines.kotlin_builtins'
-
-    exclude 'META-INF/DEPENDENCIES'
-    exclude 'META-INF/LICENSE'
-    exclude 'META-INF/LICENSE.txt'
-    exclude 'META-INF/license.txt'
-    exclude 'META-INF/NOTICE'
-    exclude 'META-INF/NOTICE.txt'
-    exclude 'META-INF/notice.txt'
-    exclude 'META-INF/ASL2.0'
-    exclude 'kotlin/collections/collections.kotlin_builtins'
-    exclude 'kotlin/annotation/annotation.kotlin_builtins'
-    exclude("META-INF/*.kotlin_module")
-    exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
-    exclude 'kotlin/ranges/ranges.kotlin_builtins'
-
+    resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
   }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+  buildFeatures {
+    dataBinding true
+    viewBinding true
+  }
+  packagingOptions {
+    exclude 'META-INF/DEPENDENCIES'
+  }
+
+// CLR?
+//  packagingOptions {
+//    exclude 'kotlin/internal/internal.kotlin_builtins'
+//    exclude 'kotlin/reflect/reflect.kotlin_builtins'
+//    exclude 'okhttp3/internal/publicsuffix/NOTICE'
+//    exclude 'kotlin/kotlin.kotlin_builtins'
+//    exclude 'kotlin/coroutines/coroutines.kotlin_builtins'
+//    exclude 'META-INF/DEPENDENCIES'
+//    exclude 'META-INF/LICENSE'
+//    exclude 'META-INF/LICENSE.txt'
+//    exclude 'META-INF/license.txt'
+//    exclude 'META-INF/NOTICE'
+//    exclude 'META-INF/NOTICE.txt'
+//    exclude 'META-INF/notice.txt'
+//    exclude 'META-INF/ASL2.0'
+//    exclude 'kotlin/collections/collections.kotlin_builtins'
+//    exclude 'kotlin/annotation/annotation.kotlin_builtins'
+//    exclude("META-INF/*.kotlin_module")
+//    exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
+//    exclude 'kotlin/ranges/ranges.kotlin_builtins'
+//  }
 }
 
 dependencies {
-
   implementation 'androidx.appcompat:appcompat:1.2.0'
   implementation 'com.google.android.gms:play-services-maps:17.0.0'
-  implementation 'com.google.android.gms:play-services-location:17.1.0'
-  implementation 'com.google.android.gms:play-services-auth:18.1.0'
-  implementation 'com.google.maps.android:android-maps-utils:0.3.4'
-  implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+  implementation 'com.google.android.gms:play-services-location:18.0.0'
+  implementation 'com.google.android.gms:play-services-auth:19.0.0'
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+  implementation 'androidx.preference:preference:1.1.1'
+  implementation 'com.google.android.material:material:1.4.0'
+
+   implementation 'com.google.maps.android:android-maps-utils:2.2.0'
+
+  implementation 'com.google.android.gms:play-services-maps:17.0.0'
+  implementation 'com.google.android.gms:play-services-location:18.0.0'
+
+  implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+  // implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1' // CLR
+
+  // implementation 'androidx.activity:activity:1.2.0-alpha08' CLR
 
 
-  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
-  // INFO: To include the module locally
-  // (This requires pulling the submodules from our github - see README
-//   implementation project(path: ':lib-core')
+  /***                Anyplace libraries:                           ***/
+  // CHECK is lib-core needed here?!
+  //  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'      // JitPack
+  //  implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'   // JitPack
+  // During development, local inclusion of the libraries can be used.
+  // This requires pulling the all submodules (see README.md)
+   implementation project(path: ':lib-core')
+    implementation project(path: ':lib-android')
 
-  implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'
-//  implementation project(path: ':lib')
-
-
-  //
-
-//  implementation 'com.github.dmsl:anyplace-lib-android:1.0'
-
-
-  implementation 'androidx.activity:activity:1.2.0-alpha08'
-  implementation 'androidx.preference:preference:1.1.0'
-  implementation 'com.google.android.material:material:1.0.0'
-  testImplementation 'junit:junit:4.13'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+  // Testing:
+  //  testImplementation 'junit:junit:4.13'
+  //  androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+  //  androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

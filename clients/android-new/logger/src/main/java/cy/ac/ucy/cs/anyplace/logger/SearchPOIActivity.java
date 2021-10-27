@@ -59,6 +59,7 @@ import android.widget.Toast;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.FragmentActivity;
 
+import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.IPoisClass;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
@@ -68,149 +69,154 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
 
 public class SearchPOIActivity extends FragmentActivity {
 
-	private TextView txtResultsFound;
-	private ListView lvResultPois;
+  private TextView txtResultsFound;
+  private ListView lvResultPois;
 
-	private List<Spanned> mQueriedPoisStr;
-	private List<? extends IPoisClass> mQueriedPois;
+  private List<Spanned> mQueriedPoisStr;
+  private List<? extends IPoisClass> mQueriedPois;
 
-	private AnyPlaceSeachingHelper.SearchTypes mSearchType;
+  private AnyPlaceSeachingHelper.SearchTypes mSearchType;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+  private AnyplaceApp app;
 
-		setTitle("Points of Interest");
-		setContentView(R.layout.activity_search_poi);
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-		txtResultsFound = (TextView) findViewById(R.id.txtResultsFound);
+    app = (AnyplaceApp) getApplication();
 
-		lvResultPois = (ListView) findViewById(R.id.lvResultPois);
-		lvResultPois.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				try {
-					// handle the case of Google Place
-					IPoisClass place = null;
-					if (mSearchType == SearchTypes.INDOOR_MODE) {
-						place = mQueriedPois.get(position);
-					} else if (mSearchType == SearchTypes.OUTDOOR_MODE) {
-						place = mQueriedPois.get(position);
-					}
-					finishSearch("Success!", place);
-				} catch (ArrayIndexOutOfBoundsException e) {
-					Toast.makeText(getApplicationContext(), "Something went wrong with your selection!", Toast.LENGTH_LONG).show();
-					finish();
-				}
-			}
-		});
+    setTitle("Points of Interest");
+    setContentView(R.layout.activity_search_poi);
 
-		handleIntent(getIntent());
-	}
+    txtResultsFound = (TextView) findViewById(R.id.txtResultsFound);
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-      super.onNewIntent(intent);
-      handleIntent(intent);
+    lvResultPois = (ListView) findViewById(R.id.lvResultPois);
+    lvResultPois.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        try {
+          // handle the case of Google Place
+          IPoisClass place = null;
+          if (mSearchType == SearchTypes.INDOOR_MODE) {
+            place = mQueriedPois.get(position);
+          } else if (mSearchType == SearchTypes.OUTDOOR_MODE) {
+            place = mQueriedPois.get(position);
+          }
+          finishSearch("Success!", place);
+        } catch (ArrayIndexOutOfBoundsException e) {
+          Toast.makeText(getApplicationContext(), "Something went wrong with your selection!", Toast.LENGTH_LONG).show();
+          finish();
+        }
+      }
+    });
+
+    handleIntent(getIntent());
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    handleIntent(intent);
+  }
+
+  private void handleIntent(Intent intent) {
+    if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+      // get the search type
+      mSearchType = (SearchTypes) intent.getSerializableExtra("searchType");
+      if (mSearchType == null)
+        finishSearch("No search type provided!", null);
+
+      // get the query string
+      final String query = intent.getStringExtra("query");
+      double lat = intent.getDoubleExtra("lat", 0);
+      double lng = intent.getDoubleExtra("lng", 0);
+      String key = getString(R.string.maps_api_key);
+      AnyplaceSuggestionsTask mSuggestionsTask = new AnyplaceSuggestionsTask(
+              app,
+              new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
+
+                @Override
+                public void onSuccess(String result, List<? extends IPoisClass> pois) {
+
+                  // we have pois to query for a match
+                  mQueriedPoisStr = new ArrayList<Spanned>();
+                  mQueriedPois = pois;
+
+                  // Display part of Description Text Only
+                  // Make an approximation of available space based on map size
+                  final int viewWidth = (int) (findViewById(R.id.txtResultsFound).getWidth() * 2);
+                  View infoWindow = getLayoutInflater().inflate(R.layout.queried_pois_item_1_searchactivity, null);
+                  TextView infoSnippet = (TextView) infoWindow;
+                  TextPaint paint = infoSnippet.getPaint();
+
+                  // Regular expression
+                  // ?i ignore case
+                  Pattern pattern = Pattern.compile(String.format("((?i)%s)", query));
+
+                  for (IPoisClass pm : pois) {
+                    String name = "", description = "";
+                    Matcher m;
+                    m = pattern.matcher(pm.name());
+                    // Makes matched query bold using HTML format
+                    // $1 returns the regular's expression outer parenthesis value
+                    name = m.replaceAll("<b>$1</b>");
+
+                    m = pattern.matcher(pm.description());
+                    if (m.find()) {
+                      // Makes matched query bold using HTML format
+                      // $1 returns the regular's expression outer parenthesis value
+                      int startIndex = m.start();
+                      description = m.replaceAll("<b>$1</b>");
+                      description = AndroidUtils.fillTextBox(paint, viewWidth, description, startIndex + 3);
+                    }
+                    mQueriedPoisStr.add(Html.fromHtml(name + "<br>" + description));
+                  }
+
+                  ArrayAdapter<Spanned> mAdapter = new ArrayAdapter<Spanned>(
+                          // getBaseContext(), R.layout.queried_pois_item_1,
+                          getBaseContext(), R.layout.queried_pois_item_1_searchactivity, mQueriedPoisStr);
+                  lvResultPois.setAdapter(mAdapter);
+                  txtResultsFound.setText("Results found [ " + mQueriedPoisStr.size() + " ]");
+                }
+
+                @Override
+                public void onErrorOrCancel(String result) {
+                  // no pois exist
+                  finishSearch("No Points of Interest exist!", null);
+                }
+
+                @Override
+                public void onUpdateStatus(String string, Cursor cursor) {
+                  SimpleCursorAdapter adapter = new SimpleCursorAdapter(getBaseContext(), R.layout.queried_pois_item_1_searchactivity, cursor, new String[] { SearchManager.SUGGEST_COLUMN_TEXT_1 }, new int[] { android.R.id.text1 });
+                  lvResultPois.setAdapter(adapter);
+                  txtResultsFound.setText("Results found [ " + cursor.getCount() + " ]");
+                }
+
+              }, mSearchType, new GeoPoint(lat, lng), query, key);
+      mSuggestionsTask.execute();
+
     }
+  }
 
-	private void handleIntent(Intent intent) {
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			// get the search type
-			mSearchType = (SearchTypes) intent.getSerializableExtra("searchType");
-			if (mSearchType == null)
-				finishSearch("No search type provided!", null);
-
-			// get the query string
-			final String query = intent.getStringExtra("query");
-			double lat = intent.getDoubleExtra("lat", 0);
-			double lng = intent.getDoubleExtra("lng", 0);
-            String key = getString(R.string.maps_api_key);
-			AnyplaceSuggestionsTask mSuggestionsTask = new AnyplaceSuggestionsTask(new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {
-
-				@Override
-				public void onSuccess(String result, List<? extends IPoisClass> pois) {
-
-					// we have pois to query for a match
-					mQueriedPoisStr = new ArrayList<Spanned>();
-					mQueriedPois = pois;
-
-					// Display part of Description Text Only
-					// Make an approximation of available space based on map size
-					final int viewWidth = (int) (findViewById(R.id.txtResultsFound).getWidth() * 2);
-					View infoWindow = getLayoutInflater().inflate(R.layout.queried_pois_item_1_searchactivity, null);
-					TextView infoSnippet = (TextView) infoWindow;
-					TextPaint paint = infoSnippet.getPaint();
-
-					// Regular expression
-					// ?i ignore case
-					Pattern pattern = Pattern.compile(String.format("((?i)%s)", query));
-
-					for (IPoisClass pm : pois) {
-						String name = "", description = "";
-						Matcher m;
-						m = pattern.matcher(pm.name());
-						// Makes matched query bold using HTML format
-						// $1 returns the regular's expression outer parenthesis value
-						name = m.replaceAll("<b>$1</b>");
-
-						m = pattern.matcher(pm.description());
-						if (m.find()) {
-							// Makes matched query bold using HTML format
-							// $1 returns the regular's expression outer parenthesis value
-							int startIndex = m.start();
-							description = m.replaceAll("<b>$1</b>");
-							description = AndroidUtils.fillTextBox(paint, viewWidth, description, startIndex + 3);
-						}
-						mQueriedPoisStr.add(Html.fromHtml(name + "<br>" + description));
-					}
-
-					ArrayAdapter<Spanned> mAdapter = new ArrayAdapter<Spanned>(
-					// getBaseContext(), R.layout.queried_pois_item_1,
-					getBaseContext(), R.layout.queried_pois_item_1_searchactivity, mQueriedPoisStr);
-					lvResultPois.setAdapter(mAdapter);
-					txtResultsFound.setText("Results found [ " + mQueriedPoisStr.size() + " ]");
-
-				}
-
-				@Override
-				public void onErrorOrCancel(String result) {
-					// no pois exist
-					finishSearch("No Points of Interest exist!", null);
-				}
-
-				@Override
-				public void onUpdateStatus(String string, Cursor cursor) {
-					SimpleCursorAdapter adapter = new SimpleCursorAdapter(getBaseContext(), R.layout.queried_pois_item_1_searchactivity, cursor, new String[] { SearchManager.SUGGEST_COLUMN_TEXT_1 }, new int[] { android.R.id.text1 });
-					lvResultPois.setAdapter(adapter);
-					txtResultsFound.setText("Results found [ " + cursor.getCount() + " ]");
-				}
-
-			}, this, mSearchType, new GeoPoint(lat, lng), query, key);
-			mSuggestionsTask.execute();
-
-		}
-	}
-
-	/**
-	 * Returns an IAnyPlace object to the activity that initiated this search We use an IAnyPlace in order to allow the searching between GooglePlaces and AnyPlace POIs at the same time.
-	 * 
-	 * @param result
-	 * @param place
-	 */
-	private void finishSearch(String result, IPoisClass place) {
-		if (place == null) {
-			// we have an error
-			Intent returnIntent = new Intent();
-			returnIntent.putExtra("message", result);
-			setResult(RESULT_CANCELED, returnIntent);
-			finish();
-		} else {
-			Intent returnIntent = new Intent();
-			returnIntent.putExtra("ianyplace", place);
-			returnIntent.putExtra("message", result);
-			setResult(RESULT_OK, returnIntent);
-			finish();
-		}
-	}
+  /**
+   * Returns an IAnyPlace object to the activity that initiated this search We use an IAnyPlace in order to allow the searching between GooglePlaces and AnyPlace POIs at the same time.
+   *
+   * @param result
+   * @param place
+   */
+  private void finishSearch(String result, IPoisClass place) {
+    if (place == null) {
+      // we have an error
+      Intent returnIntent = new Intent();
+      returnIntent.putExtra("message", result);
+      setResult(RESULT_CANCELED, returnIntent);
+      finish();
+    } else {
+      Intent returnIntent = new Intent();
+      returnIntent.putExtra("ianyplace", place);
+      returnIntent.putExtra("message", result);
+      setResult(RESULT_OK, returnIntent);
+      finish();
+    }
+  }
 }
