@@ -225,12 +225,12 @@ app.service('GMapService', function () {
     self.calcRoute = function (start, end, callback) {
 
         if (self.gmap.getMapTypeId()!== 'roadmap' && self.gmap.getMapTypeId()!== 'satellite'){
-            console.log("Google API deprecated.");
+            LOG.D("Google API Unauthorized.");
             return;
         }
 
         if (!start || !end) {
-            console.log("Invalid start or end point.");
+            LOG.E("Invalid start or end point.");
             return;
         }
 
