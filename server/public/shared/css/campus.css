@@ -26,6 +26,7 @@
 
 #spaces-btn {
     padding: 10px;
+    min-width: 40px;
     writing-mode: vertical-rl;
     text-orientation: mixed;
     color: gray;

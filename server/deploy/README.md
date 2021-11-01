@@ -73,7 +73,12 @@ Contains the remaining of the Play configuration.
     # To stop press Ctrl-C or kill the respective process through the task manager
     ``` 
 
-### 6. **SSL and Cluster Configuration**:
+### 6. **SSL Configuration**:
+
+#### 6.1 **SSL + Haproxy: External Authority**:
+Setup SSL from an external authority: [SETUP_SSL.md](./SETUP_SSL.md)
+
+#### 6.2 **Lets Encrypt**:
 + Install a free certificate from
   [letsencrypt.org](https://letsencrypt.org/) on your Anyplace Server 
   to obtain a secure https connection. SSL is only optional for 
