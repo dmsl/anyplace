@@ -9,7 +9,6 @@
   <!-- <uses-feature android:glEsVersion="0x00020000" android:required="true" />-->
   <uses-feature android:glEsVersion="0x00030000" android:required="true" />
 
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -27,15 +26,14 @@
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-  <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
-  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+  <!--<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
+  <!--<uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />-->
+  <!--<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
+
+
+
   <!--  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
-  <permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-
-  <!--  <permission-->
-  <!--      android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE"-->
-  <!--      android:protectionLevel="signature" />-->
 
 
   <!-- android:requestLegacyExternalStorage="true"-->
@@ -90,49 +88,50 @@
       android:theme="@android:style/Theme.Dialog" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>
-    <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.LoggerActivityOLD"
-      android:configChanges="keyboardHidden|orientation"
-      android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-      android:label="@string/app_name_logger"
-      android:screenOrientation="nosensor" >
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
 
-      <intent-filter>
-        <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-      </intent-filter>
-      <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-        android:resource="@xml/flir_usb_device_filter" />
-    </activity>
-    <activity
-      android:name=".legacy.AnyplacePrefs"
-      android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-      android:label="@string/prefs_name_anyplace"
-      android:screenOrientation="nosensor" >
-    </activity>
-    <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.LoggerPrefs"
-      android:icon="@drawable/anyplace_logo_icon_actionbar_white"
-      android:label="@string/prefs_name_logger"
-      android:screenOrientation="nosensor" >
-    </activity>
-    <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.AndroidFileBrowser"
-      android:label="@string/app_choose_folder"
-      android:screenOrientation="portrait" >
-    </activity>
-    <activity
-      android:name="cy.ac.ucy.cs.anyplace.logger.legacy.OLDLoggerSettingsActivity"
-      android:label="@string/prefs_name_anyplace"
-      android:screenOrientation="portrait" >
-    </activity>
+    <!--<activity-->
+    <!--  android:name="cy.ac.ucy.cs.anyplace.logger.legacy.LoggerActivityOLD"-->
+    <!--  android:configChanges="keyboardHidden|orientation"-->
+    <!--  android:icon="@drawable/anyplace_logo_icon_actionbar_white"-->
+    <!--  android:label="@string/app_name_logger"-->
+    <!--  android:screenOrientation="nosensor" >-->
+    <!--  <intent-filter>-->
+    <!--    <action android:name="android.intent.action.MAIN" />-->
+    <!--    <category android:name="android.intent.category.DEFAULT" />-->
+    <!--  </intent-filter>-->
+
+    <!--  <intent-filter>-->
+    <!--    <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />-->
+    <!--  </intent-filter>-->
+    <!--  <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"-->
+    <!--    android:resource="@xml/flir_usb_device_filter" />-->
+    <!--</activity>-->
+
+    <!--<activity-->
+    <!--  android:name=".legacy.AnyplacePrefs"-->
+    <!--  android:icon="@drawable/anyplace_logo_icon_actionbar_white"-->
+    <!--  android:label="@string/prefs_name_anyplace"-->
+    <!--  android:screenOrientation="nosensor" >-->
+    <!--</activity>-->
+    <!--<activity-->
+    <!--  android:name="cy.ac.ucy.cs.anyplace.logger.legacy.LoggerPrefs"-->
+    <!--  android:icon="@drawable/anyplace_logo_icon_actionbar_white"-->
+    <!--  android:label="@string/prefs_name_logger"-->
+    <!--  android:screenOrientation="nosensor" >-->
+    <!--</activity>-->
+    <!--<activity-->
+    <!--  android:name="cy.ac.ucy.cs.anyplace.logger.legacy.AndroidFileBrowser"-->
+    <!--  android:label="@string/app_choose_folder"-->
+    <!--  android:screenOrientation="portrait" >-->
+    <!--</activity>-->
+    <!--<activity-->
+    <!--  android:name="cy.ac.ucy.cs.anyplace.logger.legacy.OLDLoggerSettingsActivity"-->
+    <!--  android:label="@string/prefs_name_anyplace"-->
+    <!--  android:screenOrientation="portrait" >-->
+    <!--</activity>-->
 
     <meta-data
       android:name="com.google.android.gms.version"

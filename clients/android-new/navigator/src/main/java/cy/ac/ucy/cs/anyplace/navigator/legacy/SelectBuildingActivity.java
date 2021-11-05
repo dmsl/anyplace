@@ -34,7 +34,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.navigator;
+package cy.ac.ucy.cs.anyplace.navigator.legacy;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -62,7 +62,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
@@ -78,6 +78,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsByBuidTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
+import cy.ac.ucy.cs.anyplace.navigator.NavigatorApp;
+import cy.ac.ucy.cs.anyplace.navigator.R;
 
 
 /**

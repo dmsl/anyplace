@@ -14,7 +14,7 @@ class OLDLoggerSettingsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     LOG.D("$TAG: onCreate")
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.settings_activity)
+    setContentView(R.layout.settings_base_activity)
     supportFragmentManager
             .beginTransaction()
             .replace(R.id.settings, SettingsFragment())

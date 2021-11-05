@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.navigator;
+package cy.ac.ucy.cs.anyplace.navigator.legacy;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -6,6 +6,8 @@ import android.util.Log;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceFragmentCompat;
+
+import cy.ac.ucy.cs.anyplace.navigator.R;
 
 public class SettingsActivity extends AppCompatActivity {
   private final String TAG = SettingsActivity.class.getSimpleName();

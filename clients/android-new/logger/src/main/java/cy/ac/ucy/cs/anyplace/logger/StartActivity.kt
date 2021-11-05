@@ -37,44 +37,35 @@ package cy.ac.ucy.cs.anyplace.logger
 
 import android.app.Activity
 import android.os.Bundle
-import android.content.pm.PackageInfo
 import android.widget.TextView
-import android.content.pm.PackageManager
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import android.content.Intent
 import android.view.View
-import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.logger.CvLoggerActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.login.LoginActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.selector.space.SelectSpaceActivity
+import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class StartActivity : Activity() {
-  private val TAG = StartActivity::class.java.simpleName
-  private val SPLASH_TIME_OUT = 0L // TODO 100L ?
+  private val SPLASH_TIME_OUT = 500L // TODO 100L ?
+
+  lateinit var tvVersion : TextView
+  private val appInfo by lazy { AppInfo(applicationContext) }
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.start_screen_layout)
-    val pinfo: PackageInfo
-    try {
-      pinfo = packageManager.getPackageInfo(packageName, 0)
-      val versionName = pinfo.versionName
-      (findViewById<View>(R.id.tvVersion) as TextView).text = versionName
-    } catch (e: PackageManager.NameNotFoundException) {
-      LOG.E("Cannot get version name.")
-    }
+    tvVersion = findViewById<View>(R.id.tvVersion) as TextView
+    appInfo.version?.let { tvVersion.text = it }
   }
 
   override fun onResume() {
     super.onResume()
     CoroutineScope(Main).launch {
       delay(SPLASH_TIME_OUT)
-
       openInitialActivity()
     }
   }
@@ -97,7 +88,7 @@ class StartActivity : Activity() {
       //   startActivity(Intent(this@StartActivity, LoginActivity::class.java))
       //   // startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
       // }
-      // finish()
+      finish()
     }
   }
 }

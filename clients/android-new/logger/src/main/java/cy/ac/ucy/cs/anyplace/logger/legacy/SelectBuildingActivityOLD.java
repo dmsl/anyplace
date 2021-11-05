@@ -66,7 +66,7 @@ import androidx.fragment.app.FragmentActivity;
 import org.jetbrains.annotations.Nullable;
 
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug;
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;

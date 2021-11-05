@@ -5,7 +5,7 @@
 * localization, navigation and search inside buildings using ordinary smartphones.
 *
 * Author(s): Lambros Petrou
-* 
+*
 * Supervisor: Demetrios Zeinalipour-Yazti
 *
 * URL: http://anyplace.cs.ucy.ac.cy
@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.navigator;
+package cy.ac.ucy.cs.anyplace.navigator.legacy;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -44,6 +44,8 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.widget.TextView;
+
+import cy.ac.ucy.cs.anyplace.navigator.R;
 
 public class StartActivity extends Activity {
 

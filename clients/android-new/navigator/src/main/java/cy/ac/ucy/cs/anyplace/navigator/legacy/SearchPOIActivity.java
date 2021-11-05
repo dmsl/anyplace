@@ -34,7 +34,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.navigator;
+package cy.ac.ucy.cs.anyplace.navigator.legacy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +66,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.AnyplaceSuggestionsTask;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
+import cy.ac.ucy.cs.anyplace.navigator.R;
 
 public class SearchPOIActivity extends FragmentActivity {
 
@@ -131,7 +132,8 @@ public class SearchPOIActivity extends FragmentActivity {
 			final String query = intent.getStringExtra("query");
 			double lat = intent.getDoubleExtra("lat", 0);
 			double lng = intent.getDoubleExtra("lng", 0);
-          String key = getString(R.string.maps_api_key);
+          String key = "KEY_HERE";
+			// String key = getString(R.string.maps_api_key);
 			AnyplaceSuggestionsTask mSuggestionsTask = new AnyplaceSuggestionsTask(
 			        app,
 			        new AnyplaceSuggestionsTask.AnyplaceSuggestionsListener() {

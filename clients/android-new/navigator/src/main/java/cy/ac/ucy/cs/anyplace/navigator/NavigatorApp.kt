@@ -1,16 +1,15 @@
 package cy.ac.ucy.cs.anyplace.navigator
 
-// import android.app.Application
-// import cy.ac.ucy.cs.anyplace.lib.Anyplace
-// import cy.ac.ucy.cs.anyplace.lib.utils.Preferences
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import dagger.hilt.android.HiltAndroidApp
 
-class NavigatorApp : AnyplaceApp(null) {
-  private val TAG = NavigatorApp::class.java.simpleName
+@HiltAndroidApp
+class NavigatorApp : AnyplaceApp() {
 
-  override val navigator = true
-  override val logger = false
+  override val navigator = false
+  override val logger = true
 
   override fun onCreate() {
     super.onCreate()

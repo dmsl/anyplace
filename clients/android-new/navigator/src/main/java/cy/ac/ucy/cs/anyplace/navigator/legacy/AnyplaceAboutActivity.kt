@@ -33,7 +33,7 @@
 * DEALINGS IN THE SOFTWARE.
 *
 */
-package cy.ac.ucy.cs.anyplace.navigator
+package cy.ac.ucy.cs.anyplace.navigator.legacy
 
 import android.app.Activity
 import android.content.Intent
@@ -46,6 +46,7 @@ import android.view.View
 import android.view.Window
 import android.widget.ImageView
 import android.widget.TextView
+import cy.ac.ucy.cs.anyplace.navigator.R
 
 /**
  * This Activity displays information about Anyplace and has logos that

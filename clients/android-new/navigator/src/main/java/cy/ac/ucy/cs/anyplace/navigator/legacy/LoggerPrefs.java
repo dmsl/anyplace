@@ -34,7 +34,7 @@
 *
 */
 
-package cy.ac.ucy.cs.anyplace.navigator;
+package cy.ac.ucy.cs.anyplace.navigator.legacy;
 
 
 import android.app.Activity;
@@ -48,6 +48,8 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.provider.MediaStore.MediaColumns;
+
+import cy.ac.ucy.cs.anyplace.navigator.R;
 
 public class LoggerPrefs extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 

@@ -34,7 +34,7 @@
  *
  */
 
-package cy.ac.ucy.cs.anyplace.navigator;
+package cy.ac.ucy.cs.anyplace.navigator.legacy;
 
 import java.io.File;
 
@@ -50,6 +50,7 @@ import android.widget.Toast;
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
 import cy.ac.ucy.cs.anyplace.lib.android.LOG;
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.DeleteFolderBackgroundTask;
+import cy.ac.ucy.cs.anyplace.navigator.R;
 
 /**
  * Defines the behavior of the preferences menu.

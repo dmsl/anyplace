@@ -33,16 +33,12 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-package cy.ac.ucy.cs.anyplace.navigator
+package cy.ac.ucy.cs.anyplace.navigator.legacy
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender.SendIntentException
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Color
@@ -50,40 +46,31 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.wifi.WifiManager
 import android.os.AsyncTask
-import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.DialogFragment
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GooglePlayServicesUtil
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.CancelableCallback
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.clustering.ClusterManager
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug
-import cy.ac.ucy.cs.anyplace.lib.android.cache.deprecated.BackgroundFetchListener
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.OnInfoWindowElemTouchListener
 import cy.ac.ucy.cs.anyplace.lib.android.consts.MSG.WARN_NO_NETWORK
 import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Radiomap
-import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Server
-import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector
 import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector.*
-import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.MapTileProvider
 import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.MyBuildingsRenderer
 import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.VisiblePois
 import cy.ac.ucy.cs.anyplace.lib.android.nav.*
@@ -93,11 +80,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.sensors.MovementDetector
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsMain
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsStepCounter
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.*
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.AnyplaceSuggestionsTask.AnyplaceSuggestionsListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.DownloadRadioMapTaskBuid.Callback
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchPoiByPuidTask.FetchPoiListener
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.NavIndoorTask.NavRouteListener
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.NavOutdoorTask.NavDirectionsListener
 import cy.ac.ucy.cs.anyplace.lib.android.tracker.AnyplaceTracker.*
@@ -107,8 +91,9 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint
 import cy.ac.ucy.cs.anyplace.lib.android.utils.network.OLDNetworkUtils
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.wifi.SimpleWifiManager
+import cy.ac.ucy.cs.anyplace.navigator.NavigatorApp
+import cy.ac.ucy.cs.anyplace.navigator.R
 import cy.ac.ucy.cs.anyplace.navigator.databinding.ActivityNavigatorOldBinding
-import java.io.File
 import java.util.*
 
 //import com.flurry.android.FlurryAgent; CLR:PM
@@ -395,7 +380,8 @@ class NavigatorActivityOLD : AppCompatActivity(),
     mAutomaticGPSBuildingSelection = true
 
     // get/set settings
-    PreferenceManager.setDefaultValues(this, SHARED_PREFS_ANYPLACE, MODE_PRIVATE, R.xml.preferences_anyplace, true)
+    PreferenceManager.setDefaultValues(this, SHARED_PREFS_ANYPLACE, MODE_PRIVATE,
+      R.xml.preferences_anyplace, true)
     val preferences = getSharedPreferences(SHARED_PREFS_ANYPLACE, MODE_PRIVATE)
     // preferences.registerOnSharedPreferenceChangeListener(this)
     lpTracker!!.setAlgorithm(preferences.getString("TrackingAlgorithm", "WKNN"))
@@ -505,57 +491,57 @@ class NavigatorActivityOLD : AppCompatActivity(),
     searchView!!.setAddStatesFromChildren(true)
 
     // set query change listener
-    searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-      override fun onQueryTextChange(newText: String): Boolean {
-        // return false; // false since we do not handle this call
-        if (newText == null || newText.trim { it <= ' ' }.length < 1) {
-          if (mSuggestionsTask != null && !mSuggestionsTask!!.isCancelled) {
-            mSuggestionsTask!!.cancel(true)
-          }
-          searchView!!.suggestionsAdapter = null
-          return true
-        }
-        if (mSuggestionsTask != null) {
-          mSuggestionsTask!!.cancel(true)
-        }
-        if (searchType == SearchTypes.INDOOR_MODE) {
-          if (!userData!!.isFloorSelected) {
-            val places: MutableList<IPoisClass> = ArrayList(1)
-            val pm = PoisModel()
-            pm.name = "Load a building first ..."
-            places.add(pm)
-            val cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places)
-            showSearchResult(cursor)
-            return true
-          }
-        }
-        val gp = userData!!.latestUserPosition
-        val key = getString(R.string.maps_api_key) // CHECK does it work with the secure.properties?
-        // mSuggestionsTask = AnyplaceSuggestionsTask(
-        //         app,
-        //         object : AnyplaceSuggestionsListener {
-        //           override fun onSuccess(result: String, pois: List<IPoisClass>) {
-        //             showSearchResult(AnyPlaceSeachingHelper.prepareSearchViewCursor(pois, newText))
-        //           }
-        //
-        //           override fun onErrorOrCancel(result: String) {
-        //             Log.d("AnyplaceSuggestions", result)
-        //           }
-        //
-        //           override fun onUpdateStatus(string: String, cursor: Cursor) {
-        //             showSearchResult(cursor)
-        //           }
-        //         }, searchType, gp ?: GeoPoint(csLat, csLon), newText, key)
-        mSuggestionsTask!!.execute(null, null)
-
-        // we return true to avoid caling the provider set in the xml
-        return true
-      }
-
-      override fun onQueryTextSubmit(query: String): Boolean {
-        return false
-      }
-    })
+    // searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+    //   override fun onQueryTextChange(newText: String): Boolean {
+    //     // return false; // false since we do not handle this call
+    //     if (newText == null || newText.trim { it <= ' ' }.length < 1) {
+    //       if (mSuggestionsTask != null && !mSuggestionsTask!!.isCancelled) {
+    //         mSuggestionsTask!!.cancel(true)
+    //       }
+    //       searchView!!.suggestionsAdapter = null
+    //       return true
+    //     }
+    //     if (mSuggestionsTask != null) {
+    //       mSuggestionsTask!!.cancel(true)
+    //     }
+    //     if (searchType == SearchTypes.INDOOR_MODE) {
+    //       if (!userData!!.isFloorSelected) {
+    //         val places: MutableList<IPoisClass> = ArrayList(1)
+    //         val pm = PoisModel()
+    //         pm.name = "Load a building first ..."
+    //         places.add(pm)
+    //         val cursor = AnyPlaceSeachingHelper.prepareSearchViewCursor(places)
+    //         showSearchResult(cursor)
+    //         return true
+    //       }
+    //     }
+    //     val gp = userData!!.latestUserPosition
+    //     val key = getString(R.string.maps_api_key) // CHECK does it work with the secure.properties?
+    //     // mSuggestionsTask = AnyplaceSuggestionsTask(
+    //     //         app,
+    //     //         object : AnyplaceSuggestionsListener {
+    //     //           override fun onSuccess(result: String, pois: List<IPoisClass>) {
+    //     //             showSearchResult(AnyPlaceSeachingHelper.prepareSearchViewCursor(pois, newText))
+    //     //           }
+    //     //
+    //     //           override fun onErrorOrCancel(result: String) {
+    //     //             Log.d("AnyplaceSuggestions", result)
+    //     //           }
+    //     //
+    //     //           override fun onUpdateStatus(string: String, cursor: Cursor) {
+    //     //             showSearchResult(cursor)
+    //     //           }
+    //     //         }, searchType, gp ?: GeoPoint(csLat, csLon), newText, key)
+    //     mSuggestionsTask!!.execute(null, null)
+    //
+    //     // we return true to avoid caling the provider set in the xml
+    //     return true
+    //   }
+    //
+    //   override fun onQueryTextSubmit(query: String): Boolean {
+    //     return false
+    //   }
+    // })
     searchView!!.isSubmitButtonEnabled = true
     searchView!!.isQueryRefinementEnabled = false
 
@@ -635,7 +621,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
     )
     val adapter = HTMLCursorAdapter(
             this@NavigatorActivityOLD,
-            R.layout.queried_pois_item_1_searchbox, cursor, from, to)
+      R.layout.queried_pois_item_1_searchbox, cursor, from, to)
     searchView!!.suggestionsAdapter = adapter
     adapter.notifyDataSetChanged()
   }
@@ -668,56 +654,61 @@ class NavigatorActivityOLD : AppCompatActivity(),
   }
 
   private fun checkLocationPermission() {
-    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-      // Should we show an explanation?
-      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                      Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-        // Show an explanation to the user *asynchronously* -- don't block
-        // this thread waiting for the user's response! After the user
-        // sees the explanation, try again to request the permission.
-        AlertDialog.Builder(this)
-                .setTitle("Location Permission Needed")
-                .setMessage("This app needs the Location permission, please accept to use location functionality")
-                .setPositiveButton("OK") { dialogInterface, i -> //Prompt the user once explanation has been shown
-                  ActivityCompat.requestPermissions(this@NavigatorActivityOLD, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                          MY_PERMISSIONS_REQUEST_LOCATION)
-                }
-                .create()
-                .show()
-      } else {
-        // No explanation needed, we can request the permission.
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                MY_PERMISSIONS_REQUEST_LOCATION)
-      }
-    }
-    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-      // Should we show an explanation?
-      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                      Manifest.permission.ACCESS_COARSE_LOCATION)) {
-
-        // Show an explanation to the user *asynchronously* -- don't block
-        // this thread waiting for the user's response! After the user
-        // sees the explanation, try again to request the permission.
-        AlertDialog.Builder(this)
-                .setTitle("Location Permission Needed")
-                .setMessage("This app needs the Location permission, please accept to use location functionality")
-                .setPositiveButton("OK") { dialogInterface, i -> //Prompt the user once explanation has been shown
-                  ActivityCompat.requestPermissions(this@NavigatorActivityOLD, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                          MY_PERMISSIONS_REQUEST_LOCATION)
-                }
-                .create()
-                .show()
-      } else {
-        // No explanation needed, we can request the permission.
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                MY_PERMISSIONS_REQUEST_LOCATION)
-      }
-    }
+    // if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+    //         != PackageManager.PERMISSION_GRANTED) {
+    //
+    //   // Should we show an explanation?
+    //   if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+    //                   Manifest.permission.ACCESS_FINE_LOCATION)) {
+    //
+    //     // Show an explanation to the user *asynchronously* -- don't block
+    //     // this thread waiting for the user's response! After the user
+    //     // sees the explanation, try again to request the permission.
+    //     AlertDialog.Builder(this)
+    //             .setTitle("Location Permission Needed")
+    //             .setMessage("This app needs the Location permission, please accept to use location functionality")
+    //             .setPositiveButton("OK") { dialogInterface, i -> //Prompt the user once explanation has been shown
+    //               ActivityCompat.requestPermissions(this@NavigatorActivityOLD, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+    //                       MY_PERMISSIONS_REQUEST_LOCATION
+    //               )
+    //             }
+    //             .create()
+    //             .show()
+    //   } else {
+    //     // No explanation needed, we can request the permission.
+    //     ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+    //             MY_PERMISSIONS_REQUEST_LOCATION
+    //     )
+    //   }
+    // }
+    // if (ActivityCompat.checkSelfPermission(this,
+    //     Manifest.permission.ACCESS_COARSE_LOCATION)
+    //         != PackageManager.PERMISSION_GRANTED) {
+    //
+    //   // Should we show an explanation?
+    //   if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+    //                   Manifest.permission.ACCESS_COARSE_LOCATION)) {
+    //
+    //     // Show an explanation to the user *asynchronously* -- don't block
+    //     // this thread waiting for the user's response! After the user
+    //     // sees the explanation, try again to request the permission.
+    //     AlertDialog.Builder(this)
+    //             .setTitle("Location Permission Needed")
+    //             .setMessage("This app needs the Location permission, please accept to use location functionality")
+    //             .setPositiveButton("OK") { dialogInterface, i -> //Prompt the user once explanation has been shown
+    //               // ActivityCompat.requestPermissions(this@NavigatorActivityOLD, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+    //               //         MY_PERMISSIONS_REQUEST_LOCATION
+    //               )
+    //             }
+    //             .create()
+    //             .show()
+    //   } else {
+    //     // No explanation needed, we can request the permission.
+    //     ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+    //             MY_PERMISSIONS_REQUEST_LOCATION
+    //     )
+    //   }
+    // }
   }
 
   // Called from onConnecetd

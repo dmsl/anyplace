@@ -2,12 +2,11 @@ package cy.ac.ucy.cs.anyplace.logger
 
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class LoggerApp : AnyplaceApp() {
-  private val TAG = LoggerApp::class.java.simpleName
-
   override val navigator = false
   override val logger = true
 

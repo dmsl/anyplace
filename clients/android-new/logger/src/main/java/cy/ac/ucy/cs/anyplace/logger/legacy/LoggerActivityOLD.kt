@@ -56,7 +56,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.logger.LoggerWiFi
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener
 import com.google.android.gms.maps.CameraUpdateFactory
-import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug
 import android.content.pm.PackageManager
 import android.content.DialogInterface
 import com.google.android.gms.maps.SupportMapFragment
@@ -65,13 +65,13 @@ import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener
 import android.content.IntentSender.SendIntentException
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyUserData
-import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MyBuildingsRenderer
+import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.MyBuildingsRenderer
 import android.content.Intent
 import android.app.AlertDialog
 import android.content.Context
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask.FetchFloorsByBuidTaskListener
-import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MapTileProvider
-import cy.ac.ucy.cs.anyplace.lib.android.cache.BackgroundFetchListener
+import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.MapTileProvider
+import cy.ac.ucy.cs.anyplace.lib.android.cache.deprecated.BackgroundFetchListener
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
@@ -139,9 +139,9 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private lateinit var mLocationRequest: LocationRequest
   private lateinit var gmap: GoogleMap  // TODO: maps need a refresh..
   private var marker: Marker? =null
-  // XXX curLocation and mLastLocation?!?
+  // curLocation and mLastLocation?!?
   private var curLocation: LatLng? = null
-  // private var mLastLocation: Location? = null  // XXX should NOT use this
+  // private var mLastLocation: Location? = null  // should NOT use this
 
   private lateinit var fusedLocationClient: FusedLocationProviderClient
   // private lateinit var locationRequest: LocationRequest
@@ -175,7 +175,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   private var raw_heading = 0.0f
   private var walking = false
   private var upInProgress = false
-  private val upInProgressLock = Any()  // CHECK:XXX PM Kotlin Any?
+  private val upInProgressLock = Any()
   private var userIsNearby = false
   private var buildingCurrent: BuildingModel? = null
   private var mCurrentFloor: FloorModel? = null
@@ -188,7 +188,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // private lateinit var app: AnyplaceApp
   private var builds: List<BuildingModel>? = null
 
-  val TODO__= false // XXX
+  val TODO__= false // ?
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -370,7 +370,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
         if (locationResult.locations.isNotEmpty()) {
           val location = locationResult.lastLocation
-          // mLastLocation = location // XXX either set this here OK... make it asynchronous..
+          // mLastLocation = location // either set this here OK... make it asynchronous..
 
           val prettyLoc = LocationUtils.prettyLocation(location, applicationContext)
           LOG.D2("Location: Update: $prettyLoc")
@@ -395,7 +395,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // Stop location updates
   private fun stopLocationUpdates() {
     LOG.I("stopLocationUpdates()")
-    // mLocationCallbackConnected XXX remove also this?
+    // mLocationCallbackConnected remove also this?
     fusedLocationClient.removeLocationUpdates(mLocationCallback)
   }
 
@@ -441,7 +441,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     // setup the trackme button overlaid in the map
     VB.btnTrackme.setOnClickListener {
       LOG.D("Track me clicked!")
-      if (gpsMarker != null) {  // XXX FIX-FLOW
+      if (gpsMarker != null) {  // FIX-FLOW
         LOG.D("gpsMarker: not null")
         val mAnyplaceCache = ObjectCache.getInstance(app)
         mAnyplaceCache.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
@@ -568,7 +568,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11));
         gmap.animateCamera(CameraUpdateFactory.newLatLngZoom(gpsMarker!!.position, mInitialZoomLevel))
       }
-      // fusedLocationClient.removeLocationUpdates(this)  XXX
+      // fusedLocationClient.removeLocationUpdates(this)
       // checkLocationPermission() // TODO
       // fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
     }
@@ -578,8 +578,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     if (gpsMarker != null) {
       return
     }
-    // checkLocationPermission() // XXX
-    /* TODO XXX
+    // checkLocationPermission() //
+    /* TODO
     fusedLocationClient
             .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
             .addOnCompleteListener { task ->
@@ -626,14 +626,14 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
           LOG.E("initListeners: searchType: outdoor")
           VB.btnTrackme.visibility = View.VISIBLE
           VB.btnRecord.visibility = View.INVISIBLE
-          // checkLocationPermission() // XXX
+          // checkLocationPermission() //
           // fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallbackConnected, Looper.myLooper())
           // mMap.setMyLocationEnabled(true);
         }
       }
 
       bearing = position.bearing
-      // mClusterManager.onCameraChange(position) // XXX:PM CHECK:PM
+      // mClusterManager.onCameraChange(position) // CHECK
       gmap.setOnCameraIdleListener(clusterManager)
       gmap.setOnMarkerClickListener(clusterManager)  // warn: PotentialBehaviourOverride
     }
@@ -894,7 +894,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
             }
           }
         }
-        // break CHECK:PM XXX
+        // break CHECK
       }
     }
   }
@@ -1005,7 +1005,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     })
 
     class CallbackDownloadRadiomap : DownloadRadioMapTaskBuid.Callback, PreviousRunningTask {
-      var progressBarEnabled = false  // XXX Progressbar here should be given AS argument
+      var progressBarEnabled = false  // Progressbar here should be given AS argument
       var disableSuccess = false
       override fun onSuccess(result: String?) {
         if (disableSuccess) {
@@ -1026,7 +1026,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         }
         if (AnyplaceDebug.PLAY_STORE) {
           val mAnyplaceCache = ObjectCache.getInstance(app)
-          mAnyplaceCache.fetchAllFloorsRadiomapsRun(this@LoggerActivityOLD, object : BackgroundFetchListener {
+          mAnyplaceCache.fetchAllFloorsRadiomapsRun(this@LoggerActivityOLD, object :
+            BackgroundFetchListener {
             override fun onSuccess(result: String) {
               hideProgressBar()
               if (AnyplaceDebug.DEBUG_MESSAGES) {
@@ -1131,8 +1132,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
         // checkLocationPermission()
         fusedLocationClient.lastLocation.addOnCompleteListener { task ->
           val currentLocation = task.result
-          // XXX WHAT IS THIS?!?! and WHY here?!?!
-          LOG.E(TAG, "XXX: onLocationChanged(currentLocation)")
+          // WHAT IS THIS?!?! and WHY here?!?!
+          LOG.E(TAG, "onLocationChanged(currentLocation)")
           // onLocationChanged(currentLocation)
           val placeIntent = Intent(this@LoggerActivityOLD, SelectBuildingActivityOLD::class.java)
           val b = Bundle()
