@@ -74,7 +74,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.clustering.ClusterManager
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceDebug
-import cy.ac.ucy.cs.anyplace.lib.android.cache.BackgroundFetchListener
+import cy.ac.ucy.cs.anyplace.lib.android.cache.deprecated.BackgroundFetchListener
 import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.OnInfoWindowElemTouchListener
@@ -83,9 +83,9 @@ import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Radiomap
 import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Server
 import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector
 import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector.*
-import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MapTileProvider
-import cy.ac.ucy.cs.anyplace.lib.android.googlemap.MyBuildingsRenderer
-import cy.ac.ucy.cs.anyplace.lib.android.googlemap.VisiblePois
+import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.MapTileProvider
+import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.MyBuildingsRenderer
+import cy.ac.ucy.cs.anyplace.lib.android.maps.legacy.VisiblePois
 import cy.ac.ucy.cs.anyplace.lib.android.nav.*
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.HTMLCursorAdapter
 import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes
@@ -119,12 +119,12 @@ class NavigatorActivityOLD : AppCompatActivity(),
         TrackedLocAnyplaceTrackerListener,
         WifiResultsAnyplaceTrackerListener,
         ErrorAnyplaceTrackerListener,
-        LocationListener,
-        FloorAnyplaceFloorListener,
-        ErrorAnyplaceFloorListener,
-        OnSharedPreferenceChangeListener,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
+        // LocationListener,
+        // FloorAnyplaceFloorListener,
+        // ErrorAnyplaceFloorListener,
+        // OnSharedPreferenceChangeListener,
+        // GoogleApiClient.ConnectionCallbacks,
+        // GoogleApiClient.OnConnectionFailedListener,
         OnMapReadyCallback {
   // private val mLocationListener: LocationListener = this
   // private val raw_heading = 0.0f
@@ -216,8 +216,8 @@ class NavigatorActivityOLD : AppCompatActivity(),
     sensorsStepCounter = SensorsStepCounter(applicationContext, sensorsMain)
     lpTracker = TrackerLogicPlusIMU(movementDetector, sensorsMain, sensorsStepCounter, applicationContext)
     // lpTracker = new TrackerLogic(sensorsMain);
-    floorSelector = Algo1Radiomap(applicationContext)
-    mAnyplaceCache = ObjectCache.getInstance(app)
+    // floorSelector = Algo1Radiomap(applicationContext)
+    // mAnyplaceCache = ObjectCache.getInstance(app)
     visiblePois = VisiblePois()
     setUpMapIfNeeded()
 
@@ -228,88 +228,88 @@ class NavigatorActivityOLD : AppCompatActivity(),
     btnTrackme!!.setOnClickListener {
       // final GeoPoint gpsLoc = userData.getLocationGPSorIP();
       ///----------------------
-      checkLocationPermission()
-      mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
-              .addOnCompleteListener { task ->
-                val location = task.result
-                val gpsLoc = GeoPoint(location)
-                val mAnyplaceCache = ObjectCache.getInstance(app)
-                mAnyplaceCache.loadWorldBuildings(this@NavigatorActivityOLD,
-                        object : FetchBuildingsTaskListener {
-                          override fun onSuccess(result: String, buildings: List<BuildingModel>) {
-                            val nearest = FetchNearBuildingsTask()
-                            nearest.run(buildings.iterator(), gpsLoc.lat, gpsLoc.lng, 200)
-                            if (nearest.buildings.size > 0 && (userData!!.selectedBuildingId == null || userData!!.selectedBuildingId != nearest.buildings[0].buid)) {
-                              floorSelector!!.Stop()
-                              val floorSelectorAlgo1: FloorSelector = Algo1Server(applicationContext)
-                              val floorSelectorDialog = ProgressDialog(this@NavigatorActivityOLD)
-                              floorSelectorDialog.isIndeterminate = true
-                              floorSelectorDialog.setTitle("Detecting floor")
-                              floorSelectorDialog.setMessage("Please be patient...")
-                              floorSelectorDialog.setCancelable(true)
-                              floorSelectorDialog.setCanceledOnTouchOutside(false)
-                              floorSelectorDialog.setOnCancelListener {
-                                floorSelectorAlgo1.Destoy()
-                                bypassSelectBuildingActivity(nearest.buildings[0], "0", false)
-                              }
-                              class Callback : ErrorAnyplaceFloorListener, FloorAnyplaceFloorListener {
-                                override fun onNewFloor(floor: String) {
-                                  floorSelectorAlgo1.Destoy()
-                                  if (floorSelectorDialog.isShowing) {
-                                    floorSelectorDialog.dismiss()
-                                    bypassSelectBuildingActivity(nearest.buildings[0], floor, false)
-                                  }
-                                }
-
-                                override fun onFloorError(ex: Exception) {
-                                  floorSelectorAlgo1.Destoy()
-                                  if (floorSelectorDialog.isShowing) {
-                                    floorSelectorDialog.dismiss()
-                                    bypassSelectBuildingActivity(nearest.buildings[0], "0", false)
-                                  }
-                                }
-                              }
-
-                              val callback = Callback()
-                              floorSelectorAlgo1.addListener(callback as FloorAnyplaceFloorListener)
-                              floorSelectorAlgo1.addListener(callback as ErrorAnyplaceFloorListener)
-
-                              // Show Dialog
-                              floorSelectorDialog.show()
-                              floorSelectorAlgo1.Start(gpsLoc.lat, gpsLoc.lng)
-                            } else {
-                              Log.d(TAG, "No nearby buildings or buid missmatch")
-                              // focusUserLocation();
-                              checkLocationPermission()
-                              // mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
-                              mFusedLocationClient.getLastLocation().addOnCompleteListener { task ->
-                                val loc = task.result
-                                addMarker(loc)
-                                cameraUpdate = true
-                                mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker!!.position, mInitialZoomLevel), object : CancelableCallback {
-                                  override fun onFinish() {
-                                    cameraUpdate = false
-                                  }
-
-                                  override fun onCancel() {
-                                    cameraUpdate = false
-                                  }
-                                })
-                              }
-                              // Clear cancel request
-                              lastFloor = null
-                              floorSelector!!.RunNow()
-                              lpTracker!!.reset()
-                            }
-                          }
-
-                          override fun onErrorOrCancel(result: String) {}
-                        }, false)
-              }.addOnFailureListener {
-                lastFloor = null
-                floorSelector!!.RunNow()
-                lpTracker!!.reset()
-              }
+      // checkLocationPermission()
+      // mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, null)
+      //         .addOnCompleteListener { task ->
+      //           val location = task.result
+      //           val gpsLoc = GeoPoint(location)
+      //           val mAnyplaceCache = ObjectCache.getInstance(app)
+      //           mAnyplaceCache.loadWorldBuildings(this@NavigatorActivityOLD,
+      //                   object : FetchBuildingsTaskListener {
+      //                     override fun onSuccess(result: String, buildings: List<BuildingModel>) {
+      //                       val nearest = FetchNearBuildingsTask()
+      //                       nearest.run(buildings.iterator(), gpsLoc.lat, gpsLoc.lng, 200)
+      //                       if (nearest.buildings.size > 0 && (userData!!.selectedBuildingId == null || userData!!.selectedBuildingId != nearest.buildings[0].buid)) {
+      //                         floorSelector!!.Stop()
+      //                         val floorSelectorAlgo1: FloorSelector = Algo1Server(applicationContext)
+      //                         val floorSelectorDialog = ProgressDialog(this@NavigatorActivityOLD)
+      //                         floorSelectorDialog.isIndeterminate = true
+      //                         floorSelectorDialog.setTitle("Detecting floor")
+      //                         floorSelectorDialog.setMessage("Please be patient...")
+      //                         floorSelectorDialog.setCancelable(true)
+      //                         floorSelectorDialog.setCanceledOnTouchOutside(false)
+      //                         floorSelectorDialog.setOnCancelListener {
+      //                           floorSelectorAlgo1.Destoy()
+      //                           bypassSelectBuildingActivity(nearest.buildings[0], "0", false)
+      //                         }
+      //                         class Callback : ErrorAnyplaceFloorListener, FloorAnyplaceFloorListener {
+      //                           override fun onNewFloor(floor: String) {
+      //                             floorSelectorAlgo1.Destoy()
+      //                             if (floorSelectorDialog.isShowing) {
+      //                               floorSelectorDialog.dismiss()
+      //                               bypassSelectBuildingActivity(nearest.buildings[0], floor, false)
+      //                             }
+      //                           }
+      //
+      //                           override fun onFloorError(ex: Exception) {
+      //                             floorSelectorAlgo1.Destoy()
+      //                             if (floorSelectorDialog.isShowing) {
+      //                               floorSelectorDialog.dismiss()
+      //                               bypassSelectBuildingActivity(nearest.buildings[0], "0", false)
+      //                             }
+      //                           }
+      //                         }
+      //
+      //                         val callback = Callback()
+      //                         floorSelectorAlgo1.addListener(callback as FloorAnyplaceFloorListener)
+      //                         floorSelectorAlgo1.addListener(callback as ErrorAnyplaceFloorListener)
+      //
+      //                         // Show Dialog
+      //                         floorSelectorDialog.show()
+      //                         floorSelectorAlgo1.Start(gpsLoc.lat, gpsLoc.lng)
+      //                       } else {
+      //                         Log.d(TAG, "No nearby buildings or buid missmatch")
+      //                         // focusUserLocation();
+      //                         checkLocationPermission()
+      //                         // mFusedLocationClient.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
+      //                         mFusedLocationClient.getLastLocation().addOnCompleteListener { task ->
+      //                           val loc = task.result
+      //                           addMarker(loc)
+      //                           cameraUpdate = true
+      //                           mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker!!.position, mInitialZoomLevel), object : CancelableCallback {
+      //                             override fun onFinish() {
+      //                               cameraUpdate = false
+      //                             }
+      //
+      //                             override fun onCancel() {
+      //                               cameraUpdate = false
+      //                             }
+      //                           })
+      //                         }
+      //                         // Clear cancel request
+      //                         lastFloor = null
+      //                         floorSelector!!.RunNow()
+      //                         lpTracker!!.reset()
+      //                       }
+      //                     }
+      //
+      //                     override fun onErrorOrCancel(result: String) {}
+      //                   }, false)
+      //         }.addOnFailureListener {
+      //           lastFloor = null
+      //           floorSelector!!.RunNow()
+      //           lpTracker!!.reset()
+      //         }
     }
     btnFloorUp = findViewById<View>(R.id.btnFloorUp) as ImageButton
     btnFloorUp!!.setOnClickListener(View.OnClickListener {
@@ -331,7 +331,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
           }
           val floor = b.getFloorFromNumber(floor_number)
           if (floor != null) {
-            bypassSelectBuildingActivity(b, floor)
+            // bypassSelectBuildingActivity(b, floor)
             return@OnClickListener
           }
         }
@@ -340,7 +340,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
       // Move one floor up
       val index = b.selectedFloorIndex
       if (b.checkIndex(index + 1)) {
-        bypassSelectBuildingActivity(b, b.loadedFloors[index + 1])
+        // bypassSelectBuildingActivity(b, b.loadedFloors[index + 1])
       }
     })
     btnFloorDown = findViewById<View>(R.id.btnFloorDown) as ImageButton
@@ -363,7 +363,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
           }
           val floor = b.getFloorFromNumber(floor_number)
           if (floor != null) {
-            bypassSelectBuildingActivity(b, floor)
+            // bypassSelectBuildingActivity(b, floor)
             return@OnClickListener
           }
         }
@@ -372,7 +372,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
       // Move one floor down
       val index = b.selectedFloorIndex
       if (b.checkIndex(index - 1)) {
-        bypassSelectBuildingActivity(b, b.loadedFloors[index - 1])
+        // bypassSelectBuildingActivity(b, b.loadedFloors[index - 1])
       }
     })
 
@@ -380,14 +380,14 @@ class NavigatorActivityOLD : AppCompatActivity(),
      * Create a new location client, using the enclosing class to handle callbacks.
      */
     // Create the LocationRequest object
-    mLocationRequest = LocationRequest.create()
-    // Use high accuracy
-    mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-    // Set the update interval to 2 seconds
-    mLocationRequest.setInterval(2000)
-    // Set the fastest update interval to 1 second
-    mLocationRequest.setFastestInterval(1000)
-    //mLocationClient = new LocationClient(this, this, this);
+    // mLocationRequest = LocationRequest.create()
+    // // Use high accuracy
+    // mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+    // // Set the update interval to 2 seconds
+    // mLocationRequest.setInterval(2000)
+    // // Set the fastest update interval to 1 second
+    // mLocationRequest.setFastestInterval(1000)
+    // //mLocationClient = new LocationClient(this, this, this);
 
 
     // declare that this is the first time this Activity launched so make
@@ -397,11 +397,11 @@ class NavigatorActivityOLD : AppCompatActivity(),
     // get/set settings
     PreferenceManager.setDefaultValues(this, SHARED_PREFS_ANYPLACE, MODE_PRIVATE, R.xml.preferences_anyplace, true)
     val preferences = getSharedPreferences(SHARED_PREFS_ANYPLACE, MODE_PRIVATE)
-    preferences.registerOnSharedPreferenceChangeListener(this)
+    // preferences.registerOnSharedPreferenceChangeListener(this)
     lpTracker!!.setAlgorithm(preferences.getString("TrackingAlgorithm", "WKNN"))
 
     // handle the search intent
-    handleIntent(intent)
+    // handleIntent(intent)
   }
 
   private fun focusUserLocation() {
@@ -531,21 +531,21 @@ class NavigatorActivityOLD : AppCompatActivity(),
         }
         val gp = userData!!.latestUserPosition
         val key = getString(R.string.maps_api_key) // CHECK does it work with the secure.properties?
-        mSuggestionsTask = AnyplaceSuggestionsTask(
-                app,
-                object : AnyplaceSuggestionsListener {
-                  override fun onSuccess(result: String, pois: List<IPoisClass>) {
-                    showSearchResult(AnyPlaceSeachingHelper.prepareSearchViewCursor(pois, newText))
-                  }
-
-                  override fun onErrorOrCancel(result: String) {
-                    Log.d("AnyplaceSuggestions", result)
-                  }
-
-                  override fun onUpdateStatus(string: String, cursor: Cursor) {
-                    showSearchResult(cursor)
-                  }
-                }, searchType, gp ?: GeoPoint(csLat, csLon), newText, key)
+        // mSuggestionsTask = AnyplaceSuggestionsTask(
+        //         app,
+        //         object : AnyplaceSuggestionsListener {
+        //           override fun onSuccess(result: String, pois: List<IPoisClass>) {
+        //             showSearchResult(AnyPlaceSeachingHelper.prepareSearchViewCursor(pois, newText))
+        //           }
+        //
+        //           override fun onErrorOrCancel(result: String) {
+        //             Log.d("AnyplaceSuggestions", result)
+        //           }
+        //
+        //           override fun onUpdateStatus(string: String, cursor: Cursor) {
+        //             showSearchResult(cursor)
+        //           }
+        //         }, searchType, gp ?: GeoPoint(csLat, csLon), newText, key)
         mSuggestionsTask!!.execute(null, null)
 
         // we return true to avoid caling the provider set in the xml
@@ -853,7 +853,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
         // search activity finished OK
         if (data == null) return
         val place = data.getSerializableExtra("ianyplace") as IPoisClass?
-        handleSearchPlaceSelection(place)
+        // handleSearchPlaceSelection(place)
       } else if (resultCode == RESULT_CANCELED) {
         // CANCELLED
         if (data == null) return
@@ -870,7 +870,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
         try {
           val b = mAnyplaceCache!!.spinnerBuildings[data.getIntExtra("bmodel", 0)]
           val f = b.loadedFloors[data.getIntExtra("fmodel", 0)]
-          selectPlaceActivityResult(b, f)
+          // selectPlaceActivityResult(b, f)
         } catch (ex: Exception) {
           Toast.makeText(baseContext, "You haven't selected both building and floor...!", Toast.LENGTH_SHORT).show()
         }
@@ -882,48 +882,48 @@ class NavigatorActivityOLD : AppCompatActivity(),
       }
       PREFERENCES_ACTIVITY_RESULT -> if (resultCode == RESULT_OK) {
         val result = data!!.getSerializableExtra("action") as AnyplacePrefs.Action?
-        when (result) {
-          AnyplacePrefs.Action.REFRESH_BUILDING -> {
-            if (!userData!!.isFloorSelected) {
-              Toast.makeText(baseContext, "Load a map before performing this action!", Toast.LENGTH_SHORT).show()
-              break
-            }
-            if (progressBar!!.visibility == View.VISIBLE) {
-              Toast.makeText(baseContext, "Building Loading in progress. Please Wait!", Toast.LENGTH_SHORT).show()
-              break
-            }
-            try {
-              val b = userData!!.selectedBuilding
-              // clear_floorplans
-              val floorsRoot = File(AnyplaceUtils.getFloorPlansRootFolder(this), b.buid)
-              // clear radiomaps
-              val radiomapsRoot = AnyplaceUtils.getRadioMapsRootFolder(this)
-              val radiomaps = radiomapsRoot.list { dir, filename -> if (filename.startsWith(b.buid)) true else false }
-              var i = 0
-              while (i < radiomaps.size) {
-                radiomaps[i] = radiomapsRoot.absolutePath + File.separator + radiomaps[i]
-                i++
-              }
-              floorSelector!!.Stop()
-              disableAnyplaceTracker()
-              val task = DeleteFolderBackgroundTask({ // clear any markers that might have already
-                // been added to the map
-                visiblePois!!.clearAll()
-                // clear and resets the cached POIS inside
-                // AnyplaceCache
-                mAnyplaceCache!!.setPois(app, HashMap(), "")
-                mAnyplaceCache!!.fetchAllFloorsRadiomapReset()
-                bypassSelectBuildingActivity(b, b.selectedFloor)
-              }, this@NavigatorActivityOLD, true)
-              task.setFiles(floorsRoot)
-              task.setFiles(radiomaps)
-              task.execute()
-            } catch (e: Exception) {
-              Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
-            }
-          }
-          AnyplacePrefs.Action.REFRESH_MAP -> handleBuildingsOnMap(true)
-        }
+        // when (result) {
+        //   AnyplacePrefs.Action.REFRESH_BUILDING -> {
+        //     if (!userData!!.isFloorSelected) {
+        //       Toast.makeText(baseContext, "Load a map before performing this action!", Toast.LENGTH_SHORT).show()
+        //       break
+        //     }
+        //     if (progressBar!!.visibility == View.VISIBLE) {
+        //       Toast.makeText(baseContext, "Building Loading in progress. Please Wait!", Toast.LENGTH_SHORT).show()
+        //       break
+        //     }
+        //     try {
+        //       val b = userData!!.selectedBuilding
+        //       // clear_floorplans
+        //       val floorsRoot = File(AnyplaceUtils.getFloorPlansRootFolder(this), b.buid)
+        //       // clear radiomaps
+        //       val radiomapsRoot = AnyplaceUtils.getRadioMapsRootFolder(this)
+        //       val radiomaps = radiomapsRoot.list { dir, filename -> if (filename.startsWith(b.buid)) true else false }
+        //       var i = 0
+        //       while (i < radiomaps.size) {
+        //         radiomaps[i] = radiomapsRoot.absolutePath + File.separator + radiomaps[i]
+        //         i++
+        //       }
+        //       floorSelector!!.Stop()
+        //       disableAnyplaceTracker()
+        //       val task = DeleteFolderBackgroundTask({ // clear any markers that might have already
+        //         // been added to the map
+        //         visiblePois!!.clearAll()
+        //         // clear and resets the cached POIS inside
+        //         // AnyplaceCache
+        //         mAnyplaceCache!!.setPois(app, HashMap(), "")
+        //         mAnyplaceCache!!.fetchAllFloorsRadiomapReset()
+        //         bypassSelectBuildingActivity(b, b.selectedFloor)
+        //       }, this@NavigatorActivityOLD, true)
+        //       task.setFiles(floorsRoot)
+        //       task.setFiles(radiomaps)
+        //       task.execute()
+        //     } catch (e: Exception) {
+        //       Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        //     }
+        //   }
+        //   AnyplacePrefs.Action.REFRESH_MAP -> handleBuildingsOnMap(true)
+        // }
       }
     }
   }
@@ -941,9 +941,9 @@ class NavigatorActivityOLD : AppCompatActivity(),
           val list = ArrayList<BuildingModel?>(1)
           list.add(b)
           // Set building for Select Dialog
-          mAnyplaceCache!!.selectedBuildingIndex = 0
-          mAnyplaceCache!!.setSpinnerBuildings(app, list)
-          bypassSelectBuildingActivity(b, floor)
+          // mAnyplaceCache!!.selectedBuildingIndex = 0
+          // mAnyplaceCache!!.setSpinnerBuildings(app, list)
+          // bypassSelectBuildingActivity(b, floor)
         } else {
           Toast.makeText(baseContext, "Building's Floor Not Found", Toast.LENGTH_SHORT).show()
         }
@@ -971,9 +971,9 @@ class NavigatorActivityOLD : AppCompatActivity(),
           val list = ArrayList<BuildingModel?>(1)
           list.add(building)
           // Set building for Select Dialog
-          mAnyplaceCache!!.selectedBuildingIndex = 0
-          mAnyplaceCache!!.setSpinnerBuildings(app, list)
-          bypassSelectBuildingActivity(building, floor, poi)
+          // mAnyplaceCache!!.selectedBuildingIndex = 0
+          // mAnyplaceCache!!.setSpinnerBuildings(app, list)
+          // bypassSelectBuildingActivity(building, floor, poi)
         } else {
           Toast.makeText(baseContext, "Building's Floor Not Found", Toast.LENGTH_SHORT).show()
         }
@@ -985,269 +985,270 @@ class NavigatorActivityOLD : AppCompatActivity(),
     }, false, true)
   }
 
-  private fun bypassSelectBuildingActivity(b: BuildingModel?, f: FloorModel?) {
-    val fetchFloorPlanTask = FetchFloorPlanTask(this@NavigatorActivityOLD, b!!.buid, f!!.floor_number)
-    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
-      private var dialog: ProgressDialog? = null
-      override fun onSuccess(result: String, floor_plan_file: File) {
-        if (dialog != null) dialog!!.dismiss()
-        selectPlaceActivityResult(b, f)
-      }
-
-      override fun onErrorOrCancel(result: String) {
-        if (dialog != null) dialog!!.dismiss()
-        Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
-      }
-
-      override fun onPrepareLongExecute() {
-        dialog = ProgressDialog(this@NavigatorActivityOLD)
-        dialog!!.isIndeterminate = true
-        dialog!!.setTitle("Downloading floor plan")
-        dialog!!.setMessage("Please be patient...")
-        dialog!!.setCancelable(true)
-        dialog!!.setCanceledOnTouchOutside(false)
-        dialog!!.setOnCancelListener { fetchFloorPlanTask.cancel(true) }
-        dialog!!.show()
-      }
-    })
-    fetchFloorPlanTask.execute()
-  }
-
-  private fun bypassSelectBuildingActivity(b: BuildingModel?, f: FloorModel?, pm: PoisModel) {
-    val fetchFloorPlanTask = FetchFloorPlanTask(this@NavigatorActivityOLD, b!!.buid, f!!.floor_number)
-    fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
-      private var dialog: ProgressDialog? = null
-      override fun onSuccess(result: String, floor_plan_file: File) {
-        if (dialog != null) dialog!!.dismiss()
-        selectPlaceActivityResult(b, f, pm)
-      }
-
-      override fun onErrorOrCancel(result: String) {
-        if (dialog != null) dialog!!.dismiss()
-        Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
-      }
-
-      override fun onPrepareLongExecute() {
-        dialog = ProgressDialog(this@NavigatorActivityOLD)
-        dialog!!.isIndeterminate = true
-        dialog!!.setTitle("Downloading floor plan")
-        dialog!!.setMessage("Please be patient...")
-        dialog!!.setCancelable(true)
-        dialog!!.setCanceledOnTouchOutside(false)
-        dialog!!.setOnCancelListener { fetchFloorPlanTask.cancel(true) }
-        dialog!!.show()
-      }
-    })
-    fetchFloorPlanTask.execute()
-  }
-
-  private fun selectPlaceActivityResult(b: BuildingModel?, f: FloorModel?, pm: PoisModel) {
-    selectPlaceActivityResult_HELP(b, f)
-    fetchPoisByBuidToCache(b!!.buid, object : FetchPoisByBuidTask.Callback {
-      fun onSuccess(result: String?, poisMap: MutableMap<String?, PoisModel>) {
-        // This should never return null
-        if (poisMap[pm.puid] == null) {
-          poisMap[pm.puid] = pm
-        }
-        handlePoisOnMap(poisMap.values as Collection<PoisModel>)
-        startNavigationTask(pm.puid)
-        selectPlaceActivityResult_HELP2(b, f)
-      }
-
-      override fun onErrorOrCancel(result: String) {
-        val l = mAnyplaceCache!!.pois
-        l.add(pm)
-        handlePoisOnMap(l)
-        startNavigationTask(pm.puid)
-        selectPlaceActivityResult_HELP2(b, f)
-      }
-    })
-  }
-
-  private fun selectPlaceActivityResult(b: BuildingModel?, f: FloorModel?) {
-    selectPlaceActivityResult_HELP(b, f)
-    fetchPoisByBuidToCache(b!!.buid, object : FetchPoisByBuidTask.Callback {
-      fun onSuccess(result: String?, poisMap: Map<String?, PoisModel>) {
-        handlePoisOnMap(poisMap.values)
-        loadIndoorOutdoorPath()
-        selectPlaceActivityResult_HELP2(b, f)
-      }
-
-      override fun onErrorOrCancel(result: String) {
-        loadIndoorOutdoorPath()
-        selectPlaceActivityResult_HELP2(b, f)
-      }
-    })
-  }
-
-  // Help tasks
-  private fun selectPlaceActivityResult_HELP(b: BuildingModel?, f: FloorModel?) {
-    mAutomaticGPSBuildingSelection = false
-    floorSelector!!.Stop()
-    disableAnyplaceTracker()
-
-    // set the newly selected floor
-    b!!.setSelectedFloor(f!!.floor_number)
-    userData!!.selectedBuilding = b
-    userData!!.setSelectedFloor(f)
-    textFloor!!.text = f.floor_name
-    mMap!!.clear() // clean the map in case there are overlays
-
-    // add the Tile Provider that uses our Building tiles over Google Maps
-    val mTileOverlay = mMap!!.addTileOverlay(TileOverlayOptions().tileProvider(MapTileProvider(baseContext, b.buid, f.floor_number)))
-    mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(b.position, 19.0f), object : CancelableCallback {
-      override fun onFinish() {
-        cameraUpdate = false
-        handleBuildingsOnMap(false)
-        updateLocation()
-      }
-
-      override fun onCancel() {
-        cameraUpdate = false
-      }
-    })
-
-    // we must now change the radio map file since we changed floor RADIO MAP initialization
-    try {
-      val root = AnyplaceUtils.getRadioMapFolder(this, b.buid, userData!!.selectedFloorNumber)
-      lpTracker!!.setRadiomapFile(File(root, AnyplaceUtils.getRadioMapFileName(userData!!.selectedFloorNumber)).absolutePath)
-    } catch (e: Exception) {
-      // exception thrown by GetRootFolder when sdcard is not writable
-      Toast.makeText(baseContext, e.message, Toast.LENGTH_SHORT).show()
-    }
-  }
-
-  // Download RADIOMAP
-  private fun selectPlaceActivityResult_HELP2(b: BuildingModel?, f: FloorModel?) {
-    val trackedPositionLat = userData!!.selectedBuilding.latitudeString
-    val trackedPositionLon = userData!!.selectedBuilding.longitudeString
-
-    // first we should disable the tracker if it's working
-    disableAnyplaceTracker()
-    class Callback : DownloadRadioMapTaskBuid.Callback, PreviousRunningTask {
-      var progressBarEnabled = false
-      var disableSuccess = false
-      override fun onSuccess(result: String) {
-        if (disableSuccess) {
-          onErrorOrCancel("")
-          return
-        }
-        // start the tracker
-        // enableAnyplaceTracker(); XXX CHECK:PM ?!?!
-
-        // Download All Building Floors and Radiomaps
-        if (AnyplaceDebug.PLAY_STORE) {
-          mAnyplaceCache!!.fetchAllFloorsRadiomapsRun(this@NavigatorActivityOLD, object : BackgroundFetchListener {
-            override fun onSuccess(result: String) {
-              hideProgressBar()
-              if (AnyplaceDebug.DEBUG_MESSAGES) {
-                btnTrackme!!.setBackgroundColor(Color.YELLOW)
-              }
-              floorSelector!!.updateFiles(b!!.buid)
-              floorSelector!!.Start(b.latitudeString, b.longitudeString)
-            }
-
-            override fun onProgressUpdate(progress_current: Int, progress_total: Int) {
-              progressBar!!.progress = (progress_current.toFloat() / progress_total * progressBar!!.max).toInt()
-            }
-
-            override fun onErrorOrCancel(result: String, error: BackgroundFetchListener.ErrorType) {
-              // Do not hide progress bar if previous task is running
-              // ErrorType.SINGLE_INSTANCE
-              // Do not hide progress bar because a new task will be created
-              // ErrorType.CANCELLED
-              if (error == BackgroundFetchListener.ErrorType.EXCEPTION) hideProgressBar()
-            }
-
-            override fun onPrepareLongExecute() {
-              showProgressBar()
-            }
-          }, b)
-        }
-      }
-
-      override fun onErrorOrCancel(result: String) {
-        if (progressBarEnabled) {
-          hideProgressBar()
-        }
-      }
-
-      override fun onPrepareLongExecute() {
-        progressBarEnabled = true
-        showProgressBar()
-        // Set a smaller percentage than fetchAllFloorsRadiomapsOfBUID
-        progressBar!!.progress = (1.0f / (userData!!.selectedBuilding.loadedFloors.size * 2) * progressBar!!.max).toInt()
-      }
-
-      override fun disableSuccess() {
-        disableSuccess = true
-      }
-    }
-    if (downloadRadioMapTaskBuid != null) {
-      (downloadRadioMapTaskBuid!!.callbackInterface as PreviousRunningTask).disableSuccess()
-    }
-    downloadRadioMapTaskBuid = DownloadRadioMapTaskBuid(Callback(), this, trackedPositionLat, trackedPositionLon, userData!!.selectedBuildingId, userData!!.selectedFloorNumber, false)
-    val currentapiVersion = Build.VERSION.SDK_INT
-    if (currentapiVersion >= Build.VERSION_CODES.HONEYCOMB) {
-      // Execute task parallel with others and multiple instances of
-      // itself
-      downloadRadioMapTaskBuid!!.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
-    } else {
-      downloadRadioMapTaskBuid!!.execute()
-    }
-  }
-
-  var mLocationCallback: LocationCallback = object : LocationCallback() {
-    override fun onLocationResult(locationResult: LocationResult) {
-      val locationList = locationResult.locations
-      if (locationList.size > 0) {
-        //The last location in the list is the newest
-        val location = locationList[locationList.size - 1]
-        if (AnyplaceDebug.DEBUG_LOCATION) {
-          D(TAG, "Location: " + location.latitude + " " + location.longitude)
-        }
-        mLastLocation = location
-        // draw the location of the new position
-        if (userMarker != null) {
-          userMarker!!.remove()
-        }
-        val marker = MarkerOptions()
-        marker.position(LatLng(locationResult.lastLocation.latitude, locationResult.lastLocation.longitude))
-        marker.title("User").snippet("Estimated Position")
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
-        marker.rotation(sensorsMain!!.rawHeading - bearing)
-        userMarker = mMap!!.addMarker(marker)
-        // CHECK:PM
-        //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel));
-      }
-    }
-  }
-  var mLocationCallbackInitial: LocationCallback = object : LocationCallback() {
-    override fun onLocationResult(locationResult: LocationResult) {
-      val locationList = locationResult.locations
-      if (locationList.size > 0) {
-        //The last location in the list is the newest
-        val location = locationList[locationList.size - 1]
-        if (AnyplaceDebug.DEBUG_LOCATION) {
-          Log.i(TAG, "Location: " + location.latitude + " " + location.longitude)
-        }
-        mLastLocation = location
-        // draw the location of the new position
-        if (userMarker != null) {
-          userMarker!!.remove()
-        }
-        val marker = MarkerOptions()
-        marker.position(LatLng(locationResult.lastLocation.latitude, locationResult.lastLocation.longitude))
-        marker.title("User").snippet("Estimated Position")
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
-        marker.rotation(sensorsMain!!.rawHeading - bearing)
-        userMarker = mMap!!.addMarker(marker)
-
-        // TODO:PM coroutine
-        mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel))
-      }
-    }
-  }
+  // private fun bypassSelectBuildingActivity(b: BuildingModel?, f: FloorModel?) {
+  //   val fetchFloorPlanTask = FetchFloorPlanTask(this@NavigatorActivityOLD, b!!.buid, f!!.floor_number)
+  //   fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
+  //     private var dialog: ProgressDialog? = null
+  //     override fun onSuccess(result: String, floor_plan_file: File) {
+  //       if (dialog != null) dialog!!.dismiss()
+  //       selectPlaceActivityResult(b, f)
+  //     }
+  //
+  //     override fun onErrorOrCancel(result: String) {
+  //       if (dialog != null) dialog!!.dismiss()
+  //       Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
+  //     }
+  //
+  //     override fun onPrepareLongExecute() {
+  //       dialog = ProgressDialog(this@NavigatorActivityOLD)
+  //       dialog!!.isIndeterminate = true
+  //       dialog!!.setTitle("Downloading floor plan")
+  //       dialog!!.setMessage("Please be patient...")
+  //       dialog!!.setCancelable(true)
+  //       dialog!!.setCanceledOnTouchOutside(false)
+  //       dialog!!.setOnCancelListener { fetchFloorPlanTask.cancel(true) }
+  //       dialog!!.show()
+  //     }
+  //   })
+  //   fetchFloorPlanTask.execute()
+  // }
+  //
+  // private fun bypassSelectBuildingActivity(b: BuildingModel?, f: FloorModel?, pm: PoisModel) {
+  //   val fetchFloorPlanTask = FetchFloorPlanTask(this@NavigatorActivityOLD, b!!.buid, f!!.floor_number)
+  //   fetchFloorPlanTask.setCallbackInterface(object : FetchFloorPlanTask.Callback {
+  //     private var dialog: ProgressDialog? = null
+  //     override fun onSuccess(result: String, floor_plan_file: File) {
+  //       if (dialog != null) dialog!!.dismiss()
+  //       selectPlaceActivityResult(b, f, pm)
+  //     }
+  //
+  //     override fun onErrorOrCancel(result: String) {
+  //       if (dialog != null) dialog!!.dismiss()
+  //       Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
+  //     }
+  //
+  //     override fun onPrepareLongExecute() {
+  //       dialog = ProgressDialog(this@NavigatorActivityOLD)
+  //       dialog!!.isIndeterminate = true
+  //       dialog!!.setTitle("Downloading floor plan")
+  //       dialog!!.setMessage("Please be patient...")
+  //       dialog!!.setCancelable(true)
+  //       dialog!!.setCanceledOnTouchOutside(false)
+  //       dialog!!.setOnCancelListener { fetchFloorPlanTask.cancel(true) }
+  //       dialog!!.show()
+  //     }
+  //   })
+  //   fetchFloorPlanTask.execute()
+  // }
+  //
+  // private fun selectPlaceActivityResult(b: BuildingModel?, f: FloorModel?, pm: PoisModel) {
+  //   selectPlaceActivityResult_HELP(b, f)
+  //   fetchPoisByBuidToCache(b!!.buid, object : FetchPoisByBuidTask.Callback {
+  //     fun onSuccess(result: String?, poisMap: MutableMap<String?, PoisModel>) {
+  //       // This should never return null
+  //       if (poisMap[pm.puid] == null) {
+  //         poisMap[pm.puid] = pm
+  //       }
+  //       handlePoisOnMap(poisMap.values as Collection<PoisModel>)
+  //       startNavigationTask(pm.puid)
+  //       selectPlaceActivityResult_HELP2(b, f)
+  //     }
+  //
+  //     override fun onErrorOrCancel(result: String) {
+  //       val l = mAnyplaceCache!!.pois
+  //       l.add(pm)
+  //       handlePoisOnMap(l)
+  //       startNavigationTask(pm.puid)
+  //       selectPlaceActivityResult_HELP2(b, f)
+  //     }
+  //   })
+  // }
+  //
+  // private fun selectPlaceActivityResult(b: BuildingModel?, f: FloorModel?) {
+  //   selectPlaceActivityResult_HELP(b, f)
+  //   fetchPoisByBuidToCache(b!!.buid, object : FetchPoisByBuidTask.Callback {
+  //     fun onSuccess(result: String?, poisMap: Map<String?, PoisModel>) {
+  //       handlePoisOnMap(poisMap.values)
+  //       loadIndoorOutdoorPath()
+  //       selectPlaceActivityResult_HELP2(b, f)
+  //     }
+  //
+  //     override fun onErrorOrCancel(result: String) {
+  //       loadIndoorOutdoorPath()
+  //       selectPlaceActivityResult_HELP2(b, f)
+  //     }
+  //   })
+  // }
+  //
+  // // Help tasks
+  // private fun selectPlaceActivityResult_HELP(b: BuildingModel?, f: FloorModel?) {
+  //   mAutomaticGPSBuildingSelection = false
+  //   floorSelector!!.Stop()
+  //   disableAnyplaceTracker()
+  //
+  //   // set the newly selected floor
+  //   b!!.setSelectedFloor(f!!.floor_number)
+  //   userData!!.selectedBuilding = b
+  //   userData!!.setSelectedFloor(f)
+  //   textFloor!!.text = f.floor_name
+  //   mMap!!.clear() // clean the map in case there are overlays
+  //
+  //   // add the Tile Provider that uses our Building tiles over Google Maps
+  //   val mTileOverlay = mMap!!.addTileOverlay(TileOverlayOptions().tileProvider(MapTileProvider(baseContext, b.buid, f.floor_number)))
+  //   mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(b.position, 19.0f), object : CancelableCallback {
+  //     override fun onFinish() {
+  //       cameraUpdate = false
+  //       handleBuildingsOnMap(false)
+  //       updateLocation()
+  //     }
+  //
+  //     override fun onCancel() {
+  //       cameraUpdate = false
+  //     }
+  //   })
+  //
+  //   // we must now change the radio map file since we changed floor RADIO MAP initialization
+  //   try {
+  //     val root = AnyplaceUtils.getRadioMapFolder(this, b.buid, userData!!.selectedFloorNumber)
+  //     lpTracker!!.setRadiomapFile(File(root, AnyplaceUtils.getRadioMapFileName(userData!!.selectedFloorNumber)).absolutePath)
+  //   } catch (e: Exception) {
+  //     // exception thrown by GetRootFolder when sdcard is not writable
+  //     Toast.makeText(baseContext, e.message, Toast.LENGTH_SHORT).show()
+  //   }
+  // }
+  //
+  // // Download RADIOMAP
+  // private fun selectPlaceActivityResult_HELP2(b: BuildingModel?, f: FloorModel?) {
+  //   val trackedPositionLat = userData!!.selectedBuilding.latitudeString
+  //   val trackedPositionLon = userData!!.selectedBuilding.longitudeString
+  //
+  //   // first we should disable the tracker if it's working
+  //   disableAnyplaceTracker()
+  //   class Callback : DownloadRadioMapTaskBuid.Callback, PreviousRunningTask {
+  //     var progressBarEnabled = false
+  //     var disableSuccess = false
+  //     override fun onSuccess(result: String) {
+  //       if (disableSuccess) {
+  //         onErrorOrCancel("")
+  //         return
+  //       }
+  //       // start the tracker
+  //       // enableAnyplaceTracker(); CHECK ?!?!
+  //
+  //       // Download All Building Floors and Radiomaps
+  //       if (AnyplaceDebug.PLAY_STORE) {
+  //         mAnyplaceCache!!.fetchAllFloorsRadiomapsRun(this@NavigatorActivityOLD, object :
+  //           BackgroundFetchListener {
+  //           override fun onSuccess(result: String) {
+  //             hideProgressBar()
+  //             if (AnyplaceDebug.DEBUG_MESSAGES) {
+  //               btnTrackme!!.setBackgroundColor(Color.YELLOW)
+  //             }
+  //             floorSelector!!.updateFiles(b!!.buid)
+  //             floorSelector!!.Start(b.latitudeString, b.longitudeString)
+  //           }
+  //
+  //           override fun onProgressUpdate(progress_current: Int, progress_total: Int) {
+  //             progressBar!!.progress = (progress_current.toFloat() / progress_total * progressBar!!.max).toInt()
+  //           }
+  //
+  //           override fun onErrorOrCancel(result: String, error: BackgroundFetchListener.ErrorType) {
+  //             // Do not hide progress bar if previous task is running
+  //             // ErrorType.SINGLE_INSTANCE
+  //             // Do not hide progress bar because a new task will be created
+  //             // ErrorType.CANCELLED
+  //             if (error == BackgroundFetchListener.ErrorType.EXCEPTION) hideProgressBar()
+  //           }
+  //
+  //           override fun onPrepareLongExecute() {
+  //             showProgressBar()
+  //           }
+  //         }, b)
+  //       }
+  //     }
+  //
+  //     override fun onErrorOrCancel(result: String) {
+  //       if (progressBarEnabled) {
+  //         hideProgressBar()
+  //       }
+  //     }
+  //
+  //     override fun onPrepareLongExecute() {
+  //       progressBarEnabled = true
+  //       showProgressBar()
+  //       // Set a smaller percentage than fetchAllFloorsRadiomapsOfBUID
+  //       progressBar!!.progress = (1.0f / (userData!!.selectedBuilding.loadedFloors.size * 2) * progressBar!!.max).toInt()
+  //     }
+  //
+  //     override fun disableSuccess() {
+  //       disableSuccess = true
+  //     }
+  //   }
+  //   if (downloadRadioMapTaskBuid != null) {
+  //     (downloadRadioMapTaskBuid!!.callbackInterface as PreviousRunningTask).disableSuccess()
+  //   }
+  //   downloadRadioMapTaskBuid = DownloadRadioMapTaskBuid(Callback(), this, trackedPositionLat, trackedPositionLon, userData!!.selectedBuildingId, userData!!.selectedFloorNumber, false)
+  //   val currentapiVersion = Build.VERSION.SDK_INT
+  //   if (currentapiVersion >= Build.VERSION_CODES.HONEYCOMB) {
+  //     // Execute task parallel with others and multiple instances of
+  //     // itself
+  //     downloadRadioMapTaskBuid!!.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
+  //   } else {
+  //     downloadRadioMapTaskBuid!!.execute()
+  //   }
+  // }
+  //
+  // var mLocationCallback: LocationCallback = object : LocationCallback() {
+  //   override fun onLocationResult(locationResult: LocationResult) {
+  //     val locationList = locationResult.locations
+  //     if (locationList.size > 0) {
+  //       //The last location in the list is the newest
+  //       val location = locationList[locationList.size - 1]
+  //       if (AnyplaceDebug.DEBUG_LOCATION) {
+  //         D(TAG, "Location: " + location.latitude + " " + location.longitude)
+  //       }
+  //       mLastLocation = location
+  //       // draw the location of the new position
+  //       if (userMarker != null) {
+  //         userMarker!!.remove()
+  //       }
+  //       val marker = MarkerOptions()
+  //       marker.position(LatLng(locationResult.lastLocation.latitude, locationResult.lastLocation.longitude))
+  //       marker.title("User").snippet("Estimated Position")
+  //       marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
+  //       marker.rotation(sensorsMain!!.rawHeading - bearing)
+  //       userMarker = mMap!!.addMarker(marker)
+  //       // CHECK:PM
+  //       //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel));
+  //     }
+  //   }
+  // }
+  // var mLocationCallbackInitial: LocationCallback = object : LocationCallback() {
+  //   override fun onLocationResult(locationResult: LocationResult) {
+  //     val locationList = locationResult.locations
+  //     if (locationList.size > 0) {
+  //       //The last location in the list is the newest
+  //       val location = locationList[locationList.size - 1]
+  //       if (AnyplaceDebug.DEBUG_LOCATION) {
+  //         Log.i(TAG, "Location: " + location.latitude + " " + location.longitude)
+  //       }
+  //       mLastLocation = location
+  //       // draw the location of the new position
+  //       if (userMarker != null) {
+  //         userMarker!!.remove()
+  //       }
+  //       val marker = MarkerOptions()
+  //       marker.position(LatLng(locationResult.lastLocation.latitude, locationResult.lastLocation.longitude))
+  //       marker.title("User").snippet("Estimated Position")
+  //       marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
+  //       marker.rotation(sensorsMain!!.rawHeading - bearing)
+  //       userMarker = mMap!!.addMarker(marker)
+  //
+  //       // TODO:PM coroutine
+  //       mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(userMarker.getPosition(), mInitialZoomLevel))
+  //     }
+  //   }
+  // }
 
   // </ Play Services Functions
   private fun checkPlayServices(): Boolean {
@@ -1256,10 +1257,10 @@ class NavigatorActivityOLD : AppCompatActivity(),
     // If Google Play services is available
     return if (ConnectionResult.SUCCESS == resultCode) {
       // In debug mode, log the status
-      D3(
-              TAG,
-              "LocationUpdates: Google Play services is available."
-      )
+      // D3(
+      //         TAG,
+      //         "LocationUpdates: Google Play services is available."
+      // )
       // Continue
       true
     } else {
@@ -1271,7 +1272,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
                 PLAY_SERVICES_RESOLUTION_REQUEST
         ).show()
       } else {
-        E(TAG, "This device is not supported.")
+        // E(TAG, "This device is not supported.")
         Toast.makeText(
                 this@NavigatorActivityOLD, "Google play services are required!",
                 Toast.LENGTH_SHORT
@@ -1282,28 +1283,28 @@ class NavigatorActivityOLD : AppCompatActivity(),
     }
   }
 
-  override fun onConnectionFailed(connectionResult: ConnectionResult) {
-    Log.d(TAG, "Google Play Services: Connection failed")
-    // Google Play services can resolve some errors it detects.
-    // If the error has a resolution, try sending an Intent to
-    // start a Google Play services activity that can resolve
-    // error.
-    if (connectionResult.hasResolution()) {
-      try {
-        // Start an Activity that tries to resolve the error
-        connectionResult.startResolutionForResult(this, LOCATION_CONNECTION_FAILURE_RESOLUTION_REQUEST)
-        // Thrown if Google Play services canceled the original
-        // PendingIntent
-      } catch (e: SendIntentException) {
-        // Log the error
-        e.printStackTrace()
-      }
-    } else {
-      // If no resolution is available, display a dialog to the
-      // user with the error.
-      GooglePlayServicesUtil.getErrorDialog(connectionResult.errorCode, this, 0).show()
-    }
-  }
+  // override fun onConnectionFailed(connectionResult: ConnectionResult) {
+  //   Log.d(TAG, "Google Play Services: Connection failed")
+  //   // Google Play services can resolve some errors it detects.
+  //   // If the error has a resolution, try sending an Intent to
+  //   // start a Google Play services activity that can resolve
+  //   // error.
+  //   if (connectionResult.hasResolution()) {
+  //     try {
+  //       // Start an Activity that tries to resolve the error
+  //       connectionResult.startResolutionForResult(this, LOCATION_CONNECTION_FAILURE_RESOLUTION_REQUEST)
+  //       // Thrown if Google Play services canceled the original
+  //       // PendingIntent
+  //     } catch (e: SendIntentException) {
+  //       // Log the error
+  //       e.printStackTrace()
+  //     }
+  //   } else {
+  //     // If no resolution is available, display a dialog to the
+  //     // user with the error.
+  //     GooglePlayServicesUtil.getErrorDialog(connectionResult.errorCode, this, 0).show()
+  //   }
+  // }
 
   override fun onRequestPermissionsResult(
           requestCode: Int,
@@ -1320,24 +1321,24 @@ class NavigatorActivityOLD : AppCompatActivity(),
     }
   }
 
-  @SuppressLint("MissingPermission")
-  override fun onConnected(dataBundle: Bundle?) {
-    I(2, "We are connected") // Called after onResume by system
-    if (checkPlayServices()) {
-      I("checking Play services")
-      initCamera()
-      // Get Wifi + GPS Fused Location
-      checkLocationPermission()
-      mFusedLocationClient!!.lastLocation.addOnCompleteListener { task ->
-        val location = task.result
-        onLocationChanged(location)
-      }.addOnFailureListener { Toast.makeText(baseContext, "No location available at the moment.", Toast.LENGTH_LONG).show() }
-      checkLocationPermission()
-      mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocationCallbackInitial, Looper.myLooper())
-    }
-  }
+  // @SuppressLint("MissingPermission")
+  // override fun onConnected(dataBundle: Bundle?) {
+  //   // I(2, "We are connected") // Called after onResume by system
+  //   // if (checkPlayServices()) {
+  //   //   I("checking Play services")
+  //   //   initCamera()
+  //   //   // Get Wifi + GPS Fused Location
+  //   //   checkLocationPermission()
+  //   //   mFusedLocationClient!!.lastLocation.addOnCompleteListener { task ->
+  //   //     val location = task.result
+  //   //     onLocationChanged(location)
+  //   //   }.addOnFailureListener { Toast.makeText(baseContext, "No location available at the moment.", Toast.LENGTH_LONG).show() }
+  //   //   // checkLocationPermission()
+  //   //   // mFusedLocationClient!!.requestLocationUpdates(mLocationRequest, mLocationCallbackInitial, Looper.myLooper())
+  //   // }
+  // }
 
-  override fun onConnectionSuspended(i: Int) {}
+  // override fun onConnectionSuspended(i: Int) {}
 
   // </ NAVIGATION FUNCTIONS
   private fun startNavigationTask(id: String) {
@@ -1549,8 +1550,8 @@ class NavigatorActivityOLD : AppCompatActivity(),
 
   //TODO: move to android lib.
   private fun handleBuildingsOnMap(forceReload: Boolean) {
-    val mAnyplaceCache = ObjectCache.getInstance(app)
-    mAnyplaceCache.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
+    // val mAnyplaceCache = ObjectCache.getInstance(app)
+    mAnyplaceCache?.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
       override fun onSuccess(result: String, buildings: List<BuildingModel>) {
         val collection: MutableList<BuildingModel> = ArrayList(buildings)
         builds = buildings
@@ -1599,7 +1600,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
               this,
               object : FetchPoisByBuidTask.Callback {
                 override fun onSuccess(result: String, poisMap: Map<String, PoisModel>) {
-                  mAnyplaceCache!!.setPois(app, poisMap, buid)
+                  // mAnyplaceCache!!.setPois(app, poisMap, buid)
                   l.onSuccess(result, poisMap)
                 }
 
@@ -1608,7 +1609,7 @@ class NavigatorActivityOLD : AppCompatActivity(),
                   // the map
                   visiblePois!!.clearAll()
                   // clear and resets the cached POIS inside AnyplaceCache
-                  mAnyplaceCache!!.setPois(app, HashMap(), "")
+                  // mAnyplaceCache!!.setPois(app, HashMap(), "")
                   l.onErrorOrCancel(result)
                 }
               }, buid)
@@ -1623,117 +1624,117 @@ class NavigatorActivityOLD : AppCompatActivity(),
   }
 
   //Play Services location listener
-  override fun onLocationChanged(location: Location) {
-    if (location != null) {
-      userData!!.setLocationGPS(location)
-      updateLocation()
-      if (mAutomaticGPSBuildingSelection) {
-        mAutomaticGPSBuildingSelection = false
-        checkLocationPermission()
-        mFusedLocationClient!!.lastLocation.addOnCompleteListener { task ->
-          val location = task.result
-          val point = GeoPoint(location.latitude, location.longitude)
-          loadSelectBuildingActivity(point, true)
-        }
-      }
-    }
-  }
+  // override fun onLocationChanged(location: Location) {
+  //   if (location != null) {
+  //     userData!!.setLocationGPS(location)
+  //     // updateLocation()
+  //     if (mAutomaticGPSBuildingSelection) {
+  //       mAutomaticGPSBuildingSelection = false
+  //       checkLocationPermission()
+  //       mFusedLocationClient!!.lastLocation.addOnCompleteListener { task ->
+  //         val location = task.result
+  //         val point = GeoPoint(location.latitude, location.longitude)
+  //         loadSelectBuildingActivity(point, true)
+  //       }
+  //     }
+  //   }
+  // }
 
   override fun onNewLocation(pos: LatLng) {
-    userData!!.setPositionWifi(pos.latitude, pos.longitude)
-    runOnUiThread {
-      if (isTrackingErrorBackground) {
-        isTrackingErrorBackground = false
-        btnTrackme!!.setImageResource(R.drawable.dark_device_access_location_searching)
-      }
-      updateLocation() // update the wifi location of the user
-    }
+    // userData!!.setPositionWifi(pos.latitude, pos.longitude)
+    // runOnUiThread {
+    //   if (isTrackingErrorBackground) {
+    //     isTrackingErrorBackground = false
+    //     btnTrackme!!.setImageResource(R.drawable.dark_device_access_location_searching)
+    //   }
+    //   updateLocation() // update the wifi location of the user
+    // }
   }
 
   override fun onTrackerError(msg: String) {
-    if (!isTrackingErrorBackground) runOnUiThread {
-      if (!isTrackingErrorBackground) {
-        btnTrackme!!.setImageResource(R.drawable.dark_device_access_location_off)
-        isTrackingErrorBackground = true
-      }
-    }
+    // if (!isTrackingErrorBackground) runOnUiThread {
+    //   if (!isTrackingErrorBackground) {
+    //     btnTrackme!!.setImageResource(R.drawable.dark_device_access_location_off)
+    //     isTrackingErrorBackground = true
+    //   }
+    // }
   }
 
-  override fun onFloorError(ex: Exception) {
-    if (ex is NonCriticalError) return
-    floorSelector!!.Stop()
-    // TODO Auto-generated method stub
-    Log.e("Floor Selector", ex.toString())
-    Toast.makeText(baseContext, "Floor Selector ecountered an error", Toast.LENGTH_SHORT).show()
-  }
+  // override fun onFloorError(ex: Exception) {
+  //   if (ex is NonCriticalError) return
+  //   floorSelector!!.Stop()
+  //   // TODO Auto-generated method stub
+  //   Log.e("Floor Selector", ex.toString())
+  //   Toast.makeText(baseContext, "Floor Selector ecountered an error", Toast.LENGTH_SHORT).show()
+  // }
 
   // Change Floor Request on current Building
-  override fun onNewFloor(floorNumber: String) {
-    if (floorChangeRequestDialog) return
-    val b = userData!!.selectedBuilding
-    if (b == null) {
-      Log.e("Unified Activity", "onNewFloor b=null")
-      return
-    }
+  // override fun onNewFloor(floorNumber: String) {
+  //   if (floorChangeRequestDialog) return
+  //   val b = userData!!.selectedBuilding
+  //   if (b == null) {
+  //     Log.e("Unified Activity", "onNewFloor b=null")
+  //     return
+  //   }
+  //
+  //   // Check if the floor is the loaded floor
+  //   if (b.selectedFloor!!.floor_number == floorNumber) {
+  //     lastFloor = null
+  //     return
+  //   }
+  //
+  //   // User clicked Cancel
+  //   if (lastFloor != null && lastFloor == floorNumber) {
+  //     return
+  //   }
+  //   lastFloor = floorNumber
+  //   val f = b.getFloorFromNumber(floorNumber)
+  //   if (f != null) {
+  //     val alertDialog = AlertDialog.Builder(this@NavigatorActivityOLD)
+  //     alertDialog.setTitle("Floor Change Detected")
+  //     alertDialog.setMessage("Floor Number: $floorNumber. Do you want to proceed?")
+  //     alertDialog.setPositiveButton("OK") { dialog, which ->
+  //       dialog.dismiss()
+  //       floorChangeRequestDialog = false
+  //       // bypassSelectBuildingActivity(b, f)
+  //     }
+  //     alertDialog.setNegativeButton("Cancel") { dialog, which ->
+  //       dialog.cancel()
+  //       floorChangeRequestDialog = false
+  //     }
+  //     alertDialog.show()
+  //     floorChangeRequestDialog = true
+  //   }
+  // }
 
-    // Check if the floor is the loaded floor
-    if (b.selectedFloor!!.floor_number == floorNumber) {
-      lastFloor = null
-      return
-    }
-
-    // User clicked Cancel
-    if (lastFloor != null && lastFloor == floorNumber) {
-      return
-    }
-    lastFloor = floorNumber
-    val f = b.getFloorFromNumber(floorNumber)
-    if (f != null) {
-      val alertDialog = AlertDialog.Builder(this@NavigatorActivityOLD)
-      alertDialog.setTitle("Floor Change Detected")
-      alertDialog.setMessage("Floor Number: $floorNumber. Do you want to proceed?")
-      alertDialog.setPositiveButton("OK") { dialog, which ->
-        dialog.dismiss()
-        floorChangeRequestDialog = false
-        bypassSelectBuildingActivity(b, f)
-      }
-      alertDialog.setNegativeButton("Cancel") { dialog, which ->
-        dialog.cancel()
-        floorChangeRequestDialog = false
-      }
-      alertDialog.show()
-      floorChangeRequestDialog = true
-    }
-  }
-
-  private fun updateLocation() {
-    // GeoPoint location = userData.getLatestUserPosition();
-    try {
-      checkLocationPermission()
-      mFusedLocationClient!!.lastLocation.addOnCompleteListener { task ->
-        try {
-          val loc = task.result
-          val location = GeoPoint(loc.latitude, loc.longitude)
-          if (location != null) {
-            // draw the location of the new position
-            if (userMarker != null) {
-              userMarker!!.remove()
-            }
-            val marker = MarkerOptions()
-            marker.position(LatLng(location.dlat, location.dlon))
-            marker.title("User").snippet("Estimated Position")
-            marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
-            marker.rotation(sensorsMain!!.rawHeading - bearing)
-            userMarker = mMap!!.addMarker(marker)
-          }
-        } catch (e: Exception) {
-          Log.d(TAG, e.message!!)
-        }
-      }
-    } catch (e: Exception) {
-      Log.d(TAG, e.message!!)
-    }
-  }
+  // private fun updateLocation() {
+  //   // GeoPoint location = userData.getLatestUserPosition();
+  //   try {
+  //     checkLocationPermission()
+  //     mFusedLocationClient!!.lastLocation.addOnCompleteListener { task ->
+  //       try {
+  //         val loc = task.result
+  //         val location = GeoPoint(loc.latitude, loc.longitude)
+  //         if (location != null) {
+  //           // draw the location of the new position
+  //           if (userMarker != null) {
+  //             userMarker!!.remove()
+  //           }
+  //           val marker = MarkerOptions()
+  //           marker.position(LatLng(location.dlat, location.dlon))
+  //           marker.title("User").snippet("Estimated Position")
+  //           marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
+  //           marker.rotation(sensorsMain!!.rawHeading - bearing)
+  //           userMarker = mMap!!.addMarker(marker)
+  //         }
+  //       } catch (e: Exception) {
+  //         Log.d(TAG, e.message!!)
+  //       }
+  //     }
+  //   } catch (e: Exception) {
+  //     Log.d(TAG, e.message!!)
+  //   }
+  // }
 
   // </ HELPER FUNCTIONS
   private fun enableAnyplaceTracker() {
@@ -1778,153 +1779,152 @@ class NavigatorActivityOLD : AppCompatActivity(),
 
   // /> HELPER FUNCTIONS
   // </ SEARCHING FUNCTIONS
-  override fun onNewIntent(intent: Intent) {
-    super.onNewIntent(intent)
-    handleIntent(intent)
-  }
+  // override fun onNewIntent(intent: Intent) {
+  //   super.onNewIntent(intent)
+  //   handleIntent(intent)
+  // }
 
   // Search Button or URL handle
-  private fun handleIntent(intent: Intent) {
-    val action = intent.action
-    if (Intent.ACTION_SEARCH == action) {
-      // check what type of search we need
-      val searchType = AnyPlaceSeachingHelper.getSearchType(mMap!!.cameraPosition.zoom)
-      val query = intent.getStringExtra(SearchManager.QUERY)
-      val gp = userData!!.latestUserPosition
-
-      // manually launch the real search activity
-      val searchIntent = Intent(this@NavigatorActivityOLD, SearchPOIActivity::class.java)
-      // add query to the Intent Extras
-      searchIntent.action = action
-      searchIntent.putExtra("searchType", searchType)
-      searchIntent.putExtra("query", query)
-      searchIntent.putExtra("lat", gp?.dlat ?: csLat)
-      searchIntent.putExtra("lng", gp?.dlon ?: csLon)
-      startActivityForResult(searchIntent, SEARCH_POI_ACTIVITY_RESULT)
-    } else if (Intent.ACTION_VIEW == action) {
-      val data = intent.dataString
-      if (data != null && data.startsWith("http")) {
-        val uri = intent.data
-        if (uri != null) {
-          val path = uri.path
-          if (path != null && path == "/getnavigation") {
-            val poid = uri.getQueryParameter("poid")
-            if (poid == null || poid == "") {
-              // Share building
-              val buid = uri.getQueryParameter("buid")
-              if (buid == null || buid == "") {
-                Toast.makeText(baseContext, "Buid parameter expected", Toast.LENGTH_SHORT).show()
-              } else {
-                mAutomaticGPSBuildingSelection = false
-                mAnyplaceCache!!.loadBuilding(this, buid, object : Callback {
-                  override fun onSuccess(result: String?, b: BuildingModel?) {
-                    bypassSelectBuildingActivity(b, uri.getQueryParameter("floor"), true)
-                  }
-
-                  override fun onErrorOrCancel(result: String?) {
-                    Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
-                  }
-                })
-              }
-            } else {
-              // Share POI
-              mAutomaticGPSBuildingSelection = false
-              val pref = getSharedPreferences("Anyplace_Preferences", MODE_PRIVATE)
-              val access_token = pref.getString("access_token", "")
-              FetchPoiByPuidTask(object : FetchPoiListener {
-                override fun onSuccess(result: String, poi: PoisModel) {
-                  if (userData!!.selectedBuildingId != null && userData!!.selectedBuildingId == poi.buid) {
-                    // Building is Loaded
-                    startNavigationTask(poi.puid)
-                  } else {
-                    // Load Building
-                    mAnyplaceCache!!.loadBuilding(this@NavigatorActivityOLD, poi.buid, object : Callback {
-                      override fun onSuccess(result: String?, b: BuildingModel?) {
-                        bypassSelectBuildingActivity(b, poi.floor_number, true, poi)
-                      }
-
-                      override fun onErrorOrCancel(result: String?) {
-                        Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
-                      }
-                    })
-                  }
-                }
-
-                override fun onErrorOrCancel(result: String) {
-                  Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
-                }
-              }, app, poid, access_token).execute()
-            }
-          }
-        }
-      } else {
-
-        // Search TextBox results only
-        // PoisModel or Place Class
-        val place_selected = AnyPlaceSeachingHelper.getClassfromJson(data)
-        if (place_selected.id() != null) {
-          // hide the search view when a navigation route is drawn
-          if (searchView != null) {
-            searchView!!.isIconified = true
-            searchView!!.clearFocus()
-          }
-          handleSearchPlaceSelection(place_selected)
-        }
-      }
-    }
-  } // end of handle intent
-
+  // private fun handleIntent(intent: Intent) {
+  //   val action = intent.action
+  //   if (Intent.ACTION_SEARCH == action) {
+  //     // check what type of search we need
+  //     val searchType = AnyPlaceSeachingHelper.getSearchType(mMap!!.cameraPosition.zoom)
+  //     val query = intent.getStringExtra(SearchManager.QUERY)
+  //     val gp = userData!!.latestUserPosition
+  //
+  //     // manually launch the real search activity
+  //     val searchIntent = Intent(this@NavigatorActivityOLD, SearchPOIActivity::class.java)
+  //     // add query to the Intent Extras
+  //     searchIntent.action = action
+  //     searchIntent.putExtra("searchType", searchType)
+  //     searchIntent.putExtra("query", query)
+  //     searchIntent.putExtra("lat", gp?.dlat ?: csLat)
+  //     searchIntent.putExtra("lng", gp?.dlon ?: csLon)
+  //     startActivityForResult(searchIntent, SEARCH_POI_ACTIVITY_RESULT)
+  //   } else if (Intent.ACTION_VIEW == action) {
+  //     val data = intent.dataString
+  //     // if (data != null && data.startsWith("http")) {
+  //     //   val uri = intent.data
+  //     //   if (uri != null) {
+  //     //     val path = uri.path
+  //     //     if (path != null && path == "/getnavigation") {
+  //     //       val poid = uri.getQueryParameter("poid")
+  //     //       if (poid == null || poid == "") {
+  //     //         // Share building
+  //     //         val buid = uri.getQueryParameter("buid")
+  //     //         if (buid == null || buid == "") {
+  //     //           Toast.makeText(baseContext, "Buid parameter expected", Toast.LENGTH_SHORT).show()
+  //     //         } else {
+  //     //           mAutomaticGPSBuildingSelection = false
+  //     //           mAnyplaceCache!!.loadBuilding(this, buid, object : Callback {
+  //     //             override fun onSuccess(result: String?, b: BuildingModel?) {
+  //     //               bypassSelectBuildingActivity(b, uri.getQueryParameter("floor"), true)
+  //     //             }
+  //     //
+  //     //             override fun onErrorOrCancel(result: String?) {
+  //     //               Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
+  //     //             }
+  //     //           })
+  //     //         }
+  //     //       } else {
+  //     //         // Share POI
+  //     //         mAutomaticGPSBuildingSelection = false
+  //     //         val pref = getSharedPreferences("Anyplace_Preferences", MODE_PRIVATE)
+  //     //         val access_token = pref.getString("access_token", "")
+  //     //         FetchPoiByPuidTask(object : FetchPoiListener {
+  //     //           override fun onSuccess(result: String, poi: PoisModel) {
+  //     //             if (userData!!.selectedBuildingId != null && userData!!.selectedBuildingId == poi.buid) {
+  //     //               // Building is Loaded
+  //     //               startNavigationTask(poi.puid)
+  //     //             } else {
+  //     //               // Load Building
+  //     //               mAnyplaceCache!!.loadBuilding(this@NavigatorActivityOLD, poi.buid, object : Callback {
+  //     //                 override fun onSuccess(result: String?, b: BuildingModel?) {
+  //     //                   bypassSelectBuildingActivity(b, poi.floor_number, true, poi)
+  //     //                 }
+  //     //
+  //     //                 override fun onErrorOrCancel(result: String?) {
+  //     //                   Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
+  //     //                 }
+  //     //               })
+  //     //             }
+  //     //           }
+  //     //
+  //     //           override fun onErrorOrCancel(result: String) {
+  //     //             Toast.makeText(baseContext, result, Toast.LENGTH_SHORT).show()
+  //     //           }
+  //     //         }, app, poid, access_token).execute()
+  //     //       }
+  //     //     }
+  //     //   }
+  //     // } else {
+  //     //
+  //     //   // Search TextBox results only
+  //     //   // PoisModel or Place Class
+  //     //   val place_selected = AnyPlaceSeachingHelper.getClassfromJson(data)
+  //     //   if (place_selected.id() != null) {
+  //     //     // hide the search view when a navigation route is drawn
+  //     //     if (searchView != null) {
+  //     //       searchView!!.isIconified = true
+  //     //       searchView!!.clearFocus()
+  //     //     }
+  //     //     handleSearchPlaceSelection(place_selected)
+  //     //   }
+  //     // }
+  //   }
+  // } // end of handle intent
   // handle the selected place from the TextBox or search activity
   // either Anyplace POI or a Google Place
-  private fun handleSearchPlaceSelection(place: IPoisClass?) {
-    if (place == null) return
-    when (place.type()) {
-      IPoisClass.Type.AnyplacePOI -> startNavigationTask(place.id())
-      IPoisClass.Type.GooglePlace -> mAnyplaceCache!!.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
-        override fun onSuccess(result: String, allBuildings: List<BuildingModel>) {
-          val nearBuildings = FetchNearBuildingsTask()
-          nearBuildings.run(allBuildings.iterator(), place.lat(), place.lng(), 200)
-          if (nearBuildings.buildings.size > 0) {
-            val b = nearBuildings.buildings[0]
-            bypassSelectBuildingActivity(b, "0", false)
-          } else {
-            showGooglePoi(place)
-          }
-        }
+  // private fun handleSearchPlaceSelection(place: IPoisClass?) {
+  //   if (place == null) return
+  //   when (place.type()) {
+  //     IPoisClass.Type.AnyplacePOI -> startNavigationTask(place.id())
+  //     IPoisClass.Type.GooglePlace -> mAnyplaceCache!!.loadWorldBuildings(this, object : FetchBuildingsTaskListener {
+  //       override fun onSuccess(result: String, allBuildings: List<BuildingModel>) {
+  //         val nearBuildings = FetchNearBuildingsTask()
+  //         nearBuildings.run(allBuildings.iterator(), place.lat(), place.lng(), 200)
+  //         if (nearBuildings.buildings.size > 0) {
+  //           val b = nearBuildings.buildings[0]
+  //           bypassSelectBuildingActivity(b, "0", false)
+  //         } else {
+  //           showGooglePoi(place)
+  //         }
+  //       }
+  //
+  //       override fun onErrorOrCancel(result: String) {
+  //         showGooglePoi(place)
+  //       }
+  //     }, false)
+  //   }
+  // }
 
-        override fun onErrorOrCancel(result: String) {
-          showGooglePoi(place)
-        }
-      }, false)
-    }
-  }
+  // private fun showGooglePoi(place: IPoisClass) {
+  //   cameraUpdate = true
+  //
+  //   // TODO coroutines..
+  //   mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(place.lat(), place.lng()), mInitialZoomLevel), object : CancelableCallback {
+  //     override fun onFinish() {
+  //       cameraUpdate = false
+  //     }
+  //
+  //     override fun onCancel() {
+  //       cameraUpdate = false
+  //     }
+  //   })
+  //   // add the marker for this Google Place
+  //   val mGooglePlaceMarker = mMap!!.addMarker(
+  //           MarkerOptions().position(
+  //                   LatLng(place.lat(), place.lng())).icon(BitmapDescriptorFactory.fromResource(
+  //                   R.drawable.pin_poi)))
+  //   visiblePois!!.setGooglePlaceMarker(mGooglePlaceMarker, place)
+  // }
 
-  private fun showGooglePoi(place: IPoisClass) {
-    cameraUpdate = true
-
-    // TODO coroutines..
-    mMap!!.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(place.lat(), place.lng()), mInitialZoomLevel), object : CancelableCallback {
-      override fun onFinish() {
-        cameraUpdate = false
-      }
-
-      override fun onCancel() {
-        cameraUpdate = false
-      }
-    })
-    // add the marker for this Google Place
-    val mGooglePlaceMarker = mMap!!.addMarker(
-            MarkerOptions().position(
-                    LatLng(place.lat(), place.lng())).icon(BitmapDescriptorFactory.fromResource(
-                    R.drawable.pin_poi)))
-    visiblePois!!.setGooglePlaceMarker(mGooglePlaceMarker, place)
-  }
-
-  override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-    if (key == "TrackingAlgorithm") {
-      lpTracker!!.setAlgorithm(sharedPreferences.getString("TrackingAlgorithm", "WKNN"))
-    }
-  }
+  // override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+  //   if (key == "TrackingAlgorithm") {
+  //     lpTracker!!.setAlgorithm(sharedPreferences.getString("TrackingAlgorithm", "WKNN"))
+  //   }
+  // }
 
   private fun popup_msg(msg: String, title: String) {
     val alert_box = AlertDialog.Builder(this)
@@ -2005,25 +2005,25 @@ class NavigatorActivityOLD : AppCompatActivity(),
         }
       }
       infoButton2.setOnTouchListener(infoButtonListener2)
-      mMap!!.setInfoWindowAdapter(object : InfoWindowAdapter {
-        override fun getInfoWindow(marker: Marker): View {
-          return null
-        }
-
-        override fun getInfoContents(marker: Marker): View {
-          // Setting up the infoWindow with current's marker info
-          infoTitle.text = marker.title
-          infoSnippet.text = marker.snippet
-          infoButtonListener1.setMarker(marker)
-          infoButtonListener2.setMarker(marker)
-
-          // We must call this to set the current marker and
-          // infoWindow references
-          // to the MapWrapperLayout
-          mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow)
-          return infoWindow
-        }
-      })
+      // mMap!!.setInfoWindowAdapter(object : InfoWindowAdapter {
+      //   override fun getInfoWindow(marker: Marker): View {
+      //     return null
+      //   }
+      //
+      //   override fun getInfoContents(marker: Marker): View {
+      //     // Setting up the infoWindow with current's marker info
+      //     infoTitle.text = marker.title
+      //     infoSnippet.text = marker.snippet
+      //     infoButtonListener1.setMarker(marker)
+      //     infoButtonListener2.setMarker(marker)
+      //
+      //     // We must call this to set the current marker and
+      //     // infoWindow references
+      //     // to the MapWrapperLayout
+      //     mapWrapperLayout.setMarkerWithInfoWindow(marker, infoWindow)
+      //     return infoWindow
+      //   }
+      // })
       setUpMap()
     }
 
@@ -2033,21 +2033,21 @@ class NavigatorActivityOLD : AppCompatActivity(),
   }
 
   // Define a DialogFragment that displays the error dialog
-  class ErrorDialogFragment     // Default constructor. Sets the dialog field to null
-    : DialogFragment() {
-    // Global field to contain the error dialog
-    private var mDialog: Dialog = null
-
-    // Set the dialog to display
-    fun setDialog(dialog: Dialog) {
-      mDialog = dialog
-    }
-
-    // Return a Dialog to the DialogFragment.
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-      return mDialog
-    }
-  }
+  // class ErrorDialogFragment     // Default constructor. Sets the dialog field to null
+  //   : DialogFragment() {
+  //   // Global field to contain the error dialog
+  //   private var mDialog: Dialog = null
+  //
+  //   // Set the dialog to display
+  //   fun setDialog(dialog: Dialog) {
+  //     mDialog = dialog
+  //   }
+  //
+  //   // Return a Dialog to the DialogFragment.
+  //   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+  //     return mDialog
+  //   }
+  // }
 
   override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
     when (keyCode) {
