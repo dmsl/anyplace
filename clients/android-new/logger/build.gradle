@@ -17,8 +17,8 @@ android {
     applicationId "cy.ac.ucy.cs.anyplace.logger"
     minSdkVersion 28
     targetSdkVersion 30
-    versionCode 7
-    versionName "0.1.7"
+    versionCode 8
+    versionName "0.1.8"
 
     // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 

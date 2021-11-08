@@ -818,8 +818,8 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     var permType = "unknown"
 
     when (requestCode) {
-      PermUtils.REQ_LOC_FINE_GRAIN -> permType = "location/fine"
-      PermUtils.REQ_LOC_BG-> permType = "location/bg"
+      // PermUtils.REQ_LOC_FINE_GRAIN -> permType = "location/fine"
+      // PermUtils.REQ_LOC_BG-> permType = "location/bg"
     }
 
     val msg = "Permission $status ($permType)"

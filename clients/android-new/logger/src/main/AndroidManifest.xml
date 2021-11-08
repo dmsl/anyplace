@@ -27,15 +27,6 @@
   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
 
-  <!--<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
-  <!--<uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />-->
-  <!--<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
-
-
-
-  <!--  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />-->
-
-
   <!-- android:requestLegacyExternalStorage="true"-->
   <!--android:theme="@style/Theme.AnyplaceTheme"-->
   <application
