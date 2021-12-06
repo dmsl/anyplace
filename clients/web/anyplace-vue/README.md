@@ -1,6 +1,18 @@
-# anyplace-vue
+# 1. Vue.js v3 setup:
+Instructions on how this project structure was created.
+See [SETUP.VUE3](./SETUP.VUE3.md)
 
-## Project setup
+
+---
+
+# 2. Build Project
+
+
+<details closed>
+
+<summary>Instructions to build project</summary>
+
+## Install
 ```
 npm install
 ```
@@ -32,3 +44,32 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+</details>
+
+---
+
+# STRUCTURE:
+
+### Vue.js entrypoint:
+ - `src/main.ts`: it initializes `src/App.vue`
+
+Global files:
+
+- `src/assets/js/global.js`:
+   - Avoid using JavaScript.
+   - Use only temporarily for legacy JS code.
+   - Included by `main.ts`
+
+- `src/assets/ts/global.ts`:
+   - Global TypeScript code
+   - Included by `App.vue`
+
+
+- `src/assets/scss/global.scss`:
+   - Global SASS CSS code
+   - Included by `App.vue`
+
+---
+
+# Additional Dependencies
