@@ -83,3 +83,10 @@ Customized bootstrap with sass:
 - added src/asses/scss/app_bootstrap.scss
 - it overrides variables and includes `npm` installed boostrap
 
+## FontAwesome
+[@fortawesome](https://www.npmjs.com/package/@fortawesome/fontawesome-free) is the free version of FontAwesome.
+
+```bash
+npm install @fortawesome/fontawesome-free
+```
+
