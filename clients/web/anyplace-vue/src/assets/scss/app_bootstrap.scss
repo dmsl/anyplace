@@ -1,0 +1,12 @@
+//////////////////////////////////////////////////////////////
+// CUSTOMIZE BOOTSTRAP
+// More: https://getbootstrap.com/docs/5.0/customize/sass/
+//////////////////////////////////////////////////////////////
+
+// DEFAULT OVERRIDES  (functions won't be available)
+$primary: red; // example
+
+@import "~bootstrap/scss/bootstrap"; // or use "node_modules/bootstrap/scss/bootstrap"
+
+// ADDITIONAL CUSTOM CODE
+// ...

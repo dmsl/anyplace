@@ -73,3 +73,13 @@ Global files:
 ---
 
 # Additional Dependencies
+
+## Bootstrap
+```bash
+npm install bootstrap
+```
+
+Customized bootstrap with sass:
+- added src/asses/scss/app_bootstrap.scss
+- it overrides variables and includes `npm` installed boostrap
+

@@ -3,6 +3,9 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+// TS / JS DEPENDENCIES:
+import 'bootstrap';
+
 createApp(App).use(store).use(router).mount('#app')
 
 
