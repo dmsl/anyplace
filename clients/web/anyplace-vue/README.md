@@ -90,3 +90,8 @@ Customized bootstrap with sass:
 npm install @fortawesome/fontawesome-free
 ```
 
+## Leaflet
+```bash
+npm install leaflet
+npm install @types/leaflet --save-dev 
+```
