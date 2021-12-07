@@ -1,12 +1,11 @@
 # 1. Vue.js v3 setup:
 Instructions on how this project structure was created.
-See [SETUP.VUE3](./SETUP.VUE3.md)
+See [SETUP.VUE3](./SETUP.VUE.md)
 
 
 ---
 
 # 2. Build Project
-
 
 <details closed>
 
@@ -51,6 +50,11 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 # STRUCTURE:
 
+<details closed>
+
+<summary>Project Structure</summary>
+
+
 ### Vue.js entrypoint:
  - `src/main.ts`: it initializes `src/App.vue`
 
@@ -70,9 +74,18 @@ Global files:
    - Global SASS CSS code
    - Included by `App.vue`
 
+
+</details>
+
 ---
 
-# Additional Dependencies
+# Additional Dependencies Installed
+
+#### Keep the below list up-to-date!
+
+<details closed>
+
+<summary>Dependencies Installed</summary>
 
 ## Bootstrap
 ```bash
@@ -93,5 +106,7 @@ npm install @fortawesome/fontawesome-free
 ## Leaflet
 ```bash
 npm install leaflet
-npm install @types/leaflet --save-dev 
+npm install @types/leaflet --save-dev  # for typescript
 ```
+
+</details>
