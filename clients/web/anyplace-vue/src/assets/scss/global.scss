@@ -1,0 +1,118 @@
+@import "app_bootstrap"; // bootstrap modifications here
+
+// BREAK THIS DOWN AND PUT INTO DIFFERENT COMPONENTS
+
+body, html {
+  height: 100%;
+}
+
+.fill-height {
+  min-height: 100%;
+  height: 100%; /* cross-browser */
+}
+
+#app {
+  @extend .fill-height;
+}
+
+input.border-sides-none {
+  border-left: 0;
+  border-right: 0;
+}
+
+// MENU-OFF : 'id=mainMenu' on the left of page
+.menu-off { // dont show mainMenu before click in menu-bar button
+  display: none;
+}
+
+// left menu appearance
+.menu-appearance {
+  height: 100%; /* 100% Full-height */
+  width: 30%; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  background-color: #ffffff; /* Black*/
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding: 10px; //padding inside menu
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+// button hover color
+button.btn.btn-hover-color:hover {
+  color: $light;
+}
+
+.input-group button, .input-group input {
+  height: 2.7rem;
+}
+
+input #search-input .form-control {
+  position: initial;
+}
+
+.profile-menu {
+  position: relative;
+}
+
+// MODAL-USER-PROFILE
+//background behind modal.. more darker
+.modal {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+.modal-user-profile .modal-dialog {
+  position: fixed;
+  right: 5%;
+}
+
+.modal-user-profile:not(.in) .modal-dialog {
+  -webkit-transform: translate3d(0%, 0, 0);
+  transform: translate3d(0%, 0, 0);
+}
+
+// align circle buttons on bottom-right of page
+.align-buttons-on-bottom {
+  bottom: 5%;
+  right: 12px;
+  position: absolute;
+}
+
+//define shape of circle buttons
+.circle-icon {
+  @extend .btn;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  padding: 1em !important;
+  border-radius: 50% !important;
+  font-size: 12px !important;
+  text-align: center !important;
+}
+
+// leaflet zoom-in, zoom-out buttons - alignment in the middle of page
+#map .leaflet-top {
+  top:45%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 0;
+}
+
+// PUT IN SEPARATE FILE: maybe screens.scss
+// SCREEN SIZES:
+//small screen
+@media (max-width: 768px) {
+  .menu-appearance {
+    width: 100% !important; /* full screen */
+  }
+
+  .modal-user-profile .modal-dialog {
+    right: 2%;
+    width: auto;
+  }
+}
+
