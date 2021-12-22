@@ -94,10 +94,9 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.*
 import cy.ac.ucy.cs.anyplace.lib.android.DBG
 import cy.ac.ucy.cs.anyplace.lib.android.consts.MSG
-import cy.ac.ucy.cs.anyplace.lib.android.sensors.thermal.FlirUtils
 import cy.ac.ucy.cs.anyplace.lib.android.tasks.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.*
-import cy.ac.ucy.cs.anyplace.lib.android.utils.FileUtils
+import cy.ac.ucy.cs.anyplace.lib.android.utils.legacy.FileUtils
 import cy.ac.ucy.cs.anyplace.lib.android.utils.network.OLDNetworkUtils
 import cy.ac.ucy.cs.anyplace.logger.LoggerApp
 import cy.ac.ucy.cs.anyplace.logger.R
@@ -205,9 +204,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
 
     PermUtils.checkLoggerPermissionsAndSettings(this) // TODO proper permissions..
 
-    lifecycleScope.launch {
-      FlirUtils.initialize(app)
-    }
+    // lifecycleScope.launch { FlirUtils.initialize(app) }
 
     VB.btnRecord.setOnClickListener { btnRecordingInfo() }
 
@@ -427,7 +424,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   }
 
   override fun onMapReady(googleMap: GoogleMap) {
-    LOG.D2(TAG, "onMapReady")
+    LOG.D2()
     gmap = googleMap
     gmap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
@@ -1055,7 +1052,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
       }
 
       override fun onErrorOrCancel(result: String?) {
-        if (DBG.CALLBACK) {
+        if (false) {
           Log.d(TAG, "Callback onErrorOrCancel with $result")
         }
         if (progressBarEnabled) {

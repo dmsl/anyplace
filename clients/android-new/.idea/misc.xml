@@ -62,7 +62,7 @@
         <entry key="lib-android/src/main/res/layout/activity_select_space.xml" value="0.23697916666666666" />
         <entry key="lib-android/src/main/res/layout/activity_settings_logger_cv.xml" value="0.142433234421365" />
         <entry key="lib-android/src/main/res/layout/activity_settings_server.xml" value="0.266304347826087" />
-        <entry key="lib-android/src/main/res/layout/bottom_sheet_cv_logging.xml" value="0.25" />
+        <entry key="lib-android/src/main/res/layout/bottom_sheet_cv_logging.xml" value="0.33" />
         <entry key="lib-android/src/main/res/layout/bottom_sheet_space_filter.xml" value="0.30932971014492755" />
         <entry key="lib-android/src/main/res/layout/dialog_logger_settings.xml" value="0.25" />
         <entry key="lib-android/src/main/res/layout/dialog_main_settings.xml" value="0.37228260869565216" />
