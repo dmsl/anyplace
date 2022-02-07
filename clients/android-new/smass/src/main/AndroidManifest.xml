@@ -11,6 +11,10 @@
       android:supportsRtl="true"
       android:theme="@style/Theme.AnyplaceClients">
     <activity
+        android:name=".SmassActivity"
+        android:exported="true">
+    </activity>
+    <activity
         android:name=".StartActivity"
         android:exported="true">
       <intent-filter>

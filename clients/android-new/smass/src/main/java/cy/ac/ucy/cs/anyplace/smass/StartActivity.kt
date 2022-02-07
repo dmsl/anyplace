@@ -75,6 +75,7 @@ class StartActivity : Activity() {
     LOG.D2(TAG_METHOD)
     CoroutineScope(Main).launch {
       startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
+      // startActivity(Intent(this@StartActivity, SmassActivity::class.java))
       finish()
     }
   }
