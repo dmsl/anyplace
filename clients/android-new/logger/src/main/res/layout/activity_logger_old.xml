@@ -133,7 +133,7 @@
 
         />
 
-      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
+      <Button
           custom:type="solid"
           android:id="@+id/btnFloorUp"
           android:layout_width="wrap_content"
@@ -149,7 +149,7 @@
           />
 <!--      custom:type="solid"-->
 
-      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
+      <Button
           android:id="@+id/btnFloorDown"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"

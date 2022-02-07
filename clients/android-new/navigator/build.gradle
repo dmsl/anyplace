@@ -23,7 +23,7 @@ android {
     minSdkVersion 28
     targetSdkVersion 30
     versionCode 6
-    versionName "0.1.6"
+    versionName "4.3.6"
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -46,9 +46,11 @@ android {
     dataBinding true
     viewBinding true
   }
-  packagingOptions {
-    exclude 'META-INF/DEPENDENCIES'
-  }
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="cy.ac.ucy.cs.anyplace.logger">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="cy.ac.ucy.cs.anyplace.logger">
 
   <!-- FLIR attachable usb unit -->
   <uses-feature android:name="android.hardware.usb.host" android:required="true" />
@@ -30,15 +31,16 @@
   <!-- android:requestLegacyExternalStorage="true"-->
   <!--android:theme="@style/Theme.AnyplaceTheme"-->
   <application
-    android:name=".LoggerApp"
-    android:icon="@drawable/ic_launcher_logger"
-    android:label="@string/app_name"
-    android:theme="@style/AppTheme"
-    >
-    <activity
-      android:name="StartActivity"
+      android:name=".LoggerApp"
+      android:icon="@drawable/ic_launcher_logger"
       android:label="@string/app_name"
-      android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >
+      android:theme="@style/AppTheme"
+      >
+    <activity
+        android:name="StartActivity"
+        android:screenOrientation="portrait"
+        android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen"
+        tools:ignore="LockedOrientationActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 

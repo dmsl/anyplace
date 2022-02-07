@@ -17,8 +17,8 @@ android {
     minSdkVersion 28
     //noinspection OldTargetApi
     targetSdkVersion 30
-    versionCode 11
-    versionName "0.1.11"
+    versionCode 15
+    versionName "4.3.15"
 
     // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
@@ -49,7 +49,9 @@ android {
     viewBinding true
   }
   packagingOptions {
-    exclude 'META-INF/DEPENDENCIES'
+    resources {
+      excludes += ['META-INF/DEPENDENCIES']
+    }
   }
 }
 
@@ -104,8 +106,6 @@ dependencies {
   // Retrofit
   implementation 'com.squareup.retrofit2:retrofit:2.9.0'
   implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-
-
 
   //  implementation 'com.google.maps.android:android-maps-utils:2.2.0'
   //  implementation(name: 'androidsdk-release', ext: 'aar') // CLR
