@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-  compileSdk 30
+  compileSdk 31
 
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.smass"
@@ -45,6 +45,12 @@ android {
   buildFeatures {
     dataBinding true
     viewBinding true
+  }
+
+  packagingOptions {
+    resources {
+      excludes += ['META-INF/DEPENDENCIES']
+    }
   }
 
   compileOptions {

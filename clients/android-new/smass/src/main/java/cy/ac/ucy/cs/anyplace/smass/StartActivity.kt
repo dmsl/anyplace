@@ -37,11 +37,13 @@
 package cy.ac.ucy.cs.anyplace.smass
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolov4tflite.DetectorActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -49,7 +51,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class StartActivity : Activity() {
-  private val SPLASH_TIME_OUT = 500L // TODO 100L ?
+  private val SPLASH_TIME_OUT = 500L
 
   lateinit var tvVersion : TextView
   private val appInfo by lazy { AppInfo(applicationContext) }
@@ -70,10 +72,10 @@ class StartActivity : Activity() {
   }
 
   private fun openInitialActivity() {
-    LOG.D2(TAG, "openInitialActivity")
+    LOG.D2(TAG_METHOD)
     CoroutineScope(Main).launch {
-      // startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
-      // finish()
+      startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
+      finish()
     }
   }
 }

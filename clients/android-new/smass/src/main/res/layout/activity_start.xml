@@ -39,7 +39,6 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/black"
     android:layout_height="match_parent" >
 
   <ImageView
@@ -49,7 +48,7 @@
       android:layout_centerVertical="true"
       android:contentDescription="Anyplace Logo"
       android:scaleType="centerInside"
-      android:src="@drawable/ic_lash_fire" />
+      android:src="@drawable/logo_lashfire" />
 
   <TextView
       android:id="@+id/startText"
@@ -61,7 +60,7 @@
       android:shadowDy="5"
       android:shadowRadius="5"
       android:text="SMASS"
-      android:textColor="@color/white"
+      android:textColor="@color/colorPrimaryDark"
       android:textSize="50sp"
       android:textStyle="bold" />
 
@@ -75,8 +74,8 @@
       android:shadowDy="5"
       android:shadowRadius="5"
       android:text="Smart Alert System"
-      android:textColor="@color/white_70"
-      android:textSize="18sp"
+      android:textColor="@color/colorPrimaryDark"
+      android:textSize="22sp"
       android:textStyle="italic" />
 
 </RelativeLayout>

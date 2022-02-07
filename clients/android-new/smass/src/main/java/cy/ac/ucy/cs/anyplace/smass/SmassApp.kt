@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.logger
+package cy.ac.ucy.cs.anyplace.smass
 
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
@@ -7,7 +7,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class LoggerApp : AnyplaceApp() {
+class SmassApp : AnyplaceApp() {
   override val navigator = false
   override val logger = true
 

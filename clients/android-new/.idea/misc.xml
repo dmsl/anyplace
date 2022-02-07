@@ -118,7 +118,11 @@
         <entry key="navigator/src/main/res/layout/activity_navigator_old.xml" value="0.3270042194092827" />
         <entry key="navigator/src/main/res/layout/fragment_first.xml" value="0.3004273504273504" />
         <entry key="smass/src/main/res/drawable/ic_lash_fire.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_launcher_foreground.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/logo_lashfire.xml" value="0.2445" />
         <entry key="smass/src/main/res/layout/activity_start.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2445" />
+        <entry key="smass/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1635" />
       </map>
     </option>
   </component>
