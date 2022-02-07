@@ -1,26 +1,27 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-parcelize'  // to send safeArgs between different fragments we must parcelize
-apply plugin: "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.safeargs'
-apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'maven-publish'  // CHECK:PM needed for jitpack.io?
+plugins {
+  id 'com.android.application'
+//  id 'org.jetbrains.kotlin.android'  //  id 'kotlin-android'
+  id 'kotlin-android'
+  id 'kotlin-kapt'
+  id 'dagger.hilt.android.plugin'
+
+  id 'kotlin-parcelize'  // to send safeArgs between different fragments we must parcelize
+  id "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.safeargs'
+}
 
 android {
-  //  compileSdkVersion 29
-  //  buildToolsVersion "30.0.2"
-  compileSdkVersion 31
-  buildToolsVersion "30.0.3"
+  compileSdk 30
 
   defaultConfig {
-    applicationId "cy.ac.ucy.cs.anyplace.logger"
-    minSdkVersion 28
+    applicationId "cy.ac.ucy.cs.anyplace.smass"
+    minSdk 28
     //noinspection OldTargetApi
-    targetSdkVersion 30
-    versionCode 15
-    versionName "4.3.15"
+    targetSdk 30
 
-    // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    versionCode 1
+    versionName "0.0.1"
+
+    // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     // INFO: reads Google Maps API key from secure.properties and
     // puts into the resource: R.string.maps_api_key
@@ -34,24 +35,24 @@ android {
             secureProps.getProperty("SERVER_GOOGLE_OAUTH_CLIENT_ID") ?: "")
   }
 
-  kotlinOptions {
-    jvmTarget = '1.8'
-  }
-
   buildTypes {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
+
   buildFeatures {
     dataBinding true
     viewBinding true
   }
-  packagingOptions {
-    resources {
-      excludes += ['META-INF/DEPENDENCIES']
-    }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = '1.8'
   }
 }
 
@@ -61,7 +62,7 @@ dependencies {
   //// KOTLIN
 //  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
   //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
-  implementation "androidx.core:core-ktx:1.7.0"
+  implementation "androidx.core:core-ktx:1.6.0"
   //// UI NAVIGATION
   implementation "androidx.navigation:navigation-fragment-ktx:$ver_nav"
   implementation "androidx.navigation:navigation-ui-ktx:$ver_nav"
@@ -93,11 +94,18 @@ dependencies {
   implementation 'com.google.android.material:material:1.4.0'
 
   //// DEPENDENCY INJECTION (dagger/hilt)
+  // INFO updated so it can be used in this slightly more up-to-date project
+//  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
+//  classpath "com.google.dagger:hilt-android-gradle-plugin:2.38"
+
+//  kapt "com.google.dagger:hilt-android-compiler:2.35"
+//  implementation "com.google.dagger:hilt-android:2.35"
+//  classpath 'com.google.dagger:hilt-android-gradle-plugin:2.40.5'
   implementation 'com.google.dagger:hilt-android:2.40.5'
   kapt 'com.google.dagger:hilt-compiler:2.40.5'
-  // implementation "com.google.dagger:hilt-android:2.35"
+
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  // kapt "com.google.dagger:hilt-android-compiler:2.35"
+  implementation project(path: ':lib-android')
 
   //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
   //  implementation 'androidx.activity:activity:1.2.0-alpha08'
@@ -119,7 +127,6 @@ dependencies {
   // implementation project(path: ':lib-core')
   implementation project(path: ':lib-android')
   implementation project(path: ':lib-core')
-
 
   // Testing:
   // testImplementation 'junit:junit:4.13'

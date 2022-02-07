@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="lib-android/src/main/res/drawable-xxhdpi/button_confirm.xml" value="0.234" />
+        <entry key="lib-android/src/main/res/drawable-xxhdpi/cv_bottom_sheet_bg.xml" value="0.259" />
+        <entry key="lib-android/src/main/res/drawable-xxhdpi/ic_baseline_add.xml" value="0.175" />
+        <entry key="lib-android/src/main/res/drawable-xxhdpi/ic_baseline_remove.xml" value="0.175" />
+        <entry key="lib-android/src/main/res/drawable-xxhdpi/rectangle.xml" value="0.175" />
         <entry key="lib-android/src/main/res/drawable/arrow_up.xml" value="0.2405" />
         <entry key="lib-android/src/main/res/drawable/arrow_up_disabled.xml" value="0.2465" />
         <entry key="lib-android/src/main/res/drawable/bottom_sheet_cv_logging_bg.xml" value="0.165" />
@@ -43,6 +47,7 @@
         <entry key="lib-android/src/main/res/drawable/ic_floors.xml" value="0.247" />
         <entry key="lib-android/src/main/res/drawable/ic_google_signin.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/ic_hide_password.xml" value="0.2557291666666667" />
+        <entry key="lib-android/src/main/res/drawable/ic_icon_up.xml" value="0.259" />
         <entry key="lib-android/src/main/res/drawable/ic_logo_anyplace_black.xml" value="0.4111111111111111" />
         <entry key="lib-android/src/main/res/drawable/ic_logo_black.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/ic_map.xml" value="0.2405" />
@@ -67,6 +72,8 @@
         <entry key="lib-android/src/main/res/layout-w1240dp/activity_login.xml" value="0.25937081659973227" />
         <entry key="lib-android/src/main/res/layout-w1240dp/bottom_sheet_cv_logging.xml" value="0.25937081659973227" />
         <entry key="lib-android/src/main/res/layout-w936dp/activity_login.xml" value="0.302734375" />
+        <entry key="lib-android/src/main/res/layout-w936dp/tfe_od_activity_camera.xml" value="0.29439890710382516" />
+        <entry key="lib-android/src/main/res/layout-w936dp/tfe_od_camera_connection_fragment_tracking.xml" value="0.29439890710382516" />
         <entry key="lib-android/src/main/res/layout/activity_base_settings.xml" value="0.25" />
         <entry key="lib-android/src/main/res/layout/activity_cv_logger.xml" value="0.335" />
         <entry key="lib-android/src/main/res/layout/activity_login.xml" value="0.4474708171206226" />
@@ -87,6 +94,9 @@
         <entry key="lib-android/src/main/res/layout/settings_base_activity.xml" value="0.31196581196581197" />
         <entry key="lib-android/src/main/res/layout/space_filter_bottom_sheet.xml" value="0.3179347826086957" />
         <entry key="lib-android/src/main/res/layout/space_row_layout.xml" value="0.6835599505562423" />
+        <entry key="lib-android/src/main/res/layout/tfe_od_activity_camera.xml" value="0.16186299081035924" />
+        <entry key="lib-android/src/main/res/layout/tfe_od_camera_connection_fragment_tracking.xml" value="0.3311965811965812" />
+        <entry key="lib-android/src/main/res/layout/tfe_od_layout_bottom_sheet.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/menu/main_menu.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/main_menu_base_settings.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/main_menu_select_building.xml" value="0.4036458333333333" />
@@ -107,6 +117,8 @@
         <entry key="logger/src/main/res/layout/start_screen_layout.xml" value="0.2644927536231884" />
         <entry key="navigator/src/main/res/layout/activity_navigator_old.xml" value="0.3270042194092827" />
         <entry key="navigator/src/main/res/layout/fragment_first.xml" value="0.3004273504273504" />
+        <entry key="smass/src/main/res/drawable/ic_lash_fire.xml" value="0.2445" />
+        <entry key="smass/src/main/res/layout/activity_start.xml" value="0.3311965811965812" />
       </map>
     </option>
   </component>

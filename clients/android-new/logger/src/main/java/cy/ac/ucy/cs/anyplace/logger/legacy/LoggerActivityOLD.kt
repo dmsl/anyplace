@@ -76,6 +76,7 @@ import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.location.*
+import android.location.LocationRequest
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.SensorsMain.IOrientationListener
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.MovementDetector.MovementListener
 import android.os.*
@@ -135,7 +136,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   // private LocationClient mLocationClient; // CLR ?
   // Define an object that holds accuracy and frequency parameters
   // private var mLocationRequest: LocationRequest? = null
-  private lateinit var mLocationRequest: LocationRequest
+  // private lateinit var mLocationRequest: LocationRequest
   private lateinit var gmap: GoogleMap  // TODO: maps need a refresh..
   private var marker: Marker? =null
   // curLocation and mLastLocation?!?
@@ -350,13 +351,13 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     // mLocationRequest = LocationRequest.create()
     // mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     // TODO LOCATION REQUEST
-    mLocationRequest = LocationRequest()
-    // locationRequest.interval = 50000
-    // locationRequest.fastestInterval = 50000
-    mLocationRequest.interval = 2000
-    mLocationRequest.fastestInterval = 1000  // fasted update interval
-    mLocationRequest.smallestDisplacement = 170f //170 m = 0.1 mile
-    mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //according to your app
+    // mLocationRequest = LocationRequest()
+    // // locationRequest.interval = 50000
+    // // locationRequest.fastestInterval = 50000
+    // mLocationRequest.interval = 2000
+    // mLocationRequest.fastestInterval = 1000  // fasted update interval
+    // mLocationRequest.smallestDisplacement = 170f //170 m = 0.1 mile
+    // mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //according to your app
 
     locationCallback = object : LocationCallback() {
       override fun onLocationResult(locationResult: LocationResult?) {
@@ -383,17 +384,17 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   @SuppressLint("MissingPermission")
   private fun startLocationUpdates() {
     LOG.I("startLocationUpdates()")
-    fusedLocationClient.requestLocationUpdates(
-            mLocationRequest,
-            locationCallback,
-            Looper.getMainLooper())
+    // fusedLocationClient.requestLocationUpdates(
+    //         mLocationRequest,
+    //         locationCallback,
+    //         Looper.getMainLooper())
   }
 
   // Stop location updates
   private fun stopLocationUpdates() {
     LOG.I("stopLocationUpdates()")
     // mLocationCallbackConnected remove also this?
-    fusedLocationClient.removeLocationUpdates(mLocationCallback)
+    // fusedLocationClient.removeLocationUpdates(mLocationCallback)
   }
 
 
@@ -719,9 +720,9 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
   override fun onConnected(arg0: Bundle?) {
     LOG.E("onConnected(): runs!!! WHEN? FROM WHERE?")
     // TODO fix this?!
-    mLocationRequest = LocationRequest.create()
-    mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-    mLocationRequest.interval = 1000 // Update location every second
+    // mLocationRequest = LocationRequest.create()
+    // mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+    // mLocationRequest.interval = 1000 // Update location every second
     // checkLocationPermission()
     // CHECK: all places
     // fusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())

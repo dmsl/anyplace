@@ -5,7 +5,7 @@
 * localization, navigation and search inside buildings using ordinary smartphones.
 *
 * Author(s): Lambros Petrou
-* 
+*
 * Supervisor: Demetrios Zeinalipour-Yazti
 *
 * URL: http://anyplace.cs.ucy.ac.cy
@@ -33,17 +33,15 @@
 * DEALINGS IN THE SOFTWARE.
 *
 */
-package cy.ac.ucy.cs.anyplace.logger
+
+package cy.ac.ucy.cs.anyplace.smass
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import android.content.Intent
-import android.view.View
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolov4tflite.DetectorActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolov4tflite.DetectorActivityBase
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -58,7 +56,7 @@ class StartActivity : Activity() {
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.start_screen_layout)
+    setContentView(R.layout.activity_start)
     tvVersion = findViewById<View>(R.id.tvVersion) as TextView
     appInfo.version?.let { tvVersion.text = it }
   }
@@ -74,24 +72,8 @@ class StartActivity : Activity() {
   private fun openInitialActivity() {
     LOG.D2(TAG, "openInitialActivity")
     CoroutineScope(Main).launch {
-
-      startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
-      // startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
-
-      // SAMPLE CODE:
-      // val user = app.dataStoreUser.readUser.first()
-      // if (user.accessToken.isNotBlank()) {
-      //   // TODO if space is selected, then open map directly
-      //   LOG.D2(TAG, "Opening SelectSpace activity")
-      //   startActivity(Intent(this@StartActivity, SelectSpaceActivity::class.java))
-      //   // startActivity(Intent(this@StartFragmentActivity, SelectSpaceFragmentActivity::class.java))
-      // } else {
-      //   LOG.D2(TAG, "Opening Login activity")
-      //   // Start login activity
-      //   startActivity(Intent(this@StartActivity, LoginActivity::class.java))
-      //   // startActivity(Intent(this@StartFragmentActivity, LoginFragmentActivity::class.java))
-      // }
-      finish()
+      // startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
+      // finish()
     }
   }
 }
