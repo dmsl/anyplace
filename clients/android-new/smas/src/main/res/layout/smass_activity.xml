@@ -32,9 +32,7 @@
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
 
-    <!-- BACKGROUND -->
-    <!--    TODO:PM alpha option-->
-
+    <!-- ALERT -->
     <Button
         android:id="@+id/btnAlert"
         android:layout_width="match_parent"
@@ -52,7 +50,7 @@
         app:layout_constraintBottom_toTopOf="@id/button_chat"
         app:layout_constraintVertical_bias="0.7" />
 
-    <!-- Settings Button -->
+    <!-- SETTINGS -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_settings"
         android:layout_width="58dp"
@@ -163,14 +161,6 @@
 
 
 
-    <!-- Settings Button -->
-    <!--    android:insetLeft="0dp"-->
-    <!--    android:insetTop="0dp"-->
-    <!--    android:insetRight="0dp"-->
-    <!--    android:layout_height="88dp"-->
-    <!--    android:insetBottom="0dp"-->
-
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_demoNavigation"
         style="@style/MaterialButtonIcon"
@@ -188,26 +178,36 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="32dp"
-
         />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_find"
-        android:layout_height="88dp"
-        android:layout_width="wrap_content"
-        android:layout_gravity="end"
-        android:layout_margin="8dp"
-        android:elevation="50dp"
-        android:text="@string/find"
-        android:backgroundTint="@color/colorPrimaryDark"
-        app:cornerRadius="30dp"
-        app:icon="@drawable/ic_search"
-        app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        app:iconSize="52dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <ImageView
+        android:id="@+id/iv_logoLashfire"
+        android:layout_width="78dp"
+        android:layout_height="78dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        />
+        android:alpha="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_lashfire_logo"
+        android:contentDescription="Lashfire" />
+
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:id="@+id/button_find"-->
+<!--        android:layout_height="88dp"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_gravity="end"-->
+<!--        android:layout_margin="8dp"-->
+<!--        android:elevation="50dp"-->
+<!--        android:text="@string/find"-->
+<!--        android:backgroundTint="@color/colorPrimaryDark"-->
+<!--        app:cornerRadius="30dp"-->
+<!--        app:icon="@drawable/ic_search"-->
+<!--        app:iconGravity="textStart"-->
+<!--        app:iconPadding="0dp"-->
+<!--        app:iconSize="52dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        />-->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_flir"
@@ -224,7 +224,7 @@
         app:iconPadding="0dp"
         app:iconSize="52dp"
         app:layout_constraintEnd_toStartOf="@id/button_chat"
-        app:layout_constraintStart_toEndOf="@id/button_find"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
@@ -243,6 +243,7 @@
         app:iconPadding="0dp"
         app:iconSize="52dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_flir"
         app:layout_constraintEnd_toEndOf="parent"
         />
 

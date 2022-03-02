@@ -124,11 +124,15 @@
         <entry key="logger/src/main/res/layout/start_screen_layout.xml" value="0.2644927536231884" />
         <entry key="navigator/src/main/res/layout/activity_navigator_old.xml" value="0.3270042194092827" />
         <entry key="navigator/src/main/res/layout/fragment_first.xml" value="0.3004273504273504" />
+        <entry key="smas/src/main/res/drawable/ic_lashfire_logo.xml" value="0.2275" />
+        <entry key="smas/src/main/res/drawable/ic_launcher_foreground.xml" value="0.247" />
+        <entry key="smas/src/main/res/drawable/ic_menu_camera.xml" value="0.2275" />
         <entry key="smas/src/main/res/layout/activity_start.xml" value="0.3197463768115942" />
         <entry key="smas/src/main/res/layout/dialog_main_settings.xml" value="0.3197463768115942" />
         <entry key="smas/src/main/res/layout/dialog_smass__main_settings.xml" value="0.16186299081035924" />
         <entry key="smas/src/main/res/layout/smass_activity.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2445" />
+        <entry key="smas/src/main/res/xml/preferences_chat.xml" value="0.3197463768115942" />
         <entry key="smass/src/main/res/drawable/bottom_nav_selector.xml" value="0.2445" />
         <entry key="smass/src/main/res/drawable/ic_baseline_mark_unread_chat_alt_24.xml" value="0.2445" />
         <entry key="smass/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.2445" />

@@ -225,7 +225,7 @@
       android:id="@+id/button_about"
       android:layout_marginStart="0dp"
       android:layout_marginTop="0dp"
-      android:text="About SMASS"
+      android:text="About SMAS"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/divider_other"

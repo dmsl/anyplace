@@ -48,7 +48,7 @@
       android:layout_centerVertical="true"
       android:contentDescription="Anyplace Logo"
       android:scaleType="centerInside"
-      android:src="@drawable/logo_lashfire" />
+      android:src="@drawable/logo_lashfire_bg_white" />
 
   <TextView
       android:id="@+id/startText"

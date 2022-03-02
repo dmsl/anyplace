@@ -2,13 +2,14 @@ package cy.ac.ucy.cs.anyplace.smas.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.dataStoreCvNavigation
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.buttonUtils
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
@@ -23,15 +24,17 @@ import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SmasActivity : CvMapActivity(), OnMapReadyCallback {
 
-  // PROVIDE TO BASE CLASS [CameraActivity]:
+  // PROVIDE TO BASE CLASS [CvMapActivity]:
   override val layout_activity: Int get() = R.layout.smass_activity
   override val id_bottomsheet: Int get() = R.id.bottom_sheet_cvmap
   override val id_gesture_layout: Int get() = R.id.gesture_layout
+  override val id_gmap: Int get() = R.id.mapView
 
   @Suppress("UNCHECKED_CAST")
   override val view_model_class: Class<DetectorViewModel> =
@@ -42,35 +45,51 @@ class SmasActivity : CvMapActivity(), OnMapReadyCallback {
   private lateinit var VM: SmasViewModel
 
   private lateinit var btnChat: Button
-  private lateinit var btnFind: Button
   private lateinit var btnFlir: Button
   private lateinit var btnSettings: Button
   private lateinit var btnAlert: Button
   private lateinit var btnLocalization: Button
 
+  /** When prefsNav have been async loaded */
+  private var prefsReady = false
+
   override fun postCreate() {
     super.postCreate()
+    LOG.D2()
 
     VM = _vm as SmasViewModel
-    LOG.D2(TAG_METHOD, "")
-
     setupButtonsAndUi()
     setupCollectors()
   }
 
+  override fun onResume() {
+    super.onResume()
+    LOG.D2()
+  }
+
+
+  // LEFTHERE:
+  // start API scaffolding:
+  // in the smass app
+  // port, ip, defaults, etc
+  // extend const?
+
+  // override fun onMapReady(googleMap: GoogleMap) {
+  //   super.onMapReady(googleMap)
+  // }
+
    override fun setupButtonsAndUi() {
      super.setupButtonsAndUi() // TODO floor selector
+     LOG.D2()
 
      setupButtonSettings()
      setupButtonLocalization()
      setupButtonChat()
-     setupButtonFind()
      setupButtonFlir()
-     LOG.D(TAG_METHOD)
   }
 
   private fun setupCollectors() {
-    LOG.E()
+    LOG.D()
     collectLocation()
     // TODO collectChatMessages()
     // TODO collectLocalizationStatus(): localizing or not localizing
@@ -99,9 +118,6 @@ class SmasActivity : CvMapActivity(), OnMapReadyCallback {
       MainSmassSettingsDialog.SHOW(supportFragmentManager, MainSmassSettingsDialog.FROM_MAIN)
     }
   }
-
-
-
 
   // TODO
   private suspend fun collectLocalizationStatus() {
@@ -185,22 +201,15 @@ class SmasActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
     btnChat.setOnClickListener {
-      // TODO
     }
   }
 
-  private fun setupButtonFind() {
-    LOG.D()
-    btnFind= findViewById(R.id.button_find)
-    btnFind.setOnClickListener {
-      FindDialog.SHOW(supportFragmentManager, VM.repository)
-    }
-  }
-
-  override fun onResume() {
-    super.onResume()
-    LOG.E(TAG, "onResume")
-    // readPrefsAndContinueSetup() // CHECK: specific for this?
-  }
-
+  // TODO search: removed for now
+  // private fun setupButtonFind() {
+  //   LOG.D()
+  //   btnFind= findViewById(R.id.button_find)
+  //   btnFind.setOnClickListener {
+  //     FindDialog.SHOW(supportFragmentManager, VM.repository)
+  //   }
+  // }
 }

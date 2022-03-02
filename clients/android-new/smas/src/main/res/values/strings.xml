@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">SMAS</string>
   <string name="title_activity_main">MainActivity</string>
   <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -20,11 +20,21 @@
   <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="find">Find</string>
   <string name="user">User</string>
+
   <string name="logout">Logout</string>
   <string name="chat">Chat</string>
   <string name="server">Server</string>
+  <string name="chat_server">Chat Server</string>
   <string name="computer_vision">Computer Vision</string>
   <string name="miscellaneous">Miscellaneous</string>
   <string name="cv_localization">CV Localization</string>
   <string name="settings">Settings</string>
+
+  <!-- TODO:PM:PROTOTYPE -->
+  <!-- TODO: move in smass-->
+  <string name="default_pref_chat_server_host">ap.cs.ucy.ac.cy/smass</string>
+  <string name="default_pref_chat_server_protocol">https</string>
+  <string name="default_chat_server_access_token">CHAT_BEARER_TOKEN</string>
+  <string name="default_pref_chat_server_port">443</string>
+
 </resources>

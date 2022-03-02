@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <PreferenceCategory app:title="@string/chat_server">
+
+    <EditTextPreference
+        app:key="pref_chat_server_host"
+        app:title="@string/server_host_url_title"
+        app:defaultValue="@string/default_pref_chat_server_host"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        app:key="pref_chat_server_protocol"
+        app:defaultValue="https"
+        app:entries="@array/server_protocol_entries"
+        app:entryValues="@array/server_protocol_values"
+        app:title="@string/server_protocol_title"
+        app:useSimpleSummaryProvider="true" />
+
+    <!--app:key="pref_server_port"-->
+    <EditTextPreference
+        app:key="pref_chat_server_port"
+        app:title="@string/server_port_title"
+        app:defaultValue="@string/default_pref_chat_server_port"
+        app:useSimpleSummaryProvider="true" />
+
+    <Preference
+        app:key="pref_server_version"
+        app:title="@string/connection_status"
+        />
+
+  </PreferenceCategory>
+
+<!-- TODO: DataStore to bind with XML -->
+<!-- TODO: SettingsActivity: to bind with DataStore+XML-->
+<!-- TODO: Bind with Retrofit2 -->
+
+</PreferenceScreen>
