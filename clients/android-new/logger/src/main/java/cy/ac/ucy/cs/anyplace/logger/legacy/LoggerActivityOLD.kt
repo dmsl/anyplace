@@ -359,25 +359,25 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     // mLocationRequest.smallestDisplacement = 170f //170 m = 0.1 mile
     // mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY //according to your app
 
-    locationCallback = object : LocationCallback() {
-      override fun onLocationResult(locationResult: LocationResult?) {
-        LOG.D2("onLocationResult()")
-        if(locationResult==null) {
-          LOG.D2("Location: Update: <null>")
-          return
-        }
-        if (locationResult.locations.isNotEmpty()) {
-          val location = locationResult.lastLocation
-          // mLastLocation = location // either set this here OK... make it asynchronous..
-
-          val prettyLoc = LocationUtils.prettyLocation(location, applicationContext)
-          LOG.D2("Location: Update: $prettyLoc")
-          updateLocation(location)
-        } else {
-          LOG.D2("Location: Update: <empty>")
-        }
-      }
-    }
+    // locationCallback = object : LocationCallback() {
+    //   override fun onLocationResult(locationResult: LocationResult?) {
+    //     LOG.D2("onLocationResult()")
+    //     if(locationResult==null) {
+    //       LOG.D2("Location: Update: <null>")
+    //       return
+    //     }
+    //     if (locationResult.locations.isNotEmpty()) {
+    //       val location = locationResult.lastLocation
+    //       // mLastLocation = location // either set this here OK... make it asynchronous..
+    //
+    //       val prettyLoc = LocationUtils.prettyLocation(location, applicationContext)
+    //       LOG.D2("Location: Update: $prettyLoc")
+    //       updateLocation(location)
+    //     } else {
+    //       LOG.D2("Location: Update: <empty>")
+    //     }
+    //   }
+    // }
   }
 
   // Start location updates
@@ -681,11 +681,11 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     } else {
       // Google Play services was not available for some reason
       if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-        GooglePlayServicesUtil.getErrorDialog(
-                resultCode,
-                this,
-                PLAY_SERVICES_RESOLUTION_REQUEST
-        ).show()
+        // GooglePlayServicesUtil.getErrorDialog(
+        //         resultCode,
+        //         this,
+        //         PLAY_SERVICES_RESOLUTION_REQUEST
+        // ).show()
       } else {
         Log.i("AnyplaceNavigator", "This device is not supported.")
         finish()
@@ -713,7 +713,7 @@ class LoggerActivityOLD : AppCompatActivity(), OnSharedPreferenceChangeListener,
     } else {
       // If no resolution is available, display a dialog to the
       // user with the error.
-      GooglePlayServicesUtil.getErrorDialog(connectionResult.errorCode, this, 0).show()
+      // GooglePlayServicesUtil.getErrorDialog(connectionResult.errorCode, this, 0).show()
     }
   }
 

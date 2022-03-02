@@ -72,6 +72,7 @@
         <entry key="lib-android/src/main/res/layout-w1240dp/activity_login.xml" value="0.25937081659973227" />
         <entry key="lib-android/src/main/res/layout-w1240dp/bottom_sheet_cv_logging.xml" value="0.25937081659973227" />
         <entry key="lib-android/src/main/res/layout-w936dp/activity_login.xml" value="0.302734375" />
+        <entry key="lib-android/src/main/res/layout-w936dp/example_bottom_sheet_cv.xml" value="0.2701502732240437" />
         <entry key="lib-android/src/main/res/layout-w936dp/tfe_od_activity_camera.xml" value="0.29439890710382516" />
         <entry key="lib-android/src/main/res/layout-w936dp/tfe_od_camera_connection_fragment_tracking.xml" value="0.29439890710382516" />
         <entry key="lib-android/src/main/res/layout/activity_base_settings.xml" value="0.25" />
@@ -83,12 +84,16 @@
         <entry key="lib-android/src/main/res/layout/activity_settings_server.xml" value="0.266304347826087" />
         <entry key="lib-android/src/main/res/layout/bottom_sheet_cv_logging.xml" value="0.33" />
         <entry key="lib-android/src/main/res/layout/bottom_sheet_space_filter.xml" value="0.30932971014492755" />
+        <entry key="lib-android/src/main/res/layout/cv_map_activity.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/layout/dialog_clear_caches.xml" value="0.31196581196581197" />
         <entry key="lib-android/src/main/res/layout/dialog_logger_settings.xml" value="0.25" />
         <entry key="lib-android/src/main/res/layout/dialog_main_settings.xml" value="0.37228260869565216" />
         <entry key="lib-android/src/main/res/layout/dialog_pick_model.xml" value="0.31196581196581197" />
+        <entry key="lib-android/src/main/res/layout/example_bottom_sheet_cv.xml" value="0.3311965811965812" />
+        <entry key="lib-android/src/main/res/layout/example_cvmap.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/layout/fragment_spaces_list.xml" value="0.2869791666666667" />
         <entry key="lib-android/src/main/res/layout/fragment_spaces_map.xml" value="0.2869791666666667" />
+        <entry key="lib-android/src/main/res/layout/main_fragment.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/layout/placeholder_space_row_layout.xml" value="0.23697916666666666" />
         <entry key="lib-android/src/main/res/layout/settings_activity.xml" value="0.24010416666666667" />
         <entry key="lib-android/src/main/res/layout/settings_base_activity.xml" value="0.31196581196581197" />
@@ -97,6 +102,7 @@
         <entry key="lib-android/src/main/res/layout/tfe_od_activity_camera.xml" value="0.16186299081035924" />
         <entry key="lib-android/src/main/res/layout/tfe_od_camera_connection_fragment_tracking.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/layout/tfe_od_layout_bottom_sheet.xml" value="0.3311965811965812" />
+        <entry key="lib-android/src/main/res/layout/ui_floor_selector.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/menu/main_menu.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/main_menu_base_settings.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/main_menu_select_building.xml" value="0.4036458333333333" />
@@ -107,6 +113,7 @@
         <entry key="lib-android/src/main/res/menu/unified_options_menu.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/zRM_main_menu_base_settings.xml" value="0.140625" />
         <entry key="lib-android/src/main/res/xml/base_preferences.xml" value="0.4036458333333333" />
+        <entry key="lib-android/src/main/res/xml/preferences_cv_navigation.xml" value="0.3197463768115942" />
         <entry key="lib-android/src/main/res/xml/preferences_logger.xml" value="0.28854166666666664" />
         <entry key="lib-android/src/main/res/xml/preferences_logger_cv.xml" value="0.31196581196581197" />
         <entry key="lib-android/src/main/res/xml/preferences_server.xml" value="0.31196581196581197" />
@@ -117,14 +124,38 @@
         <entry key="logger/src/main/res/layout/start_screen_layout.xml" value="0.2644927536231884" />
         <entry key="navigator/src/main/res/layout/activity_navigator_old.xml" value="0.3270042194092827" />
         <entry key="navigator/src/main/res/layout/fragment_first.xml" value="0.3004273504273504" />
+        <entry key="smas/src/main/res/layout/activity_start.xml" value="0.3197463768115942" />
+        <entry key="smas/src/main/res/layout/dialog_main_settings.xml" value="0.3197463768115942" />
+        <entry key="smas/src/main/res/layout/dialog_smass__main_settings.xml" value="0.16186299081035924" />
+        <entry key="smas/src/main/res/layout/smass_activity.xml" value="0.3311965811965812" />
+        <entry key="smas/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/bottom_nav_selector.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_baseline_mark_unread_chat_alt_24.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.2445" />
         <entry key="smass/src/main/res/drawable/ic_lash_fire.xml" value="0.2445" />
         <entry key="smass/src/main/res/drawable/ic_launcher_foreground.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_menu_camera.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_menu_gallery.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_menu_slideshow.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.2445" />
         <entry key="smass/src/main/res/drawable/logo_lashfire.xml" value="0.2445" />
         <entry key="smass/src/main/res/drawable/logo_lashfire_black.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/navigation_view_colored.xml" value="0.2445" />
+        <entry key="smass/src/main/res/drawable/side_nav_bar.xml" value="0.2445" />
         <entry key="smass/src/main/res/layout/activity_cvmap.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/layout/activity_main.xml" value="0.3311965811965812" />
         <entry key="smass/src/main/res/layout/activity_smass.xml" value="0.3311965811965812" />
         <entry key="smass/src/main/res/layout/activity_start.xml" value="0.3311965811965812" />
         <entry key="smass/src/main/res/layout/bottom_sheet_cv.xml" value="0.1576923076923077" />
+        <entry key="smass/src/main/res/layout/content_main.xml" value="0.31965811965811963" />
+        <entry key="smass/src/main/res/layout/dialog_chat.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/layout/fragment_chat.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/layout/fragment_gallery.xml" value="0.31965811965811963" />
+        <entry key="smass/src/main/res/layout/fragment_patrol.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/layout/smass_activity.xml" value="0.13686131386861314" />
+        <entry key="smass/src/main/res/menu/activity_main_drawer.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/menu/bottom_nav_menu.xml" value="0.3311965811965812" />
+        <entry key="smass/src/main/res/menu/main.xml" value="0.3311965811965812" />
         <entry key="smass/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2445" />
         <entry key="smass/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1635" />
       </map>

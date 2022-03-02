@@ -13,7 +13,7 @@
       <module name="AnyplaceClients.lib-android-thermal" target="11" />
       <module name="AnyplaceClients.logger" target="11" />
       <module name="AnyplaceClients.navigator" target="11" />
-      <module name="AnyplaceClients.smass" target="11" />
+      <module name="AnyplaceClients.smas" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

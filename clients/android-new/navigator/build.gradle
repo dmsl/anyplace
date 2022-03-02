@@ -1,20 +1,14 @@
-//plugins {
-//  id 'com.android.application'
-//  id 'kotlin-android'
-//  id 'androidx.navigation.safeargs'
-//}
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'  // to send safeArgs between different fragments we must parcelize
 apply plugin: "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.safeargs'
 apply plugin: 'dagger.hilt.android.plugin'
-//apply plugin: 'maven-publish'  // CHECK:PM needed for jitpack.io?
+apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 
 android {
-  compileSdkVersion 30
+  compileSdkVersion 31
   // buildToolsVersion "29.0.2" // CLR?
 
   defaultConfig {
@@ -26,14 +20,6 @@ android {
     versionName "4.3.6"
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-    // INFO: reads Google Maps API key from secure.properties and
-    // puts into the resource: R.string.maps_api_key
-    def secureProps = new Properties()
-    if (file("../secure.properties").exists()) {
-      file("../secure.properties")?.withInputStream { secureProps.load(it) }
-    }
-    resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
   }
 
   buildTypes {
@@ -46,90 +32,32 @@ android {
     dataBinding true
     viewBinding true
   }
-    packagingOptions {
-        resources {
-            excludes += ['META-INF/DEPENDENCIES']
-        }
+  packagingOptions {
+    resources {
+      excludes += ['META-INF/DEPENDENCIES']
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = '1.8'
+  }
 
-// CLR?
-//  packagingOptions {
-//    exclude 'kotlin/internal/internal.kotlin_builtins'
-//    exclude 'kotlin/reflect/reflect.kotlin_builtins'
-//    exclude 'okhttp3/internal/publicsuffix/NOTICE'
-//    exclude 'kotlin/kotlin.kotlin_builtins'
-//    exclude 'kotlin/coroutines/coroutines.kotlin_builtins'
-//    exclude 'META-INF/DEPENDENCIES'
-//    exclude 'META-INF/LICENSE'
-//    exclude 'META-INF/LICENSE.txt'
-//    exclude 'META-INF/license.txt'
-//    exclude 'META-INF/NOTICE'
-//    exclude 'META-INF/NOTICE.txt'
-//    exclude 'META-INF/notice.txt'
-//    exclude 'META-INF/ASL2.0'
-//    exclude 'kotlin/collections/collections.kotlin_builtins'
-//    exclude 'kotlin/annotation/annotation.kotlin_builtins'
-//    exclude("META-INF/*.kotlin_module")
-//    exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
-//    exclude 'kotlin/ranges/ranges.kotlin_builtins'
-//  }
 }
 
 dependencies {
-//  implementation 'androidx.appcompat:appcompat:1.2.0'
-//  implementation 'com.google.android.gms:play-services-maps:17.0.0'
-//  implementation 'com.google.android.gms:play-services-location:18.0.0'
-//  implementation 'com.google.android.gms:play-services-auth:19.0.0'
-//  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-//  implementation 'androidx.preference:preference:1.1.1'
-//  implementation 'com.google.android.material:material:1.4.0'
-//
-//   implementation 'com.google.maps.android:android-maps-utils:2.2.0'
-//
-//  implementation 'com.google.android.gms:play-services-maps:17.0.0'
-//  implementation 'com.google.android.gms:play-services-location:18.0.0'
-//
-//  implementation 'com.squareup.okhttp3:okhttp:4.3.1'
-//  // implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1' // CLR
-//
-//  // implementation 'androidx.activity:activity:1.2.0-alpha08' CLR
-//
-//
-//  /***                Anyplace libraries:                           ***/
-//  // CHECK is lib-core needed here?!
-//  //  implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'      // JitPack
-//  //  implementation 'com.github.dmsl:anyplace-lib-android:4.0.2'   // JitPack
-//  // During development, local inclusion of the libraries can be used.
-//  // This requires pulling the all submodules (see README.md)
-//   implementation project(path: ':lib-core')
-//    implementation project(path: ':lib-android')
-//    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-//    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-//
-//    // Testing:
-//  //  testImplementation 'junit:junit:4.13'
-//  //  androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-//  //  androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-
-
   // CORE
   //// KOTLIN
-//  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
+  //  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
   //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
   implementation "androidx.core:core-ktx:1.6.0"
   //// UI NAVIGATION
   implementation "androidx.navigation:navigation-fragment-ktx:$ver_nav"
   implementation "androidx.navigation:navigation-ui-ktx:$ver_nav"
 
-  //CHECK:PM CLR all deps that are already in lib?
+  // CHECK:PM CLR all deps that are already in lib?
   //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
   //  implementation 'androidx.core:core-ktx:1.3.2'
 

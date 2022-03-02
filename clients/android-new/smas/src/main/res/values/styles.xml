@@ -1,0 +1,15 @@
+<resources>
+
+  <style name="Widget.Theme.AnyplaceClients.ButtonBar.Fullscreen" parent="">
+    <item name="android:background">@color/black_overlay</item>
+    <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+  </style>
+
+  <style name="ChatDialogTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowBackground">@color/transparent</item>
+    <item name="android:windowIsFloating">true</item>
+    <item name="android:windowMinWidthMajor">90%</item>
+    <item name="android:windowMinWidthMinor">90%</item>
+  </style>
+</resources>

@@ -10,4 +10,4 @@ include ':lib-android'
 // APPLICATIONS
 include ':navigator'
 include ':logger'
-include ':smass'
+include ':smas'

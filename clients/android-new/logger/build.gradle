@@ -5,6 +5,7 @@ apply plugin: 'kotlin-parcelize'  // to send safeArgs between different fragment
 apply plugin: "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.safeargs'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'maven-publish'  // CHECK:PM needed for jitpack.io?
+apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 android {
   //  compileSdkVersion 29
@@ -21,17 +22,6 @@ android {
     versionName "4.3.15"
 
     // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-
-    // INFO: reads Google Maps API key from secure.properties and
-    // puts into the resource: R.string.maps_api_key
-    // Read the API key from ./secure.properties into R.string.maps_api_key
-    def secureProps = new Properties()
-    if (file("../secure.properties").exists()) {
-      file("../secure.properties")?.withInputStream { secureProps.load(it) }
-    }
-    resValue "string", "maps_api_key", (secureProps.getProperty("MAPS_API_KEY") ?: "")
-    resValue "string", "server_google_oauth_client_id", (
-            secureProps.getProperty("SERVER_GOOGLE_OAUTH_CLIENT_ID") ?: "")
   }
 
   kotlinOptions {
@@ -79,14 +69,12 @@ dependencies {
   implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
 
   //  implementation 'com.google.android.gms:play-services-auth:19.0.0' // CLR?
-  // FusedLocation provider (coarse/fine grain)
-  //  implementation 'com.google.android.gms:play-services-location:17.1.0' // CLR?
   // GOOGLE SERVICES
-  //// FusedLocation (coarse/fine grain)
-  implementation 'com.google.android.gms:play-services-location:18.0.0'
   //// GOOGLE MAPS & UTILS
-  implementation 'com.google.android.gms:play-services-maps:17.0.1'
-  implementation 'com.google.maps.android:android-maps-utils:2.2.2' // updated from 0.3 !
+  implementation 'com.google.android.gms:play-services-maps:18.0.2'
+  implementation 'com.google.maps.android:android-maps-utils:2.2.2'
+  //// FusedLocation (coarse/fine grain)
+  implementation 'com.google.android.gms:play-services-location:19.0.1'
 
   implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
   implementation 'androidx.preference:preference-ktx:1.1.1'
@@ -101,7 +89,6 @@ dependencies {
 
   //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
   //  implementation 'androidx.activity:activity:1.2.0-alpha08'
-  implementation 'com.google.android.gms:play-services-location:18.0.0'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
   implementation 'com.squareup.okhttp3:okhttp:4.3.1'
@@ -109,11 +96,9 @@ dependencies {
   implementation 'com.squareup.retrofit2:retrofit:2.9.0'
   implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
-  //  implementation 'com.google.maps.android:android-maps-utils:2.2.0'
-  //  implementation(name: 'androidsdk-release', ext: 'aar') // CLR
 
   /***                Anyplace libraries:                           ***/
-  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'           // JitPack
+  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'        // JitPack
   //  implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'   // JitPack
   // local inclusion: requires pulling the all submodules (see README.md)
   // implementation project(path: ':lib-core')

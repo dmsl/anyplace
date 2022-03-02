@@ -18,11 +18,15 @@ buildscript {
 
   dependencies {  // No app dependencies here (those in individual modules)
     classpath "com.android.tools.build:gradle:${ver_android_gradle_plugin}"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$ver_kotlin"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
     // for Navigation Component
     classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$ver_nav"
     // for Dependency injection
     classpath "com.google.dagger:hilt-android-gradle-plugin:$ver_hilt"
+
+
+    // for gmaps sdk password
+    classpath "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.0"
   }
 }
 
