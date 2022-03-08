@@ -12,4 +12,10 @@
   <color name="light_blue_A200">#FF40C4FF</color>
   <color name="light_blue_A400">#FF00B0FF</color>
   <color name="black_overlay">#66000000</color>
+
+  <color name="lash_red_dark">#FFD8171B</color>
+  <color name="lash_red">#FFD8171B</color>
+  <color name="lash_blue_dark">#FF01407A</color>
+  <color name="lash_blue">#FF0063BE</color>
+  <color name="lash_blue_light">#FF1F93FD</color>
 </resources>

@@ -39,6 +39,7 @@
         <entry key="lib-android/src/main/res/drawable/dialog_background.xml" value="0.20572916666666666" />
         <entry key="lib-android/src/main/res/drawable/ic_anyplace.xml" value="0.3963541666666667" />
         <entry key="lib-android/src/main/res/drawable/ic_anyplace_logo_black.xml" value="0.3963541666666667" />
+        <entry key="lib-android/src/main/res/drawable/ic_arrow_up.xml" value="0.1835" />
         <entry key="lib-android/src/main/res/drawable/ic_baseline_camera.xml" value="0.2405" />
         <entry key="lib-android/src/main/res/drawable/ic_baseline_emoji_emotions_24.xml" value="0.2866666666666667" />
         <entry key="lib-android/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.21979166666666666" />
@@ -119,17 +120,35 @@
         <entry key="lib-android/src/main/res/xml/preferences_server.xml" value="0.31196581196581197" />
         <entry key="lib-android/src/main/res/xml/prefs_main.xml" value="0.28854166666666664" />
         <entry key="lib-android/src/main/res/xml/root_preferences.xml" value="0.4036458333333333" />
+        <entry key="logger/src/main/res/drawable/button_navigate.xml" value="0.141" />
+        <entry key="logger/src/main/res/drawable/button_sel.xml" value="0.141" />
+        <entry key="logger/src/main/res/drawable/button_wifirecord.xml" value="0.141" />
+        <entry key="logger/src/main/res/layout/activity_about.xml" value="0.3311965811965812" />
         <entry key="logger/src/main/res/layout/activity_logger_old.xml" value="0.3270042194092827" />
+        <entry key="logger/src/main/res/layout/activity_search_poi.xml" value="0.3311965811965812" />
+        <entry key="logger/src/main/res/layout/activity_select_building.xml" value="0.3311965811965812" />
+        <entry key="logger/src/main/res/layout/activity_unifiednav.xml" value="0.3311965811965812" />
+        <entry key="logger/src/main/res/layout/info_window.xml" value="0.3311965811965812" />
+        <entry key="logger/src/main/res/layout/main_choose_file_or_directory.xml" value="0.3311965811965812" />
         <entry key="logger/src/main/res/layout/queried_pois_item_1_searchactivity.xml" value="0.3179347826086957" />
+        <entry key="logger/src/main/res/layout/queried_pois_item_1_searchbox.xml" value="0.3311965811965812" />
+        <entry key="logger/src/main/res/layout/settings_activity.xml" value="0.3311965811965812" />
         <entry key="logger/src/main/res/layout/start_screen_layout.xml" value="0.2644927536231884" />
         <entry key="navigator/src/main/res/layout/activity_navigator_old.xml" value="0.3270042194092827" />
         <entry key="navigator/src/main/res/layout/fragment_first.xml" value="0.3004273504273504" />
+        <entry key="smas/src/main/res/drawable-v24/lash_button.xml" value="0.1835" />
         <entry key="smas/src/main/res/drawable/ic_lashfire_logo.xml" value="0.2275" />
         <entry key="smas/src/main/res/drawable/ic_launcher_foreground.xml" value="0.247" />
         <entry key="smas/src/main/res/drawable/ic_menu_camera.xml" value="0.2275" />
+        <entry key="smas/src/main/res/font/lashfonts.xml" value="0.35147679324894515" />
+        <entry key="smas/src/main/res/layout/activity_smas.xml" value="0.3311965811965812" />
+        <entry key="smas/src/main/res/layout/activity_smas_login.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/layout/activity_start.xml" value="0.3197463768115942" />
         <entry key="smas/src/main/res/layout/dialog_main_settings.xml" value="0.3197463768115942" />
+        <entry key="smas/src/main/res/layout/dialog_settings_smas.xml" value="0.3311965811965812" />
+        <entry key="smas/src/main/res/layout/dialog_settings_smass.xml" value="0.375" />
         <entry key="smas/src/main/res/layout/dialog_smass__main_settings.xml" value="0.16186299081035924" />
+        <entry key="smas/src/main/res/layout/smas_activity.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/layout/smass_activity.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2445" />
         <entry key="smas/src/main/res/xml/preferences_chat.xml" value="0.3197463768115942" />
@@ -164,6 +183,11 @@
         <entry key="smass/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.1635" />
       </map>
     </option>
+  </component>
+  <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="dagger.hilt.android.HiltAndroidApp" />
+    </list>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

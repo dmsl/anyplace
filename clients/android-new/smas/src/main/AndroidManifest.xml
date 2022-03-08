@@ -18,14 +18,22 @@
       tools:ignore="LockedOrientationActivity">
 
     <activity
-        android:name=".ui.SmasActivity"
+        android:name=".ui.SmasMainActivity"
         android:screenOrientation="portrait"
         android:theme="@style/AppTheme.Compat.ObjectDetection"
         android:exported="true">
     </activity>
     <activity
+        android:name=".ui.settings.SettingsChatActivity"
+        android:exported="true"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.Compat"
+        android:label="Chat Settings" />
+    <activity
         android:name=".ui.StartActivity"
         android:screenOrientation="portrait"
+
+        android:theme="@style/AppTheme.Compat"
         android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -33,6 +41,12 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+    <activity
+        android:name=".ui.user.SmasLoginActivity"
+        android:exported="true"
+        android:theme="@style/AppTheme.Compat.Fullscreen"
+        android:screenOrientation="portrait"
+        android:label="SMAS Login" />
   </application>
   <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
   <!--

@@ -8,9 +8,6 @@ import dagger.hilt.android.HiltAndroidApp
 @HiltAndroidApp
 class NavigatorApp : AnyplaceApp() {
 
-  override val navigator = false
-  override val logger = true
-
   override fun onCreate() {
     super.onCreate()
     LOG.D2(TAG, "onCreate")

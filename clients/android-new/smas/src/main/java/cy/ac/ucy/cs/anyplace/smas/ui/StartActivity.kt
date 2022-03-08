@@ -42,14 +42,16 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolo.tflite.example.DetectorActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import cy.ac.ucy.cs.anyplace.smas.R
+import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
+import cy.ac.ucy.cs.anyplace.smas.ui.user.SmasLoginActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class StartActivity : Activity() {
@@ -78,7 +80,18 @@ class StartActivity : Activity() {
     CoroutineScope(Main).launch {
       // startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
       // startActivity(Intent(this@StartActivity, CvMapActivity::class.java))
-      startActivity(Intent(this@StartActivity, SmasActivity::class.java))
+      // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+
+      // authenticated users go straight to the Main Smas activity
+      val chatUser = appSmas.chatUserDS.readUser.first()
+      if (chatUser.sessionid.isNotBlank()) {
+        LOG.D2(TAG, "Opening activity: SmasMain")
+        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+      } else {
+        LOG.D2(TAG, "Opening activity: Login")
+        startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))
+      }
+
       finish()
     }
   }

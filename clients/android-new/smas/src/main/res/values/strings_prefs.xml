@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--  PREFERENCE KEYS (PK) -->
+  <string name="pref_chat_server">pref_chat_server</string>
+  <string name="pref_chat_server_host">pref_chat_server_host</string>
+  <string name="pref_chat_server_protocol">pref_chat_server_protocol</string>
+  <string name="pref_chat_server_access_token">pref_chat_server_access_token</string>
+  <string name="pref_chat_server_port">pref_chat_server_port</string>
+  <string name="pref_chat_server_version">pref_chat_server_version</string>
+
+  <!-- DEFAULT PREF VALUES -->
+  <string name="default_pref_chat_server_host">ap.cs.ucy.ac.cy</string>
+  <string name="default_pref_chat_server_protocol">https</string>
+  <string name="default_pref_chat_server_access_token">CHAT_BEARER_TOKEN</string>
+  <string name="default_pref_chat_server_port">443</string>
+</resources>

@@ -45,7 +45,7 @@
         android:id="@+id/aboutwindow"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@android:color/white"
         android:orientation="vertical"
         android:stretchColumns="0" >
 

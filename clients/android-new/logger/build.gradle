@@ -8,8 +8,6 @@ apply plugin: 'maven-publish'  // CHECK:PM needed for jitpack.io?
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 android {
-  //  compileSdkVersion 29
-  //  buildToolsVersion "30.0.2"
   compileSdkVersion 31
   buildToolsVersion "30.0.3"
 
@@ -21,7 +19,7 @@ android {
     versionCode 15
     versionName "4.3.15"
 
-    // testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+     testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
   }
 
   kotlinOptions {
@@ -46,29 +44,25 @@ android {
 }
 
 dependencies {
-
-  // CORE
-  //// KOTLIN
-//  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$ver_kotlin"
-  //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
+  // KOTLIN
   implementation "androidx.core:core-ktx:1.7.0"
+
+  // Internal libraries
   //// UI NAVIGATION
   implementation "androidx.navigation:navigation-fragment-ktx:$ver_nav"
   implementation "androidx.navigation:navigation-ui-ktx:$ver_nav"
+  implementation 'androidx.appcompat:appcompat:1.4.1'
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+  implementation 'androidx.preference:preference-ktx:1.2.0'
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+  implementation 'com.google.android.material:material:1.5.0'
 
-  //CHECK:PM CLR all deps that are already in lib?
-  //  implementation "org.jetbrains.kotlin:kotlin-stdlib:$ver_kotlin"
-  //  implementation 'androidx.core:core-ktx:1.3.2'
-
-  // Internal libraries
-  implementation 'androidx.appcompat:appcompat:1.3.1'
   //// COROUTINES
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$ver_coroutines"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_coroutines"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle"
   implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
 
-  //  implementation 'com.google.android.gms:play-services-auth:19.0.0' // CLR?
   // GOOGLE SERVICES
   //// GOOGLE MAPS & UTILS
   implementation 'com.google.android.gms:play-services-maps:18.0.2'
@@ -76,38 +70,26 @@ dependencies {
   //// FusedLocation (coarse/fine grain)
   implementation 'com.google.android.gms:play-services-location:19.0.1'
 
-  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-  implementation 'androidx.preference:preference-ktx:1.1.1'
-  implementation 'com.google.android.material:material:1.4.0'
-
   //// DEPENDENCY INJECTION (dagger/hilt)
   implementation 'com.google.dagger:hilt-android:2.40.5'
   kapt 'com.google.dagger:hilt-compiler:2.40.5'
-  // implementation "com.google.dagger:hilt-android:2.35"
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  // kapt "com.google.dagger:hilt-android-compiler:2.35"
 
-  //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
-  //  implementation 'androidx.activity:activity:1.2.0-alpha08'
-  implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-
-  implementation 'com.squareup.okhttp3:okhttp:4.3.1'
-  // Retrofit
+  // RETROFIT
   implementation 'com.squareup.retrofit2:retrofit:2.9.0'
   implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+  implementation 'com.squareup.okhttp3:okhttp:4.3.1'
 
-
-  /***                Anyplace libraries:                           ***/
-  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'        // JitPack
-  //  implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'   // JitPack
-  // local inclusion: requires pulling the all submodules (see README.md)
-  // implementation project(path: ':lib-core')
+  // ANYPLACE LIBRARIES:
+  //// REMOTE (from libraries published on JitPack)
+  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
+  // implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
+  //// LOCAL: requires pulling the all submodules (see README.md)
   implementation project(path: ':lib-android')
   implementation project(path: ':lib-core')
 
-
   // Testing:
-  // testImplementation 'junit:junit:4.13'
-  // androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-  // androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+   testImplementation 'junit:junit:4.13.2'
+   androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+   androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

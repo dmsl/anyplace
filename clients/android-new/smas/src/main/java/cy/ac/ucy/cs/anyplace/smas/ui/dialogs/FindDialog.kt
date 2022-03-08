@@ -9,13 +9,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import cy.ac.ucy.cs.anyplace.lib.android.data.Repository
+import cy.ac.ucy.cs.anyplace.lib.android.data.RepoAP
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogChatBinding
 
 
 class FindDialog(
-        private val repo: Repository,
+        private val repo: RepoAP,
         // TODO: create a new DataStore here and pass it
         // private val dataStoreCv: DataStoreCv
         ): DialogFragment() {
@@ -29,7 +29,7 @@ class FindDialog(
      */
     fun SHOW(
             fragmentManager: FragmentManager,
-            repo: Repository,
+            repo: RepoAP,
             // dataStoreCv: DataStoreCv,
             // SH: SpaceHelper?,
             // FSH: FloorsHelper?,

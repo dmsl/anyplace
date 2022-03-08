@@ -18,23 +18,19 @@
   <string name="dummy_content">DUMMY\nCONTENT</string>
   <!-- TODO: Remove or change this placeholder text -->
   <string name="hello_blank_fragment">Hello blank fragment</string>
-  <string name="find">Find</string>
-  <string name="user">User</string>
 
-  <string name="logout">Logout</string>
   <string name="chat">Chat</string>
   <string name="server">Server</string>
   <string name="chat_server">Chat Server</string>
-  <string name="computer_vision">Computer Vision</string>
-  <string name="miscellaneous">Miscellaneous</string>
-  <string name="cv_localization">CV Localization</string>
-  <string name="settings">Settings</string>
-
-  <!-- TODO:PM:PROTOTYPE -->
-  <!-- TODO: move in smass-->
-  <string name="default_pref_chat_server_host">ap.cs.ucy.ac.cy/smass</string>
-  <string name="default_pref_chat_server_protocol">https</string>
-  <string name="default_chat_server_access_token">CHAT_BEARER_TOKEN</string>
-  <string name="default_pref_chat_server_port">443</string>
+  <string name="about_lashfire">About LASHFIRE</string>
+  <string name="poweredby_ap">Powered by Anyplace</string>
+  <string name="smas_verbose">Smart Alert System</string>
+  <string name="smas_version">version: %1$s</string>
+  <string name="pref_chat_user">pref_chat_user</string>
+  <string name="lashfire">Lashfire</string>
+  <string name="smart_alert_system">Smart Alert System</string>
+  <string name="smas">SMAS</string>
+  <string name="anyplace_settings">Anyplace Settings</string>
+  <string name="chat_settings">Chat Settings</string>
 
 </resources>
