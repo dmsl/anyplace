@@ -83,11 +83,13 @@ class MainSmasSettingsDialog : DialogFragment() {
   }
 
   private fun setup() {
-    setupLocalizationSettings()
+    setupMapSettings()
     setupChatUser()
     setupChatSettings()
-    setupAnyplaceLink()
+
+    // misc:
     setupLashfireLink()
+    // setupAnyplaceLink()
     setupVersion()
   }
 
@@ -103,8 +105,8 @@ class MainSmasSettingsDialog : DialogFragment() {
     }
   }
 
-  private fun setupLocalizationSettings() {
-    binding.btnCvLocalization.setOnClickListener {
+  private fun setupMapSettings() {
+    binding.btnMapSettings.setOnClickListener {
       startActivity(Intent(requireActivity(), SettingsNavigationActivity::class.java))
     }
   }
@@ -117,12 +119,12 @@ class MainSmasSettingsDialog : DialogFragment() {
     }
   }
 
-  private fun setupAnyplaceLink() {
-    binding.btnAboutAnyplace.setOnClickListener {
-      startActivity(Intent(Intent.ACTION_VIEW,
-              Uri.parse(getString(R.string.url_anyplace_about))))
-    }
-  }
+  // private fun setupAnyplaceLink() {
+  //   binding.btnAboutAnyplace.setOnClickListener {
+  //     startActivity(Intent(Intent.ACTION_VIEW,
+  //             Uri.parse(getString(R.string.url_anyplace_about))))
+  //   }
+  // }
 
   private fun setupLashfireLink() {
     binding.btnAboutLashfire.setOnClickListener {

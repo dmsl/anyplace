@@ -65,6 +65,7 @@
         <entry key="lib-android/src/main/res/drawable/ic_vessel.xml" value="0.247" />
         <entry key="lib-android/src/main/res/drawable/marker_objects.xml" value="0.2405" />
         <entry key="lib-android/src/main/res/drawable/marker_objects_stored.xml" value="0.3252136752136752" />
+        <entry key="lib-android/src/main/res/drawable/marker_user.xml" value="0.1835" />
         <entry key="lib-android/src/main/res/drawable/rectangle_warning.xml" value="0.3252136752136752" />
         <entry key="lib-android/src/main/res/drawable/rounded_dialog.xml" value="0.15677083333333333" />
         <entry key="lib-android/src/main/res/drawable/settings_dialog_button.xml" value="0.21979166666666666" />
@@ -114,6 +115,7 @@
         <entry key="lib-android/src/main/res/menu/unified_options_menu.xml" value="0.3802083333333333" />
         <entry key="lib-android/src/main/res/menu/zRM_main_menu_base_settings.xml" value="0.140625" />
         <entry key="lib-android/src/main/res/xml/base_preferences.xml" value="0.4036458333333333" />
+        <entry key="lib-android/src/main/res/xml/preferences_cv_logger.xml" value="0.3311965811965812" />
         <entry key="lib-android/src/main/res/xml/preferences_cv_navigation.xml" value="0.3197463768115942" />
         <entry key="lib-android/src/main/res/xml/preferences_logger.xml" value="0.28854166666666664" />
         <entry key="lib-android/src/main/res/xml/preferences_logger_cv.xml" value="0.31196581196581197" />
@@ -144,6 +146,7 @@
         <entry key="smas/src/main/res/layout/activity_smas.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/layout/activity_smas_login.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/layout/activity_start.xml" value="0.3197463768115942" />
+        <entry key="smas/src/main/res/layout/dialog_chat.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/layout/dialog_main_settings.xml" value="0.3197463768115942" />
         <entry key="smas/src/main/res/layout/dialog_settings_smas.xml" value="0.3311965811965812" />
         <entry key="smas/src/main/res/layout/dialog_settings_smass.xml" value="0.375" />

@@ -78,7 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        tools:visibility="invisible"
+        tools:visibility="visible"
         app:constraint_referenced_ids="button_floorUp,button_floorDown,button_selectedFloor,textView_titleFloor" />
 
     <com.google.android.material.button.MaterialButton
@@ -88,7 +88,6 @@
         app:layout_constraintBottom_toTopOf="@+id/button_selectedFloor"
         app:layout_constraintEnd_toEndOf="parent"
         style="@style/MaterialButtonIcon"
-
         android:translationY="20dp"
         android:text=""
         app:cornerRadius="50dp"
@@ -96,7 +95,6 @@
         app:iconPadding="0dp"
         app:iconSize="38dp"
         />
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_floorDown"
@@ -125,7 +123,7 @@
         android:translationY="10dp"
         android:elevation="42dp"
         android:fontFamily="sans-serif-black"
-        android:text="5"
+        tools:text="5"
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"

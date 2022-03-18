@@ -25,30 +25,30 @@ import java.net.UnknownServiceException
  * - the SafeCall of the version endpoint and it's handling:
  */
 class SmasVersion(
-        private val retrofitHolderChat: RetrofitHolderChat,
         private val app: SmasApp,
-        private val repoChat: RepoChat,
-        private val versionResp: MutableStateFlow<NetworkResult<ChatVersion>>
-) {
+        private val RH: RetrofitHolderChat,
+        private val repoChat: RepoChat) {
+
+  val resp: MutableStateFlow<NetworkResult<ChatVersion>> = MutableStateFlow(NetworkResult.Unset())
 
   private val C by lazy { CHAT(app.applicationContext) }
 
-  suspend fun displaySafeCall(versionPreferences: Preference?) {
-    LOG.D4(TAG_METHOD, "base url:: ${retrofitHolderChat.baseURL}")
-    versionPreferences?.summary = "reaching server .."
+  suspend fun safeCall(versionPref: Preference?) {
+    LOG.D4(TAG_METHOD, "base url: ${RH.baseURL}")
+    versionPref?.summary = "reaching server .."
 
     var msg = ""
     var exception : Exception? = null
     var versionColor : ForegroundColorSpan? = null
 
-    if (app.hasInternetConnection()) {
+    if (app.hasInternet()) {
       try {
         val response = repoChat.remote.getVersion()
-        versionResp.value = handleVersionResponse(response)
-        val version = versionResp.value.data
+        resp.value = handleVersionResponse(response)
+        val version = resp.value.data
         if (version != null) {
           msg = "${version.rows.version} (connected: ${GenUtils.prettyTime()})"
-          versionPreferences?.icon = null
+          versionPref?.icon = null
         } else {
           exception = Exception("Failed to get version.")
         }
@@ -56,10 +56,10 @@ class SmasVersion(
         LOG.E(TAG, e)
         exception = e
         e.let {
-          if (e.message?.contains(C.EXCEPTION_MSG_HTTP_FORBIDEN) == true) {
+          if (e.message?.contains(C.ERR_MSG_HTTP_FORBIDEN) == true) {
             exception = Exception(C.MSG_ERR_ONLY_SSL)
           }
-          versionResp.value = NetworkResult.Error(e.message)
+          resp.value = NetworkResult.Error(e.message)
         }
       } catch(e: Exception) {
         LOG.E(TAG, "EXCEPTION: ${e.javaClass}")
@@ -69,24 +69,24 @@ class SmasVersion(
           else -> e
         }
 
-        versionResp.value = NetworkResult.Error(exception?.message)
+        resp.value = NetworkResult.Error(exception?.message)
       }
     } else {
       exception = Exception("No internet connection.")
     }
     exception?.let { it ->
       msg = it.message.toString()
-      versionPreferences?.setIcon(R.drawable.ic_sad)
+      versionPref?.setIcon(R.drawable.ic_sad)
       LOG.E(msg)
       LOG.E(it)
       versionColor = ForegroundColorSpan(app.getColor(R.color.redDark))
     } ?: run {
-      versionPreferences?.setIcon(R.drawable.ic_happy)
+      versionPref?.setIcon(R.drawable.ic_happy)
     }
 
     val spannableMsg = SpannableString(msg)
     versionColor?.let { spannableMsg.setSpan(versionColor, 0, spannableMsg.length, 0) }
-    versionPreferences?.summary = spannableMsg
+    versionPref?.summary = spannableMsg
   }
 
   private fun handleVersionResponse(response: Response<ChatVersion>): NetworkResult<ChatVersion> {

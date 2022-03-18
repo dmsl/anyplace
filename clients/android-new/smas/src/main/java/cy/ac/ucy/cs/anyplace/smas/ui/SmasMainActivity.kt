@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Button
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
@@ -20,8 +21,11 @@ import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.FindDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.user.SmasLoginActivity
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -72,6 +76,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   // VIEW MODELS
   /** extends [CvMapViewModel] */
   private lateinit var VM: SmasMainViewModel
+  /** Async handling of SMAS Messages and Alerts */
+  private lateinit var VMchat: SmasChatViewModel
 
   private lateinit var btnChat: Button
   private lateinit var btnFlir: Button
@@ -79,21 +85,14 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private lateinit var btnAlert: Button
   private lateinit var btnLocalization: Button
 
-  /** When prefsNav have been async loaded */
-  private var prefsReady = false
-
   override fun postCreate() {
     super.postCreate()
     LOG.D2()
 
     VM = _vm as SmasMainViewModel
-
+    VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
+    setupPulling()
     setupCollectors()
-  }
-
-  override fun onResume() {
-    super.onResume()
-    LOG.D2()
   }
 
   /**
@@ -109,21 +108,77 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
      setupButtonFlir()
   }
 
+  /**
+   * Pulling data (maybe periodically) from the SMAS backend
+   */
+  private fun setupPulling() {
+    VM.pullUserLocationsLOOP()
+    VMchat.pullChatMsgsONCE()
+  }
+
+  /**
+   * Async Collection of remotely fetched data
+   * TODO local cache (SQLITE)
+   */
   private fun setupCollectors() {
     LOG.D()
-    collectLocation()
-    collectUser()
-    // TODO:
-    // collectKnnUserLocations()
-    // collectChatMessages()
+    collectLoadedFloors()
+    collectLoggedInUser()
+
+    VMchat.collectMessages()
+
+    pullAndCollectUserLocationFAKE() // react to user location updates TEST method
+
+    // NOTE: [collectOtherUsersLocations] is done on floorLoaded
+
     // collectUserLocalizationStatus(): localizing or not localizing
+  }
+
+  /**
+   * Runs only once, when any of the floors is loaded for the first time.
+   */
+  private fun onFloorLoaded() {
+    LOG.D2(TAG_METHOD, "Floor: ${VM.floor.value}")
+
+    collectOtherUsersLocations()
+  }
+
+  var firstFloorLoaded = false
+  /**
+   * Observes when the initial floor will be loaded, and runs a method
+   */
+  private fun collectLoadedFloors() {
+    lifecycleScope.launch {
+      VM.floor.collect { floor ->
+        if (floor == null) return@collect
+        if (firstFloorLoaded) {
+          cancel()
+        } else {
+          onFloorLoaded()
+          firstFloorLoaded = true
+        }
+      }
+    }
+  }
+
+  /**
+   * React to user location updates
+   */
+  private fun collectOtherUsersLocations() {
+    lifecycleScope.launch(Dispatchers.IO) {
+      if (VM.floor.value == null) {
+        LOG.E(TAG_METHOD, "Floor is null")
+        return@launch
+      }
+      VM.userLocations.collect(VM, mapH)
+    }
   }
 
   /**
    * Reacts to updates on [ChatUser]'s login status:
    * Only authenticated users are allowed to use this activity
    */
-  private fun collectUser() {
+  private fun collectLoggedInUser() {
     // only logged in users are allowed on this activity:
     lifecycleScope.launch {
       appSmas.chatUserDS.readUser.collect { user ->
@@ -145,6 +200,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
+  /**
+   * TODO this could toggle the heavyweight DNN engine
+   */
   private fun setupButtonLocalization() {
     btnFlir = findViewById(R.id.button_flir)
     btnFlir.setOnClickListener {
@@ -178,9 +236,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   }
 
   // TODO ADAPT this to get all user locations..
-  private fun collectLocation() {
+  private fun pullAndCollectUserLocationFAKE() {
     LOG.E()
-    lifecycleScope.launch{
+    lifecycleScope.launch {
       setupFakeLocation()
       VM.location.collect { result ->
         when (result) {

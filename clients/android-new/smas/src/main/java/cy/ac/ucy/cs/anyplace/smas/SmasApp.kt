@@ -13,7 +13,9 @@ import javax.inject.Inject
 @HiltAndroidApp
 class SmasApp : AnyplaceApp() {
 
+  /** SMAS Chat preferences */
   @Inject lateinit var chatPrefsDS: ChatPrefsDataStore
+  /** Logged-in SMAS user */
   @Inject lateinit var chatUserDS: ChatUserDataStore
   @Inject lateinit var retrofitHolderChat: RetrofitHolderChat
 

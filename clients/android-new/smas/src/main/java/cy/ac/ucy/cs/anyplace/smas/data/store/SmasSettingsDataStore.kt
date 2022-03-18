@@ -35,7 +35,8 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
   private val validKeys = setOf(
           C.PREF_CHAT_SERVER_PROTOCOL,
           C.PREF_CHAT_SERVER_HOST,
-          C.PREF_CHAT_SERVER_PORT)
+          C.PREF_CHAT_SERVER_PORT,
+  )
 
   // CHECK: is this needed?
   // these are not actual preferences. just placeholders to display some information

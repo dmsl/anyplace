@@ -16,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * SMAS Logged in user DataStore
+ * DataStore for the Logged-in SMAS user
  */
 @Singleton
 class ChatUserDataStore @Inject constructor(@ApplicationContext private val ctx: Context) {

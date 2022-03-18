@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import cy.ac.ucy.cs.anyplace.lib.R
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.cv.tensorflow.legacy.gnk.utils.Detector
 import cy.ac.ucy.cs.anyplace.lib.android.data.LoginFormState
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
@@ -16,11 +15,10 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUserLoginForm
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUserLoginResp
+import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginReq
+import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginResp
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -42,26 +40,26 @@ class SmasLoginViewModel @Inject constructor(
   val loginFormState: LiveData<LoginFormState> = _loginForm
 
   //// RETROFIT
-  val userResp: MutableStateFlow<NetworkResult<ChatUserLoginResp>> = MutableStateFlow(NetworkResult.Unset())
+  val resp: MutableStateFlow<NetworkResult<ChatLoginResp>> = MutableStateFlow(NetworkResult.Unset())
 
-  fun login(form: ChatUserLoginForm) = viewModelScope.launch { loginUserSafeCall(form) }
+  fun login(req: ChatLoginReq) = viewModelScope.launch { loginUserSafeCall(req) }
 
-  private suspend fun loginUserSafeCall(form: ChatUserLoginForm) {
+  private suspend fun loginUserSafeCall(req: ChatLoginReq) {
     LOG.D(TAG_METHOD)
-    userResp.value = NetworkResult.Loading()
+    resp.value = NetworkResult.Loading()
     var exception : Exception? = null
-      if (app.hasInternetConnection()) {
+      if (app.hasInternet()) {
       try {
-        val response = repo.remote.userLogin(form)
-        userResp.value=NetworkResult.Unset()
-        userResp.value = handleLoginResponse(response)
+        val response = repo.remote.userLogin(req)
+        resp.value=NetworkResult.Unset()
+        resp.value = handleLoginResponse(response)
 
-        if (userResp.value is NetworkResult.Error) {
-         exception = Exception(userResp.value.message)
-        } else if (userResp.value is NetworkResult.Success
-                && userResp.value.data?.status == "err") {
+        if (resp.value is NetworkResult.Error) {
+         exception = Exception(resp.value.message)
+        } else if (resp.value is NetworkResult.Success
+                && resp.value.data?.status == "err") {
           // login failed
-          exception = Exception(userResp.value.data?.descr)
+          exception = Exception(resp.value.data?.descr)
         }
       } catch(e: Exception) {
         exception = e
@@ -69,10 +67,10 @@ class SmasLoginViewModel @Inject constructor(
         handleSafecallError(msg, e)
         e.let {
           when {
-            e.message?.contains(C.EXCEPTION_MSG_HTTP_FORBIDEN) == true -> {
+            e.message?.contains(C.ERR_MSG_HTTP_FORBIDEN) == true -> {
               exception = Exception(C.MSG_ERR_ONLY_SSL)
             }
-            e.message?.contains(C.EXCEPTION_MSG_ILLEGAL_STATE) == true -> {
+            e.message?.contains(C.ERR_MSG_ILLEGAL_STATE) == true -> {
               exception = Exception(C.MSG_ERR_ILLEGAL_STATE)
             }
             e.message?.contains(C.EXCEPTION_MSG_NPE) == true -> {
@@ -89,27 +87,27 @@ class SmasLoginViewModel @Inject constructor(
     exception?.let { it ->
       val msg = it.message.toString()
       LOG.E(TAG, msg)
-      userResp.value = NetworkResult.Error(exception?.message)
+      resp.value = NetworkResult.Error(exception?.message)
     }
   }
 
   private fun handleSafecallError(msg: String, e: Exception) {
     if (e is IllegalStateException) {
-      userResp.value = NetworkResult.Error(e.javaClass.name)
+      resp.value = NetworkResult.Error(e.javaClass.name)
     } else {
-      userResp.value = NetworkResult.Error(msg)
+      resp.value = NetworkResult.Error(msg)
     }
     LOG.E(msg)
     LOG.E(TAG, e)
   }
 
-  private fun handleLoginResponse(response: Response<ChatUserLoginResp>):
-          NetworkResult<ChatUserLoginResp> {
+  private fun handleLoginResponse(response: Response<ChatLoginResp>):
+          NetworkResult<ChatLoginResp> {
     return when {
       response.message().toString().contains("timeout") -> NetworkResult.Error("Timeout.")
       !response.isSuccessful-> {
         val rawErrorResponse = response.errorBody()!!.string()
-        val errorReponse = Gson().fromJson(rawErrorResponse, ChatUserLoginResp::class.java)
+        val errorReponse = Gson().fromJson(rawErrorResponse, ChatLoginResp::class.java)
         NetworkResult.Error(errorReponse.descr)
       }
       response.isSuccessful -> {

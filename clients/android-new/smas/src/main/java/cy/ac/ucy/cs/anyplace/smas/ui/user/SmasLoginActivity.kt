@@ -21,7 +21,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.buttonUtils.changeBackgroundBu
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUserLoginForm
+import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginReq
 import cy.ac.ucy.cs.anyplace.smas.databinding.ActivitySmasLoginBinding
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.SmasMainActivity
@@ -92,7 +92,7 @@ class SmasLoginActivity : BaseActivity() {
             val user = username.text.toString()
             val pass = password.text.toString()
             setLoginButtonLoading()
-            VM.login(ChatUserLoginForm(user, pass))
+            VM.login(ChatLoginReq(user, pass))
           }
         }
         false
@@ -104,7 +104,7 @@ class SmasLoginActivity : BaseActivity() {
         val user = username.text.toString()
         val pass = password.text.toString()
         setLoginButtonLoading()
-        VM.login(ChatUserLoginForm(user, pass))
+        VM.login(ChatLoginReq(user, pass))
       }
 
       setOnTouchListener { _, event ->
@@ -149,7 +149,7 @@ class SmasLoginActivity : BaseActivity() {
   @SuppressLint("SetTextI18n")
   private fun observeLoginResponse() {
     lifecycleScope.launch {
-      VM.userResp.collect { response ->
+      VM.resp.collect { response ->
        unsetLoginButtonLoading()
         // observe(this@SmasLoginActivity) { response ->
         LOG.D3(TAG_METHOD, "Resp: ${response.message}")
@@ -162,9 +162,6 @@ class SmasLoginActivity : BaseActivity() {
             // Store user in datastore
             val user = response.data
             user?.let {
-              binding.textViewError.setTextColor(getColor(R.color.lash_blue_dark))
-              binding.textViewError.text = "Success!"
-              binding.textViewError.visibility = View.VISIBLE
               appSmas.chatUserDS.storeUser(ChatUser(user.uid, user.sessionid))
               openLoggedInActivity()
             }
@@ -207,10 +204,10 @@ class SmasLoginActivity : BaseActivity() {
     // done for a different account..
     LOG.W(TAG_METHOD)
     // val demoUser = ChatUserLoginForm(BuildConfig.LASH_DEMO_LOGIN_UID, BuildConfig.LASH_DEMO_LOGIN_PASS)
-    val demoUser = ChatUserLoginForm("username", "password")
+    val demoUser = ChatLoginReq("username", "password")
     VM.login(demoUser)
     lifecycleScope.launch {
-      VM.userResp.collect {
+      VM.resp.collect {
         LOG.D(TAG, "Logged in user: ${it.data?.sessionid}")
         LOG.D(TAG, "descr: ${it.data?.descr}")
         if (it is NetworkResult.Error) {

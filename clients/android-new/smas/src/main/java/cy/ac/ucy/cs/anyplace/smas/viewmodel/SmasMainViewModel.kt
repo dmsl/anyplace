@@ -5,26 +5,30 @@ import android.widget.Toast
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.preference.Preference
-import cy.ac.ucy.cs.anyplace.lib.android.consts.CONST
 import cy.ac.ucy.cs.anyplace.lib.android.data.RepoAP
+import cy.ac.ucy.cs.anyplace.lib.android.data.store.CvNavDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.MiscDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.android.utils.network.RetrofitHolderAP
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
-import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatVersion
-import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.SmasUserLocations
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.SmasVersion
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+enum class SmasMode {
+  alert,
+  normal,
+}
 
 /**
  * Extends [CvMapViewModel]:
@@ -36,12 +40,40 @@ class SmasMainViewModel @Inject constructor(
         repoAP: RepoAP,
         private val repoChat: RepoChat,
         chatPrefsDS: ChatPrefsDataStore,
+        navDS: CvNavDataStore,
         private val miscDS: MiscDataStore,
         private val retrofitHolderChat: RetrofitHolderChat,
         retrofitHolderAP: RetrofitHolderAP):
-        CvMapViewModel(application, repoAP, retrofitHolderAP) {
+        CvMapViewModel(application, navDS, repoAP, retrofitHolderAP) {
 
   private val C by lazy { CHAT(app.applicationContext) }
+
+  // PREFERENCES
+  val prefsChat = chatPrefsDS.read
+
+  override fun prefWindowLocalizationMillis(): Int {
+    // TODO:PM modify properly for Smas?
+    return C.DEFAULT_PREF_CVLOG_WINDOW_LOCALIZATION_SECONDS.toInt()
+  }
+
+  //// RETROFIT
+  private val version by lazy { SmasVersion(app as SmasApp, retrofitHolderChat, repoChat) }
+  val userLocations by lazy { SmasUserLocations(app as SmasApp, retrofitHolderChat, repoChat) }
+
+  /**
+   * [p]: the Chat [Preference] row that will be replaced with the result of the version call
+   */
+  fun displayVersion(p: Preference?) = viewModelScope.launch { version.safeCall(p) }
+
+  /** In a loop: keep getting user locations */
+  fun pullUserLocationsLOOP()  {
+    viewModelScope.launch {
+      while (true) {
+        delay(navDS.first().locationRefresh.toLong()*1000)
+        userLocations.getSC()
+      }
+    }
+  }
 
   ///////////////////////////////////////
   ///////////////////////////////////////
@@ -77,26 +109,5 @@ class SmasMainViewModel @Inject constructor(
   ///////////////////////////////////////
   ///////////////////////////////////////
   ///////////////////////////////////////
-
-  // PREFERENCES
-  val prefsChat = chatPrefsDS.read
-
-  override fun prefWindowLocalizationMillis(): Int {
-    // TODO:PM modify properly for Smas?
-    return C.DEFAULT_PREF_CVLOG_WINDOW_LOCALIZATION_SECONDS.toInt()
-  }
-
-  private val utilVersion by lazy { SmasVersion(retrofitHolderChat, app as SmasApp, repoChat, versionResp) }
-
-  /**
-   * [prefRow]: the Chat [Preference] row that will be replaced with the result of the version call
-   */
-  fun displayBackendVersion(prefRow: Preference?) =
-          viewModelScope.launch { utilVersion.displaySafeCall(prefRow) }
-
-  //// RETROFIT
-  ////// Flows
-  private val versionResp: MutableStateFlow<NetworkResult<ChatVersion>> = MutableStateFlow(NetworkResult.Unset())
-  private val userLocations: MutableStateFlow<NetworkResult<UserLocations>> = MutableStateFlow(NetworkResult.Unset())
 
 }

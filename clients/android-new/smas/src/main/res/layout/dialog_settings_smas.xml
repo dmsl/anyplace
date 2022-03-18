@@ -165,45 +165,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider_settings" />
 
+    <Button
+        android:id="@+id/btn_settings_chat"
+        app:icon="@drawable/ic_lashfire_logo"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:text="@string/chat_settings"
+        app:layout_constraintTop_toBottomOf="@+id/tv_titleSettings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/SettingsButton"
+        app:layout_constraintVertical_bias="0.0"
+        app:backgroundTint="@null" />
 
     <Button
-        android:id="@+id/btn_cvLocalization"
-        app:icon="@drawable/ic_settings_cv"
+        android:id="@+id/btn_mapSettings"
+        app:icon="@drawable/ic_map"
         android:layout_marginTop="0dp"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
-        android:text="@string/cv_localization"
+        android:text="@string/map_settings"
         style="@style/SettingsButton"
-        app:layout_constraintTop_toBottomOf="@+id/tv_titleSettings"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btn_settings_chat"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        app:icon="@drawable/ic_chat"
-        android:text="@string/chat_settings"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_cvLocalization"
-        style="@style/SettingsButton"
-        app:layout_constraintVertical_bias="0.0"
-        app:backgroundTint="@null" />
-
-    <Button
-        android:id="@+id/btn_settings_server"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        app:icon="@drawable/ic_settings_server"
-        android:text="@string/anyplace_settings"
-        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_settings_chat"
-        style="@style/SettingsButton"
-        app:layout_constraintVertical_bias="0.0"
-        app:backgroundTint="@null" />
+        />
+
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_settings_server"-->
+<!--        android:layout_marginStart="0dp"-->
+<!--        android:layout_marginTop="0dp"-->
+<!--        app:icon="@drawable/ic_settings_server"-->
+<!--        android:text="@string/anyplace_settings"-->
+<!--        android:enabled="false"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/btn_settings_chat"-->
+<!--        style="@style/SettingsButton"-->
+<!--        app:layout_constraintVertical_bias="0.0"-->
+<!--        app:backgroundTint="@null" />-->
 
     <!-- DIVIDER -->
     <View
@@ -217,32 +218,32 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_settings_server"
+        app:layout_constraintTop_toBottomOf="@+id/btn_mapSettings"
         app:layout_constraintBottom_toTopOf="@id/btn_aboutLashfire"
         app:layout_constraintVertical_bias="0.0" />
 
-    <Button
-        android:id="@+id/btn_aboutAnyplace"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        app:icon="@drawable/ic_anyplace"
-        android:text="@string/poweredby_ap"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider_other"
-        style="@style/SettingsButton"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginBottom="20dp" />
+<!--    <Button-->
+<!--        android:id="@+id/btn_aboutAnyplace"-->
+<!--        android:layout_marginStart="0dp"-->
+<!--        android:layout_marginTop="0dp"-->
+<!--        app:icon="@drawable/ic_anyplace"-->
+<!--        android:text="@string/poweredby_ap"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/divider_other"-->
+<!--        style="@style/SettingsButton"-->
+<!--        app:layout_constraintVertical_bias="0.0"-->
+<!--        android:layout_marginBottom="20dp" />-->
 
     <Button
         android:id="@+id/btn_aboutLashfire"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:text="@string/about_lashfire"
-        app:icon="@drawable/ic_lashfire_logo"
+        app:icon="@drawable/ic_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_aboutAnyplace"
+        app:layout_constraintTop_toBottomOf="@+id/divider_other"
         style="@style/SettingsButton"
         app:layout_constraintVertical_bias="0.0"
         android:layout_marginBottom="20dp" />

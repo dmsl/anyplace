@@ -1,33 +1,13 @@
 package cy.ac.ucy.cs.anyplace.smas.data.models
 
 import com.google.gson.annotations.SerializedName
+import cy.ac.ucy.cs.anyplace.lib.models.UserLocation
 
 data class UserLocations(
-    @SerializedName("rows")
+        @SerializedName("rows")
     val rows: List<UserLocation>,
-    @SerializedName("status")
+        @SerializedName("status")
     val status: String,
-    @SerializedName("uid")
+        @SerializedName("uid")
     val uid: String
-) {
-  data class UserLocation(
-          @SerializedName("alert")
-          val alert: Int,
-          @SerializedName("buid")
-          val buid: String,
-          @SerializedName("deck")
-          val deck: Int,
-          @SerializedName("servertime")
-          val servertime: String,
-          @SerializedName("time")
-          val time: Int,
-          @SerializedName("timestr")
-          val timestr: String,
-          @SerializedName("uid")
-          val uid: String,
-          @SerializedName("x")
-          val x: Double,
-          @SerializedName("y")
-          val y: Double
-  )
-}
+)

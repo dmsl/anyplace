@@ -46,15 +46,29 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="@color/lash_blue_dark"
-        android:textSize="48sp"
+        android:textSize="32sp"
         android:textAllCaps="true"
         android:fontFamily="@font/microgramma"
         android:textStyle="bold"
-        android:text="@string/smas"
+        android:text="@string/lash_fire"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/btnSettings"
         app:layout_constraintBottom_toBottomOf="@id/btnSettings"
+        />
+
+    <TextView
+        android:id="@+id/tvSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="@color/lash_blue_dark"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text="@string/smas_verbose"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
         />
 
     <ImageView
@@ -67,7 +81,7 @@
         android:translationY="-40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
         app:srcCompat="@drawable/ic_lashfire_logo" />
 
     <Button
