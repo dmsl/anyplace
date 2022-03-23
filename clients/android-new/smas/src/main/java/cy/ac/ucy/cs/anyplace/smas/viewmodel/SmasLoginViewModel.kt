@@ -42,9 +42,9 @@ class SmasLoginViewModel @Inject constructor(
   //// RETROFIT
   val resp: MutableStateFlow<NetworkResult<ChatLoginResp>> = MutableStateFlow(NetworkResult.Unset())
 
-  fun login(req: ChatLoginReq) = viewModelScope.launch { loginUserSafeCall(req) }
+  fun login(req: ChatLoginReq) = viewModelScope.launch { safeCall(req) }
 
-  private suspend fun loginUserSafeCall(req: ChatLoginReq) {
+  private suspend fun safeCall(req: ChatLoginReq) {
     LOG.D(TAG_METHOD)
     resp.value = NetworkResult.Loading()
     var exception : Exception? = null
@@ -52,7 +52,7 @@ class SmasLoginViewModel @Inject constructor(
       try {
         val response = repo.remote.userLogin(req)
         resp.value=NetworkResult.Unset()
-        resp.value = handleLoginResponse(response)
+        resp.value = handleResponse(response)
 
         if (resp.value is NetworkResult.Error) {
          exception = Exception(resp.value.message)
@@ -64,7 +64,7 @@ class SmasLoginViewModel @Inject constructor(
       } catch(e: Exception) {
         exception = e
         val msg = "Login failed"
-        handleSafecallError(msg, e)
+        handleException(msg, e)
         e.let {
           when {
             e.message?.contains(C.ERR_MSG_HTTP_FORBIDEN) == true -> {
@@ -91,7 +91,7 @@ class SmasLoginViewModel @Inject constructor(
     }
   }
 
-  private fun handleSafecallError(msg: String, e: Exception) {
+  private fun handleException(msg: String, e: Exception) {
     if (e is IllegalStateException) {
       resp.value = NetworkResult.Error(e.javaClass.name)
     } else {
@@ -101,7 +101,7 @@ class SmasLoginViewModel @Inject constructor(
     LOG.E(TAG, e)
   }
 
-  private fun handleLoginResponse(response: Response<ChatLoginResp>):
+  private fun handleResponse(response: Response<ChatLoginResp>):
           NetworkResult<ChatLoginResp> {
     return when {
       response.message().toString().contains("timeout") -> NetworkResult.Error("Timeout.")

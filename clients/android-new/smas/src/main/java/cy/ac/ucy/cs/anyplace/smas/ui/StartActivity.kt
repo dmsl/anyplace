@@ -84,8 +84,9 @@ class StartActivity : Activity() {
 
       // authenticated users go straight to the Main Smas activity
       val chatUser = appSmas.chatUserDS.readUser.first()
-      if (chatUser.sessionid.isNotBlank()) {
+      if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
+        LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
         startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
       } else {
         LOG.D2(TAG, "Opening activity: Login")

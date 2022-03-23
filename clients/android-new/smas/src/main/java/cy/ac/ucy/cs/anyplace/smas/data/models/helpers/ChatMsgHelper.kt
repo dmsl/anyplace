@@ -8,25 +8,26 @@ import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 
 /**
+ * TODO:ATH
  * Extra functionality on top of the [ChatMsg] data class.
  * TODO: rename to data the encapsualting class of all helpers
  */
 class ChatMsgHelper(val ctx: Context,
                     val repo: RepoChat,
-                    val data: ChatMsg) {
+                    val obj: ChatMsg) {
 
-  override fun toString(): String = Gson().toJson(data, ChatMsg::class.java)
+  override fun toString(): String = Gson().toJson(obj, ChatMsg::class.java)
 
   companion object {
     const val TP_TXT = 1
     const val TP_IMG= 2
-    const val TP_ALERT= 3
-    const val TP_4= 4 // TODO:DZ
+    const val TP_LOCATION= 3
+    const val TP_4= 4 // TODO:DZ was alert. now unused.
 
     const val STP_TXT = "txt"
     const val STP_IMG= "img"
-    const val STP_ALERT= "alert" // TODO Alert is better as a flag.
-    const val STP_4= "tp4"
+    const val STP_LOCATION= "loc" // TODO Alert is better as a flag.
+    const val STP_TP4= "tp4"
 
     fun parse(str: String): ChatMsg = Gson().fromJson(str, ChatMsg::class.java)
   }
@@ -35,11 +36,11 @@ class ChatMsgHelper(val ctx: Context,
 
   val prettyType: String
     get() {
-      return when (data.mtype) {
+      return when (obj.mtype) {
         TP_TXT -> STP_TXT
         TP_IMG -> STP_IMG
-        TP_ALERT ->  STP_ALERT
-        TP_4 -> STP_4
+        TP_LOCATION ->  STP_LOCATION
+        TP_4 -> STP_TP4
         else -> "UnknownType"
       }
     }
@@ -47,13 +48,13 @@ class ChatMsgHelper(val ctx: Context,
   val prettyTypeCapitalize: String
     get() { return prettyType.replaceFirstChar(Char::uppercase) }
 
-  fun isText() : Boolean = data.mtype == TP_TXT
-  fun isAlert() : Boolean = data.mtype == TP_ALERT
-  fun isImage() : Boolean = data.mtype == TP_IMG
+  fun isText() : Boolean = obj.mtype == TP_TXT
+  fun isAlert() : Boolean = obj.mtype == TP_LOCATION
+  fun isImage() : Boolean = obj.mtype == TP_IMG
 
   fun latLng() : LatLng {
-    val lat = data.x
-    val lon = data.y
+    val lat = obj.x
+    val lon = obj.y
     return LatLng(lat, lon)
   }
 

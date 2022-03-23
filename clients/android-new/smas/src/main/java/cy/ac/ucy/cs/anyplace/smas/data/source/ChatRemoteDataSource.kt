@@ -1,7 +1,6 @@
 package cy.ac.ucy.cs.anyplace.smas.data.source
 
 import cy.ac.ucy.cs.anyplace.smas.ChatUserAuth
-import cy.ac.ucy.cs.anyplace.smas.ChatUserAuthMsgs
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import retrofit2.Response
@@ -10,18 +9,20 @@ import javax.inject.Inject
 /**
  * Chat DataSource
  */
-class ChatRemoteDataSource @Inject constructor(private val retrofitH: RetrofitHolderChat) {
+class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderChat) {
 
   // MISC
-  suspend fun getVersion(): Response<ChatVersion>  = retrofitH.api.version()
+  suspend fun getVersion(): Response<ChatVersion>  = RH.api.version()
 
   // USER
-  suspend fun userLogin(obj: ChatLoginReq) : Response<ChatLoginResp>
-      = retrofitH.api.userLogin(obj)
+  suspend fun userLogin(r: ChatLoginReq) : Response<ChatLoginResp> = RH.api.login(r)
 
-  suspend fun userLocations(obj: ChatUserAuth) : Response<UserLocations>
-          = retrofitH.api.userLocations(obj)
+  // LOCATION
+  suspend fun locationGet(r: ChatUserAuth) : Response<UserLocations> = RH.api.locationGet(r)
+  suspend fun locationSend(r: LocationSendReq) : Response<LocationSendResp> = RH.api.locationSend(r)
 
-  suspend fun userMessages(obj: ChatUserAuthMsgs) : Response<ChatMsgsResp>
-          = retrofitH.api.userMessages(obj)
+  // CHAT
+  suspend fun messagesGet(r: MsgGetReq) : Response<MsgGetResp> = RH.api.messagesGet(r)
+
+  // TODO:ATH messagesSend(r: MsgSendReq) : Response<MsgSendResp> = RH.api.messagesSend(r)
 }

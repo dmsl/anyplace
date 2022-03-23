@@ -9,28 +9,27 @@ import retrofit2.http.POST
 interface ChatAPI {
 
   @POST("/smas/version.php")
-  suspend fun version(@Body body: Any = Object()): Response<ChatVersion>
+  suspend fun version(@Body empty: Any = Object()): Response<ChatVersion>
 
   @POST("/smas/login.php")
-  suspend fun userLogin(@Body req: ChatLoginReq): Response<ChatLoginResp>
+  suspend fun login(@Body req: ChatLoginReq): Response<ChatLoginResp>
 
   @POST("/smas/location-get.php")
-  suspend fun userLocations(@Body user: ChatUserAuth): Response<UserLocations>
+  suspend fun locationGet(@Body req: ChatUserAuth): Response<UserLocations>
+
+  @POST("/smas/location-send.php")
+  suspend fun locationSend(@Body req: LocationSendReq): Response<LocationSendResp>
 
   @POST("/smas/msg-get.php")
-  suspend fun userMessages(@Body user: ChatUserAuthMsgs): Response<ChatMsgsResp>
+  suspend fun messagesGet(@Body req: MsgGetReq): Response<MsgGetResp>
+
+  // TODO:ATH /smas/msg-send.php
+  // suspend fun ....
 }
 
 /** Authenticated ChatUser */
 data class ChatUserAuth(
         val uid: String,
         val sessionkey: String) {
-  constructor(user: ChatUser) : this(user.uid, user.sessionid)
-}
-
-data class ChatUserAuthMsgs(
-        val uid: String,
-        val sessionkey: String,
-        val mgettype: Int) {
-  constructor(user: ChatUser, mgettype: Int) : this(user.uid, user.sessionid, mgettype)
+  constructor(user: ChatUser) : this(user.uid, user.sessionkey)
 }

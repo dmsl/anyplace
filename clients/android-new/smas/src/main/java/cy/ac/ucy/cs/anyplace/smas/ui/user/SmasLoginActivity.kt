@@ -17,7 +17,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.ui.BaseActivity
-import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.buttonUtils.changeBackgroundButtonCompat
+import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton.changeBackgroundButtonCompat
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
@@ -162,7 +162,7 @@ class SmasLoginActivity : BaseActivity() {
             // Store user in datastore
             val user = response.data
             user?.let {
-              appSmas.chatUserDS.storeUser(ChatUser(user.uid, user.sessionid))
+              appSmas.chatUserDS.storeUser(ChatUser(user.uid, user.sessionkey))
               openLoggedInActivity()
             }
           }
@@ -208,7 +208,7 @@ class SmasLoginActivity : BaseActivity() {
     VM.login(demoUser)
     lifecycleScope.launch {
       VM.resp.collect {
-        LOG.D(TAG, "Logged in user: ${it.data?.sessionid}")
+        LOG.D(TAG, "Logged in user: ${it.data?.sessionkey}")
         LOG.D(TAG, "descr: ${it.data?.descr}")
         if (it is NetworkResult.Error) {
           LOG.E(TAG, "LOGIN ERROR.")

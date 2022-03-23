@@ -14,6 +14,7 @@
       android:orientation="vertical">
 
     <!-- CameraActivity -->
+
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
@@ -21,6 +22,7 @@
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center"
         tools:context="org.tensorflow.demo.CameraActivity">
+
     </FrameLayout>
 
     <com.google.android.gms.maps.MapView
@@ -32,6 +34,75 @@
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_userAlert"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="viewAlertBg,tv_alertTitle,tv_alertUser,tv_alertOrder" />
+
+    <View
+        android:id="@+id/viewAlertBg"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
+        android:alpha="0.7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBaseline_toBottomOf="parent"
+        android:background="@color/redDark"
+        />
+
+    <cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
+        android:id="@+id/tv_alertTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/alert"
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toTopOf="@id/viewAlertBg"
+        app:layout_constraintLeft_toLeftOf="@id/viewAlertBg"
+        app:layout_constraintRight_toRightOf="@id/viewAlertBg"
+        android:layout_marginTop="4dp"
+        app:outlineColor="@color/white"
+        app:outlineWidth="2dp"
+        android:textSize="52dp"
+        android:textColor="@color/redDark"
+        android:textStyle="bold"
+      />
+
+    <cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
+        android:id="@+id/tv_alertUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Name Surname"
+        app:layout_constraintTop_toTopOf="@id/viewAlertBg"
+        app:layout_constraintLeft_toLeftOf="@id/viewAlertBg"
+        android:layout_marginTop="8dp"
+        app:layout_constraintRight_toRightOf="@id/viewAlertBg"
+        android:textSize="32dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:outlineColor="@color/redDark"
+        app:outlineWidth="1dp"
+        />
+
+    <cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
+        android:id="@+id/tv_alertOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="needs help."
+        app:layout_constraintTop_toBottomOf="@id/tv_alertUser"
+        app:layout_constraintLeft_toLeftOf="@id/viewAlertBg"
+        app:layout_constraintRight_toRightOf="@id/viewAlertBg"
+        android:textSize="32dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:outlineColor="@color/redDark"
+        app:outlineWidth="1dp"
+        />
+
+
     <!-- ALERT -->
     <Button
         android:id="@+id/btnAlert"
@@ -39,8 +110,10 @@
         android:layout_height="100dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="26dp"
-        android:backgroundTint="@color/redDark"
+        android:backgroundTint="@color/gray"
+        app:strokeColor="@color/redDark"
+        app:strokeWidth="6dp"
+        tools:visibility="invisible"
         android:text="send alert"
         android:textSize="42dp"
         android:textStyle="bold"
@@ -48,7 +121,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/button_chat"
-        app:layout_constraintVertical_bias="0.7" />
+        app:layout_constraintVertical_bias="0.7"
+        />
 
     <!-- SETTINGS -->
     <com.google.android.material.button.MaterialButton
@@ -160,15 +234,14 @@
 
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_demoNavigation"
+        android:id="@+id/btn_demoNavigation"
         style="@style/MaterialButtonIcon"
-        android:layout_height="58dp"
-        android:layout_width="58dp"
+        android:layout_height="28dp"
+        android:layout_width="28dp"
         android:layout_marginEnd="16dp"
-        android:backgroundTint="@color/redDark"
+        android:backgroundTint="@color/darkGray"
         android:text=""
         app:cornerRadius="50dp"
-        app:icon="@drawable/ic_location_found"
         app:iconGravity="textStart"
 
         app:iconPadding="0dp"
@@ -177,6 +250,16 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="32dp"
         />
+
+    <TextView
+        android:id="@+id/tv_connectionStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        app:layout_constraintTop_toTopOf="@id/btn_demoNavigation"
+        app:layout_constraintBottom_toBottomOf="@id/btn_demoNavigation"
+        app:layout_constraintLeft_toRightOf="@id/btn_demoNavigation"
+        android:text="connecting.." />
 
     <ImageView
         android:id="@+id/iv_logoLashfire"
@@ -209,18 +292,18 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_flir"
-        android:layout_height="88dp"
+        android:layout_height="78dp"
         android:layout_width="wrap_content"
         android:layout_gravity="end"
-        android:layout_margin="8dp"
+        android:layout_marginBottom="12dp"
         android:elevation="50dp"
         android:backgroundTint="@color/colorPrimaryDark"
         android:text="Flir"
-        app:cornerRadius="30dp"
+        app:cornerRadius="10dp"
         app:icon="@drawable/ic_camera_flir"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
-        app:iconSize="52dp"
+        app:iconSize="42dp"
         app:layout_constraintEnd_toStartOf="@id/button_chat"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -228,18 +311,19 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_chat"
-        android:layout_height="88dp"
+        android:layout_height="78dp"
         android:layout_width="wrap_content"
         android:layout_gravity="end"
         android:layout_margin="8dp"
         android:elevation="50dp"
         android:backgroundTint="@color/colorPrimaryDark"
         android:text="Chat"
-        app:cornerRadius="30dp"
+        app:cornerRadius="10dp"
         app:icon="@drawable/ic_chat_unread"
+        android:layout_marginBottom="12dp"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
-        app:iconSize="52dp"
+        app:iconSize="42dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/button_flir"
         app:layout_constraintEnd_toEndOf="parent"

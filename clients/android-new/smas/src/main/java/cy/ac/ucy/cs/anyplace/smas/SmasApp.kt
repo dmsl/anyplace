@@ -13,11 +13,11 @@ import javax.inject.Inject
 @HiltAndroidApp
 class SmasApp : AnyplaceApp() {
 
-  /** SMAS Chat preferences */
+  /** SMAS Chat Server preferences */
   @Inject lateinit var chatPrefsDS: ChatPrefsDataStore
   /** Logged-in SMAS user */
   @Inject lateinit var chatUserDS: ChatUserDataStore
-  @Inject lateinit var retrofitHolderChat: RetrofitHolderChat
+  @Inject lateinit var rfhChat: RetrofitHolderChat
 
   override fun onCreate() {
     super.onCreate()
@@ -30,8 +30,8 @@ class SmasApp : AnyplaceApp() {
   private fun observeChatPrefs() {
     val prefsChat = chatPrefsDS.read
     prefsChat.asLiveData().observeForever { prefs ->
-      retrofitHolderChat.set(prefs)
-      LOG.E(TAG, "Updated Chat backend URL: ${retrofitHolderChat.baseURL}")
+      rfhChat.set(prefs)
+      LOG.E(TAG, "Updated Chat backend URL: ${rfhChat.baseURL}")
     }
   }
 }

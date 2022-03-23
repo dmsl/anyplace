@@ -8,7 +8,7 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.SmasMessages
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.MsgsGetUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,22 +24,26 @@ import javax.inject.Inject
 class SmasChatViewModel @Inject constructor(
         private val app: Application,
         private val repoChat: RepoChat,
-        private val retrofitHolderChat: RetrofitHolderChat,
+        private val RFH: RetrofitHolderChat,
         private val miscDS: MiscDataStore,
   ): AndroidViewModel(app) {
 
-  private val messages by lazy { SmasMessages(app as SmasApp, retrofitHolderChat, repoChat) }
+  private val utlMsgsGet by lazy { MsgsGetUtil(app as SmasApp, this, RFH, repoChat) }
+  // TODO:ATH utlMsgSend: MsgsSendUtil
 
-  fun pullChatMsgsONCE()  {
+  fun fetchMessages() {
     LOG.E()
     viewModelScope.launch {
-      messages.getSC()
+      utlMsgsGet.safeCall()
     }
   }
 
+  /**
+   * React to flow that is populated by [utlMsgsGet] safeCall
+   */
   fun collectMessages()  {
     viewModelScope.launch {
-      messages.collect(app, this@SmasChatViewModel)
+      utlMsgsGet.collect(app)
     }
   }
 

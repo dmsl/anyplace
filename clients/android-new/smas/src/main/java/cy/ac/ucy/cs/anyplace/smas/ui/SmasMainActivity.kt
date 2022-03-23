@@ -1,30 +1,33 @@
 package cy.ac.ucy.cs.anyplace.smas.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.widget.Button
 import android.widget.Toast
+import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
+import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
-import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.buttonUtils
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapHandler
+import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
+import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
 import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
-import cy.ac.ucy.cs.anyplace.lib.models.Coord
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
-import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.FindDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.user.SmasLoginActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.LocationSendUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -79,59 +82,39 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   /** Async handling of SMAS Messages and Alerts */
   private lateinit var VMchat: SmasChatViewModel
 
+  // UI COMPONENTS
   private lateinit var btnChat: Button
   private lateinit var btnFlir: Button
   private lateinit var btnSettings: Button
   private lateinit var btnAlert: Button
   private lateinit var btnLocalization: Button
 
+  /**
+   * Called by [CvMapActivity]
+   */
+  override fun setupButtonsAndUi() {
+    super.setupButtonsAndUi() // TODO floor selector
+    LOG.D2()
+
+    setupButtonSettings()
+    setupButtonLocalization()
+    setupButtonChat()
+    setupButtonFlir()
+    setupButtonAlert()
+  }
+
+  /**
+   * Called by [CvMapActivity] ? (some parent method)
+   */
   override fun postCreate() {
     super.postCreate()
     LOG.D2()
 
     VM = _vm as SmasMainViewModel
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
-    setupPulling()
+
+    setupBackendCommunication()
     setupCollectors()
-  }
-
-  /**
-   * Called by [CvMapActivity]
-   */
-   override fun setupButtonsAndUi() {
-     super.setupButtonsAndUi() // TODO floor selector
-     LOG.D2()
-
-     setupButtonSettings()
-     setupButtonLocalization()
-     setupButtonChat()
-     setupButtonFlir()
-  }
-
-  /**
-   * Pulling data (maybe periodically) from the SMAS backend
-   */
-  private fun setupPulling() {
-    VM.pullUserLocationsLOOP()
-    VMchat.pullChatMsgsONCE()
-  }
-
-  /**
-   * Async Collection of remotely fetched data
-   * TODO local cache (SQLITE)
-   */
-  private fun setupCollectors() {
-    LOG.D()
-    collectLoadedFloors()
-    collectLoggedInUser()
-
-    VMchat.collectMessages()
-
-    pullAndCollectUserLocationFAKE() // react to user location updates TEST method
-
-    // NOTE: [collectOtherUsersLocations] is done on floorLoaded
-
-    // collectUserLocalizationStatus(): localizing or not localizing
   }
 
   /**
@@ -140,7 +123,49 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun onFloorLoaded() {
     LOG.D2(TAG_METHOD, "Floor: ${VM.floor.value}")
 
-    collectOtherUsersLocations()
+    // Send own location, and receive other users locations
+    VM.updateLocationsLoop()
+    collectOwnLocation()
+    VM.collectLocations(mapH)
+  }
+
+  ////////////////////////////////////////////////
+
+  /**
+   * Pulling data (maybe periodically) from the SMAS backend
+   * Also reporting user locations
+   */
+  private fun setupBackendCommunication() {
+    // TODO:ATH
+    VMchat.fetchMessages()
+  }
+
+  /**
+   * Async Collection of remotely fetched data
+   * TODO local cache (SQLITE)
+   */
+  private fun setupCollectors() {
+    LOG.D()
+
+    collectLoggedInUser()
+    collectLoadedFloors()
+
+    VMchat.collectMessages() // TODO:ATH
+
+    // NOTE: [collectOtherUsersLocations] is done on floorLoaded
+    // collectUserLocalizationStatus(): localizing or not localizing
+  }
+
+  private fun setupFakeUserLocation(mapH: GmapHandler) {
+    // Initial fake location CLR:PM
+    // val loc = LocationSendUtil.TEST_COORDS.toCoord()
+    val loc = VM.spaceH.latLng().toCoord()
+    VM.location.value = LocalizationResult.Success(loc)
+
+    mapH.gmap.setOnMapLongClickListener {
+      LOG.W(TAG, "Setting fake location: $it")
+      VM.location.value = LocalizationResult.Success(it.toCoord())
+    }
   }
 
   var firstFloorLoaded = false
@@ -151,6 +176,11 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     lifecycleScope.launch {
       VM.floor.collect { floor ->
         if (floor == null) return@collect
+
+        LOG.D4(TAG, "collectLoadedFloors: is spaceH filled? ${VM.spaceH.obj.name}")
+        // Update FH
+        VM.floorH = FloorHelper(floor, VM.spaceH)
+
         if (firstFloorLoaded) {
           cancel()
         } else {
@@ -162,19 +192,6 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   }
 
   /**
-   * React to user location updates
-   */
-  private fun collectOtherUsersLocations() {
-    lifecycleScope.launch(Dispatchers.IO) {
-      if (VM.floor.value == null) {
-        LOG.E(TAG_METHOD, "Floor is null")
-        return@launch
-      }
-      VM.userLocations.collect(VM, mapH)
-    }
-  }
-
-  /**
    * Reacts to updates on [ChatUser]'s login status:
    * Only authenticated users are allowed to use this activity
    */
@@ -182,7 +199,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     // only logged in users are allowed on this activity:
     lifecycleScope.launch {
       appSmas.chatUserDS.readUser.collect { user ->
-        if (user.sessionid.isBlank()) {
+        if (user.sessionkey.isBlank()) {
           finish()
           startActivity(Intent(this@SmasMainActivity, SmasLoginActivity::class.java))
         } else {
@@ -192,11 +209,58 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
+
+  /**
+   * React when a user is in alert mode
+   */
+  @SuppressLint("SetTextI18n")
+  private fun collectAlertingUser() {
+    lifecycleScope.launch {
+      val group : Group = findViewById(R.id.group_userAlert)
+      val tvUserAlert : OutlineTextView = findViewById(R.id.tv_alertUser)
+      val tvAlertTitle: OutlineTextView = findViewById(R.id.tv_alertTitle)
+      VM.alertingUser.collect {
+        if (it == null) { // no user alerting
+          // btnAlert.visibility = View.VISIBLE
+          group.fadeOut()
+          delay(100)
+          btnAlert.fadeIn()
+          tvAlertTitle.clearAnimation()
+          // group.visibility = View.INVISIBLE
+        } else { // user alerting
+          tvUserAlert.text = "${it.name} ${it.surname}"
+          btnAlert.fadeOut()
+          delay(100)
+          group.fadeIn()
+          delay(100)
+          tvAlertTitle.flashingLoop()
+          // btnAlert.visibility = View.INVISIBLE
+          // group.visibility = View.VISIBLE
+        }
+      }
+    }
+  }
+
   private fun setupButtonAlert() {
     btnAlert = findViewById(R.id.btnAlert)
     btnAlert.setOnClickListener {
-     Toast.makeText(applicationContext, "SENDING ALERT", Toast.LENGTH_SHORT).show()
-      FindDialog.SHOW(supportFragmentManager, VM.repoAP)
+     Toast.makeText(applicationContext, "Use long-press", Toast.LENGTH_SHORT).show()
+    }
+
+    btnAlert.setOnLongClickListener {
+      when (VM.toggleAlert()) {
+        LocationSendUtil.Mode.alert -> {
+          btnAlert.flashingLoop()
+          btnAlert.text = "ALERTING"
+          utlButton.changeBackgroundButton(btnAlert, this, R.color.redDark)
+        }
+        LocationSendUtil.Mode.normal -> {
+          btnAlert.clearAnimation()
+          btnAlert.text = "SEND ALERT"
+          utlButton.changeBackgroundButton(btnAlert, this, R.color.darkGray)
+        }
+      }
+      true
     }
   }
 
@@ -219,27 +283,31 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
-  // TODO
+  // TODO CHECK:PM
   private suspend fun collectLocalizationStatus() {
     VM.localization.collect {  status ->
       when (status) {
         Localization.running -> {
-          buttonUtils.changeBackgroundButtonCompat(btnLocalization, applicationContext,
+          utlButton.changeBackgroundButtonCompat(btnLocalization, applicationContext,
                   cy.ac.ucy.cs.anyplace.lib.R.color.colorPrimary)
         }
         else -> {
-          buttonUtils.changeBackgroundButtonCompat(btnLocalization, applicationContext,
+          utlButton.changeBackgroundButtonCompat(btnLocalization, applicationContext,
                   cy.ac.ucy.cs.anyplace.lib.R.color.gray)
         }
       }
     }
   }
 
-  // TODO ADAPT this to get all user locations..
-  private fun pullAndCollectUserLocationFAKE() {
+  // CLR:PM
+  // // TODO ADAPT this to get all user locations..
+  /**
+   * Collect own user's location that is calculated via the
+   * Anyplace CV-based localization engine
+   */
+  private fun collectOwnLocation() {
     LOG.E()
     lifecycleScope.launch {
-      setupFakeLocation()
       VM.location.collect { result ->
         when (result) {
           is LocalizationResult.Unset -> { }
@@ -253,18 +321,18 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
       }
     }
   }
-
-  private suspend fun setupFakeLocation() {
-    LOG.E(TAG_METHOD)
-    delay(2000)
-    LOG.E(TAG_METHOD, " Continuing..")
-    val coord = Coord(57.69531517496923, 11.913105745699344)
-    VM.location.value = LocalizationResult.Unset()
-    VM.location.value = LocalizationResult.Success(coord)
-
-    delay(5000)
-    VM.location.value = LocalizationResult.Unset()
-  }
+  // CLR:PM
+  // private suspend fun setupFakeLocation() {
+  //   LOG.E(TAG_METHOD)
+  //   delay(2000)
+  //   LOG.E(TAG_METHOD, " Continuing..")
+  //   val coord = Coord(57.69531517496923, 11.913105745699344)
+  //   VM.location.value = LocalizationResult.Unset()
+  //   VM.location.value = LocalizationResult.Success(coord)
+  //
+  //   delay(5000)
+  //   VM.location.value = LocalizationResult.Unset()
+  // }
 
   private fun setupButtonFlir() {
     btnFlir = findViewById(R.id.button_flir)

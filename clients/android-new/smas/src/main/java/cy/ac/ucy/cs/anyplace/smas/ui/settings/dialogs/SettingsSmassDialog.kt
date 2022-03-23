@@ -96,7 +96,7 @@ class MainSmasSettingsDialog : DialogFragment() {
   private fun setupChatUser() {
     CoroutineScope(Dispatchers.Main).launch {
       val chatUser = requireActivity().appSmas.chatUserDS.readUser.first()
-      if (chatUser.sessionid.isNotBlank()) {
+      if (chatUser.sessionkey.isNotBlank()) {
         binding.user = chatUser
         binding.tvAccountType.isVisible = true
         binding.tvTitleAccountType.isVisible = true
@@ -144,7 +144,7 @@ class MainSmasSettingsDialog : DialogFragment() {
         val msg: String
         val chatUserDS = requireActivity().appSmas.chatUserDS
         val user = chatUserDS.readUser.first()
-        if (user.sessionid.isNotBlank()) {
+        if (user.sessionkey.isNotBlank()) {
           msg = "Logging out ${app.userDS.readUser.first().name}.."
           chatUserDS.deleteUser()
           dialog?.dismiss()

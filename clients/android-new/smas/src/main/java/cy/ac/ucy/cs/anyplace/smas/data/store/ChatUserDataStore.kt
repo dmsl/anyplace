@@ -26,7 +26,7 @@ class ChatUserDataStore @Inject constructor(@ApplicationContext private val ctx:
 
   private class Keys(c: CHAT) {
     val uid = stringPreferencesKey(c.PREF_USER_ID)
-    val sessionid = stringPreferencesKey(c.PREF_USER_ACCESS_TOKEN)
+    val sessionkey = stringPreferencesKey(c.PREF_USER_ACCESS_TOKEN)
   }
   private val KEY = Keys(C)
 
@@ -36,16 +36,16 @@ class ChatUserDataStore @Inject constructor(@ApplicationContext private val ctx:
          if (exception is IOException)  { emit(emptyPreferences()) } else { throw exception }
         }
         .map {
-          val sessionid = it[KEY.sessionid] ?: ""
+          val sessionkey = it[KEY.sessionkey] ?: ""
           val uid = it[KEY.uid] ?: ""
-          ChatUser(uid, sessionid)
+          ChatUser(uid, sessionkey)
         }
 
   /** Stores a logged in user to the datastore */
   suspend fun storeUser(user: ChatUser) {
     ctx.chatUserDS.edit {
       it[KEY.uid] = user.uid
-      it[KEY.sessionid] = user.sessionid
+      it[KEY.sessionkey] = user.sessionkey
     }
   }
 

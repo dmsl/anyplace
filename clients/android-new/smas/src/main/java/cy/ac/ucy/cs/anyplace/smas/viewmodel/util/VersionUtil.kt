@@ -24,7 +24,7 @@ import java.net.UnknownServiceException
  * Utility method to encapsulate:
  * - the SafeCall of the version endpoint and it's handling:
  */
-class SmasVersion(
+class VersionUtil(
         private val app: SmasApp,
         private val RH: RetrofitHolderChat,
         private val repoChat: RepoChat) {
