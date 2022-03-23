@@ -7,6 +7,8 @@
         <entry key="lib-android/src/main/res/drawable-xxhdpi/cv_bottom_sheet_bg.xml" value="0.259" />
         <entry key="lib-android/src/main/res/drawable-xxhdpi/ic_baseline_add.xml" value="0.175" />
         <entry key="lib-android/src/main/res/drawable-xxhdpi/ic_baseline_remove.xml" value="0.175" />
+        <entry key="lib-android/src/main/res/drawable-xxhdpi/marker_user_alert.xml" value="0.2045" />
+        <entry key="lib-android/src/main/res/drawable-xxhdpi/marker_user_inactive.xml" value="0.2045" />
         <entry key="lib-android/src/main/res/drawable-xxhdpi/rectangle.xml" value="0.175" />
         <entry key="lib-android/src/main/res/drawable/arrow_up.xml" value="0.2405" />
         <entry key="lib-android/src/main/res/drawable/arrow_up_disabled.xml" value="0.2465" />
