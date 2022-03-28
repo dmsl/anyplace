@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -52,7 +51,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @ExperimentalPermissionsApi
-class MessagesActivity : ComponentActivity() {
+class SmasChatActivity : ComponentActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
   //
@@ -120,12 +119,12 @@ fun TopMessagesBar() {
 @ExperimentalMaterialApi
 @Composable
 fun Conversation(
-        viewModel: SmasChatViewModel
+        VMchat: SmasChatViewModel
 ) {
 
-  var messagesList = viewModel.listOfMessages
+  val messagesList = VMchat.listOfMessages
 
-  Column() {
+  Column {
     val listState = rememberLazyListState(messagesList.size - 1)
 
     LazyColumn(
@@ -137,14 +136,14 @@ fun Conversation(
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
     ) {
       items(messagesList) { message ->
-        MessageCard(message, viewModel)
+        MessageCard(message, VMchat)
       }
       CoroutineScope(Dispatchers.Main).launch {
         if (messagesList.isNotEmpty())
           listState.scrollToItem(messagesList.size - 1)
       }
     }
-    ReplyCard(viewModel)
+    ReplyCard(VMchat)
   }
 }
 
@@ -188,9 +187,9 @@ fun Conversation(
 @Composable
 fun MessageCard(
         message: ChatMsg,
-        viewModel: SmasChatViewModel
+        VMchat: SmasChatViewModel
 ) {
-  val senderIsLoggedUser = (viewModel.getLoggedInUser() == message.uid)
+  val senderIsLoggedUser = (VMchat.getLoggedInUser() == message.uid)
   val ctx = LocalContext.current
 
   Column(
@@ -288,7 +287,7 @@ fun MessageCard(
                   if (message.mtype == 2 && message.msg != null) {
 
                     var bitmapImg: Bitmap? = remember {
-                      message.msg?.let { viewModel.imageHelper.decodeFromBase64(it) }
+                      message.msg?.let { VMchat.imageHelper.decodeFromBase64(it) }
                     }
 
                     if (bitmapImg != null) {
@@ -342,7 +341,7 @@ fun MessageCard(
                   }
 
                   Text(
-                          text = viewModel.dateTimeHelper.getTimeFromStr(message.timestr),
+                          text = VMchat.dateTimeHelper.getTimeFromStr(message.timestr),
                           fontSize = 10.sp,
                           modifier = Modifier
                                   .padding(vertical = 3.dp, horizontal = 10.dp),
@@ -390,10 +389,10 @@ fun MessageCard(
 @ExperimentalPermissionsApi
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReplyCard(viewModel: SmasChatViewModel) {
+fun ReplyCard(VMchat: SmasChatViewModel) {
 
-  var imageUri = viewModel.imageUri
-  var replyToMessage = viewModel.replyToMessage;
+  val imageUri = VMchat.imageUri
+  val replyToMessage = VMchat.replyToMessage;
 
   Column(
           modifier = Modifier
@@ -403,10 +402,10 @@ fun ReplyCard(viewModel: SmasChatViewModel) {
           horizontalAlignment = Alignment.CenterHorizontally
   ) {
 
-    ShareLocAlert(viewModel = viewModel)
+    ShareLocAlert(VMchat = VMchat)
 
     if (replyToMessage != null) {
-      ReplyToMessage(viewModel = viewModel)
+      ReplyToMessage(VMchat = VMchat)
     }
 
     if (imageUri == null) {
@@ -414,28 +413,28 @@ fun ReplyCard(viewModel: SmasChatViewModel) {
               horizontalArrangement = Arrangement.Center,
               verticalAlignment = Alignment.CenterVertically
       ) {
-        TextBox(viewModel = viewModel, Modifier.weight(2f))
+        TextBox(VMchat = VMchat, Modifier.weight(2f))
         Row(Modifier.weight(1f)) {
           RecordBtn(
-                  viewModel = viewModel,
+                  VMchat = VMchat,
                   modifier = Modifier.weight(1f)
           )
-          ImgBtn(viewModel = viewModel, modifier = Modifier.weight(1f))
-          ShareLocBtn(viewModel = viewModel, modifier = Modifier.weight(1f))
+          ImgBtn(VMchat = VMchat, modifier = Modifier.weight(1f))
+          ShareLocBtn(VMchat = VMchat, modifier = Modifier.weight(1f))
         }
       }
 
     } else {
-      ShowImg(viewModel = viewModel)
+      ShowImg(VMchat = VMchat)
     }
   }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReplyToMessage(viewModel: SmasChatViewModel) {
+fun ReplyToMessage(VMchat: SmasChatViewModel) {
 
-  val replyMsg = viewModel.replyToMessage
+  val replyMsg = VMchat.replyToMessage
   val sender = replyMsg?.sender
   val message = replyMsg?.message
   val attach = replyMsg?.attachment
@@ -460,7 +459,7 @@ fun ReplyToMessage(viewModel: SmasChatViewModel) {
                     .weight(1f)
                     .padding(start = 3.dp),
             onClick = {
-              viewModel.clearTheReplyToMessage()
+              VMchat.clearTheReplyToMessage()
             }
     ) {
       Icon(
@@ -476,15 +475,15 @@ fun ReplyToMessage(viewModel: SmasChatViewModel) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TextBox(viewModel: SmasChatViewModel, modifier: Modifier) {
+fun TextBox(VMchat: SmasChatViewModel, modifier: Modifier) {
 
   val focusManager = LocalFocusManager.current
   var sendEnabled by remember { mutableStateOf(false) }
 
-  val reply = viewModel.reply
+  val reply = VMchat.reply
   sendEnabled = (reply.isNotBlank())
 
-  val replyToMessage = viewModel.replyToMessage?.message
+  val replyToMessage = VMchat.replyToMessage?.message
   var newMsg: String
 
   OutlinedTextField(
@@ -496,8 +495,8 @@ fun TextBox(viewModel: SmasChatViewModel, modifier: Modifier) {
             else -> modifier
                     .padding(vertical = 5.dp)
           },
-          value = viewModel.reply,
-          onValueChange = { viewModel.reply = it },
+          value = VMchat.reply,
+          onValueChange = { VMchat.reply = it },
           placeholder = {
             Text(text = "Send a message")
           },
@@ -507,7 +506,7 @@ fun TextBox(viewModel: SmasChatViewModel, modifier: Modifier) {
                     onClick = {
                       newMsg = reply
 
-                      viewModel.sendMessage(newMsg, 1)
+                      VMchat.sendMessage(newMsg, 1)
                       focusManager.clearFocus()
                     },
                     enabled = sendEnabled
@@ -534,7 +533,7 @@ fun TextBox(viewModel: SmasChatViewModel, modifier: Modifier) {
                   onSend = {
                     newMsg = reply
 
-                    viewModel.sendMessage(newMsg,1)
+                    VMchat.sendMessage(newMsg,1)
                     focusManager.clearFocus()
                   }
           ),
@@ -544,18 +543,18 @@ fun TextBox(viewModel: SmasChatViewModel, modifier: Modifier) {
 
 @ExperimentalPermissionsApi
 @Composable
-fun RecordBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
+fun RecordBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
 
   val ctx = LocalContext.current
   val recordAudioPermission = rememberPermissionState(android.Manifest.permission.RECORD_AUDIO)
 
-  if (!viewModel.wantsToRecord) {
+  if (!VMchat.wantsToRecord) {
     IconButton(
             onClick = {
               //start voice recognition
               if (recordAudioPermission.status.isGranted) {
-                viewModel.wantsToRecord = true
-                viewModel.voiceRecognizer.startVoiceRecognition(ctx)
+                VMchat.wantsToRecord = true
+                VMchat.voiceRecognizer.startVoiceRecognition(ctx)
               } else {
                 recordAudioPermission.launchPermissionRequest()
               }
@@ -573,12 +572,12 @@ fun RecordBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
     IconButton(
             onClick = {
               //stop voice recognition
-              viewModel.voiceRecognizer.stopListening()
-              val results = viewModel.voiceRecognizer.getVoiceRecognitionResult()
+              VMchat.voiceRecognizer.stopListening()
+              val results = VMchat.voiceRecognizer.getVoiceRecognitionResult()
               if (results != null)
-                viewModel.reply = results
-              viewModel.voiceRecognizer.clearResults()
-              viewModel.wantsToRecord = false
+                VMchat.reply = results
+              VMchat.voiceRecognizer.clearResults()
+              VMchat.wantsToRecord = false
             },
             modifier = modifier
     ) {
@@ -593,10 +592,10 @@ fun RecordBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
 }
 
 @Composable
-fun ImgBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
+fun ImgBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
 
   val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-    viewModel.imageUri = it
+    VMchat.imageUri = it
   }
 
   IconButton(
@@ -615,12 +614,12 @@ fun ImgBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
 }
 
 @Composable
-fun ShareLocBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
+fun ShareLocBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
 
   IconButton(
           onClick = {
             //send current location
-            viewModel.showDialog = true
+            VMchat.showDialog = true
           },
           modifier = modifier
   ) {
@@ -635,13 +634,13 @@ fun ShareLocBtn(viewModel: SmasChatViewModel, modifier: Modifier) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShareLocAlert(viewModel: SmasChatViewModel) {
+fun ShareLocAlert(VMchat: SmasChatViewModel) {
 
-  var alertDialog = viewModel.showDialog
+  val alertDialog = VMchat.showDialog
 
   if (alertDialog) {
     AlertDialog(
-            onDismissRequest = { viewModel.showDialog = false },
+            onDismissRequest = { VMchat.showDialog = false },
             title = { Text(text = "Share Location") },
             text = {
               Text(text = "Share your current location in the chat?")
@@ -649,15 +648,15 @@ fun ShareLocAlert(viewModel: SmasChatViewModel) {
             confirmButton = {
               TextButton(
                       onClick = {
-                        viewModel.sendMessage(null, 3)
-                        viewModel.showDialog = false
+                        VMchat.sendMessage(null, 3)
+                        VMchat.showDialog = false
                       }) {
                 Text("Confirm", color = AnyplaceBlue)
               }
             },
             dismissButton = {
               TextButton(
-                      onClick = { viewModel.showDialog = false }
+                      onClick = { VMchat.showDialog = false }
               ) {
                 Text("Dismiss", color = AnyplaceBlue)
               }
@@ -668,9 +667,9 @@ fun ShareLocAlert(viewModel: SmasChatViewModel) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowImg(viewModel: SmasChatViewModel) {
+fun ShowImg(VMchat: SmasChatViewModel) {
 
-  var imageUri = viewModel.imageUri
+  val imageUri = VMchat.imageUri
 
   Row(
           horizontalArrangement = Arrangement.Center,
@@ -688,7 +687,7 @@ fun ShowImg(viewModel: SmasChatViewModel) {
     Column() {
       IconButton(
               onClick = {
-                viewModel.clearImgUri()
+                VMchat.clearImgUri()
               }
       ) {
         Icon(
@@ -701,8 +700,8 @@ fun ShowImg(viewModel: SmasChatViewModel) {
       }
       IconButton(
               onClick = {
-                viewModel.sendMessage(null, 2)
-                viewModel.clearImgUri()
+                VMchat.sendMessage(null, 2)
+                VMchat.clearImgUri()
               }
       ) {
         Icon(

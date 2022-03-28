@@ -1,4 +1,4 @@
-package com.example.messages.activities.ui.theme
+package cy.ac.ucy.cs.anyplace.smas.ui.chat.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

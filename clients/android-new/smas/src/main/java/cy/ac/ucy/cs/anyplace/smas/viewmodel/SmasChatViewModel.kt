@@ -7,23 +7,20 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.*
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.maps.model.LatLng
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.*
-import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
-import cy.ac.ucy.cs.anyplace.smas.ui.tmp_models.Messages
-import cy.ac.ucy.cs.anyplace.smas.ui.tmp_models.ReplyToMessage
-import cy.ac.ucy.cs.anyplace.smas.ui.utils.AssetReader
-import cy.ac.ucy.cs.anyplace.smas.ui.utils.DateTimeHelper
-import cy.ac.ucy.cs.anyplace.smas.ui.utils.ImageBase64
-import cy.ac.ucy.cs.anyplace.smas.ui.utils.VoiceRecognition
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.Messages
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.VoiceRecognition
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.utils.network.SmasAssetReader
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.MsgsGetUtil
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.MsgsSendUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +47,7 @@ class SmasChatViewModel @Inject constructor(
   private val utlMsgsSend by lazy { MsgsSendUtil(app as SmasApp, this, RFH, repoChat) }
 
   //Json data
-  private val assetReader by lazy { AssetReader(app) }
+  private val assetReader by lazy { SmasAssetReader(app) }
   var messages: Messages? = null
 
   //Class objects

@@ -1,3 +1,10 @@
+buildscript {
+  ext {
+    ver_compose="1.1.1"
+    ver_accompanist="0.24.4-alpha"
+  }
+}
+
 plugins {
   id 'com.android.application'
   id 'kotlin-android'
@@ -71,6 +78,7 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_coroutines"
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle"
   implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
+  implementation 'androidx.compose.ui:ui-graphics:1.1.1'
 
   // DATA
   //// Data binding
@@ -97,6 +105,8 @@ dependencies {
   implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
   implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  // for HILT + Navigation + jetpack compose (see Chat UI below)
+//  implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
   implementation 'com.google.android.gms:play-services-maps:18.0.2'
   implementation 'com.google.android.gms:play-services-location:19.0.1'
@@ -120,22 +130,24 @@ dependencies {
   androidTestImplementation 'androidx.test.ext:junit:1.1.3'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
+  // DEPENDENCIES FOR MESSAGE A
   // msg app dependencies
   //// JETPACK COMPOSE
-  implementation "androidx.compose.runtime:runtime-livedata:1.1.1"
-  implementation "androidx.compose.runtime:runtime-rxjava2:1.1.1"
-  implementation "androidx.compose.ui:ui:1.1.1"
+  implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
   implementation 'androidx.activity:activity-compose:1.4.0'
-  implementation 'androidx.compose.material:material:1.1.1'
-  implementation 'androidx.compose.material:material-icons-core:1.1.1'
-  implementation 'androidx.compose.material:material-icons-extended:1.1.1'
-  androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
-  implementation 'androidx.compose.foundation:foundation:1.1.1'
-  implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0-alpha05'
+  implementation "androidx.compose.runtime:runtime-livedata:$ver_compose"
+  implementation "androidx.compose.runtime:runtime-rxjava2:$ver_compose"
+  implementation "androidx.compose.material:material-icons-extended:$ver_compose"
+  androidTestImplementation "androidx.compose.ui:ui-test-junit4:$ver_compose"
+  implementation "androidx.compose.ui:ui:$ver_compose"
+  implementation "androidx.compose.material:material:$ver_compose"
+  implementation "androidx.compose.material:material-icons-core:$ver_compose"
+  implementation "androidx.compose.foundation:foundation:$ver_compose"
+
   //// COIL
   implementation "io.coil-kt:coil-compose:1.4.0"
   //// ACCOMPANIST
-  implementation "com.google.accompanist:accompanist-insets-ui:0.24.4-alpha"
-  implementation "com.google.accompanist:accompanist-insets:0.24.4-alpha"
-  implementation "com.google.accompanist:accompanist-permissions:0.24.4-alpha"
+  implementation "com.google.accompanist:accompanist-insets-ui:$ver_accompanist"
+  implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
+  implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
 }

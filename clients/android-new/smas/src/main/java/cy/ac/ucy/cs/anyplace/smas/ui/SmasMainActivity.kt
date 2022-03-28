@@ -9,7 +9,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.accompanist.insets.ExperimentalAnimatedInsets
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.OnMapReadyCallback
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
@@ -26,14 +25,12 @@ import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
-import cy.ac.ucy.cs.anyplace.smas.ui.user.SmasLoginActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.LocationSendUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /*
@@ -67,8 +64,6 @@ import kotlinx.coroutines.launch
 
    */
 @AndroidEntryPoint
-@ExperimentalMaterialApi
-@ExperimentalPermissionsApi
 class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
   // PROVIDE TO BASE CLASS [CvMapActivity]:
@@ -217,7 +212,6 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
-
   /**
    * React when a user is in alert mode
    */
@@ -278,7 +272,6 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun setupButtonLocalization() {
     btnFlir = findViewById(R.id.button_flir)
     btnFlir.setOnClickListener {
-      LOG.E(TAG_METHOD, "on click")
       lifecycleScope.launch {
       }
     }
@@ -365,14 +358,13 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
-  @ExperimentalPermissionsApi
-  @ExperimentalMaterialApi
+  @OptIn(ExperimentalMaterialApi::class, ExperimentalPermissionsApi::class) // compose
   private fun setupButtonChat() {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
     btnChat.setOnClickListener {
       lifecycleScope.launch {
-        val intent = Intent(applicationContext, MessagesActivity::class.java) //addon//
+        val intent = Intent(applicationContext, SmasChatActivity::class.java) // addon
         startActivity(intent)
       }
     }

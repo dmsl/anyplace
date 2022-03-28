@@ -26,6 +26,13 @@
         android:theme="@style/AppTheme.Compat.ObjectDetection"
         android:exported="true">
     </activity>
+    <!-- TODO:ATH: does this look OK? -->
+    <activity
+        android:name=".ui.SmasChatActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.Compat.ObjectDetection"
+        android:exported="true">
+    </activity>
     <activity
         android:name=".ui.settings.SettingsChatActivity"
         android:exported="true"

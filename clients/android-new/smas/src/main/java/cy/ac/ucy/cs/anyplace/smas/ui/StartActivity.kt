@@ -49,15 +49,12 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
-import cy.ac.ucy.cs.anyplace.smas.ui.user.SmasLoginActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
-@ExperimentalPermissionsApi
 class StartActivity : Activity() {
   private val SPLASH_TIME_OUT = 500L
 
@@ -79,8 +76,7 @@ class StartActivity : Activity() {
     }
   }
 
-  @ExperimentalPermissionsApi
-  @ExperimentalMaterialApi
+  @OptIn(ExperimentalMaterialApi::class, ExperimentalPermissionsApi::class) // compose
   private fun openInitialActivity() {
     LOG.D2(TAG_METHOD)
     CoroutineScope(Main).launch {
@@ -94,6 +90,8 @@ class StartActivity : Activity() {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
         startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+        // CHECK:ATH: example on how to start chat activity from here..
+        // startActivity(Intent(this@StartActivity, SmasChatActivity::class.java))
       } else {
         LOG.D2(TAG, "Opening activity: Login")
         startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))

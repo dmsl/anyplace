@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.utils
+package cy.ac.ucy.cs.anyplace.smas.ui.chat.utils
 
 import android.content.ContentResolver
 import android.content.Context

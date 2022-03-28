@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.user
+package cy.ac.ucy.cs.anyplace.smas.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -26,7 +26,6 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginReq
 import cy.ac.ucy.cs.anyplace.smas.databinding.ActivitySmasLoginBinding
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
-import cy.ac.ucy.cs.anyplace.smas.ui.SmasMainActivity
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasLoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,8 +33,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 
-@ExperimentalPermissionsApi
-@ExperimentalMaterialApi
 @AndroidEntryPoint
 class SmasLoginActivity : BaseActivity() {
 
@@ -150,8 +147,6 @@ class SmasLoginActivity : BaseActivity() {
    * Works with both local (anyplace) login and Google login,
    * as the backend returns the same, compatible user object
    */
-  @ExperimentalMaterialApi
-  @ExperimentalPermissionsApi
   @SuppressLint("SetTextI18n")
   private fun observeLoginResponse() {
     lifecycleScope.launch {
@@ -190,8 +185,6 @@ class SmasLoginActivity : BaseActivity() {
     } // coroutine
   }
 
-  @ExperimentalPermissionsApi
-  @ExperimentalMaterialApi
   private fun openLoggedInActivity() {
     startActivity(Intent(this@SmasLoginActivity, SmasMainActivity::class.java))
     finish()
