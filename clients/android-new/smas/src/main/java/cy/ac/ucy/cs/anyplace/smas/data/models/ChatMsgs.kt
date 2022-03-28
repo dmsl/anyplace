@@ -1,6 +1,7 @@
 package cy.ac.ucy.cs.anyplace.smas.data.models
 
 import com.google.gson.annotations.SerializedName
+import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 
 /** A Single [ChatMsg] */
 data class ChatMsg(
@@ -93,10 +94,11 @@ data class MsgSendReq(
         @SerializedName("mdelivery")
         val mdelivery: Int,
         @SerializedName("msg")
-        val msg: String,
+        val msg: String?,
         @SerializedName("mtype")
         val mtype: Int,
-
+        @SerializedName("mexten")
+        val mexten: String?,
         @SerializedName("time")
         val time: String,
 
@@ -104,4 +106,18 @@ data class MsgSendReq(
         val x: Double,
         @SerializedName("y")
         val y: Double
+){
+  constructor(user: ChatUser, userCoords: UserCoordinates, mdelivery: Int, msg: String?, mtype: Int, mexten: String?, time: String) :
+          this(user.uid, user.sessionkey, userCoords.buid, userCoords.level, mdelivery, msg, mtype, mexten, time, userCoords.lat, userCoords.lon)
+}
+
+data class MsgSendResp(
+        @SerializedName("status")
+        val status: String,
+        @SerializedName("descr")
+        val descr: String?,
+        @SerializedName("uid")
+        val uid: String,
+        @SerializedName("rows")
+        val rows: Int? //or string?//
 )

@@ -23,8 +23,8 @@ interface ChatAPI {
   @POST("/smas/msg-get.php")
   suspend fun messagesGet(@Body req: MsgGetReq): Response<MsgGetResp>
 
-  // TODO:ATH /smas/msg-send.php
-  // suspend fun ....
+  @POST("/smas/msg-send.php")
+  suspend fun messageSend(@Body req: MsgSendReq): Response<MsgSendResp>
 }
 
 /** Authenticated ChatUser */

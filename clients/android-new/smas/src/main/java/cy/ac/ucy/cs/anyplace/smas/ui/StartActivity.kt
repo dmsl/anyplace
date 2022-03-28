@@ -41,6 +41,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.compose.material.ExperimentalMaterialApi
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
@@ -54,6 +56,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
+@ExperimentalPermissionsApi
 class StartActivity : Activity() {
   private val SPLASH_TIME_OUT = 500L
 
@@ -75,6 +79,8 @@ class StartActivity : Activity() {
     }
   }
 
+  @ExperimentalPermissionsApi
+  @ExperimentalMaterialApi
   private fun openInitialActivity() {
     LOG.D2(TAG_METHOD)
     CoroutineScope(Main).launch {
