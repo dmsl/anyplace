@@ -40,6 +40,7 @@ class MsgsSendUtil(private val app: SmasApp,
 
     if (app.hasInternet()) {
       try {
+        //TODO:PM:ATH user coordinates & mdelivery
         val req = MsgSendReq(chatUser, userCoords, mdelivery, msg, mtype, mexten, utlTime.epoch().toString())
         LOG.W(TAG, "Sending: ${req.time}: mtype: ${mtype} msg: ${msg} x,y: ${userCoords.lat},${userCoords.lon} deck: ${userCoords.level} ")
         val response = repo.remote.messagesSend(req)
