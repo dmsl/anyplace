@@ -67,6 +67,8 @@ import kotlinx.coroutines.launch
 
    */
 @AndroidEntryPoint
+@ExperimentalMaterialApi
+@ExperimentalPermissionsApi
 class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
   // PROVIDE TO BASE CLASS [CvMapActivity]:
@@ -360,6 +362,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
+  @ExperimentalPermissionsApi
+  @ExperimentalMaterialApi
   private fun setupButtonChat() {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
