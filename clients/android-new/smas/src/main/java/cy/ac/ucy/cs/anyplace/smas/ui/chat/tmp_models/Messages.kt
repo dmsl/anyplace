@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.tmp_models
+package cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.tmp_models
 
 import com.google.gson.annotations.SerializedName
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg

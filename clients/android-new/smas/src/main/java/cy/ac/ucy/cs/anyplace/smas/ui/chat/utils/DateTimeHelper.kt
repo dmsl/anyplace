@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.utils
+package cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+// TODO:PM:ATH merge w/ utlTime / utlDate
 @RequiresApi(Build.VERSION_CODES.O)
 class DateTimeHelper {
 

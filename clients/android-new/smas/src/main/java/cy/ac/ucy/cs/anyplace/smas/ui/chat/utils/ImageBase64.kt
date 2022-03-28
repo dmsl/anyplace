@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.utils
+package cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.utils
 
 import android.content.ContentResolver
 import android.content.Context
@@ -10,6 +10,7 @@ import android.webkit.MimeTypeMap
 import java.io.ByteArrayOutputStream
 import java.io.File
 
+// TODO:PM:ATH merge w/ android-lib
 class ImageBase64 {
 
     fun encodeToBase64(imageUri: Uri, context: Context): String {
