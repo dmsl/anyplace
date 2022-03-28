@@ -152,6 +152,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun setupCollectors() {
     LOG.D()
 
+    // setupFakeUserLocation(mapH) // TODO:PMX
+    // collectAlertingUser() // TODO:PMX
+
     collectLoggedInUser()
     collectLoadedFloors()
 
