@@ -10,9 +10,11 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
@@ -32,13 +34,15 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 
-
+@ExperimentalPermissionsApi
+@ExperimentalMaterialApi
 @AndroidEntryPoint
 class SmasLoginActivity : BaseActivity() {
 
   private lateinit var VM: SmasLoginViewModel
   private var _binding: ActivitySmasLoginBinding ?= null
   private val binding get() = _binding!!
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -146,6 +150,8 @@ class SmasLoginActivity : BaseActivity() {
    * Works with both local (anyplace) login and Google login,
    * as the backend returns the same, compatible user object
    */
+  @ExperimentalMaterialApi
+  @ExperimentalPermissionsApi
   @SuppressLint("SetTextI18n")
   private fun observeLoginResponse() {
     lifecycleScope.launch {
@@ -184,6 +190,8 @@ class SmasLoginActivity : BaseActivity() {
     } // coroutine
   }
 
+  @ExperimentalPermissionsApi
+  @ExperimentalMaterialApi
   private fun openLoggedInActivity() {
     startActivity(Intent(this@SmasLoginActivity, SmasMainActivity::class.java))
     finish()
