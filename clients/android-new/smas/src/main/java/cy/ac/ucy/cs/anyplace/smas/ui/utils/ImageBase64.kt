@@ -12,8 +12,8 @@ import java.io.File
 
 class ImageBase64 {
 
-    fun encodeToBase64(imageUri: Uri, context: Context): String? {
-        var encodedBase64: String? = ""
+    fun encodeToBase64(imageUri: Uri, context: Context): String {
+        var encodedBase64 = ""
 
         if (imageUri != null) {
             val imageStream = context.contentResolver.openInputStream(imageUri!!)
@@ -32,17 +32,15 @@ class ImageBase64 {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
 
-    fun getMimeType(imageUri: Uri?, context: Context): String? {
-        val extension: String?
+    fun getMimeType(imageUri: Uri, context: Context): String {
 
-        if (imageUri?.scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-            val mime = MimeTypeMap.getSingleton()
-            extension = mime.getExtensionFromMimeType(context.contentResolver.getType(imageUri!!))
-        } else {
-            extension =
-                MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(File(imageUri?.path)).toString())
-        }
+      val extension: String? = if (imageUri.scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+      val mime = MimeTypeMap.getSingleton()
+      mime.getExtensionFromMimeType(context.contentResolver.getType(imageUri!!))
+    } else {
+      MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(File(imageUri?.path)).toString())
+    }
 
-        return extension
+      return extension ?: ""
     }
 }

@@ -5,9 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Button
 import android.widget.Toast
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.accompanist.insets.ExperimentalAnimatedInsets
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.OnMapReadyCallback
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
@@ -361,6 +364,10 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
     btnChat.setOnClickListener {
+      lifecycleScope.launch {
+        val intent = Intent(applicationContext, MessagesActivity::class.java) //addon//
+        startActivity(intent)
+      }
     }
   }
 

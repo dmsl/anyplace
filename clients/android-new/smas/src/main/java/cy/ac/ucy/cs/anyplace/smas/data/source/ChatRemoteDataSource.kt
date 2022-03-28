@@ -23,6 +23,5 @@ class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderCha
 
   // CHAT
   suspend fun messagesGet(r: MsgGetReq) : Response<MsgGetResp> = RH.api.messagesGet(r)
-
-  // TODO:ATH messagesSend(r: MsgSendReq) : Response<MsgSendResp> = RH.api.messagesSend(r)
+  suspend fun messagesSend(r: MsgSendReq) : Response<MsgSendResp> = RH.api.messageSend(r)
 }
