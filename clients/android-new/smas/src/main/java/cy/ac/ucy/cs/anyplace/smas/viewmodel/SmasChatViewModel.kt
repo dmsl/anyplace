@@ -106,10 +106,11 @@ class SmasChatViewModel @Inject constructor(
     }
   }
 
-  fun sendMessage(newMsg: String?, mtype: Int) {
+  fun sendMessage(newMsg: String?, mtype: Int) { //val lastCoordinates = UserCoordinates(spaceH.obj.id,... from SmasMain...
     viewModelScope.launch {
+      //TODO:PM:ATH user coordinates & mdelivery
       val userCoord = UserCoordinates("1234", 1, 5.0, 5.0)
-      val mdelivery = 1; //where to find this?
+      val mdelivery = 1; //TODO:ATH
       var mexten: String? = null
       if (imageUri != null) {
         mexten = imageHelper.getMimeType(imageUri!!, app)

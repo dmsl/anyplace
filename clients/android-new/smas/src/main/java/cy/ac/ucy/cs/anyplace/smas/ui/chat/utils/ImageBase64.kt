@@ -13,7 +13,7 @@ import java.io.File
 // TODO:PM:ATH merge w/ android-lib
 class ImageBase64 {
 
-    fun encodeToBase64(imageUri: Uri, context: Context): String {
+    fun encodeToBase64(imageUri: Uri?, context: Context): String {
         var encodedBase64 = ""
 
         if (imageUri != null) {

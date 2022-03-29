@@ -42,6 +42,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.*
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,27 +55,35 @@ import kotlinx.coroutines.launch
 class SmasChatActivity : ComponentActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
-  //
+  private lateinit var VM: SmasMainViewModel
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
+    VM = ViewModelProvider(this)[SmasMainViewModel::class.java]
+
+    VMchat.fetchMessages()
+    VMchat.collectMessages()
+
+    VM.floorH
     // TODO:ATH: in composable you can use the below:
     // viewModel = hiltViewModel<SmasChatViewModel>()
     // but for onCreate you'll have to figure this out.
-    VMchat.readData()
 
-    //sample data start
-    var messagesList = emptyList<ChatMsg>()
-
-    if (VMchat.messages != null) {
-      messagesList = VMchat.messages!!.messagesList
-    }
-
-    messagesList.forEach {
-      VMchat.listOfMessages.add(it)
-    }
-    //sample data end
+    // VMchat.readData()
+    //
+    // //sample data start
+    // var messagesList = emptyList<ChatMsg>()
+    //
+    // if (VMchat.messages != null) {
+    //   messagesList = VMchat.messages!!.messagesList
+    // }
+    //
+    // messagesList.forEach {
+    //   VMchat.listOfMessages.add(it)
+    // }
+    // //sample data end
 
     setContent {
       Scaffold(
@@ -114,73 +123,71 @@ fun TopMessagesBar() {
   )
 }
 
+// @ExperimentalPermissionsApi
+// @RequiresApi(Build.VERSION_CODES.O)
+// @ExperimentalMaterialApi
+// @Composable
+// fun Conversation(
+//         VMchat: SmasChatViewModel
+// ) {
+//
+//   val messagesList = VMchat.listOfMessages
+//
+//   Column {
+//     val listState = rememberLazyListState(messagesList.size - 1)
+//
+//     LazyColumn(
+//             modifier = Modifier
+//                     .weight(1f)
+//                     .padding(bottom = 5.dp),
+//             state = listState,
+//             verticalArrangement = Arrangement.spacedBy(10.dp),
+//             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
+//     ) {
+//       items(messagesList) { message ->
+//         MessageCard(message, VMchat)
+//       }
+//       // CoroutineScope(Dispatchers.Main).launch {
+//       //   if (messagesList.isNotEmpty())
+//       //     listState.scrollToItem(messagesList.size - 1)
+//       // }
+//     }
+//     ReplyCard(VMchat)
+//   }
+// }
+
 @ExperimentalPermissionsApi
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @Composable
 fun Conversation(
-        VMchat: SmasChatViewModel
+   viewModel: SmasChatViewModel
 ) {
 
-  val messagesList = VMchat.listOfMessages
+   var messagesList = viewModel.listOfMessages
 
-  Column {
-    val listState = rememberLazyListState(messagesList.size - 1)
+   Column {
+       val state = rememberScrollState()
+       val scope = rememberCoroutineScope()
 
-    LazyColumn(
-            modifier = Modifier
-                    .weight(1f)
-                    .padding(bottom = 5.dp),
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
-    ) {
-      items(messagesList) { message ->
-        MessageCard(message, VMchat)
-      }
-      CoroutineScope(Dispatchers.Main).launch {
-        if (messagesList.isNotEmpty())
-          listState.scrollToItem(messagesList.size - 1)
-      }
-    }
-    ReplyCard(VMchat)
-  }
+       Column(
+           modifier = Modifier
+               .weight(1f)
+               .padding(all = 15.dp)
+               .verticalScroll(rememberScrollState()),
+           verticalArrangement = Arrangement.spacedBy(10.dp),
+       ) {
+           messagesList.forEachIndexed { index, message ->
+               MessageCard(message, viewModel)
+           }
+           // scope.launch {
+           //     if (messagesList.isNotEmpty())
+           //         state.scrollTo(messagesList.size - 1)
+           // }
+       }
+       ReplyCard(viewModel)
+   }
 }
-
-//@SuppressLint("CoroutineCreationDuringComposition")
-//@ExperimentalPermissionsApi
-//@ExperimentalAnimatedInsets
-//@RequiresApi(Build.VERSION_CODES.O)
-//@ExperimentalMaterialApi
-//@Composable
-//fun Conversation(
-//    viewModel: _root_ide_package_.cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
-//) {
-//
-//    var messagesList = viewModel.listOfMessages
-//
-//    Column {
-//        val state = rememberScrollState()
-//        val scope = rememberCoroutineScope()
-//
-//        Column(
-//            modifier = Modifier
-//                .weight(1f)
-//                .padding(all = 15.dp)
-//                .verticalScroll(rememberScrollState()),
-//            verticalArrangement = Arrangement.spacedBy(10.dp),
-//        ) {
-//            messagesList.forEachIndexed { index, message ->
-//                MessageCard(message, viewModel)
-//            }
-//            scope.launch {
-//                if (messagesList.isNotEmpty())
-//                    state.scrollTo(messagesList.size - 1)
-//            }
-//        }
-//        ReplyCard(viewModel)
-//    }
-//}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
@@ -670,6 +677,7 @@ fun ShareLocAlert(VMchat: SmasChatViewModel) {
 fun ShowImg(VMchat: SmasChatViewModel) {
 
   val imageUri = VMchat.imageUri
+  val ctx = LocalContext.current
 
   Row(
           horizontalArrangement = Arrangement.Center,
@@ -700,7 +708,7 @@ fun ShowImg(VMchat: SmasChatViewModel) {
       }
       IconButton(
               onClick = {
-                VMchat.sendMessage(null, 2)
+                VMchat.sendMessage(VMchat.imageHelper.encodeToBase64(imageUri, ctx), 2)
                 VMchat.clearImgUri()
               }
       ) {

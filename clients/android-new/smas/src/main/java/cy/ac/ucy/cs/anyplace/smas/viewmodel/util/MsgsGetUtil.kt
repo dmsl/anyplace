@@ -23,9 +23,6 @@ import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
 
-/**
- * TODO:ATH
- */
 class MsgsGetUtil(
         private val app: SmasApp,
         private val VM: SmasChatViewModel,

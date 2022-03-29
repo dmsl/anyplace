@@ -78,7 +78,6 @@ data class MsgGetReq(
 /**
  * TODO [ChatMsg] Request model
  *
- * TODO:ATH MsgSendReq ?
  */
 data class MsgSendReq(
         // [ChatUser]
@@ -119,5 +118,5 @@ data class MsgSendResp(
         @SerializedName("uid")
         val uid: String,
         @SerializedName("rows")
-        val rows: Int? //or string?//
+        val rows: Int?
 )
