@@ -40,17 +40,11 @@ class MsgsSendUtil(private val app: SmasApp,
 
     if (app.hasInternet()) {
       try {
-        //TODO:PM:ATH user coordinates & mdelivery
         val req = MsgSendReq(chatUser, userCoords, mdelivery, msg, mtype, mexten, utlTime.epoch().toString())
         LOG.W(TAG, "Sending: ${req.time}: mtype: ${mtype} msg: ${msg} x,y: ${userCoords.lat},${userCoords.lon} deck: ${userCoords.level} ")
         val response = repo.remote.messagesSend(req)
         LOG.D2(TAG, "ChatMessageSend: ${response.message()}")
         resp.value = handleResponse(response)
-
-        // TODO: PERSISTS: in cache (SQLITE)
-        // TODO Persist: put in cache & list (main mem).
-        // TODO: if has local messages: pull latest only
-        // val userMessages = resp.value.data
       } catch (ce: ConnectException) {
         val msg = "Connection failed:\n${RH.retrofit.baseUrl()}"
         handleException(msg, ce)

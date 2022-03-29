@@ -8,7 +8,6 @@ import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 
 /**
- * TODO:ATH
  * Extra functionality on top of the [ChatMsg] data class.
  * TODO: rename to data the encapsualting class of all helpers
  */
