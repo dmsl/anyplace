@@ -1,12 +1,9 @@
 package cy.ac.ucy.cs.anyplace.smas.data.models
 
 import android.widget.Toast
-import androidx.lifecycle.viewModelScope
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.LocationSendUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

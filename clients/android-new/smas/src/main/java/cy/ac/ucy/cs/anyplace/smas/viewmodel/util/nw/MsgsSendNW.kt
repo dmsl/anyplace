@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.viewmodel.util
+package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.content.Context
 import android.widget.Toast
@@ -22,10 +22,10 @@ import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
 
-class MsgsSendUtil(private val app: SmasApp,
-                   private val VM: SmasChatViewModel,
-                   private val RH: RetrofitHolderChat,
-                   private val repo: RepoChat) {
+class MsgsSendNW(private val app: SmasApp,
+                 private val VM: SmasChatViewModel,
+                 private val RH: RetrofitHolderChat,
+                 private val repo: RepoChat) {
 
   private val resp: MutableStateFlow<NetworkResult<MsgSendResp>> = MutableStateFlow(NetworkResult.Unset())
 

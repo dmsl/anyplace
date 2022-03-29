@@ -11,8 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -44,9 +41,6 @@ import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.*
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 @RequiresApi(Build.VERSION_CODES.O)
@@ -63,7 +57,7 @@ class SmasChatActivity : ComponentActivity() {
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
     VM = ViewModelProvider(this)[SmasMainViewModel::class.java]
 
-    VMchat.fetchMessages()
+    VMchat.nwPullMessages()
     VMchat.collectMessages()
 
     VM.floorH
@@ -72,7 +66,6 @@ class SmasChatActivity : ComponentActivity() {
     // but for onCreate you'll have to figure this out.
 
     // VMchat.readData()
-    //
     // //sample data start
     // var messagesList = emptyList<ChatMsg>()
     //

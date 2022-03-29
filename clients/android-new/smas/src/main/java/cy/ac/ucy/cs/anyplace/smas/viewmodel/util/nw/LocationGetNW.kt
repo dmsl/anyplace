@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.viewmodel.util
+package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
@@ -20,7 +20,6 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -30,7 +29,7 @@ import java.net.ConnectException
 /**
  * Manages Location fetching of other users
  */
-class LocationGetUtil(
+class LocationGetNW(
         private val app: SmasApp,
         private val VM: SmasMainViewModel,
         private val RH: RetrofitHolderChat,
@@ -49,7 +48,7 @@ class LocationGetUtil(
 
   /** Get [UserLocations] SafeCall */
   suspend fun safeCall() {
-    LOG.W(TAG, "LocationGet")
+    LOG.D3(TAG, "LocationGet")
     chatUser = app.chatUserDS.readUser.first()
 
     resp.value = NetworkResult.Loading()

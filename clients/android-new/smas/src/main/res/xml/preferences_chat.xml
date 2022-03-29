@@ -2,6 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+  <PreferenceCategory app:title="@string/chat_settings">
+
+    <Preference
+        app:key="@string/pref_chat_server_version"
+        app:title="@string/connection_status"
+        app:summary="Control the outreach of sent messages"
+        />
+
+  </PreferenceCategory>
+
   <PreferenceCategory app:title="@string/chat_server">
 
     <EditTextPreference
@@ -31,9 +41,5 @@
         />
 
   </PreferenceCategory>
-
-<!-- TODO: DataStore to bind with XML -->
-<!-- TODO: SettingsActivity: to bind with DataStore+XML-->
-<!-- TODO: Bind with Retrofit2 -->
 
 </PreferenceScreen>

@@ -12,11 +12,15 @@ open class CHAT(ctx: Context) : CONST(ctx) {
   val PREF_CHAT_SERVER_HOST = ctx.getString(R.string.pref_chat_server_host)
   val PREF_CHAT_SERVER_PORT = ctx.getString(R.string.pref_chat_server_port)
   val PREF_CHAT_SERVER_VERSION = ctx.getString(R.string.pref_chat_server_version)
+  // CHAT SETTINGS
+  /** from [ChatMsgs.mdelivery] */
+  val PREF_CHAT_MDELIVERY= ctx.getString(R.string.pref_chat_mdelivery)
+  val PREF_CHAT_USER= ctx.getString(R.string.pref_chat_user)
 
   ////// CHAT SERVER: DEFAULTS
   val DEFAULT_PREF_CHAT_SERVER_PROTOCOL = ctx.getString(R.string.default_pref_chat_server_protocol)
   val DEFAULT_PREF_CHAT_SERVER_HOST = ctx.getString(R.string.default_pref_chat_server_host)
   val DEFAULT_PREF_CHAT_SERVER_PORT = ctx.getString(R.string.default_pref_chat_server_port)
 
-  val PREF_CHAT_USER= ctx.getString(R.string.pref_chat_user)
+  val DEFAULT_PREF_CHAT_MDELIVERY = ctx.getString(R.string.default_pref_chat_mdelivery)
 }

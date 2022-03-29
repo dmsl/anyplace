@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.viewmodel.util
+package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
@@ -18,7 +18,6 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.SmasErrors
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -28,7 +27,7 @@ import java.net.ConnectException
 /**
  * Manages Location fetching of other users
  */
-class LocationSendUtil(
+class LocationSendNW(
         private val app: SmasApp,
         private val VM: SmasMainViewModel,
         private val RH: RetrofitHolderChat,

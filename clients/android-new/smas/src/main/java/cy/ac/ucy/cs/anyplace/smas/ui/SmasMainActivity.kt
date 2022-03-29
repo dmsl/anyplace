@@ -27,7 +27,7 @@ import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.LocationSendUtil
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationSendNW
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -124,9 +124,12 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D2(TAG_METHOD, "Floor: ${VM.floor.value}")
 
     // Send own location, and receive other users locations
-    VM.updateLocationsLoop()
+    VM.nwPullLocationsLoop()
     collectOwnLocation()
     VM.collectLocations(mapH)
+
+    setupFakeUserLocation(mapH) // TODO:PMX
+    // collect alert
   }
 
   ////////////////////////////////////////////////
@@ -137,7 +140,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
    */
   private fun setupBackendCommunication() {
     // TODO:ATH
-    VMchat.fetchMessages()
+    VMchat.nwPullMessages()
   }
 
   /**
@@ -146,9 +149,6 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
    */
   private fun setupCollectors() {
     LOG.D()
-
-    // setupFakeUserLocation(mapH) // TODO:PMX
-    // collectAlertingUser() // TODO:PMX
 
     collectLoggedInUser()
     collectLoadedFloors()
@@ -165,7 +165,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     val loc = VM.spaceH.latLng().toCoord()
     VM.location.value = LocalizationResult.Success(loc)
 
-    mapH.gmap.setOnMapLongClickListener {
+    mapH.obj.setOnMapLongClickListener {
       LOG.W(TAG, "Setting fake location: $it")
       VM.location.value = LocalizationResult.Success(it.toCoord())
     }
@@ -216,7 +216,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
    * React when a user is in alert mode
    */
   @SuppressLint("SetTextI18n")
-  private fun collectAlertingUser() {
+  private fun collectAlertingUser() { // TODO:PMX
     lifecycleScope.launch {
       val group : Group = findViewById(R.id.group_userAlert)
       val tvUserAlert : OutlineTextView = findViewById(R.id.tv_alertUser)
@@ -251,12 +251,12 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
     btnAlert.setOnLongClickListener {
       when (VM.toggleAlert()) {
-        LocationSendUtil.Mode.alert -> {
+        LocationSendNW.Mode.alert -> {
           btnAlert.flashingLoop()
           btnAlert.text = "ALERTING"
           utlButton.changeBackgroundButton(btnAlert, this, R.color.redDark)
         }
-        LocationSendUtil.Mode.normal -> {
+        LocationSendNW.Mode.normal -> {
           btnAlert.clearAnimation()
           btnAlert.text = "SEND ALERT"
           utlButton.changeBackgroundButton(btnAlert, this, R.color.darkGray)
@@ -364,19 +364,12 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     btnChat = findViewById(R.id.button_chat)
     btnChat.setOnClickListener {
       lifecycleScope.launch {
-        val intent = Intent(applicationContext, SmasChatActivity::class.java) // addon
-        startActivity(intent)
+        // TODO:ATH
+        // val intent = Intent(applicationContext, SmasChatActivity::class.java) // addon
+        // startActivity(intent)
       }
     }
   }
-
-  // private fun setupButtonAlert() {
-  //   LOG.D4()
-  //   // btnChat = findViewById(R.id.button_chat)
-  //   btnChat.setOnClickListener {
-  //     // ChatDialog.SHOW(supportFragmentManager, VM.repository)
-  //   }
-  // }
 
   // TODO search: removed for now
   // private fun setupButtonFind() {

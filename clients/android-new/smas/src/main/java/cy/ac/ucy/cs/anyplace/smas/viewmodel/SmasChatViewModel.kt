@@ -14,6 +14,7 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
+import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.Messages
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
@@ -21,8 +22,8 @@ import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.VoiceRecognition
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.utils.network.SmasAssetReader
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.MsgsGetUtil
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.MsgsSendUtil
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsGetNW
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsSendNW
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -40,11 +41,12 @@ class SmasChatViewModel @Inject constructor(
         private val app: Application,
         private val repoChat: RepoChat,
         private val RFH: RetrofitHolderChat,
-        private val miscDS: MiscDataStore,
+        private val dsChat: ChatPrefsDataStore,
+        private val dsMisc: MiscDataStore,
 ) : AndroidViewModel(app) {
 
-  private val utlMsgsGet by lazy { MsgsGetUtil(app as SmasApp, this, RFH, repoChat) }
-  private val utlMsgsSend by lazy { MsgsSendUtil(app as SmasApp, this, RFH, repoChat) }
+  private val nwMsgsGet by lazy { MsgsGetNW(app as SmasApp, this, RFH, repoChat) }
+  private val nwMsgsSend by lazy { MsgsSendNW(app as SmasApp, this, RFH, repoChat) }
 
   //Json data
   private val assetReader by lazy { SmasAssetReader(app) }
@@ -90,43 +92,49 @@ class SmasChatViewModel @Inject constructor(
     replyToMessage = null
   }
 
-  fun fetchMessages() {
+  fun nwPullMessages() {
     LOG.E()
     viewModelScope.launch {
-      utlMsgsGet.safeCall()
+      nwMsgsGet.safeCall()
     }
   }
 
   /**
-   * React to flow that is populated by [utlMsgsGet] safeCall
+   * React to flow that is populated by [nwMsgsGet] safeCall
    */
   fun collectMessages() {
     viewModelScope.launch {
-      utlMsgsGet.collect(app)
+      nwMsgsGet.collect(app)
     }
   }
 
-  fun sendMessage(newMsg: String?, mtype: Int) { //val lastCoordinates = UserCoordinates(spaceH.obj.id,... from SmasMain...
+  fun sendMessage(newMsg: String?, mtype: Int) { // TODO:ATH: val lastCoordinates = UserCoordinates(spaceH.obj.id,... from SmasMain...
     viewModelScope.launch {
       //TODO:PM:ATH user coordinates & mdelivery
       val userCoord = UserCoordinates("1234", 1, 5.0, 5.0)
-      val mdelivery = 1; //TODO:ATH
+
+      val chatPrefs = dsChat.read.first()
+      // TODO:ATH: now you are using this.
+      // Update your UI, w/ TextView to update this accordingly.
+      // I'll also update it from settings... on chat settings..
+      // TODO:ATH: bind settings button to open [SettingsChatActivity]
+      val mdelivery = chatPrefs.mdelivery
       var mexten: String? = null
       if (imageUri != null) {
         mexten = imageHelper.getMimeType(imageUri!!, app)
       }
-      utlMsgsSend.safeCall(userCoord, 1, mtype, newMsg, mexten)
+      nwMsgsSend.safeCall(userCoord, 1, mtype, newMsg, mexten)
     }
     clearReply()
     clearTheReplyToMessage()
   }
 
   /**
-   * React to flow that is populated by [utlMsgsSend] safeCall
+   * React to flow that is populated by [nwMsgsSend] safeCall
    */
   fun collectMsgsSend() { //when is this called?
     viewModelScope.launch {
-      utlMsgsSend.collect(app)
+      nwMsgsSend.collect(app)
     }
   }
 

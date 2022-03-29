@@ -33,9 +33,12 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
   private val datastore = ctx.dataStoreChat
 
   private val validKeys = setOf(
+          // BACKEND SETTINGS
           C.PREF_CHAT_SERVER_PROTOCOL,
           C.PREF_CHAT_SERVER_HOST,
           C.PREF_CHAT_SERVER_PORT,
+          // MESSAGING SETTINGS
+          C.PREF_CHAT_MDELIVERY
   )
 
   // CHECK: is this needed?
@@ -47,6 +50,7 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
     val protocol= stringPreferencesKey(c.PREF_CHAT_SERVER_PROTOCOL)
     val host = stringPreferencesKey(c.PREF_CHAT_SERVER_HOST)
     val port = stringPreferencesKey(c.PREF_CHAT_SERVER_PORT)
+    val mdelivery = stringPreferencesKey(c.PREF_CHAT_MDELIVERY)
   }
   private val KEY = Keys(C)
 
@@ -67,13 +71,15 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
           C.PREF_CHAT_SERVER_HOST -> it[KEY.host] = value?: C.DEFAULT_PREF_CHAT_SERVER_HOST
           C.PREF_CHAT_SERVER_PORT ->  {
             val storeValue : String =
-              if (NetUtils.isValidPort(value)) value!! else C.DEFAULT_PREF_CHAT_SERVER_PORT
+                    if (NetUtils.isValidPort(value)) value!! else C.DEFAULT_PREF_CHAT_SERVER_PORT
             it[KEY.port] =  storeValue
           }
           C.PREF_SERVER_PROTOCOL -> {
             if(NetUtils.isValidProtocol(value))
               it[KEY.protocol] = value?: C.DEFAULT_PREF_CHAT_SERVER_PROTOCOL
           }
+
+          C.PREF_CHAT_MDELIVERY -> it[KEY.mdelivery] = value?: C.DEFAULT_PREF_CHAT_MDELIVERY
         }
       }
     }
@@ -87,6 +93,7 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
         C.PREF_CHAT_SERVER_HOST -> prefs.host
         C.PREF_CHAT_SERVER_PORT -> prefs.port
         C.PREF_CHAT_SERVER_PROTOCOL -> prefs.protocol
+        C.PREF_CHAT_MDELIVERY -> prefs.mdelivery
         else -> null
       }
     }
@@ -96,21 +103,24 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
   override fun getBoolean(key: String?, defValue: Boolean): Boolean { return false }
 
   val read: Flow<ChatPrefs> = ctx.dataStoreChat.data
-      .catch { exception ->
-        if (exception is IOException) {
-          emit(emptyPreferences())
-        } else { throw exception }
-      }
-      .map { preferences ->
-        val protocol = preferences[KEY.protocol] ?: C.DEFAULT_PREF_CHAT_SERVER_PROTOCOL
-        val host = preferences[KEY.host] ?: C.DEFAULT_PREF_CHAT_SERVER_HOST
-        val port = preferences[KEY.port] ?: C.DEFAULT_PREF_CHAT_SERVER_PORT
-        ChatPrefs(protocol, host, port)
-      }
+          .catch { exception ->
+            if (exception is IOException) {
+              emit(emptyPreferences())
+            } else { throw exception }
+          }
+          .map { preferences ->
+            val protocol = preferences[KEY.protocol] ?: C.DEFAULT_PREF_CHAT_SERVER_PROTOCOL
+            val host = preferences[KEY.host] ?: C.DEFAULT_PREF_CHAT_SERVER_HOST
+            val port = preferences[KEY.port] ?: C.DEFAULT_PREF_CHAT_SERVER_PORT
+            val mdelivery = preferences[KEY.mdelivery] ?: C.DEFAULT_PREF_CHAT_MDELIVERY
+            ChatPrefs(protocol, host, port, mdelivery)
+          }
 }
 
 data class ChatPrefs(
-  val protocol: String,
-  val host: String,
-  val port: String,
+        val protocol: String,
+        val host: String,
+        val port: String,
+        /** Message Delivery (see [ChatMsgs.mdelivery]) */
+        val mdelivery: String,
 )

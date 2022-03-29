@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.viewmodel.util
+package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -24,7 +24,7 @@ import java.net.UnknownServiceException
  * Utility method to encapsulate:
  * - the SafeCall of the version endpoint and it's handling:
  */
-class VersionUtil(
+class VersionNW(
         private val app: SmasApp,
         private val RH: RetrofitHolderChat,
         private val repoChat: RepoChat) {

@@ -145,7 +145,7 @@ class MainSmasSettingsDialog : DialogFragment() {
         val chatUserDS = requireActivity().appSmas.chatUserDS
         val user = chatUserDS.readUser.first()
         if (user.sessionkey.isNotBlank()) {
-          msg = "Logging out ${app.userDS.readUser.first().name}.."
+          msg = "Logging out ${app.dsUser.readUser.first().name}.."
           chatUserDS.deleteUser()
           dialog?.dismiss()
         } else {

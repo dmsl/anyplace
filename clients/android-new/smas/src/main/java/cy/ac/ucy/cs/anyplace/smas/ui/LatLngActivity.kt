@@ -7,14 +7,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.Text
 
 class LatLngActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-        val intent : Intent = intent
-        val lat = intent.getDoubleExtra("latitude", 0.0)
-        val long = intent.getDoubleExtra("longitude", 0.0)
-        setContent {
-             Text(text = "$lat, $long")
-        }
+    // TODO:ATH:PM bind this w/ the prev activity
+    val intent : Intent = intent
+    val lat = intent.getDoubleExtra("latitude", 0.0)
+    val long = intent.getDoubleExtra("longitude", 0.0)
+    setContent {
+      Text(text = "$lat, $long")
     }
+  }
 }

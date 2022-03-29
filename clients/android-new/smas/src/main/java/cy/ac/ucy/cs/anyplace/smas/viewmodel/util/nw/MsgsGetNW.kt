@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.viewmodel.util
+package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.content.Context
 import android.widget.Toast
@@ -16,14 +16,13 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
 
-class MsgsGetUtil(
+class MsgsGetNW(
         private val app: SmasApp,
         private val VM: SmasChatViewModel,
         private val RH: RetrofitHolderChat,
