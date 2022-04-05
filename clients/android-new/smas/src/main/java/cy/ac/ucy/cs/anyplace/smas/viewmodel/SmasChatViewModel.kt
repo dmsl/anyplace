@@ -2,9 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel
 
 import android.app.Application
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
@@ -17,15 +15,12 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.MsgSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.MildGray
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.Messages
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.VoiceRecognition
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.MsgDeliveryDialog
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
-import cy.ac.ucy.cs.anyplace.smas.utils.network.SmasAssetReader
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsGetNW
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsSendNW
 import dagger.hilt.android.lifecycle.HiltViewModel

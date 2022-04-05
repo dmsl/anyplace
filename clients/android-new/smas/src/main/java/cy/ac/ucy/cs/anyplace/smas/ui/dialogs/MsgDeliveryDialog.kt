@@ -1,27 +1,22 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs
+package cy.ac.ucy.cs.anyplace.smas.ui.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.RadioButton
-import androidx.core.view.forEach
 import androidx.core.view.get
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
-import cy.ac.ucy.cs.anyplace.lib.databinding.DialogPickModelBinding
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogDeliveryModelBinding
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
@@ -71,7 +66,7 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
   private fun setupRadioButtons() {
     val rbGroup = binding.radioGroupOptions
     // TODO 2. on update prompt to restart activity.. (or restart it automatically?) //why?
-    val methods = resources.getStringArray(R.array.deliveryOptions)
+    val methods = resources.getStringArray(R.array.delivery_options)
 
     methods.forEach { option ->
       val rb = RadioButton(context)
@@ -83,19 +78,19 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
       val chatPrefs = dsChat.read.first()
       val mdelivery = chatPrefs.mdelivery.toInt()
       val rb = rbGroup[mdelivery] as RadioButton
-      rb.isChecked = true;
+      rb.isChecked = true
     }
   }
 
   private fun setupOkButton(){
-    val btn = binding.btnOk
+    val btn = binding.btnOK
     val rbGroup = binding.radioGroupOptions
 
     btn.setOnClickListener {
       val checkedBtn = rbGroup.checkedRadioButtonId
       val rb = binding.radioGroupOptions.findViewById<RadioButton>(checkedBtn)
       val selectedModel = rb.text.toString()
-      val methods = resources.getStringArray(R.array.deliveryOptions)
+      val methods = resources.getStringArray(R.array.delivery_options)
 
       for (i in methods.indices){
         if (methods[i] == selectedModel)

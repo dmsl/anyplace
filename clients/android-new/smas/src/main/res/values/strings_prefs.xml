@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <!-- Delivery options-->
+  <string-array name="delivery_options">
+    <item entry="1">ALL</item>
+    <item entry="2">SAME DECK</item>
+    <item entry="3">NEAREST K</item>
+    <item entry="4">BOUNDING BOX</item>
+  </string-array>
+
   <!--  PREFERENCE KEYS (PK) -->
   <string name="pref_chat_server">pref_chat_server</string>
   <string name="pref_chat_server_host">pref_chat_server_host</string>
