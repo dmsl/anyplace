@@ -11,6 +11,8 @@ android {
   compileSdkVersion 31
   buildToolsVersion "30.0.3"
 
+  namespace 'cy.ac.ucy.cs.anyplace.logger'
+
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.logger"
     minSdkVersion 28
@@ -23,7 +25,7 @@ android {
   }
 
   kotlinOptions {
-    jvmTarget = '1.8'
+    jvmTarget = '11'
   }
 
   buildTypes {
@@ -41,7 +43,6 @@ android {
       excludes += ['META-INF/DEPENDENCIES']
     }
   }
-    namespace 'cy.ac.ucy.cs.anyplace.logger'
 }
 
 dependencies {
@@ -67,14 +68,15 @@ dependencies {
   // GOOGLE SERVICES
   //// GOOGLE MAPS & UTILS
   implementation 'com.google.android.gms:play-services-maps:18.0.2'
-  implementation 'com.google.maps.android:android-maps-utils:2.2.2'
+  implementation 'com.google.maps.android:android-maps-utils:2.3.0'
   //// FusedLocation (coarse/fine grain)
   implementation 'com.google.android.gms:play-services-location:19.0.1'
 
-  //// DEPENDENCY INJECTION (dagger/hilt)
-  implementation 'com.google.dagger:hilt-android:2.40.5'
-  kapt 'com.google.dagger:hilt-compiler:2.40.5'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  //// DEPENDENCY INJECTION (dagger/hilt)
+  implementation "com.google.dagger:hilt-android:$ver_hilt"
+  kapt "com.google.dagger:hilt-compiler:$ver_hilt"
+  kapt "com.google.dagger:dagger-android-processor:$ver_hilt"
 
   // RETROFIT
   implementation 'com.squareup.retrofit2:retrofit:2.9.0'

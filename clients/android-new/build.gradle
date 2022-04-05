@@ -5,7 +5,8 @@ buildscript {
     ver_hilt= '2.40.5' // 2.35 had issues
     ver_nav = "2.4.1" // has warning: BaseVariant.getApplicationIdTextResource
     ver_lifecycle = "2.4.1"
-    ver_coroutines = '1.5.2'
+    ver_coroutines = '1.6.0'
+    //    ver_coroutines = '1.5.2'
   }
 
   repositories {
@@ -20,7 +21,6 @@ buildscript {
     classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$ver_nav"
     // for Dependency injection
     classpath "com.google.dagger:hilt-android-gradle-plugin:$ver_hilt"
-
 
     // for gmaps sdk password
     classpath "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1"

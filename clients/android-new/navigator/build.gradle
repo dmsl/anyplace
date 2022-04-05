@@ -38,11 +38,11 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
   }
   kotlinOptions {
-    jvmTarget = '1.8'
+    jvmTarget = '11'
   }
     namespace 'cy.ac.ucy.cs.anyplace.navigator'
 
@@ -85,9 +85,9 @@ dependencies {
   implementation 'com.google.android.material:material:1.4.0'
 
   //// DEPENDENCY INJECTION (dagger/hilt)
-  implementation "com.google.dagger:hilt-android:2.35"
+  implementation "com.google.dagger:hilt-android:$ver_hilt"
+  kapt "com.google.dagger:hilt-android-compiler:$ver_hilt"
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  kapt "com.google.dagger:hilt-android-compiler:2.35"
 
   //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
   //  implementation 'androidx.activity:activity:1.2.0-alpha08'

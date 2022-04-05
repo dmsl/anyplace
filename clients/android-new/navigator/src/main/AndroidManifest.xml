@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="cy.ac.ucy.cs.anyplace.navigator">
     <uses-permission android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!--
@@ -37,107 +36,10 @@
                         <category android:name="android.intent.category.LAUNCHER" />
                     </intent-filter>
         </activity>
-        <!--<activity-->
-    <!--        android:name=".legacy.StartActivity"-->
-    <!--        android:label="@string/app_name"-->
-    <!--        android:theme="@android:style/Theme.Light.NoTitleBar.Fullscreen" >-->
-
-    <!--    </activity>-->
-        <!--<activity-->
-        <!--    android:name=".legacy.AnyplaceAboutActivity"-->
-        <!--    android:label="@string/app_name_about"-->
-        <!--    android:theme="@android:style/Theme.Dialog" >-->
-        <!--    <intent-filter>-->
-        <!--        <action android:name="android.intent.action.MAIN" />-->
-
-        <!--        <category android:name="android.intent.category.DEFAULT" />-->
-        <!--    </intent-filter>-->
-        <!--</activity> &lt;!&ndash; singleTop before <0.8 ! &ndash;&gt;-->
-        <!--<activity-->
-        <!--    android:name=".legacy.NavigatorActivityOLD"-->
-        <!--    android:icon="@drawable/anyplace_logo_icon_actionbar_white"-->
-        <!--    android:label="@string/app_name"-->
-        <!--    android:launchMode="singleTask"-->
-        <!--    android:screenOrientation="portrait" >-->
-        <!--    <intent-filter>-->
-        <!--        <action android:name="android.intent.action.MAIN" />-->
-
-        <!--        <category android:name="android.intent.category.DEFAULT" />-->
-        <!--    </intent-filter>-->
-        <!--    <intent-filter>-->
-        <!--        <action android:name="android.intent.action.VIEW" >-->
-        <!--        </action>-->
-
-        <!--        <category android:name="android.intent.category.DEFAULT" />-->
-        <!--        <category android:name="android.intent.category.BROWSABLE" />-->
-
-        <!--        <data-->
-        <!--            android:host="ap.cs.ucy.ac.cy"-->
-        <!--            android:pathPrefix="/anyplace/navigation"-->
-        <!--            android:scheme="http" >-->
-        <!--        </data>-->
-        <!--    </intent-filter>-->
-
-        <!--    <meta-data-->
-        <!--        android:name="android.app.default_searchable"-->
-        <!--        android:value=".UnifiedNavigationActivity" />-->
-
-        <!--    <intent-filter>-->
-        <!--        <action android:name="android.intent.action.SEARCH" />-->
-        <!--    </intent-filter>-->
-
-        <!--    <meta-data-->
-        <!--        android:name="android.app.searchable"-->
-        <!--        android:resource="@xml/searchable" />-->
-        <!--</activity>-->
-
-        <!--<activity-->
-        <!--    android:name=".legacy.SearchPOIActivity"-->
-        <!--    android:label="Search POI"-->
-        <!--    android:launchMode="singleTop"-->
-        <!--    android:screenOrientation="portrait"-->
-        <!--    android:theme="@android:style/Theme.Light" >-->
-        <!--    <intent-filter>-->
-        <!--        <action android:name="android.intent.action.SEARCH" />-->
-        <!--    </intent-filter>-->
-
-        <!--    <meta-data-->
-        <!--        android:name="android.app.searchable"-->
-        <!--        android:resource="@xml/searchable" />-->
-        <!--</activity>-->
-        <!--<activity-->
-        <!--    android:name=".legacy.SelectBuildingActivity"-->
-        <!--    android:excludeFromRecents="true"-->
-        <!--    android:label="@string/app_name"-->
-        <!--    android:screenOrientation="portrait"-->
-        <!--    android:theme="@android:style/Theme.Dialog" >-->
-        <!--    <intent-filter>-->
-        <!--        <action android:name="android.intent.action.MAIN" />-->
-
-        <!--        <category android:name="android.intent.category.DEFAULT" />-->
-        <!--    </intent-filter>-->
-        <!--</activity>-->
-        <!--<activity-->
-        <!--    android:name=".legacy.AnyplacePrefs"-->
-        <!--    android:icon="@drawable/anyplace_logo_icon_actionbar_white"-->
-        <!--    android:label="@string/prefs_name_anyplace"-->
-        <!--    android:screenOrientation="nosensor" >-->
-        <!--</activity>-->
-        <!--<activity-->
-        <!--    android:name=".legacy.LoggerPrefs"-->
-        <!--    android:icon="@drawable/anyplace_logo_icon_actionbar_white"-->
-        <!--    android:label="@string/prefs_name_logger"-->
-        <!--    android:screenOrientation="nosensor" >-->
-        <!--</activity>-->
-        <!--<activity-->
-        <!--    android:name=".legacy.SettingsActivity"-->
-        <!--    android:label="@string/prefs_name_anyplace"-->
-        <!--    android:screenOrientation="portrait" >-->
-        <!--</activity>-->
 
       <meta-data
           android:name="com.google.android.gms.version"
-          android:value="${SERVER_GOOGLE_OAUTH_CLIENT_ID}"
+          android:value="${BuildConfig.SERVER_GOOGLE_OAUTH_CLIENT_ID}"
           tools:replace="android:value"/>
       <!--TODO:ATH Delete tools:replace when local.properties are deleted-->
     </application>

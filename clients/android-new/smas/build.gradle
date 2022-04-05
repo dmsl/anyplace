@@ -1,7 +1,8 @@
 buildscript {
   ext {
-    ver_compose="1.1.1"
-    ver_accompanist="0.24.4-alpha"
+    ver_compose="1.2.0-alpha06"  // ver_compose="1.1.1"
+    ver_accompanist= '0.24.5-alpha'
+    ver_room= '2.4.2'
   }
 }
 
@@ -11,12 +12,15 @@ plugins {
   id 'kotlin-kapt'
   id 'dagger.hilt.android.plugin'
   id 'kotlin-parcelize'  // when sending safeArgs between fragments
-  id "androidx.navigation.safeargs.kotlin"
+  id 'androidx.navigation.safeargs'
+//  id "androidx.navigation.safeargs.kotlin"
   id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
   compileSdk 31
+
+  namespace 'cy.ac.ucy.cs.anyplace.smas'
 
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.smas"
@@ -48,17 +52,16 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
   }
+
   kotlinOptions {
-    jvmTarget = '1.8'
+    jvmTarget = '11'
   }
   composeOptions{
-    kotlinCompilerExtensionVersion '1.1.1'
-    kotlinCompilerVersion '1.5.21'
+    kotlinCompilerExtensionVersion "$ver_compose"
   }
-    namespace 'cy.ac.ucy.cs.anyplace.smas'
 }
 
 dependencies {
@@ -88,26 +91,26 @@ dependencies {
   //// DataStore (new preferences)
   implementation "androidx.datastore:datastore-preferences:1.0.0"
   //// ROOM
-  api "androidx.room:room-runtime:2.4.2"
-  kapt "androidx.room:room-compiler:2.4.2"
-  implementation "androidx.room:room-ktx:2.4.2"
-  androidTestImplementation "androidx.room:room-testing:2.4.2"
+  api "androidx.room:room-runtime:$ver_room"
+  kapt "androidx.room:room-compiler:$ver_room"
+  implementation "androidx.room:room-ktx:$ver_room"
+  androidTestImplementation "androidx.room:room-testing:$ver_room"
 
   // GOOGLE SERVICES
   implementation 'com.google.android.gms:play-services-location:19.0.1'
   //// GOOGLE MAPS & UTILS
   implementation 'com.google.android.gms:play-services-maps:18.0.2'
-  implementation 'com.google.maps.android:android-maps-utils:2.2.2' // updated from 0.3 !
+  implementation 'com.google.maps.android:android-maps-utils:2.3.0' // updated from 0.3 !
 
   //// DEPENDENCY INJECTION (dagger/hilt)
   // INFO updated so it can be used in this slightly more up-to-date project
-  implementation 'com.google.dagger:hilt-android:2.40.5'
-  kapt 'com.google.dagger:hilt-compiler:2.40.5'
+  implementation "com.google.dagger:hilt-android:$ver_hilt"
+  kapt "com.google.dagger:hilt-compiler:$ver_hilt"
+  kapt "com.google.dagger:dagger-android-processor:$ver_hilt"
+
   implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
   implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-  // for HILT + Navigation + jetpack compose (see Chat UI below)
-//  implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
   implementation 'com.google.android.gms:play-services-maps:18.0.2'
   implementation 'com.google.android.gms:play-services-location:19.0.1'
@@ -126,14 +129,10 @@ dependencies {
   implementation project(path: ':lib-android')
   implementation project(path: ':lib-core')
 
-  // TEST:
-  testImplementation 'junit:junit:4.13.2'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+  //// COIL
+  implementation "io.coil-kt:coil-compose:1.4.0"
 
-  // DEPENDENCIES FOR MESSAGE A
-  // msg app dependencies
-  //// JETPACK COMPOSE
+  //// JETPACK COMPOSE ([SmasChatActivity])
   implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
   implementation 'androidx.activity:activity-compose:1.4.0'
   implementation "androidx.compose.runtime:runtime-livedata:$ver_compose"
@@ -145,10 +144,13 @@ dependencies {
   implementation "androidx.compose.material:material-icons-core:$ver_compose"
   implementation "androidx.compose.foundation:foundation:$ver_compose"
 
-  //// COIL
-  implementation "io.coil-kt:coil-compose:1.4.0"
   //// ACCOMPANIST
   implementation "com.google.accompanist:accompanist-insets-ui:$ver_accompanist"
   implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
   implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
+
+  // TESTING
+  testImplementation 'junit:junit:4.13.2'
+  androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
