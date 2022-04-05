@@ -2,6 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.widget.Button
 import android.widget.Toast
@@ -159,9 +160,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     // collectUserLocalizationStatus(): localizing or not localizing
   }
 
+  @Deprecated("TODO replace with Anyplace Location")
   private fun setupFakeUserLocation(mapH: GmapHandler) {
-    // Initial fake location CLR:PM
-    // val loc = LocationSendUtil.TEST_COORDS.toCoord()
     val loc = VM.spaceH.latLng().toCoord()
     VM.location.value = LocalizationResult.Success(loc)
 
@@ -201,7 +201,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun collectLoggedInUser() {
     // only logged in users are allowed on this activity:
     lifecycleScope.launch {
-      appSmas.chatUserDS.readUser.collect { user ->
+      appSmas.dsChatUser.readUser.collect { user ->
         if (user.sessionkey.isBlank()) {
           finish()
           startActivity(Intent(this@SmasMainActivity, SmasLoginActivity::class.java))
@@ -255,11 +255,13 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
           btnAlert.flashingLoop()
           btnAlert.text = "ALERTING"
           utlButton.changeBackgroundButton(btnAlert, this, R.color.redDark)
+          btnAlert.setTextColor(Color.WHITE)
         }
         LocationSendNW.Mode.normal -> {
           btnAlert.clearAnimation()
           btnAlert.text = "SEND ALERT"
-          utlButton.changeBackgroundButton(btnAlert, this, R.color.darkGray)
+          btnAlert.setTextColor(Color.BLACK)
+          utlButton.changeBackgroundButton(btnAlert, this, R.color.yellowDark)
         }
       }
       true

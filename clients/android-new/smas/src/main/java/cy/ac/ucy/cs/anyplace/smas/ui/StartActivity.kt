@@ -1,4 +1,4 @@
-/*
+/**
 * Anyplace: A free and open Indoor Navigation Service with superb accuracy!
 *
 * Anyplace is a first-of-a-kind indoor information service offering GPS-less
@@ -46,7 +46,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
-import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
+import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import kotlinx.coroutines.CoroutineScope
@@ -59,13 +59,24 @@ class StartActivity : Activity() {
   private val SPLASH_TIME_OUT = 500L
 
   lateinit var tvVersion : TextView
-  private val appInfo by lazy { AppInfo(applicationContext) }
+  // private val appInfo by lazy { AppInfo(applicationContext) }
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_start)
     tvVersion = findViewById<View>(R.id.tvVersion) as TextView
-    appInfo.version?.let { tvVersion.text = it }
+
+    setupVersion()
+  }
+
+  private fun setupVersion() {
+    CoroutineScope(Main).launch {
+      var versionStr = "ver: ${BuildConfig.VERSION_NAME}"
+      tvVersion.text = versionStr
+      // TODO:PMX
+      // val prefsChat = appSmas.dsChat.read.first()
+      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
+    }
   }
 
   override fun onResume() {
@@ -85,7 +96,7 @@ class StartActivity : Activity() {
       // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
 
       // authenticated users go straight to the Main Smas activity
-      val chatUser = appSmas.chatUserDS.readUser.first()
+      val chatUser = appSmas.dsChatUser.readUser.first()
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")

@@ -51,7 +51,7 @@ class MsgsGetNW(
   suspend fun safeCall(msgType: Int = 0) {
     LOG.D2(TAG_METHOD)
     resp.value = NetworkResult.Loading()
-    chatUser = app.chatUserDS.readUser.first()
+    chatUser = app.dsChatUser.readUser.first()
 
     if (app.hasInternet()) {
       try {

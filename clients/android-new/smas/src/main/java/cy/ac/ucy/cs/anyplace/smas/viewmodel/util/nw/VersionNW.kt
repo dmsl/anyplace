@@ -15,6 +15,8 @@ import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatVersion
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.collectLatest
 import retrofit2.Response
 import java.lang.Exception
 import java.lang.NullPointerException
@@ -29,7 +31,7 @@ class VersionNW(
         private val RH: RetrofitHolderChat,
         private val repoChat: RepoChat) {
 
-  val resp: MutableStateFlow<NetworkResult<ChatVersion>> = MutableStateFlow(NetworkResult.Unset())
+  private val resp: MutableStateFlow<NetworkResult<ChatVersion>> = MutableStateFlow(NetworkResult.Unset())
 
   private val C by lazy { CHAT(app.applicationContext) }
 
@@ -46,9 +48,12 @@ class VersionNW(
         val response = repoChat.remote.getVersion()
         resp.value = handleVersionResponse(response)
         val version = resp.value.data
-        if (version != null) {
+        if (version != null) {  // SUCCESS
           msg = "${version.rows.version} (connected: ${GenUtils.prettyTime()})"
           versionPref?.icon = null
+
+          // store it in the DS too
+          app.dsChat.storeVersion(version.rows.version)
         } else {
           exception = Exception("Failed to get version.")
         }

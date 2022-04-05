@@ -14,9 +14,9 @@ import javax.inject.Inject
 class SmasApp : AnyplaceApp() {
 
   /** SMAS Chat Server preferences */
-  @Inject lateinit var chatPrefsDS: ChatPrefsDataStore
+  @Inject lateinit var dsChat: ChatPrefsDataStore
   /** Logged-in SMAS user */
-  @Inject lateinit var chatUserDS: ChatUserDataStore
+  @Inject lateinit var dsChatUser: ChatUserDataStore
   @Inject lateinit var rfhChat: RetrofitHolderChat
 
   override fun onCreate() {
@@ -28,7 +28,7 @@ class SmasApp : AnyplaceApp() {
 
   /** Manually create a new instance of the RetrofitHolder on pref changes */
   private fun observeChatPrefs() {
-    val prefsChat = chatPrefsDS.read
+    val prefsChat = dsChat.read
     prefsChat.asLiveData().observeForever { prefs ->
       rfhChat.set(prefs)
       LOG.E(TAG, "Updated Chat backend URL: ${rfhChat.baseURL}")

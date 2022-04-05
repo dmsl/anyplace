@@ -64,7 +64,7 @@ class LocationSendNW(
 
   /** Send the [Chatuser]'s location (safecall) */
   suspend fun safeCall(userCoords: UserCoordinates) {
-    chatUser = app.chatUserDS.readUser.first()
+    chatUser = app.dsChatUser.readUser.first()
 
     LOG.D4(TAG, "Session: ${chatUser.uid} ${chatUser.sessionkey}")
 
@@ -73,7 +73,7 @@ class LocationSendNW(
     if (app.hasInternet()) {
       try {
         val req= LocationSendReq(chatUser, getAlertFlag(), userCoords, utlTime.epoch().toString())
-        LOG.W(TAG, "Sending: ${req.time}: tp: ${mode.value} deck: ${req.deck}: x:${req.x} y:${req.y}")
+        LOG.D3(TAG, "LocSend: ${req.time}: tp: ${mode.value} deck: ${req.deck}: x:${req.x} y:${req.y}")
         val response = repo.remote.locationSend(req)
         LOG.D4(TAG, "LocationSend: Resp: ${response.message()}" )
         resp.value = handleResponse(response)

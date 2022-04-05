@@ -24,6 +24,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// TODO:ATH bind a button and call something like:
+
 @AndroidEntryPoint
 class SettingsChatActivity: BaseSettingsActivity() {
   private lateinit var settingsFragment: SettingsChatFragment
@@ -38,7 +40,7 @@ class SettingsChatActivity: BaseSettingsActivity() {
     VM = ViewModelProvider(this)[SmasMainViewModel::class.java]
     smasChatVM = ViewModelProvider(this)[SmasChatViewModel::class.java]
 
-    settingsFragment = SettingsChatFragment(VM, retrofitHolder, this.appSmas.chatPrefsDS)
+    settingsFragment = SettingsChatFragment(VM, retrofitHolder, this.appSmas.dsChat)
     setupFragment(settingsFragment, savedInstanceState)
 
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

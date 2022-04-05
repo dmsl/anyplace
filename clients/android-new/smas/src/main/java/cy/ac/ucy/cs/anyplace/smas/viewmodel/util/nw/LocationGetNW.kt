@@ -49,7 +49,7 @@ class LocationGetNW(
   /** Get [UserLocations] SafeCall */
   suspend fun safeCall() {
     LOG.D3(TAG, "LocationGet")
-    chatUser = app.chatUserDS.readUser.first()
+    chatUser = app.dsChatUser.readUser.first()
 
     resp.value = NetworkResult.Loading()
     if (app.hasInternet()) {

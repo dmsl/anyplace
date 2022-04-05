@@ -36,7 +36,7 @@ class MsgsSendNW(private val app: SmasApp,
   suspend fun safeCall(userCoords: UserCoordinates, mdelivery: Int,mtype: Int, msg: String?, mexten: String?) {
     LOG.D2(TAG_METHOD)
     resp.value = NetworkResult.Loading()
-    chatUser = app.chatUserDS.readUser.first()
+    chatUser = app.dsChatUser.readUser.first()
 
     if (app.hasInternet()) {
       try {

@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class ChatUserDataStore @Inject constructor(@ApplicationContext private val ctx: Context) {
 
   private val C by lazy { CHAT(ctx) }
-  private val Context.chatUserDS by preferencesDataStore(name = C.PREF_CHAT_USER)
+  private val Context.dsChatUser by preferencesDataStore(name = C.PREF_CHAT_USER)
 
   private class Keys(c: CHAT) {
     val uid = stringPreferencesKey(c.PREF_USER_ID)
@@ -31,7 +31,7 @@ class ChatUserDataStore @Inject constructor(@ApplicationContext private val ctx:
   private val KEY = Keys(C)
 
   val readUser: Flow<ChatUser> =
-    ctx.chatUserDS.data
+    ctx.dsChatUser.data
         .catch { exception ->
          if (exception is IOException)  { emit(emptyPreferences()) } else { throw exception }
         }
@@ -43,12 +43,12 @@ class ChatUserDataStore @Inject constructor(@ApplicationContext private val ctx:
 
   /** Stores a logged in user to the datastore */
   suspend fun storeUser(user: ChatUser) {
-    ctx.chatUserDS.edit {
+    ctx.dsChatUser.edit {
       it[KEY.uid] = user.uid
       it[KEY.sessionkey] = user.sessionkey
     }
   }
 
   /** Deletes the logged in user */
-  suspend fun deleteUser() {  ctx.chatUserDS.edit { it.clear() } }
+  suspend fun deleteUser() {  ctx.dsChatUser.edit { it.clear() } }
 }

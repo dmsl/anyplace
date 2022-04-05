@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.dialogs
+package cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog

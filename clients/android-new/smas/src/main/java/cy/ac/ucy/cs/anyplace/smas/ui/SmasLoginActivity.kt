@@ -10,11 +10,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
@@ -29,7 +27,6 @@ import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasLoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 
@@ -163,7 +160,7 @@ class SmasLoginActivity : BaseActivity() {
             // Store user in datastore
             val user = response.data
             user?.let {
-              appSmas.chatUserDS.storeUser(ChatUser(user.uid, user.sessionkey))
+              appSmas.dsChatUser.storeUser(ChatUser(user.uid, user.sessionkey))
               openLoggedInActivity()
             }
           }

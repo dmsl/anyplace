@@ -10,6 +10,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.network.NetUtils
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
+import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,8 +30,8 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
   : PreferenceDataStore() {
 
   private val C by lazy { CHAT(ctx) }
-  private val Context.dataStoreChat by preferencesDataStore(name = C.PREF_CHAT_SERVER)
-  private val datastore = ctx.dataStoreChat
+  private val Context.dsChat by preferencesDataStore(name = C.PREF_CHAT_SERVER)
+  private val datastore = ctx.dsChat
 
   private val validKeys = setOf(
           // BACKEND SETTINGS
@@ -44,13 +45,15 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
   // CHECK: is this needed?
   // these are not actual preferences. just placeholders to display some information
   // like backend version when displaying the connection status.
-  private val ignoreKeys = setOf(C.PREF_CHAT_SERVER_VERSION)
+  private val ignoreKeys = setOf(C.PREF_SERVER_VERSION)
 
   private class Keys(c: CHAT) {
     val protocol= stringPreferencesKey(c.PREF_CHAT_SERVER_PROTOCOL)
     val host = stringPreferencesKey(c.PREF_CHAT_SERVER_HOST)
     val port = stringPreferencesKey(c.PREF_CHAT_SERVER_PORT)
     val mdelivery = stringPreferencesKey(c.PREF_CHAT_MDELIVERY)
+    /** backend version */
+    val version = stringPreferencesKey(c.PREF_CHAT_SERVER_VERSION)
   }
   private val KEY = Keys(C)
 
@@ -69,7 +72,7 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
       datastore.edit {
         when (key) {
           C.PREF_CHAT_SERVER_HOST -> it[KEY.host] = value?: C.DEFAULT_PREF_CHAT_SERVER_HOST
-          C.PREF_CHAT_SERVER_PORT ->  {
+          C.PREF_CHAT_SERVER_PORT -> {
             val storeValue : String =
                     if (NetUtils.isValidPort(value)) value!! else C.DEFAULT_PREF_CHAT_SERVER_PORT
             it[KEY.port] =  storeValue
@@ -102,7 +105,7 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
   override fun putBoolean(key: String?, value: Boolean) { }
   override fun getBoolean(key: String?, defValue: Boolean): Boolean { return false }
 
-  val read: Flow<ChatPrefs> = ctx.dataStoreChat.data
+  val read: Flow<ChatPrefs> = ctx.dsChat.data
           .catch { exception ->
             if (exception is IOException) {
               emit(emptyPreferences())
@@ -113,9 +116,24 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
             val host = preferences[KEY.host] ?: C.DEFAULT_PREF_CHAT_SERVER_HOST
             val port = preferences[KEY.port] ?: C.DEFAULT_PREF_CHAT_SERVER_PORT
             val mdelivery = preferences[KEY.mdelivery] ?: C.DEFAULT_PREF_CHAT_MDELIVERY
-            ChatPrefs(protocol, host, port, mdelivery)
+            val version = preferences[KEY.version]
+            ChatPrefs(protocol, host, port, mdelivery, version)
           }
+
+  /** Stores the backend version.
+   * Not this is not a [KEY] as it cannot be modified by the XML UI.
+   * Therefore:
+   * - no handling in [getString]/[putString]
+   * - is in [ignoreKeys]
+   */
+  suspend fun storeVersion(version: String) {
+    ctx.dsChat.edit {
+      it[KEY.version] = version
+    }
+  }
+
 }
+
 
 data class ChatPrefs(
         val protocol: String,
@@ -123,4 +141,5 @@ data class ChatPrefs(
         val port: String,
         /** Message Delivery (see [ChatMsgs.mdelivery]) */
         val mdelivery: String,
+        val version: String?,
 )

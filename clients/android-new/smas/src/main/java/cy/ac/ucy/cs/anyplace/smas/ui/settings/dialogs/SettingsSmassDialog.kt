@@ -95,7 +95,7 @@ class MainSmasSettingsDialog : DialogFragment() {
 
   private fun setupChatUser() {
     CoroutineScope(Dispatchers.Main).launch {
-      val chatUser = requireActivity().appSmas.chatUserDS.readUser.first()
+      val chatUser = requireActivity().appSmas.dsChatUser.readUser.first()
       if (chatUser.sessionkey.isNotBlank()) {
         binding.user = chatUser
         binding.tvAccountType.isVisible = true
@@ -133,8 +133,14 @@ class MainSmasSettingsDialog : DialogFragment() {
   }
 
   private fun setupVersion() {
-    val prettyVersion = getString(R.string.smas_version, BuildConfig.VERSION_NAME)
-    binding.btnVersionSmas.text = prettyVersion
+
+    CoroutineScope(Dispatchers.Main).launch {
+      var versionStr = BuildConfig.VERSION_NAME
+      // TODO:PMX
+      // val prefsChat = requireActivity().appSmas.dsChat.read.first()
+      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
+      binding.btnVersionSmas.text = getString(R.string.smas_version, versionStr)
+    }
   }
 
   private fun setupChatUserLogout() {
@@ -142,7 +148,7 @@ class MainSmasSettingsDialog : DialogFragment() {
     binding.btnLogout.setOnClickListener {
       CoroutineScope(Dispatchers.Main).launch {
         val msg: String
-        val chatUserDS = requireActivity().appSmas.chatUserDS
+        val chatUserDS = requireActivity().appSmas.dsChatUser
         val user = chatUserDS.readUser.first()
         if (user.sessionkey.isNotBlank()) {
           msg = "Logging out ${app.dsUser.readUser.first().name}.."

@@ -94,7 +94,7 @@ class SmasMainViewModel @Inject constructor(
 
         nwLocationGet.safeCall()
 
-        delay(navDS.first().locationRefresh.toLong()*1000)
+        delay(prefsCvNav.first().locationRefresh.toLong()*1000)
       }
     }
   }

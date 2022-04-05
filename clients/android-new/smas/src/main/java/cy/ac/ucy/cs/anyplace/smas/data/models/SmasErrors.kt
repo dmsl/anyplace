@@ -42,7 +42,7 @@ class SmasErrors(private val app: SmasApp,
   }
 
   private suspend fun logoutUser() {
-    app.chatUserDS.deleteUser()
+    app.dsChatUser.deleteUser()
   }
 
 }

@@ -75,7 +75,7 @@ class SmasChatViewModel @Inject constructor(
     val smas = app as SmasApp
     var uid: String = ""
     viewModelScope.launch {
-      uid = smas.chatUserDS.readUser.first().uid
+      uid = smas.dsChatUser.readUser.first().uid
     }
     return uid
   }
