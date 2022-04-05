@@ -7,8 +7,10 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import android.webkit.MimeTypeMap
+import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.lang.IllegalArgumentException
 
 // TODO:PM:ATH merge w/ android-lib
 class ImageBase64 {
@@ -29,7 +31,12 @@ class ImageBase64 {
     }
 
     fun decodeFromBase64(encodedBase64: String): Bitmap? {
-        val bytes = Base64.decode(encodedBase64, Base64.DEFAULT)
+      var bytes = ByteArray(0)
+      try {
+         bytes = Base64.decode(encodedBase64, Base64.DEFAULT)
+      }catch(e: IllegalArgumentException){
+        LOG.E("Image cannot be displayed.")
+      }
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
 

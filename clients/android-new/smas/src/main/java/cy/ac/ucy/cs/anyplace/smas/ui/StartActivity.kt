@@ -89,9 +89,9 @@ class StartActivity : Activity() {
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+        // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
         // CHECK:ATH: example on how to start chat activity from here..
-        // startActivity(Intent(this@StartActivity, SmasChatActivity::class.java))
+        startActivity(Intent(this@StartActivity, SmasChatActivity::class.java))
       } else {
         LOG.D2(TAG, "Opening activity: Login")
         startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))

@@ -2,24 +2,28 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel
 
 import android.app.Application
 import android.net.Uri
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.widget.Toast
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.*
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
+import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
+import cy.ac.ucy.cs.anyplace.smas.data.models.MsgSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.MildGray
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.Messages
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.VoiceRecognition
+import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.MsgDeliveryDialog
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.utils.network.SmasAssetReader
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsGetNW
@@ -48,10 +52,6 @@ class SmasChatViewModel @Inject constructor(
   private val nwMsgsGet by lazy { MsgsGetNW(app as SmasApp, this, RFH, repoChat) }
   private val nwMsgsSend by lazy { MsgsSendNW(app as SmasApp, this, RFH, repoChat) }
 
-  //Json data
-  private val assetReader by lazy { SmasAssetReader(app) }
-  var messages: Messages? = null
-
   //Class objects
   val voiceRecognizer = VoiceRecognition()
   val imageHelper = ImageBase64()
@@ -66,10 +66,7 @@ class SmasChatViewModel @Inject constructor(
 
   //The list of messages shown on screen
   val listOfMessages = mutableStateListOf<ChatMsg>()
-
-  fun readData() {
-    messages = assetReader.getMessages()
-  }
+  val messagesWithStatus = mutableStateMapOf<ChatMsg, NetworkResult<MsgSendResp>>()
 
   fun getLoggedInUser(): String {
     val smas = app as SmasApp
@@ -78,6 +75,19 @@ class SmasChatViewModel @Inject constructor(
       uid = smas.chatUserDS.readUser.first().uid
     }
     return uid
+  }
+
+  fun getDeliveryMethod() : String{
+    var mdelivery : String = ""
+    viewModelScope.launch {
+      val chatPrefs = dsChat.read.first()
+      mdelivery = chatPrefs.mdelivery
+    }
+    return mdelivery
+  }
+
+  fun openMsgDeliveryDialog(fragmentManager: FragmentManager){
+    MsgDeliveryDialog.SHOW(fragmentManager, dsChat, app as SmasApp)
   }
 
   fun clearReply() {
@@ -108,22 +118,31 @@ class SmasChatViewModel @Inject constructor(
     }
   }
 
-  fun sendMessage(newMsg: String?, mtype: Int) { // TODO:ATH: val lastCoordinates = UserCoordinates(spaceH.obj.id,... from SmasMain...
+  fun sendMessage(VM: SmasMainViewModel,newMsg: String?, mtype: Int) {
     viewModelScope.launch {
-      //TODO:PM:ATH user coordinates & mdelivery
-      val userCoord = UserCoordinates("1234", 1, 5.0, 5.0)
+      var userCoord : UserCoordinates? = null
+      if (VM.location.value.coord != null)
+         userCoord = UserCoordinates(VM.spaceH.obj.id,
+                VM.floorH?.obj!!.floorNumber.toInt(),
+                VM.location.value.coord!!.lat,
+                VM.location.value.coord!!.lon)
 
       val chatPrefs = dsChat.read.first()
-      // TODO:ATH: now you are using this.
-      // Update your UI, w/ TextView to update this accordingly.
-      // I'll also update it from settings... on chat settings..
-      // TODO:ATH: bind settings button to open [SettingsChatActivity]
       val mdelivery = chatPrefs.mdelivery
       var mexten: String? = null
       if (imageUri != null) {
         mexten = imageHelper.getMimeType(imageUri!!, app)
       }
-      nwMsgsSend.safeCall(userCoord, 1, mtype, newMsg, mexten)
+
+      //dummy coords
+      val dummy = UserCoordinates("1234",1,5.0,5.0)
+      nwMsgsSend.safeCall(dummy, mdelivery, mtype, newMsg, mexten)
+      // if (userCoord != null)
+      //   nwMsgsSend.safeCall(userCoord, mdelivery, mtype, newMsg, mexten)
+      // else{
+      //   Toast.makeText(app,"Localization problem. Message cannot be delivered.",Toast.LENGTH_SHORT)
+      //   LOG.E("Localization problem. Message cannot be delivered.")
+      // }
     }
     clearReply()
     clearTheReplyToMessage()

@@ -75,10 +75,6 @@ data class MsgGetReq(
   constructor(user: ChatUser, mgettype: Int) : this(user.uid, user.sessionkey, mgettype)
 }
 
-/**
- * TODO [ChatMsg] Request model
- *
- */
 data class MsgSendReq(
         // [ChatUser]
         @SerializedName("uid")
@@ -91,7 +87,7 @@ data class MsgSendReq(
         @SerializedName("deck")
         val deck: Int,
         @SerializedName("mdelivery")
-        val mdelivery: Int,
+        val mdelivery: String,
         @SerializedName("msg")
         val msg: String?,
         @SerializedName("mtype")
@@ -106,7 +102,7 @@ data class MsgSendReq(
         @SerializedName("y")
         val y: Double
 ){
-  constructor(user: ChatUser, userCoords: UserCoordinates, mdelivery: Int, msg: String?, mtype: Int, mexten: String?, time: String) :
+  constructor(user: ChatUser, userCoords: UserCoordinates, mdelivery: String, msg: String?, mtype: Int, mexten: String?, time: String) :
           this(user.uid, user.sessionkey, userCoords.buid, userCoords.level, mdelivery, msg, mtype, mexten, time, userCoords.lat, userCoords.lon)
 }
 
