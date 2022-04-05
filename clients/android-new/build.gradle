@@ -1,6 +1,6 @@
 buildscript {
   ext {
-    ver_android_gradle_plugin = '7.0.4'
+    ver_android_gradle_plugin = '7.1.2'
     ver_kotlin= '1.6.0' // kapt fails with higher version (w/ hilt)
     ver_hilt= '2.40.5' // 2.35 had issues
     ver_nav = "2.4.1" // has warning: BaseVariant.getApplicationIdTextResource

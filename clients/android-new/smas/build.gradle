@@ -58,6 +58,7 @@ android {
     kotlinCompilerExtensionVersion '1.1.1'
     kotlinCompilerVersion '1.5.21'
   }
+    namespace 'cy.ac.ucy.cs.anyplace.smas'
 }
 
 dependencies {
