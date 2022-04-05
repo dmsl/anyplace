@@ -1,5 +1,6 @@
 package cy.ac.ucy.cs.anyplace.smas.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
@@ -9,8 +10,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,6 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +34,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
@@ -38,6 +46,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.*
+import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,51 +58,45 @@ import dagger.hilt.android.AndroidEntryPoint
 class SmasChatActivity : ComponentActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
-  private lateinit var VM: SmasMainViewModel
+  private lateinit var VMmain: SmasMainViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
-    VM = ViewModelProvider(this)[SmasMainViewModel::class.java]
+    VMmain = ViewModelProvider(this)[SmasMainViewModel::class.java]
 
     VMchat.nwPullMessages()
     VMchat.collectMessages()
 
-    VM.floorH
-    // TODO:ATH: in composable you can use the below:
-    // viewModel = hiltViewModel<SmasChatViewModel>()
-    // but for onCreate you'll have to figure this out.
-
-    // VMchat.readData()
-    // //sample data start
-    // var messagesList = emptyList<ChatMsg>()
-    //
-    // if (VMchat.messages != null) {
-    //   messagesList = VMchat.messages!!.messagesList
-    // }
-    //
-    // messagesList.forEach {
-    //   VMchat.listOfMessages.add(it)
-    // }
-    // //sample data end
-
     setContent {
       Scaffold(
-              topBar = { TopMessagesBar() },
-              content = { Conversation(VMchat) },
+              topBar = { TopMessagesBar(::onBackClick) },
+              content = { Conversation(VMmain, VMchat, ::returnLoc) },
               backgroundColor = WhiteGray
       )
     }
   }
+
+  private fun onBackClick() {
+    intent.data = null
+    finish()
+  }
+
+  private fun returnLoc(latitude: Double, longitude: Double) {
+    setResult(Activity.RESULT_OK, Intent().putExtra("latitude", latitude).putExtra("longitude", longitude))
+    finish()
+  }
 }
 
 @Composable
-fun TopMessagesBar() {
+fun TopMessagesBar(onBackClick: () -> Unit) {
+  val ctx = LocalContext.current
+
   TopAppBar(
           title = { Text("Messages", style = MaterialTheme.typography.h5) },
           navigationIcon = {
-            IconButton(onClick = { /* doSomething() */  /*TODO*/ }) { //should go back
+            IconButton(onClick = { onBackClick }) { //navigate back to the calling activity
               Icon(
                       Icons.Filled.ArrowBack,
                       contentDescription = null,
@@ -102,7 +105,13 @@ fun TopMessagesBar() {
             }
           },
           actions = {
-            IconButton(onClick = { /* doSomething() */  /*TODO*/ }) { //settings page
+
+            IconButton(
+                    onClick = {
+                      val intent = Intent(ctx, SettingsChatActivity::class.java)
+                      ctx.startActivity(intent)
+                    })
+            {
               Icon(
                       Icons.Filled.Settings,
                       contentDescription = "settings",
@@ -116,81 +125,84 @@ fun TopMessagesBar() {
   )
 }
 
-// @ExperimentalPermissionsApi
-// @RequiresApi(Build.VERSION_CODES.O)
-// @ExperimentalMaterialApi
-// @Composable
-// fun Conversation(
-//         VMchat: SmasChatViewModel
-// ) {
-//
-//   val messagesList = VMchat.listOfMessages
-//
-//   Column {
-//     val listState = rememberLazyListState(messagesList.size - 1)
-//
-//     LazyColumn(
-//             modifier = Modifier
-//                     .weight(1f)
-//                     .padding(bottom = 5.dp),
-//             state = listState,
-//             verticalArrangement = Arrangement.spacedBy(10.dp),
-//             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
-//     ) {
-//       items(messagesList) { message ->
-//         MessageCard(message, VMchat)
-//       }
-//       // CoroutineScope(Dispatchers.Main).launch {
-//       //   if (messagesList.isNotEmpty())
-//       //     listState.scrollToItem(messagesList.size - 1)
-//       // }
-//     }
-//     ReplyCard(VMchat)
-//   }
-// }
-
 @ExperimentalPermissionsApi
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @Composable
 fun Conversation(
-   viewModel: SmasChatViewModel
+        VMmain: SmasMainViewModel,
+        VMchat: SmasChatViewModel,
+        returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
 
-   var messagesList = viewModel.listOfMessages
+  val messagesList = VMchat.listOfMessages
 
-   Column {
-       val state = rememberScrollState()
-       val scope = rememberCoroutineScope()
+  Column {
 
-       Column(
-           modifier = Modifier
-               .weight(1f)
-               .padding(all = 15.dp)
-               .verticalScroll(rememberScrollState()),
-           verticalArrangement = Arrangement.spacedBy(10.dp),
-       ) {
-           messagesList.forEachIndexed { index, message ->
-               MessageCard(message, viewModel)
-           }
-           // scope.launch {
-           //     if (messagesList.isNotEmpty())
-           //         state.scrollTo(messagesList.size - 1)
-           // }
-       }
-       ReplyCard(viewModel)
-   }
+    LazyColumn(
+            modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = 5.dp),
+            //state = listState,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+            reverseLayout = true
+    ) {
+      if (!messagesList.isEmpty()) {
+        itemsIndexed(messagesList) { index, message ->
+          MessageCard(message, VMchat, returnLoc)
+        }
+      }
+    }
+    DeliveryCard(VMchat)
+    ReplyCard(VMmain, VMchat)
+  }
 }
+
+// @ExperimentalPermissionsApi
+// @RequiresApi(Build.VERSION_CODES.O)
+// @ExperimentalMaterialApi
+// @Composable
+// fun Conversation(
+//         VMmain: SmasMainViewModel,
+//         VMchat: SmasChatViewModel,
+//         returnLoc: (lat: Double, lng: Double) -> Unit
+// ) {
+//
+//   var messagesList = VMchat.listOfMessages
+//
+//   Column {
+//     val state = rememberScrollState()
+//     val scope = rememberCoroutineScope()
+//
+//     Column(
+//             modifier = Modifier
+//                     .weight(1f)
+//                     .padding(all = 15.dp)
+//                     .verticalScroll(rememberScrollState()),
+//             verticalArrangement = Arrangement.spacedBy(10.dp),
+//     ) {
+//       messagesList.forEachIndexed { index, message ->
+//         MessageCard(message, VMchat, returnLoc)
+//       }
+//       // scope.launch {
+//       //     if (messagesList.isNotEmpty())
+//       //         state.scrollTo(messagesList.size - 1)
+//       // }
+//     }
+//     ReplyCard(VMmain, VMchat)
+//   }
+// }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @Composable
 fun MessageCard(
         message: ChatMsg,
-        VMchat: SmasChatViewModel
+        VMchat: SmasChatViewModel,
+        returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
   val senderIsLoggedUser = (VMchat.getLoggedInUser() == message.uid)
-  val ctx = LocalContext.current
 
   Column(
           modifier = Modifier.fillMaxSize(),
@@ -214,7 +226,7 @@ fun MessageCard(
                 reply = !reply
               },
               modifier = Modifier
-                      .widthIn(max = 250.dp),
+                      .widthIn(max = 250.dp, min = 50.dp),
               shape = when {
                 senderIsLoggedUser -> RoundedCornerShape(10.dp, 0.dp, 10.dp, 10.dp)
                 else -> RoundedCornerShape(0.dp, 10.dp, 10.dp, 10.dp)
@@ -319,10 +331,7 @@ fun MessageCard(
                       )
                       IconButton(
                               onClick = {
-                                val intent = Intent(ctx, LatLngActivity::class.java)
-                                intent.putExtra("latitude", message.x)
-                                intent.putExtra("longitude", message.y)
-                                ctx.startActivity(intent)
+                                returnLoc(message.x, message.y)
                               },
                               modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
                       ) {
@@ -385,11 +394,52 @@ fun MessageCard(
   }
 }
 
+@Composable
+fun DeliveryCard(VMchat: SmasChatViewModel) {
+  Row(
+          modifier = Modifier
+                  .fillMaxWidth()
+                  .padding(bottom = 5.dp)
+                  .padding(horizontal = 5.dp)
+                  .background(Color.Transparent),
+          horizontalArrangement = Arrangement.Center
+  ) {
+
+    Card(modifier = Modifier
+            .fillMaxWidth()
+            .background(White, RoundedCornerShape(10.dp))
+            .border(Dp.Hairline, AnyplaceBlue, RoundedCornerShape(5.dp))) {
+      Row() {
+        Text(text = "Messages are delivered to ",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                        .padding(vertical = 10.dp)
+                        .padding(start = 10.dp))
+
+        Text(
+                text = when (VMchat.getDeliveryMethod()) {
+                  "2" -> "SAME DECK USERS."
+                  "3" -> "NEAREST USERS."
+                  "4" -> "USERS IN 100M."
+                  else -> "ALL USERS."
+                },
+                modifier = Modifier
+                        .clickable {
+                          //MsgDeliveryDialog
+                        }
+                        .padding(vertical = 10.dp)
+                        .padding(end = 10.dp),
+                color = AnyplaceBlue
+        )
+      }
+    }
+  }
+}
 
 @ExperimentalPermissionsApi
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReplyCard(VMchat: SmasChatViewModel) {
+fun ReplyCard(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
 
   val imageUri = VMchat.imageUri
   val replyToMessage = VMchat.replyToMessage;
@@ -402,7 +452,7 @@ fun ReplyCard(VMchat: SmasChatViewModel) {
           horizontalAlignment = Alignment.CenterHorizontally
   ) {
 
-    ShareLocAlert(VMchat = VMchat)
+    ShareLocAlert(VMmain, VMchat)
 
     if (replyToMessage != null) {
       ReplyToMessage(VMchat = VMchat)
@@ -413,7 +463,7 @@ fun ReplyCard(VMchat: SmasChatViewModel) {
               horizontalArrangement = Arrangement.Center,
               verticalAlignment = Alignment.CenterVertically
       ) {
-        TextBox(VMchat = VMchat, Modifier.weight(2f))
+        TextBox(VMmain = VMmain, VMchat = VMchat, Modifier.weight(2f))
         Row(Modifier.weight(1f)) {
           RecordBtn(
                   VMchat = VMchat,
@@ -425,7 +475,7 @@ fun ReplyCard(VMchat: SmasChatViewModel) {
       }
 
     } else {
-      ShowImg(VMchat = VMchat)
+      ShowImg(VMmain, VMchat)
     }
   }
 }
@@ -475,7 +525,7 @@ fun ReplyToMessage(VMchat: SmasChatViewModel) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TextBox(VMchat: SmasChatViewModel, modifier: Modifier) {
+fun TextBox(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel, modifier: Modifier) {
 
   val focusManager = LocalFocusManager.current
   var sendEnabled by remember { mutableStateOf(false) }
@@ -506,7 +556,7 @@ fun TextBox(VMchat: SmasChatViewModel, modifier: Modifier) {
                     onClick = {
                       newMsg = reply
 
-                      VMchat.sendMessage(newMsg, 1)
+                      VMchat.sendMessage(VMmain, newMsg, 1)
                       focusManager.clearFocus()
                     },
                     enabled = sendEnabled
@@ -533,7 +583,7 @@ fun TextBox(VMchat: SmasChatViewModel, modifier: Modifier) {
                   onSend = {
                     newMsg = reply
 
-                    VMchat.sendMessage(newMsg,1)
+                    VMchat.sendMessage(VMmain, newMsg, 1)
                     focusManager.clearFocus()
                   }
           ),
@@ -634,7 +684,7 @@ fun ShareLocBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShareLocAlert(VMchat: SmasChatViewModel) {
+fun ShareLocAlert(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
 
   val alertDialog = VMchat.showDialog
 
@@ -648,7 +698,7 @@ fun ShareLocAlert(VMchat: SmasChatViewModel) {
             confirmButton = {
               TextButton(
                       onClick = {
-                        VMchat.sendMessage(null, 3)
+                        VMchat.sendMessage(VMmain, null, 3)
                         VMchat.showDialog = false
                       }) {
                 Text("Confirm", color = AnyplaceBlue)
@@ -667,7 +717,7 @@ fun ShareLocAlert(VMchat: SmasChatViewModel) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowImg(VMchat: SmasChatViewModel) {
+fun ShowImg(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
 
   val imageUri = VMchat.imageUri
   val ctx = LocalContext.current
@@ -701,7 +751,7 @@ fun ShowImg(VMchat: SmasChatViewModel) {
       }
       IconButton(
               onClick = {
-                VMchat.sendMessage(VMchat.imageHelper.encodeToBase64(imageUri, ctx), 2)
+                VMchat.sendMessage(VMmain, VMchat.imageHelper.encodeToBase64(imageUri, ctx), 2)
                 VMchat.clearImgUri()
               }
       ) {

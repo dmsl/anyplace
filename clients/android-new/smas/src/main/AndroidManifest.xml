@@ -57,11 +57,6 @@
         android:theme="@style/AppTheme.Compat.Fullscreen"
         android:screenOrientation="portrait"
         android:label="SMAS Login" />
-    <!--TODO:ATH delete when unnecessary -->
-    <activity
-        android:name=".ui.LatLngActivity"
-        android:exported="false"
-        android:theme="@style/AppTheme.Compat.Fullscreen" />
   </application>
   <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
   <!--

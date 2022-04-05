@@ -3,8 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/lib-android/src/main/res/layout/dialog_clear_caches.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/lib-android/src/main/res/layout/dialog_main_settings.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/lib-android/src/main/res/layout/dialog_pick_model.xml" value="0.4" />
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/lib-android/src/main/res/layout/fragment_spaces_list.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/smas/src/main/res/layout/activity_smas_login.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/smas/src/main/res/layout/dialog_chat.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/smas/src/main/res/layout/dialog_delivery_model.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/smas/src/main/res/layout/dialog_settings_smas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/athen/AndroidStudioProjects/anyplace/clients/android-new/smas/src/main/res/xml/preferences_chat.xml" value="0.25416666666666665" />
         <entry key="lib-android/src/main/res/drawable-xxhdpi/button_confirm.xml" value="0.234" />
         <entry key="lib-android/src/main/res/drawable-xxhdpi/cv_bottom_sheet_bg.xml" value="0.259" />
         <entry key="lib-android/src/main/res/drawable-xxhdpi/ic_baseline_add.xml" value="0.175" />

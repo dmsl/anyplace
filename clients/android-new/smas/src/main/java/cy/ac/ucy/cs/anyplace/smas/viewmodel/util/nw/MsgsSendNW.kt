@@ -13,6 +13,8 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.WineRed
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +35,7 @@ class MsgsSendNW(private val app: SmasApp,
   private lateinit var chatUser: ChatUser
   private val err by lazy { SmasErrors(app, VM.viewModelScope) }
 
-  suspend fun safeCall(userCoords: UserCoordinates, mdelivery: Int,mtype: Int, msg: String?, mexten: String?) {
+  suspend fun safeCall(userCoords: UserCoordinates, mdelivery: String, mtype: Int, msg: String?, mexten: String?) {
     LOG.D2(TAG_METHOD)
     resp.value = NetworkResult.Loading()
     chatUser = app.dsChatUser.readUser.first()
@@ -59,7 +61,7 @@ class MsgsSendNW(private val app: SmasApp,
 
   private fun handleResponse(response: Response<MsgSendResp>): NetworkResult<MsgSendResp> {
     LOG.E(TAG, "HandleResponse:::")
-    if(response.isSuccessful) {
+    if (response.isSuccessful) {
       when {
         response.message().toString().contains("timeout") -> return NetworkResult.Error("Timeout.")
         // response.body()!!.chatMsgs.isNullOrEmpty() -> return NetworkResult.Error("Can't get messages.")
@@ -69,7 +71,7 @@ class MsgsSendNW(private val app: SmasApp,
 
           // SMAS special handling (errors should not be 200/OK)
           val r = response.body()!!
-          if (r.status == "err")  {
+          if (r.status == "err") {
             return NetworkResult.Error(r.descr)
           }
 
@@ -82,7 +84,7 @@ class MsgsSendNW(private val app: SmasApp,
     return NetworkResult.Error("$TAG: ${response.message()}")
   }
 
-  private fun handleException(msg:String, e: Exception) {
+  private fun handleException(msg: String, e: Exception) {
     LOG.E(TAG_METHOD, msg)
     LOG.E(TAG_METHOD, e)
     resp.value = NetworkResult.Error(msg)
@@ -91,8 +93,10 @@ class MsgsSendNW(private val app: SmasApp,
   // TODO:ATH send UI elements? LazyColumn?
   suspend fun collect(ctx: Context) {
     resp.collect {
-      when (it)  {
+      when (it) {
         // TODO:ATH for MsgSEndUtil: is NR.Loading(): gray button, disabled, spinner..
+        is NetworkResult.Loading -> {
+        }
         is NetworkResult.Success -> { // TODO:ATH for MsgSEndUtil: throw in chat: UIComposable.ShowInChat()
           // TODO:ATH
           LOG.D1(TAG, "MessageSend: ${it.data?.status}")

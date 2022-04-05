@@ -1,11 +1,15 @@
 package cy.ac.ucy.cs.anyplace.smas.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.ViewModelProvider
@@ -80,6 +84,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   // VIEW MODELS
   /** extends [CvMapViewModel] */
   private lateinit var VM: SmasMainViewModel
+
   /** Async handling of SMAS Messages and Alerts */
   private lateinit var VMchat: SmasChatViewModel
 
@@ -172,6 +177,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   }
 
   var firstFloorLoaded = false
+
   /**
    * Observes when the initial floor will be loaded, and runs a method
    */
@@ -218,8 +224,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   @SuppressLint("SetTextI18n")
   private fun collectAlertingUser() { // TODO:PMX
     lifecycleScope.launch {
-      val group : Group = findViewById(R.id.group_userAlert)
-      val tvUserAlert : OutlineTextView = findViewById(R.id.tv_alertUser)
+      val group: Group = findViewById(R.id.group_userAlert)
+      val tvUserAlert: OutlineTextView = findViewById(R.id.tv_alertUser)
       val tvAlertTitle: OutlineTextView = findViewById(R.id.tv_alertTitle)
       VM.alertingUser.collect {
         if (it == null) { // no user alerting
@@ -246,7 +252,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun setupButtonAlert() {
     btnAlert = findViewById(R.id.btnAlert)
     btnAlert.setOnClickListener {
-     Toast.makeText(applicationContext, "Use long-press", Toast.LENGTH_SHORT).show()
+      Toast.makeText(applicationContext, "Use long-press", Toast.LENGTH_SHORT).show()
     }
 
     btnAlert.setOnLongClickListener {
@@ -288,7 +294,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
   // TODO CHECK:PM
   private suspend fun collectLocalizationStatus() {
-    VM.localization.collect {  status ->
+    VM.localization.collect { status ->
       when (status) {
         Localization.running -> {
           utlButton.changeBackgroundButtonCompat(btnLocalization, applicationContext,
@@ -313,7 +319,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     lifecycleScope.launch {
       VM.location.collect { result ->
         when (result) {
-          is LocalizationResult.Unset -> { }
+          is LocalizationResult.Unset -> {
+          }
           is LocalizationResult.Error -> {
             // TODO HANDLE
           }
@@ -360,15 +367,23 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
+  private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+    if (result.resultCode == Activity.RESULT_OK) {
+      val intent: Intent? = result.data
+      if (intent != null) {
+        val lat = intent.getDoubleExtra("latitude", 0.0)
+        val long = intent.getDoubleExtra("longitude", 0.0)
+      }
+    }
+  }
+
   @OptIn(ExperimentalMaterialApi::class, ExperimentalPermissionsApi::class) // compose
   private fun setupButtonChat() {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
     btnChat.setOnClickListener {
       lifecycleScope.launch {
-        // TODO:ATH
-        // val intent = Intent(applicationContext, SmasChatActivity::class.java) // addon
-        // startActivity(intent)
+        startForResult.launch(Intent(applicationContext, SmasChatActivity::class.java))
       }
     }
   }
