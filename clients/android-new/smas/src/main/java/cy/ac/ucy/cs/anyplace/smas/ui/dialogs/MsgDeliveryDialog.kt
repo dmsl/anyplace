@@ -11,8 +11,8 @@ import androidx.core.view.get
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
@@ -78,7 +78,7 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
 
     lifecycleScope.launch {
       val chatPrefs = dsChat.read.first()
-      LOG.D("chatPrefs",chatPrefs.mdelivery)
+      LOG.D(TAG, "chatPrefs: ${chatPrefs.mdelivery}")
       val mdelivery = chatPrefs.mdelivery.toInt()
       val rb = rbGroup[mdelivery-1] as RadioButton
       rb.isChecked = true

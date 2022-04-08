@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -425,13 +426,14 @@ fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
             .fillMaxWidth()
             .background(White, RoundedCornerShape(10.dp))
             .border(Dp.Hairline, AnyplaceBlue, RoundedCornerShape(5.dp))) {
-      Row() {
+      Row {
         Text(text = "Messages are delivered to ",
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                         .padding(vertical = 10.dp)
                         .padding(start = 10.dp))
 
+        // TODO:ATH bold.. make it all clickable
         Text(
                 text = when (mdelivery) {
                   "1" -> "ALL USERS."
@@ -440,6 +442,7 @@ fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
                   "4" -> "USERS IN 100M."
                   else -> "error"
                 },
+                // fontStyle = FontWeight.Bold,
                 modifier = Modifier
                         .clickable {
                           VMchat.openMsgDeliveryDialog(manager)
