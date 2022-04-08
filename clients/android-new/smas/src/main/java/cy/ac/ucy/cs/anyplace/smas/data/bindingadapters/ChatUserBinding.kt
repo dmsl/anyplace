@@ -2,7 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.data.bindingadapters
 
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.setTextOrHide
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser

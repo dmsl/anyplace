@@ -2,7 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.utils.network
 
 import android.content.Context
 import com.google.gson.Gson
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.demo.AssetReader
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.Messages

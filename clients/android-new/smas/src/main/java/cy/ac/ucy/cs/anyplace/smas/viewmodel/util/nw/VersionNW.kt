@@ -4,10 +4,10 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import androidx.preference.Preference
 import cy.ac.ucy.cs.anyplace.lib.R
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
-import cy.ac.ucy.cs.anyplace.lib.android.utils.GenUtils
+import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
@@ -15,8 +15,6 @@ import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatVersion
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.collectLatest
 import retrofit2.Response
 import java.lang.Exception
 import java.lang.NullPointerException
@@ -49,7 +47,7 @@ class VersionNW(
         resp.value = handleVersionResponse(response)
         val version = resp.value.data
         if (version != null) {  // SUCCESS
-          msg = "${version.rows.version} (connected: ${GenUtils.prettyTime()})"
+          msg = "${version.rows.version} (connected: ${utlTime.currentTimePretty()})"
           versionPref?.icon = null
 
           // store it in the DS too

@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.preference.Preference
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.RepoAP
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.CvDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.CvNavDataStore
