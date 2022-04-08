@@ -150,7 +150,7 @@ class MsgsGetNW(
         msgH.isImage() -> "<base64>"
         else -> "unknown"
       }
-      VM.listOfMessages.add(obj) //addon//
+      VM.listOfMessages.add(obj)
       val prettyTimestamp = utlTime.getPrettyEpoch(obj.time.toLong(), utlTime.TIMEZONE_CY)
       LOG.E(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
     }

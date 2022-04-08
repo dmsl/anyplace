@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,7 +14,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import coil.compose.rememberImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -55,7 +54,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @ExperimentalPermissionsApi
-class SmasChatActivity : ComponentActivity() {
+class SmasChatActivity : AppCompatActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
   private lateinit var VMmain: SmasMainViewModel
@@ -63,16 +62,23 @@ class SmasChatActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
+
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
     VMmain = ViewModelProvider(this)[SmasMainViewModel::class.java]
 
+    // lifecycleScope.launch {
+    //   while (true) {
     VMchat.nwPullMessages()
     VMchat.collectMessages()
+
+    // delay(2000L)
+    //   }
+    // }
 
     setContent {
       Scaffold(
               topBar = { TopMessagesBar(::onBackClick) },
-              content = { Conversation(VMmain, VMchat, ::returnLoc) },
+              content = { Conversation(VMmain, VMchat, supportFragmentManager, ::returnLoc) },
               backgroundColor = WhiteGray
       )
     }
@@ -132,6 +138,7 @@ fun TopMessagesBar(onBackClick: () -> Unit) {
 fun Conversation(
         VMmain: SmasMainViewModel,
         VMchat: SmasChatViewModel,
+        manager: FragmentManager,
         returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
 
@@ -154,7 +161,7 @@ fun Conversation(
         }
       }
     }
-    DeliveryCard(VMchat)
+    DeliveryCard(VMchat, manager)
     ReplyCard(VMmain, VMchat)
   }
 }
@@ -349,8 +356,14 @@ fun MessageCard(
                     }
                   }
 
+                  val sd = VMchat.dateTimeHelper.isSameDay(message.timestr)
+                  val msgHour = VMchat.dateTimeHelper.getTimeFromStr(message.timestr)
+                  val msgDate = VMchat.dateTimeHelper.getDateFromStr(message.timestr)
                   Text(
-                          text = VMchat.dateTimeHelper.getTimeFromStr(message.timestr),
+                          text = when (sd) {
+                            true -> msgHour
+                            else -> "$msgDate $msgHour"
+                          },
                           fontSize = 10.sp,
                           modifier = Modifier
                                   .padding(vertical = 3.dp, horizontal = 10.dp),
@@ -395,7 +408,10 @@ fun MessageCard(
 }
 
 @Composable
-fun DeliveryCard(VMchat: SmasChatViewModel) {
+fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
+  VMchat.setDeliveryMethod()
+  val mdelivery = VMchat.mdelivery
+
   Row(
           modifier = Modifier
                   .fillMaxWidth()
@@ -417,15 +433,16 @@ fun DeliveryCard(VMchat: SmasChatViewModel) {
                         .padding(start = 10.dp))
 
         Text(
-                text = when (VMchat.getDeliveryMethod()) {
+                text = when (mdelivery) {
+                  "1" -> "ALL USERS."
                   "2" -> "SAME DECK USERS."
                   "3" -> "NEAREST USERS."
                   "4" -> "USERS IN 100M."
-                  else -> "ALL USERS."
+                  else -> "error"
                 },
                 modifier = Modifier
                         .clickable {
-                          //MsgDeliveryDialog
+                          VMchat.openMsgDeliveryDialog(manager)
                         }
                         .padding(vertical = 10.dp)
                         .padding(end = 10.dp),
@@ -536,6 +553,13 @@ fun TextBox(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel, modifier: Modi
   val replyToMessage = VMchat.replyToMessage?.message
   var newMsg: String
 
+  val errColor = VMchat.errColor
+  val isLoading = VMchat.isLoading
+
+  if (reply == "") {
+    VMchat.errColor = AnyplaceBlue
+  }
+
   OutlinedTextField(
           modifier = when {
             sendEnabled -> Modifier
@@ -552,28 +576,33 @@ fun TextBox(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel, modifier: Modi
           },
           shape = RoundedCornerShape(10.dp),
           trailingIcon = {
-            IconButton(
-                    onClick = {
-                      newMsg = reply
+            when {
+              isLoading -> CircularProgressIndicator(modifier = Modifier.size(20.dp), color = LightGray, strokeWidth = 2.dp)
+              else -> {
+                IconButton(
+                        onClick = {
+                          newMsg = reply
 
-                      VMchat.sendMessage(VMmain, newMsg, 1)
-                      focusManager.clearFocus()
-                    },
-                    enabled = sendEnabled
-            ) {
-              Icon(
-                      imageVector = Icons.Filled.Send,
-                      contentDescription = "send",
-                      tint = when {
-                        (sendEnabled) -> AnyplaceBlue
-                        else -> LightGray
-                      }
-              )
+                          VMchat.sendMessage(VMmain, newMsg, 1)
+                          //focusManager.clearFocus()
+                        },
+                        enabled = sendEnabled
+                ) {
+                  Icon(
+                          imageVector = Icons.Filled.Send,
+                          contentDescription = "send",
+                          tint = when {
+                            (sendEnabled) -> errColor
+                            else -> LightGray
+                          }
+                  )
+                }
+              }
             }
           },
           colors = TextFieldDefaults.outlinedTextFieldColors(
                   unfocusedBorderColor = LightGray,
-                  focusedBorderColor = AnyplaceBlue
+                  focusedBorderColor = errColor
           ),
           keyboardOptions = KeyboardOptions(
                   capitalization = KeyboardCapitalization.Sentences,

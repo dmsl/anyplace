@@ -11,12 +11,14 @@ import androidx.core.view.get
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
+import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogDeliveryModelBinding
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
@@ -26,18 +28,18 @@ import java.lang.IllegalStateException
  *
  * - TODO:ATH in [SettingsChatActivity] you must show the dialog
  */
-class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app: SmasApp) :
+class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app: SmasApp, vm: SmasChatViewModel) :
         DialogFragment() {
 
   private val C by lazy { CHAT(app.applicationContext) }
+  private var VMchat = vm
 
   companion object {
 
     /** Creating the dialog. */
-    fun SHOW(fragmentManager: FragmentManager, dsChat: ChatPrefsDataStore, app: SmasApp) {
+    fun SHOW(fragmentManager: FragmentManager, dsChat: ChatPrefsDataStore, app: SmasApp, vm : SmasChatViewModel) {
       val args = Bundle()
-
-      val dialog = MsgDeliveryDialog(dsChat, app)
+      val dialog = MsgDeliveryDialog(dsChat, app, vm)
       dialog.arguments = args
       dialog.show(fragmentManager, "")
 
@@ -54,7 +56,7 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
       isCancelable = true
       builder.setView(binding.root)
       val dialog = builder.create()
-      dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+      dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.WHITE))
 
       setupRadioButtons()
       setupOkButton()
@@ -76,8 +78,9 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
 
     lifecycleScope.launch {
       val chatPrefs = dsChat.read.first()
+      LOG.D("chatPrefs",chatPrefs.mdelivery)
       val mdelivery = chatPrefs.mdelivery.toInt()
-      val rb = rbGroup[mdelivery] as RadioButton
+      val rb = rbGroup[mdelivery-1] as RadioButton
       rb.isChecked = true
     }
   }
@@ -94,11 +97,11 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
 
       for (i in methods.indices){
         if (methods[i] == selectedModel)
-          dsChat.putString(C.PREF_CHAT_MDELIVERY, i.toString())
-
+          dsChat.putString(C.PREF_CHAT_MDELIVERY, (i+1).toString())
+          VMchat.mdelivery = (i+1).toString()
       }
 
-
+      dismiss()
     }
   }
 }
