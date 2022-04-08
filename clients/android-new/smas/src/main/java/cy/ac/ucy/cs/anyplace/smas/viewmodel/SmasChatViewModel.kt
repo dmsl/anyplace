@@ -3,6 +3,7 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel
 import android.app.Application
 import android.net.Uri
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
@@ -15,6 +16,7 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.MsgSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
@@ -58,10 +60,12 @@ class SmasChatViewModel @Inject constructor(
   var imageUri: Uri? by mutableStateOf(null)
   var showDialog: Boolean by mutableStateOf(false)
   var replyToMessage: ReplyToMessage? by mutableStateOf(null)
+  var mdelivery: String by mutableStateOf("")
+  var errColor: Color by mutableStateOf(AnyplaceBlue)
+  var isLoading: Boolean by mutableStateOf(false)
 
   //The list of messages shown on screen
   val listOfMessages = mutableStateListOf<ChatMsg>()
-  val messagesWithStatus = mutableStateMapOf<ChatMsg, NetworkResult<MsgSendResp>>()
 
   fun getLoggedInUser(): String {
     val smas = app as SmasApp
@@ -72,17 +76,15 @@ class SmasChatViewModel @Inject constructor(
     return uid
   }
 
-  fun getDeliveryMethod() : String{
-    var mdelivery : String = ""
+  fun setDeliveryMethod(){
     viewModelScope.launch {
       val chatPrefs = dsChat.read.first()
       mdelivery = chatPrefs.mdelivery
     }
-    return mdelivery
   }
 
   fun openMsgDeliveryDialog(fragmentManager: FragmentManager){
-    MsgDeliveryDialog.SHOW(fragmentManager, dsChat, app as SmasApp)
+    MsgDeliveryDialog.SHOW(fragmentManager, dsChat, app as SmasApp,this)
   }
 
   fun clearReply() {
@@ -139,8 +141,7 @@ class SmasChatViewModel @Inject constructor(
       //   LOG.E("Localization problem. Message cannot be delivered.")
       // }
     }
-    clearReply()
-    clearTheReplyToMessage()
+    collectMsgsSend()
   }
 
   /**

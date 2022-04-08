@@ -68,3 +68,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+.idea/misc.xml
+

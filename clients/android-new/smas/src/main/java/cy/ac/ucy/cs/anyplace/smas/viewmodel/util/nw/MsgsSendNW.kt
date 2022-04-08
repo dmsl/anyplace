@@ -2,6 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import cy.ac.ucy.cs.anyplace.lib.android.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
@@ -13,7 +14,6 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.WineRed
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
@@ -90,19 +90,26 @@ class MsgsSendNW(private val app: SmasApp,
     resp.value = NetworkResult.Error(msg)
   }
 
-  // TODO:ATH send UI elements? LazyColumn?
   suspend fun collect(ctx: Context) {
     resp.collect {
       when (it) {
-        // TODO:ATH for MsgSEndUtil: is NR.Loading(): gray button, disabled, spinner..
         is NetworkResult.Loading -> {
+          VM.isLoading = true
         }
-        is NetworkResult.Success -> { // TODO:ATH for MsgSEndUtil: throw in chat: UIComposable.ShowInChat()
-          // TODO:ATH
+        is NetworkResult.Success -> {
           LOG.D1(TAG, "MessageSend: ${it.data?.status}")
+          VM.isLoading = false
+          VM.clearReply()
+          VM.clearTheReplyToMessage()
         }
-        // TODO:ATH for MsgSEndUtil: throw in chat: UIComposable.ShowInChat()
-        // is NR.Error(): make it red.. show in chat .. with retry.. Toast: msg
+        is NetworkResult.Error -> {
+          LOG.D1(TAG, "MessageSend Error: ${it.message}")
+          VM.isLoading = false
+          VM.errColor = WineRed
+          VM.viewModelScope.launch {
+            app.showToast("Message failed to send", Toast.LENGTH_SHORT)
+          }
+        }
         else -> {
           //db error
           if (!err.handle(app, it.message, "msg-send")) {
