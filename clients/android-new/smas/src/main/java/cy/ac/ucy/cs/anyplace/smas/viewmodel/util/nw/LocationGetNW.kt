@@ -2,8 +2,8 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
-import cy.ac.ucy.cs.anyplace.lib.android.DBG
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.DBG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD

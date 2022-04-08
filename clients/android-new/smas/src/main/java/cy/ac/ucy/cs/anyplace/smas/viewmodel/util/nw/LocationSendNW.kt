@@ -3,7 +3,7 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates

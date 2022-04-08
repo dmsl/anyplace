@@ -2,7 +2,6 @@ package cy.ac.ucy.cs.anyplace.smas.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -16,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.OnMapReadyCallback
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
@@ -132,9 +131,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     // Send own location, and receive other users locations
     VM.nwPullLocationsLoop()
     collectOwnLocation()
-    VM.collectLocations(mapH)
+    VM.collectLocations(maph)
 
-    setupFakeUserLocation(mapH) // TODO:PMX
+    setupFakeUserLocation(maph) // TODO:PMX
     // collect alert
   }
 

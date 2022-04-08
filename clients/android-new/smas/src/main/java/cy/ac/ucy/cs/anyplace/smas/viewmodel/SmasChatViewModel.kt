@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.*
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult

@@ -1,7 +1,7 @@
 package cy.ac.ucy.cs.anyplace.navigator
 
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import dagger.hilt.android.HiltAndroidApp
 

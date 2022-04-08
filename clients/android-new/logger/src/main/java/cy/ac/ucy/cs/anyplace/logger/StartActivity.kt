@@ -38,7 +38,7 @@ package cy.ac.ucy.cs.anyplace.logger
 import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import android.content.Intent
 import android.view.View
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
