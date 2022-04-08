@@ -7,7 +7,6 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.RadioButton
-import androidx.core.view.get
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
@@ -67,39 +66,44 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
 
   private fun setupRadioButtons() {
     val rbGroup = binding.radioGroupOptions
+    // TODO:ATM: delivery_options_entries, delivery_options_values
     // TODO 2. on update prompt to restart activity.. (or restart it automatically?) //why?
-    val methods = resources.getStringArray(R.array.delivery_options)
+    val method_codes = resources.getStringArray(R.array.delivery_options_values)
+    // human readable
+    val method_values = resources.getStringArray(R.array.delivery_options_entries)
 
-    methods.forEach { option ->
+    method_codes.forEachIndexed { index, code ->
       val rb = RadioButton(context)
-      rb.text = option
+      rb.text=method_values[index]
+      rb.tag=code
       rbGroup.addView(rb)
     }
 
     lifecycleScope.launch {
       val chatPrefs = dsChat.read.first()
       LOG.D(TAG, "chatPrefs: ${chatPrefs.mdelivery}")
-      val mdelivery = chatPrefs.mdelivery.toInt()
-      val rb = rbGroup[mdelivery-1] as RadioButton
+      val mdelivery = chatPrefs.mdelivery
+      val rb = rbGroup.findViewWithTag<RadioButton>(mdelivery)
       rb.isChecked = true
     }
   }
 
-  private fun setupOkButton(){
+  private fun setupOkButton() {
     val btn = binding.btnOK
     val rbGroup = binding.radioGroupOptions
 
     btn.setOnClickListener {
       val checkedBtn = rbGroup.checkedRadioButtonId
       val rb = binding.radioGroupOptions.findViewById<RadioButton>(checkedBtn)
-      val selectedModel = rb.text.toString()
-      val methods = resources.getStringArray(R.array.delivery_options)
-
-      for (i in methods.indices){
-        if (methods[i] == selectedModel)
-          dsChat.putString(C.PREF_CHAT_MDELIVERY, (i+1).toString())
-          VMchat.mdelivery = (i+1).toString()
-      }
+      // CLR:ATH
+      // val selectedCode = rb.tag
+      // val selectedModel = rb.text.toString()
+      // val method_codes = resources.getStringArray(R.array.delivery_options_values)
+      // for (i in methods.indices){
+      // if (methods[i] == selectedModel)
+      // }
+      dsChat.putString(C.PREF_CHAT_MDELIVERY, tag)
+      VMchat.mdelivery = tag.toString()
 
       dismiss()
     }

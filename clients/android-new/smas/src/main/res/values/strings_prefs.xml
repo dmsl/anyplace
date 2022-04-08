@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <!-- Delivery options-->
-  <string-array name="delivery_options">
-    <item entry="1">ALL</item>
-    <item entry="2">SAME DECK</item>
-    <item entry="3">NEAREST K</item>
-    <item entry="4">BOUNDING BOX</item>
+  <string-array name="delivery_options_entries">
+    <item>All users</item>
+    <item>Same deck</item>
+    <item>Nearest K</item>
+    <item>Bounding Box</item>
+  </string-array>
+
+  <string-array name="delivery_options_values">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
   </string-array>
 
   <!--  PREFERENCE KEYS (PK) -->
