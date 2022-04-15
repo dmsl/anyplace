@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -71,8 +72,8 @@ class SmasChatActivity : AppCompatActivity() {
     //   while (true) {
     VMchat.nwPullMessages()
     VMchat.collectMessages()
-
-    // delay(2000L)
+    //
+    //delay(2000L)
     //   }
     // }
 
@@ -101,13 +102,13 @@ fun TopMessagesBar(onBackClick: () -> Unit) {
   val ctx = LocalContext.current
 
   TopAppBar(
-          title = { Text("Messages", style = MaterialTheme.typography.h5) },
+          title = { Text("Messages", style = MaterialTheme.typography.h5, fontSize = 23.sp) },
           navigationIcon = {
             IconButton(onClick = { onBackClick }) { //navigate back to the calling activity
               Icon(
                       Icons.Filled.ArrowBack,
                       contentDescription = null,
-                      modifier = Modifier.size(30.dp)
+                      modifier = Modifier.size(25.dp)
               )
             }
           },
@@ -158,7 +159,7 @@ fun Conversation(
     ) {
       if (!messagesList.isEmpty()) {
         itemsIndexed(messagesList) { index, message ->
-          MessageCard(message, VMchat, returnLoc)
+          MessageCard(message, VMchat, manager, returnLoc)
         }
       }
     }
@@ -167,47 +168,13 @@ fun Conversation(
   }
 }
 
-// @ExperimentalPermissionsApi
-// @RequiresApi(Build.VERSION_CODES.O)
-// @ExperimentalMaterialApi
-// @Composable
-// fun Conversation(
-//         VMmain: SmasMainViewModel,
-//         VMchat: SmasChatViewModel,
-//         returnLoc: (lat: Double, lng: Double) -> Unit
-// ) {
-//
-//   var messagesList = VMchat.listOfMessages
-//
-//   Column {
-//     val state = rememberScrollState()
-//     val scope = rememberCoroutineScope()
-//
-//     Column(
-//             modifier = Modifier
-//                     .weight(1f)
-//                     .padding(all = 15.dp)
-//                     .verticalScroll(rememberScrollState()),
-//             verticalArrangement = Arrangement.spacedBy(10.dp),
-//     ) {
-//       messagesList.forEachIndexed { index, message ->
-//         MessageCard(message, VMchat, returnLoc)
-//       }
-//       // scope.launch {
-//       //     if (messagesList.isNotEmpty())
-//       //         state.scrollTo(messagesList.size - 1)
-//       // }
-//     }
-//     ReplyCard(VMmain, VMchat)
-//   }
-// }
-
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @Composable
 fun MessageCard(
         message: ChatMsg,
         VMchat: SmasChatViewModel,
+        manager: FragmentManager,
         returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
   val senderIsLoggedUser = (VMchat.getLoggedInUser() == message.uid)
@@ -306,16 +273,25 @@ fun MessageCard(
                   // When the message is an image in base64 encoding..
                   if (message.mtype == 2 && message.msg != null) {
 
-                    var bitmapImg: Bitmap? = remember {
-                      message.msg?.let { VMchat.imageHelper.decodeFromBase64(it) }
+                    // val bitmapImg: Bitmap? = remember {
+                    //   message.msg?.let { VMchat.imageHelper.decodeFromBase64(it) }
+                    // }
+
+                    val bitmapImgTiny: Bitmap? = remember {
+                      message.msg?.let { VMchat.chatCache.getBitmapTiny(message) }
                     }
 
-                    if (bitmapImg != null) {
+                    if (bitmapImgTiny != null) {
                       Image(
                               modifier = Modifier
                                       .widthIn(max = 300.dp)
-                                      .heightIn(max = 300.dp),
-                              bitmap = bitmapImg.asImageBitmap(),
+                                      .heightIn(max = 300.dp)
+                                      .clickable {
+                                        val bitmapImg = VMchat.chatCache.getBitmap(message)
+                                        if (bitmapImg != null)
+                                          VMchat.openImgDialog(manager, bitmapImg)
+                                      },
+                              bitmap = bitmapImgTiny.asImageBitmap(),
                               contentDescription = "image"
                       )
                     }
@@ -418,7 +394,10 @@ fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
                   .fillMaxWidth()
                   .padding(bottom = 5.dp)
                   .padding(horizontal = 5.dp)
-                  .background(Color.Transparent),
+                  .background(Color.Transparent)
+                  .clickable {
+                    VMchat.openMsgDeliveryDialog(manager)
+                  },
           horizontalArrangement = Arrangement.Center
   ) {
 
@@ -433,7 +412,6 @@ fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
                         .padding(vertical = 10.dp)
                         .padding(start = 10.dp))
 
-        // TODO:ATH bold.. make it all clickable
         Text(
                 text = when (mdelivery) {
                   "1" -> "ALL USERS."
@@ -442,11 +420,8 @@ fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
                   "4" -> "USERS IN 100M."
                   else -> "error"
                 },
-                // fontStyle = FontWeight.Bold,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                        .clickable {
-                          VMchat.openMsgDeliveryDialog(manager)
-                        }
                         .padding(vertical = 10.dp)
                         .padding(end = 10.dp),
                 color = AnyplaceBlue
@@ -571,6 +546,7 @@ fun TextBox(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel, modifier: Modi
                     .heightIn(max = 60.dp)
             else -> modifier
                     .padding(vertical = 5.dp)
+                    .animateContentSize()
           },
           value = VMchat.reply,
           onValueChange = { VMchat.reply = it },
