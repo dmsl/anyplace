@@ -371,7 +371,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
       val intent: Intent? = result.data
       if (intent != null) {
         val lat = intent.getDoubleExtra("latitude", 0.0)
-        val long = intent.getDoubleExtra("longitude", 0.0)
+        val lon = intent.getDoubleExtra("longitude", 0.0)
+
+        LOG.E(TAG, "GOT LOC FROM CHAT: $lat $lon")
       }
     }
   }

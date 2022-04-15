@@ -45,12 +45,18 @@ import coil.compose.rememberImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG.Companion.TAG
+import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
+import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.*
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 @RequiresApi(Build.VERSION_CODES.O)
@@ -60,6 +66,7 @@ class SmasChatActivity : AppCompatActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
   private lateinit var VMmain: SmasMainViewModel
+  @Inject lateinit var repo: RepoChat
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -80,7 +87,7 @@ class SmasChatActivity : AppCompatActivity() {
     setContent {
       Scaffold(
               topBar = { TopMessagesBar(::onBackClick) },
-              content = { Conversation(VMmain, VMchat, supportFragmentManager, ::returnLoc) },
+              content = { Conversation(VMmain, VMchat, supportFragmentManager, repo, ::returnLoc) },
               backgroundColor = WhiteGray
       )
     }
@@ -104,7 +111,7 @@ fun TopMessagesBar(onBackClick: () -> Unit) {
   TopAppBar(
           title = { Text("Messages", style = MaterialTheme.typography.h5, fontSize = 23.sp) },
           navigationIcon = {
-            IconButton(onClick = { onBackClick }) { //navigate back to the calling activity
+            IconButton(onClick = { onBackClick() }) { //navigate back to the calling activity
               Icon(
                       Icons.Filled.ArrowBack,
                       contentDescription = null,
@@ -141,6 +148,7 @@ fun Conversation(
         VMmain: SmasMainViewModel,
         VMchat: SmasChatViewModel,
         manager: FragmentManager,
+        repo: RepoChat,
         returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
 
@@ -159,7 +167,7 @@ fun Conversation(
     ) {
       if (!messagesList.isEmpty()) {
         itemsIndexed(messagesList) { index, message ->
-          MessageCard(message, VMchat, manager, returnLoc)
+          MessageCard(message, VMchat, manager, repo, returnLoc)
         }
       }
     }
@@ -175,9 +183,14 @@ fun MessageCard(
         message: ChatMsg,
         VMchat: SmasChatViewModel,
         manager: FragmentManager,
+        repo: RepoChat,
         returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
   val senderIsLoggedUser = (VMchat.getLoggedInUser() == message.uid)
+  val ctx = LocalContext.current
+
+
+  val msg = ChatMsgHelper(ctx,repo, message)
 
   Column(
           modifier = Modifier.fillMaxSize(),
@@ -271,7 +284,7 @@ fun MessageCard(
                     )
                   }
                   // When the message is an image in base64 encoding..
-                  if (message.mtype == 2 && message.msg != null) {
+                  if (msg.isImage() && message.msg != null) {
 
                     // val bitmapImg: Bitmap? = remember {
                     //   message.msg?.let { VMchat.imageHelper.decodeFromBase64(it) }
