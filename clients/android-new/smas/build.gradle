@@ -149,6 +149,9 @@ dependencies {
   implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
   implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
 
+  //// TouchImageView
+  implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
+
   // TESTING
   testImplementation 'junit:junit:4.13.2'
   androidTestImplementation 'androidx.test.ext:junit:1.1.3'

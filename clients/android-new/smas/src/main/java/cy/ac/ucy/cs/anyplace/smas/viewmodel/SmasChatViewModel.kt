@@ -1,6 +1,7 @@
 package cy.ac.ucy.cs.anyplace.smas.viewmodel
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -18,9 +19,11 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ChatCache
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.VoiceRecognition
+import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.ImgDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.MsgDeliveryDialog
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsGetNW
@@ -48,6 +51,8 @@ class SmasChatViewModel @Inject constructor(
 
   private val nwMsgsGet by lazy { MsgsGetNW(app as SmasApp, this, RFH, repoChat) }
   private val nwMsgsSend by lazy { MsgsSendNW(app as SmasApp, this, RFH, repoChat) }
+
+  val chatCache by lazy { ChatCache(app.applicationContext) }
 
   //Class objects
   val voiceRecognizer = VoiceRecognition()
@@ -85,6 +90,10 @@ class SmasChatViewModel @Inject constructor(
 
   fun openMsgDeliveryDialog(fragmentManager: FragmentManager){
     MsgDeliveryDialog.SHOW(fragmentManager, dsChat, app as SmasApp,this)
+  }
+
+  fun openImgDialog(fragmentManager: FragmentManager, img: Bitmap){
+    ImgDialog.SHOW(fragmentManager, img)
   }
 
   fun clearReply() {
@@ -147,7 +156,7 @@ class SmasChatViewModel @Inject constructor(
   /**
    * React to flow that is populated by [nwMsgsSend] safeCall
    */
-  fun collectMsgsSend() { //when is this called?
+  fun collectMsgsSend() {
     viewModelScope.launch {
       nwMsgsSend.collect(app)
     }

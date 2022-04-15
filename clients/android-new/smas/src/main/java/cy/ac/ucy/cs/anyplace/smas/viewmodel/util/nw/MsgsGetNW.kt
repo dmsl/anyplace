@@ -13,6 +13,7 @@ import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ChatCache
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,8 +39,8 @@ class MsgsGetNW(
   private val resp: MutableStateFlow<NetworkResult<MsgGetResp>> = MutableStateFlow(NetworkResult.Unset())
 
   private val C by lazy { CHAT(app.applicationContext) }
-  private lateinit var chatUser: ChatUser
   private val err by lazy { SmasErrors(app, VM.viewModelScope) }
+  private lateinit var chatUser: ChatUser
 
   /**
    * Get [ChatMsg] SafeCall
@@ -150,6 +151,8 @@ class MsgsGetNW(
         msgH.isImage() -> "<base64>"
         else -> "unknown"
       }
+      if (obj.mtype == 2)
+        VM.chatCache.saveImg(obj)
       VM.listOfMessages.add(obj)
       val prettyTimestamp = utlTime.getPrettyEpoch(obj.time.toLong(), utlTime.TIMEZONE_CY)
       LOG.E(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")

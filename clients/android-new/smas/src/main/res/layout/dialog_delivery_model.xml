@@ -37,7 +37,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginStart="228dp"
-      android:text="OK"
+      android:text="@string/btn_ok"
       android:textColor="@color/white"
       android:backgroundTint="@color/lash_blue"
       android:textSize="22sp"

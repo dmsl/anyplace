@@ -38,4 +38,7 @@
   <string name="alert">alert</string>
   <string name="send_alert">Send Alert</string>
   <string name="cv_map_settings">Map Settings</string>
+
+  <string name="btn_cancel_descr">cancel</string>
+  <string name="btn_ok">OK</string>
 </resources>

@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.RadioButton
 import androidx.fragment.app.DialogFragment
@@ -66,7 +67,6 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
 
   private fun setupRadioButtons() {
     val rbGroup = binding.radioGroupOptions
-    // TODO:ATM: delivery_options_entries, delivery_options_values
     // TODO 2. on update prompt to restart activity.. (or restart it automatically?) //why?
     val method_codes = resources.getStringArray(R.array.delivery_options_values)
     // human readable
@@ -84,7 +84,8 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
       LOG.D(TAG, "chatPrefs: ${chatPrefs.mdelivery}")
       val mdelivery = chatPrefs.mdelivery
       val rb = rbGroup.findViewWithTag<RadioButton>(mdelivery)
-      rb.isChecked = true
+      if (rb != null)
+        rb.isChecked = true
     }
   }
 
@@ -95,15 +96,8 @@ class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app:
     btn.setOnClickListener {
       val checkedBtn = rbGroup.checkedRadioButtonId
       val rb = binding.radioGroupOptions.findViewById<RadioButton>(checkedBtn)
-      // CLR:ATH
-      // val selectedCode = rb.tag
-      // val selectedModel = rb.text.toString()
-      // val method_codes = resources.getStringArray(R.array.delivery_options_values)
-      // for (i in methods.indices){
-      // if (methods[i] == selectedModel)
-      // }
-      dsChat.putString(C.PREF_CHAT_MDELIVERY, tag)
-      VMchat.mdelivery = tag.toString()
+      dsChat.putString(C.PREF_CHAT_MDELIVERY, rb.tag.toString())
+      VMchat.mdelivery = rb.tag.toString()
 
       dismiss()
     }
