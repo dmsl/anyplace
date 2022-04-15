@@ -136,9 +136,8 @@ class MainSmasSettingsDialog : DialogFragment() {
 
     CoroutineScope(Dispatchers.Main).launch {
       var versionStr = BuildConfig.VERSION_NAME
-      // TODO:PMX
-      // val prefsChat = requireActivity().appSmas.dsChat.read.first()
-      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
+      val prefsChat = requireActivity().appSmas.dsChat.read.first()
+      if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
       binding.btnVersionSmas.text = getString(R.string.smas_version, versionStr)
     }
   }

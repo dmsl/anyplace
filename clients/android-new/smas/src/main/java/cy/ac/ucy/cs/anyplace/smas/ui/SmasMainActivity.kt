@@ -133,7 +133,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     collectOwnLocation()
     VM.collectLocations(maph)
 
-    setupFakeUserLocation(maph) // TODO:PMX
+    setupFakeUserLocation(maph)
     // collect alert
   }
 

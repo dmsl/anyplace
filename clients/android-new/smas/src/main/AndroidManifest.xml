@@ -37,7 +37,7 @@
         android:name=".ui.settings.SettingsChatActivity"
         android:exported="true"
         android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.Compat"
+        android:theme="@style/AppTheme.Compat.ObjectDetection"
         android:label="Chat Settings" />
     <activity
         android:name=".ui.StartActivity"
