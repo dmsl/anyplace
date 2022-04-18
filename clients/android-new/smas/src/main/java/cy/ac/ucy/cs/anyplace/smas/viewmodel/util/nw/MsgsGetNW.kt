@@ -68,7 +68,7 @@ class MsgsGetNW(
         val msg = "Connection failed:\n${RH.retrofit.baseUrl()}"
         handleException(msg, ce)
       } catch (e: Exception) {
-        val msg = "$TAG: Not Found.\nURL: ${RH.retrofit.baseUrl()}"
+        val msg = "$TAG"
         handleException(msg, e)
       }
     } else {
@@ -109,9 +109,9 @@ class MsgsGetNW(
   }
 
   private fun handleException(msg: String, e: Exception) {
-    LOG.E(TAG_METHOD, msg)
-    LOG.E(TAG_METHOD, e)
-    resp.value = NetworkResult.Error(msg)
+    val details = "$msg:${e.message}"
+    LOG.E(TAG_METHOD, details)
+    resp.value = NetworkResult.Error(details)
   }
 
   suspend fun collect(ctx: Context) {
@@ -155,7 +155,7 @@ class MsgsGetNW(
         VM.chatCache.saveImg(obj)
       VM.listOfMessages.add(obj)
       val prettyTimestamp = utlTime.getPrettyEpoch(obj.time.toLong(), utlTime.TIMEZONE_CY)
-      LOG.E(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
+      LOG.D4(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
     }
   }
 
