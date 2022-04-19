@@ -54,17 +54,17 @@ data class ChatMsg(
 /**
  * [ChatMsg] Response
  */
-data class MsgGetResp(
+data class ChatMsgsResp(
         @SerializedName("status")
-        val status: String,
+        val status: String?,
         @SerializedName("descr")
         val descr: String?,
         @SerializedName("uid")
-        val uid: String,
+        val uid: String?,
 
         /** List of messages received*/
         @SerializedName("rows")
-        val chatMsgs: List<ChatMsg>,
+        val msgs: List<ChatMsg>,
 )
 
 data class MsgGetReq(

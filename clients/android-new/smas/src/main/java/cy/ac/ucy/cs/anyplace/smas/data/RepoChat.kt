@@ -1,5 +1,6 @@
 package cy.ac.ucy.cs.anyplace.smas.data
 
+import cy.ac.ucy.cs.anyplace.smas.data.source.SmasLocalDS
 import cy.ac.ucy.cs.anyplace.smas.data.source.ChatRemoteDataSource
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,10 +14,9 @@ import javax.inject.Singleton
 @Singleton
 class RepoChat @Inject constructor(
         chatRemoteDataSource: ChatRemoteDataSource,
-        // dsLocalAP: DsLocalChat
-) {
+        dsLocalAP: SmasLocalDS) {
   /** Talks to the net */
   val remote = chatRemoteDataSource
-  // ** TODO SQLite */
-  // val local = dsLocalAP TODO
+  /** Talks to SQLite */
+  val local = dsLocalAP
 }

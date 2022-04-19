@@ -3,6 +3,7 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
+import cy.ac.ucy.cs.anyplace.lib.android.consts.CONST
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
@@ -11,11 +12,12 @@ import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.db.entities.DatabaseConverters.Companion.entityToChatMessages
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ChatCache
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -36,11 +38,14 @@ class MsgsGetNW(
    *  - might need a separate flow
    * they have to be filtered & persisted (TODO:PM SQLite)
    */
-  private val resp: MutableStateFlow<NetworkResult<MsgGetResp>> = MutableStateFlow(NetworkResult.Unset())
+  private val resp: MutableStateFlow<NetworkResult<ChatMsgsResp>> = MutableStateFlow(NetworkResult.Unset())
 
   private val C by lazy { CHAT(app.applicationContext) }
   private val err by lazy { SmasErrors(app, VM.viewModelScope) }
   private lateinit var chatUser: ChatUser
+
+  /** Show warning only once */
+  var shownNoInternetWarning = false
 
   /**
    * Get [ChatMsg] SafeCall
@@ -56,28 +61,43 @@ class MsgsGetNW(
 
     if (app.hasInternet()) {
       try {
+
+        // TODO:PM if it has msgs: get the latest only...
+
         val response = repo.remote.messagesGet(MsgGetReq(chatUser, msgType))
         LOG.D2(TAG, "ChatMessages: ${response.message()}")
         resp.value = handleResponse(response)
 
-        // TODO: PERSISTS: in cache (SQLITE)
-        // TODO Persist: put in cache & list (main mem).
-        // TODO: if has local messages: pull latest only
-        // val userMessages = resp.value.data
+        // Persist msgs in local store
+        val msgs = resp.value.data
+        if (msgs != null) { cacheMessages(msgs) }
+
       } catch (ce: ConnectException) {
         val msg = "Connection failed:\n${RH.retrofit.baseUrl()}"
         handleException(msg, ce)
       } catch (e: Exception) {
-        val msg = "$TAG"
+        val msg = TAG
         handleException(msg, e)
       }
     } else {
-      resp.value = NetworkResult.Error(C.ERR_MSG_NO_INTERNET)
+      val msg="${C.ERR_MSG_NO_INTERNET} (message fetch)"
+      LOG.D(TAG_METHOD, msg)
+      if (!shownNoInternetWarning) {
+        shownNoInternetWarning=true
+        app.showToast(msg, Toast.LENGTH_LONG)
+      }
+
+      val localMsgs = repo.local.readMsgs().first()
+      if (localMsgs.isNotEmpty()) {
+        resp.value=NetworkResult.Success(entityToChatMessages(localMsgs))
+      } else {
+        resp.value = NetworkResult.Error(C.ERR_MSG_NO_INTERNET)
+      }
     }
   }
 
-  private fun handleResponse(response: Response<MsgGetResp>): NetworkResult<MsgGetResp> {
-    LOG.E(TAG, "HandleResponse:::")
+  private fun handleResponse(response: Response<ChatMsgsResp>): NetworkResult<ChatMsgsResp> {
+    LOG.D3()
     if (response.isSuccessful) {
       when {
         response.message().toString().contains("timeout") -> return NetworkResult.Error("Timeout.")
@@ -93,7 +113,7 @@ class MsgsGetNW(
           }
 
           // CHECK: this could be normal?
-          if (response.body()!!.chatMsgs.isEmpty()) {
+          if (response.body()!!.msgs.isEmpty()) {
             val errMsg = "No new messages received."
             LOG.E(TAG, errMsg)
             return NetworkResult.Error(errMsg)
@@ -118,7 +138,7 @@ class MsgsGetNW(
     resp.collect {
       when (it) {
         is NetworkResult.Success -> {
-          val msgs = it.data!!.chatMsgs
+          val msgs = it.data!!.msgs
           LOG.E(TAG, "Got new messages: ${msgs.size}")
           process(ctx, VM, msgs)
         }
@@ -156,6 +176,17 @@ class MsgsGetNW(
       VM.listOfMessages.add(obj)
       val prettyTimestamp = utlTime.getPrettyEpoch(obj.time.toLong(), utlTime.TIMEZONE_CY)
       LOG.D4(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
+    }
+  }
+
+  // ROOM
+  private fun cacheMessages(msgs: ChatMsgsResp) {
+    LOG.D2(TAG_METHOD, "storing msgs: ${msgs.msgs.size}")
+    VM.viewModelScope.launch(Dispatchers.IO) {
+      // repo.local.dropMsgs() // TODO: don't drop msgs first..
+      msgs.msgs.forEach { msg ->
+        repo.local.insertMsg(msg)
+      }
     }
   }
 

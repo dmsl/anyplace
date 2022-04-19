@@ -22,6 +22,6 @@ class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderCha
   suspend fun locationSend(r: LocationSendReq) : Response<LocationSendResp> = RH.api.locationSend(r)
 
   // CHAT
-  suspend fun messagesGet(r: MsgGetReq) : Response<MsgGetResp> = RH.api.messagesGet(r)
+  suspend fun messagesGet(r: MsgGetReq) : Response<ChatMsgsResp> = RH.api.messagesGet(r)
   suspend fun messagesSend(r: MsgSendReq) : Response<MsgSendResp> = RH.api.messageSend(r)
 }

@@ -5,6 +5,14 @@ import cy.ac.ucy.cs.anyplace.lib.android.consts.CONST
 import cy.ac.ucy.cs.anyplace.smas.R
 
 open class CHAT(ctx: Context) : CONST(ctx) {
+
+  //// ROOM
+  companion object {
+    const val DB_SMAS_MSGS= "messages"
+  }
+
+  val DB_SMAS_NAME = "smas_db"
+
   // PREFERENCES
   //// CHAT SERVER
   val PREF_CHAT_SERVER = ctx.getString(R.string.pref_chat_server)

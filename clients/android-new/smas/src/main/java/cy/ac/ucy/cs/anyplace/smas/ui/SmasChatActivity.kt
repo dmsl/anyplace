@@ -473,10 +473,6 @@ fun ReplyCard(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
       ) {
         TextBox(VMmain = VMmain, VMchat = VMchat, Modifier.weight(2f))
         Row(Modifier.weight(1f)) {
-          RecordBtn(
-                  VMchat = VMchat,
-                  modifier = Modifier.weight(1f)
-          )
           ImgBtn(VMchat = VMchat, modifier = Modifier.weight(1f))
           ShareLocBtn(VMchat = VMchat, modifier = Modifier.weight(1f))
         }
@@ -610,56 +606,6 @@ fun TextBox(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel, modifier: Modi
           ),
           maxLines = 10
   )
-}
-
-@ExperimentalPermissionsApi
-@Composable
-fun RecordBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
-
-  val ctx = LocalContext.current
-  val recordAudioPermission = rememberPermissionState(android.Manifest.permission.RECORD_AUDIO)
-
-  if (!VMchat.wantsToRecord) {
-    IconButton(
-            onClick = {
-              //start voice recognition
-              if (recordAudioPermission.status.isGranted) {
-                VMchat.wantsToRecord = true
-                VMchat.voiceRecognizer.startVoiceRecognition(ctx)
-              } else {
-                recordAudioPermission.launchPermissionRequest()
-              }
-            },
-            modifier = modifier
-    ) {
-      Icon(
-              imageVector = Icons.Filled.Mic,
-              contentDescription = "record audio",
-              modifier = Modifier.size(28.dp),
-              tint = AnyplaceBlue
-      )
-    }
-  } else {
-    IconButton(
-            onClick = {
-              //stop voice recognition
-              VMchat.voiceRecognizer.stopListening()
-              val results = VMchat.voiceRecognizer.getVoiceRecognitionResult()
-              if (results != null)
-                VMchat.reply = results
-              VMchat.voiceRecognizer.clearResults()
-              VMchat.wantsToRecord = false
-            },
-            modifier = modifier
-    ) {
-      Icon(
-              imageVector = Icons.Filled.Stop,
-              contentDescription = "stop recording",
-              modifier = Modifier.size(28.dp),
-              tint = WineRed
-      )
-    }
-  }
 }
 
 @Composable

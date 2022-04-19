@@ -21,7 +21,7 @@ interface ChatAPI {
   suspend fun locationSend(@Body req: LocationSendReq): Response<LocationSendResp>
 
   @POST("/smas/msg-get.php")
-  suspend fun messagesGet(@Body req: MsgGetReq): Response<MsgGetResp>
+  suspend fun messagesGet(@Body req: MsgGetReq): Response<ChatMsgsResp>
 
   @POST("/smas/msg-send.php")
   suspend fun messageSend(@Body req: MsgSendReq): Response<MsgSendResp>

@@ -9,12 +9,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.*
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
-import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
-import cy.ac.ucy.cs.anyplace.smas.data.models.MsgSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
@@ -22,7 +21,6 @@ import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ChatCache
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.VoiceRecognition
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.ImgDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.MsgDeliveryDialog
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
@@ -38,30 +36,29 @@ import javax.inject.Inject
  *
  * [UserLocations] are handled by [SmasMainViewModel]
  *
- * TODO:AH will put stuff here.
  */
 @HiltViewModel
 class SmasChatViewModel @Inject constructor(
-        private val app: Application,
+        private val _application: Application,
         private val repoChat: RepoChat,
         private val RFH: RetrofitHolderChat,
         private val dsChat: ChatPrefsDataStore,
         private val dsMisc: MiscDataStore,
-) : AndroidViewModel(app) {
+) : AndroidViewModel(_application) {
 
-  private val nwMsgsGet by lazy { MsgsGetNW(app as SmasApp, this, RFH, repoChat) }
-  private val nwMsgsSend by lazy { MsgsSendNW(app as SmasApp, this, RFH, repoChat) }
+  private val app = _application as SmasApp
+
+  private val nwMsgsGet by lazy { MsgsGetNW(app, this, RFH, repoChat) }
+  private val nwMsgsSend by lazy { MsgsSendNW(app, this, RFH, repoChat) }
 
   val chatCache by lazy { ChatCache(app.applicationContext) }
 
   //Class objects
-  val voiceRecognizer = VoiceRecognition()
   val imageHelper = ImageBase64()
   val dateTimeHelper = DateTimeHelper()
 
   //Variables observed by composable functions
   var reply: String by mutableStateOf("")
-  var wantsToRecord: Boolean by mutableStateOf(false)
   var imageUri: Uri? by mutableStateOf(null)
   var showDialog: Boolean by mutableStateOf(false)
   var replyToMessage: ReplyToMessage? by mutableStateOf(null)
@@ -73,10 +70,9 @@ class SmasChatViewModel @Inject constructor(
   val listOfMessages = mutableStateListOf<ChatMsg>()
 
   fun getLoggedInUser(): String {
-    val smas = app as SmasApp
-    var uid: String = ""
+    var uid = ""
     viewModelScope.launch {
-      uid = smas.dsChatUser.readUser.first().uid
+      uid = app.dsChatUser.readUser.first().uid
     }
     return uid
   }
@@ -89,7 +85,7 @@ class SmasChatViewModel @Inject constructor(
   }
 
   fun openMsgDeliveryDialog(fragmentManager: FragmentManager){
-    MsgDeliveryDialog.SHOW(fragmentManager, dsChat, app as SmasApp,this)
+    MsgDeliveryDialog.SHOW(fragmentManager, dsChat, app,this)
   }
 
   fun openImgDialog(fragmentManager: FragmentManager, img: Bitmap){
@@ -124,14 +120,37 @@ class SmasChatViewModel @Inject constructor(
     }
   }
 
-  fun sendMessage(VM: SmasMainViewModel,newMsg: String?, mtype: Int) {
+  private fun getUserCoordinates(VM: SmasMainViewModel): UserCoordinates? {
+    var userCoord : UserCoordinates? = null
+    if (VM.location.value.coord != null) {
+      userCoord = UserCoordinates(VM.spaceH.obj.id,
+              VM.floorH?.obj!!.floorNumber.toInt(),
+              VM.location.value.coord!!.lat,
+              VM.location.value.coord!!.lon)
+      return userCoord
+    }
+
+    return null
+  }
+
+  private fun getCenterOfFloor(VM: SmasMainViewModel): UserCoordinates {
+    val latLng = VM.spaceH.latLng()
+    return UserCoordinates(VM.spaceH.obj.id,
+            VM.floorH?.obj!!.floorNumber.toInt(),
+            latLng.latitude,
+            latLng.longitude)
+  }
+
+  fun sendMessage(VM: SmasMainViewModel, newMsg: String?, mtype: Int) {
     viewModelScope.launch {
-      var userCoord : UserCoordinates? = null
-      if (VM.location.value.coord != null)
-         userCoord = UserCoordinates(VM.spaceH.obj.id,
-                VM.floorH?.obj!!.floorNumber.toInt(),
-                VM.location.value.coord!!.lat,
-                VM.location.value.coord!!.lon)
+
+      var userCoordinates = getUserCoordinates(VM)
+      if (userCoordinates==null) {
+        val msg = "Cannot attach user coordinates to msg"
+        LOG.E(TAG_METHOD, msg)
+        app.showToast(msg)
+        userCoordinates = getCenterOfFloor(VM)
+      }
 
       val chatPrefs = dsChat.read.first()
       val mdelivery = chatPrefs.mdelivery
@@ -140,7 +159,7 @@ class SmasChatViewModel @Inject constructor(
         mexten = imageHelper.getMimeType(imageUri!!, app)
       }
 
-      //dummy coords
+      // TODO:PMX real coordinates
       val dummy = UserCoordinates("1234",1,5.0,5.0)
       nwMsgsSend.safeCall(dummy, mdelivery, mtype, newMsg, mexten)
       // if (userCoord != null)
