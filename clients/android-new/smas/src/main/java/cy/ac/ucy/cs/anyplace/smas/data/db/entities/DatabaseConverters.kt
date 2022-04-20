@@ -14,7 +14,7 @@ class DatabaseConverters {
     fun chatMsgtoEntity(msg: ChatMsg): ChatMsgEntity {
       // skip saving base64 on SQLite.
       // Those will be stored in [SmasCache] (file cache)
-      val content = if (msg.mtype == ChatMsgHelper.TP_IMG) " " else msg.msg
+      val content = if (msg.mtype == ChatMsgHelper.TP_SEND_IMG) " " else msg.msg
       return ChatMsgEntity(
               msg.mid,
               msg.uid,

@@ -16,7 +16,7 @@ data class ChatMsgEntity(
   val mtype: Int,
   val msg: String?,
   val mexten: String,
-  val time: Int,
+  val time: Long,
   val timestr: String,
   val x: Double,
   val y: Double,

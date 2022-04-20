@@ -11,9 +11,11 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.*
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
+import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
+import cy.ac.ucy.cs.anyplace.smas.data.models.MsgSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
@@ -27,6 +29,9 @@ import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsGetNW
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsSendNW
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -53,9 +58,9 @@ class SmasChatViewModel @Inject constructor(
 
   val chatCache by lazy { ChatCache(app.applicationContext) }
 
-  //Class objects
+  // Class objects
   val imageHelper = ImageBase64()
-  val dateTimeHelper = DateTimeHelper()
+  val dateUtl = DateTimeHelper()
 
   //Variables observed by composable functions
   var reply: String by mutableStateOf("")
@@ -66,8 +71,9 @@ class SmasChatViewModel @Inject constructor(
   var errColor: Color by mutableStateOf(AnyplaceBlue)
   var isLoading: Boolean by mutableStateOf(false)
 
-  //The list of messages shown on screen
-  val listOfMessages = mutableStateListOf<ChatMsg>()
+  /** list of messages shown on screen by [LazyColumn] */
+  var msgList = mutableStateListOf<ChatMsg>()
+  val msgFlow: MutableStateFlow<List<ChatMsg>> = MutableStateFlow(emptyList())
 
   fun getLoggedInUser(): String {
     var uid = ""
@@ -104,10 +110,10 @@ class SmasChatViewModel @Inject constructor(
     replyToMessage = null
   }
 
-  fun nwPullMessages() {
-    LOG.E()
-    viewModelScope.launch {
-      nwMsgsGet.safeCall()
+  fun nwPullMessages(showToast: Boolean = false) {
+    LOG.V()
+    viewModelScope.launch(Dispatchers.IO) {
+      nwMsgsGet.safeCall(showToast)
     }
   }
 
@@ -115,7 +121,7 @@ class SmasChatViewModel @Inject constructor(
    * React to flow that is populated by [nwMsgsGet] safeCall
    */
   fun collectMessages() {
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
       nwMsgsGet.collect(app)
     }
   }
@@ -140,17 +146,18 @@ class SmasChatViewModel @Inject constructor(
             latLng.latitude,
             latLng.longitude)
   }
+  //
 
   fun sendMessage(VM: SmasMainViewModel, newMsg: String?, mtype: Int) {
     viewModelScope.launch {
 
-      var userCoordinates = getUserCoordinates(VM)
-      if (userCoordinates==null) {
-        val msg = "Cannot attach user coordinates to msg"
-        LOG.E(TAG_METHOD, msg)
-        app.showToast(msg)
-        userCoordinates = getCenterOfFloor(VM)
-      }
+      // var userCoordinates = getUserCoordinates(VM)
+      // if (userCoordinates==null) {
+      //   val msg = "Cannot attach location to msg"
+      //   LOG.E(TAG_METHOD, msg)
+      //   app.showToast(msg)
+      //   userCoordinates = getCenterOfFloor(VM)
+      // }
 
       val chatPrefs = dsChat.read.first()
       val mdelivery = chatPrefs.mdelivery

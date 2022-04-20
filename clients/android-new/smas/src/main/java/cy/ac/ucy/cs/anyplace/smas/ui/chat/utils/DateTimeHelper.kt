@@ -3,11 +3,13 @@ package cy.ac.ucy.cs.anyplace.smas.ui.chat.utils
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-// TODO:PM:ATH merge w/ utlTime / utlDate
+// TODO:PM: merge w/ utlTime / utlDate
 @RequiresApi(Build.VERSION_CODES.O)
 class DateTimeHelper {
 
@@ -30,10 +32,13 @@ class DateTimeHelper {
         return date.substringAfterLast(' ').substringBeforeLast(":")
     }
 
-    fun isSameDay(timestr: String) : Boolean{
+  fun getTimeFromStrFull(date : String) : String{
+    return date.substringAfterLast(' ')
+  }
+
+    fun isSameDay(timestr: String) : Boolean {
       val currDate = getLocalDateString()
       val date = getDateFromStr(timestr)
-      Log.d("isSameDay","$currDate $date")
 
       if (currDate.equals(date))
         return true

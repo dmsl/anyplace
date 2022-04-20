@@ -29,7 +29,7 @@ android {
     targetSdk 30
 
     versionCode 1
-    versionName "1.1.7"
+    versionName "1.1.8"
   }
 
   buildTypes {

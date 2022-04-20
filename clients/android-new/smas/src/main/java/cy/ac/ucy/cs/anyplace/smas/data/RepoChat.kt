@@ -17,6 +17,6 @@ class RepoChat @Inject constructor(
         dsLocalAP: SmasLocalDS) {
   /** Talks to the net */
   val remote = chatRemoteDataSource
-  /** Talks to SQLite */
+  /** Talks to ROOM */
   val local = dsLocalAP
 }

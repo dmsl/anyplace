@@ -2,6 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.data.models
 
 import com.google.gson.annotations.SerializedName
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
+import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
 
 /** A Single [ChatMsg] */
 data class ChatMsg(
@@ -32,7 +33,7 @@ data class ChatMsg(
 
         /** Server timestamp */
         @SerializedName("time")
-        val time: Int,
+        val time: Long,
         /** Server pretty time */
         @SerializedName("timestr")
         val timestr: String,
@@ -70,9 +71,10 @@ data class ChatMsgsResp(
 data class MsgGetReq(
         val uid: String,
         val sessionkey: String,
-        /** 0 is always used */
-        val mgettype: Int) {
-  constructor(user: ChatUser, mgettype: Int) : this(user.uid, user.sessionkey, mgettype)
+        val mgettype: Int = ChatMsgHelper.TP_GET_ALL,
+        val from: String? ="") {
+  constructor(user: ChatUser, mgettype: Int = ChatMsgHelper.TP_GET_ALL, from: String?=null)
+          : this(user.uid, user.sessionkey, mgettype, from)
 }
 
 data class MsgSendReq(

@@ -14,6 +14,7 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
+import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.WineRed
 import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
@@ -43,9 +44,10 @@ class MsgsSendNW(private val app: SmasApp,
     if (app.hasInternet()) {
       try {
         val req = MsgSendReq(chatUser, userCoords, mdelivery, msg, mtype, mexten, utlTime.epoch().toString())
-        LOG.W(TAG, "Sending: ${req.time}: mtype: ${mtype} msg: ${msg} x,y: ${userCoords.lat},${userCoords.lon} deck: ${userCoords.level} ")
+        val content = if (ChatMsgHelper.isImage(mtype)) "<base64>" else msg
+        LOG.D2(TAG, "MSG-SEND: Send: ${req.time}: mtype: ${mtype} msg: ${content} x,y: ${userCoords.lat},${userCoords.lon} deck: ${userCoords.level} ")
         val response = repo.remote.messagesSend(req)
-        LOG.D2(TAG, "ChatMessageSend: ${response.message()}")
+        LOG.D2(TAG, "MSG-SEND: Resp: ${response.message()}")
         resp.value = handleResponse(response)
       } catch (ce: ConnectException) {
         val msg = "Connection failed:\n${RH.retrofit.baseUrl()}"
@@ -60,20 +62,23 @@ class MsgsSendNW(private val app: SmasApp,
   }
 
   private fun handleResponse(response: Response<MsgSendResp>): NetworkResult<MsgSendResp> {
-    LOG.E(TAG, "HandleResponse:::")
+    LOG.V3(TAG, "HandleResponse:: MsgSend")
     if (response.isSuccessful) {
       when {
         response.message().toString().contains("timeout") -> return NetworkResult.Error("Timeout.")
         // response.body()!!.chatMsgs.isNullOrEmpty() -> return NetworkResult.Error("Can't get messages.")
         response.isSuccessful -> {
 
-          LOG.E(TAG, "MSGS-SEND: Successful")
-
           // SMAS special handling (errors should not be 200/OK)
           val r = response.body()!!
           if (r.status == "err") {
             return NetworkResult.Error(r.descr)
           }
+
+          LOG.D2(TAG, "MSGS-SEND: Successful")
+          LOG.D2(TAG, "MSGS-SEND: Pulling msgs right after send")
+          // TODO:PMX LEFTHERE..
+          VM.nwPullMessages()
 
           return NetworkResult.Success(r)
         } // can be nullable

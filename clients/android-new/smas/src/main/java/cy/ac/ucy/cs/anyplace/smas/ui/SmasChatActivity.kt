@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -41,13 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import coil.compose.rememberImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG.Companion.TAG
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
@@ -56,6 +53,8 @@ import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,29 +64,39 @@ import javax.inject.Inject
 class SmasChatActivity : AppCompatActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
-  private lateinit var VMmain: SmasMainViewModel
+  private lateinit var VM: SmasMainViewModel
   @Inject lateinit var repo: RepoChat
+
+  private fun getMessages() {
+    // TODO:PMX constantly pull msgs
+    // lifecycleScope.launch(Dispatchers.IO) {
+    // while (true) true{
+    VMchat.nwPullMessages(true)
+    VMchat.collectMessages()
+    // delay(2000L)
+    // }
+    // }
+
+    lifecycleScope.launch {
+      VMchat.msgFlow.collectLatest {
+        // LEFTHERE...
+
+      }
+    }
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
-    VMmain = ViewModelProvider(this)[SmasMainViewModel::class.java]
+    VM = ViewModelProvider(this)[SmasMainViewModel::class.java]
 
-    // lifecycleScope.launch {
-    //   while (true) {
-    VMchat.nwPullMessages()
-    VMchat.collectMessages()
-    //
-    //delay(2000L)
-    //   }
-    // }
+    getMessages()
 
     setContent {
       Scaffold(
               topBar = { TopMessagesBar(::onBackClick) },
-              content = { Conversation(VMmain, VMchat, supportFragmentManager, repo, ::returnLoc) },
+              content = { Conversation(VM, VMchat, supportFragmentManager, repo, ::returnLoc) },
               backgroundColor = WhiteGray
       )
     }
@@ -99,6 +108,7 @@ class SmasChatActivity : AppCompatActivity() {
   }
 
   private fun returnLoc(latitude: Double, longitude: Double) {
+    // TODO:PMX put deck here also..
     setResult(Activity.RESULT_OK, Intent().putExtra("latitude", latitude).putExtra("longitude", longitude))
     finish()
   }
@@ -151,11 +161,7 @@ fun Conversation(
         repo: RepoChat,
         returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
-
-  val messagesList = VMchat.listOfMessages
-
   Column {
-
     LazyColumn(
             modifier = Modifier
                     .weight(1f)
@@ -163,10 +169,11 @@ fun Conversation(
             //state = listState,
             verticalArrangement = Arrangement.spacedBy(10.dp),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-            reverseLayout = true
+            reverseLayout = true // not hiding msgs when keyboard is open
     ) {
-      if (!messagesList.isEmpty()) {
-        itemsIndexed(messagesList) { index, message ->
+      LOG.W(TAG, "LazyColumn: msgsList size: ${VMchat.msgList.size}")
+      if (!VMchat.msgList.isEmpty()) {
+        itemsIndexed(VMchat.msgList) { _, message ->
           MessageCard(message, VMchat, manager, repo, returnLoc)
         }
       }
@@ -188,8 +195,6 @@ fun MessageCard(
 ) {
   val senderIsLoggedUser = (VMchat.getLoggedInUser() == message.uid)
   val ctx = LocalContext.current
-
-
   val msg = ChatMsgHelper(ctx,repo, message)
 
   Column(
@@ -200,6 +205,7 @@ fun MessageCard(
           }
   ) {
     var senderUsername = message.uid
+    // TODO: no reply support in SMAS API (backend DB)
     var reply by remember { mutableStateOf(false) }
 
     Text(
@@ -222,7 +228,7 @@ fun MessageCard(
               elevation = 5.dp,
               backgroundColor = when {
                 senderIsLoggedUser -> AnyplaceBlue
-                message.mtype == 4 -> WineRed  //When it is an alert
+                message.mtype == 4 -> WineRed  // when it is an alert
                 else -> White
               },
               content = {
@@ -286,12 +292,9 @@ fun MessageCard(
                   // When the message is an image in base64 encoding..
                   if (msg.isImage() && message.msg != null) {
 
-                    // val bitmapImg: Bitmap? = remember {
-                    //   message.msg?.let { VMchat.imageHelper.decodeFromBase64(it) }
-                    // }
 
                     val bitmapImgTiny: Bitmap? = remember {
-                      message.msg?.let { VMchat.chatCache.getBitmapTiny(message) }
+                      message.msg.let { VMchat.chatCache.getBitmapTiny(message) }
                     }
 
                     if (bitmapImgTiny != null) {
@@ -346,13 +349,16 @@ fun MessageCard(
                     }
                   }
 
-                  val sd = VMchat.dateTimeHelper.isSameDay(message.timestr)
-                  val msgHour = VMchat.dateTimeHelper.getTimeFromStr(message.timestr)
-                  val msgDate = VMchat.dateTimeHelper.getDateFromStr(message.timestr)
+                  val sameDay = VMchat.dateUtl.isSameDay(message.timestr)
                   Text(
-                          text = when (sd) {
-                            true -> msgHour
-                            else -> "$msgDate $msgHour"
+                          text = when (sameDay) {
+                            true -> VMchat.dateUtl.getTimeFromStrFull(message.timestr)
+                            else -> {
+                              val msgHour = VMchat.dateUtl.getTimeFromStr(message.timestr)
+                              val msgDate = VMchat.dateUtl.getDateFromStr(message.timestr)
+
+                              "$msgDate $msgHour"
+                            }
                           },
                           fontSize = 10.sp,
                           modifier = Modifier
@@ -447,10 +453,9 @@ fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
 @ExperimentalPermissionsApi
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ReplyCard(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
-
+fun ReplyCard(VM: SmasMainViewModel, VMchat: SmasChatViewModel) {
   val imageUri = VMchat.imageUri
-  val replyToMessage = VMchat.replyToMessage;
+  val replyToMessage = VMchat.replyToMessage
 
   Column(
           modifier = Modifier
@@ -460,7 +465,8 @@ fun ReplyCard(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
           horizontalAlignment = Alignment.CenterHorizontally
   ) {
 
-    ShareLocAlert(VMmain, VMchat)
+    // dialog for confirming location share
+    ShareLocAlert(VM, VMchat)
 
     if (replyToMessage != null) {
       ReplyToMessage(VMchat = VMchat)
@@ -471,15 +477,15 @@ fun ReplyCard(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
               horizontalArrangement = Arrangement.Center,
               verticalAlignment = Alignment.CenterVertically
       ) {
-        TextBox(VMmain = VMmain, VMchat = VMchat, Modifier.weight(2f))
+        TextBox(VMmain = VM, VMchat = VMchat, Modifier.weight(2f))
         Row(Modifier.weight(1f)) {
           ImgBtn(VMchat = VMchat, modifier = Modifier.weight(1f))
           ShareLocBtn(VMchat = VMchat, modifier = Modifier.weight(1f))
         }
       }
 
-    } else {
-      ShowImg(VMmain, VMchat)
+    } else { // when image is shown the UI changes
+      ShowImg(VM, VMchat)
     }
   }
 }
@@ -682,6 +688,9 @@ fun ShareLocAlert(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
   }
 }
 
+/**
+ * TODO:ATH doc..
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ShowImg(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
@@ -725,8 +734,7 @@ fun ShowImg(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
         Icon(
                 imageVector = Icons.Filled.Send,
                 contentDescription = "send the image",
-                modifier = Modifier
-                        .size(25.dp),
+                modifier = Modifier.size(25.dp),
                 tint = AnyplaceBlue
         )
       }

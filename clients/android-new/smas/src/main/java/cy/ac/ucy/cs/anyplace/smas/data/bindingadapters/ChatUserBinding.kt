@@ -11,7 +11,7 @@ class ChatUserBinding {
   companion object {
     @BindingAdapter("readUserid", requireAll = true)
     @JvmStatic
-    fun readUserd(
+    fun readUserId(
       view:TextView,
       user: ChatUser?) {
       // BUG: it's null

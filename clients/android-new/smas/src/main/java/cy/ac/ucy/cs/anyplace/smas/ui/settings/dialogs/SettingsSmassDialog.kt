@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentManager
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.SettingsNavigationActivity
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogSettingsSmasBinding
@@ -133,11 +134,12 @@ class MainSmasSettingsDialog : DialogFragment() {
   }
 
   private fun setupVersion() {
-
     CoroutineScope(Dispatchers.Main).launch {
+      // TODO:PMX
       var versionStr = BuildConfig.VERSION_NAME
       val prefsChat = requireActivity().appSmas.dsChat.read.first()
-      if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
+      LOG.W(TAG, "Ver: $prefsChat")
+      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
       binding.btnVersionSmas.text = getString(R.string.smas_version, versionStr)
     }
   }

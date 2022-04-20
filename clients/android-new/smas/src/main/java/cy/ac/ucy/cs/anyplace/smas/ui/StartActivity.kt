@@ -72,9 +72,9 @@ class StartActivity : Activity() {
   private fun setupVersion() {
     CoroutineScope(Main).launch {
       var versionStr = "ver: ${BuildConfig.VERSION_NAME}"
-      val prefsChat = appSmas.dsChat.read.first()
-      if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
-
+      // TODO:PMX why version is not working?
+      // val prefsChat = appSmas.dsChat.read.first()
+      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
       tvVersion.text = versionStr
     }
   }
