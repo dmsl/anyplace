@@ -13,7 +13,7 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatVersion
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Response
 import java.lang.Exception

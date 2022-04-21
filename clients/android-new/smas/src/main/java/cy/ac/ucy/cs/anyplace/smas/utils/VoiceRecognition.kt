@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.chat.utils
+package cy.ac.ucy.cs.anyplace.smas.utils
 
 import android.content.Context
 import android.content.Intent
@@ -12,6 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import java.util.*
 
+/**
+ * CLR:PM remove this?
+ */
+@Deprecated("Not in use")
 class VoiceRecognition {
 
     private var recognizer: SpeechRecognizer? = null

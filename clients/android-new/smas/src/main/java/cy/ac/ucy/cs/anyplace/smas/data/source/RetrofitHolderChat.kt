@@ -1,4 +1,4 @@
-package cy.ac.ucy.cs.anyplace.smas.utils.network
+package cy.ac.ucy.cs.anyplace.smas.data.source
 
 import android.content.Context
 import cy.ac.ucy.cs.anyplace.smas.ChatAPI

@@ -16,7 +16,7 @@ import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,9 +49,9 @@ class SettingsChatActivity: BaseSettingsActivity() {
   }
 
   class SettingsChatFragment(
-          private val VM: SmasMainViewModel,
-          private val retrofitH: RetrofitHolderChat,
-          private val chatPrefsDS: ChatPrefsDataStore) : PreferenceFragmentCompat() {
+    private val VM: SmasMainViewModel,
+    private val retrofitH: RetrofitHolderChat,
+    private val chatPrefsDS: ChatPrefsDataStore) : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
       preferenceManager.preferenceDataStore = chatPrefsDS

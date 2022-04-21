@@ -13,7 +13,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.data.store.MiscDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapHandler
-import cy.ac.ucy.cs.anyplace.lib.android.utils.network.RetrofitHolderAP
+import cy.ac.ucy.cs.anyplace.lib.android.utils.net.RetrofitHolderAP
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.lib.models.UserLocation
@@ -21,7 +21,7 @@ import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationGetNW
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationSendNW
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.VersionNW
@@ -29,7 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,7 +42,7 @@ class SmasMainViewModel @Inject constructor(
         application: Application,
         repoAP: RepoAP,
         private val repoChat: RepoChat,
-        dsChat: ChatPrefsDataStore,
+        val dsChat: ChatPrefsDataStore,
         dsCv: CvDataStore,
         dsCvNav: CvNavDataStore,
         private val dsMisc: MiscDataStore,
@@ -54,6 +54,9 @@ class SmasMainViewModel @Inject constructor(
 
   // PREFERENCES
   val prefsChat = dsChat.read
+
+  /** How often to refresh UI components from backend (in ms) */
+  private var refreshMs : Long = C.DEFAULT_PREF_SMAS_LOCATION_REFRESH.toLong()*1000L
 
   override fun prefWindowLocalizationMillis(): Int {
     // modify properly for Smas?
@@ -73,6 +76,12 @@ class SmasMainViewModel @Inject constructor(
    */
   fun displayVersion(p: Preference?) = viewModelScope.launch { nwVersion.safeCall(p) }
 
+  private fun collectRefreshMs() {
+    viewModelScope.launch(Dispatchers.IO) {
+      prefsCvNav.collectLatest{ refreshMs = it.locationRefresh.toLong()*1000L }
+    }
+  }
+
   /** In a loop:
    * - send own location
    * - get other users locations
@@ -80,8 +89,9 @@ class SmasMainViewModel @Inject constructor(
    *  - TODO:PM get from anyplace location
    *  - TODO:PM get a list of those locations: how? parse json?
    */
-  fun nwPullLocationsLoop()  {
-    viewModelScope.launch {
+  fun netPullLocationsLOOP()  {
+    viewModelScope.launch(Dispatchers.IO) {
+      collectRefreshMs()
       while (true) {
         if (location.value.coord != null) {
           val lastCoordinates = UserCoordinates(spaceH.obj.id,
@@ -93,8 +103,7 @@ class SmasMainViewModel @Inject constructor(
         }
 
         nwLocationGet.safeCall()
-
-        delay(prefsCvNav.first().locationRefresh.toLong()*1000)
+        delay(refreshMs)
       }
     }
   }
@@ -131,6 +140,12 @@ class SmasMainViewModel @Inject constructor(
     return newMode
   }
 
+  fun saveNewMsgs(value: Boolean) {
+    viewModelScope.launch(Dispatchers.IO) {
+      dsChat.saveNewMsgs(value)
+    }
+  }
+
   ///////////////////////////////////////
   ///////////////////////////////////////
   ///////////////////////////////////////
@@ -139,6 +154,9 @@ class SmasMainViewModel @Inject constructor(
   var networkStatus = false
   /** normal var, filled by the observer (SelectSpaceActivity) */
   var backOnline = false
+
+  /** Set when a user has new messages */
+  var readHasNewMessages = dsChat.readHasNewMessages.asLiveData()
 
   // TODO:PM: bind this when connectivity status changes
   var readBackOnline = dsMisc.readBackOnline.asLiveData()
@@ -163,6 +181,8 @@ class SmasMainViewModel @Inject constructor(
   fun unsetBackFromSettings() = saveBackFromSettings(false)
   private fun saveBackFromSettings(value: Boolean) =
           viewModelScope.launch(Dispatchers.IO) {  dsMisc.saveBackFromSettings(value) }
+
+
 
   ///////////////////////////////////////
   ///////////////////////////////////////

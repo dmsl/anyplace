@@ -118,3 +118,12 @@ data class MsgSendResp(
         @SerializedName("rows")
         val rows: Int?
 )
+
+/**
+ * Used for ReplyTo's (which are not fully implemented)
+ */
+data class ReplyToMessage(
+        val sender : String,
+        val message : String?,
+        val attachment : String?
+)

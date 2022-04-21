@@ -23,6 +23,7 @@
   <string name="pref_chat_server_port">pref_chat_server_port</string>
   <string name="pref_chat_server_version">pref_chat_server_version</string>
   <string name="pref_chat_mdelivery">pref_chat_mdelivery</string>
+  <string name="flag_chat_new_msgs">flag_chat_new_msgs</string>
 
   <!-- DEFAULT PREF VALUES -->
   <string name="default_pref_chat_server_host">ap.cs.ucy.ac.cy</string>

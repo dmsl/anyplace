@@ -3,7 +3,6 @@ package cy.ac.ucy.cs.anyplace.smas.data.source
 import cy.ac.ucy.cs.anyplace.smas.ChatUserAuth
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
 import retrofit2.Response
 import javax.inject.Inject
 

@@ -15,7 +15,7 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import cy.ac.ucy.cs.anyplace.smas.data.models.LocationSendReq
 import cy.ac.ucy.cs.anyplace.smas.data.models.LocationSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.SmasErrors
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first

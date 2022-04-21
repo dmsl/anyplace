@@ -319,7 +319,7 @@
         android:backgroundTint="@color/colorPrimaryDark"
         android:text="Chat"
         app:cornerRadius="10dp"
-        app:icon="@drawable/ic_chat_unread"
+        app:icon="@drawable/ic_chat"
         android:layout_marginBottom="12dp"
         app:iconGravity="textStart"
         app:iconPadding="0dp"

@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.material.button.MaterialButton
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
@@ -28,13 +29,16 @@ import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
 import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
+import cy.ac.ucy.cs.anyplace.smas.ui.chat.SmasChatActivity
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationSendNW
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /*
@@ -118,7 +122,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     VM = _vm as SmasMainViewModel
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
 
-    setupBackendCommunication()
+    VMchat.netPullMessagesONCE() // TODO:PMX LOOP
     setupCollectors()
   }
 
@@ -129,7 +133,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D2(TAG_METHOD, "Floor: ${VM.floor.value}")
 
     // Send own location, and receive other users locations
-    VM.nwPullLocationsLoop()
+    VM.netPullLocationsLOOP()
     collectOwnLocation()
     VM.collectLocations(maph)
 
@@ -139,14 +143,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
   ////////////////////////////////////////////////
 
-  /**
-   * Pulling data (maybe periodically) from the SMAS backend
-   * Also reporting user locations
-   */
-  private fun setupBackendCommunication() {
-    // TODO:ATH
-    VMchat.nwPullMessages()
-  }
+
+
+
 
   /**
    * Async Collection of remotely fetched data
@@ -157,8 +156,6 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
     collectLoggedInUser()
     collectLoadedFloors()
-
-    VMchat.collectMessages() // TODO:ATH
 
     // NOTE: [collectOtherUsersLocations] is done on floorLoaded
     // collectUserLocalizationStatus(): localizing or not localizing
@@ -199,19 +196,46 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
+
+  private fun reactToNewMessages() {
+    // LEFTHERE:
+    // LEFTHERE:
+    // LEFTHERE:
+    // 1. verify this.
+    // 2. stop it...
+
+    lifecycleScope.launch(Dispatchers.Main) {
+      VM.readHasNewMessages.observeForever { hasNewMsgs ->
+      val btn = btnChat as MaterialButton
+      val ctx = this@SmasMainActivity
+      LOG.E(TAG,"NEW-MSGS: $hasNewMsgs")
+
+        if (hasNewMsgs) {
+          utlButton.changeBackgroundButton(btn, ctx, R.color.redDark)
+          utlButton.changeMaterialButtonIcon(btn, ctx, R.drawable.ic_chat_unread)
+        } else {
+          utlButton.changeBackgroundButton(btn, ctx, R.color.colorPrimaryDark)
+          utlButton.changeMaterialButtonIcon(btn, ctx, R.drawable.ic_chat)
+        }
+      }
+    }
+  }
+
   /**
    * Reacts to updates on [ChatUser]'s login status:
    * Only authenticated users are allowed to use this activity
    */
   private fun collectLoggedInUser() {
     // only logged in users are allowed on this activity:
-    lifecycleScope.launch {
+    lifecycleScope.launch(Dispatchers.IO) {
       appSmas.dsChatUser.readUser.collect { user ->
         if (user.sessionkey.isBlank()) {
           finish()
           startActivity(Intent(this@SmasMainActivity, SmasLoginActivity::class.java))
         } else {
+          lifecycleScope.launch(Dispatchers.Main) {
           Toast.makeText(applicationContext, "Welcome ${user.uid}!", Toast.LENGTH_LONG).show()
+          }
         }
       }
     }
@@ -382,6 +406,10 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun setupButtonChat() {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
+
+    VMchat.collectMessages()
+    // reactToNewMessages() // TODO:PMX
+
     btnChat.setOnClickListener {
       lifecycleScope.launch {
         startForResult.launch(Intent(applicationContext, SmasChatActivity::class.java))

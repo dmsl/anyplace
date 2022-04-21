@@ -35,7 +35,6 @@
  */
 package cy.ac.ucy.cs.anyplace.navigator.legacy
 
-import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -52,7 +51,6 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GooglePlayServicesUtil
 import com.google.android.gms.location.*
@@ -89,7 +87,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.tracker.TrackerLogicPlusIMU
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils
 // import cy.ac.ucy.cs.anyplace.lib.android.utils.AnyplaceUtils
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint
-import cy.ac.ucy.cs.anyplace.lib.android.utils.network.OLDNetworkUtils
+import cy.ac.ucy.cs.anyplace.lib.android.utils.net.OLDNetworkUtils
 import cy.ac.ucy.cs.anyplace.lib.android.sensors.wifi.SimpleWifiManager
 import cy.ac.ucy.cs.anyplace.navigator.NavigatorApp
 import cy.ac.ucy.cs.anyplace.navigator.R

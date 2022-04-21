@@ -6,7 +6,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatUserDataStore
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

@@ -15,7 +15,7 @@ import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.db.entities.DatabaseConverters.Companion.entityToChatMessages
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +25,7 @@ import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
 
-class MsgsGetNW(
+class MsgGetNW(
         private val app: SmasApp,
         private val VM: SmasChatViewModel,
         private val RH: RetrofitHolderChat,
@@ -63,7 +63,6 @@ class MsgsGetNW(
       return
     }
 
-
     resp.value = NetworkResult.Loading()
     LOG.D2(TAG, "msg-get: size: ${VM.msgList.size} after resetting..")
     chatUser = app.dsChatUser.readUser.first()
@@ -88,9 +87,10 @@ class MsgsGetNW(
         val msgs = resp.value.data
         // no new msgs fetched. instead the prev msgs were were loaded from localDB
         val dbLoaded = resp.value.message.toString() == NetworkResult.DB_LOADED
-        if (msgs != null && !dbLoaded) {
+        if (msgs != null && msgs.msgs.isNotEmpty() && !dbLoaded) {
           LOG.W(TAG, "WILL PERSIST to DB")
           persistToDB(msgs)
+          VM.saveNewMsgs(true)
         } else {
           // TODO only for new msgs..
           LOG.W(TAG, "WILL NOT PERSIST to DB")
@@ -141,7 +141,8 @@ class MsgsGetNW(
         response.message().toString().contains("timeout") -> return NetworkResult.Error("Timeout.")
         // response.body()!!.chatMsgs.isNullOrEmpty() -> return NetworkResult.Error("Can't get messages.")
         response.isSuccessful -> {
-          LOG.E(TAG, "MSGS-GET: Successful")
+
+          LOG.V2(TAG, "MSG-GET: Success")
 
           // SMAS special handling (errors should not be 200/OK)
           val r = response.body()!!
@@ -152,20 +153,22 @@ class MsgsGetNW(
           // CHECK: this could be normal?
           if (response.body()!!.msgs.isEmpty()) {
             if (incrementalFetch) {
-              if (VM.msgList.isEmpty()) {
-                // initial load of app: no new messages, but haven't loaded yet msgs from local DB
-                LOG.E(TAG,"Incremental fetch: 0 msgs & 0 in msgList. (reading from DB..)")
-                return getMsgsFromDB()
+              return if (VM.msgList.isEmpty()) {
+                // the app was opened, w/o new msgs. the [VM.msgList] was empty
+                // all we have to do is to load the previous msgs from DB
+                LOG.D2(TAG,"Reading from DB. (empty msgList + no new msgs)")
+                getMsgsFromDB()
               } else {
-                LOG.E(TAG, "msgList prev msgs: ${VM.msgList.size}")
-                return NetworkResult.Success(response.body()!!, NetworkResult.UP_TO_DATE)
+                // no new msgs fetched. [VM.msgList] is populated: no work needed!
+                LOG.D2(TAG, "No new msgs. Prev msgList: ${VM.msgList.size}")
+                NetworkResult.Success(response.body()!!, NetworkResult.UP_TO_DATE)
               }
             }
 
             val msg = "No new messages."
             if (showToast) {
               VM.viewModelScope.launch(Dispatchers.Main) {
-                LOG.D3(TAG, msg)
+                LOG.D2(TAG, msg)
                 // app.showToast(msg, Toast.LENGTH_LONG)
               }
             }
@@ -178,26 +181,27 @@ class MsgsGetNW(
           var resp  = response.body()!!
           var loadType: String? = null
           if (incrementalFetch)  {
-            val oldMsgs=getMsgsFromDB().data!!.msgs // local messages
-            val newMsgs = resp.msgs // remote messages
+            // val oldMsgs=getMsgsFromDB().data!!.msgs // local messages
 
+            // persist to DB the new msgs
+            val newMsgs = resp.msgs // remote messages
             persistToDB(resp) // persist after we use [getMsgsFromDB] (avoid dups)
 
             // localMsgs are descending: newest msgs is first
             // they are merged w/ the [newMsgs] from the remote (also descending)
-            val mergedMsgs = newMsgs + oldMsgs
-            val merged=ChatMsgsResp(resp.status, resp.descr, resp.uid, mergedMsgs)
-            LOG.E(TAG, "TODO: merged messages: local: ${oldMsgs.size} remote: ${resp.msgs.size}")
-            LOG.E(TAG, "Status: ${resp.status} desc: ${resp.descr}")
+            // val mergedMsgs = newMsgs + oldMsgs
+            // val merged=ChatMsgsResp(resp.status, resp.descr, resp.uid, mergedMsgs)
+            // LOG.E(TAG, "TODO: merged messages: local: ${oldMsgs.size} remote: ${resp.msgs.size}")
+            LOG.E(TAG, "New msgs: ${resp.msgs.size}")
+            // LOG.E(TAG, "Status: ${resp.status} desc: ${resp.descr}")
 
             // LOG.E(TAG, "all msgs")
             // mergedMsgs.forEach {
             //   val wMsg = ChatMsgHelper(app, repo, it)
             //   LOG.W(TAG, "MSG: ${wMsg.content()}")
             // }
-
-            resp=merged
-            loadType=NetworkResult.DB_LOADED
+            // resp=merged
+            // loadType=NetworkResult.DB_LOADED
           }
 
           // This is actually hybrid:
@@ -259,8 +263,8 @@ class MsgsGetNW(
   //// e.g. after 2 secs: locations: after 1 sec msgs
   // Separate alerts from others?
   private fun appendMessages(ctx: Context, VM: SmasChatViewModel, msgs: List<ChatMsg>) {
-    LOG.W(TAG,"PROCESS-MSGS: new list: ${msgs.size}")
-    LOG.W(TAG,"PROCESS-MSGS: msgList: ${VM.msgList.size}")
+    LOG.D2(TAG,"PROCESS-MSGS: new list: ${msgs.size}")
+    LOG.D2(TAG,"PROCESS-MSGS: msgList: ${VM.msgList.size}")
     // val msgList = mutableStateListOf<ChatMsg>()
     msgs.forEach { obj ->
       val msgH = ChatMsgHelper(ctx, repo, obj)
@@ -269,14 +273,10 @@ class MsgsGetNW(
       // cache images
       if (obj.mtype == 2) VM.chatCache.saveImg(obj)
 
-      VM.msgList.add(obj)
+      VM.msgList.add(0, obj)
       val prettyTimestamp = utlTime.getPrettyEpoch(obj.time, utlTime.TIMEZONE_CY)
       LOG.D4(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
     }
-
-    // TODO: CLR this..
-    // VM.msgFlow.value = msgList
-    // VM.msgList = msgList
   }
 
   // ROOM
@@ -286,7 +286,7 @@ class MsgsGetNW(
    * Those will be stored in [SmasCache] (file cache)
    */
   private fun persistToDB(msgs: ChatMsgsResp) {
-    LOG.D2(TAG, "$METHOD: storing msgs: ${msgs.msgs.size}")
+    LOG.D2(TAG, "$METHOD: new messages: ${msgs.msgs.size}")
     VM.viewModelScope.launch(Dispatchers.IO) {
       // repo.local.dropMsgs() // TODO: don't drop msgs first..
       msgs.msgs.forEach { msg ->

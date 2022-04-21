@@ -9,29 +9,28 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.*
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.*
-import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
-import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
+import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
-import cy.ac.ucy.cs.anyplace.smas.data.models.MsgSendResp
+import cy.ac.ucy.cs.anyplace.smas.data.models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.tmp_models.ReplyToMessage
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ChatCache
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.DateTimeHelper
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.utils.ImageBase64
+import cy.ac.ucy.cs.anyplace.smas.data.files.SmasCache
+import cy.ac.ucy.cs.anyplace.lib.android.utils.utlImg
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.ImgDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.MsgDeliveryDialog
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsGetNW
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgsSendNW
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgGetNW
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgSendNW
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,19 +47,23 @@ class SmasChatViewModel @Inject constructor(
         private val repoChat: RepoChat,
         private val RFH: RetrofitHolderChat,
         private val dsChat: ChatPrefsDataStore,
+        dsCvNav: CvNavDataStore,
         private val dsMisc: MiscDataStore,
 ) : AndroidViewModel(_application) {
 
   private val app = _application as SmasApp
+  private val C by lazy { CHAT(app.applicationContext) }
 
-  private val nwMsgsGet by lazy { MsgsGetNW(app, this, RFH, repoChat) }
-  private val nwMsgsSend by lazy { MsgsSendNW(app, this, RFH, repoChat) }
+  private val nwMsgGet by lazy { MsgGetNW(app, this, RFH, repoChat) }
+  private val nwMsgSend by lazy { MsgSendNW(app, this, RFH, repoChat) }
 
-  val chatCache by lazy { ChatCache(app.applicationContext) }
+  val chatCache by lazy { SmasCache(app.applicationContext) }
 
-  // Class objects
-  val imageHelper = ImageBase64()
-  val dateUtl = DateTimeHelper()
+  // Preferences
+  val prefsCvNav = dsCvNav.read
+
+  /** How often to refresh UI components from backend (in ms) */
+  private var refreshMs : Long = C.DEFAULT_PREF_SMAS_LOCATION_REFRESH.toLong()*1000L
 
   //Variables observed by composable functions
   var reply: String by mutableStateOf("")
@@ -73,7 +76,13 @@ class SmasChatViewModel @Inject constructor(
 
   /** list of messages shown on screen by [LazyColumn] */
   var msgList = mutableStateListOf<ChatMsg>()
-  val msgFlow: MutableStateFlow<List<ChatMsg>> = MutableStateFlow(emptyList())
+  var newMessages = MutableStateFlow(false)
+
+  private fun collectRefreshMs() {
+    viewModelScope.launch(Dispatchers.IO) {
+      prefsCvNav.collectLatest{ refreshMs = it.locationRefresh.toLong()*1000L }
+    }
+  }
 
   fun getLoggedInUser(): String {
     var uid = ""
@@ -110,21 +119,33 @@ class SmasChatViewModel @Inject constructor(
     replyToMessage = null
   }
 
-  fun nwPullMessages(showToast: Boolean = false) {
-    LOG.V()
+  fun netPullMessagesONCE(showToast: Boolean = false) {
+    LOG.D2(TAG, "PULL-MSGS")
     viewModelScope.launch(Dispatchers.IO) {
-      nwMsgsGet.safeCall(showToast)
+      nwMsgGet.safeCall(showToast)
     }
   }
 
   /**
-   * React to flow that is populated by [nwMsgsGet] safeCall
+   * React to flow that is populated by [nwMsgGet] safeCall
    */
   fun collectMessages() {
     viewModelScope.launch(Dispatchers.IO) {
-      nwMsgsGet.collect(app)
+      nwMsgGet.collect(app)
     }
   }
+
+  fun netPullMessagesLOOP()  {
+    viewModelScope.launch(Dispatchers.IO) {
+      collectRefreshMs()
+      while (true) {
+        LOG.D2(TAG, "loop: pull-msgs")
+        nwMsgGet.safeCall()
+        delay(refreshMs)
+      }
+    }
+  }
+
 
   private fun getUserCoordinates(VM: SmasMainViewModel): UserCoordinates? {
     var userCoord : UserCoordinates? = null
@@ -163,12 +184,12 @@ class SmasChatViewModel @Inject constructor(
       val mdelivery = chatPrefs.mdelivery
       var mexten: String? = null
       if (imageUri != null) {
-        mexten = imageHelper.getMimeType(imageUri!!, app)
+        mexten = utlImg.getMimeType(imageUri!!, app)
       }
 
       // TODO:PMX real coordinates
       val dummy = UserCoordinates("1234",1,5.0,5.0)
-      nwMsgsSend.safeCall(dummy, mdelivery, mtype, newMsg, mexten)
+      nwMsgSend.safeCall(dummy, mdelivery, mtype, newMsg, mexten)
       // if (userCoord != null)
       //   nwMsgsSend.safeCall(userCoord, mdelivery, mtype, newMsg, mexten)
       // else{
@@ -180,11 +201,17 @@ class SmasChatViewModel @Inject constructor(
   }
 
   /**
-   * React to flow that is populated by [nwMsgsSend] safeCall
+   * React to flow that is populated by [nwMsgSend] safeCall
    */
   fun collectMsgsSend() {
     viewModelScope.launch {
-      nwMsgsSend.collect(app)
+      nwMsgSend.collect(app)
+    }
+  }
+
+  fun saveNewMsgs(value: Boolean) {
+    viewModelScope.launch(Dispatchers.IO) {
+      dsChat.saveNewMsgs(value)
     }
   }
 

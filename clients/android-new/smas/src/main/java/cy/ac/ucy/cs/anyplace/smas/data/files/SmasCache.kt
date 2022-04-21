@@ -1,50 +1,53 @@
-package cy.ac.ucy.cs.anyplace.smas.ui.chat.utils
+package cy.ac.ucy.cs.anyplace.smas.data.files
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import cy.ac.ucy.cs.anyplace.lib.android.cache.Cache
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.resize
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.utils.utlImg
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import java.io.File
 import java.io.FileOutputStream
 
-class ChatCache(val ctx: Context) {
-
-  val imageHelper: ImageBase64 = ImageBase64()
-
-  val chatDir get() = "${ctx.filesDir}/chat"
+/**
+ * File Cache for SMAS (extending anyplace-lib [Cache])
+ */
+class SmasCache(ctx: Context): Cache(ctx) {
+  private val chatDir get() = "$baseDir/chat"
 
   //Images from the chat
-  fun dirChatImg(): String {
+  private fun dirChatImg(): String {
     return "$chatDir/img/"
   }
 
-  fun imgPath(mid: String, mexten: String): String {
-    return "${dirChatImg()}${mid}.$mexten"
+  private fun imgPath(mid: String, ext: String): String {
+    return "${dirChatImg()}${mid}.$ext"
   }
 
-  fun imgPathTiny(mid: String, mexten: String): String {
-    return "${dirChatImg()}${mid}tiny.$mexten"
+  private fun imgPathTiny(mid: String, ext: String): String {
+    return "${dirChatImg()}${mid}tiny.$ext"
   }
 
-  fun dirChatImgExists(): Boolean {
+  private fun dirChatImgExists(): Boolean {
     return File(dirChatImg()).exists()
   }
 
-  fun imgExists(mid: String, mexten: String): Boolean {
-    return File(imgPath(mid, mexten)).exists()
+  private fun imgExists(mid: String, ext: String): Boolean {
+    return File(imgPath(mid, ext)).exists()
   }
 
-  fun imgTinyExists(mid : String, mexten: String) : Boolean{
-    return File(imgPathTiny(mid,mexten)).exists()
+  private fun imgTinyExists(mid : String, ext: String) : Boolean{
+    return File(imgPathTiny(mid,ext)).exists()
   }
 
   fun saveImg(message: ChatMsg): Boolean {
     if (!dirChatImgExists())
       File(dirChatImg()).mkdirs()
 
-    var bitmap : Bitmap? = null
+    val bitmap : Bitmap?
     if (!imgExists(message.mid, message.mexten)) {
       val imgPath = imgPath(message.mid, message.mexten)
       val file = File(imgPath)
@@ -52,13 +55,13 @@ class ChatCache(val ctx: Context) {
       val fileTiny = File(imgPathTiny)
       try {
         val out = FileOutputStream(file)
-        bitmap = message.msg?.let { imageHelper.decodeFromBase64(it) }
+        bitmap = message.msg?.let { utlImg.decodeBase64(it) }
         bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, out)
         out.flush()
         out.close()
 
         val outTiny = FileOutputStream(fileTiny)
-        val compressedImg = bitmap?.let { imageHelper.resize(it,400,400) }
+        val compressedImg = bitmap?.resize(400,400)
         compressedImg?.compress(Bitmap.CompressFormat.JPEG, 50, outTiny)
         outTiny.flush()
         outTiny.close()
@@ -71,7 +74,7 @@ class ChatCache(val ctx: Context) {
     return true
   }
 
-  fun getBitmap(message: ChatMsg): Bitmap? {
+  fun readBitmap(message: ChatMsg): Bitmap? {
     var bitmap: Bitmap? = null
     if (imgExists(message.mid, message.mexten)) {
       val file = File(imgPath(message.mid, message.mexten))
@@ -83,7 +86,7 @@ class ChatCache(val ctx: Context) {
     return bitmap
   }
 
-  fun getBitmapTiny(message: ChatMsg) : Bitmap?  {
+  fun readBitmapTiny(message: ChatMsg) : Bitmap?  {
      var bitmap: Bitmap? = null
      if (imgTinyExists(message.mid, message.mexten)) {
        val fileTiny = File(imgPathTiny(message.mid, message.mexten))

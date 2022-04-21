@@ -2,7 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.di
 
 import android.app.Application
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

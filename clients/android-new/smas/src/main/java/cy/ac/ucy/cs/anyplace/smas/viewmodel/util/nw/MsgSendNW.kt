@@ -2,7 +2,6 @@ package cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
@@ -16,7 +15,7 @@ import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.WineRed
-import cy.ac.ucy.cs.anyplace.smas.utils.network.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -25,10 +24,10 @@ import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
 
-class MsgsSendNW(private val app: SmasApp,
-                 private val VM: SmasChatViewModel,
-                 private val RH: RetrofitHolderChat,
-                 private val repo: RepoChat) {
+class MsgSendNW(private val app: SmasApp,
+                private val VM: SmasChatViewModel,
+                private val RH: RetrofitHolderChat,
+                private val repo: RepoChat) {
 
   private val resp: MutableStateFlow<NetworkResult<MsgSendResp>> = MutableStateFlow(NetworkResult.Unset())
 
@@ -75,10 +74,8 @@ class MsgsSendNW(private val app: SmasApp,
             return NetworkResult.Error(r.descr)
           }
 
-          LOG.D2(TAG, "MSGS-SEND: Successful")
-          LOG.D2(TAG, "MSGS-SEND: Pulling msgs right after send")
-          // TODO:PMX LEFTHERE..
-          VM.nwPullMessages()
+          LOG.D2(TAG, "MSGS-SEND: Success. Pull msgs again?")
+          // VM.netPullMessagesONCE() TODO:PMX pull messages again?
 
           return NetworkResult.Success(r)
         } // can be nullable

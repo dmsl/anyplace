@@ -9,16 +9,16 @@
       android:paddingHorizontal="22dp"
       android:paddingVertical="22dp">
 
-<!--    <ImageButton-->
-<!--        android:id="@+id/btn_X"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:clickable="true"-->
-<!--        android:contentDescription="@string/btn_cancel_descr"-->
-<!--        android:src="@drawable/ic_baseline_cancel_24"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        style="?android:attr/borderlessButtonStyle"/>-->
+    <ImageButton
+        android:id="@+id/btn_X"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/btn_cancel_descr"
+        android:src="@drawable/ic_baseline_cancel_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="?android:attr/borderlessButtonStyle"/>
 
 
     <com.ortiz.touchview.TouchImageView

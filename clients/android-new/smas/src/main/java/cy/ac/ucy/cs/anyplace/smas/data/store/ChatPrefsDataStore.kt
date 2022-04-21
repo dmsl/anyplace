@@ -1,14 +1,12 @@
 package cy.ac.ucy.cs.anyplace.smas.data.store
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
-import cy.ac.ucy.cs.anyplace.lib.android.utils.network.NetUtils
+import cy.ac.ucy.cs.anyplace.lib.android.utils.net.NetUtils
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import dagger.hilt.android.qualifiers.ApplicationContext
 
@@ -39,13 +37,15 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
           C.PREF_CHAT_SERVER_HOST,
           C.PREF_CHAT_SERVER_PORT,
           // MESSAGING SETTINGS
-          C.PREF_CHAT_MDELIVERY
+          C.PREF_CHAT_MDELIVERY,
+          // TEMPORARY FLAGS
+          C.FLAG_CHAT_NEWMSGS
   )
 
   // CHECK: is this needed?
   // these are not actual preferences. just placeholders to display some information
   // like backend version when displaying the connection status.
-  private val ignoreKeys = setOf(C.PREF_SERVER_VERSION)
+  private val ignoreKeys = setOf(C.PREF_SERVER_VERSION, C.FLAG_CHAT_NEWMSGS)
 
   private class Keys(c: CHAT) {
     val protocol= stringPreferencesKey(c.PREF_CHAT_SERVER_PROTOCOL)
@@ -54,7 +54,10 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
     val mdelivery = stringPreferencesKey(c.PREF_CHAT_MDELIVERY)
     /** backend version */
     val version = stringPreferencesKey(c.PREF_CHAT_SERVER_VERSION)
+
+    val flagNewMsgs = booleanPreferencesKey(c.FLAG_CHAT_NEWMSGS)
   }
+
   private val KEY = Keys(C)
 
   private fun ignoreKey(key: String?) = ignoreKeys.contains(key)
@@ -131,6 +134,20 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
       it[KEY.version] = version
     }
   }
+
+  private suspend fun saveBoolean(key: Preferences.Key<Boolean>, value: Boolean) {
+    ctx.dsChat.edit { prefs -> prefs[key] = value }
+  }
+
+  suspend fun saveNewMsgs(value: Boolean) =
+          saveBoolean(KEY.flagNewMsgs, value)
+
+  val readHasNewMessages: Flow<Boolean> = ctx.dsChat.data
+          .catch {  exception ->
+            if (exception is IOException) {
+              emit(emptyPreferences())
+            } else { throw exception }
+          }.map { prefs -> prefs[KEY.flagNewMsgs] ?: false }
 
 }
 
