@@ -12,7 +12,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.data.store.CvNavDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.data.store.MiscDataStore
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapHandler
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapWrapper
 import cy.ac.ucy.cs.anyplace.lib.android.utils.net.RetrofitHolderAP
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
@@ -113,7 +113,7 @@ class SmasMainViewModel @Inject constructor(
    * - for current user [nwLocationSend]
    * - for other users [nwLocationGet]
    */
-  fun collectLocations(mapH: GmapHandler) {
+  fun collectLocations(mapH: GmapWrapper) {
     if (floor.value == null) {  // floor not ready yet
       LOG.W(TAG_METHOD, "Floor not loaded yet")
       return

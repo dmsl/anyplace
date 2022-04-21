@@ -7,7 +7,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapHandler
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapWrapper
 import cy.ac.ucy.cs.anyplace.lib.models.UserLocation
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.ChatUserAuth
@@ -101,7 +101,7 @@ class LocationGetNW(
     LOG.E(TAG, e)
   }
 
-  suspend fun collect(VM: SmasMainViewModel, gmap: GmapHandler) {
+  suspend fun collect(VM: SmasMainViewModel, gmap: GmapWrapper) {
     LOG.D3()
 
     resp.collect {
@@ -125,7 +125,7 @@ class LocationGetNW(
     }
   }
 
-  private fun processUserLocations(VM: SmasMainViewModel, locations: UserLocations?, gmap: GmapHandler) {
+  private fun processUserLocations(VM: SmasMainViewModel, locations: UserLocations?, gmap: GmapWrapper) {
     LOG.D3(TAG_METHOD)
     if (locations == null) return
 

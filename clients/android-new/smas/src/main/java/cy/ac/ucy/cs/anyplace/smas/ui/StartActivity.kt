@@ -91,18 +91,20 @@ class StartActivity : Activity() {
   private fun openInitialActivity() {
     LOG.D2(TAG_METHOD)
     CoroutineScope(Main).launch {
-      // startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
-      // startActivity(Intent(this@StartActivity, CvMapActivity::class.java))
-      // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+      /*
+      startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
+      startActivity(Intent(this@StartActivity, CvMapActivity::class.java))
+      startActivity(Intent(this@StartActivity, SmasChatActivity::class.java))
+       */
 
       // authenticated users go straight to the Main Smas activity
       val chatUser = appSmas.dsChatUser.readUser.first()
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-        // CHECK:ATH: example on how to start chat activity from here..
-        // startActivity(Intent(this@StartActivity, SmasChatActivity::class.java))
+        // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+
+        startActivity(Intent(this@StartActivity, SearchActivity::class.java))
       } else {
         LOG.D2(TAG, "Opening activity: Login")
         startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))

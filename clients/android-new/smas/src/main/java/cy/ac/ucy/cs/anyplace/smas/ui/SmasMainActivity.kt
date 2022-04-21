@@ -20,7 +20,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapHandler
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapWrapper
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
@@ -38,7 +38,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /*
@@ -102,7 +101,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
    * Called by [CvMapActivity]
    */
   override fun setupButtonsAndUi() {
-    super.setupButtonsAndUi() // TODO floor selector
+    super.setupButtonsAndUi()
     LOG.D2()
 
     setupButtonSettings()
@@ -110,6 +109,10 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     setupButtonChat()
     setupButtonFlir()
     setupButtonAlert()
+  }
+
+  override fun onMapReadyCallback() {
+    // Nothing for now
   }
 
   /**
@@ -135,9 +138,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     // Send own location, and receive other users locations
     VM.netPullLocationsLOOP()
     collectOwnLocation()
-    VM.collectLocations(maph)
+    VM.collectLocations(wMap)
 
-    setupFakeUserLocation(maph)
+    setupFakeUserLocation(wMap)
     // collect alert
   }
 
@@ -162,7 +165,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   }
 
   @Deprecated("TODO replace with Anyplace Location")
-  private fun setupFakeUserLocation(mapH: GmapHandler) {
+  private fun setupFakeUserLocation(mapH: GmapWrapper) {
     val loc = VM.spaceH.latLng().toCoord()
     VM.location.value = LocalizationResult.Success(loc)
 
