@@ -40,11 +40,13 @@ import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 
 /**
- * TODO:ATH .. similarly for each composable
  *
- * Reply card is has:
- * - [TextBox]: for entering the test message
- * -
+ * Reply card that includes a(n):
+ * - [ReplyToMessage]: for viewing details when trying to reply to a message
+ * - [TextBox]: for entering the text message
+ * - [ImgBtn]: for selecting an image from the file system
+ * - [ShareLocBtn]: for sharing the current location in the chat
+ * - [ShowSelectedImg]: for displaying the selected image before sending it in the chat
  *
  */
 @ExperimentalPermissionsApi
@@ -87,6 +89,14 @@ fun ReplyCard(VM: SmasMainViewModel, VMchat: SmasChatViewModel) {
   }
 }
 
+/**
+ *
+ *  A banner that displays information about the message the user wants to reply to.
+ *  It is shown when a user selects a msg on the list and presses the button <reply>.
+ *  - [Text]: the name of the sender of the message and a part of the message
+ *  - [IconButton]: button that cancels the <reply to> function, the banner disappears
+ *
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ReplyToMessage(VMchat: SmasChatViewModel) {
@@ -132,9 +142,12 @@ fun ReplyToMessage(VMchat: SmasChatViewModel) {
 
 
 /**
- * TODO:ATH
  *
- * .. this seems to have the reply button in it, right?
+ * The TextBox where users can type the message they want to send.
+ * Its border and the Send Button change color according to some factors:
+ *  Gray -> the textbox has no focus
+ *  Blue -> the textbox has focus/ the user is typing
+ *  Red -> the message failed to send
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -216,7 +229,7 @@ fun TextBox(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel, modifier: Modi
 }
 
 /**
- *
+ * The button that opens the folder in which the images of the phone are saved in
  */
 @Composable
 fun ImgBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
@@ -240,6 +253,9 @@ fun ImgBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
   }
 }
 
+/**
+ * The button which triggers the [ShareLocAlert]
+ */
 @Composable
 fun ShareLocBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
 
@@ -259,6 +275,12 @@ fun ShareLocBtn(VMchat: SmasChatViewModel, modifier: Modifier) {
   }
 }
 
+/**
+ *
+ * Alert which is displayed when the [ShareLocBtn] is pressed
+ * - [AlertDialog]: asks users if they are certain they want to share their location
+ *
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ShareLocAlert(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
@@ -293,8 +315,12 @@ fun ShareLocAlert(VMmain: SmasMainViewModel, VMchat: SmasChatViewModel) {
 }
 
 /**
- * TODO:ATH doc..
- * this is for showing the selected image, right?
+ *
+ * Shows the selected image when the button [ImgBtn] is pressed and an image is chosen.
+ * - [Image]: the chosen image
+ * - [IconButton]: cancel the image selection
+ * - [IconButton]: send the chosen image in the chat
+ *
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

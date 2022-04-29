@@ -13,6 +13,10 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogImgBinding
 import java.lang.IllegalStateException
 
+/**
+ * Dialog that is shown when the user clicks on an image message
+ * Image is displayed larger and it is zoomable
+ */
 class ImgDialog(bmImg: Bitmap) : DialogFragment() {
 
   private val image = bmImg

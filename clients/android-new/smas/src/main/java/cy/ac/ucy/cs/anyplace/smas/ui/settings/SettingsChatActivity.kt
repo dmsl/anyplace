@@ -24,8 +24,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO:ATH bind a button and call something like:
-
 @AndroidEntryPoint
 class SettingsChatActivity: BaseSettingsActivity() {
   private lateinit var settingsFragment: SettingsChatFragment

@@ -35,6 +35,14 @@ import cy.ac.ucy.cs.anyplace.smas.utils.utlTimeSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 
+/**
+ *
+ * The main conversation which includes a(n):
+ * - [LazyColumn]: for showing the incoming/ already sent messages (scrollable)
+ * - [MessageCard]: for each message separately
+ * - [DeliveryCard]: for details about where each message is sent
+ * - [ReplyCard]: for all the replying functions
+ */
 @ExperimentalPermissionsApi
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
@@ -72,6 +80,15 @@ fun Conversation(
   }
 }
 
+/**
+ *
+ *  Information for each message separately. It includes:
+ *  - The sender on top of the box
+ *  - The actual message (text, image, location, alert) in a box
+ *  - The time & date the message was sent
+ *  - Any <reply to> information
+ *
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterialApi
 @Composable

@@ -24,9 +24,8 @@ import kotlinx.coroutines.launch
 import java.lang.IllegalStateException
 
 /**
- *
- *
- * - TODO:ATH in [SettingsChatActivity] you must show the dialog
+ *  Dialog that is shown when the user clicks on the [DeliveryCard].
+ *  Users can select who is going to receive their messages.
  */
 class MsgDeliveryDialog(private val dsChat: ChatPrefsDataStore, private val app: SmasApp, vm: SmasChatViewModel) :
         DialogFragment() {

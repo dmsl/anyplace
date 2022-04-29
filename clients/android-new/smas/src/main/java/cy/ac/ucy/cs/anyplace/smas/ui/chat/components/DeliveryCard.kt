@@ -22,6 +22,14 @@ import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.White
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 
+/**
+ * A banner which shows information about where the messages are delivered to:
+ * - All users
+ * - Same deck users
+ * - Nearest users
+ * - Users in 100m
+ * When clicked, the [MsgDeliveryDialog] is shown.
+ */
 @Composable
 fun DeliveryCard(VMchat: SmasChatViewModel, manager: FragmentManager) {
   VMchat.setDeliveryMethod()

@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 object utlTimeSmas {
 
+  //returns the current date and formats in the pattern [Jan 01, 2022]
   fun getLocalDateString() : String {
     var currDate =  LocalDate.now()
     var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
@@ -32,6 +33,7 @@ object utlTimeSmas {
     return date.substringAfterLast(' ')
   }
 
+  //checks if the current date is the same as the one specified in timestr
   fun isSameDay(timestr: String) : Boolean {
     val currDate = getLocalDateString()
     val date = getDateFromStr(timestr)
