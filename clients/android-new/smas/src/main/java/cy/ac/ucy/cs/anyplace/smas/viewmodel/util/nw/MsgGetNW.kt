@@ -108,9 +108,7 @@ class MsgGetNW(
       LOG.D(TAG_METHOD, msg)
       if (!shownNoInternetWarning) {
         shownNoInternetWarning=true
-        VM.viewModelScope.launch(Dispatchers.Main) {
-          app.showToast(msg, Toast.LENGTH_LONG)
-        }
+        app.showToast(VM.viewModelScope, msg, Toast.LENGTH_LONG)
       }
 
       resp.value = getMsgsFromDB()
@@ -245,11 +243,9 @@ class MsgGetNW(
           //db error
           if (!err.handle(app, it.message, "msg-get")) {
             val msg = it.message ?: "unspecified error"
-            VM.viewModelScope.launch(Dispatchers.Main) {
-              app.showToast(msg, Toast.LENGTH_SHORT)
-              LOG.E(TAG, msg)
-              // LOG.E(TAG, "$msg: from MsgGetNW Collect. class: ${it::class.simpleName}")
-            }
+            app.showToast(VM.viewModelScope, msg, Toast.LENGTH_SHORT)
+            LOG.E(TAG, msg)
+            // LOG.E(TAG, "$msg: from MsgGetNW Collect. class: ${it::class.simpleName}")
           }
         }
         else -> {}

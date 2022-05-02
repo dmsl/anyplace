@@ -135,8 +135,8 @@ class SmasMainViewModel @Inject constructor(
     } else {
       LocationSendNW.Mode.alert
     }
-    nwLocationSend.mode.value = newMode
 
+    nwLocationSend.mode.value = newMode
     return newMode
   }
 

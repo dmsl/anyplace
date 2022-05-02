@@ -115,9 +115,7 @@ class LocationGetNW(
           LOG.D3(TAG, "Error: msg: ${it.message}")
           if (!err.handle(app, it.message, "loc-get")) {
             val msg = it.message ?: "unspecified error"
-            VM.viewModelScope.launch {
-              app.showToast(msg, Toast.LENGTH_SHORT)
-            }
+            app.showToast(VM.viewModelScope, msg, Toast.LENGTH_SHORT)
           }
         }
         else -> {}

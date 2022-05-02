@@ -5,6 +5,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -25,16 +26,16 @@ class SmasErrors(private val app: SmasApp,
     return when (cause) {
       SESSION_KEY -> {
         scope.launch {
-          app.showToast("$SESSION_KEY_PRETTY ($extra)", Toast.LENGTH_SHORT)
           LOG.W(TAG, "Logging out user (from: $extra)")
+          app.showToast(scope, "$SESSION_KEY_PRETTY ($extra)", Toast.LENGTH_SHORT)
           logoutUser()
         }
         true
       }
       DB_ERROR -> {
         val msg = "$DB_ERROR_PRETTY ($extra)"
-        app.showToast(msg, Toast.LENGTH_SHORT)
         LOG.W(TAG, msg)
+        app.showToast(scope, msg, Toast.LENGTH_SHORT)
         true
       }
       else -> false

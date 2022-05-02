@@ -128,9 +128,7 @@ class LocationSendNW(
         is NetworkResult.Error -> {
           if (!err.handle(app, it.message, "loc-send")) {
             val msg = it.message ?: "unspecified error"
-            VM.viewModelScope.launch {
-              app.showToast(msg, Toast.LENGTH_SHORT)
-            }
+            app.showToast(VM.viewModelScope, msg, Toast.LENGTH_SHORT)
           }
         }
         else -> {}

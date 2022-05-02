@@ -72,9 +72,8 @@ class StartActivity : Activity() {
   private fun setupVersion() {
     CoroutineScope(Main).launch {
       var versionStr = "ver: ${BuildConfig.VERSION_NAME}"
-      // TODO:PMX why version is not working?
-      // val prefsChat = appSmas.dsChat.read.first()
-      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
+      val prefsChat = appSmas.dsChat.read.first()
+      if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
       tvVersion.text = versionStr
     }
   }
@@ -102,9 +101,9 @@ class StartActivity : Activity() {
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-
-        startActivity(Intent(this@StartActivity, SearchActivity::class.java))
+        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+        // TODO:ATH
+        // startActivity(Intent(this@StartActivity, SearchActivity::class.java))
       } else {
         LOG.D2(TAG, "Opening activity: Login")
         startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))

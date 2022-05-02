@@ -58,7 +58,7 @@ class SmasChatActivity : AppCompatActivity() {
   }
 
   private fun returnLoc(latitude: Double, longitude: Double) {
-    // TODO:PMX put deck here also..
+    // TODO:PM put deck here also..
     setResult(Activity.RESULT_OK, Intent().putExtra("latitude", latitude).putExtra("longitude", longitude))
     finish()
   }

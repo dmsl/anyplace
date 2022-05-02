@@ -135,11 +135,10 @@ class MainSmasSettingsDialog : DialogFragment() {
 
   private fun setupVersion() {
     CoroutineScope(Dispatchers.Main).launch {
-      // TODO:PMX
       var versionStr = BuildConfig.VERSION_NAME
       val prefsChat = requireActivity().appSmas.dsChat.read.first()
       LOG.W(TAG, "Ver: $prefsChat")
-      // if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
+      if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
       binding.btnVersionSmas.text = getString(R.string.smas_version, versionStr)
     }
   }

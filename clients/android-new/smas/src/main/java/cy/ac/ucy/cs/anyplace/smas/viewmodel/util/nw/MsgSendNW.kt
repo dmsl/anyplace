@@ -108,18 +108,14 @@ class MsgSendNW(private val app: SmasApp,
           LOG.D1(TAG, "MessageSend Error: ${it.message}")
           VM.isLoading = false
           VM.errColor = WineRed
-          VM.viewModelScope.launch {
-            app.showToast("Message failed to send", Toast.LENGTH_SHORT)
-          }
+          app.showToast(VM.viewModelScope, "Message failed to send", Toast.LENGTH_SHORT)
         }
         else -> {
           //db error
           if (!err.handle(app, it.message, "msg-send")) {
             val msg = it.message ?: "unspecified error"
-            VM.viewModelScope.launch {
-              app.showToast(msg, Toast.LENGTH_SHORT)
-              LOG.E(TAG, msg)
-            }
+            app.showToast(VM.viewModelScope, msg, Toast.LENGTH_SHORT)
+            LOG.E(TAG, msg)
           }
         }
       }
