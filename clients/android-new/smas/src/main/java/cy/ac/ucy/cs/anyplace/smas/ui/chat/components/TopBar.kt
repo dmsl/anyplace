@@ -16,9 +16,10 @@ import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.White
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 
 /**
- * TODO:ATH ..
  *
- * Consists of back & settings buttons
+ * The top bar of the chat activity that includes:
+ * - [IconButton]: a back button
+ * - [IconButton]: a settings button
  */
 @Composable
 fun TopMessagesBar(onBackClick: () -> Unit) {

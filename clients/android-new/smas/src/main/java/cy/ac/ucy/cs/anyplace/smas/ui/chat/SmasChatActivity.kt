@@ -52,11 +52,13 @@ class SmasChatActivity : AppCompatActivity() {
     }
   }
 
+  //Called when the back btn on the top bar is clicked
   private fun onBackClick() {
     intent.data = null
     finish()
   }
 
+  //Called when the location button in a message is clicked
   private fun returnLoc(latitude: Double, longitude: Double) {
     // TODO:PM put deck here also..
     setResult(Activity.RESULT_OK, Intent().putExtra("latitude", latitude).putExtra("longitude", longitude))
