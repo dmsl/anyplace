@@ -15,8 +15,7 @@ interface SmasDAO {
   @Query("DELETE FROM ${CHAT.DB_SMAS_MSGS}")
   fun dropMsgs()
 
-  // TODO getLastMessageTimestamp
   @Query("SELECT time FROM ${CHAT.DB_SMAS_MSGS} ORDER BY time DESC LIMIT 1")
-  fun lastMsgTimestamp(): Int?
+  fun lastMsgTimestamp(): Long?
 
 }

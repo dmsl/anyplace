@@ -26,7 +26,10 @@ class SmasLocalDS @Inject constructor(private val DAO: SmasDAO) {
     DAO.dropMsgs()
   }
 
-  fun getLastMsgTimestamp(): Int? {
+  /**
+   * Get last msg timestamp from local DB
+   */
+  fun getLastMsgTimestamp(): Long? {
     return DAO.lastMsgTimestamp()
   }
 

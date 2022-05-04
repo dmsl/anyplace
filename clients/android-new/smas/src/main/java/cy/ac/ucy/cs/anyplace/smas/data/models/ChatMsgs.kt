@@ -115,8 +115,10 @@ data class MsgSendResp(
         val descr: String?,
         @SerializedName("uid")
         val uid: String,
+        /** TODO:DZ rename this maybe?
+         * How many users it has reached */
         @SerializedName("rows")
-        val rows: Int?
+        val deliveredTo: Int?
 )
 
 /**

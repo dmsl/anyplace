@@ -74,8 +74,8 @@ class MsgSendNW(private val app: SmasApp,
             return NetworkResult.Error(r.descr)
           }
 
-          LOG.D2(TAG, "MSGS-SEND: Success. Pull msgs again?")
-          // VM.netPullMessagesONCE() TODO:PMX pull messages again?
+          LOG.D2(TAG, "MSGS-SEND: Success. (pulling msgs)")
+          app.pullMessagesONCE()
 
           return NetworkResult.Success(r)
         } // can be nullable
@@ -103,6 +103,7 @@ class MsgSendNW(private val app: SmasApp,
           VM.isLoading = false
           VM.clearReply()
           VM.clearTheReplyToMessage()
+          app.showToast(VM.viewModelScope, "Sent to ${it.data?.deliveredTo} people.", Toast.LENGTH_SHORT)
         }
         is NetworkResult.Error -> {
           LOG.D1(TAG, "MessageSend Error: ${it.message}")

@@ -56,7 +56,7 @@ class MsgGetNW(
    */
   suspend fun safeCall(showToast: Boolean = false) {
     LOG.D2(TAG_METHOD)
-    LOG.D2(TAG, "msg-get: size: ${VM.msgList.size}")
+    LOG.D2(TAG, "msg-get: size: ${app.msgList.size}")
 
     if (resp.value is NetworkResult.Loading) {
       LOG.W(TAG, "MsgsGet: already in progress (skipped)")
@@ -64,7 +64,7 @@ class MsgGetNW(
     }
 
     resp.value = NetworkResult.Loading()
-    LOG.D2(TAG, "msg-get: size: ${VM.msgList.size} after resetting..")
+    // LOG.D2(TAG, "msg-get: size: ${app.msgList.size} after resetting..")
     chatUser = app.dsChatUser.readUser.first()
 
     if (app.hasInternet()) {
@@ -88,12 +88,12 @@ class MsgGetNW(
         // no new msgs fetched. instead the prev msgs were were loaded from localDB
         val dbLoaded = resp.value.message.toString() == NetworkResult.DB_LOADED
         if (msgs != null && msgs.msgs.isNotEmpty() && !dbLoaded) {
-          LOG.W(TAG, "WILL PERSIST to DB")
+          LOG.W(TAG, "Persisting to DB..")
           persistToDB(msgs)
-          VM.saveNewMsgs(true)
+          VM.savedNewMsgs(true)
         } else {
           // TODO only for new msgs..
-          LOG.W(TAG, "WILL NOT PERSIST to DB")
+          LOG.W(TAG, "NOT persisting to DB..")
         }
 
       } catch (ce: ConnectException) {
@@ -103,7 +103,7 @@ class MsgGetNW(
         val msg = TAG
         handleException(msg, e)
       }
-    } else {
+    } else { // offline-mode
       val msg="${C.ERR_MSG_NO_INTERNET} (message fetch)"
       LOG.D(TAG_METHOD, msg)
       if (!shownNoInternetWarning) {
@@ -129,6 +129,9 @@ class MsgGetNW(
     }
   }
 
+  /**
+   * - [incrementalFetch]: load local msgs from DB also
+   */
   private suspend fun handleResponse(
           response: Response<ChatMsgsResp>,
           incrementalFetch: Boolean,
@@ -149,26 +152,25 @@ class MsgGetNW(
           }
 
           // CHECK: this could be normal?
-          if (response.body()!!.msgs.isEmpty()) {
+          val noNewMsgsFetched=response.body()!!.msgs.isEmpty()
+          if (noNewMsgsFetched) {
             if (incrementalFetch) {
-              return if (VM.msgList.isEmpty()) {
-                // the app was opened, w/o new msgs. the [VM.msgList] was empty
+              return if (app.msgList.isEmpty()) {
+                // the app was opened, w/o new msgs. the [app.msgList] was empty
                 // all we have to do is to load the previous msgs from DB
                 LOG.D2(TAG,"Reading from DB. (empty msgList + no new msgs)")
+
                 getMsgsFromDB()
               } else {
-                // no new msgs fetched. [VM.msgList] is populated: no work needed!
-                LOG.D2(TAG, "No new msgs. Prev msgList: ${VM.msgList.size}")
+                // no new msgs fetched. [app.msgList] is populated: no work needed!
+                LOG.D2(TAG, "No new msgs. Prev msgList: ${app.msgList.size}")
                 NetworkResult.Success(response.body()!!, NetworkResult.UP_TO_DATE)
               }
             }
 
             val msg = "No new messages."
             if (showToast) {
-              VM.viewModelScope.launch(Dispatchers.Main) {
-                LOG.D2(TAG, msg)
-                // app.showToast(msg, Toast.LENGTH_LONG)
-              }
+              LOG.D2(TAG, msg)
             }
 
             // empty messages
@@ -176,10 +178,15 @@ class MsgGetNW(
             return NetworkResult.Success(response.body()!!)
           }
 
+          // else: some msgs fetched
           var resp  = response.body()!!
           var loadType: String? = null
           if (incrementalFetch)  {
-            // val oldMsgs=getMsgsFromDB().data!!.msgs // local messages
+            val localMsgs = if (app.msgList.isEmpty()) {
+              val oldMsgs = getMsgsFromDB().data!!.msgs
+              LOG.E(TAG, "Old msgs: ${oldMsgs.size}")
+              oldMsgs
+            } else emptyList()
 
             // persist to DB the new msgs
             val newMsgs = resp.msgs // remote messages
@@ -187,19 +194,21 @@ class MsgGetNW(
 
             // localMsgs are descending: newest msgs is first
             // they are merged w/ the [newMsgs] from the remote (also descending)
-            // val mergedMsgs = newMsgs + oldMsgs
-            // val merged=ChatMsgsResp(resp.status, resp.descr, resp.uid, mergedMsgs)
-            // LOG.E(TAG, "TODO: merged messages: local: ${oldMsgs.size} remote: ${resp.msgs.size}")
-            LOG.E(TAG, "New msgs: ${resp.msgs.size}")
-            // LOG.E(TAG, "Status: ${resp.status} desc: ${resp.descr}")
+            // XXX:PM CHECK THIS...
+            val mergedMsgs = localMsgs + newMsgs.reversed()
+            // val mergedMsgs = localMsgs + newMsgs
+            // val mergedMsgs = newMsgs + localMsgs
 
-            // LOG.E(TAG, "all msgs")
-            // mergedMsgs.forEach {
-            //   val wMsg = ChatMsgHelper(app, repo, it)
-            //   LOG.W(TAG, "MSG: ${wMsg.content()}")
-            // }
-            // resp=merged
-            // loadType=NetworkResult.DB_LOADED
+            val merged=ChatMsgsResp(resp.status, resp.descr, resp.uid, mergedMsgs)
+            // LOG.E(TAG, "New msgs: ${resp.msgs.size}")
+
+            resp=merged
+            loadType=NetworkResult.DB_LOADED
+          } else {
+          //
+          //   // WORKAROUND: reverse msgs... TODO:DZ..
+          //   resp=ChatMsgsResp(resp.status, resp.descr, resp.uid, resp.msgs)
+            resp=ChatMsgsResp(resp.status, resp.descr, resp.uid, resp.msgs.reversed())
           }
 
           // This is actually hybrid:
@@ -227,13 +236,13 @@ class MsgGetNW(
         is NetworkResult.Success -> {
           when (it.message) {
             NetworkResult.UP_TO_DATE -> {
-              LOG.E(TAG, "Messages: up-to-date. MsgList size: ${VM.msgList.size} (skip processing)")
+              LOG.W(TAG, "Messages: up-to-date. Size: ${app.msgList.size} (skip processing)")
             }
             NetworkResult.DB_LOADED,
             null -> {
               val msgs = it.data!!.msgs
-              LOG.E(TAG, "Messages: new: ${msgs.size}. Old MsgList size: ${VM.msgList.size}. (processing)")
-              appendMessages(ctx, VM, msgs)
+              LOG.W(TAG, "MSGS: collect: new: ${msgs.size}. old: ${app.msgList.size}. (processing)")
+              appendMessages(app, VM, msgs)
             }
           }
 
@@ -258,21 +267,23 @@ class MsgGetNW(
   // 2. messages should be fetched: in mid delay:
   //// e.g. after 2 secs: locations: after 1 sec msgs
   // Separate alerts from others?
-  private fun appendMessages(ctx: Context, VM: SmasChatViewModel, msgs: List<ChatMsg>) {
-    LOG.D2(TAG,"PROCESS-MSGS: new list: ${msgs.size}")
-    LOG.D2(TAG,"PROCESS-MSGS: msgList: ${VM.msgList.size}")
-    // val msgList = mutableStateListOf<ChatMsg>()
+  private fun appendMessages(app: SmasApp, VM: SmasChatViewModel, msgs: List<ChatMsg>) {
+    LOG.D2(TAG,"$METHOD: New: ${msgs.size} Old: ${app.msgList.size}")
     msgs.forEach { obj ->
-      val msgH = ChatMsgHelper(ctx, repo, obj)
+      val msgH = ChatMsgHelper(app, repo, obj)
       val contents = msgH.content()
 
       // cache images
       if (obj.mtype == 2) VM.chatCache.saveImg(obj)
 
-      VM.msgList.add(0, obj)
+      app.msgList.add(0, obj)   // add to the beginning
       val prettyTimestamp = utlTime.getPrettyEpoch(obj.time, utlTime.TIMEZONE_CY)
-      LOG.D4(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
+      LOG.D2(TAG, "MSG |$prettyTimestamp| ${msgH.prettyTypeCapitalize.format(6)} | $contents  || [${obj.time}][${obj.timestr}]")
+      LOG.W(TAG, "MsgList: updated size: ${app.msgList.size}")
     }
+
+    // clear the response
+    resp.value = NetworkResult.Unset()
   }
 
   // ROOM
@@ -282,7 +293,7 @@ class MsgGetNW(
    * Those will be stored in [SmasCache] (file cache)
    */
   private fun persistToDB(msgs: ChatMsgsResp) {
-    LOG.D2(TAG, "$METHOD: new messages: ${msgs.msgs.size}")
+    LOG.D2(TAG, "$METHOD: storing: ${msgs.msgs.size} msgs")
     VM.viewModelScope.launch(Dispatchers.IO) {
       // repo.local.dropMsgs() // TODO: don't drop msgs first..
       msgs.msgs.forEach { msg ->
@@ -290,6 +301,5 @@ class MsgGetNW(
       }
     }
   }
-
 }
 

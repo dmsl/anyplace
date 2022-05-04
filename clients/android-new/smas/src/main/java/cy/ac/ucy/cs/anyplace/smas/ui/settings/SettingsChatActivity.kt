@@ -11,6 +11,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.setBackButton
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.setTextColor
+import cy.ac.ucy.cs.anyplace.lib.android.ui.dialogs.ConfirmActionDialog
 import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.BaseSettingsActivity
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
@@ -55,17 +56,35 @@ class SettingsChatActivity: BaseSettingsActivity() {
       preferenceManager.preferenceDataStore = chatPrefsDS
       setPreferencesFromResource(R.xml.preferences_chat, rootKey)
 
-      val versionPrefRow : Preference? = findPreference(getString(R.string.pref_chat_server_version))
-      versionPrefRow?.setOnPreferenceClickListener {
-        versionPrefRow.icon = null
-        versionPrefRow.summary = "refreshing.."
+      setupVersionButton()
+      setupClearMessagesButton()
+    }
+
+    private fun setupClearMessagesButton() {
+      val title= "Clearing all messages?"
+      val subtitle = "Those will be fetched again, given internet connectivity."
+      val mgr = requireActivity().supportFragmentManager
+
+      val prefBtn : Preference? = findPreference(getString(R.string.pref_chat_delete_local_msgs))
+
+      prefBtn?.setOnPreferenceClickListener {
+        ConfirmActionDialog.SHOW(mgr, title, subtitle)
+        true
+      }
+    }
+
+    private fun setupVersionButton() {
+      val prefBtn: Preference? = findPreference(getString(R.string.pref_chat_server_version))
+      prefBtn?.setOnPreferenceClickListener {
+        prefBtn.icon = null
+        prefBtn.summary = "refreshing.."
         lifecycleScope.launch {  // artificial delay
           delay(250)
-          VM.displayVersion(versionPrefRow)
+          VM.displayVersion(prefBtn)
         }
         true // click is handled
       }
-      observeChatPrefs(versionPrefRow)
+      observeChatPrefs(prefBtn)
     }
 
     /**

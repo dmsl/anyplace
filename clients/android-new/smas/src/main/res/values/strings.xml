@@ -32,6 +32,7 @@
   <string name="smas">SMAS</string>
   <string name="anyplace_settings">Anyplace Settings</string>
   <string name="chat_settings">Chat Settings</string>
+  <string name="messages">Messages</string>
   <string name="msg_delivery">Message Delivery</string>
   <string name="lash_fire">LASH FIRE</string>
   <string name="attention">Attention</string>
@@ -41,4 +42,5 @@
 
   <string name="btn_cancel_descr">cancel</string>
   <string name="btn_ok">OK</string>
+  <string name="delete_local_msgs">Delete local messages</string>
 </resources>

@@ -50,6 +50,7 @@ import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -65,17 +66,12 @@ class StartActivity : Activity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_start)
     tvVersion = findViewById<View>(R.id.tvVersion) as TextView
-
     setupVersion()
   }
 
   private fun setupVersion() {
-    CoroutineScope(Main).launch {
-      var versionStr = "ver: ${BuildConfig.VERSION_NAME}"
-      val prefsChat = appSmas.dsChat.read.first()
-      if (prefsChat.version != null) versionStr += " (${prefsChat.version})"
-      tvVersion.text = versionStr
-    }
+    val versionStr = "ver: ${BuildConfig.VERSION_NAME}"
+    tvVersion.text = versionStr
   }
 
   override fun onResume() {

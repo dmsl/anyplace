@@ -54,7 +54,7 @@ class SmasChatViewModel @Inject constructor(
   private val app = _application as SmasApp
   private val C by lazy { CHAT(app.applicationContext) }
 
-  private val nwMsgGet by lazy { MsgGetNW(app, this, RFH, repoChat) }
+  val nwMsgGet by lazy { MsgGetNW(app, this, RFH, repoChat) }
   private val nwMsgSend by lazy { MsgSendNW(app, this, RFH, repoChat) }
 
   val chatCache by lazy { SmasCache(app.applicationContext) }
@@ -74,8 +74,6 @@ class SmasChatViewModel @Inject constructor(
   var errColor: Color by mutableStateOf(AnyplaceBlue)
   var isLoading: Boolean by mutableStateOf(false)
 
-  /** list of messages shown on screen by [LazyColumn] */
-  var msgList = mutableStateListOf<ChatMsg>()
   var newMessages = MutableStateFlow(false)
 
   private fun collectRefreshMs() {
@@ -126,15 +124,6 @@ class SmasChatViewModel @Inject constructor(
     }
   }
 
-  /**
-   * React to flow that is populated by [nwMsgGet] safeCall
-   */
-  fun collectMessages() {
-    viewModelScope.launch(Dispatchers.IO) {
-      nwMsgGet.collect(app)
-    }
-  }
-
   fun netPullMessagesLOOP()  {
     viewModelScope.launch(Dispatchers.IO) {
       collectRefreshMs()
@@ -167,7 +156,6 @@ class SmasChatViewModel @Inject constructor(
             latLng.latitude,
             latLng.longitude)
   }
-  //
 
   fun sendMessage(VM: SmasMainViewModel, newMsg: String?, mtype: Int) {
     viewModelScope.launch {
@@ -209,7 +197,7 @@ class SmasChatViewModel @Inject constructor(
     }
   }
 
-  fun saveNewMsgs(value: Boolean) {
+  fun savedNewMsgs(value: Boolean) {
     viewModelScope.launch(Dispatchers.IO) {
       dsChat.saveNewMsgs(value)
     }

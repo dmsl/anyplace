@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.components.Conversation
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.components.TopMessagesBar
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.*
@@ -31,8 +31,14 @@ class SmasChatActivity : AppCompatActivity() {
   @Inject lateinit var repo: RepoChat
 
   private fun pullData() {
-    VMchat.netPullMessagesONCE() // TODO:PMX LOOP
-    VMchat.collectMessages()
+    /*
+      All the message handling is done by the [SmasMainActivity]:
+      - collection of msgs (which end up in [appSmas.msgList]
+      - pulling new msgs, once location update indicates so
+     */
+
+    // VMchat.netPullMessagesONCE()
+    // VMchat.collectMessages() // TODO:PMX BUG?
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +52,7 @@ class SmasChatActivity : AppCompatActivity() {
     setContent {
       Scaffold(
               topBar = { TopMessagesBar(::onBackClick) },
-              content = { Conversation(VM, VMchat, supportFragmentManager, repo, ::returnLoc) },
+              content = { Conversation(appSmas, VM, VMchat, supportFragmentManager, repo, ::returnLoc) },
               backgroundColor = WhiteGray
       )
     }

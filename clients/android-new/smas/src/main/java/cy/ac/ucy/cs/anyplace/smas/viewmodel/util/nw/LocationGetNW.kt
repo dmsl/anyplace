@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import cy.ac.ucy.cs.anyplace.lib.android.utils.DBG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapWrapper
@@ -18,16 +19,21 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import cy.ac.ucy.cs.anyplace.smas.data.models.SmasErrors
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
 
 /**
- * Manages Location fetching of other users
+ * Manages Location fetching of users.
+ *
+ * It fetches current user's location too.
+ * The location per se is not used, but the last timestamp
+ * of the current user msgs it is used
+ * (to figure out whether the are new msgs to fetch)
  */
 class LocationGetNW(
         private val app: SmasApp,
@@ -58,8 +64,8 @@ class LocationGetNW(
         LOG.D4(TAG, "LocationGet: ${response.message()}" )
         resp.value = handleResponse(response)
 
-        // TODO:PM Persist: put in cache & list (main mem).
-        val userLocations = resp.value.data
+        // TODO: Persist: put in cache & list (main mem) ?
+        // val userLocations = resp.value.data
         // if (userLocations != null) { cache(useLocations, UserOwnership.PUBLIC) }
       } catch(ce: ConnectException) {
         val msg = "Connection failed:\n${RH.retrofit.baseUrl()}"
@@ -101,15 +107,15 @@ class LocationGetNW(
     LOG.E(TAG, e)
   }
 
-  suspend fun collect(VM: SmasMainViewModel, gmap: GmapWrapper) {
+  suspend fun collect(VMchat: SmasChatViewModel, gmap: GmapWrapper) {
     LOG.D3()
 
     resp.collect {
       when (it)  {
         is NetworkResult.Success -> {
           val locations = it.data
-          LOG.D4(TAG, "Got user locations: ${locations?.rows?.size}")
-          processUserLocations(VM, locations, gmap)
+          LOG.D4(TAG, "Got user locatiens: ${locations?.rows?.size}")
+          processUserLocations(VMchat, locations, gmap)
         }
         is NetworkResult.Error -> {
           LOG.D3(TAG, "Error: msg: ${it.message}")
@@ -123,7 +129,18 @@ class LocationGetNW(
     }
   }
 
-  private fun processUserLocations(VM: SmasMainViewModel, locations: UserLocations?, gmap: GmapWrapper) {
+  /**
+   * Processes the received locations:
+   * - filters own users (1) from other users (2), some of which might be alerting
+   *
+   * 1. Own User
+   * - pulls new msgs if have to
+   *
+   * 2. Other users
+   * - propagates this information so the user locations can be rendered on the map
+   */
+  private fun processUserLocations(
+          VMchat: SmasChatViewModel, locations: UserLocations?, gmap: GmapWrapper) {
     LOG.D3(TAG_METHOD)
     if (locations == null) return
 
@@ -139,6 +156,13 @@ class LocationGetNW(
               userLocation.uid != chatUser.uid // not current user
     }
 
+    val ownLocation = locations.rows.filter { it.uid == chatUser.uid }
+    if (ownLocation.isNotEmpty()) {
+      // when the current user has not (ever) reported its own location,
+      // then it might not be included in the locations DB
+      checkForNewMsgs(VMchat, ownLocation[0].lastMsgTime)
+    }
+
     // pick the first alerting user
     // CHECK edge case: more than one?
     if (alertingUsers.isNotEmpty()) {
@@ -148,14 +172,23 @@ class LocationGetNW(
     }
 
     LOG.D3(TAG, "UserLocations: current floor: ${FH.prettyFloorName()}")
-    // TODO: scalability?
-    // val dataset = MutableList<>();
+    // val dataset = MutableList<>(); // TODO: scalability?
     gmap.renderUserLocations(sameFloorUsers)
 
     if (DBG.D2) {
       sameFloorUsers.forEach {
         LOG.D4(TAG, "User: ${it.uid} on floor: ${it.deck}")
       }
+    }
+  }
+
+  private fun checkForNewMsgs(VMchat: SmasChatViewModel, lastMsgTs: Long) {
+    val localTs = repo.local.getLastMsgTimestamp()
+    LOG.V2(TAG, "$METHOD: ${VM.hasNewMsgs(localTs, lastMsgTs)}")
+
+    if (VM.hasNewMsgs(localTs, lastMsgTs)) {
+      LOG.W(TAG, "$METHOD: ${VM.hasNewMsgs(localTs, lastMsgTs)}: pulling msgs..")
+      VMchat.netPullMessagesONCE()
     }
   }
 }

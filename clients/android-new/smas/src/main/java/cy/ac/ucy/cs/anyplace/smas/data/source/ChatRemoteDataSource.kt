@@ -28,7 +28,7 @@ class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderCha
   suspend fun messagesGet(r: MsgGetReq) : Response<ChatMsgsResp> = RH.api.messagesGet(r)
 
   /** Get all Chat Messages that have arrived after the timestamp */
-  suspend fun messagesGetFrom(r: MsgGetReq, timestamp: Int) : Response<ChatMsgsResp> {
+  suspend fun messagesGetFrom(r: MsgGetReq, timestamp: Long) : Response<ChatMsgsResp> {
     val from=(timestamp+1).toString()  // +1 to make timestamp exclusive
     val req = MsgGetReq(r.uid, r.sessionkey, ChatMsgHelper.TP_GET_FROM, from)
     return RH.api.messagesGet(req)

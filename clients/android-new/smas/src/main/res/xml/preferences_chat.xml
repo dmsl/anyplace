@@ -2,6 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+
+  <PreferenceCategory app:title="@string/messages">
+<!--    TODO: delete image copy as well.. -->
+    <Preference
+        app:key="@string/pref_chat_delete_local_msgs"
+        app:title="@string/delete_local_msgs"
+        app:summary="Internet required to download them again."
+        />
+  </PreferenceCategory>
+
   <PreferenceCategory app:title="@string/chat_server">
 
     <EditTextPreference

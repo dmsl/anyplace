@@ -33,7 +33,22 @@ class VersionNW(
 
   private val C by lazy { CHAT(app.applicationContext) }
 
-  suspend fun safeCall(versionPref: Preference?) {
+  /**
+   * Gets version from remote and on success it updates the [dsChat]
+   */
+  suspend fun getVersion(): NetworkResult<ChatVersion> {
+    val response = repoChat.remote.getVersion()
+    val resp = handleVersionResponse(response)
+    val version = resp.data
+
+    if (version != null) {  // SUCCESS
+      app.dsChat.storeVersion(version.rows.version)
+    }
+
+    return resp
+  }
+
+  suspend fun safeCallAndUpdateUi(versionPref: Preference?) {
     LOG.D4(TAG_METHOD, "base url: ${RH.baseURL}")
     versionPref?.summary = "reaching server .."
 
@@ -43,18 +58,15 @@ class VersionNW(
 
     if (app.hasInternet()) {
       try {
-        val response = repoChat.remote.getVersion()
-        resp.value = handleVersionResponse(response)
+        resp.value = getVersion()
         val version = resp.value.data
         if (version != null) {  // SUCCESS
           msg = "${version.rows.version} (connected: ${utlTime.currentTimePretty()})"
           versionPref?.icon = null
-
-          // store it in the DS too
-          app.dsChat.storeVersion(version.rows.version)
         } else {
           exception = Exception("Failed to get version.")
         }
+
       } catch(e: UnknownServiceException) {
         LOG.E(TAG, e)
         exception = e

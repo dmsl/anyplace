@@ -27,6 +27,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
 import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
+import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.SmasChatActivity
@@ -35,10 +36,8 @@ import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationSendNW
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 
 /*
   CONST: from string/xml
@@ -69,6 +68,9 @@ import kotlinx.coroutines.launch
 
     - TODO: persist user login: store ChatUser DS
 
+    TODO:
+    - async get version of the SMAS backend (in start activity maybe..)
+
    */
 @AndroidEntryPoint
 class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
@@ -97,6 +99,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private lateinit var btnAlert: Button
   private lateinit var btnLocalization: Button
 
+  /** whether this activity is active or not */
+  private var isActive = false
+
   /**
    * Called by [CvMapActivity]
    */
@@ -122,10 +127,13 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     super.postCreate()
     LOG.D2()
 
+    LOG.W(TAG, "main: onPostCreate")
+
     VM = _vm as SmasMainViewModel
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
+    appSmas.setChatVM(VMchat)
 
-    VMchat.netPullMessagesONCE() // TODO:PMX LOOP
+    readBackendVersion()
     setupCollectors()
   }
 
@@ -136,19 +144,66 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D2(TAG_METHOD, "Floor: ${VM.floor.value}")
 
     // Send own location, and receive other users locations
-    VM.netPullLocationsLOOP()
-    collectOwnLocation()
-    VM.collectLocations(wMap)
+    // VM.nwUpdateLocationsLOOP(true, "main")
+    updateLocationsLOOP()
+
+    collectOwnLocationLOCAL()
+    VM.collectLocations(VMchat, wMap)
 
     setupFakeUserLocation(wMap)
     // collect alert
   }
 
+
+  /**
+   * In a loop:
+   * - conditionally send own location
+   * - get other users locations
+   *
+   *  - TODO:PM get from anyplace location
+   *  - TODO:PM get a list of those locations: how? parse json?
+   */
+  private fun updateLocationsLOOP()  {
+    lifecycleScope.launch(Dispatchers.IO) {
+      VM.collectRefreshMs()
+      while (true) {
+        var msg = "pull"
+        val hasRegisteredLocation = VM.location.value.coord != null
+        if (isActive && hasRegisteredLocation) {
+          val lastCoordinates = UserCoordinates(VM.spaceH.obj.id,
+                  VM.floorH?.obj!!.floorNumber.toInt(),
+                  VM.location.value.coord!!.lat,
+                  VM.location.value.coord!!.lon)
+
+          VM.nwLocationSend.safeCall(lastCoordinates)
+          msg+="&send"
+        }
+
+        msg="($msg) "
+        if (!isActive) msg+=" [inactive]"
+        if (!hasRegisteredLocation) msg+=" [no-user-location-registered]"
+
+        LOG.W(TAG, "loop-location: main: $msg")
+
+        VM.nwLocationGet.safeCall()
+        delay(VM.refreshMs)
+      }
+    }
+  }
+
   ////////////////////////////////////////////////
 
+  override fun onResume() {
+    super.onResume()
+    LOG.W(TAG, "main: resumed")
+    isActive = true
+  }
 
-
-
+  override fun onPause() {
+    super.onPause()
+    LOG.W(TAG, "main: paused")
+    isActive = false
+  }
 
   /**
    * Async Collection of remotely fetched data
@@ -201,12 +256,6 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
 
   private fun reactToNewMessages() {
-    // LEFTHERE:
-    // LEFTHERE:
-    // LEFTHERE:
-    // 1. verify this.
-    // 2. stop it...
-
     lifecycleScope.launch(Dispatchers.Main) {
       VM.readHasNewMessages.observeForever { hasNewMsgs ->
       val btn = btnChat as MaterialButton
@@ -278,7 +327,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun setupButtonAlert() {
     btnAlert = findViewById(R.id.btnAlert)
     btnAlert.setOnClickListener {
-      Toast.makeText(applicationContext, "Use long-press", Toast.LENGTH_SHORT).show()
+      Toast.makeText(applicationContext, "long-press (to alert)", Toast.LENGTH_SHORT).show()
     }
 
     btnAlert.setOnLongClickListener {
@@ -334,13 +383,11 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     }
   }
 
-  // CLR:PM
-  // // TODO ADAPT this to get all user locations..
   /**
-   * Collect own user's location that is calculated via the
-   * Anyplace CV-based localization engine
+   * Collect own user's Anyplace location
+   * (calculated via CV-based localization)
    */
-  private fun collectOwnLocation() {
+  private fun collectOwnLocationLOCAL() {
     LOG.E()
     lifecycleScope.launch {
       VM.location.collect { result ->
@@ -410,12 +457,34 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D()
     btnChat = findViewById(R.id.button_chat)
 
-    VMchat.collectMessages()
-    // reactToNewMessages() // TODO:PMX
+    collectMessages()
+    // react to new messages // TODO:PMX
 
     btnChat.setOnClickListener {
       lifecycleScope.launch {
         startForResult.launch(Intent(applicationContext, SmasChatActivity::class.java))
+      }
+    }
+  }
+
+  var collectorMsgsEnabled = false  // BUGFIX: setting up multiple collectors
+  /**
+   * React to flow that is populated by [nwMsgGet] safeCall
+   */
+  private fun collectMessages() {
+    if (!collectorMsgsEnabled) {
+      collectorMsgsEnabled = true
+      lifecycleScope.launch(Dispatchers.IO) {
+        VMchat.nwMsgGet.collect(app)
+      }
+    }
+  }
+
+  private fun readBackendVersion() {
+    CoroutineScope(Dispatchers.IO).launch {
+      val prefsChat = appSmas.dsChat.read.first()
+      if (prefsChat.version == null) {
+        VM.nwVersion.getVersion()
       }
     }
   }

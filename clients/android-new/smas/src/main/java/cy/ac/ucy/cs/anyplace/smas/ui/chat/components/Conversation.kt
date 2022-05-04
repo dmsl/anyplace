@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
+import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
@@ -48,6 +49,7 @@ import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 @ExperimentalMaterialApi
 @Composable
 fun Conversation(
+        app: SmasApp,
         VM: SmasMainViewModel,
         VMchat: SmasChatViewModel,
         manager: FragmentManager,
@@ -64,13 +66,13 @@ fun Conversation(
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
             reverseLayout = true // not hiding msgs when keyboard is open
     ) {
-      LOG.W(TAG, "LazyColumn: msgsList size: ${VMchat.msgList.size}")
-      LOG.D2(TAG, "LazyColumn: reseting new msgs")
+      LOG.W(TAG, "LazyColumn: msgsList size: ${app.msgList.size}")
 
+      LOG.D2(TAG, "LazyColumn: resetting new msgs")
       VM.saveNewMsgs(false)
 
-      if (!VMchat.msgList.isEmpty()) {
-        itemsIndexed(VMchat.msgList) { _, message ->
+      if (!app.msgList.isEmpty()) {
+        itemsIndexed(app.msgList) { _, message ->
           MessageCard(message, VMchat, manager, repo, returnLoc)
         }
       }
