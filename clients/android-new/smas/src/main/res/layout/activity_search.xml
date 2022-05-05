@@ -32,6 +32,17 @@
         app:layout_anchor="@+id/relativeLayout"
         app:layout_anchorGravity="center" />
 
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_anchor="@+id/relativeLayout"
+        app:layout_anchorGravity="top|center">
+
     <!-- Settings Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_settings"
@@ -52,6 +63,8 @@
         app:iconSize="42dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <!--    START OF FLOOR SELECTOR-->
     <androidx.constraintlayout.widget.Group
