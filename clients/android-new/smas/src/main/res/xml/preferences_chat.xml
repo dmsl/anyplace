@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
-  <PreferenceCategory app:title="@string/messages">
+  <PreferenceCategory app:title="@string/prefs_header_cache">
 <!--    TODO: delete image copy as well.. -->
     <Preference
         app:key="@string/pref_chat_delete_local_msgs"

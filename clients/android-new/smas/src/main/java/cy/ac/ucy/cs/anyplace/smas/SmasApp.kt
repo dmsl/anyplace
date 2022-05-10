@@ -6,6 +6,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
+import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatUserDataStore
@@ -19,6 +20,11 @@ import javax.inject.Inject
 @HiltAndroidApp
 class SmasApp : AnyplaceApp() {
 
+  /** Force skipping msg pull. Needed to control asynchronicity,
+   * e.g., when deleting the messages
+   */
+
+
   /** SMAS Chat Server preferences */
   @Inject lateinit var dsChat: ChatPrefsDataStore
   /** Logged-in SMAS user */
@@ -29,7 +35,11 @@ class SmasApp : AnyplaceApp() {
   var msgList = mutableStateListOf<ChatMsg>()
 
   /** The VM set by [SmasMainActivity] */
+  private var VM: SmasMainViewModel?= null
+  /** The VMchat set by [SmasMainActivity] */
   private var VMchat : SmasChatViewModel? = null
+
+
 
   override fun onCreate() {
     super.onCreate()
@@ -42,8 +52,23 @@ class SmasApp : AnyplaceApp() {
    * Set from the [SmasMainActivity],
    * to allow triggering the [SmasMainViewModel] from the [SmasChatActivity]
    */
-  fun setChatVM(VMchat: SmasChatViewModel) {
+  fun setMainActivityVMs(VM: SmasMainViewModel, VMchat: SmasChatViewModel) {
+    this.VM=VM
     this.VMchat=VMchat
+  }
+
+  /**
+   * Stops the receival of messages and waits if there is an ongoing receival
+   */
+  fun stopMsgGetBLOCKING() {
+    VMchat?.nwMsgGet?.skipCall=true
+    while (VMchat?.nwMsgGet?.resp?.value is NetworkResult.Loading) {
+      LOG.D2(TAG, "$METHOD: waiting for last MsgGet to end..")
+    }
+  }
+
+  fun resumeMsgGet() {
+    VMchat?.nwMsgGet?.skipCall = false
   }
 
   fun pullMessagesONCE() {

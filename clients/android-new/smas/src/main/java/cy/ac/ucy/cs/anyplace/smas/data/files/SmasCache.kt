@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import cy.ac.ucy.cs.anyplace.lib.android.cache.Cache
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.resize
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
@@ -86,15 +87,22 @@ class SmasCache(ctx: Context): Cache(ctx) {
     return bitmap
   }
 
-  fun readBitmapTiny(message: ChatMsg) : Bitmap?  {
+  fun readBitmapTiny(message: ChatMsg) : Bitmap? {
      var bitmap: Bitmap? = null
      if (imgTinyExists(message.mid, message.mexten)) {
        val fileTiny = File(imgPathTiny(message.mid, message.mexten))
        val bmOptions = BitmapFactory.Options()
        bitmap = BitmapFactory.decodeFile(fileTiny.absolutePath, bmOptions)
-     }else{
+     } else {
        LOG.D(TAG,"Tiny img with id ${message.mid} was not found")
      }
     return bitmap
+  }
+
+  fun hasImgCache() = File(dirChatImg()).exists()
+
+  fun clearImgCache() {
+    LOG.W(TAG, "$METHOD: Clearing all image cache..")
+    File(dirChatImg()).deleteRecursively()
   }
 }

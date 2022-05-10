@@ -26,6 +26,11 @@ class SmasLocalDS @Inject constructor(private val DAO: SmasDAO) {
     DAO.dropMsgs()
   }
 
+  fun hasMsgs() : Boolean {
+    val cnt = DAO.getMsgsCount()
+    return cnt!=null && cnt>0
+  }
+
   /**
    * Get last msg timestamp from local DB
    */

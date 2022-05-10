@@ -131,7 +131,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
 
     VM = _vm as SmasMainViewModel
     VMchat = ViewModelProvider(this)[SmasChatViewModel::class.java]
-    appSmas.setChatVM(VMchat)
+    appSmas.setMainActivityVMs(VM, VMchat)
 
     readBackendVersion()
     setupCollectors()

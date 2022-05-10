@@ -18,4 +18,7 @@ interface SmasDAO {
   @Query("SELECT time FROM ${CHAT.DB_SMAS_MSGS} ORDER BY time DESC LIMIT 1")
   fun lastMsgTimestamp(): Long?
 
+  @Query("SELECT COUNT(mid) FROM ${CHAT.DB_SMAS_MSGS}")
+  fun getMsgsCount(): Int?
+
 }

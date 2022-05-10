@@ -38,21 +38,20 @@ class MsgGetNW(
    *  - might need a separate flow
    * they have to be filtered & persisted (TODO:PM SQLite)
    */
-  private val resp: MutableStateFlow<NetworkResult<ChatMsgsResp>> = MutableStateFlow(NetworkResult.Unset())
+  val resp: MutableStateFlow<NetworkResult<ChatMsgsResp>> = MutableStateFlow(NetworkResult.Unset())
 
   private val C by lazy { CHAT(app.applicationContext) }
   private val err by lazy { SmasErrors(app, VM.viewModelScope) }
   private lateinit var chatUser: ChatUser
 
   /** Show warning only once */
-  var shownNoInternetWarning = false
+  var warnNoInternet = false
+  var skipCall = false
 
   /**
    * Get [ChatMsg] SafeCall
    *
    * TODO: get alert? or just get all messages? (I think the latter..)
-   *
-   * TODO:ATH: extend this method..
    */
   suspend fun safeCall(showToast: Boolean = false) {
     LOG.D2(TAG_METHOD)
@@ -60,6 +59,10 @@ class MsgGetNW(
 
     if (resp.value is NetworkResult.Loading) {
       LOG.W(TAG, "MsgsGet: already in progress (skipped)")
+      return
+    } else if (skipCall) {
+      LOG.W(TAG, "MsgsGet: forced skip (unsetting)")
+      resp.value = NetworkResult.Unset()
       return
     }
 
@@ -106,8 +109,8 @@ class MsgGetNW(
     } else { // offline-mode
       val msg="${C.ERR_MSG_NO_INTERNET} (message fetch)"
       LOG.D(TAG_METHOD, msg)
-      if (!shownNoInternetWarning) {
-        shownNoInternetWarning=true
+      if (!warnNoInternet) {
+        warnNoInternet=true
         app.showToast(VM.viewModelScope, msg, Toast.LENGTH_LONG)
       }
 

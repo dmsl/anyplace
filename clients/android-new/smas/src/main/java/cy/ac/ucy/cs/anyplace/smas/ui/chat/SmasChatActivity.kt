@@ -36,9 +36,6 @@ class SmasChatActivity : AppCompatActivity() {
       - collection of msgs (which end up in [appSmas.msgList]
       - pulling new msgs, once location update indicates so
      */
-
-    // VMchat.netPullMessagesONCE()
-    // VMchat.collectMessages() // TODO:PMX BUG?
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
