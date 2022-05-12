@@ -21,6 +21,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapWrapper
+import cy.ac.ucy.cs.anyplace.lib.android.utils.UtilNotify
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
@@ -98,6 +99,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private lateinit var btnSettings: Button
   private lateinit var btnAlert: Button
   private lateinit var btnLocalization: Button
+
+  private val utlNotify by lazy { UtilNotify(applicationContext) }
 
   /** whether this activity is active or not */
   private var isActive = false
@@ -255,6 +258,9 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   }
 
 
+  /**
+   * Update the UI button when new msgs come in
+   */
   private fun reactToNewMessages() {
     lifecycleScope.launch(Dispatchers.Main) {
       VM.readHasNewMessages.observeForever { hasNewMsgs ->
@@ -263,10 +269,11 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
       LOG.E(TAG,"NEW-MSGS: $hasNewMsgs")
 
         if (hasNewMsgs) {
-          utlButton.changeBackgroundButton(btn, ctx, R.color.redDark)
+          utlButton.changeBackgroundButtonDONT_USE(btn, ctx, R.color.redDark)
           utlButton.changeMaterialButtonIcon(btn, ctx, R.drawable.ic_chat_unread)
+          utlNotify.msgReceived()
         } else {
-          utlButton.changeBackgroundButton(btn, ctx, R.color.colorPrimaryDark)
+          utlButton.changeBackgroundButtonDONT_USE(btn, ctx, R.color.colorPrimaryDark)
           utlButton.changeMaterialButtonIcon(btn, ctx, R.drawable.ic_chat)
         }
       }
@@ -335,14 +342,14 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
         LocationSendNW.Mode.alert -> {
           btnAlert.flashingLoop()
           btnAlert.text = "ALERTING"
-          utlButton.changeBackgroundButton(btnAlert, this, R.color.redDark)
+          utlButton.changeBackgroundButtonCompat(btnAlert, this, R.color.redDark)
           btnAlert.setTextColor(Color.WHITE)
         }
         LocationSendNW.Mode.normal -> {
           btnAlert.clearAnimation()
           btnAlert.text = "SEND ALERT"
           btnAlert.setTextColor(Color.BLACK)
-          utlButton.changeBackgroundButton(btnAlert, this, R.color.yellowDark)
+          utlButton.changeBackgroundButtonCompat(btnAlert, this, R.color.yellowDark)
         }
       }
       true
@@ -458,7 +465,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     btnChat = findViewById(R.id.button_chat)
 
     collectMessages()
-    // react to new messages // TODO:PMX
+    reactToNewMessages()
 
     btnChat.setOnClickListener {
       lifecycleScope.launch {

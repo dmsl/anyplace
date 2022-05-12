@@ -21,6 +21,8 @@ Caused by: java.lang.IllegalArgumentException: Invalid primitive conversion from
   - shows only 1 msg
   
 
+## SM2. WiFi Disconnected
+- When we have wifi but then it goes out of range: the app crashes.
 
 
 

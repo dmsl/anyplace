@@ -82,7 +82,6 @@ class MsgSendNW(private val app: SmasApp,
         else -> return NetworkResult.Error(response.message())
       }
     }
-
     return NetworkResult.Error("$TAG: ${response.message()}")
   }
 

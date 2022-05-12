@@ -93,7 +93,6 @@ class MsgGetNW(
         if (msgs != null && msgs.msgs.isNotEmpty() && !dbLoaded) {
           LOG.W(TAG, "Persisting to DB..")
           persistToDB(msgs)
-          VM.savedNewMsgs(true)
         } else {
           // TODO only for new msgs..
           LOG.W(TAG, "NOT persisting to DB..")
@@ -154,7 +153,6 @@ class MsgGetNW(
             return NetworkResult.Error(r.descr)
           }
 
-          // CHECK: this could be normal?
           val noNewMsgsFetched=response.body()!!.msgs.isEmpty()
           if (noNewMsgsFetched) {
             if (incrementalFetch) {
@@ -196,21 +194,14 @@ class MsgGetNW(
             persistToDB(resp) // persist after we use [getMsgsFromDB] (avoid dups)
 
             // localMsgs are descending: newest msgs is first
-            // they are merged w/ the [newMsgs] from the remote (also descending)
-            // XXX:PM CHECK THIS...
             val mergedMsgs = localMsgs + newMsgs.reversed()
-            // val mergedMsgs = localMsgs + newMsgs
-            // val mergedMsgs = newMsgs + localMsgs
 
             val merged=ChatMsgsResp(resp.status, resp.descr, resp.uid, mergedMsgs)
-            // LOG.E(TAG, "New msgs: ${resp.msgs.size}")
 
             resp=merged
             loadType=NetworkResult.DB_LOADED
           } else {
-          //
-          //   // WORKAROUND: reverse msgs... TODO:DZ..
-          //   resp=ChatMsgsResp(resp.status, resp.descr, resp.uid, resp.msgs)
+            // workaround: reverse msgs for LazyColumn
             resp=ChatMsgsResp(resp.status, resp.descr, resp.uid, resp.msgs.reversed())
           }
 
@@ -298,6 +289,9 @@ class MsgGetNW(
   private fun persistToDB(msgs: ChatMsgsResp) {
     LOG.D2(TAG, "$METHOD: storing: ${msgs.msgs.size} msgs")
     VM.viewModelScope.launch(Dispatchers.IO) {
+
+      VM.savedNewMsgs(true) // new messages were saved
+
       // repo.local.dropMsgs() // TODO: don't drop msgs first..
       msgs.msgs.forEach { msg ->
         repo.local.insertMsg(msg)

@@ -139,6 +139,11 @@ class ChatPrefsDataStore @Inject constructor(@ApplicationContext private val ctx
     ctx.dsChat.edit { prefs -> prefs[key] = value }
   }
 
+  // private suspend fun saveBoolean(key: Preferences.Key<Boolean>, value: Boolean) {
+  //   ctx.dsChat.edit { prefs -> prefs[key] = value }
+  // }
+
+
   suspend fun saveNewMsgs(value: Boolean) =
           saveBoolean(KEY.flagNewMsgs, value)
 
