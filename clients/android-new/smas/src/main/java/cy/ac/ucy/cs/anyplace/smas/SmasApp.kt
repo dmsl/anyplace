@@ -10,11 +10,10 @@ import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatUserDataStore
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import dagger.hilt.android.HiltAndroidApp
-import dagger.hilt.android.components.ViewModelComponent
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -29,7 +28,7 @@ class SmasApp : AnyplaceApp() {
   @Inject lateinit var dsChat: ChatPrefsDataStore
   /** Logged-in SMAS user */
   @Inject lateinit var dsChatUser: ChatUserDataStore
-  @Inject lateinit var rfhChat: RetrofitHolderChat
+  @Inject lateinit var rfhSmas: RetrofitHolderSmas
 
   /** list of messages shown on screen by [LazyColumn] */
   var msgList = mutableStateListOf<ChatMsg>()
@@ -80,8 +79,8 @@ class SmasApp : AnyplaceApp() {
   private fun observeChatPrefs() {
     val prefsChat = dsChat.read
     prefsChat.asLiveData().observeForever { prefs ->
-      rfhChat.set(prefs)
-      LOG.V3(TAG, "Updated Chat backend URL: ${rfhChat.baseURL}")
+      rfhSmas.set(prefs)
+      LOG.V3(TAG, "Updated Chat backend URL: ${rfhSmas.baseURL}")
     }
   }
 }

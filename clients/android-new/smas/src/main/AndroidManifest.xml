@@ -21,6 +21,12 @@
       tools:ignore="LockedOrientationActivity">
 
     <activity
+        android:name=".logger.ui.CvLoggerActivity"
+        android:screenOrientation="portrait"
+        android:exported="false"
+        android:theme="@style/AppTheme.Compat.ObjectDetection" />
+
+    <activity
         android:name=".ui.SmasMainActivity"
         android:screenOrientation="portrait"
         android:theme="@style/AppTheme.Compat.ObjectDetection"

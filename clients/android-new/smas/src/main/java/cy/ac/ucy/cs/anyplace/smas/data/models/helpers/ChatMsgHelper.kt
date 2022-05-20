@@ -4,7 +4,7 @@ import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import cy.ac.ucy.cs.anyplace.lib.android.cache.Cache
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 
 /**
@@ -12,7 +12,7 @@ import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
  * TODO: rename to data the encapsualting class of all helpers
  */
 class ChatMsgHelper(val ctx: Context,
-                    val repo: RepoChat,
+                    val repo: RepoSmas,
                     val obj: ChatMsg) {
 
   override fun toString(): String = Gson().toJson(obj, ChatMsg::class.java)

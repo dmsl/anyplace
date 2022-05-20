@@ -13,8 +13,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.models.ReplyToMessage
 import cy.ac.ucy.cs.anyplace.smas.data.models.UserLocations
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
@@ -23,7 +22,7 @@ import cy.ac.ucy.cs.anyplace.smas.data.files.SmasCache
 import cy.ac.ucy.cs.anyplace.lib.android.utils.utlImg
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.ImgDialog
 import cy.ac.ucy.cs.anyplace.smas.ui.dialogs.MsgDeliveryDialog
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgGetNW
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.MsgSendNW
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,8 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SmasChatViewModel @Inject constructor(
         private val _application: Application,
-        private val repoChat: RepoChat,
-        private val RFH: RetrofitHolderChat,
+        private val repoSmas: RepoSmas,
+        private val RFH: RetrofitHolderSmas,
         private val dsChat: ChatPrefsDataStore,
         dsCvNav: CvNavDataStore,
         private val dsMisc: MiscDataStore,
@@ -54,8 +53,8 @@ class SmasChatViewModel @Inject constructor(
   private val app = _application as SmasApp
   private val C by lazy { CHAT(app.applicationContext) }
 
-  val nwMsgGet by lazy { MsgGetNW(app, this, RFH, repoChat) }
-  private val nwMsgSend by lazy { MsgSendNW(app, this, RFH, repoChat) }
+  val nwMsgGet by lazy { MsgGetNW(app, this, RFH, repoSmas) }
+  private val nwMsgSend by lazy { MsgSendNW(app, this, RFH, repoSmas) }
 
   val chatCache by lazy { SmasCache(app.applicationContext) }
 

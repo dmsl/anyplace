@@ -11,9 +11,9 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatVersion
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Response
 import java.lang.Exception
@@ -26,8 +26,8 @@ import java.net.UnknownServiceException
  */
 class VersionNW(
         private val app: SmasApp,
-        private val RH: RetrofitHolderChat,
-        private val repoChat: RepoChat) {
+        private val RH: RetrofitHolderSmas,
+        private val repoSmas: RepoSmas) {
 
   private val resp: MutableStateFlow<NetworkResult<ChatVersion>> = MutableStateFlow(NetworkResult.Unset())
 
@@ -37,7 +37,7 @@ class VersionNW(
    * Gets version from remote and on success it updates the [dsChat]
    */
   suspend fun getVersion(): NetworkResult<ChatVersion> {
-    val response = repoChat.remote.getVersion()
+    val response = repoSmas.remote.getVersion()
     val resp = handleVersionResponse(response)
     val version = resp.data
 

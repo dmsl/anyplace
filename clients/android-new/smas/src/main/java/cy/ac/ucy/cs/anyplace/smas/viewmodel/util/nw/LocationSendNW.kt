@@ -10,16 +10,15 @@ import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import cy.ac.ucy.cs.anyplace.smas.data.models.LocationSendReq
 import cy.ac.ucy.cs.anyplace.smas.data.models.LocationSendResp
 import cy.ac.ucy.cs.anyplace.smas.data.models.SmasErrors
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.lang.Exception
 import java.net.ConnectException
@@ -30,8 +29,8 @@ import java.net.ConnectException
 class LocationSendNW(
         private val app: SmasApp,
         private val VM: SmasMainViewModel,
-        private val RH: RetrofitHolderChat,
-        private val repo: RepoChat) {
+        private val RH: RetrofitHolderSmas,
+        private val repo: RepoSmas) {
 
   companion object {
     val TEST_COORDS = LatLng(57.69579631991111, 11.913666007922222)

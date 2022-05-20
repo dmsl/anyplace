@@ -11,11 +11,11 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.db.entities.DatabaseConverters.Companion.entityToChatMessages
 import cy.ac.ucy.cs.anyplace.smas.data.models.*
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,8 +28,8 @@ import java.net.ConnectException
 class MsgGetNW(
         private val app: SmasApp,
         private val VM: SmasChatViewModel,
-        private val RH: RetrofitHolderChat,
-        private val repo: RepoChat) {
+        private val RH: RetrofitHolderSmas,
+        private val repo: RepoSmas) {
 
   /** Network Responses from API calls
    *

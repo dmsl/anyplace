@@ -9,7 +9,7 @@ import javax.inject.Inject
 /**
  * Chat DataSource
  */
-class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderChat) {
+class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderSmas) {
 
   // MISC
   suspend fun getVersion(): Response<ChatVersion>  = RH.api.version()

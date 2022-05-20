@@ -12,7 +12,7 @@ import javax.inject.Singleton
  * - [DsLocalAP]: Chat Local Storage TODO Room/SQLite
  */
 @Singleton
-class RepoChat @Inject constructor(
+class RepoSmas @Inject constructor(
         chatRemoteDataSource: ChatRemoteDataSource,
         dsLocalAP: SmasLocalDS) {
   /** Talks to the net */

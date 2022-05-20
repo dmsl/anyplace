@@ -20,9 +20,9 @@ import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
 import cy.ac.ucy.cs.anyplace.lib.models.UserLocation
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationGetNW
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationSendNW
@@ -42,14 +42,14 @@ import javax.inject.Inject
 class SmasMainViewModel @Inject constructor(
         application: Application,
         repoAP: RepoAP,
-        private val repoChat: RepoChat,
+        private val repoSmas: RepoSmas,
         val dsChat: ChatPrefsDataStore,
         dsCv: CvDataStore,
         dsCvNav: CvNavDataStore,
         private val dsMisc: MiscDataStore,
-        private val RHchat: RetrofitHolderChat,
+        private val RHchat: RetrofitHolderSmas,
         RHap: RetrofitHolderAP):
-        CvMapViewModel(application, dsCv, dsCvNav, repoAP, RHap) {
+        CvMapViewModel(application, dsCv, dsMisc, dsCvNav, repoAP, RHap) {
 
   private val C by lazy { CHAT(app.applicationContext) }
 
@@ -65,9 +65,9 @@ class SmasMainViewModel @Inject constructor(
   }
 
   //// RETROFIT UTILS:
-  val nwVersion by lazy { VersionNW(app as SmasApp, RHchat, repoChat) }
-  val nwLocationGet by lazy { LocationGetNW(app as SmasApp, this, RHchat, repoChat) }
-  val nwLocationSend by lazy { LocationSendNW(app as SmasApp, this, RHchat, repoChat) }
+  val nwVersion by lazy { VersionNW(app as SmasApp, RHchat, repoSmas) }
+  val nwLocationGet by lazy { LocationGetNW(app as SmasApp, this, RHchat, repoSmas) }
+  val nwLocationSend by lazy { LocationSendNW(app as SmasApp, this, RHchat, repoSmas) }
 
   val alertingUser : MutableStateFlow<UserLocation?>
     get() = nwLocationGet.alertingUser
@@ -145,46 +145,6 @@ class SmasMainViewModel @Inject constructor(
     }
   }
 
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  // TODO: network manager?
-  // TODO these in the MainViewModel (SmassMainVM or a centrally main VM).
-  var networkStatus = false
-  /** normal var, filled by the observer (SelectSpaceActivity) */
-  var backOnline = false
-
   /** Set when a user has new messages */
   var readHasNewMessages = dsChat.readHasNewMessages.asLiveData()
-
-  // TODO:PM: bind this when connectivity status changes
-  var readBackOnline = dsMisc.readBackOnline.asLiveData()
-  // TODO? for chat?
-  // var readUserLoggedIn = dataStoreUser.readUser.asLiveData()
-  var backFromSettings= false // INFO filled by the observer (collected from the fragment)
-  var readBackFromSettings= dsMisc.readBackFromSettings.asLiveData()
-  fun showNetworkStatus() {
-    if (!networkStatus) {
-      Toast.makeText(getApplication(), "No internet connection!", Toast.LENGTH_SHORT).show()
-      saveBackOnline(true)
-    } else if(networkStatus && backOnline)  {
-      Toast.makeText(getApplication(), "Back online!", Toast.LENGTH_SHORT).show()
-      saveBackOnline(false)
-    }
-  }
-  private fun saveBackOnline(value: Boolean) =
-          viewModelScope.launch(Dispatchers.IO) {
-            dsMisc.saveBackOnline(value)
-          }
-  fun setBackFromSettings() = saveBackFromSettings(true)
-  fun unsetBackFromSettings() = saveBackFromSettings(false)
-  private fun saveBackFromSettings(value: Boolean) =
-          viewModelScope.launch(Dispatchers.IO) {  dsMisc.saveBackFromSettings(value) }
-
-
-
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-  ///////////////////////////////////////
-
 }

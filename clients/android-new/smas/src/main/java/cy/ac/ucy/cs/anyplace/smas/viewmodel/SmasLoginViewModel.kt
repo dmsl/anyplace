@@ -14,10 +14,10 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.consts.CHAT
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginReq
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginResp
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -31,8 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SmasLoginViewModel @Inject constructor(
         application: Application,
-        private val repo: RepoChat,
-        private val retrofitHolder: RetrofitHolderChat) : AndroidViewModel(application) {
+        private val repo: RepoSmas,
+        private val retrofitHolder: RetrofitHolderSmas) : AndroidViewModel(application) {
 
   private val C by lazy { CHAT(application.applicationContext) }
 

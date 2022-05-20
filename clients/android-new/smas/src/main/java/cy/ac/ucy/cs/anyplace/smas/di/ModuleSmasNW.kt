@@ -2,7 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.di
 
 import android.app.Application
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderChat
+import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,10 +40,10 @@ class ChatNetworkModule {
           app: Application, // injected from ContextModule
           okHttpClientBearer: OkHttpClientBearer,
           gsonConverterFactory: GsonConverterFactory,
-  ): RetrofitHolderChat {
-    val baseUrl = RetrofitHolderChat.getDefaultBaseUrl(app)
+  ): RetrofitHolderSmas {
+    val baseUrl = RetrofitHolderSmas.getDefaultBaseUrl(app)
 
-    return RetrofitHolderChat(app, okHttpClientBearer.client, gsonConverterFactory).set(baseUrl)
+    return RetrofitHolderSmas(app, okHttpClientBearer.client, gsonConverterFactory).set(baseUrl)
   }
 }
 

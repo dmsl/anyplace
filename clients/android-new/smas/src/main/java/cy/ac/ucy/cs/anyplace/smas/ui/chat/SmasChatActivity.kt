@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.components.Conversation
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.components.TopMessagesBar
@@ -28,7 +28,7 @@ class SmasChatActivity : AppCompatActivity() {
 
   private lateinit var VMchat: SmasChatViewModel
   private lateinit var VM: SmasMainViewModel
-  @Inject lateinit var repo: RepoChat
+  @Inject lateinit var repo: RepoSmas
 
   private fun pullData() {
     /*

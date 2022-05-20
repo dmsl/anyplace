@@ -25,7 +25,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.smas.SmasApp
-import cy.ac.ucy.cs.anyplace.smas.data.RepoChat
+import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
 import cy.ac.ucy.cs.anyplace.smas.data.models.helpers.ChatMsgHelper
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
@@ -49,12 +49,12 @@ import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
 @ExperimentalMaterialApi
 @Composable
 fun Conversation(
-        app: SmasApp,
-        VM: SmasMainViewModel,
-        VMchat: SmasChatViewModel,
-        manager: FragmentManager,
-        repo: RepoChat,
-        returnLoc: (lat: Double, lng: Double) -> Unit
+  app: SmasApp,
+  VM: SmasMainViewModel,
+  VMchat: SmasChatViewModel,
+  manager: FragmentManager,
+  repo: RepoSmas,
+  returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
   Column {
     LazyColumn(
@@ -95,11 +95,11 @@ fun Conversation(
 @ExperimentalMaterialApi
 @Composable
 fun MessageCard(
-        message: ChatMsg,
-        VMchat: SmasChatViewModel,
-        manager: FragmentManager,
-        repo: RepoChat,
-        returnLoc: (lat: Double, lng: Double) -> Unit
+  message: ChatMsg,
+  VMchat: SmasChatViewModel,
+  manager: FragmentManager,
+  repo: RepoSmas,
+  returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
   val senderIsLoggedUser = (VMchat.getLoggedInUser() == message.uid)
   val ctx = LocalContext.current

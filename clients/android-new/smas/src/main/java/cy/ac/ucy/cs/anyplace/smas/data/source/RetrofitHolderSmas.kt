@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
  * - enable dynamical changes of backend URLs
  * - DI (DepInjection) alone would have stale data)
  */
-data class RetrofitHolderChat(
+data class RetrofitHolderSmas(
         val ctx: Context,
         val okHttpClientChat: OkHttpClient,
         val gsonCF: GsonConverterFactory) {
@@ -40,7 +40,7 @@ data class RetrofitHolderChat(
   private fun getBaseUrl(p: ChatPrefs) = getBaseUrl(p.protocol, p.host, p.port)
 
   fun set(prefs: ChatPrefs) = set(getBaseUrl(prefs))
-  fun set(baseUrl: String) : RetrofitHolderChat {
+  fun set(baseUrl: String) : RetrofitHolderSmas {
     this.baseURL = baseUrl
 
     this.retrofit = Retrofit.Builder()
