@@ -49,6 +49,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
+import cy.ac.ucy.cs.anyplace.smas.logger.ui.CvLoggerActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
@@ -97,9 +98,12 @@ class StartActivity : Activity() {
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-        // TODO:ATH
+        // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
         // startActivity(Intent(this@StartActivity, SearchActivity::class.java))
+
+
+        startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
+
       } else {
         LOG.D2(TAG, "Opening activity: Login")
         startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))

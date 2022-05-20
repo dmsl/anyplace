@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppTheme.Compat.ObjectDetection"
     android:background="#00000000">
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,6 +45,7 @@
 
     <View
         android:id="@+id/viewAlertBg"
+        tools:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         app:layout_constraintBottom_toBottomOf="@+id/container"
@@ -64,6 +66,7 @@
         app:layout_constraintLeft_toLeftOf="@id/viewAlertBg"
         app:layout_constraintRight_toRightOf="@id/viewAlertBg"
         android:layout_marginTop="4dp"
+        tools:visibility="invisible"
         app:outlineColor="@color/white"
         app:outlineWidth="2dp"
         android:textSize="52dp"

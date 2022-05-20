@@ -1,90 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:background="@color/gmapsGrayColor"
-  tools:context=".android.ui.cv.gnk.logger.CvLoggerActivityRM"
-  >
-  <!-- NOTE: Modifying the order of the elements in this file might cause crashes.
-  EVEN with IDE auto-refactoring.
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppTheme.Compat.ObjectDetection"
+    android:background="#00000000"
+    tools:context=".logger.ui.CvLoggerActivity">
 
-  There is a numbering for this order.
+  <!-- NOTE: Modifying the order of the elements in this file might cause crashes.
+      EVEN with IDE auto-refactoring.
+      There is a numbering for this order.
   -->
 
+  <!-- 4. TOOLBAR:
+    - Settings Button
+    -->
   <androidx.constraintlayout.widget.ConstraintLayout
-      android:id="@+id/constraintLayout"
+      android:id="@+id/relativeLayout"
       android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      android:layout_height="match_parent"
+      android:background="@android:color/black"
+      android:orientation="vertical">
 
-    <!-- 1. CAMERA VIEW: pv_camera -->
-    <androidx.camera.view.PreviewView
-        android:id="@+id/pv_camera"
-
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/black"
-        android:scaleType="fitStart"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="4:6"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" >
-      <!-- INFO: this is required, even though it has no children.
-      If this tag was closed directly (e.g., using />), then
-      the code in [CvActivity?] would crash
-      -->
-
-    </androidx.camera.view.PreviewView>
+    <!-- 1 and 2:
+    - CAMERA VIEW: CameraActivity
+    - OVERLAY: DETECTED OBJECTS
+    -->
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_anchor="@+id/relativeLayout"
+        android:background="@android:color/black"
+        app:layout_anchorGravity="center"
+        tools:context="org.tensorflow.demo.CameraActivity">
+    </FrameLayout>
 
 
-
-    <!-- 2. OVERLAY: DETECTED OBJECTS -->
-    <cy.ac.ucy.cs.anyplace.lib.android.cv.tensorflow.legacy.gnk.utils.visualization.TrackingOverlayView
-        android:id="@+id/tov_camera"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-
-        app:layout_constraintDimensionRatio="4:6"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
 
     <!-- 3. GOOGLE MAPS
-            It is hidden when Camera View and Detections Overlay are visible.
-     -->
-
-
-
-    <!-- 4.2 OVERLAY: WARNING
-            An empty [View] that quickly flashes yellow/red to bring attention
-            using [StatusUpdater]
+        It is hidden when Camera View and Detections Overlay are visible.
     -->
 
-
-    <!-- 5. OVERLAY: WARNING BACKGROUND
-            Solid background behind the [StatusUpdater]'s [tv_statusTitle] and [tv_statusSubtitle]
-     -->
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:elevation="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:alpha="0.3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".android.ui.cv.CvMapActivity"
+        app:layout_anchor="@+id/relativeLayout"
+        app:layout_anchorGravity="center" />
 
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+
+    <!-- 4. TOOLBAR:
+    - Settings Button
+    - TODO Search of ATH?
+    -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_anchor="@+id/relativeLayout"
+        app:layout_anchorGravity="top|center">
 
-    <!-- 6. Settings Button -->
+    <!-- Settings Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_settings"
         android:layout_width="58dp"
@@ -93,7 +76,6 @@
         android:layout_gravity="end"
         android:layout_margin="8dp"
         android:elevation="50dp"
-
         android:insetLeft="0dp"
         android:insetTop="0dp"
         android:insetRight="0dp"
@@ -105,12 +87,11 @@
         app:iconSize="42dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!--app:outlineColor="@color/white_B0"-->
-    <!--app:outlineWidth="1dp" -->
 
+    </androidx.appcompat.widget.Toolbar>
 
-    <!-- 7. StatusUpdater -->
-    <!-- 7.1. StatusUpdater: TITLE -->
+    <!-- 5. StatusUpdater -->
+    <!-- 5.1. StatusUpdater: TITLE -->
     <TextView
         android:id="@+id/tv_msgTitle"
         android:layout_width="0dp"
@@ -133,8 +114,7 @@
         tools:text="Msg Title"
         tools:visibility="visible" />
 
-
-    <!-- 7.2. StatusUpdater: SUBTITLE -->
+    <!-- 5.2. StatusUpdater: SUBTITLE -->
     <TextView
         android:id="@+id/tv_msgSubtitle"
         android:layout_width="0dp"
@@ -155,7 +135,7 @@
         tools:text="This is the msg subtitle"
         tools:visibility="visible" />
 
-    <!-- 7.3. StatusUpdater: BG -->
+    <!-- 5.3. StatusUpdater: BG -->
     <View
         android:id="@+id/view_statusBackground"
         android:layout_width="0dp"
@@ -174,7 +154,7 @@
         tools:alpha="0.8" />
 
 
-    <!-- 7.4 STATUS: sticky status message
+    <!-- 5.4 STATUS: sticky status message
     e.g. entering a particular mode
     -->
     <cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
@@ -201,10 +181,8 @@
         tools:visibility="visible" />
 
 
-    <!-- 8 StatusUpdater: WARNING OVERLAY -->
 
-
-<!--    START OF FLOOR SELECTOR-->
+    <!-- 6. FLOOR SELECTOR -->
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_floorSelector"
         android:layout_width="wrap_content"
@@ -220,7 +198,6 @@
         app:layout_constraintBottom_toTopOf="@+id/button_selectedFloor"
         app:layout_constraintEnd_toEndOf="parent"
         style="@style/MaterialButtonIcon"
-
         android:translationY="20dp"
         android:text=""
         app:cornerRadius="50dp"
@@ -228,7 +205,6 @@
         app:iconPadding="0dp"
         app:iconSize="38dp"
         />
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_floorDown"
@@ -241,9 +217,7 @@
         app:iconGravity="textStart"
         app:iconPadding="0dp"
         app:iconSize="38dp"
-
         android:layout_marginTop="0dp"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -269,21 +243,20 @@
         app:layout_constraintStart_toStartOf="@id/button_floorDown"
         app:layout_constraintEnd_toEndOf="@id/button_floorDown"
         app:layout_constraintTop_toBottomOf="@id/button_floorDown"
-
         android:elevation="40dp"
         android:fontFamily="sans-serif-black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:translationY="-5dp"
-
         android:textSize="18sp"
         android:textColor="@color/colorPrimary"
         app:outlineColor="@color/white"
-        android:text="floor"
+        android:text="@string/floor"
         app:outlineWidth="0.5dp"
         />
-    <!--    END OF FLOOR SELECTOR-->
+    <!-- end: floor selector (6) -->
 
+    <!-- 7. DEMO NAVIGATION BTN -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_demoNavigation"
         style="@style/MaterialButtonIcon"
@@ -301,29 +274,28 @@
         app:layout_constraintTop_toBottomOf="@id/button_floorDown"
         app:layout_constraintVertical_bias="0.42000002" />
 
-
   </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+  <!-- 10. WARNING OVERLAY (after ConstraintLayout)-->
   <View
       android:id="@+id/view_warning"
       android:layout_width="0dp"
       android:layout_height="0dp"
       android:alpha="0"
+      tools:visibility="gone"
       android:background="@color/yellowDark"
       android:elevation="40dp"
       android:visibility="invisible"
       app:layout_anchor="@+id/constraintLayout"
       app:layout_anchorGravity="center"
-
-      tools:visibility="gone" />
+      />
 
   <include
-      android:id="@+id/bottom_ui"
+      android:id="@+id/bottom_sheet_layout"
       layout="@layout/bottom_sheet_cv_logging"
       android:elevation="0dp"
-      app:behavior_peekHeight="5dp"
-      tools:visibility="gone" />
-
+      app:behavior_peekHeight="2dp"
+      tools:visibility="gone"
+      />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
