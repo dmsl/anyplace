@@ -84,7 +84,7 @@ dependencies {
   implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
   implementation 'androidx.compose.ui:ui-graphics:1.1.1'
 
-  // DATA
+    // DATA
   //// Data binding
   kapt "com.android.databinding:compiler:3.2.0-alpha10"
   kapt "androidx.databinding:databinding-common:7.1.2"

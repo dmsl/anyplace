@@ -9,6 +9,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.ui.components.StatusUpdater
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
 import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.logger.viewmodel.CvLoggerViewModel
@@ -19,7 +20,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
-  // PROVIDE TO BASE CLASS [CameraActivity]:
   // PROVIDE TO BASE CLASS [CameraActivity]:
   override val layout_activity: Int get() = R.layout.activity_cv_logger
   override val id_bottomsheet: Int get() = R.id.bottom_ui
@@ -59,11 +59,16 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
     super.setupButtonsAndUi()
     LOG.D2()
 
-    uiLog = CvLoggerUI(this@CvLoggerActivity, lifecycleScope, VM, wMap)
-    // LEFTHERE : MERGE
-    // LEFTHERE : MERGE
+    uiLog = CvLoggerUI(this@CvLoggerActivity,
+            lifecycleScope,
+            VM,  id_bottomsheet, wMap)
 
-    setupComputerVision() // TODO: pull this in here..
+    setupComputerVision()   // MERGE:PM: rename this one Observe CV?
+
+    uiLog.setupTimerButtonClick()
+    uiLog.setupClickClearObjectsPopup()
+    uiLog.setupClickSettingsMenuButton()
+    uiLog.setupClickDemoNavigation()
   }
 
   /**
@@ -97,12 +102,9 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   private fun observeLoggingStatus() {
     VM.logging.observeForever { status ->
       LOG.D(TAG_METHOD, "logging: $status")
-      updateLoggingUi(status)
+      uiLog.refresh(status)
     }
   }
-
-
-
 
   private fun collectLocation() {
     lifecycleScope.launch{
@@ -133,7 +135,7 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
         LOG.W(TAG_METHOD, "status: $status")
         when(status) {
           Localization.stopped -> {
-            UI.endLocalization(binding.mapView)
+            uiLog.endLocalization()
             VM.logging.postValue(Logging.stopped)
           }
           else ->  {}
@@ -141,8 +143,6 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
       }
     }
   }
-
-
 
   /**
    * CHECK:PM
@@ -169,7 +169,8 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   }
 
   override fun onMapReadyCallback() {
-    // MERGE
+    uiLog.setupClickedLoggingButton()
+    uiLog.setupOnMapLongClick()
   }
 
 }

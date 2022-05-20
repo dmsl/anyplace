@@ -3,8 +3,6 @@ package cy.ac.ucy.cs.anyplace.smas.logger.viewmodel
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.maps.model.LatLng
-// import cy.ac.ucy.cs.anyplace.lib.android.cv.tensorflow.legacy.gnk.utils.Detector
-// import cy.ac.ucy.cs.anyplace.lib.android.cv.tensorflow.legacy.gnk.utils.YoloV4Detector
 import cy.ac.ucy.cs.anyplace.lib.android.data.RepoAP
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.CvMapHelper
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
@@ -60,13 +58,13 @@ class CvLoggerViewModel @Inject constructor(
   // TODO:PM: statusLOG ?
   val logging: MutableLiveData<Logging> = MutableLiveData(Logging.stopped)
 
-  /** Detections of the current logger scan-window */
+  /** Detections of the current logger scan-window (MERGE: detectionsLogging) */
   val objWindowLOG: MutableLiveData<List<Classifier.Recognition>> = MutableLiveData()
-  /** Detections assigned to map locations */
-  var objAssignedMAP: MutableMap<LatLng, List<Classifier.Recognition>> = mutableMapOf()
+  /** Detections assigned to map locations (MERGE:  with storedDetections) */
+  var objOnMAP: MutableMap<LatLng, List<Classifier.Recognition>> = mutableMapOf()
   /** CHECK:PM a counter over all detections? */
   val objWindowALL: MutableLiveData<Int> = MutableLiveData(0)
-  /** for stats, and for enabling scanned objects clear (on current window) */
+  /** for stats, and for enabling scanned objects clear (on current window) (MERGE: objectsWindowUnique) */
   var objWindowUnique = 0
   var objTotal = 0
   /** whether there was a pause in the current scanning window */
@@ -228,12 +226,12 @@ class CvLoggerViewModel @Inject constructor(
   }
 
   /**
-   * Stores the detections on the [objAssignedMAP],
+   * Stores the detections on the [objOnMAP],
    * a Hash Map of locations and object fingerprints
    */
   fun addDetections(latLong: LatLng) {
     objTotal+=objWindowUnique
-    objAssignedMAP[latLong] = objWindowLOG.value.orEmpty()
+    objOnMAP[latLong] = objWindowLOG.value.orEmpty()
   }
 
 
@@ -251,7 +249,7 @@ class CvLoggerViewModel @Inject constructor(
 
     // MERGE:PM:TODO
     // TODO: UPDATE radiomap (this was a trial todo?)
-    val curMap = CvMapHelper.generate(model, FH, objAssignedMAP)
+    val curMap = CvMapHelper.generate(model, FH, objOnMAP)
     val curMapH = CvMapHelper(curMap, detector.labels, FH)
     LOG.D(TAG, "$METHOD: has cache: ${curMapH.hasCache()}") // CLR:PM
     val merged = curMapH.readLocalAndMerge()
@@ -261,6 +259,6 @@ class CvLoggerViewModel @Inject constructor(
     LOG.D(TAG, "$METHOD: has cache: ${cvMapH?.hasCache()}") // CLR:PM
     mergedH.generateCvMapFast()
     cvMapH = mergedH
-    objAssignedMAP.clear()
+    objOnMAP.clear()
   }
 }
