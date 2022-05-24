@@ -159,6 +159,7 @@
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:text="Switch to Logging"
+        android:visibility="gone"
         tools:text="Switch to log | Back smas"
         app:layout_constraintTop_toBottomOf="@+id/divider_cvMode"
         app:layout_constraintEnd_toEndOf="parent"

@@ -59,9 +59,13 @@ import kotlinx.coroutines.launch
 
 class StartActivity : Activity() {
   private val SPLASH_TIME_OUT = 500L
-
   lateinit var tvVersion : TextView
-  // private val appInfo by lazy { AppInfo(applicationContext) }
+
+  companion object {
+    val OPEN_ACT = "act.open"
+    val OPEN_ACT_SMAS= "act.open.smas"
+    val OPEN_ACT_LOGGER = "act.open.logger"
+  }
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -99,13 +103,15 @@ class StartActivity : Activity() {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
         // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-        // startActivity(Intent(this@StartActivity, SearchActivity::class.java))
-
         startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
+        // startActivity(Intent(this@StartActivity, SearchActivity::class.java)) // ATH
 
       } else {
         LOG.D2(TAG, "Opening activity: Login")
-        startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))
+
+        val intent = Intent(this@StartActivity, SmasLoginActivity::class.java)
+        intent.putExtra(OPEN_ACT, OPEN_ACT_LOGGER)
+        startActivity(intent)
       }
 
       finish()

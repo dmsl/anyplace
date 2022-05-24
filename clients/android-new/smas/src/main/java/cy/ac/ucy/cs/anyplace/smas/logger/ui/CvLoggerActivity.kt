@@ -1,5 +1,7 @@
 package cy.ac.ucy.cs.anyplace.smas.logger.ui
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
 import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
@@ -14,8 +16,10 @@ import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
 import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
 import cy.ac.ucy.cs.anyplace.smas.R
+import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.logger.viewmodel.CvLoggerViewModel
 import cy.ac.ucy.cs.anyplace.smas.logger.viewmodel.Logging
+import cy.ac.ucy.cs.anyplace.smas.ui.SmasLoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -176,6 +180,28 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   private fun setupCollectors() {
     LOG.D(TAG_METHOD)
     collectLoadedFloors()
+    collectLoggedInUser()
+  }
+
+
+  /*
+  * Reacts to updates on [ChatUser]'s login status:
+  * Only authenticated users are allowed to use this activity
+  */
+  private fun collectLoggedInUser() {
+    // only logged in users are allowed on this activity:
+    lifecycleScope.launch(Dispatchers.IO) {
+      appSmas.dsChatUser.readUser.collect { user ->
+        if (user.sessionkey.isBlank()) {
+          finish()
+          startActivity(Intent(this@CvLoggerActivity, SmasLoginActivity::class.java))
+        } else {
+          lifecycleScope.launch(Dispatchers.Main) {
+            Toast.makeText(applicationContext, "Welcome ${user.uid}!", Toast.LENGTH_LONG).show()
+          }
+        }
+      }
+    }
   }
 
   /**

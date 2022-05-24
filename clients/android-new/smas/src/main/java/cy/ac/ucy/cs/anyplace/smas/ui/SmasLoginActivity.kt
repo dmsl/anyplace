@@ -10,25 +10,33 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.android.ui.BaseActivity
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton.changeBackgroundButtonCompat
 import cy.ac.ucy.cs.anyplace.lib.network.NetworkResult
 import cy.ac.ucy.cs.anyplace.smas.R
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import cy.ac.ucy.cs.anyplace.smas.data.models.ChatLoginReq
+import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
 import cy.ac.ucy.cs.anyplace.smas.databinding.ActivitySmasLoginBinding
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
+import cy.ac.ucy.cs.anyplace.smas.logger.ui.CvLoggerActivity
+import cy.ac.ucy.cs.anyplace.smas.ui.StartActivity.Companion.OPEN_ACT
+import cy.ac.ucy.cs.anyplace.smas.ui.StartActivity.Companion.OPEN_ACT_LOGGER
+import cy.ac.ucy.cs.anyplace.smas.ui.StartActivity.Companion.OPEN_ACT_SMAS
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasLoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
+
 
 @AndroidEntryPoint
 class SmasLoginActivity : BaseActivity() {
@@ -185,6 +193,20 @@ class SmasLoginActivity : BaseActivity() {
   private fun openLoggedInActivity() {
     startActivity(Intent(this@SmasLoginActivity, SmasMainActivity::class.java))
     finish()
+    // TODO:PMX
+    // if (intent != null) {
+    //   val openActivity = intent.getStringExtra(OPEN_ACT)
+    //   LOG.W(TAG, "$METHOD: opening $openActivity")
+    //   val cls = when (openActivity) {
+    //     OPEN_ACT_LOGGER -> CvLoggerActivity::class.java
+    //     OPEN_ACT_SMAS -> SmasMainActivity::class.java
+    //     else -> null
+    //   }
+    //   startActivity(Intent(this@SmasLoginActivity, cls))
+    //   finish()
+    // } else {
+    //   app.showToast(lifecycleScope, "Login: no activity given to open")
+    // }
   }
 
   private fun setupButtonSettings() {
