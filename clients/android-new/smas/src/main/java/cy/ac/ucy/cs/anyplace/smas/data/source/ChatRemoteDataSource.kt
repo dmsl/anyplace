@@ -34,4 +34,10 @@ class ChatRemoteDataSource @Inject constructor(private val RH: RetrofitHolderSma
     return RH.api.messagesGet(req)
   }
   suspend fun messagesSend(r: MsgSendReq) : Response<MsgSendResp> = RH.api.messageSend(r)
+
+
+  // TODO fingerprint-send.php
+
+  // TODO db-model-get.php
+
 }

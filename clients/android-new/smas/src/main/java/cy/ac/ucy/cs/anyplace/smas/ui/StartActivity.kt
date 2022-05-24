@@ -101,7 +101,6 @@ class StartActivity : Activity() {
         // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
         // startActivity(Intent(this@StartActivity, SearchActivity::class.java))
 
-
         startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
 
       } else {

@@ -286,7 +286,7 @@
       android:background="@color/yellowDark"
       android:elevation="40dp"
       android:visibility="invisible"
-      app:layout_anchor="@+id/constraintLayout"
+      app:layout_anchor="@+id/relativeLayout"
       app:layout_anchorGravity="center"
       />
 
