@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.White
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.AnyplaceBlue
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.White
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 
 /**

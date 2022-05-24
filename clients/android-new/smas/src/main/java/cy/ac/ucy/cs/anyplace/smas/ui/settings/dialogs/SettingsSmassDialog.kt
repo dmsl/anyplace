@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import cy.ac.ucy.cs.anyplace.lib.android.appSmas
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
 import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.SettingsNavigationActivity
@@ -20,7 +21,6 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogSettingsSmasBinding
-import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

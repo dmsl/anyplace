@@ -63,7 +63,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug;
-import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache;
+import cy.ac.ucy.cs.anyplace.lib.android.cache.legacy.ObjectCache;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
 import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
 import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Server;

@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import cy.ac.ucy.cs.anyplace.lib.android.appSmas
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
@@ -16,13 +17,12 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.setTextColor
 import cy.ac.ucy.cs.anyplace.lib.android.ui.dialogs.ConfirmActionDialog
 import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.BaseSettingsActivity
 import cy.ac.ucy.cs.anyplace.smas.R
-import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
-import cy.ac.ucy.cs.anyplace.smas.data.files.SmasCache
-import cy.ac.ucy.cs.anyplace.smas.data.store.ChatPrefsDataStore
-import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
-import cy.ac.ucy.cs.anyplace.smas.data.source.RetrofitHolderSmas
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.data.smas.RepoSmas
+import cy.ac.ucy.cs.anyplace.lib.android.cache.smas.SmasCache
+import cy.ac.ucy.cs.anyplace.lib.android.data.smas.store.ChatPrefsDataStore
+import cy.ac.ucy.cs.anyplace.lib.android.data.smas.source.RetrofitHolderSmas
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasChatViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -55,12 +55,12 @@ class SettingsChatActivity: BaseSettingsActivity() {
   }
 
   class SettingsChatFragment(
-          private val VM: SmasMainViewModel,
-          private val VMchat: SmasChatViewModel,
-          private val RFH: RetrofitHolderSmas,
-          private val dsChat: ChatPrefsDataStore,
-          private val cacheChat: SmasCache,
-          private val repo: RepoSmas) : PreferenceFragmentCompat() {
+    private val VM: SmasMainViewModel,
+    private val VMchat: SmasChatViewModel,
+    private val RFH: RetrofitHolderSmas,
+    private val dsChat: ChatPrefsDataStore,
+    private val cacheChat: SmasCache,
+    private val repo: RepoSmas) : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
       preferenceManager.preferenceDataStore = dsChat

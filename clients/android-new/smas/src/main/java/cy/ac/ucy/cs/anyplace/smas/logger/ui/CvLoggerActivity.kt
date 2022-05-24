@@ -4,24 +4,26 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
-import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
+import cy.ac.ucy.cs.anyplace.lib.android.appSmas
+import cy.ac.ucy.cs.anyplace.lib.android.data.anyplace.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.dsCvLog
 import cy.ac.ucy.cs.anyplace.lib.android.ui.components.StatusUpdater
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.BottomSheetCvUI
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolo.tflite.Classifier
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
-import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.DetectorViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.Localization
+import cy.ac.ucy.cs.anyplace.lib.anyplace.core.LocalizationResult
 import cy.ac.ucy.cs.anyplace.smas.R
-import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.logger.viewmodel.CvLoggerViewModel
 import cy.ac.ucy.cs.anyplace.smas.logger.viewmodel.Logging
 import cy.ac.ucy.cs.anyplace.smas.ui.SmasLoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -60,9 +62,17 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
     CvLoggerUI(this@CvLoggerActivity, lifecycleScope, VM,  id_bottomsheet, wMap)
   }
 
+
   override fun postCreate() {
     super.postCreate()
     VM = _vm as CvLoggerViewModel
+
+    lifecycleScope.launch(Dispatchers.IO) {
+      // CHECK: if this crashes (latinit not inited),
+      // do something similar with the [readPrefsAndContinue] methods
+      // or alternatively it could be put in [setupUi]
+      VM.prefsCvLog = dsCvLog.read.first()
+    }
 
     setupCollectors()
   }
@@ -73,10 +83,13 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
     // MERGE
   }
 
-  override fun setupButtonsAndUi() {
-    super.setupButtonsAndUi()
+  override fun setupUi() {
+    super.setupUi()
     LOG.D2()
     setupUiReactions()
+
+
+    // CLR: MERGE ..
     // uiLog.uiBottom.setup() // TODO why special method?
     // uiLog.setupBottomSheet() // TODO special method?
 
@@ -180,7 +193,7 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   private fun setupCollectors() {
     LOG.D(TAG_METHOD)
     collectLoadedFloors()
-    collectLoggedInUser()
+    collectLoggedInChatUser()
   }
 
 
@@ -188,7 +201,7 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   * Reacts to updates on [ChatUser]'s login status:
   * Only authenticated users are allowed to use this activity
   */
-  private fun collectLoggedInUser() {
+  private fun collectLoggedInChatUser() {
     // only logged in users are allowed on this activity:
     lifecycleScope.launch(Dispatchers.IO) {
       appSmas.dsChatUser.readUser.collect { user ->
@@ -223,6 +236,13 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   override fun onMapReadyCallback() {
     uiLog.setupClickedLoggingButton()
     uiLog.setupOnMapLongClick()
+  }
+
+  override fun onInferenceRan(detections: MutableList<Classifier.Recognition>) {
+    if (detections.isNotEmpty()) {
+      LOG.D2(TAG, "$METHOD: detections: ${detections.size} (LOGGER OVERRIDE)")
+    }
+    VM.processDetections(detections)
   }
 
 }

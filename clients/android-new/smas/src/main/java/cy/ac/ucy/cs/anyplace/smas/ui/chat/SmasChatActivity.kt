@@ -10,13 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import cy.ac.ucy.cs.anyplace.smas.data.RepoSmas
-import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
+import cy.ac.ucy.cs.anyplace.lib.android.appSmas
+import cy.ac.ucy.cs.anyplace.lib.android.data.smas.RepoSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.components.Conversation
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.components.TopMessagesBar
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.*
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.*
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasChatViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

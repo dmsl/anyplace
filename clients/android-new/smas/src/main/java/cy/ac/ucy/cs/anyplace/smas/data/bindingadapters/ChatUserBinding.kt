@@ -5,7 +5,7 @@ import androidx.databinding.BindingAdapter
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.setTextOrHide
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser
+import cy.ac.ucy.cs.anyplace.lib.smas.models.ChatUser
 
 class ChatUserBinding {
   companion object {

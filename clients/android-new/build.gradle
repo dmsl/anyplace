@@ -5,8 +5,8 @@ buildscript {
     ver_hilt= '2.40.5' // 2.35 had issues
     ver_nav = "2.4.1" // has warning: BaseVariant.getApplicationIdTextResource
     ver_lifecycle = "2.4.1"
-    ver_coroutines = '1.6.0'
-    //    ver_coroutines = '1.5.2'
+    ver_coroutines = '1.6.0'  // '1.5.2'
+    ver_compose="1.2.0-alpha06"  // ver_compose="1.1.1"
   }
 
   repositories {

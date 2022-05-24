@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.demo.AssetReader
-import cy.ac.ucy.cs.anyplace.smas.data.models.ChatMsg
+import cy.ac.ucy.cs.anyplace.lib.smas.models.ChatMsg
 import java.lang.Exception
 
 /**

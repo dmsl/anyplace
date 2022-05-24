@@ -63,7 +63,7 @@ import com.google.android.gms.maps.model.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.clustering.ClusterManager
 import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug
-import cy.ac.ucy.cs.anyplace.lib.android.cache.ObjectCache
+import cy.ac.ucy.cs.anyplace.lib.android.cache.legacy.ObjectCache
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout
 import cy.ac.ucy.cs.anyplace.lib.android.circlegate.OnInfoWindowElemTouchListener
 import cy.ac.ucy.cs.anyplace.lib.android.consts.MSG.WARN_NO_NETWORK

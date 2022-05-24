@@ -43,12 +43,12 @@ import android.view.View
 import android.widget.TextView
 import androidx.compose.material.ExperimentalMaterialApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import cy.ac.ucy.cs.anyplace.lib.android.appSmas
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
-import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.logger.ui.CvLoggerActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,8 +102,8 @@ class StartActivity : Activity() {
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        // startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-        startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
+        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+        // startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
         // startActivity(Intent(this@StartActivity, SearchActivity::class.java)) // ATH
 
       } else {

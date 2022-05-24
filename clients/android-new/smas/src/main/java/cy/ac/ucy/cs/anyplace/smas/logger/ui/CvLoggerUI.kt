@@ -18,7 +18,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.SettingsCvLoggerActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton
 import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.Localization
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.logger.viewmodel.CvLoggerViewModel
@@ -103,7 +103,7 @@ class CvLoggerUI(private val act: CvLoggerActivity,
    */
   fun updateCameraTimerButton() {
     val elapsed = VM.getElapsedSeconds()
-    val remaining = (VM.prefs.windowLoggingSeconds.toInt()) - elapsed
+    val remaining = (VM.prefsCvLog.windowLoggingSeconds.toInt()) - elapsed
 
     // TODO MERGE: must go through binding.bottomUi.buttonCameraTimer
     val btn = act.findViewById<MaterialButton>(R.id.button_cameraTimer)
@@ -111,7 +111,7 @@ class CvLoggerUI(private val act: CvLoggerActivity,
     val progressBar = act.findViewById<ProgressBar>(R.id.progressBar_timer)
 
     if (remaining>0) {
-      val windowSecs = VM.prefs.windowLoggingSeconds.toInt()
+      val windowSecs = VM.prefsCvLog.windowLoggingSeconds.toInt()
       setupProgressBarTimerAnimation(btn, progressBar, windowSecs)
       btn.text = utlTime.getSecondsRounded(remaining, windowSecs)
     } else {

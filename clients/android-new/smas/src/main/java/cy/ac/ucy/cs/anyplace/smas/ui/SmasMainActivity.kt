@@ -16,26 +16,26 @@ import androidx.lifecycle.lifecycleScope
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.material.button.MaterialButton
+import cy.ac.ucy.cs.anyplace.lib.android.appSmas
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
-import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
+import cy.ac.ucy.cs.anyplace.lib.android.data.anyplace.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.GmapWrapper
 import cy.ac.ucy.cs.anyplace.lib.android.utils.UtilNotify
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.OutlineTextView
 import cy.ac.ucy.cs.anyplace.lib.android.utils.ui.utlButton
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.Localization
-import cy.ac.ucy.cs.anyplace.lib.core.LocalizationResult
-import cy.ac.ucy.cs.anyplace.lib.models.UserCoordinates
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.CvMapViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.DetectorViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.Localization
+import cy.ac.ucy.cs.anyplace.lib.anyplace.core.LocalizationResult
+import cy.ac.ucy.cs.anyplace.lib.anyplace.models.UserCoordinates
 import cy.ac.ucy.cs.anyplace.smas.R
-import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
 import cy.ac.ucy.cs.anyplace.smas.ui.chat.SmasChatActivity
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.util.nw.LocationSendNW
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasChatViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasMainViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.nw.LocationSendNW
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -108,8 +108,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   /**
    * Called by [CvMapActivity]
    */
-  override fun setupButtonsAndUi() {
-    super.setupButtonsAndUi()
+  override fun setupUi() {
+    super.setupUi()
     LOG.D2()
 
     setupButtonSettings()

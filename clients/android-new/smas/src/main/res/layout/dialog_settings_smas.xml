@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
   <data>
-    <variable name="user" type="cy.ac.ucy.cs.anyplace.smas.data.models.ChatUser" />
+    <variable name="user" type="cy.ac.ucy.cs.anyplace.lib.smas.models.ChatUser" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout

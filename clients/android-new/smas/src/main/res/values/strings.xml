@@ -19,28 +19,4 @@
   <!-- TODO: Remove or change this placeholder text -->
   <string name="hello_blank_fragment">Hello blank fragment</string>
 
-  <string name="chat">Chat</string>
-  <string name="server">Server</string>
-  <string name="chat_server">Chat Server</string>
-  <string name="about_lashfire">About LASHFIRE</string>
-  <string name="poweredby_ap">Powered by Anyplace</string>
-  <string name="smas_verbose">Smart Alert System</string>
-  <string name="smas_version">version: %1$s</string>
-  <string name="pref_chat_user">pref_chat_user</string>
-  <string name="lashfire">Lashfire</string>
-  <string name="smart_alert_system">Smart Alert System</string>
-  <string name="smas">SMAS</string>
-  <string name="anyplace_settings">Anyplace Settings</string>
-  <string name="chat_settings">Chat Settings</string>
-  <string name="messages">Messages</string>
-  <string name="msg_delivery">Message Delivery</string>
-  <string name="lash_fire">LASH FIRE</string>
-  <string name="attention">Attention</string>
-  <string name="alert">alert</string>
-  <string name="send_alert">Send Alert</string>
-  <string name="cv_map_settings">Map Settings</string>
-
-  <string name="btn_cancel_descr">cancel</string>
-  <string name="btn_ok">OK</string>
-  <string name="delete_local_msgs">Delete local messages</string>
 </resources>

@@ -18,9 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentManager
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.White
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.AnyplaceBlue
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.White
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasChatViewModel
 
 /**
  * A banner which shows information about where the messages are delivered to:

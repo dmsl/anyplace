@@ -32,12 +32,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.utils.utlImg
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.AnyplaceBlue
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.LightGray
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.MildGray
-import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.White
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.AnyplaceBlue
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.LightGray
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.MildGray
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.theme.White
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasChatViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasMainViewModel
 
 /**
  *

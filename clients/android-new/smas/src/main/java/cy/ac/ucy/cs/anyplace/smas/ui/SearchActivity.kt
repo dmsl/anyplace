@@ -2,15 +2,14 @@ package cy.ac.ucy.cs.anyplace.smas.ui
 
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.OnMapReadyCallback
-import cy.ac.ucy.cs.anyplace.lib.android.data.models.helpers.FloorHelper
+import cy.ac.ucy.cs.anyplace.lib.android.data.anyplace.helpers.FloorHelper
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.*
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.CvMapActivity
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.map.CvMapUi
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.CvMapViewModel
-import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.DetectorViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.CvMapViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.DetectorViewModel
 import cy.ac.ucy.cs.anyplace.smas.R
-import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
+import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasMainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,8 +50,8 @@ class SearchActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D(TAG, "onResume")
   }
 
-  override fun setupButtonsAndUi() {
-    super.setupButtonsAndUi()
+  override fun setupUi() {
+    super.setupUi()
     LOG.D2()
 
     // TODO:ATH setup your UI here!
