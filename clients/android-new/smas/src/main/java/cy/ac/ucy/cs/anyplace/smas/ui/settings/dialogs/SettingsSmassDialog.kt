@@ -1,6 +1,8 @@
 package cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs
 // userDS.readUser.first()
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
@@ -13,14 +15,17 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import cy.ac.ucy.cs.anyplace.lib.android.appSmas
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.app
-import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.SettingsNavigationActivity
+import cy.ac.ucy.cs.anyplace.lib.android.ui.settings.SettingsCvActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.databinding.DialogSettingsSmasBinding
+import cy.ac.ucy.cs.anyplace.smas.logger.ui.CvLoggerActivity
+import cy.ac.ucy.cs.anyplace.smas.ui.SmasMainActivity
 import cy.ac.ucy.cs.anyplace.smas.ui.settings.SettingsChatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,17 +37,17 @@ internal enum class SettingsUi {
   Chat,
 }
 
-class MainSmasSettingsDialog : DialogFragment() {
+class MainSmasSettingsDialog(private val parentActivity: Activity): DialogFragment() {
 
   companion object {
     const val KEY_FROM = "key.from"
     const val FROM_MAIN = "smas.main"
     const val FROM_CHAT = "smas.chat"
 
-    fun SHOW(fragmentManager: FragmentManager, from: String) {
+    fun SHOW(fragmentManager: FragmentManager, from: String, parentActivity: Activity) {
       val args = Bundle()
       args.putString(KEY_FROM, from)
-      val dialog = MainSmasSettingsDialog()
+      val dialog = MainSmasSettingsDialog(parentActivity)
       dialog.arguments = args
       dialog.show(fragmentManager, from)
     }
@@ -63,7 +68,7 @@ class MainSmasSettingsDialog : DialogFragment() {
       val dialog = builder.create()
       dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
       binding.btnLogout.isEnabled = false
-      setup()
+      setup(parentActivity)
 
       return dialog
     }?: throw IllegalStateException("$TAG Activity is null.")
@@ -83,7 +88,8 @@ class MainSmasSettingsDialog : DialogFragment() {
     // }
   }
 
-  private fun setup() {
+  private fun setup(parentActivity: Activity) {
+    adaptUI()
     setupMapSettings()
     setupChatUser()
     setupChatSettings()
@@ -92,7 +98,56 @@ class MainSmasSettingsDialog : DialogFragment() {
     setupLashfireLink()
     // setupAnyplaceLink()
     setupVersion()
+    setupButtonSwitch(parentActivity)
   }
+
+  private fun adaptUI () {
+    when (parentActivity) {
+      is CvLoggerActivity -> {
+        binding.tvTitleAppName.text = "Anyplace Logger"
+        // binding.tvTitleAppName.setTextColor(StatusUpdater.ColorYellowDark(parentActivity))
+        binding.ivLogoApp.setImageResource(R.drawable.ic_anyplace)
+      }
+      is SmasMainActivity-> {
+        binding.tvTitleAppName.text = "Smart Alert System"
+        // binding.tvTitleAppName.setTextColor(StatusUpdater.ColorBlueDark(parentActivity))
+        binding.ivLogoApp.setImageResource(R.drawable.ic_lashfire_logo)
+      }
+    }
+  }
+
+  @SuppressLint("SetTextI18n")
+  private fun setupButtonSwitch(parentActivity: Activity) {
+    val btnSwitch = binding.btnSwitchMode
+
+    var directive ="Switching to"
+    var actName = "Activity"
+    var  klass : Class<Activity>? = null
+
+    if (parentActivity is CvLoggerActivity) {
+      directive="Back to"
+      actName="SMAS"
+      klass = SmasMainActivity::class.java as Class<Activity>
+      // btnSwitch.icon
+      // btnSwitch.setCompoundDrawablesRelativeWithIntrinsicBounds
+      // (R.drawable.ic_lashfire_logo,0,0,0)
+    } else if (parentActivity is SmasMainActivity) {
+      directive="Switch to"
+      actName="Logger"
+      klass = CvLoggerActivity::class.java as Class<Activity>
+      // btnSwitch.setCompoundDrawablesRelativeWithIntrinsicBounds(
+      // R.drawable.ic_anyplace,0,0,0)
+    }
+
+    btnSwitch.text = "$directive $actName"
+    btnSwitch.setOnClickListener {
+      app.showToast(lifecycleScope, "Opening $actName")
+      startActivity(Intent(requireActivity(), klass))
+      parentActivity.finish()
+    }
+
+  }
+
 
   private fun setupChatUser() {
     CoroutineScope(Dispatchers.Main).launch {
@@ -108,7 +163,7 @@ class MainSmasSettingsDialog : DialogFragment() {
 
   private fun setupMapSettings() {
     binding.btnMapSettings.setOnClickListener {
-      startActivity(Intent(requireActivity(), SettingsNavigationActivity::class.java))
+      startActivity(Intent(requireActivity(), SettingsCvActivity::class.java))
     }
   }
 

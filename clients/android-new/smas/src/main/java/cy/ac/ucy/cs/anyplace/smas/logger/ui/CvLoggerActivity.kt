@@ -190,10 +190,14 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
   /**
    * CHECK:PM
    */
+  var collectorsSet=false
   private fun setupCollectors() {
+    if (collectorsSet) return
     LOG.D(TAG_METHOD)
     collectLoadedFloors()
     collectLoggedInChatUser()
+    VM.nwCvFingerprintSend.collect()
+    collectorsSet=true
   }
 
 
@@ -216,6 +220,7 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
       }
     }
   }
+
 
   /**
    * Observes when the initial floor will be loaded, and runs a method

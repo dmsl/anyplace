@@ -19,12 +19,12 @@
         app:constraint_referenced_ids="imageView_UserPicture,tv_username,tv_accountType,btn_Logout" />
 
     <ImageView
-        android:id="@+id/imageView_logoAnyplace"
+        android:id="@+id/iv_logoApp"
         android:layout_width="42dp"
         android:layout_height="42dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/smas_verbose"
-        app:layout_constraintEnd_toStartOf="@+id/textView_titleAnyplace"
+        app:layout_constraintEnd_toStartOf="@+id/tv_titleAppName"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,19 +32,20 @@
         app:srcCompat="@drawable/ic_lashfire_logo" />
 
     <TextView
-        android:id="@+id/textView_titleAnyplace"
+        android:id="@+id/tv_titleAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginTop="8dp"
         android:text="@string/smas_verbose"
+        tools:text="{App Name}"
         android:textColor="@color/darkBlue"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView_logoAnyplace"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_logoApp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imageView_logoAnyplace"
+        app:layout_constraintStart_toEndOf="@+id/iv_logoApp"
         app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -57,7 +58,7 @@
         android:contentDescription="@string/user"
         android:scaleType="fitXY"
         app:layout_constraintStart_toStartOf="@+id/btn_Logout"
-        app:layout_constraintTop_toBottomOf="@+id/imageView_logoAnyplace"
+        app:layout_constraintTop_toBottomOf="@+id/iv_logoApp"
         app:srcCompat="@drawable/ic_user_focused" />
 
 
@@ -155,11 +156,10 @@
 
     <Button
         android:id="@+id/btn_switchMode"
-        app:icon="@drawable/ic_anyplace"
+        app:icon="@drawable/ic_open_app"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:text="Switch to Logging"
-        android:visibility="gone"
         tools:text="Switch to log | Back smas"
         app:layout_constraintTop_toBottomOf="@+id/divider_cvMode"
         app:layout_constraintEnd_toEndOf="parent"

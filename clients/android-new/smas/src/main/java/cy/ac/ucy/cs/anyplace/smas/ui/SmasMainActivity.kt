@@ -36,6 +36,7 @@ import cy.ac.ucy.cs.anyplace.smas.ui.settings.dialogs.MainSmasSettingsDialog
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.SmasMainViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.smas.nw.LocationSendNW
+import cy.ac.ucy.cs.anyplace.smas.logger.ui.CvLoggerActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -97,6 +98,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private lateinit var btnChat: Button
   private lateinit var btnFlir: Button
   private lateinit var btnSettings: Button
+  // private lateinit var btnSwitch: Button
   private lateinit var btnAlert: Button
   private lateinit var btnLocalization: Button
 
@@ -113,6 +115,7 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
     LOG.D2()
 
     setupButtonSettings()
+    // setupButtonSwitch()
     setupButtonLocalization()
     setupButtonChat()
     setupButtonFlir()
@@ -370,7 +373,8 @@ class SmasMainActivity : CvMapActivity(), OnMapReadyCallback {
   private fun setupButtonSettings() {
     btnSettings = findViewById(R.id.button_settings)
     btnSettings.setOnClickListener {
-      MainSmasSettingsDialog.SHOW(supportFragmentManager, MainSmasSettingsDialog.FROM_MAIN)
+      MainSmasSettingsDialog.SHOW(supportFragmentManager,
+              MainSmasSettingsDialog.FROM_MAIN, this@SmasMainActivity)
     }
   }
 

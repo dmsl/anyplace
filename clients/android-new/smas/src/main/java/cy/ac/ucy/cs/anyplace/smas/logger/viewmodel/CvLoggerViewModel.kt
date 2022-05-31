@@ -2,6 +2,7 @@ package cy.ac.ucy.cs.anyplace.smas.logger.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import cy.ac.ucy.cs.anyplace.lib.android.data.anyplace.RepoAP
 import cy.ac.ucy.cs.anyplace.lib.android.data.anyplace.helpers.CvMapHelper
@@ -17,9 +18,17 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.net.RetrofitHolderAP
 import cy.ac.ucy.cs.anyplace.lib.android.utils.utlTime
 import cy.ac.ucy.cs.anyplace.lib.android.viewmodels.anyplace.CvMapViewModel
 import cy.ac.ucy.cs.anyplace.lib.android.consts.smas.CHAT
+import cy.ac.ucy.cs.anyplace.lib.android.data.anyplace.DetectionModel
 import cy.ac.ucy.cs.anyplace.lib.android.data.smas.RepoSmas
 import cy.ac.ucy.cs.anyplace.lib.android.data.smas.source.RetrofitHolderSmas
+import cy.ac.ucy.cs.anyplace.lib.anyplace.models.CvDetectionREQ
+import cy.ac.ucy.cs.anyplace.lib.anyplace.models.UserCoordinates
+import cy.ac.ucy.cs.anyplace.lib.anyplace.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 enum class Logging {
@@ -151,7 +160,8 @@ class CvLoggerViewModel @Inject constructor(
         LOG.D("updateDetectionsLogging: new window: $currentTime")
       }
 
-      currentTime-windowStart > prefWindowLoggingMillis() -> { // Window finished
+      // WINDOW FINISHED:
+      currentTime-windowStart > prefWindowLoggingMillis() -> {
         windowElapsedPause = 0 // resetting any pause time
         previouslyPaused=false
         if (appendedDetections.isEmpty()) {
@@ -174,91 +184,183 @@ class CvLoggerViewModel @Inject constructor(
     }
   }
 
-  fun prefWindowLoggingMillis(): Int { return prefsCvLog.windowLoggingSeconds.toInt()*1000 }
-  // MERGE:CHECK:PM
-  // override fun prefWindowLocalizationMillis(): Int { return prefs.windowLocalizationSeconds.toInt()*1000 }
-
-  /** Toggle [logging] between stopped (or notStarted), and started.
-   *  There will be no effect when in stoppedMustStore mode.
-   *
-   *  In that case it will wait for the user to store the logging data.
+  /**
+   * Upload Unique detections
    */
-  fun toggleLogging() {
-    initialStart = false
-    when (logging.value) {
-      // Logging.finished-> {}
-      Logging.stoppedNoDetections,
-      Logging.stopped -> {
-        logging.value = Logging.running
-        val now = System.currentTimeMillis()
-        windowStart=now-windowElapsedPause
-      }
-      Logging.running -> {
-        previouslyPaused = true
-        logging.value = Logging.stopped
-        LOG.D(TAG, "$METHOD: paused")
+  private fun uploadUniqueDetections(userCoords: UserCoordinates, detections: List<Classifier.Recognition>) {
+    LOG.E(TAG,"$METHOD: CvModel: detections: ${detections.size}")
 
-        // pause timer:
-        val now = System.currentTimeMillis()
-        windowElapsedPause = now-windowStart
+    viewModelScope.launch(Dispatchers.IO) {
+      // TODO:PM store on database (still will be a resp success..)
+
+      // to proceed: Must have CvModels on DB first
+      if (!repoSmas.local.hasCvModelClassesDownloaded()) {
+        val msg = "Cannot upload detections (must download CvModels first)"
+        LOG.E(TAG, "$METHOD: $msg")
+        app.showToast(viewModelScope, msg)
+        return@launch
       }
-      else ->  {
-        LOG.W(TAG, "$METHOD: Ignoring: ${logging.value}")
+
+      val cvModelClasses = repoSmas.local.readCvModelClasses(model.idSmas)
+      val hmap : HashMap<Int, Int> = HashMap ()
+
+      cvModelClasses.forEach { cvClass ->
+        LOG.D5(TAG, "$METHOD: SmasModelClasses: ${cvClass.modelid} ${cvClass.name}")
+        hmap[cvClass.cid] = cvClass.oid
       }
+
+      // build detections request
+      val detectionsReq = mutableListOf<CvDetectionREQ>()
+      detections.forEach { detection ->
+        val detectionStr = "${detection.detectedClass}:${detection.title}"
+        val modelStr = "${model.idSmas}:${model.modelName}"
+
+        LOG.D(TAG, "$METHOD: CvModel: UPLOAD: $detectionStr: $modelStr")
+
+        val oid = hmap[detection.detectedClass]
+        if (oid == null) {
+          LOG.E(TAG, "$METHOD: No class for: ${detection.detectedClass}:${detection.title}")
+        } else {
+          val detReq = CvDetectionREQ(oid,
+                  detection.location.width().toDouble(),
+                  detection.location.height().toDouble())
+          LOG.D(TAG, "$METHOD: CvModel: READY: ${detReq.oid}: w:${detReq.width} h:${detReq.height}")
+          detectionsReq.add(detReq)
+        }
+      }
+
+      // 1. if classes not in sqlite
+      // download them and put them in DB. else do noth
+
+      // when collecting FingerPrint:
+      // 1. on click (not FileCaching/Batch)
+      // 1.a read from DB (according to model)
+      // 1.b convert to smass id's from CV (on classes from SQLITE)
+      // 1.c send them.
+      // TODO test: different foor
+      // TODO test: different model
+
+
+      // LEFTHERE:
+      /* TODO: BATCH STORING
+      - file cache: append a line: in this method
+      - NW call: storeDetectionsAndUpdateUI
+        - or w/ an upload button
+       */
+
+      // 0. make NW call (DONE)
+      // 1. read from DB and to oid from DB query DONE
+      // 2. keep recording elements
+      // 3. store then in a file, line by line:
+      // // 3.a it will be 2 places: file line by line
+      // // 3.b and the CVMap json
+      // CHECK:PM
+      // Can we upload at the end the local radiomap?
+      // UI TODO
+      // 1. BIND THE TIMER BUTTON
+
+      LOG.E(TAG, "$METHOD: TODO NW call here")
+      nwCvFingerprintSend.safeCall(userCoords, detectionsReq, model)
+    }
+    // TODO test from different model too..
+  }
+
+fun prefWindowLoggingMillis(): Int { return prefsCvLog.windowLoggingSeconds.toInt()*1000 }
+// MERGE:CHECK:PM
+// override fun prefWindowLocalizationMillis(): Int { return prefs.windowLocalizationSeconds.toInt()*1000 }
+
+/** Toggle [logging] between stopped (or notStarted), and started.
+ *  There will be no effect when in stoppedMustStore mode.
+ *
+ *  In that case it will wait for the user to store the logging data.
+ */
+fun toggleLogging() {
+  initialStart = false
+  when (logging.value) {
+    // Logging.finished-> {}
+    Logging.stoppedNoDetections,
+    Logging.stopped -> {
+      logging.value = Logging.running
+      val now = System.currentTimeMillis()
+      windowStart=now-windowElapsedPause
+    }
+    Logging.running -> {
+      previouslyPaused = true
+      logging.value = Logging.stopped
+      LOG.D(TAG, "$METHOD: paused")
+
+      // pause timer:
+      val now = System.currentTimeMillis()
+      windowElapsedPause = now-windowStart
+    }
+    else ->  {
+      LOG.W(TAG, "$METHOD: Ignoring: ${logging.value}")
     }
   }
+}
 
-  fun getElapsedSeconds(): Float { return (currentTime - windowStart)/1000f }
-  fun getElapsedSecondsStr(): String { return utlTime.getSecondsPretty(getElapsedSeconds()) }
+fun getElapsedSeconds(): Float { return (currentTime - windowStart)/1000f }
+fun getElapsedSecondsStr(): String { return utlTime.getSecondsPretty(getElapsedSeconds()) }
 
-  fun resetLoggingWindow() {
-    objWindowUnique=0
-    objWindowLOG.value = emptyList()
-    logging.value= Logging.stopped// CHECK:PM this was stopped. starting directly
-    // status.value= Logging.started // CHECK:PM this was stopped. starting directly
+fun resetLoggingWindow() {
+  objWindowUnique=0
+  objWindowLOG.value = emptyList()
+  logging.value= Logging.stopped// CHECK:PM this was stopped. starting directly
+  // status.value= Logging.started // CHECK:PM this was stopped. starting directly
+}
+
+fun startNewWindow() {
+  objWindowUnique=0
+  objWindowLOG.value = emptyList()
+  logging.value= Logging.stopped
+  toggleLogging()
+}
+
+/**
+ * Stores the detections on the [objOnMAP],
+ * a Hash Map of locations and object fingerprints
+ */
+
+fun addDetections(FH: FloorHelper?, mdddd: DetectionModel, latLong: LatLng) {
+
+  objTotal+=objWindowUnique
+  // TODO:PM do them in batch later on..
+  val detections = objWindowLOG.value.orEmpty()
+  objOnMAP[latLong] = detections
+
+  // floorH.spaceH.obj.id
+  val userCoord = UserCoordinates(floorH?.spaceH?.obj?.id!!,
+          floorH?.obj!!.floorNumber.toInt(),
+          latLong.latitude, latLong.longitude)
+
+  uploadUniqueDetections(userCoord, detections)
+}
+
+
+/**
+ * Generates a [cvMap] from the stored detections.
+ * Then it reads any local [CvMap] and merges with it.
+ * Finally the merged [CvMap] is written to cache (overriding previous one),
+ * and stored in [CvViewModelBase].
+ */
+fun storeDetections(FH: FloorHelper?) {
+  if (FH == null) {
+    LOG.E(TAG, "$METHOD: floorHelper is null.")
+    return
   }
 
-  fun startNewWindow() {
-    objWindowUnique=0
-    objWindowLOG.value = emptyList()
-    logging.value= Logging.stopped
-    toggleLogging()
-  }
+  // MERGE:PM:TODO
+  // TODO: UPDATE radiomap (this was a trial todo?)
+  val curMap = CvMapHelper.generate(model, FH, objOnMAP)
+  val curMapH = CvMapHelper(curMap, detector.labels, FH)
+  LOG.D(TAG, "$METHOD: has cache: ${curMapH.hasCache()}") // CLR:PM
+  val merged = curMapH.readLocalAndMerge()
+  val mergedH = CvMapHelper(merged, detector.labels, FH)
+  mergedH.storeToCache()
 
-  /**
-   * Stores the detections on the [objOnMAP],
-   * a Hash Map of locations and object fingerprints
-   */
-  fun addDetections(latLong: LatLng) {
-    objTotal+=objWindowUnique
-    objOnMAP[latLong] = objWindowLOG.value.orEmpty()
-  }
-
-
-  /**
-   * Generates a [cvMap] from the stored detections.
-   * Then it reads any local [CvMap] and merges with it.
-   * Finally the merged [CvMap] is written to cache (overriding previous one),
-   * and stored in [CvViewModelBase].
-   */
-  fun storeDetections(FH: FloorHelper?) {
-    if (FH == null) {
-      LOG.E(TAG, "$METHOD: floorHelper is null.")
-      return
-    }
-
-    // MERGE:PM:TODO
-    // TODO: UPDATE radiomap (this was a trial todo?)
-    val curMap = CvMapHelper.generate(model, FH, objOnMAP)
-    val curMapH = CvMapHelper(curMap, detector.labels, FH)
-    LOG.D(TAG, "$METHOD: has cache: ${curMapH.hasCache()}") // CLR:PM
-    val merged = curMapH.readLocalAndMerge()
-    val mergedH = CvMapHelper(merged, detector.labels, FH)
-    mergedH.storeToCache()
-
-    LOG.D(TAG, "$METHOD: has cache: ${cvMapH?.hasCache()}") // CLR:PM
-    mergedH.generateCvMapFast()
-    cvMapH = mergedH
-    objOnMAP.clear()
-  }
+  LOG.D(TAG, "$METHOD: has cache: ${cvMapH?.hasCache()}") // CLR:PM
+  mergedH.generateCvMapFast()
+  cvMapH = mergedH
+  objOnMAP.clear()
+}
 }

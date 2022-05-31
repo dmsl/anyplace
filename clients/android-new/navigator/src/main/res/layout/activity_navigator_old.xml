@@ -37,7 +37,7 @@
 */
 -->
 
-<cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<cy.ac.ucy.cs.anyplace.lib.android.legacy.circlegate.MapWrapperLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/map_relative_layout"
@@ -187,4 +187,4 @@
         android:textColor="@color/maroon" />
     -->
 
-</cy.ac.ucy.cs.anyplace.lib.android.circlegate.MapWrapperLayout>
+</cy.ac.ucy.cs.anyplace.lib.android.legacy.circlegate.MapWrapperLayout>

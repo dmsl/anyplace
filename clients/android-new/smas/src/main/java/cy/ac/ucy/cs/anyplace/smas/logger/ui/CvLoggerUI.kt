@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.view.View
 import android.widget.ProgressBar
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -172,6 +173,7 @@ class CvLoggerUI(private val act: CvLoggerActivity,
    */
   fun setupOnMapLongClick() {
     wMap.obj.setOnMapLongClickListener { location ->
+      LOG.V2(TAG, "$METHOD: storing detections")
       if (VM.canStoreDetections()) {
         LOG.V3(TAG, "clicked at: $location")
 
@@ -186,7 +188,8 @@ class CvLoggerUI(private val act: CvLoggerActivity,
         )
 
         val windowDetections = VM.objWindowLOG.value.orEmpty().size
-        VM.addDetections(location)
+
+        VM.addDetections(VM.floorH, VM.model, location)
 
         // add marker
         val curPoint = VM.objOnMAP.size.toString()
@@ -407,10 +410,13 @@ class CvLoggerUI(private val act: CvLoggerActivity,
     LOG.D2()
 
     btnSettings.setOnClickListener {
-      MainSmasSettingsDialog.SHOW(act.supportFragmentManager, MainSmasSettingsDialog.FROM_MAIN)
+      MainSmasSettingsDialog.SHOW(act.supportFragmentManager,
+              MainSmasSettingsDialog.FROM_MAIN, act)
     }
 
     val versionName = BuildConfig.VERSION_NAME
+
+    utlButton.changeBackgroundButtonCompat(btnSettings, act, R.color.yellowDark)
     btnSettings.setOnLongClickListener {
       scope.launch {
         statusUpdater.showInfoAutohide("App Version: $versionName", 1000L)

@@ -35,6 +35,17 @@
         android:background="@android:color/black"
         app:layout_anchorGravity="center"
         tools:context="org.tensorflow.demo.CameraActivity">
+
+      <View
+          android:id="@+id/view_statusBackground"
+          android:layout_width="0dp"
+          android:layout_height="68dp"
+          android:alpha="0.8"
+          android:background="@color/yellowDark"
+          android:elevation="39dp"
+          android:visibility="invisible"
+
+          tools:alpha="0.8" />
     </FrameLayout>
 
 
@@ -90,6 +101,21 @@
 
     </androidx.appcompat.widget.Toolbar>
 
+    <!-- TAG SAING ITS LOGGER-->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="logger"
+        android:textColor="@color/black"
+        android:alpha="0.3"
+        android:textSize="20sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        />
+
     <!-- 5. StatusUpdater -->
     <!-- 5.1. StatusUpdater: TITLE -->
     <TextView
@@ -136,22 +162,6 @@
         tools:visibility="visible" />
 
     <!-- 5.3. StatusUpdater: BG -->
-    <View
-        android:id="@+id/view_statusBackground"
-        android:layout_width="0dp"
-        android:layout_height="68dp"
-        android:alpha="0.8"
-        android:background="@color/yellowDark"
-        android:elevation="39dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-
-        tools:alpha="0.8" />
 
 
     <!-- 5.4 STATUS: sticky status message

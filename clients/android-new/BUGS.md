@@ -14,6 +14,15 @@ at cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolo.tflite.DetectorActivityBase.post
 Caused by: java.lang.IllegalArgumentException: Invalid primitive conversion from boolean to long
 
 ---
+
+
+# Any App (Smas, Logger):
+
+## 1. BUG:F84F: Failed to fetch <prettyType>
+Failed to fetch vessel:
+
+---
+
 # SMAS
 
 ## SM1. MSGS:
@@ -23,8 +32,6 @@ Caused by: java.lang.IllegalArgumentException: Invalid primitive conversion from
 
 ## SM2. WiFi Disconnected
 - When we have wifi but then it goes out of range: the app crashes.
-
-
 
 
 -------

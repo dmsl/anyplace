@@ -17,7 +17,7 @@
     <EditTextPreference
         app:key="@string/pref_chat_server_host"
         app:title="@string/server_host_url_title"
-        app:defaultValue="@string/default_pref_chat_server_host"
+        app:defaultValue="@string/default_pref_smas_host"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference
@@ -32,7 +32,7 @@
     <EditTextPreference
         app:key="pref_chat_server_port"
         app:title="@string/server_port_title"
-        app:defaultValue="@string/default_pref_chat_server_port"
+        app:defaultValue="@string/default_pref_smas_port"
         app:useSimpleSummaryProvider="true" />
 
     <Preference

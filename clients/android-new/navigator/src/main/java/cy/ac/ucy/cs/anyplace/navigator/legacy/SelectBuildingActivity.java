@@ -63,21 +63,21 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 import cy.ac.ucy.cs.anyplace.lib.android.legacy.AnyplaceDebug;
-import cy.ac.ucy.cs.anyplace.lib.android.cache.legacy.ObjectCache;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.BuildingModel;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.FloorModel;
-import cy.ac.ucy.cs.anyplace.lib.android.floor.Algo1Server;
-import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector;
-import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector.ErrorAnyplaceFloorListener;
-import cy.ac.ucy.cs.anyplace.lib.android.floor.FloorSelector.FloorAnyplaceFloorListener;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.cache.ObjectCache;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.nav.BuildingModel;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.nav.FloorModel;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.floor.Algo1Server;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.floor.FloorSelector;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.floor.FloorSelector.ErrorAnyplaceFloorListener;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.floor.FloorSelector.FloorAnyplaceFloorListener;
 
 
 
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchBuildingsByBuidTask;
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorPlanTask;
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchFloorsByBuidTask;
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.FetchNearBuildingsTask;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.tasks.FetchBuildingsTask.FetchBuildingsTaskListener;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.tasks.FetchBuildingsByBuidTask;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.tasks.FetchFloorPlanTask;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.tasks.FetchFloorsByBuidTask;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.tasks.FetchNearBuildingsTask;
 import cy.ac.ucy.cs.anyplace.navigator.NavigatorApp;
 import cy.ac.ucy.cs.anyplace.navigator.R;
 

@@ -42,7 +42,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import android.content.Intent
 import android.view.View
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
-import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.gnk.logger.CvLoggerActivityRM
+import cy.ac.ucy.cs.anyplace.lib.android.legacy_cv_gnk.ui.logger.CvLoggerActivityRM
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main

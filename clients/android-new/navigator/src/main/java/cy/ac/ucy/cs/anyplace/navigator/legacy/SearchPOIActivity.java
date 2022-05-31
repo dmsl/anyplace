@@ -60,11 +60,11 @@ import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.FragmentActivity;
 
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.IPoisClass;
-import cy.ac.ucy.cs.anyplace.lib.android.nav.AnyPlaceSeachingHelper.SearchTypes;
-import cy.ac.ucy.cs.anyplace.lib.android.tasks.AnyplaceSuggestionsTask;
-import cy.ac.ucy.cs.anyplace.lib.android.utils.AndroidUtils;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.nav.AnyPlaceSeachingHelper;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.nav.IPoisClass;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.nav.AnyPlaceSeachingHelper.SearchTypes;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.tasks.AnyplaceSuggestionsTask;
+import cy.ac.ucy.cs.anyplace.lib.android.legacy.AndroidUtils;
 import cy.ac.ucy.cs.anyplace.lib.android.utils.GeoPoint;
 import cy.ac.ucy.cs.anyplace.navigator.R;
 
