@@ -1,0 +1,72 @@
+{
+  "num_of_pois": 8,
+  "pois": [
+    {
+      "lat": "57.69501828858854",
+      "lon": "11.911660603883808",
+      "puid": "poi_30c08266-764b-445a-97e7-4072071b445a",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "Room"
+    },
+    {
+      "lat": "57.6950318042246",
+      "lon": "11.911647954034521",
+      "puid": "poi_fa31b014-ba67-415d-bee6-ea0b701be599",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "None"
+    },
+    {
+      "lat": "57.69504452601364",
+      "lon": "11.911684163856222",
+      "puid": "poi_32523926-03e7-401f-b4ea-379fcb585877",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "None"
+    },
+    {
+      "lat": "57.695033237665825",
+      "lon": "11.911695563244535",
+      "puid": "poi_2ad32ed0-f561-41f6-b9ae-9de5356c1505",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "None"
+    },
+    {
+      "lat": "57.695042734212635",
+      "lon": "11.911724396991445",
+      "puid": "poi_07c2cad4-2a47-4ee4-976c-44c45d0ce5e7",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "None"
+    },
+    {
+      "lat": "57.695030261873505",
+      "lon": "11.911743616390117",
+      "puid": "poi_203b7dbe-6fef-4dc4-bb94-965ac9b79ac1",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "None"
+    },
+    {
+      "lat": "57.69502374111653",
+      "lon": "11.911710315394117",
+      "puid": "poi_54743f66-0390-4ff6-9b59-b2b5c96521d6",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "None"
+    },
+    {
+      "lat": "57.695005208429706",
+      "lon": "11.9117041897803",
+      "puid": "poi_9971a7e0-bcf1-41c8-8142-140e4740d506",
+      "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+      "floor_number": "1",
+      "pois_type": "Equipment"
+    }
+  ],
+  "status": "success",
+  "message": "Successfully plotted navigation.",
+  "status_code": 200
+}

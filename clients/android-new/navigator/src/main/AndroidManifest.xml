@@ -41,7 +41,6 @@
           android:name="com.google.android.gms.version"
           android:value="${BuildConfig.SERVER_GOOGLE_OAUTH_CLIENT_ID}"
           tools:replace="android:value"/>
-      <!--TODO:ATH Delete tools:replace when local.properties are deleted-->
     </application>
 
 </manifest>

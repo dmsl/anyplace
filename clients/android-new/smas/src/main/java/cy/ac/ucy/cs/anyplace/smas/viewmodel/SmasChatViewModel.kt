@@ -135,7 +135,6 @@ class SmasChatViewModel @Inject constructor(
     }
   }
 
-
   private fun getUserCoordinates(VM: SmasMainViewModel): UserCoordinates? {
     var userCoord : UserCoordinates? = null
     if (VM.location.value.coord != null) {

@@ -1,0 +1,17 @@
+{
+  "bucode": "stena-flavia",
+  "description": "Ro-Ro/Passenger ship sailing under the flag of Denmark.\n\nBuilt: 2008\nCarrying capacity:26904 Gross Tonnage\nCurrent draught:  6.2 meters\nLength overall (LOA): 186.42 meters\nWidth: 25.6 meters.",
+  "coordinates_lon": "11.913105745699344",
+  "buid": "vessel_2a2cf77c-91e0-41e2-971b-e80f5570d616_1635154314048",
+  "coordinates_lat": "57.69531517496923",
+  "is_published": "false",
+  "name": "Stena Flavia",
+  "space_type": "vessel",
+  "geometry": {
+    "coordinates": [
+      57.69531517496923,
+      11.913105745699344
+    ],
+    "type": "Point"
+  }
+}

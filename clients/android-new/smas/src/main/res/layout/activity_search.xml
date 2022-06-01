@@ -19,29 +19,50 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_anchor="@+id/relativeLayout"
-        app:layout_anchorGravity="center"
-        tools:context="org.tensorflow.demo.CameraActivity">
+        app:layout_anchorGravity="center">
     </FrameLayout>
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
-        android:alpha="0.3"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".android.ui.cv.CvMapActivity"
-        app:layout_anchor="@+id/relativeLayout"
-        app:layout_anchorGravity="center" />
+  <com.google.android.gms.maps.MapView
+      android:id="@+id/mapView"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:alpha="0.3"
+      app:layout_anchor="@+id/relativeLayout"
+      app:layout_anchorGravity="center"
+      />
 
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_tool"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:layout_anchor="@+id/relativeLayout"
-        app:layout_anchorGravity="top|center">
+        android:layout_marginStart="5dp"
+        android:iconifiedByDefault="true"
+        tools:iconifiedByDefault="false"
+        android:queryHint="@string/search_hint"
+        android:background="@drawable/bg_blue_rounded"
+        android:visibility="visible"
+        tools:visibility="visible"
+        app:searchIcon="@drawable/ic_baseline_search_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/button_settings"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/results_list"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="@+id/search_tool"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/search_tool"
+        app:layout_constraintTop_toBottomOf="@+id/search_tool"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintHeight_max="250dp"
+        tools:listitem="@layout/row_item"/>
 
     <!-- Settings Button -->
     <com.google.android.material.button.MaterialButton
@@ -63,8 +84,6 @@
         app:iconSize="42dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.appcompat.widget.Toolbar>
 
     <!--    START OF FLOOR SELECTOR-->
     <androidx.constraintlayout.widget.Group

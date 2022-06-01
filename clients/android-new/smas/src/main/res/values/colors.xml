@@ -18,4 +18,5 @@
   <color name="lash_blue_dark">#FF01407A</color>
   <color name="lash_blue">#FF0063BE</color>
   <color name="lash_blue_light">#FF1F93FD</color>
+  <color name="transparent">#190063BE</color>
 </resources>

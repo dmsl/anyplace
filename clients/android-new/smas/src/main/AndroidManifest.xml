@@ -33,6 +33,12 @@
         android:exported="true">
     </activity>
     <activity
+        android:name=".utils.IMU.MapsActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.Compat.ObjectDetection"
+        android:exported="true">
+    </activity>
+    <activity
         android:name=".ui.chat.SmasChatActivity"
         android:screenOrientation="portrait"
         android:theme="@style/AppTheme.Compat.ObjectDetection"
@@ -78,5 +84,9 @@
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <!--Use the microphone to record audio permission-->
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <!--Permissions and features for IMU -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+  <uses-feature android:name="android.hardware.sensor.stepcounter" />
 
 </manifest>

@@ -49,8 +49,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
 import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.smas.extensions.appSmas
+import cy.ac.ucy.cs.anyplace.smas.utils.IMU.MapsActivity
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -94,16 +94,16 @@ class StartActivity : Activity() {
 
       // authenticated users go straight to the Main Smas activity
       val chatUser = appSmas.dsChatUser.readUser.first()
-      if (chatUser.sessionkey.isNotBlank()) {
+      // if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "Opening activity: SmasMain")
         LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-        // TODO:ATH
-        // startActivity(Intent(this@StartActivity, SearchActivity::class.java))
-      } else {
-        LOG.D2(TAG, "Opening activity: Login")
-        startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))
-      }
+        //startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
+         startActivity(Intent(this@StartActivity, SearchActivity::class.java))
+       // startActivity(Intent(this@StartActivity, MapsActivity::class.java))
+      // } else {
+      //   LOG.D2(TAG, "Opening activity: Login")
+      //   startActivity(Intent(this@StartActivity, SmasLoginActivity::class.java))
+      // }
 
       finish()
     }

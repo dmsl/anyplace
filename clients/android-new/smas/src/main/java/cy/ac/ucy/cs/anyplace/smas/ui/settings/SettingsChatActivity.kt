@@ -67,10 +67,10 @@ class SettingsChatActivity: BaseSettingsActivity() {
 
       val prefBtn : Preference? = findPreference(getString(R.string.pref_chat_delete_local_msgs))
 
-      prefBtn?.setOnPreferenceClickListener {
-        ConfirmActionDialog.SHOW(mgr, title, subtitle)
-        true
-      }
+      // prefBtn?.setOnPreferenceClickListener {
+      //   ConfirmActionDialog.SHOW(mgr, title, subtitle)
+      //   true
+      // }
     }
 
     private fun setupVersionButton() {

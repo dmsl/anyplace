@@ -52,7 +52,6 @@ class MsgGetNW(
    *
    * TODO: get alert? or just get all messages? (I think the latter..)
    *
-   * TODO:ATH: extend this method..
    */
   suspend fun safeCall(showToast: Boolean = false) {
     LOG.D2(TAG_METHOD)

@@ -43,4 +43,5 @@
   <string name="btn_cancel_descr">cancel</string>
   <string name="btn_ok">OK</string>
   <string name="delete_local_msgs">Delete local messages</string>
+  <string name="search_hint">Search here</string>
 </resources>

@@ -2,12 +2,14 @@ package cy.ac.ucy.cs.anyplace.smas.ui.chat.components
 
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -35,6 +37,8 @@ import cy.ac.ucy.cs.anyplace.smas.ui.chat.theme.WineRed
 import cy.ac.ucy.cs.anyplace.smas.utils.utlTimeSmas
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasChatViewModel
 import cy.ac.ucy.cs.anyplace.smas.viewmodel.SmasMainViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  *
@@ -56,6 +60,7 @@ fun Conversation(
         repo: RepoChat,
         returnLoc: (lat: Double, lng: Double) -> Unit
 ) {
+
   Column {
     LazyColumn(
             modifier = Modifier
@@ -72,7 +77,7 @@ fun Conversation(
       VM.saveNewMsgs(false)
 
       if (!app.msgList.isEmpty()) {
-        itemsIndexed(app.msgList) { _, message ->
+        itemsIndexed(app.msgList) { index, message ->
           MessageCard(message, VMchat, manager, repo, returnLoc)
         }
       }
