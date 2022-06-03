@@ -23,11 +23,8 @@ import cy.ac.ucy.cs.anyplace.lib.android.data.smas.RepoSmas
 import cy.ac.ucy.cs.anyplace.lib.android.data.smas.source.RetrofitHolderSmas
 import cy.ac.ucy.cs.anyplace.lib.anyplace.models.CvDetectionREQ
 import cy.ac.ucy.cs.anyplace.lib.anyplace.models.UserCoordinates
-import cy.ac.ucy.cs.anyplace.lib.anyplace.network.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -193,21 +190,22 @@ class CvLoggerViewModel @Inject constructor(
     viewModelScope.launch(Dispatchers.IO) {
       // TODO:PM store on database (still will be a resp success..)
 
-      // to proceed: Must have CvModels on DB first
-      if (!repoSmas.local.hasCvModelClassesDownloaded()) {
-        val msg = "Cannot upload detections (must download CvModels first)"
-        LOG.E(TAG, "$METHOD: $msg")
-        app.showToast(viewModelScope, msg)
-        return@launch
-      }
+      app.cvUtils.initConversionTables(model.idSmas)
+      // CLR:PM
+      // // to proceed: Must have CvModels on DB first
+      // if (!repoSmas.local.hasCvModelClassesDownloaded()) {
+      //   val msg = "Cannot upload detections (must download CvModels first)"
+      //   LOG.E(TAG, "$METHOD: $msg")
+      //   app.showToast(viewModelScope, msg)
+      //   return@launch
+      // }
 
-      val cvModelClasses = repoSmas.local.readCvModelClasses(model.idSmas)
-      val hmap : HashMap<Int, Int> = HashMap ()
-
-      cvModelClasses.forEach { cvClass ->
-        LOG.D5(TAG, "$METHOD: SmasModelClasses: ${cvClass.modelid} ${cvClass.name}")
-        hmap[cvClass.cid] = cvClass.oid
-      }
+      // val cvModelClasses = repoSmas.local.readCvModelClasses(model.idSmas)
+      // val hmap : HashMap<Int, Int> = HashMap ()
+      // cvModelClasses.forEach { cvClass ->
+      //   LOG.D5(TAG, "$METHOD: SmasModelClasses: ${cvClass.modelid} ${cvClass.name}")
+      //   hmap[cvClass.cid] = cvClass.oid
+      // }
 
       // build detections request
       val detectionsReq = mutableListOf<CvDetectionREQ>()
@@ -217,13 +215,13 @@ class CvLoggerViewModel @Inject constructor(
 
         LOG.D(TAG, "$METHOD: CvModel: UPLOAD: $detectionStr: $modelStr")
 
-        val oid = hmap[detection.detectedClass]
-        if (oid == null) {
+        val cvd = app.cvUtils.toCvDetection(detection, model)
+
+        // val oid = hmap[detection.detectedClass]
+        if (cvd == null) {
           LOG.E(TAG, "$METHOD: No class for: ${detection.detectedClass}:${detection.title}")
         } else {
-          val detReq = CvDetectionREQ(oid,
-                  detection.location.width().toDouble(),
-                  detection.location.height().toDouble())
+          val detReq = CvDetectionREQ(cvd)
           LOG.D(TAG, "$METHOD: CvModel: READY: ${detReq.oid}: w:${detReq.width} h:${detReq.height}")
           detectionsReq.add(detReq)
         }
@@ -351,7 +349,7 @@ fun storeDetections(FH: FloorHelper?) {
 
   // MERGE:PM:TODO
   // TODO: UPDATE radiomap (this was a trial todo?)
-  val curMap = CvMapHelper.generate(model, FH, objOnMAP)
+  val curMap = CvMapHelper.generate(app, model, FH, objOnMAP)
   val curMapH = CvMapHelper(curMap, detector.labels, FH)
   LOG.D(TAG, "$METHOD: has cache: ${curMapH.hasCache()}") // CLR:PM
   val merged = curMapH.readLocalAndMerge()

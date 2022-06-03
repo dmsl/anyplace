@@ -81,7 +81,7 @@ class CvLoggerUI(private val act: CvLoggerActivity,
 
   // val bottom.= BottomSheetCvLoggerUI(act, VM, id_bottomsheet)
 
-  private val statusUpdater = StatusUpdater(
+  val statusUpdater = StatusUpdater(
           act,
           scope,
           act.findViewById(R.id.tv_statusSticky),

@@ -46,7 +46,6 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
 
   // private lateinit var binding: ActivityCvLoggerBinding
   // private lateinit var VM: CvLoggerViewModel
-  private lateinit var statusUpdater: StatusUpdater
   // MERGE: all UI elements to abstract CVMapActivity
   // private lateinit var UI: UiActivityCvLogger
 
@@ -158,14 +157,14 @@ class CvLoggerActivity: CvMapActivity(), OnMapReadyCallback {
             val msg = result.message.toString()
             val details = result.details
             if (details != null) {
-              statusUpdater.showErrorAutohide(msg, details, 4000L)
+              uiLog.statusUpdater.showErrorAutohide(msg, details, 4000L)
             } else {
-              statusUpdater.showErrorAutohide(msg, 4000L)
+              uiLog.statusUpdater.showErrorAutohide(msg, 4000L)
             }
           }
           is LocalizationResult.Success -> {
             result.coord?.let { VM.setUserLocation(it) }
-            statusUpdater.showInfoAutohide("Found loc","XY: ${result.details}.", 3000L)
+            uiLog.statusUpdater.showInfoAutohide("Found loc","XY: ${result.details}.", 3000L)
           }
         }
       }
