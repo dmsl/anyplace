@@ -1,8 +1,7 @@
 buildscript {
   ext {
     // ver_compose="1.2.0-alpha06"  // ver_compose="1.1.1" CLR?
-    ver_accompanist= '0.24.5-alpha'
-    ver_room= '2.4.2'
+
   }
 }
 
@@ -121,18 +120,14 @@ dependencies {
   implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
   implementation 'com.squareup.okhttp3:okhttp:4.3.1'
 
-  // ANYPLACE LIBRARIES:
-  //// REMOTE (from libraries published on JitPack)
-  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
-  // implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
-  //// LOCAL: requires pulling the all submodules (see README.md)
-  implementation project(path: ':lib-android')
-  implementation project(path: ':lib-core')
-
-  //// COIL
-  implementation "io.coil-kt:coil-compose:1.4.0"
-
+  // CHAT
   //// JETPACK COMPOSE ([SmasChatActivity])
+  //// ACCOMPANIST
+  implementation "com.google.accompanist:accompanist-insets-ui:$ver_accompanist"
+  implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
+  implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
+  //// COMPOSE
+  implementation 'androidx.compose.material:material:1.1.1'
   implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
   implementation 'androidx.activity:activity-compose:1.4.0'
   implementation "androidx.compose.runtime:runtime-livedata:$ver_compose"
@@ -143,14 +138,16 @@ dependencies {
   implementation "androidx.compose.material:material:$ver_compose"
   implementation "androidx.compose.material:material-icons-core:$ver_compose"
   implementation "androidx.compose.foundation:foundation:$ver_compose"
+  /////// END-OF-CHAT
 
-  //// ACCOMPANIST
-  implementation "com.google.accompanist:accompanist-insets-ui:$ver_accompanist"
-  implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
-  implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
+  // ANYPLACE LIBRARIES:
+  //// REMOTE (from libraries published on JitPack)
+  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
+  // implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
+  //// LOCAL: requires pulling the all submodules (see README.md)
+  implementation project(path: ':lib-android')
+  implementation project(path: ':lib-core')
 
-  //// TouchImageView
-  implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
 
   // TESTING
   testImplementation 'junit:junit:4.13.2'

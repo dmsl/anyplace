@@ -3,13 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="cy.ac.ucy.cs.anyplace.smas">
 
-  <queries>
-    <package android:name="com.flir.myflir.s62" />
-    <intent>
-      <action android:name="android.speech.RecognitionService" />
-    </intent>
-  </queries>
-
   <application
       android:name="cy.ac.ucy.cs.anyplace.lib.android.SmasApp"
       android:allowBackup="true"
@@ -20,37 +13,7 @@
       android:theme="@style/Theme.AnyplaceClients"
       tools:ignore="LockedOrientationActivity">
 
-    <activity
-        android:name=".logger.ui.CvLoggerActivity"
-        android:screenOrientation="portrait"
-        android:exported="false"
-        android:theme="@style/AppTheme.Compat.ObjectDetection" />
 
-    <activity
-        android:name=".ui.SmasMainActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.Compat.ObjectDetection"
-        android:exported="true">
-    </activity>
-    <activity
-        android:name=".ui.SearchActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.Compat.ObjectDetection"
-        android:exported="true">
-    </activity>
-    <activity
-        android:name=".ui.chat.SmasChatActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.Compat.ObjectDetection"
-        android:exported="true"
-        android:windowSoftInputMode="adjustResize|stateVisible">
-    </activity>
-    <activity
-        android:name=".ui.settings.SettingsChatActivity"
-        android:exported="true"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.Compat"
-        android:label="Chat Settings" />
     <activity
         android:name=".ui.StartActivity"
         android:screenOrientation="portrait"
@@ -64,7 +27,7 @@
       </intent-filter>
     </activity>
     <activity
-        android:name=".ui.SmasLoginActivity"
+        android:name="cy.ac.ucy.cs.anyplace.lib.android.ui.smas.SmasLoginActivity"
         android:exported="true"
         android:theme="@style/AppTheme.Compat.Fullscreen"
         android:screenOrientation="portrait"

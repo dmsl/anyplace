@@ -42,7 +42,7 @@ import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import android.content.Intent
 import android.view.View
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
-import cy.ac.ucy.cs.anyplace.lib.android.legacy_cv_gnk.ui.logger.CvLoggerActivityRM
+import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.logger.CvLoggerActivity
 import cy.ac.ucy.cs.anyplace.lib.android.utils.AppInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -75,7 +75,7 @@ class StartActivity : Activity() {
     CoroutineScope(Main).launch {
 
       // startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
-      startActivity(Intent(this@StartActivity, CvLoggerActivityRM::class.java))
+      startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
 
       // SAMPLE CODE:
       // val user = app.dataStoreUser.readUser.first()
