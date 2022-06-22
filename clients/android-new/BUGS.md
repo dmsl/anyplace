@@ -34,6 +34,20 @@ Failed to fetch vessel:
 - When we have wifi but then it goes out of range: the app crashes.
 
 
+## BUG: Loosing foreground: state changes
+- might crash..
+- logging state is wrong...
+  - proper reset must be done...
+
+
+## BUG: Scanning from different models:
+- scanned some objects from ucy co
+- then change model
+ - then it crashes
+
+## Heatmaps:
+- cleanup..
+
 -------
 
 

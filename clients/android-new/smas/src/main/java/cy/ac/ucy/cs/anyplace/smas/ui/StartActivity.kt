@@ -15,6 +15,8 @@ import cy.ac.ucy.cs.anyplace.smas.BuildConfig
 import cy.ac.ucy.cs.anyplace.smas.R
 import cy.ac.ucy.cs.anyplace.lib.android.ui.cv.logger.CvLoggerActivity
 import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.SmasLoginActivity
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.SmasLoginActivity.Companion.OPEN_ACT
+import cy.ac.ucy.cs.anyplace.lib.android.ui.smas.SmasLoginActivity.Companion.OPEN_ACT_LOGGER
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -24,12 +26,6 @@ import kotlinx.coroutines.launch
 class StartActivity : Activity() {
   private val SPLASH_TIME_OUT = 500L
   lateinit var tvVersion : TextView
-
-  companion object {
-    val OPEN_ACT = "act.open"
-    val OPEN_ACT_SMAS= "act.open.smas"
-    val OPEN_ACT_LOGGER = "act.open.logger"
-  }
 
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
