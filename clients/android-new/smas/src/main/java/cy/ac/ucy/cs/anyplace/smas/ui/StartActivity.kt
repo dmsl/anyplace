@@ -64,11 +64,10 @@ class StartActivity : Activity() {
       val chatUser = appSmas.dsChatUser.readUser.first()
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "$METHOD: user: session: $chatUser")
-        // startSmas()
-        startLogger()
+        startSmas()
+        // startLogger()
       } else {
         LOG.D2(TAG, "Opening activity: Login")
-
         val intent = Intent(this@StartActivity, SmasLoginActivity::class.java)
         intent.putExtra(OPEN_ACT, OPEN_ACT_SMAS)
         startActivity(intent)
