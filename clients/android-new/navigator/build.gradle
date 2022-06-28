@@ -7,6 +7,8 @@ apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 
+def VERSION_NAME="$VERSION_CODE"
+
 android {
   compileSdkVersion 31
   // buildToolsVersion "29.0.2" // CLR?
@@ -17,7 +19,7 @@ android {
     minSdkVersion 28
     targetSdkVersion 30
     versionCode 6
-    versionName "4.3.6"
+    versionName "$VERSION_NAME-nav"
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
   }

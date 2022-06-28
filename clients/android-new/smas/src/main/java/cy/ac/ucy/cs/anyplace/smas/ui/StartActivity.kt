@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.compose.material.ExperimentalMaterialApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import cy.ac.ucy.cs.anyplace.lib.android.appSmas
+import cy.ac.ucy.cs.anyplace.lib.android.extensions.METHOD
 import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG
 import cy.ac.ucy.cs.anyplace.lib.android.extensions.TAG_METHOD
@@ -62,10 +63,9 @@ class StartActivity : Activity() {
       // authenticated users go straight to the Main Smas activity
       val chatUser = appSmas.dsChatUser.readUser.first()
       if (chatUser.sessionkey.isNotBlank()) {
-        LOG.D2(TAG, "Opening activity: SmasMain")
-        LOG.D2(TAG_METHOD, "USER: SESSION: $chatUser")
-        startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
-        // startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
+        LOG.D2(TAG, "$METHOD: user: session: $chatUser")
+        // startSmas()
+        startLogger()
       } else {
         LOG.D2(TAG, "Opening activity: Login")
 
@@ -73,8 +73,17 @@ class StartActivity : Activity() {
         intent.putExtra(OPEN_ACT, OPEN_ACT_SMAS)
         startActivity(intent)
       }
-
       finish()
     }
+  }
+
+  private fun startLogger() {
+    LOG.W(TAG, "OPENING LOGGER ACTIVITY")
+    startActivity(Intent(this@StartActivity, CvLoggerActivity::class.java))
+  }
+
+  private fun startSmas() {
+    LOG.W(TAG, "OPENING SMAS ACTIVITY")
+    startActivity(Intent(this@StartActivity, SmasMainActivity::class.java))
   }
 }
