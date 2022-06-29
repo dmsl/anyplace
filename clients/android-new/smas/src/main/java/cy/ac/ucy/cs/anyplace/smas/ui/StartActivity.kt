@@ -54,18 +54,12 @@ class StartActivity : Activity() {
   private fun openInitialActivity() {
     LOG.D2(TAG_METHOD)
     CoroutineScope(Main).launch {
-      /*
-      startActivity(Intent(this@StartActivity, DetectorActivity::class.java))
-      startActivity(Intent(this@StartActivity, CvMapActivity::class.java))
-      startActivity(Intent(this@StartActivity, SmasChatActivity::class.java))
-       */
-
       // authenticated users go straight to the Main Smas activity
       val chatUser = appSmas.dsChatUser.readUser.first()
       if (chatUser.sessionkey.isNotBlank()) {
         LOG.D2(TAG, "$METHOD: user: session: $chatUser")
-        startSmas()
-        // startLogger()
+        // startSmas()
+        startLogger()
       } else {
         LOG.D2(TAG, "Opening activity: Login")
         val intent = Intent(this@StartActivity, SmasLoginActivity::class.java)

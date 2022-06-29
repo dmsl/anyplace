@@ -54,3 +54,9 @@ Failed to fetch vessel:
 # OPT:
 
 ## 0. "Too much work on main thread.."
+
+
+# No objects detected, while objects ARE detected
+- most likely happens ONLY on the first run
+- as the remote classes have NOT been downloaded yet (and populated revelant structures in the app)
+- on 2nd run it should be OK

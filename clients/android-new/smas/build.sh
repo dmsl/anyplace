@@ -1,7 +1,6 @@
 #!/bin/bash
 OUT=./build/outputs/apk/debug/
 APK=$OUT/smas-debug.apk
-DIR_PUBLISH=~/Dropbox/DMSL/anyplace-cv-imu/
 DIR_LPROP=../local.properties
 
 if [ ! -f $DIR_LPROP ]; then
