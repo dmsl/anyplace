@@ -20,15 +20,13 @@ plugins {
 def VERSION_NAME="$VERSION_CODE"
 
 android {
-  compileSdk 31
-
+  compileSdk 32
   namespace 'cy.ac.ucy.cs.anyplace.smas'
 
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.smas"
-    minSdk 28
-    //noinspection OldTargetApi
-    targetSdk 30
+    minSdk 30
+    targetSdk 32
 
     versionCode 1
     versionName "$VERSION_NAME-smas"
@@ -92,11 +90,12 @@ dependencies {
   kapt "androidx.databinding:databinding-common:7.1.2"
   //// DataStore (new preferences)
   implementation "androidx.datastore:datastore-preferences:1.0.0"
-  //// ROOM
-  api "androidx.room:room-runtime:$ver_room"
-  kapt "androidx.room:room-compiler:$ver_room"
-  implementation "androidx.room:room-ktx:$ver_room"
-  androidTestImplementation "androidx.room:room-testing:$ver_room"
+  // CLR: used in library..
+//  //// ROOM
+//  api "androidx.room:room-runtime:$ver_room"
+//  kapt "androidx.room:room-compiler:$ver_room"
+//  implementation "androidx.room:room-ktx:$ver_room"
+//  androidTestImplementation "androidx.room:room-testing:$ver_room"
 
   // GOOGLE SERVICES
   implementation 'com.google.android.gms:play-services-location:19.0.1'

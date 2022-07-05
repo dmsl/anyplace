@@ -3,10 +3,10 @@ buildscript {
     // Used for naming in the apps (Logger, Smas)
     // NOTE: as of now: there must be a duplicate value in local.properties
     //
-    VERSION_CODE="1.4.1"
+    VERSION_CODE="1.4.3"
 
     // used for updating the dependencies/libraries
-    ver_android_gradle_plugin = '7.1.2'
+    ver_android_gradle_plugin = '7.1.3'
     ver_kotlin= '1.6.0' // kapt fails with higher version (w/ hilt)
     ver_hilt= '2.40.5' // 2.35 had issues
     ver_nav = "2.4.1" // has warning: BaseVariant.getApplicationIdTextResource
