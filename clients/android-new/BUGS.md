@@ -13,8 +13,10 @@ at cy.ac.ucy.cs.anyplace.lib.android.ui.cv.yolo.tflite.DetectorActivityBase.post
 
 Caused by: java.lang.IllegalArgumentException: Invalid primitive conversion from boolean to long
 
----
+## 3. Init BUG: smas opens twice?
+- toast msgs appear twice..
 
+---
 
 # Any App (Smas, Logger):
 
