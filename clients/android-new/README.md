@@ -102,3 +102,12 @@ Most of the android legacy code will go here.
 # smas
 
 </details>
+
+
+
+# FAQ:
+
+## Where is [GoogleMap] object located:
+- There is a [GmapWraapper] on top of [GoogleMap]
+  - the wrapper is in CvViewModel object: VM.ui.map
+  - the object: VM.ui.map.obj
