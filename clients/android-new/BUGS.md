@@ -27,6 +27,9 @@ Failed to fetch vessel:
 
 # SMAS
 
+## LONG-PRESS on SMAS to force location
+- after some panning (zoom in/out), it also works w/ normal click
+
 ## SM1. MSGS:
 - going to chat, sending msg, going back to MainActivity, then back to chat
   - shows only 1 msg
@@ -56,7 +59,6 @@ Failed to fetch vessel:
 # OPT:
 
 ## 0. "Too much work on main thread.."
-
 
 # No objects detected, while objects ARE detected
 - most likely happens ONLY on the first run
