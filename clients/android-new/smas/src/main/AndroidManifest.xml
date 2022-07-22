@@ -14,8 +14,9 @@
       tools:ignore="LockedOrientationActivity">
 
 
+    <!-- The initial [StartActivity] is in lib-android -->
     <activity
-        android:name=".ui.StartActivity"
+        android:name="cy.ac.ucy.cs.anyplace.lib.android.ui.StartActivity"
         android:screenOrientation="portrait"
 
         android:theme="@style/AppTheme.Compat"
