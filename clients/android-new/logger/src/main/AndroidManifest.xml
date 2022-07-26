@@ -23,6 +23,7 @@
       android:icon="@drawable/ic_launcher_logger"
       android:theme="@style/AppTheme"
       android:label="@string/app_name">
+<!--    TODO implement this again.. -->
     <activity
         android:name="StartActivity"
         android:screenOrientation="portrait"

@@ -104,6 +104,19 @@ Most of the android legacy code will go here.
 </details>
 
 
+# STUDY:
+
+## 0. Android Studio IDE
+Learn the shortcuts, see tutorials how to make the most of the IDE.
+
+## 1. Kotlin
+See tutorials and understand the basics of kotlin
+- including:
+  - by lazy init, lateinit, and initialization in general
+  - Flows
+  - Extension Functions
+  - Coroutines
+
 
 # FAQ:
 

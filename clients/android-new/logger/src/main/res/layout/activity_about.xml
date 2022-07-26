@@ -52,13 +52,14 @@
         <ImageView
             android:id="@+id/viewLogoAnyplace"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:clickable="true"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="10dp"
-            android:src="@drawable/anyplace_logo_text" />
+            android:src="@drawable/logo_blue_full"
+            />
 
         <TextView
             android:id="@+id/version"

@@ -26,16 +26,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher_navigator"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AnyplaceTheme" >
-        <activity
-            android:name=".DemoNav"
-            android:label="Demo Navigator"
-            android:theme="@style/Theme.AnyplaceTheme.NoActionBar" >
-                    <intent-filter>
-                        <action android:name="android.intent.action.MAIN" />
-                        <category android:name="android.intent.category.LAUNCHER" />
-                    </intent-filter>
-        </activity>
+        >
+      <!-- TODO: base this on CvAct .. -->
 
       <meta-data
           android:name="com.google.android.gms.version"
