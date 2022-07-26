@@ -27,7 +27,7 @@ Failed to fetch vessel:
 
 # SMAS
 
-## LONG-PRESS on SMAS to force location
+## BUG:F34LC LONG-PRESS on SMAS to force location
 - after some panning (zoom in/out), it also works w/ normal click
 
 ## SM1. MSGS:
