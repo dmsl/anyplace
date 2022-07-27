@@ -88,12 +88,6 @@ dependencies {
   kapt "androidx.databinding:databinding-common:7.1.2"
   //// DataStore (new preferences)
   implementation "androidx.datastore:datastore-preferences:1.0.0"
-  // CLR: used in library..
-//  //// ROOM
-//  api "androidx.room:room-runtime:$ver_room"
-//  kapt "androidx.room:room-compiler:$ver_room"
-//  implementation "androidx.room:room-ktx:$ver_room"
-//  androidTestImplementation "androidx.room:room-testing:$ver_room"
 
   // GOOGLE SERVICES
   implementation 'com.google.android.gms:play-services-location:19.0.1'
@@ -126,6 +120,7 @@ dependencies {
   implementation "com.google.accompanist:accompanist-insets-ui:$ver_accompanist"
   implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
   implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
+
   //// COMPOSE
   implementation 'androidx.compose.material:material:1.1.1'
   implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
