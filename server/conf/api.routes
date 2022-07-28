@@ -15,7 +15,7 @@
 #      schema:
 #        $ref: '#/definitions/Version'
 ###
-GET        /api/version                                     controllers.MainController.getVersion
+GET /api/version                                     controllers.MainController.getVersion
 
 ################
 ### USERS
@@ -47,7 +47,7 @@ GET        /api/version                                     controllers.MainCont
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/user/register                              controllers.UserController.register()
+POST /api/user/register                              controllers.UserController.register()
 
 ###
 #  summary: Login for local users
@@ -84,11 +84,12 @@ POST        /api/user/register                              controllers.UserCont
 #               "status_code":200
 #            }
 ###
-POST        /api/user/login                                 controllers.UserController.loginLocal()
+POST /api/user/login                                 controllers.UserController.loginLocal()
 
 ###
-#  summary: Refreshes a user login using the local access_token.
-#  note: Only for local accounts.
+#  summary: |-
+#    Refreshes a user login using the local `access_token`.
+#    NOTE: Only for local accounts.
 #  tags:
 #    - User
 #  parameters: [
@@ -106,7 +107,7 @@ POST        /api/user/login                                 controllers.UserCont
 #   200:
 #     description: success
 ###
-POST        /api/user/refresh                                 controllers.UserController.refreshLocal()
+POST /api/user/refresh                                 controllers.UserController.refreshLocal()
 
 ###
 #  summary: Login for Google users
@@ -150,7 +151,7 @@ POST        /api/user/refresh                                 controllers.UserCo
 #               "status_code":200
 #            }
 ###
-POST        /api/user/login/google                          controllers.UserController.loginGoogle()
+POST /api/user/login/google                          controllers.UserController.loginGoogle()
 
 ###
 #      tags:
@@ -164,7 +165,7 @@ POST        /api/user/login/google                          controllers.UserCont
 #       `Moderator`: can also edit users
 #       `Admin`: can also promote users to `moderators`.
 #
-#      operationId: usersAll
+#      operationId: usersUpdate
 #      consumes:
 #        - application/json
 #      produces:
@@ -182,7 +183,7 @@ POST        /api/user/login/google                          controllers.UserCont
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/user/update                           controllers.UserController.updateUser()
+POST /api/auth/user/update                           controllers.UserController.updateUser()
 
 ###
 #      tags:
@@ -207,34 +208,58 @@ POST        /api/auth/user/update                           controllers.UserCont
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/moderator/users/all                   controllers.UserAdminController.all()
+POST /api/auth/moderator/users/all                   controllers.UserAdminController.all()
 
 ################
 # Spaces
 ################
 
 ###
-#      tags:
-#        - Space
-#      summary: Get all spaces
-#      description: ""
-#      operationId: spaceAll
-#      consumes:
-#        - application/json
-#      produces:
-#        - application/json
-#      parameters:
-#        - in: body
-#          name: Body
-#          description: Space description
-#          required: true
-#          schema:
-#            type: object
-#      responses:
-#        '200':
-#          description: Successful operation
+#  tags:
+#    - Space
+#  summary: Get all spaces
+#  description: ""
+#  operationId: spaceAll
+#  consumes:
+#    - application/json
+#  produces:
+#    - application/json
+#  parameters:
+#    - in: body
+#      name: Body
+#      description: Space description
+#      required: true
+#      schema:
+#        type: object
+#  responses:
+#    '200':
+#      description: Successful operation
+#      examples:
+#         application/json: |
+#            {
+#                 "spaces":[
+#                   {
+#                   "buid":"building_ABC-123",
+#                   "name":"University of Cyprus",
+#                   "coordinates_lat":"35.69681975652278",
+#                   "coordinates_lon":"51.30831956863403",
+#                   "bucode":"ucy",
+#                   "is_published":"true",
+#                   "space_type":"building"
+#                 },
+#                 {
+#                   "buid":"vessel_ABC-123",
+#                   "name":"Fast Ship",
+#                   "coordinates_lat":"35.69681975652278",
+#                   "coordinates_lon":"51.30831956863403",
+#                   "bucode":"fstship",
+#                   "is_published":"true",
+#                   "space_type":"vessel"
+#                }
+#              ]
+#            }
 ###
-POST        /api/mapping/space/public                       controllers.MapSpaceController.public()
+POST /api/mapping/space/public                       controllers.MapSpaceController.public()
 
 ###
 #      tags:
@@ -259,7 +284,7 @@ POST        /api/mapping/space/public                       controllers.MapSpace
 #          schema:
 #            $ref: '#/definitions/SpaceGetResp'
 ###
-POST        /api/mapping/space/get                          controllers.MapSpaceController.get()
+POST /api/mapping/space/get                          controllers.MapSpaceController.get()
 
 ###
 #      tags:
@@ -278,13 +303,13 @@ POST        /api/mapping/space/get                          controllers.MapSpace
 #          required: true
 #          schema:
 #            $ref: '#/definitions/SpaceAdd'
+#      security:
+#      - api_key: []
 #      responses:
 #        '200':
 #          description: Successful operation
-#      security:
-#      - api_key: []
 ###
-POST        /api/auth/mapping/space/add                     controllers.MapSpaceController.add()
+POST /api/auth/mapping/space/add                     controllers.MapSpaceController.add()
 
 ###
 #      tags:
@@ -309,7 +334,7 @@ POST        /api/auth/mapping/space/add                     controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/update                  controllers.MapSpaceController.update()
+POST /api/auth/mapping/space/update                  controllers.MapSpaceController.update()
 
 ###
 #      tags:
@@ -334,14 +359,14 @@ POST        /api/auth/mapping/space/update                  controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/delete                  controllers.MapSpaceController.delete()
+POST /api/auth/mapping/space/delete                  controllers.MapSpaceController.delete()
 
 ###
 #      tags:
 #        - Space
 #      summary: Get user owned/co-owned spaces
 #      description: "Based on user's `owner_id` all the spaces are retrieved."
-#      operationId: spaceAllOwner
+#      operationId: spaceAllAccessible
 #      consumes:
 #        - application/json
 #      produces:
@@ -359,7 +384,7 @@ POST        /api/auth/mapping/space/delete                  controllers.MapSpace
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/accessible                    controllers.MapSpaceController.userAccessible()
+POST /api/auth/mapping/space/accessible                    controllers.MapSpaceController.userAccessible()
 
 ###
 #      tags:
@@ -378,13 +403,13 @@ POST        /api/auth/mapping/space/accessible                    controllers.Ma
 #          required: true
 #          schema:
 #            type: object
+#      security:
+#      - api_key: []
 #      responses:
 #        '200':
 #          description: Successful operation
-#      security:
-#      - api_key: []
 ###
-POST        /api/auth/mapping/space/user                          controllers.MapSpaceController.userOwned()
+POST /api/auth/mapping/space/user                          controllers.MapSpaceController.userOwned()
 
 ###
 #      tags:
@@ -412,7 +437,7 @@ POST        /api/auth/mapping/space/user                          controllers.Ma
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/space/coordinates             controllers.MapSpaceController.byCoordinates()
+POST /api/auth/mapping/space/coordinates             controllers.MapSpaceController.byCoordinates()
 
 # Floors
 
@@ -437,7 +462,7 @@ POST        /api/auth/mapping/space/coordinates             controllers.MapSpace
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/floor/all                          controllers.MapFloorController.all()
+POST /api/mapping/floor/all                          controllers.MapFloorController.all()
 
 ###
 #      tags:
@@ -462,7 +487,7 @@ POST        /api/mapping/floor/all                          controllers.MapFloor
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/floor/add                     controllers.MapFloorController.add()
+POST /api/auth/mapping/floor/add                     controllers.MapFloorController.add()
 
 ###
 #      tags:
@@ -487,7 +512,7 @@ POST        /api/auth/mapping/floor/add                     controllers.MapFloor
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
+POST /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
 
 ################
 # Floorplan
@@ -514,7 +539,7 @@ POST        /api/auth/mapping/floor/delete                  controllers.MapFloor
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/floorplans64/:buid/:floor_number               controllers.MapFloorplanController.getBase64(buid: String, floor_number: String)
+POST /api/floorplans64/:buid/:floor_number               controllers.MapFloorplanController.getBase64(buid: String, floor_number: String)
 
 ###
 #      tags:
@@ -537,16 +562,16 @@ POST        /api/floorplans64/:buid/:floor_number               controllers.MapF
 #      responses:
 #        '200':
 #          description: Successful operation
-#     examples:
-#       application/json: |
-#            {
+#          examples:
+#            application/json: |
+#              {
 #               "all_floors": [
 #                   "<floor1 BASE64>",
 #                   "<floor2 BASE64>"
-#               ]
-#            }
+#                 ]
+#              }
 ###
-POST        /api/floorplans64/all/:buid/:floors           controllers.MapFloorplanController.getAllBase64( buid: String, floors: String )
+POST /api/floorplans64/all/:buid/:floors           controllers.MapFloorplanController.getAllBase64(buid: String, floors: String)
 
 ###
 #      tags:
@@ -568,8 +593,11 @@ POST        /api/floorplans64/all/:buid/:floors           controllers.MapFloorpl
 #          required: true
 #          schema:
 #            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-POST        /api/mapping/floor/floorplan/upload                 controllers.MapFloorplanController.uploadWithZoom()
+POST /api/mapping/floor/floorplan/upload                 controllers.MapFloorplanController.uploadWithZoom()
 
 ###
 #      tags:
@@ -587,8 +615,11 @@ POST        /api/mapping/floor/floorplan/upload                 controllers.MapF
 #          required: true
 #          schema:
 #            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-POST        /api/floortiles/:buid/:floor_number                 controllers.MapFloorplanController.getZipLink( buid: String, floor_number: String )
+POST /api/floortiles/:buid/:floor_number                 controllers.MapFloorplanController.getZipLink( buid: String, floor_number: String )
 
 ###
 #      tags:
@@ -606,8 +637,11 @@ POST        /api/floortiles/:buid/:floor_number                 controllers.MapF
 #          required: true
 #          schema:
 #            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-GET         /api/floortiles/:buid/:floor_number/*file           controllers.MapFloorplanController.getStaticTiles( buid: String, floor_number: String, file: String )
+GET /api/floortiles/:buid/:floor_number/*file           controllers.MapFloorplanController.getStaticTiles( buid: String, floor_number: String, file: String )
 
 ###
 #      tags:
@@ -625,8 +659,11 @@ GET         /api/floortiles/:buid/:floor_number/*file           controllers.MapF
 #          required: true
 #          schema:
 #            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-POST        /api/floortiles/zip/:buid/:floor_number             controllers.MapFloorplanController.getTilesZip( buid: String, floor_number: String )
+POST /api/floortiles/zip/:buid/:floor_number             controllers.MapFloorplanController.getTilesZip( buid: String, floor_number: String )
 
 ###
 #      tags:
@@ -644,8 +681,11 @@ POST        /api/floortiles/zip/:buid/:floor_number             controllers.MapF
 #          required: true
 #          schema:
 #            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-POST        /api/radiomaps_frozen/:space/:floor/:filename    controllers.RadiomapController.getFrozen(space: String, floor: String, filename: String)
+POST /api/radiomaps_frozen/:space/:floor/:filename    controllers.RadiomapController.getFrozen(space: String, floor: String, filename: String)
 ###
 #      tags:
 #        - Radiomap
@@ -662,8 +702,11 @@ POST        /api/radiomaps_frozen/:space/:floor/:filename    controllers.Radioma
 #          required: true
 #          schema:
 #            type: object
+#      responses:
+#        '200':
+#          description: Successful operation
 ###
-POST        /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get(radio_folder: String, filename: String )
+POST /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get(radio_folder: String, filename: String )
 
 
 ################
@@ -691,7 +734,7 @@ POST        /api/radiomaps/:radio_folder/:filename              controllers.Radi
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/campus/get                         controllers.MapCampusController.get()
+POST /api/mapping/campus/get                         controllers.MapCampusController.get()
 
 ###
 #      tags:
@@ -716,7 +759,7 @@ POST        /api/mapping/campus/get                         controllers.MapCampu
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/add                    controllers.MapCampusController.add()
+POST /api/auth/mapping/campus/add                    controllers.MapCampusController.add()
 
 ###
 #      tags:
@@ -742,7 +785,7 @@ POST        /api/auth/mapping/campus/add                    controllers.MapCampu
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/update                 controllers.MapCampusController.update()
+POST /api/auth/mapping/campus/update                 controllers.MapCampusController.update()
 
 ###
 #      tags:
@@ -767,7 +810,7 @@ POST        /api/auth/mapping/campus/update                 controllers.MapCampu
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/delete                 controllers.MapCampusController.delete()
+POST /api/auth/mapping/campus/delete                 controllers.MapCampusController.delete()
 
 ###
 #      tags:
@@ -792,7 +835,7 @@ POST        /api/auth/mapping/campus/delete                 controllers.MapCampu
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/campus/user                   controllers.MapCampusController.byOwner()
+POST /api/auth/mapping/campus/user                   controllers.MapCampusController.byOwner()
 
 
 ################
@@ -820,7 +863,7 @@ POST        /api/auth/mapping/campus/user                   controllers.MapCampu
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/floor/all                     controllers.MapPoiController.byFloor()
+POST /api/mapping/pois/floor/all                     controllers.MapPoiController.byFloor()
 
 ###
 #      tags:
@@ -843,7 +886,7 @@ POST        /api/mapping/pois/floor/all                     controllers.MapPoiCo
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/space/all                  controllers.MapPoiController.bySpace()
+POST /api/mapping/pois/space/all                  controllers.MapPoiController.bySpace()
 
 ###
 #      tags:
@@ -866,7 +909,7 @@ POST        /api/mapping/pois/space/all                  controllers.MapPoiContr
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/pois/search                        controllers.MapPoiController.search()
+POST /api/mapping/pois/search                        controllers.MapPoiController.search()
 
 ###
 #      tags:
@@ -891,7 +934,7 @@ POST        /api/mapping/pois/search                        controllers.MapPoiCo
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/pois/add                      controllers.MapPoiController.add()
+POST /api/auth/mapping/pois/add                      controllers.MapPoiController.add()
 
 ###
 #      tags:
@@ -916,7 +959,7 @@ POST        /api/auth/mapping/pois/add                      controllers.MapPoiCo
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/pois/delete                   controllers.MapPoiController.delete()
+POST /api/auth/mapping/pois/delete                   controllers.MapPoiController.delete()
 
 ###
 #      tags:
@@ -941,7 +984,7 @@ POST        /api/auth/mapping/pois/delete                   controllers.MapPoiCo
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/pois/update                   controllers.MapPoiController.update()
+POST /api/auth/mapping/pois/update                   controllers.MapPoiController.update()
 
 # Spaces: Connections
 
@@ -966,7 +1009,7 @@ POST        /api/auth/mapping/pois/update                   controllers.MapPoiCo
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/connection/floor/all               controllers.MapPoiConnectionController.byFloor()
+POST /api/mapping/connection/floor/all               controllers.MapPoiConnectionController.byFloor()
 
 ###
 #      tags:
@@ -989,7 +1032,7 @@ POST        /api/mapping/connection/floor/all               controllers.MapPoiCo
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/mapping/connection/floors/all              controllers.MapPoiConnectionController.byFloorsAll()
+POST /api/mapping/connection/floors/all              controllers.MapPoiConnectionController.byFloorsAll()
 
 ###
 #      tags:
@@ -1014,7 +1057,7 @@ POST        /api/mapping/connection/floors/all              controllers.MapPoiCo
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/connection/add                controllers.MapPoiConnectionController.add()
+POST /api/auth/mapping/connection/add                controllers.MapPoiConnectionController.add()
 
 ###
 #      tags:
@@ -1039,7 +1082,7 @@ POST        /api/auth/mapping/connection/add                controllers.MapPoiCo
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/mapping/connection/delete             controllers.MapPoiConnectionController.delete()
+POST /api/auth/mapping/connection/delete             controllers.MapPoiConnectionController.delete()
 
 ################
 ### NAVIGATION
@@ -1066,7 +1109,7 @@ POST        /api/auth/mapping/connection/delete             controllers.MapPoiCo
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/navigation/route/coordinates               controllers.NavigationController.getNavigationRouteXY()
+POST /api/navigation/route/coordinates               controllers.NavigationController.getNavigationRouteXY()
 
 ###
 #      tags:
@@ -1089,7 +1132,7 @@ POST        /api/navigation/route/coordinates               controllers.Navigati
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/navigation/route                           controllers.NavigationController.getNavigationRoute()
+POST /api/navigation/route                           controllers.NavigationController.getNavigationRoute()
 
 # SPACE
 
@@ -1114,7 +1157,7 @@ POST        /api/navigation/route                           controllers.Navigati
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/navigation/space/id                        controllers.NavigationController.getBuildingById()
+POST /api/navigation/space/id                        controllers.NavigationController.getBuildingById()
 
 ###
 #      tags:
@@ -1137,7 +1180,7 @@ POST        /api/navigation/space/id                        controllers.Navigati
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/navigation/pois/id                         controllers.NavigationController.getPoisById()
+POST /api/navigation/pois/id                         controllers.NavigationController.getPoisById()
 
 ################
 ### POSITION
@@ -1166,7 +1209,7 @@ POST        /api/navigation/pois/id                         controllers.Navigati
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/position/predictFloorAlgo1                 controllers.PositioningController.predictFloorAlgo1()
+POST /api/position/predictFloorAlgo1                 controllers.PositioningController.predictFloorAlgo1()
 
 ###
 #      tags:
@@ -1189,7 +1232,7 @@ POST        /api/position/predictFloorAlgo1                 controllers.Position
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/position/estimate                          controllers.PositioningController.estimatePosition()
+POST /api/position/estimate                          controllers.PositioningController.estimatePosition()
 
 
 
@@ -1220,7 +1263,7 @@ POST        /api/position/estimate                          controllers.Position
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/wifi/access_points/floor                   controllers.AccessPointController.byFloor()
+POST /api/wifi/access_points/floor                   controllers.AccessPointController.byFloor()
 
 ###
 #      tags:
@@ -1243,7 +1286,7 @@ POST        /api/wifi/access_points/floor                   controllers.AccessPo
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/wifi/access_points/ids                     controllers.AccessPointController.getIDs()
+POST /api/wifi/access_points/ids                     controllers.AccessPointController.getIDs()
 
 
 ################
@@ -1273,7 +1316,7 @@ POST        /api/wifi/access_points/ids                     controllers.AccessPo
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/upload                            controllers.RadiomapController.upload()
+POST /api/radiomap/upload                            controllers.RadiomapController.upload()
 
 
 # TODO TEST:NN TEST:PM test on mobile app
@@ -1299,7 +1342,7 @@ POST        /api/radiomap/upload                            controllers.Radiomap
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/floor                             controllers.RadiomapController.getFloor()
+POST /api/radiomap/floor                             controllers.RadiomapController.getFloor()
 
 ###
 #      tags:
@@ -1322,7 +1365,7 @@ POST        /api/radiomap/floor                             controllers.Radiomap
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/floors                         controllers.RadiomapController.getByFloorsAll()
+POST /api/radiomap/floors                         controllers.RadiomapController.getByFloorsAll()
 
 ###
 #      tags:
@@ -1345,7 +1388,7 @@ POST        /api/radiomap/floors                         controllers.RadiomapCon
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/floor/bbox                        controllers.RadiomapController.getByFloorBoundingBox()
+POST /api/radiomap/floor/bbox                        controllers.RadiomapController.getByFloorBoundingBox()
 
 # /api/radiomap/floor
 
@@ -1370,7 +1413,7 @@ POST        /api/radiomap/floor/bbox                        controllers.Radiomap
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/space                             controllers.RadiomapController.getByFloor()
+POST /api/radiomap/space                             controllers.RadiomapController.getByFloor()
 
 ###
 #      tags:
@@ -1393,7 +1436,7 @@ POST        /api/radiomap/space                             controllers.Radiomap
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/radiomap/time                              controllers.RadiomapController.byTime()
+POST /api/radiomap/time                              controllers.RadiomapController.byTime()
 
 ###
 #      tags:
@@ -1418,7 +1461,7 @@ POST        /api/radiomap/time                              controllers.Radiomap
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/radiomap/delete/time                       controllers.RadiomapController.deleteTimestamp()
+POST /api/auth/radiomap/delete/time                       controllers.RadiomapController.deleteTimestamp()
 
 ###
 #      tags:
@@ -1443,7 +1486,7 @@ POST        /api/auth/radiomap/delete/time                       controllers.Rad
 #      security:
 #      - api_key: []
 ###
-POST        /api/auth/radiomap/delete                            controllers.RadiomapController.delete()
+POST /api/auth/radiomap/delete                            controllers.RadiomapController.delete()
 
 ################
 ### HEATMAP DATA
@@ -1470,7 +1513,7 @@ POST        /api/auth/radiomap/delete                            controllers.Rad
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/1                    controllers.HeatmapController.floorWifiAVG1()
+POST /api/heatmap/floor/average/1                    controllers.HeatmapController.floorWifiAVG1()
 
 ###
 #      tags:
@@ -1493,7 +1536,7 @@ POST        /api/heatmap/floor/average/1                    controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/2                    controllers.HeatmapController.floorWifiAVG2()
+POST /api/heatmap/floor/average/2                    controllers.HeatmapController.floorWifiAVG2()
 
 ###
 #      tags:
@@ -1516,7 +1559,7 @@ POST        /api/heatmap/floor/average/2                    controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/3                    controllers.HeatmapController.floorWifiAVG3()
+POST /api/heatmap/floor/average/3                    controllers.HeatmapController.floorWifiAVG3()
 
 ###
 #      tags:
@@ -1539,7 +1582,7 @@ POST        /api/heatmap/floor/average/3                    controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/3/tiles              controllers.HeatmapController.floorWifiAVG3tiles()
+POST /api/heatmap/floor/average/3/tiles              controllers.HeatmapController.floorWifiAVG3tiles()
 
 # Time-based data
 
@@ -1565,7 +1608,7 @@ POST        /api/heatmap/floor/average/3/tiles              controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/timestamp/1          controllers.HeatmapController.floorWifiTimestampAVG1()
+POST /api/heatmap/floor/average/timestamp/1          controllers.HeatmapController.floorWifiTimestampAVG1()
 
 ###
 #      tags:
@@ -1588,7 +1631,7 @@ POST        /api/heatmap/floor/average/timestamp/1          controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/timestamp/2          controllers.HeatmapController.floorWifiTimestampAVG2()
+POST /api/heatmap/floor/average/timestamp/2          controllers.HeatmapController.floorWifiTimestampAVG2()
 
 ###
 #      tags:
@@ -1611,7 +1654,7 @@ POST        /api/heatmap/floor/average/timestamp/2          controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/timestamp/3          controllers.HeatmapController.floorWifiTimestampAVG2()
+POST /api/heatmap/floor/average/timestamp/3          controllers.HeatmapController.floorWifiTimestampAVG2()
 
 ###
 #      tags:
@@ -1634,4 +1677,4 @@ POST        /api/heatmap/floor/average/timestamp/3          controllers.HeatmapC
 #        '200':
 #          description: Successful operation
 ###
-POST        /api/heatmap/floor/average/timestamp/tiles      controllers.HeatmapController.floorWifiTimestampTiles()
+POST /api/heatmap/floor/average/timestamp/tiles      controllers.HeatmapController.floorWifiTimestampTiles()
