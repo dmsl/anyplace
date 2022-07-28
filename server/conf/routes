@@ -1,15 +1,10 @@
 # Not mounting to /api due to swagger documentation generation. It is manually appended api.routess
+### NoDocs ###
 ->  /    api.Routes
 
-### NoDocs ###
 # Not in use.
+### NoDocs ###
 POST        /api/user/auth/admin/migration/run                                  controllers.UserAdminController.migrateToMongoDB()
-
-###################################
-# TODO: rename. Check usageas (web apps, mobile apps, etc) and update.
-## BLUEPRINTS
-# /api/auth/ ..
-
 
 ###########
 ### RESOURCES:

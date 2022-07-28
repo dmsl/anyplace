@@ -1,0 +1,58 @@
+{
+  "name": "jszip",
+  "version": "3.0.0",
+  "author": "Stuart Knightley <stuart@stuartk.com>",
+  "description": "Create, read and edit .zip files with Javascript http://stuartk.com/jszip",
+  "scripts": {
+    "test": "npm run test-node && npm run test-browser",
+    "test-node": "qunit-cli -c test/helpers/test-utils.js test/helpers/node-test-utils.js test/asserts/*.js",
+    "test-browser": "grunt build && grunt test",
+    "lint": "grunt jshint"
+  },
+  "contributors": [
+    {
+      "name": "Franz Buchinger"
+    },
+    {
+      "name": "António Afonso"
+    },
+    {
+      "name": "David Duponchel"
+    },
+    {
+      "name": "yiminghe"
+    }
+  ],
+  "main": "./lib/index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Stuk/jszip.git"
+  },
+  "keywords": [
+    "zip",
+    "deflate",
+    "inflate"
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-cli": "~1.1.0",
+    "grunt-saucelabs": "~8.6.2",
+    "grunt-contrib-connect": "1.0.0",
+    "jshint": "~2.9.1",
+    "browserify": "~13.0.0",
+    "grunt-browserify": "~5.0.0",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-uglify": "~1.0.0",
+    "jszip-utils": "~0.0.2",
+    "qunit-cli": "~0.2.0",
+    "qunitjs": "~1.23.0",
+    "tmp": "0.0.28"
+  },
+  "dependencies": {
+    "es6-promise": "~3.0.2",
+    "pako": "~1.0.0",
+    "readable-stream": "~2.0.6",
+    "asap": "~2.0.3"
+  },
+  "license": "(MIT OR GPL-3.0)"
+}
