@@ -8,12 +8,6 @@ consumes:
   - application/json
 produces:
   - application/json
-parameters:
-  - in: body
-    name: Body
-    required: true
-    schema:
-    type: object
 info:
   title: "Anyplace API"
   description: |
@@ -392,7 +386,7 @@ definitions:
     type: object
     properties:
       external:
-          external: string
+          type: string
           example: google
       access_token:
           type: string
@@ -764,4 +758,3 @@ definitions:
       timestampY:
         type: string
         example: 1617117985695
-

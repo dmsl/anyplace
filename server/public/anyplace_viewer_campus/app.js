@@ -239,7 +239,7 @@ app.service('GMapService', function () {
         };
 
         directionsService.route(request, function (response, status) {
-            if (status == google.maps.DirectionsStatus.OK) {
+            if (status === google.maps.DirectionsStatus.OK) {
                 directionsDisplay.setMap(self.gmap);
                 directionsDisplay.setDirections(response);
                 if (response && response.routes && response.routes.length && response.routes[0].overview_path && response.routes[0].overview_path.length) {

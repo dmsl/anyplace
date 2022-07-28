@@ -57,9 +57,16 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
   OnAnyplaceStart()
   appLifecycle.addStopHook({ () => Future.successful { OnAnyplaceStop() } })
 
+
+  def printApplicationInfo(): Unit = {
+    LOG.I("ANYPLACE: initializing backend:")
+    LOG.I("Scala Version: " +  util.Properties.versionString)
+    LOG.I("Play Framework Version: " +  play.core.PlayVersion.current)
+  }
+
   /** Play Application started */
   def OnAnyplaceStart(): Unit = {
-    LOG.I("Anyplace: starting server..")
+    printApplicationInfo()
     MongodbDatasource.initialize(conf)
     logAnalyticsInstallation()
   }

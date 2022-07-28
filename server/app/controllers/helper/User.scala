@@ -62,7 +62,10 @@ class User @Inject()(pds: ProxyDataSource,
     var res = ""
     try {
       res = Network.GET(gURL)
-      LOG.D2("verifyGoogleUser: " + res)
+      // TODO: fill User/Account profile of database with: given_name (first name), and the family_name (last name),
+      // when a user logs in (in the case these were empty before).
+      // The picture URL could be updated each time (and this replicated on the mobile app as well).
+      LOG.D4("verifyGoogleUser: " + res)
     } catch {
       case e: Exception => LOG.E("verifyId", e)
     }
