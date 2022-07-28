@@ -33,8 +33,10 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 <!--<a href="https://dmsl.cs.ucy.ac.cy">DMSL Copyright 2021</a><br>-->
 <script>
+    var BASE_URL = "https://ap.cs.ucy.ac.cy:44"
+
     window.onload = function () {
-        $.getJSON("/api/version", function (result) {
+        $.getJSON(BASE_URL+"/api/version", function (result) {
             version = JSON.parse(JSON.stringify(result));
             console.log("VERSION");
             console.log(version);
@@ -42,7 +44,7 @@
 
         // Begin Swagger UI call region
         var ui = SwaggerUIBundle({
-            url: "https://ap.cs.ucy.ac.cy:44/assets/swagger.json", // iheartradio swagger
+            url: BASE_URL+"/assets/swagger.json", // iheartradio swagger
             dom_id: '#swagger-ui',
             docExpansion: 'list',
             filter: 'true',
