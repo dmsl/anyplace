@@ -2,7 +2,7 @@
  *
  The MIT License (MIT)
 
- Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Copyright (c) 2022, Paschalis Mpeis, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
  Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
  dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
 
@@ -26,7 +26,7 @@
  */
 
 var API = {};
-API.url = "../api"
+API.url = "protocol://server:port/path"  // UPDATE THIS
 
 API.VERSION = API.url + "/version";
 
