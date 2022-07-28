@@ -1,0 +1,9 @@
+# When viewer accepts a `cuid` it redirects to the viewer_campus
+
+# NOTE:
+## 1. make sure you have .htaccess enabled in your configuration
+## 2. have enabled rewrite rules: sudo a2enmod rewrite
+
+RewriteEngine on
+RewriteCond %{QUERY_STRING} cuid=(.+)
+RewriteRule ^.*$ /viewer_campus/ [L,R]
