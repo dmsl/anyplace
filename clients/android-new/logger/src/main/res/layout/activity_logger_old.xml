@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* Anyplace: A free and open Indoor Navigation Service with superb accuracy!
+*
+* Anyplace is a first-of-a-kind indoor information service offering GPS-less
+* localization, navigation and search inside buildings using ordinary smartphones.
+*
+* Author(s): Timotheos Constambeys, Lambros Petrou
+*
+* Supervisor: Demetrios Zeinalipour-Yazti
+*
+* URL: http://anyplace.cs.ucy.ac.cy
+* Contact: anyplace@cs.ucy.ac.cy
+*
+* Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
+* All rights reserved.
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the “Software”), to deal in the
+* Software without restriction, including without limitation the rights to use, copy,
+* modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+* and to permit persons to whom the Software is furnished to do so, subject to the
+* following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+* DEALINGS IN THE SOFTWARE.
+*
+*/
+-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/logger_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/loggerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/logger_bottom_info_height" >
+
+        <fragment
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            class="com.google.android.gms.maps.SupportMapFragment" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:indeterminate="false"
+            android:visibility="gone" />
+
+<!--            style="@style/Theme.AnyplaceTheme.ProgressBarHorizontal"-->
+
+
+
+        <Button
+            android:id="@+id/btnRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/logger_btn_record"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="0dip"
+            android:layout_marginLeft="0dip"
+            android:background="@drawable/bordered_rect"
+            android:drawableLeft="@android:drawable/presence_invisible"
+            android:padding="10dip"
+            android:scaleType="center"
+            android:text="Start WiFi Recording"
+            android:textColor="#ffffff"
+            android:visibility="invisible" />
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/btnTrackme1"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_alignParentLeft="true"-->
+<!--            android:layout_marginBottom="30dp"-->
+<!--            android:layout_marginLeft="5dp"-->
+<!--            android:background="@drawable/trackme_bg"-->
+<!--            android:contentDescription="Where am I?"-->
+<!--            android:src="@drawable/dark_device_access_location_off"-->
+<!--            android:visibility="invisible" />-->
+
+        <TextView
+            android:id="@+id/textFloor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:text="Floor: -"
+            android:textColor="#283891"
+            android:textSize="12.5dip"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/scanResults"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/textFloor"
+            android:layout_below="@+id/textFloor"
+            android:layout_marginTop="10dp"
+            android:text="AP: -"
+            android:textColor="#283891"
+            android:textSize="12.5dip"
+            android:textStyle="bold" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/btnTrackme"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginRight="20dp"
+          android:layout_alignEnd="@id/map"
+          android:layout_marginBottom="50dp"
+          android:layout_alignBottom="@id/map"
+          android:backgroundTint="@color/trackme"
+          android:src="@drawable/dark_device_access_location_off"
+
+        />
+
+      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
+          custom:type="solid"
+          android:id="@+id/btnFloorUp"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="50sp"
+          android:textColor="#000"
+          android:text="@string/fas_arrow_circle_up"
+          android:layout_alignParentEnd="true"
+          android:layout_marginRight="20dp"
+          android:layout_centerInParent="true"
+          android:contentDescription="Go one floor up"
+          android:scaleType="fitCenter"
+          />
+<!--      custom:type="solid"-->
+
+      <cy.ac.ucy.cs.anyplace.lib.android.utils.FontAwesomeIcon
+          android:id="@+id/btnFloorDown"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="50sp"
+          android:text="@string/fas_arrow_circle_up"
+          android:textColor="#000"
+          android:rotation="180"
+          android:contentDescription="Go one floor down"
+          android:scaleType="fitCenter"
+          android:layout_alignParentEnd="true"
+          android:layout_below="@+id/btnFloorUp"
+          android:layout_marginRight="20dp"
+          android:layout_marginTop="8dp"
+          />
+
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/trackingInfoData"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/logger_bottom_info_height"
+        android:layout_alignParentBottom="true"
+        android:background="#ffffff"
+        android:maxLines="5"
+        android:paddingLeft="2dip"
+        android:scaleType="center"
+        android:singleLine="false"
+        android:text="Tracking Info"
+        android:textColor="#ff111111"
+        android:textSize="12.5dip" />
+
+</RelativeLayout>
