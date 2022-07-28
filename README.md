@@ -98,6 +98,8 @@ Clients
 - [Linux](clients/linux/)
 - [macOS](clients/macos/)
 - [Simulator](clients/simulator)
+- [Web aps](clients/web)
+  - architect, viewer, viewer_campus
 
 </details>
 

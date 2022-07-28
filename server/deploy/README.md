@@ -162,9 +162,7 @@ Local Deployment
 
 Just open a browser and test the following URLs:
 ```bash
-$ http://localhost:9000/viewer
-$ http://localhost:9000/architect
-$ http://localhost:9000/developers
+$ http://localhost:9000/api/version
 ```
 
 You can obviously setup the service on an IP/Domain name by configuring the underlying
