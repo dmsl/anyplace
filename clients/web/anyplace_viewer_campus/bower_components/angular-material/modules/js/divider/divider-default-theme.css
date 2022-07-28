@@ -1,0 +1,8 @@
+/*!
+ * AngularJS Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v1.2.2
+ */
+md-divider.md-THEME_NAME-theme {
+  border-color: '{{foreground-4}}'; }
