@@ -1,9 +1,6 @@
 # WEB APPS:
 
-<details open>
-<summary>
-General Info
-</summary>
+<details open><summary>General Info</summary>
 
 ### General Info:
 Separate web application frontends written in `AngularJS`/`GoogleMapsJS`.  
@@ -36,17 +33,21 @@ The back-end service will run on a dedicated port.
 
 ---
 
+# Sample compilation script:
+- [deploy_webapps.sh](./deploy_webapps.sh)
+  - will need adjustments
+
+
+---
+
 # Compilation Tutorial:
 To compile the
 [architect](./anyplace_architect), [viewer](./anyplace_viewer), or  [viewer_campus](./anyplace_viewer_campus)
 please follow the below instructions:
 
-<details>
-<summary>
-Show Compilation Instructions
-</summary>
+<details><summary>Show Instructions</summary>
 
-0. Install dependency tools
+## 0. Install dependency tools
 
 Sample commands on ubuntu:
 ```bash
