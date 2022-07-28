@@ -20,9 +20,7 @@ Docker is not supported for 4.2+.
 
 # 3. [Setup IDE (IntelliJ)](./SETUP_IDE.md) 
 
-# 4. [Compile Web apps](./public/README.md)
-
-# 5. Connect Android app
+# 4. Connect Android app
 <details>
 <summary>
 Android Client Details

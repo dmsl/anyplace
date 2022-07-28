@@ -92,10 +92,3 @@ class Anyplace @Inject() (conf: Configuration) (appLifecycle: ApplicationLifecyc
     LOG.D("logAnalyticsInstallation: done")
   }
 }
-
-
-/* // CHECK: from Global.scala
-override def onHandlerNotFound(request: RequestHeader) = {
-  Future.successful(NotFound(Json.obj("error" -> "Not Found")))
-}
- */
