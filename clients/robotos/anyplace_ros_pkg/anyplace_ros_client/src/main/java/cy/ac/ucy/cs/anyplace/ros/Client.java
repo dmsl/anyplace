@@ -406,53 +406,6 @@ public class Client extends AbstractNodeMain {
 		connectedNode.newServiceServer(root_namespace + "radio_by_coordinates_floor", RadioByCoordinatesFloor._TYPE,
 				RadioByCoordinatesFloorService);
 
-		/***************************************************
-		 * RadioBuidFloor Service Define RadioBuidFloor and it's callback
-		 ****************************************************/
-		ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse> RadioBuidFloorService = new ServiceResponseBuilder<FloorServiceRequest, FloorServiceResponse>() {
-			@Override
-			public void build(FloorServiceRequest request, FloorServiceResponse response) {
-				String buid = request.getBuid();
-				String floor = request.getFloor();
-				if (buid.isEmpty() || floor.isEmpty()) {
-					response.setSuccess(false);
-					response.setResponse("Service parameters cannot be empty!\n Returning...");
-					return;
-				}
-				String anyplace_response = client.radioByBuildingFloor(access_token, buid, floor);
-				connectedNode.getLog().info(anyplace_response + "\n");
-				response.setSuccess(true);
-				response.setResponse(anyplace_response);
-			}
-		};
-		connectedNode.newServiceServer(root_namespace + "radio_buid_floor", FloorService._TYPE, RadioBuidFloorService);
-
-		/***************************************************
-		 * RadioBuidFloorRange Service Define RadioBuidFloorRange and it's callback
-		 ****************************************************/
-		ServiceResponseBuilder<RadioBuidFloorRangeRequest, RadioBuidFloorRangeResponse> RadioBuidFloorRangeService = new ServiceResponseBuilder<RadioBuidFloorRangeRequest, RadioBuidFloorRangeResponse>() {
-			@Override
-			public void build(RadioBuidFloorRangeRequest request, RadioBuidFloorRangeResponse response) {
-				String buid = request.getBuid();
-				String floor = request.getFloor();
-				String coordinates_lat = request.getCoordinatesLat();
-				String coordinates_lon = request.getCoordinatesLon();
-				String range = request.getRange();
-				if (buid.isEmpty() || floor.isEmpty() || coordinates_lat.isEmpty() || coordinates_lon.isEmpty()
-						|| range.isEmpty()) {
-					response.setSuccess(false);
-					response.setResponse("Service parameters cannot be empty!\n Returning...");
-					return;
-				}
-				String anyplace_response = client.radioByBuildingFloorRange(buid, floor, coordinates_lat,
-						coordinates_lon, range);
-				connectedNode.getLog().info(anyplace_response + "\n");
-				response.setSuccess(true);
-				response.setResponse(anyplace_response);
-			}
-		};
-		connectedNode.newServiceServer(root_namespace + "radio_buid_floor_range", RadioBuidFloorRange._TYPE,
-				RadioBuidFloorRangeService);
 
 		/***************************************************
 		 * EstimatePosition Service Define EstimatePositionService and it's callback

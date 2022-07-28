@@ -4,8 +4,9 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
+ * Author(s): Nikolas Neofytou, Constantinos Costa, Kyriakos Georgiou, Lambros Petrou
  *
+ * Co-Supervisor: Paschalis Mpeis
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
  * URL: https://anyplace.cs.ucy.ac.cy
@@ -36,58 +37,21 @@
 package utils
 
 import java.util
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-import java.util.List
+import java.util.{Collections, HashMap}
 
-import com.couchbase.client.java.document.json.JsonObject
-import play.api.libs.json.{JsArray, JsValue}
+import com.google.gson.Gson
+import datasources.SCHEMA
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsValue, Json}
 
 object JsonUtils {
 
-  def getHashMapStrStr(jsonString: String): HashMap[String, String] = {
-    val json = JsonObject.fromJson(jsonString)
-    json.toMap.asInstanceOf[HashMap[String, String]]
 
+  def getHashMapStrStr(json: JsValue): HashMap[String, String] = {
+    val gson: Gson = new Gson()
+    gson.fromJson(json.toString(), (new HashMap[String, String]()).getClass)
   }
 
-  def getHashMapStrStr(json: JsonObject): HashMap[String, String] = {
-    json.toMap.asInstanceOf[HashMap[String, String]]
-
-  }
-
-  def fillMapFromJson(json: JsonObject, map: HashMap[String, String], keys: String*): List[String] = {
-    if (json == null || map == null) {
-      throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
-    }
-    if (keys == null) {
-      return Collections.emptyList()
-    }
-    val notFound = new ArrayList[String]()
-    for (k <- keys) {
-      val value = json.getString(k)
-      if (value == null) notFound.add(k) else map.put(k, value)
-    }
-    notFound
-  }
-
-  def requirePropertiesInJson(json: JsonObject, keys: String*): util.List[String] = {
-    if (json == null) {
-      throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
-    }
-    if (keys == null) {
-      return Collections.emptyList()
-    }
-    val notFound = new util.ArrayList[String]()
-    for (k <- keys) {
-      val value = json.getString(k)
-      if (value == null || 0 == value.trim().length) notFound.add(k)
-    }
-    notFound
-  }
-
-  def requirePropertiesInJson(json: JsValue, keys: String*): util.List[String] = {
+  def hasProperties(json: JsValue, keys: String*): util.List[String] = {
     if (json == null) {
       throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
     }
@@ -113,4 +77,35 @@ object JsonUtils {
     }
     notFound
   }
+
+  def hasProperty(json: JsValue, key: String): Boolean = {
+    if (json == null) {
+      throw new IllegalArgumentException("No source Json object or destination Map object can be null!")
+    }
+    if (key == null) {
+      return false
+    }
+    val value = json \ key
+    return value.toOption.isDefined
+  }
+
+  def convertToInt(key: String, json: JsValue): JsValue = {
+    var value = "0"
+    if ((json \ key).toOption.isDefined)
+      value = (json \ key).as[String]
+    json.as[JsObject] + (key -> JsNumber(value.toInt))
+  }
+
+  def isNullOrEmpty(x: JsValue): Boolean = {
+    if (x == null)
+      return true
+    if (Json.stringify(x) == "{}" || Json.stringify(x) == "")
+      return true
+    return false
+  }
+
+  def cleanupMongoJson(json: JsValue): JsValue = {
+    return json.as[JsObject] - SCHEMA.fId - SCHEMA.fSchema
+  }
+
 }

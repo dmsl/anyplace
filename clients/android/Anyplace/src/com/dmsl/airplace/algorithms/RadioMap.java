@@ -60,7 +60,7 @@ public class RadioMap {
 		OrderList = new ArrayList<String>();
 
 		if (!ConstructRadioMap(inFile)) {
-			throw new Exception("Inavlid Radiomap File");
+			throw new Exception("Invalid Radiomap file");
 		}
 	}
 

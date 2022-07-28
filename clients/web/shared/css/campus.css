@@ -1,0 +1,36 @@
+.spaces-btn-parent {
+    position: absolute;
+    left: 8px;
+    top: 100px;
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.65098) 0px 1px 5px 0px;
+    clear: both;
+    z-index: 7;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.65098) 0px 1px 5px 0px;
+    perspective-origin: 20px 61px;
+    -webkit-perspective-origin: 20px 61px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    transform: matrix(1, 0, 0, 1, 0, 0);
+    -webkit-transform: matrix(1, 0, 0, 1, 0, 0);
+    transform-origin: 20px 61px;
+    -webkit-transform-origin: 20px 61px;
+    -webkit-user-select: none;
+    background: rgb(241, 241, 241) none repeat scroll 0% 0% / auto padding-box border-box;
+    font: normal normal normal normal 14px/24px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+.spaces-btn-parent:hover {
+    background-color: #fdfdfd;
+}
+
+#spaces-btn {
+    padding: 10px;
+    min-width: 40px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    color: gray;
+    font-weight: bold;
+    font-size: 1.3em;
+    letter-spacing: 1px;
+}

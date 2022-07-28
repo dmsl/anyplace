@@ -1,0 +1,2650 @@
+/**
+ *
+ The MIT License (MIT)
+
+ Copyright (c) 2015, Marileni Angelidou, Loukas Solea , Data Management Systems Laboratory (DMSL)
+ Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
+ dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+var heatMap = [];
+var heatMapAcces = [];
+var APmap = [];
+var heatmap;
+var heatmapFingerprints = [];
+var userTimeData = [];
+var fingerPrintsMap = [];
+var heatmapAcc;
+var connectionsMap = {};
+var POIsMap = {};
+var drawingManager;
+var _HEATMAP_FINGERPRINT_COVERAGE = false;
+var _HEATMAP_ACCES = false; //lsolea01
+var _APs_IS_ON = false;
+var _FINGERPRINTS_IS_ON = false;
+var _DELETE_FINGERPRINTS_IS_ON = false;
+var _HEATMAP_F_IS_ON = false;
+var _CONNECTIONS_IS_ON = false;
+var _POIS_IS_ON = false;
+var changedfloor = false;
+var colorBarGreenClicked = false;
+var colorBarYellowClicked = false;
+var colorBarOrangeClicked = false;
+var colorBarPurpleClicked = false;
+var colorBarRedClicked = false;
+var levelOfZoom = 1;
+
+function clearLocalization() { //lsolea01
+    console.log("clearLocalization");
+    var check = 0;
+    if (heatMap_[check] !== undefined && heatMap[check] !== null) {
+
+        var i = heatMap.length;
+        while (i--) {
+            heatMap[i].rectangle.setMap(null);
+            heatMap[i] = null;
+        }
+        heatMap = [];
+        document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+        _HEATMAP_ACCES = false;
+        setColorClicked('g', false);
+        setColorClicked('y', false);
+        setColorClicked('o', false);
+        setColorClicked('p', false);
+        setColorClicked('r', false);
+        $scope.radioHeatmapLocalization = false;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('radioHeatmapLocalization', 'NO');
+        }
+        $scope.anyService.radioHeatmapLocalization = false;
+        $scope.radioHeatmapRSSHasGreen = false;
+        $scope.radioHeatmapRSSHasYellow = false;
+        $scope.radioHeatmapRSSHasOrange = false;
+        $scope.radioHeatmapRSSHasPurple = false;
+        $scope.radioHeatmapRSSHasRed = false;
+        $cookieStore.put('RSSClicked', 'NO');
+
+    }
+}
+
+
+app.controller('WiFiController', ['$cookieStore', '$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($cookieStore, $scope, AnyplaceService, GMapService, AnyplaceAPIService) {
+    $scope.anyService = AnyplaceService;
+    $scope.anyAPI = AnyplaceAPIService;
+    $scope.gmapService = GMapService;
+    $scope.example9model = [];
+    $scope.example9data = [];
+    $scope.example9settings = {enableSearch: true, scrollable: true};
+    $scope.example8model = [];
+    $scope.example8data = [];
+    $scope.deleteButtonWarning = false;
+    $scope.radioHeatmapRSSMode = false;
+    $scope.radioHeatmapLocalization = false; //lsolea01
+    $scope.radioHeatmapRSSTimeMode = false;
+    $scope.fingerPrintsMode = false;
+    $scope.fingerPrintsTimeMode = false;
+    $scope.APsMode = false;
+    $scope.filterByMAC = false;
+    $scope.filterByMAN = false;
+    $scope.radioHeatmapRSSHasGreen = false;
+    $scope.radioHeatmapRSSHasYellow = false;
+    $scope.radioHeatmapRSSHasOrange = false;
+    $scope.radioHeatmapRSSHasPurple = false;
+    $scope.radioHeatmapRSSHasRed = false;
+    $scope.localizationAccMode = false;
+    $scope.selected = "Filters:";
+    $scope.initializeTime = false;
+    $scope.initializeFingerPrints = false;
+    $scope.initializeRadioHeatmapRSS = false;
+    $scope.initializeAPs = false;
+    $scope.initializeConnections = false;
+    $scope.initializePOIs = false;
+    $scope.initializeAcces = false;
+
+
+    var MAX = 1000;
+    var _currentZoomLevel;
+    var _PREV_ZOOM;
+
+
+    $scope.crudTabSelected = 1;
+    $scope.setCrudTabSelected = function (n) {
+        $scope.crudTabSelected = n;
+    };
+    $scope.isCrudTabSelected = function (n) {
+        return $scope.crudTabSelected === n;
+    };
+
+    $scope.data = {
+        floor_plan_coords: {},
+        floor_plan_base64_data: {},
+        floor_plan_groundOverlay: null
+    };
+
+    function clearFingerprintCoverage() {
+        var check = 0;
+        if (heatMap[check] !== undefined && heatMap[check] !== null) {
+
+            var i = heatMap.length;
+            while (i--) {
+                heatMap[i].rectangle.setMap(null);
+                heatMap[i] = null;
+            }
+            heatMap = [];
+            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+            _HEATMAP_FINGERPRINT_COVERAGE = false;
+            setColorClicked('g', false);
+            setColorClicked('y', false);
+            setColorClicked('o', false);
+            setColorClicked('p', false);
+            setColorClicked('r', false);
+            $scope.radioHeatmapRSSMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'NO');
+            }
+            $scope.anyService.radioHeatmapRSSMode = false;
+            $scope.radioHeatmapRSSHasGreen = false;
+            $scope.radioHeatmapRSSHasYellow = false;
+            $scope.radioHeatmapRSSHasOrange = false;
+            $scope.radioHeatmapRSSHasPurple = false;
+            $scope.radioHeatmapRSSHasRed = false;
+            $cookieStore.put('RSSClicked', 'NO');
+
+        }
+    }
+
+    function clearFingerprintHeatmap() {
+
+        // CHECK
+        // if ($scope.fingerPrintsMode) {
+        //     document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
+        // } else {
+        //     document.getElementById("fingerPrints-mode").classList.remove('draggable-border-green');
+        // }
+
+        var check = 0;
+        if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
+            var i = fingerPrintsMap.length;
+            //hide fingerPrints
+            while (i--) {
+                fingerPrintsMap[i].setMap(null);
+                fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        }
+
+        if (heatmap && heatmap.getMap()) { //hide fingerPrints heatmap
+            heatmap.setMap(null);
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+            _HEATMAP_F_IS_ON = false;
+            var i = heatmapFingerprints.length;
+            while (i--) {
+                heatmapFingerprints[i] = null;
+            }
+            heatmapFingerprints = [];
+        }
+        // document.getElementById("fingerPrints-mode").classList.add('draggable-border-green');
+    }
+
+    function initializeTimeFunction() {
+        if ($scope.fingerPrintsMode) {
+
+            $scope.fingerPrintsTimeMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerPrintsTimeMode', 'YES');
+            }
+            $scope.anyService.fingerPrintsTimeMode = true;
+            $scope.fingerPrintsMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerprintsMode', 'YES');
+            }
+            // document.getElementById("fingerPrints-time-mode").classList.add('draggable-border-green');
+        }
+
+        if ($scope.radioHeatmapRSSMode) {
+            $scope.radioHeatmapRSSTimeMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerPrintsTimeMode', 'YES');
+            }
+            $scope.radioHeatmapRSSMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'YES');
+            }
+            $scope.anyService.radioHeatmapRSSTimeMode = true;
+            $scope.anyService.radioHeatmapRSSMode = true;
+            // document.getElementById("radioHeatmapRSS-time-mode").classList.add('draggable-border-green');
+        }
+
+        if ($scope.radioHeatmapLocalization) { //lsolea01
+            $scope.radioHeatmapRSSTimeMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerPrintsTimeMode', 'YES');
+            }
+            $scope.radioHeatmapLocalization = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapLocalization', 'YES');
+            }
+            $scope.anyService.radioHeatmapRSSTimeMode = true;
+            $scope.anyService.radioHeatmapLocalization = true;
+            // document.getElementById("radioHeatmapRSS-time-mode").classList.add('draggable-border-green');
+        }
+        document.getElementById("fingerPrints-time-mode").classList.add('quickaction-selected');
+
+    }
+
+
+    $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
+        if (newVal) {
+            if (localStorage.getItem('fingerprintsMode') !== undefined) {
+                if (localStorage.getItem('fingerprintsMode') === 'YES') {
+                    $scope.initializeFingerPrints = true;
+                }
+            }
+
+            if (localStorage.getItem('radioHeatmapRSSMode') !== undefined) {
+                if (localStorage.getItem('radioHeatmapRSSMode') === 'YES') {
+                    $scope.initializeRadioHeatmapRSS = true;
+                }
+            }
+
+            if (localStorage.getItem('radioHeatmapLocalization') !== undefined) {
+                if (localStorage.getItem('radioHeatmapLocalization') === 'YES') {
+                    $scope.initializeRadioHeatmapRSS = true;
+                }
+            }
+
+            if (localStorage.getItem('APsMode') !== undefined) {
+                if (localStorage.getItem('APsMode') === 'YES') {
+                    $scope.initializeAPs = true;
+                }
+            }
+
+            if (localStorage.getItem('localizationAccMode') !== undefined) {
+                if (localStorage.getItem('localizationAccMode') === 'YES') {
+                    $scope.initializeAcces = true;
+                }
+            }
+
+            if (localStorage.getItem('connectionsMode') !== undefined) {
+                if (localStorage.getItem('connectionsMode') === 'NO') {
+                    $scope.initializeConnections = true;
+                }
+            }
+
+            if (localStorage.getItem('POIsMode') !== undefined) {
+                if (localStorage.getItem('POIsMode') === 'NO') {
+                    $scope.initializePOIs = true;
+                }
+            }
+
+            if (localStorage.getItem('fingerPrintsTimeMode') !== undefined) {
+                if (localStorage.getItem('fingerPrintsTimeMode') === 'YES') {
+                    $scope.initializeTime = true;
+                }
+            }
+
+            function initializeFingerPrints() {
+                $('#heatmapTab').click();
+                $('#FPs').click();
+                $('#FPsButton').click();
+            }
+
+            function initializeRadioHeatmapRSS() {
+                $('#heatmapTab').click();
+                $('#HMs').click();
+                $('#HMsButton').click();
+            }
+
+            function initializeAPs() {
+                $('#heatmapTab').click();
+                $('#HMs').click();
+                $('#APsButton').click();
+            }
+
+            function initializeAcces() {
+                $('#heatmapTab').click();
+                $('#LAs').click();
+                $('#LAButton').click();
+            }
+
+            function initializeConnections() {
+                $('#FPs').click();
+                $('#connectionsButton').click();
+            }
+
+            function initializePOIs() {
+                $('#FPs').click();
+                $('#POIsButton').click();
+            }
+
+            function initializeTime() {
+                $('#heatmapTab').click();
+                $('#FPs').click();
+                $('#FPsTimeButton').click();
+            }
+
+            window.onload = function () {
+                if ($scope.initializeFingerPrints) initializeFingerPrints();
+                if ($scope.initializeRadioHeatmapRSS) initializeRadioHeatmapRSS();
+                if ($scope.initializeAPs) initializeAPs();
+                if ($scope.initializeAcces) initializeAcces();
+                if ($scope.initializeConnections) initializeConnections();
+                if ($scope.initializePOIs) initializePOIs();
+                if ($scope.initializeTime) initializeTime();
+            }
+
+            if (_HEATMAP_FINGERPRINT_COVERAGE) {
+                var i = heatMap.length;
+                while (i--) {
+                    heatMap[i].rectangle.setMap(null);
+                    heatMap[i] = null;
+                }
+                heatMap = [];
+                $scope.showFingerprintCoverage();
+                if ($scope.radioHeatmapRSSTimeMode) {
+                    d3.selectAll("svg > *").remove();
+                    $("svg").remove();
+                    $scope.getFingerPrintsTime();
+                }
+            }
+
+            if (_APs_IS_ON) {
+                var i = APmap.length;
+                while (i--) { //hide Access Points
+                    APmap[i].setMap(null);
+                    APmap[i] = null;
+                    $scope.example9data[i] = null;
+                    $scope.example9model[i] = null;
+                }
+
+                i = $scope.example8data.length;
+                while (i--) {
+                    $scope.example8data[i] = null;
+                    $scope.example8model[i] = null;
+                }
+                APmap = [];
+                $scope.example9data = [];
+                $scope.example9model = [];
+                $scope.example8data = [];
+                $scope.example8model = [];
+                $scope.showAPs();
+            }
+
+            if (_HEATMAP_ACCES) {
+                var i = heatMapAcces.length;
+                while (i--) {
+                    heatMapAcces[i].setMap(null);
+                    heatMapAcces[i] = null;
+                }
+                heatMapAcces = [];
+                $scope.showLocalizationAccHeatmap();
+            }
+
+            if (_FINGERPRINTS_IS_ON) {
+                var i = fingerPrintsMap.length;
+                while (i--) { //hide fingerPrints
+                    fingerPrintsMap[i].setMap(null);
+                    fingerPrintsMap[i] = null;
+                }
+                fingerPrintsMap = [];
+                $scope.showFingerprintHeatmap();
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+                    d3.selectAll("svg > *").remove();
+                    $("svg").remove();
+                    $scope.getFingerPrintsTime();
+                }
+            }
+
+            if (heatmap && heatmap.getMap()) { //hide fingerPrints heatmap
+                               heatmap.setMap(null);
+                var i = heatmapFingerprints.length;
+                while (i--) {
+                    heatmapFingerprints[i] = null;
+                }
+                heatmapFingerprints = [];
+                _HEATMAP_F_IS_ON = false;
+                $scope.showFingerprintHeatmap();
+
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+                    d3.selectAll("svg > *").remove();
+                    $("svg").remove();
+                    $scope.getFingerPrintsTime();
+                }
+            }
+
+            if (heatmapAcc && heatmapAcc.getMap()) {
+                //hide acces heatmap
+                heatmapAcc.setMap(null);
+                $scope.showLocalizationAccHeatmap();
+            }
+        }
+
+        var check = 0;
+        if (!_CONNECTIONS_IS_ON) {
+            connectionsMap = $scope.anyService.getAllConnections();
+            var key = Object.keys(connectionsMap);
+            if (connectionsMap[key[check]] !== undefined) {
+                if (connectionsMap[key[check]].polyLine !== undefined) {
+                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                        for (var key in connectionsMap) {
+                            if (connectionsMap.hasOwnProperty(key)) {
+                                var con = connectionsMap[key];
+                                if (con && con.polyLine) {
+                                    con.polyLine.setMap(null);
+                                }
+                            }
+                        }
+                        $scope.anyService.setAllConnection(connectionsMap);
+                        connectionsMap = {};
+                    }
+                }
+            }
+            if (!_POIS_IS_ON) {
+                POIsMap = $scope.anyService.getAllPois();
+                if (POIsMap !== undefined) {
+                    var key = Object.keys(POIsMap);
+                    if (POIsMap[key[check]] !== undefined) {
+                        if (POIsMap[key[check]].marker.getMap() !== null) {
+                            for (var key in POIsMap) {
+                                if (POIsMap.hasOwnProperty(key)) {
+                                    var p = POIsMap[key];
+                                    if (p && p.marker) {
+                                        p.marker.setMap(null);
+                                    }
+                                }
+                            }
+                            $scope.anyService.setAllPois(POIsMap);
+                            POIsMap = {};
+                        }
+                    }
+                }
+            }
+            changedfloor = false;
+        }
+    });
+
+    $scope.$watch('newFloorNumber', function (newVal, oldVal) {
+        //if (_floorNoExists(newVal)) {
+        //    _setNextFloor();
+        //}
+    });
+
+    $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
+        if (newVal !== undefined && newVal !== null && !_.isEqual(newVal, oldVal)) {
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem("lastFloor", newVal.floor_number);
+            }
+
+            if (_HEATMAP_FINGERPRINT_COVERAGE) {
+                var i = heatMap.length;
+                while (i--) {
+                    heatMap[i].rectangle.setMap(null);
+                    heatMap[i] = null;
+                }
+                heatMap = [];
+                $scope.showFingerprintCoverage();
+                if ($scope.radioHeatmapRSSTimeMode) {
+                    d3.selectAll("svg > *").remove();
+                    $("svg").remove();
+                    $scope.getFingerPrintsTime();
+                }
+            }
+
+            if (_APs_IS_ON) {
+                var i = APmap.length;
+                while (i--) {  //hide Access Points
+                    APmap[i].setMap(null);
+                    APmap[i] = null;
+                    $scope.example9data[i] = null;
+                    $scope.example9model[i] = null;
+                }
+                i = $scope.example8data.length;
+                while (i--) {
+                    $scope.example8data[i] = null;
+                    $scope.example8model[i] = null;
+                }
+
+                APmap = [];
+                $scope.example9data = [];
+                $scope.example9model = [];
+                $scope.example8data = [];
+                $scope.example8model = [];
+                $scope.showAPs();
+
+            }
+            if (_FINGERPRINTS_IS_ON) {
+                var i = fingerPrintsMap.length;
+                while (i--) {  //hide fingerPrints
+                    fingerPrintsMap[i].setMap(null);
+                    fingerPrintsMap[i] = null;
+                }
+                fingerPrintsMap = [];
+
+                $scope.showFingerprintHeatmap();
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+                    d3.selectAll("svg > *").remove();
+                    $("svg").remove();
+                    $scope.getFingerPrintsTime();
+                }
+            }
+
+
+            if (heatmap && heatmap.getMap()) {
+                //hide fingerPrints heatmap
+                heatmap.setMap(null);
+                var i = heatmapFingerprints.length;
+                while (i--) { heatmapFingerprints[i] = null; }
+                heatmapFingerprints = [];
+                _HEATMAP_F_IS_ON = false;
+
+                $scope.showFingerprintHeatmap();
+                if ($scope.fingerPrintsTimeMode && !$scope.radioHeatmapRSSTimeMode) {
+
+                    d3.selectAll("svg > *").remove();
+                    $("svg").remove();
+                    $scope.getFingerPrintsTime();
+
+                }
+            }
+
+            if (heatmapAcc && heatmapAcc.getMap()) {  // hide acces heatmap
+                heatmapAcc.setMap(null);
+                $scope.showLocalizationAccHeatmap();
+            }
+
+            var check = 0;
+            if (!_CONNECTIONS_IS_ON) {
+                connectionsMap = $scope.anyService.getAllConnections();
+                var key = Object.keys(connectionsMap);
+                if (connectionsMap[key[check]] !== undefined) {
+                    if (connectionsMap[key[check]].polyLine !== undefined) {
+                        if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                            for (var key in connectionsMap) {
+                                if (connectionsMap.hasOwnProperty(key)) {
+                                    var con = connectionsMap[key];
+                                    if (con && con.polyLine) { con.polyLine.setMap(null); }
+                                }
+                            }
+                            $scope.anyService.setAllConnection(connectionsMap);
+                            connectionsMap = {};
+                        }
+                    }
+                }
+            }
+
+            if (!_POIS_IS_ON) {
+                POIsMap = $scope.anyService.getAllPois();
+                if (POIsMap !== undefined) {
+                    var key = Object.keys(POIsMap);
+                    if (POIsMap[key[check]] !== undefined) {
+                        if (POIsMap[key[check]].marker.getMap() !== null) {
+                            for (var key in POIsMap) {
+                                if (POIsMap.hasOwnProperty(key)) {
+
+                                    var p = POIsMap[key];
+                                    if (p && p.marker) { p.marker.setMap(null); }
+                                }
+                            }
+                            $scope.anyService.setAllPois(POIsMap);
+                            POIsMap = {};
+                        }
+                    }
+                }
+            }
+            changedfloor = false;
+        }
+    });
+
+    /**
+     * Shows the Wi-Fi Coverage:
+     * - draws boxes of colors green/yellow/darkYellow/Magenta/Red
+     * - these denote the signal coverage in the building.
+     * - It walls getRadioHeatmapRSS_N according to the zoom level (1 to 3, where 3 is max).
+     */
+    $scope.toggleCoverage = function () {
+        LOG.D2("toggleCoverage");
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for coverage).")
+            return;
+        }
+
+        // if coverage map is combined with timestamp, on hide remove crossfilter bar
+        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
+            $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
+            if ($scope.fingerPrintsTimeMode) {
+                if (typeof (Storage) !== "undefined" && localStorage) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'YES');
+                }
+            } else {
+                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                }
+            }
+            $scope.anyService.fingerPrintsTimeMode = !$scope.anyService.fingerPrintsTimeMode;
+        }
+
+        var check = 0;
+        if ((heatMap[check] !== undefined && heatMap[check] !== null) || $scope.radioHeatmapRSSTimeMode) {
+            var i = heatMap.length;
+            while (i--) {
+                heatMap[i].rectangle.setMap(null);
+                heatMap[i] = null;
+            }
+            heatMap = [];
+            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+            _HEATMAP_FINGERPRINT_COVERAGE = false;
+            setColorClicked('g', false);
+            setColorClicked('y', false);
+            setColorClicked('o', false);
+            setColorClicked('p', false);
+            setColorClicked('r', false);
+            $scope.radioHeatmapRSSMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'NO');
+            }
+            $scope.anyService.radioHeatmapRSSMode = false;
+            $scope.radioHeatmapRSSTimeMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
+                localStorage.setItem('fingerPrintsTimeMode', 'NO');
+            }
+            $scope.anyService.radioHeatmapRSSTimeMode = false;
+            $scope.radioHeatmapRSSHasGreen = false;
+            $scope.radioHeatmapRSSHasYellow = false;
+            $scope.radioHeatmapRSSHasOrange = false;
+            $scope.radioHeatmapRSSHasPurple = false;
+            $scope.radioHeatmapRSSHasRed = false;
+            if (!$scope.fingerPrintsMode) {
+                document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
+            }
+            $cookieStore.put('RSSClicked', 'NO');
+            return;
+        }
+
+        if ($scope.fingerPrintsTimeMode) {
+            $scope.radioHeatmapRSSTimeMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerPrintsTimeMode', 'YES');
+            }
+            $scope.anyService.radioHeatmapRSSTimeMode = true;
+        }
+
+        document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
+        $scope.radioHeatmapRSSMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('radioHeatmapRSSMode', 'YES');
+        }
+        $scope.anyService.radioHeatmapRSSMode = true;
+        $scope.showFingerprintCoverage();
+        return;
+    };
+
+    $scope.toggleAPs = function () {
+        var check = 0;
+        if (APmap[check] !== undefined && APmap[check] !== null) {  // hide Access Points
+            var i = APmap.length;
+            while (i--) {
+                APmap[i].setMap(null);
+                APmap[i] = null;
+                $scope.example9data[i] = null;
+                $scope.example9model[i] = null;
+            }
+            i = $scope.example8data.length;
+            while (i--) {
+                $scope.example8data[i] = null;
+                $scope.example8model[i] = null;
+            }
+
+            $scope.prefDisableApsMode();
+            return;
+        }
+
+        if ($scope.anyService.hasSelectedFloor()) {
+            $scope.prefEnableApsMode();
+            $scope.showAPs();
+        } else {
+            $scope.prefDisableApsMode();
+            _warn_autohide($scope, "No floor selected (for access points).");
+        }
+    };
+
+    $scope.prefEnableApsMode = function () {
+        _APs_IS_ON = true;
+        $scope.APsMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) { localStorage.setItem('APsMode', 'YES'); }
+        document.getElementById("APs-mode").classList.add('quickaction-selected');
+    };
+
+    $scope.prefDisableApsMode = function () {
+        APmap = [];
+        $scope.example9data = [];
+        $scope.example9model = [];
+        $scope.example8data = [];
+        $scope.example8model = [];
+        _APs_IS_ON = false;
+        $scope.filterByMAC = false;
+        $scope.filterByMAN = false;
+        document.getElementById("APs-mode").classList.remove('quickaction-selected');
+        $scope.APsMode = false;
+        if (typeof (Storage) !== "undefined" && localStorage) { localStorage.setItem('APsMode', 'NO'); }
+    }
+
+    $scope.toggleFingerPrints = function () {
+        LOG.D2("toggleFingerPrints");
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for fingerprints).")
+            return;
+        }
+
+        // if coverage and time are pressed, remove them when heatmaps are requested.
+        if (_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode) {
+	    // is the logic here correct?
+            LOG.D2("coverage & time pressed");
+            $scope.toggleCoverage();
+            $scope.toggleFingerPrints(); // calling itself?!
+            return
+        }
+
+        if (!$scope.fingerPrintsMode) {
+            $scope.enableFingerprintsMode();
+        } else {
+            $scope.disableFingerprintsMode();
+        }
+
+        var check = 0;
+        if (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) {
+            var i = fingerPrintsMap.length;
+
+            //hide fingerPrints
+            while (i--) {
+                fingerPrintsMap[i].setMap(null);
+                fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+            $scope.fingerPrintsMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerprintsMode', 'NO');
+            }
+            $scope.fingerPrintsTimeMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
+                localStorage.setItem('fingerPrintsTimeMode', 'NO');
+            }
+            $scope.anyService.fingerPrintsTimeMode = false;
+            if (!$scope.radioHeatmapRSSMode) {
+                document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
+            }
+            return;
+        }
+
+        if (heatmap && heatmap.getMap()) {  // hide fingerPrints heatmap
+            heatmap.setMap(null);
+            _FINGERPRINTS_IS_ON = false;
+            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+            $scope.fingerPrintsMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerprintsMode', 'NO');
+            }
+            $scope.fingerPrintsTimeMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
+                localStorage.setItem('fingerPrintsTimeMode', 'NO');
+            }
+            $scope.anyService.fingerPrintsTimeMode = false;
+            _HEATMAP_F_IS_ON = false;
+            if (!$scope.radioHeatmapRSSMode) {
+                document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
+            }
+            var i = heatmapFingerprints.length;
+            while (i--) { heatmapFingerprints[i] = null; }
+            heatmapFingerprints = [];
+            return;
+        }
+
+        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+        $scope.fingerPrintsMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'YES');
+        }
+        if ($scope.radioHeatmapRSSTimeMode) {
+            $scope.fingerPrintsTimeMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('fingerPrintsTimeMode', 'YES');
+            }
+            $scope.anyService.fingerPrintsTimeMode = true;
+        }
+
+        $scope.showFingerprintHeatmap();
+    };
+
+
+    /**
+     * NOTE: the ACCES map functionality is now removed from the backend.
+     *
+     * This methods asynchronoysly calls showLocalizationAccHeatmap, that will
+     * eventually show the ACCES map. No UI changes should happen here as it returns immediately.
+     *
+     * It is a time consuming method that prepares in the background the access map.
+     * The code is buggy and based on obsolete Play/Scala libraries, so it was eventually removed.
+     *
+     */
+    $scope.toggleLocalizationAccuracy = function () {
+        if ((true)) { // ACCES is now removed. Show warning and disable when toggled
+            _warn_autohide($scope, WARN_ACCES_REMOVED)
+            $scope.localizationAccMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('localizationAccMode', 'NO');
+            }
+            var el = document.getElementById("localizationAccuracy-mode")
+            el.classList.remove('quickaction-selected');
+            return;
+        }
+
+        var check = 0;
+        if ((heatMapAcces[check] !== undefined &&
+            heatMapAcces[check] !== null) ||
+            $scope.radioHeatmapLocalization) {
+            var i = heatMapAcces.length;
+            while (i--) {
+                heatMapAcces[i].setMap(null);
+                heatMapAcces[i] = null;
+            }
+            heatMapAcces = [];
+            _HEATMAP_ACCES = false;
+            // CHECK what is this?
+            setColorClicked('g', false);
+            setColorClicked('y', false);
+            setColorClicked('o', false);
+            setColorClicked('p', false);
+            setColorClicked('r', false);
+            document.getElementById("localizationAccuracy-mode").classList.remove('quickaction-selected');
+            $scope.radioHeatmapLocalization = false;
+
+            $scope.localizationAccMode = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('localizationAccMode', 'NO');
+            }
+            return;
+        }
+
+        $scope.showLocalizationAccHeatmap();
+        document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
+    };
+
+
+    $scope.toggleFingerPrintsTime = function () {
+        LOG.D2("toggleFingerPrintsTime");
+        if (!$scope.anyService.hasSelectedFloor()) {
+           _warn_autohide($scope, "No floor selected (for fingerprints:time)")
+            return;
+        }
+
+        if ($scope.fingerPrintsMode) { // gmap heatmap mode (normal red/green/yellow maps heatmap)
+            LOG.D("fingerPrintsMode")
+            $scope.fingerPrintsTimeMode = !$scope.fingerPrintsTimeMode;
+            if ($scope.fingerPrintsTimeMode) {
+                if (typeof (Storage) !== "undefined" && localStorage) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'YES');
+                }
+            } else {
+                if (typeof (Storage) !== "undefined" && localStorage && !$scope.radioHeatmapRSSTimeMode) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                }
+            }
+            $scope.anyService.fingerPrintsTimeMode = !$scope.anyService.fingerPrintsTimeMode;
+        }
+
+        if ($scope.radioHeatmapRSSMode) { // square boxes overlay (showing quality of coverate)
+            LOG.D("radioHeatmapRSSMode")
+            $scope.radioHeatmapRSSTimeMode = !$scope.radioHeatmapRSSTimeMode;
+            if ($scope.radioHeatmapRSSTimeMode) {
+                if (typeof (Storage) !== "undefined" && localStorage) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'YES');
+                }
+            } else {
+                if (typeof (Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
+                    localStorage.setItem('fingerPrintsTimeMode', 'NO');
+                }
+            }
+            $scope.anyService.radioHeatmapRSSTimeMode = !$scope.anyService.radioHeatmapRSSTimeMode;
+        }
+
+        if ($scope.radioHeatmapLocalization) {
+            LOG.D("radioHeatmapLocalization")
+            clearLocalization();
+            $scope.showFingerprintCoverage();
+            $scope.radioHeatmapRSSMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'YES');
+            }
+            $scope.anyService.radioHeatmapRSSMode = true;
+            document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
+            document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
+        }
+
+        if (!$scope.fingerPrintsTimeMode && $scope.fingerPrintsMode) {
+            LOG.D("!fingerPrintsTimeMode && fingerPrintsMode: showFingerprintHeatmap")
+            clearFingerprintHeatmap();
+            $scope.showFingerprintHeatmap();
+            document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+            document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
+        }
+
+        if (!$scope.radioHeatmapRSSTimeMode && $scope.radioHeatmapRSSMode) {
+            LOG.D("!radioHeatmapRSSTimeMode && radioHeatmapRSSMode")
+            clearFingerprintCoverage();
+            $scope.showFingerprintCoverage();
+            $scope.radioHeatmapRSSMode = true;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('radioHeatmapRSSMode', 'YES');
+            }
+            $scope.anyService.radioHeatmapRSSMode = true;
+            document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
+            document.getElementById("fingerPrints-time-mode").classList.remove('quickaction-selected');
+        }
+
+        if ($scope.radioHeatmapRSSTimeMode || $scope.fingerPrintsTimeMode) {
+            $scope.getFingerPrintsTime();
+        }
+    };
+
+    $scope.togglePOIs = function () {
+        POIsMap = $scope.anyService.getAllPois();
+        var key = Object.keys(POIsMap);
+        var check = 0;
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for POIs)")
+            return;
+        }
+
+        if (!POIsMap.hasOwnProperty(key[check])) {
+            _warn_autohide($scope, "No POIs yet.")
+            return;
+        }
+
+        if (POIsMap[key[check]].marker.getMap() !== null && POIsMap[key[check]].marker.getMap() !== undefined) {
+            for (var key in POIsMap) {
+                if (POIsMap.hasOwnProperty(key)) {
+                    var p = POIsMap[key];
+                    if (p && p.marker) {
+                        p.marker.setMap(null);
+                    }
+                }
+            }
+
+            $scope.anyService.setAllPois(POIsMap);
+            POIsMap = {};
+            _POIS_IS_ON = false;
+            if (typeof (Storage) !== "undefined" && localStorage) {
+                localStorage.setItem('POIsMode', 'NO');
+            }
+            return;
+        }
+
+        for (var key in POIsMap) {
+            if (POIsMap.hasOwnProperty(key)) {
+                var p = POIsMap[key];
+                if (p && p.marker) {
+                    p.marker.setMap(GMapService.gmap);
+                }
+            }
+        }
+        $scope.anyService.setAllPois(POIsMap);
+        _POIS_IS_ON = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('POIsMode', 'YES');
+        }
+        return;
+    };
+
+
+    $scope.toggleConnections = function () {
+        connectionsMap = $scope.anyService.getAllConnections();
+        var key = Object.keys(connectionsMap);
+        var check = 0;
+        if (!$scope.anyService.hasSelectedFloor()) {
+            _warn_autohide($scope, "No floor selected (for edges)")
+            return;
+        }
+        if (!connectionsMap.hasOwnProperty(key[check])) {
+            LOG.D2("No edges yet.")
+            return;
+        }
+
+        if (connectionsMap[key[check]].polyLine !== undefined) {
+            if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                    for (var key in connectionsMap) {
+                        if (connectionsMap.hasOwnProperty(key)) {
+                            var con = connectionsMap[key];
+                            if (con && con.polyLine) { con.polyLine.setMap(null); }
+                        }
+                    }
+
+                    $scope.anyService.setAllConnection(connectionsMap);
+                    connectionsMap = {};
+                    _CONNECTIONS_IS_ON = false;
+                    if (typeof (Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('connectionsMode', 'NO');
+                    }
+                    return;
+                }
+            }
+        }
+
+        $scope.showConnections();
+    };
+
+
+    $scope.getHeatMapButtonText = function () {
+        var check = 0;
+        return heatMap[check] !== undefined && heatMap[check] !== null ? "Hide WiFi Map" : "Show WiFi Map";
+    };
+
+    $scope.getAPsButtonText = function () {
+        var check = 0;
+        return APmap[check] !== undefined && APmap[check] !== null ?
+            "Hide Estimated Wi-Fi AP Position" : "Show Estimated Wi-Fi AP Position";
+    };
+
+    $scope.getFingerPrintsButtonText = function () {
+        var check = 0;
+        return (fingerPrintsMap[check] !== undefined && fingerPrintsMap[check] !== null) ||
+        (heatmap && heatmap.getMap()) ? "Hide Fingerprints" : "Show Fingerprints";
+    };
+
+    $scope.getFingerPrintTimeButtonText = function () {
+        return $scope.fingerPrintsTimeMode ? "Hide Fingerprints By Time" : "Show Fingerprints By Time";
+    };
+
+    $scope.getHeatMapTimeButtonText = function () {
+        return $scope.radioHeatmapRSSTimeMode ? "Hide WiFi Map By Time" : "Show WiFi Map By Time";
+    };
+
+    $scope.getLocalizationAccuracyText = function () {
+        return $scope.localizationAccMode ? "Hide ACCES Map" : "Show ACCES Map";
+    }
+
+    $scope.getPOIsButtonText = function () {
+        POIsMap = $scope.anyService.getAllPois();
+        var key = Object.keys(POIsMap);
+        var check = 0;
+        if (POIsMap.hasOwnProperty(key[check])) {
+            if (POIsMap[key[check]].marker.getMap() !== undefined) {
+                if (POIsMap[key[check]].marker.getMap() !== null) {
+                    document.getElementById("POIs-mode").classList.add('quickaction-selected');
+                    $scope.POIsMode = true;
+                    return "Hide POIs";
+                }
+            }
+        }
+        document.getElementById("POIs-mode").classList.remove('quickaction-selected');
+        $scope.POIsMode = false;
+        return "Show POIs";
+    };
+
+    $scope.getConnectionsButtonText = function () {
+        connectionsMap = $scope.anyService.getAllConnections();
+        var key = Object.keys(connectionsMap);
+        var check = 0;
+        if (connectionsMap.hasOwnProperty(key[check])) {
+            if (connectionsMap[key[check]].polyLine !== undefined) {
+                if (connectionsMap[key[check]].polyLine.getMap() !== undefined) {
+                    if (connectionsMap[key[check]].polyLine.getMap() !== null) {
+                        document.getElementById("connections-mode").classList.add('quickaction-selected');
+                        $scope.connectionsMode = true;
+                        return "Hide Edges";
+                    }
+                }
+            }
+        }
+        document.getElementById("connections-mode").classList.remove('quickaction-selected');
+        $scope.connectionsMode = false;
+        return "Show Edges";
+        //return (connectionsMap!==undefined && connectionsMap!==null)  ? "Hide Edges" : "Show Edges";
+    };
+
+    $('#HMs_1').unbind().click(function () {
+        $('#heatmapTab').click();
+        $('#HMs').click();
+        $('#HMsButton').click();
+    });
+
+    $('#APs_1').unbind().click(function () {
+        $('#heatmapTab').click();
+        $('#HMs').click();
+        $('#APsButton').click();
+    });
+
+    $('#FPs_1').unbind().click(function () {
+        $('#heatmapTab').click();
+        $('#FPs').click();
+        $('#FPsButton').click();
+    });
+
+    $('#deleteFingerprintsSpn').unbind().click(function () {
+        $('#heatmapTab').click();
+        $('#FPs').click();
+        $('#deleteButton').click();
+    });
+
+    $('#FPs_2').unbind().click(function () {
+        $('#heatmapTab').click();
+        $('#FPs').click();
+        $('#FPsTimeButton').click();
+    });
+
+    $('#LA_1').unbind().click(function () {
+        $('#heatmapTab').click();
+        $('#LAs').click();
+        $('#LAButton').click();
+
+        //_err($scope, "Not available yet. Please check in the next release.");
+    });
+
+    $('#POIs_1').unbind().click(function () {
+        $('#FPs').click();
+        $('#POIsButton').click();
+    });
+
+    $('#CNs_1').unbind().click(function () {
+        $('#FPs').click();
+        $('#connectionsButton').click();
+    });
+
+
+    $scope.getHeatmapModeText = function () {
+        return $scope.radioHeatmapRSSMode ? "WiFi Map is online" : "WiFi Map is offline";
+
+    };
+
+    $scope.getAPsModeText = function () {
+        return $scope.APsMode ? "Estimated Wi-Fi AP Position is online" : "Estimated Wi-Fi AP Position is offline";
+
+    };
+
+    $scope.getFingerPrintsModeText = function () {
+        return $scope.fingerPrintsMode ? "FingerPrints are online" : "FingerPrints are offline";
+
+    };
+
+    $scope.getDeleteFingerPrintsModeText = function () {
+        return $scope.deleteFingerPrintsMode ? "ON" : "OFF";
+
+    };
+
+    $scope.getFingerPrintsTimeModeText = function () {
+        return $scope.fingerPrintsTimeMode || $scope.radioHeatmapRSSTimeMode ? "ON" : "OFF";
+
+    };
+
+    $scope.getLocalizationAccuracyModeText = function () {
+        return $scope.localizationAccMode ? "Localization is online" : "Localization is offline";
+
+    };
+
+    $scope.getPOIsModeText = function () {
+        return $scope.POIsMode ? "POIs are online" : "POIs are offline";
+    };
+
+    $scope.getConnectionsModeText = function () {
+        return $scope.connectionsMode ? "Edges are online" : "Edges are offline";
+    };
+
+    // REVIEWLS kept from lsolea
+    $scope.deleteFingerPrints = function () {
+        console.log("deleteFingerPrints");
+
+        if (_DELETE_FINGERPRINTS_IS_ON) {
+            drawingManager.setMap(null);
+            $scope.deleteButtonWarning = false;
+            document.getElementById("delete-mode").classList.remove('quickaction-selected');
+            _DELETE_FINGERPRINTS_IS_ON = false;
+            $scope.deleteFingerPrintsMode = false;
+            return;
+        }
+
+        if (!_FINGERPRINTS_IS_ON && (!heatmap || !heatmap.getMap())) {
+            _warn_autohide($scope, "Press 'Show Fingerprints' button first");
+            return;
+        }
+
+        $scope.deleteButtonWarning = true;
+        $scope.deleteFingerPrintsMode = true;
+        _DELETE_FINGERPRINTS_IS_ON = true;
+        document.getElementById("delete-mode").classList.add('quickaction-selected');
+        drawingManager = new google.maps.drawing.DrawingManager({
+            drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
+            drawingControl: false,
+            rectangleOptions: {
+                strokeColor: "#13B3E7",
+                fillColor: "#ADD8E6",
+                fillOpacity: 0.5
+            }
+        });
+
+        drawingManager.setMap(GMapService.gmap);
+        var bounds;
+        var start;
+        var end;
+        var confirmation;
+
+        google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
+            bounds = e.overlay.getBounds();
+            start = bounds.getNorthEast();
+            end = bounds.getSouthWest();
+
+            var i = fingerPrintsMap.length;
+            while (i--) {
+                if (fingerPrintsMap[i].getPosition().lat() <= start.lat() &&
+                    fingerPrintsMap[i].getPosition().lng() <= start.lng() &&
+                    fingerPrintsMap[i].getPosition().lat() >= end.lat() &&
+                    fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
+                    confirmation = confirm("Confirm:\nAre you sure you want to delete the selected fingerprints?");
+                    break;
+                }
+            }
+            i = heatmapFingerprints.length;
+            while (i--) {
+                if (heatmapFingerprints[i].getPosition().lat() <= start.lat() &&
+                    heatmapFingerprints[i].getPosition().lng() <= start.lng() &&
+                    heatmapFingerprints[i].getPosition().lat() >= end.lat() &&
+                    heatmapFingerprints[i].getPosition().lng() >= end.lng()) {
+                    confirmation = confirm("Confirm:\nAre you sure you want to delete the selected fingerprints?");
+                    break;
+                }
+            }
+
+            if (confirmation === undefined) {
+                alert("You have to select an area with Fingerprints to delete. ");
+                e.overlay.setMap(null);
+                drawingManager.setMap(null);
+                $scope.deleteButtonWarning = false;
+                _DELETE_FINGERPRINTS_IS_ON = false;
+                $scope.deleteFingerPrintsMode = false;
+                document.getElementById("delete-mode").classList.remove('quickaction-selected');
+                return;
+            }
+
+            if (confirmation) {
+                var b = $scope.anyService.getBuilding();
+                var f = $scope.anyService.getFloorNumber();
+                var reqObj = {};
+                if (!b || !b.buid) {
+                    _err($scope, "No building selected");
+                    return;
+                }
+
+                reqObj.buid = b.buid;
+                reqObj.floor = f;
+                reqObj.lat1 = start.lat() + "";
+                reqObj.lon1 = start.lng() + "";
+                reqObj.lat2 = end.lat() + "";
+                reqObj.lon2 = end.lng() + "";
+
+                var promise;
+                if ($scope.fingerPrintsTimeMode) {
+                    if (userTimeData[0] == undefined)
+                        userTimeData[0] = 0
+                    if (userTimeData[1] == undefined)
+                        userTimeData[1] = Number.MAX_SAFE_INTEGER
+                    reqObj.timestampX = userTimeData[0] + "";
+                    reqObj.timestampY = userTimeData[1] + "";
+                    promise = $scope.anyAPI.deleteFingerprintsByTime(reqObj);
+                } else {
+                    promise = $scope.anyAPI.deleteFingerprints(reqObj);
+                }
+
+                var data = [];
+                if (!_HEATMAP_F_IS_ON && !_HEATMAP_FINGERPRINT_COVERAGE)
+                    _suc($scope, "The fingerprints are scheduled to be deleted.");
+                else if (_HEATMAP_F_IS_ON && !_HEATMAP_FINGERPRINT_COVERAGE)
+                    _suc($scope, "The fingerprints are scheduled to be deleted. " +
+                        "A new radiomap for fingerprints will be regenerated shortly after.");
+                else if (!_HEATMAP_F_IS_ON && _HEATMAP_FINGERPRINT_COVERAGE)
+                    _suc($scope, "The fingerprints are scheduled to be deleted. " +
+                        "A new radiomap for Wi-Fi coverage will be regenerated shortly after.");
+                else if (_HEATMAP_F_IS_ON && _HEATMAP_FINGERPRINT_COVERAGE)
+                    _suc($scope, "The fingerprints are scheduled to be deleted. " +
+                        "New radiomaps for fingerprints and Wi-Fi coverage will be regenerated shortly after.");
+                promise.then(
+                    function (resp) { // on success
+                        data = resp.data.fingerprints; // delete the fingerPrints from the loaded Fingerprints
+                        if (data.length > 0) {
+                            console.log("Deleted " + data.length + " fingerprints.");
+                            var i = fingerPrintsMap.length;
+                            while (i--) {
+                                if (fingerPrintsMap[i].getPosition().lat() <= start.lat() &&
+                                    fingerPrintsMap[i].getPosition().lng() <= start.lng() &&
+                                    fingerPrintsMap[i].getPosition().lat() >= end.lat() &&
+                                    fingerPrintsMap[i].getPosition().lng() >= end.lng()) {
+                                    // hide the successfully deleted fingerprints
+                                    fingerPrintsMap[i].setMap(null);
+                                }
+                            }
+                            if (_HEATMAP_F_IS_ON) {
+                                heatmap.setMap(null);
+                                var heatMapData = [];
+                                i = heatmapFingerprints.length;
+                                while (i--) {
+                                    if (heatmapFingerprints[i] !== null) {
+                                        if (heatmapFingerprints[i].getPosition().lat() > start.lat() ||
+                                            heatmapFingerprints[i].getPosition().lng() > start.lng() ||
+                                            heatmapFingerprints[i].getPosition().lat() < end.lat() ||
+                                            heatmapFingerprints[i].getPosition().lng() < end.lng()) {
+                                            heatMapData.push({
+                                                location: heatmapFingerprints[i].getPosition(),
+                                                weight: 1
+                                            });
+                                        } else {
+                                            heatmapFingerprints[i] = null;
+                                        }
+                                    }
+                                }
+                                heatmap = new google.maps.visualization.HeatmapLayer({
+                                    data: heatMapData
+                                });
+                                heatmap.setMap($scope.gmapService.gmap);
+                            }
+                            if (_HEATMAP_FINGERPRINT_COVERAGE) {
+                                i = heatMap.length;
+
+                                while (i--) {
+                                    if (heatMap[i].location.lat() <= start.lat() &&
+                                        heatMap[i].location.lng() <= start.lng() &&
+                                        heatMap[i].location.lat() >= end.lat() &&
+                                        heatMap[i].location.lng() >= end.lng()) {
+                                        heatMap[i].rectangle.setMap(null);
+                                    }
+                                }
+                            }
+                            if (_HEATMAP_ACCES) { //lsolea01
+                                i = heatMapAcces.length;
+
+                                while (i--) {
+                                    if (heatMapAcces[i].location.lat() <= start.lat() &&
+                                        heatMapAcces[i].location.lng() <= start.lng() &&
+                                        heatMapAcces[i].location.lat() >= end.lat() &&
+                                        heatMapAcces[i].location.lng() >= end.lng()) {
+                                        heatMapAcces[i].setMap(null);
+                                    }
+                                }
+                            }
+                            _suc($scope, "Successfully deleted " + data.length + " fingerPrints.");
+                        } else {
+                            _warn($scope, "No fingerprints deleted.");
+                        }
+                    },
+                    function (resp) {
+                        ShowError($scope, resp,
+                            "Something went wrong. It's likely that everything related to the fingerPrints is deleted but please refresh to make sure or try again.",
+                            true);
+                        document.getElementById("delete-mode").classList.remove('quickaction-selected');
+                    }
+                );
+            }
+
+            e.overlay.setMap(null);
+            drawingManager.setMap(null);
+            $scope.deleteButtonWarning = false;
+            _DELETE_FINGERPRINTS_IS_ON = false;
+            $scope.deleteFingerPrintsMode = false;
+            document.getElementById("delete-mode").classList.remove('quickaction-selected');
+        });
+    };
+
+    $scope.getColorBarTextFor = function (color) {
+
+        return !getColorClicked(color.charAt(0)) ? "click to hide " + color + " ones" : "click to show " + color + " ones";
+
+    };
+
+    function setColorClicked(color, value) {
+
+        if (color === 'g') {
+            colorBarGreenClicked = value;
+            if (value) {
+                document.getElementById("greenSquares").classList.add('faded');
+            } else {
+                document.getElementById("greenSquares").classList.remove('faded');
+            }
+
+        } else if (color === 'y') {
+            colorBarYellowClicked = value;
+            if (value) {
+                document.getElementById("yellowSquares").classList.add('faded');
+            } else {
+                document.getElementById("yellowSquares").classList.remove('faded');
+            }
+
+        } else if (color === 'o') {
+            colorBarOrangeClicked = value;
+            if (value) {
+                document.getElementById("orangeSquares").classList.add('faded');
+            } else {
+                document.getElementById("orangeSquares").classList.remove('faded');
+            }
+
+        } else if (color === 'p') {
+            colorBarPurpleClicked = value;
+            if (value) {
+                document.getElementById("purpleSquares").classList.add('faded');
+            } else {
+                document.getElementById("purpleSquares").classList.remove('faded');
+            }
+
+        } else {
+            colorBarRedClicked = value;
+            if (value) {
+                document.getElementById("redSquares").classList.add('faded');
+            } else {
+                document.getElementById("redSquares").classList.remove('faded');
+            }
+
+        }
+
+
+    };
+
+    function getColorClicked(color) {
+
+        if (color === 'g')
+            return colorBarGreenClicked;
+        else if (color === 'y')
+            return colorBarYellowClicked;
+        else if (color === 'o')
+            return colorBarOrangeClicked;
+        else if (color === 'p')
+            return colorBarPurpleClicked;
+        else
+            return colorBarRedClicked;
+    };
+
+    $scope.hideRSSExcept = function (color) {
+
+        if (color === 'g' && !$scope.radioHeatmapRSSHasGreen) {
+            _warn_autohide($scope, "Coverage map has no green squares");
+            return;
+        }
+        if (color === 'y' && !$scope.radioHeatmapRSSHasYellow) {
+            _warn_autohide($scope, "Coverage map has no yellow squares");
+            return;
+        }
+        if (color === 'o' && !$scope.radioHeatmapRSSHasOrange) {
+            _warn_autohide($scope, "Coverage map has no orange squares");
+            return;
+        }
+        if (color === 'p' && !$scope.radioHeatmapRSSHasPurple) {
+            _warn_autohide($scope, "Coverage map has no purple squares");
+            return;
+        }
+        if (color === 'r' && !$scope.radioHeatmapRSSHasRed) {
+            _warn_autohide($scope, "Coverage map has no red squares");
+            return;
+        }
+        var i = heatMap.length;
+        while (i--) {
+            if (getColorClicked(color)) {
+                if (heatMap[i].id === color) {
+                    heatMap[i].rectangle.setMap($scope.gmapService.gmap);
+                    heatMap[i].clicked = true;
+                }
+            } else {
+                if (heatMap[i].id === color) {
+                    heatMap[i].rectangle.setMap(null);
+                    heatMap[i].clicked = false;
+                }
+
+            }
+        }
+        setColorClicked(color, !getColorClicked(color));
+
+    };
+
+    /**
+     * Shows wifi coverage
+     */
+
+    $scope.showFingerprintCoverage = function () {
+        clearFingerprintCoverage();
+        clearFingerprintHeatmap();
+        $scope.fingerPrintsMode = false;
+
+        // if coverage map is combine with timestamp on zoom level 3, remove timestampTiles
+        // this only works for the first time..
+        if (!_HEATMAP_FINGERPRINT_COVERAGE && $scope.fingerPrintsTimeMode && _currentZoomLevel >= _MAX_ZOOM_LEVEL) {
+            LOG.D2("REMOVE TILES");
+            // try while (--i)
+            $scope.fingerPrintsTimeMode = false;
+        }
+
+        var jsonReq;
+        var promise;
+        _currentZoomLevel = GMapService.gmap.getZoom();
+
+        if (($scope.radioHeatmapRSSTimeMode || $scope.fingerPrintsTimeMode) && userTimeData.length > 0) {
+            jsonReq = {
+                "buid": $scope.anyService.getBuildingId(),
+                "floor": $scope.anyService.getFloorNumber(),
+                "timestampX": userTimeData[0],
+                "timestampY": userTimeData[1]
+            };
+
+            if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS && _currentZoomLevel < MAX_ZOOM_FOR_HEATMAPS) {
+                levelOfZoom = 2;
+                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_2(jsonReq);
+                // colsoe.logt ( zoom: levleOfZoom  (NOW_ZOOM): RssTime_2)
+            } else if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS) {
+                levelOfZoom = 3;
+                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_3(jsonReq);
+                // colsoe.logt ( zoom: levleOfZoom  (NOW_ZOOM): RssTime_3)
+            } else {
+                levelOfZoom = 1;
+                // colsoe.logt ( zoom: levleOfZoom  (NOW_ZOOM): RssTime_1)
+                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_1(jsonReq);
+            }
+        } else {
+            jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
+            if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS && _currentZoomLevel < MAX_ZOOM_FOR_HEATMAPS) {
+                levelOfZoom = 2;
+                promise = $scope.anyAPI.getRadioHeatmapRSS_2(jsonReq);
+                // colsoe.logt ( zoom: levleOfZoom  (NOW_ZOOM): RSS_2)
+            } else if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS) {
+                levelOfZoom = 3;
+                promise = $scope.anyAPI.getRadioHeatmapRSS_3(jsonReq);
+                // colsoe.logt ( zoom: levleOfZoom  (NOW_ZOOM): RSS_3)
+            } else {
+                levelOfZoom = 1;
+                promise = $scope.anyAPI.getRadioHeatmapRSS_1(jsonReq);
+                // colsoe.logt ( zoom: levleOfZoom  (NOW_ZOOM): RSS_1)
+            }
+        }
+        if (promise !== undefined) {
+            promise.then(
+                function (resp) { // on success
+                    var data = resp.data;
+                    var heatMapData = [];
+                    var i = resp.data.radioPoints.length;
+                    if (i <= 0) {
+                        _err($scope, "This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                        if (!$scope.radioHeatmapRSSTimeMode) {
+                            document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+                            $scope.radioHeatmapRSSMode = false;
+                            if (typeof (Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
+                                localStorage.setItem('radioHeatmapRSSMode', 'NO');
+                            }
+                        } else {
+                            _warn_autohide($scope, "No fingerprints at this period.");
+                        }
+                        return;
+                    }
+                    var j = 0;
+                    while (i--) {
+                        var rp = resp.data.radioPoints[i];
+                        var rss = JSON.parse(rp.w); //count,average,total
+                        var w = parseFloat(rss.average); //set weight based on RSSI
+                        if (w <= -30 && w >= -60) {
+                            heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#4ed419', id: 'g'});
+                            $scope.radioHeatmapRSSHasGreen = true;
+                        } else if (w < -60 && w >= -70) {
+                            heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ffff00', id: 'y'});
+                            $scope.radioHeatmapRSSHasYellow = true;
+                        } else if (w < -70 && w >= -90) {
+                            heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ffa500', id: 'o'});
+                            $scope.radioHeatmapRSSHasOrange = true;
+                        } else if (w < -90 && w >= -100) {
+                            heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#bd06bd', id: 'p'});
+                            $scope.radioHeatmapRSSHasPurple = true;
+                        } else {
+                            heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: w, color: '#ff0000', id: 'r'});
+                            $scope.radioHeatmapRSSHasRed = true;
+                        }
+                        var center = heatMapData[j].location; // calculate bounds
+                        var size;
+                        if (levelOfZoom == 3) {size = new google.maps.Size(0.75, 0.75);}
+                        else if (levelOfZoom == 2) {size = new google.maps.Size(2, 2);}
+                        else {size = new google.maps.Size(5, 5);}
+                        var n = google.maps.geometry.spherical.computeOffset(center, size.height, 0).lat(),
+                            s = google.maps.geometry.spherical.computeOffset(center, size.height, 180).lat(),
+                            e = google.maps.geometry.spherical.computeOffset(center, size.width, 90).lng(),
+                            w = google.maps.geometry.spherical.computeOffset(center, size.width, 270).lng();
+                        var rectangle = new google.maps.Rectangle({
+                            strokeColor: heatMapData[j].color,
+                            strokeOpacity: 1,
+                            strokeWeight: 1,
+                            fillColor: heatMapData[j].color,
+                            fillOpacity: 0.5,
+                            bounds: new google.maps.LatLngBounds(
+                                new google.maps.LatLng(s, w),
+                                new google.maps.LatLng(n, e))
+                        });
+                        if (getColorClicked(heatMapData[j].id)) {
+                            rectangle.setMap(null);
+                        } else {
+                            rectangle.setMap($scope.gmapService.gmap);
+                        }
+                        heatMap.push({rectangle: rectangle, location: center, id: heatMapData[j].id, clicked: false});
+                        j++;
+                        resp.data.radioPoints.splice(i, 1);
+                    }
+                    _HEATMAP_FINGERPRINT_COVERAGE = true;
+                    $cookieStore.put('RSSClicked', 'YES');
+                },
+                function (resp) {
+                    ShowWarningAutohide($scope, resp, "", false);
+                    if (!$scope.radioHeatmapRSSTimeMode) {
+                        $scope.radioHeatmapRSSMode = false;
+                        if (typeof (Storage) !== "undefined" && localStorage && !$scope.fingerPrintsTimeMode) {
+                            localStorage.setItem('radioHeatmapRSSMode', 'NO');
+                        }
+                        document.getElementById("radioHeatmapRSS-mode").classList.remove('quickaction-selected');
+                    }
+                }
+            );
+        }
+    }
+
+    $scope.getAPsIds = function (jsonInfo) {
+
+        var jsonReq = {};
+        jsonReq.ids = jsonInfo;
+
+        var promise = $scope.anyAPI.getAPsIds(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data.accessPoints;
+
+                var i = data.length;
+
+                if (i <= 0) {
+                    _err($scope, "Access Points seems to not have ids");
+                    return;
+                }
+
+                var dataIDs = new Set();
+
+                while (i--) {
+                    APmap[i].mun = data[i];
+                    dataIDs.add(data[i]);
+
+                }
+
+                dataIDs.forEach(function (element) {
+                    if (element !== "N/A") {
+                        $scope.example8data.push({id: element, label: element});
+                        $scope.example8model.push({id: element, label: element});
+                    }
+                });
+
+
+            },
+            function (resp) {
+                ShowError($scope, resp, "Something went wrong while fetching the ids of access points.", true);
+            }
+        );
+    };
+
+    $scope.showAPs = function () {  // request for access points
+        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
+
+        var i;
+        var promise = $scope.anyAPI.getAPs(jsonReq);
+        promise.then(
+            function (resp) {  // on success
+                i = resp.data.accessPoints.length;
+                if (i <= 0) {
+                    _warn_autohide($scope, "Floor not mapped. Use logger to map it");
+                    $scope.APsMode = false;
+                    document.getElementById("APs-mode").classList.remove('quickaction-selected');
+                    return;
+                }
+
+                //algorithm to find the location of each AP
+                var values = resp.data.accessPoints;
+                i = values.length;
+
+                var _ACCESS_POINT_IMAGE = IMG_ACCESS_POINT_ARCHITECT;
+                var imgType = _ACCESS_POINT_IMAGE;
+                var size = new google.maps.Size(40, 40);
+
+                i = values.length;
+                var c = 0;
+                var x;
+                var y;
+                var jsonInfo = [];
+                while (i--) {
+                    //check for limit
+                    if (c == MAX) {
+                        _err($scope, 'Access Points have exceeded the maximun limit of 1000');
+                        break;
+                    }
+                    if (values[i].den != 0) {
+                        x = values[i].x / values[i].den;
+                        y = values[i].y / values[i].den;
+                    } else {
+                        x = values[i].x;
+                        y = values[i].y;
+                    }
+
+                    $scope.example9data.push({id: values[i].AP, label: values[i].AP});
+                    $scope.example9model.push({id: values[i].AP, label: values[i].AP});
+
+                    var accessPoint = new google.maps.Marker({
+                        id: values[i].AP,
+                        position: new google.maps.LatLng(x, y),
+                        map: GMapService.gmap,
+                        zIndex: 9999,
+                        icon: new google.maps.MarkerImage(
+                            imgType,
+                            null, /* size is determined at runtime */
+                            null, /* origin is 0,0 */
+                            null, /* anchor is bottom center of the scaled image */
+                            size
+                        )
+                    });
+
+                    APmap.push(accessPoint);
+                    jsonInfo.push(accessPoint.id);
+                    var infowindow = new google.maps.InfoWindow();
+                    if (!infowindow.getMap()) {
+                        APmap[c].addListener('click', function () {
+                            if (this.mun !== "N/A") {
+                                infowindow.setContent(this.id + "<br><center>-</center><br>" + this.mun);
+                            } else {
+                                infowindow.setContent(this.id);
+                            }
+                            infowindow.open(this.gmap, this);
+                        });
+                    }
+                    c++;
+                }
+                $scope.getAPsIds(jsonInfo);
+            },
+            function (resp) {
+                $scope.APsMode = false;
+                ShowError($scope, resp, 'Can\'t  fetch Access Points:', true);
+                document.getElementById("APs-mode").classList.remove('quickaction-selected');
+            }
+        );
+
+    }
+
+    $scope.getFingerPrintsTime = function () {
+        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
+        var promise = $scope.anyAPI.getFingerprintsTime(jsonReq);
+
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data.radioPoints;
+                var i = data.length;
+
+                if (i <= 0) {
+                    _err($scope, "No fingerprints. Map the space using Anyplace app.");
+                    return;
+                }
+                plotGraphs(data);
+                initializeTimeFunction();
+            },
+            function (resp) {
+                LOG.W(ERR_FETCH_FINGERPRINTS + " (getFingerPrintsTime)");
+                $scope.disableFingerprintsMode();
+                ShowWarningAutohide($scope, resp, "", false);
+            }
+        );
+    };
+
+    $scope.enableFingerprintsMode = function () {
+        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+        $scope.fingerPrintsMode = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'YES');
+        }
+    }
+
+    $scope.disableFingerprintsMode = function () {
+        document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+        $scope.fingerPrintsMode = false;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('fingerprintsMode', 'NO');
+        }
+    }
+
+    /**
+     *
+     * Shows Google Maps Heatmap for fingerprints
+     */
+    $scope.showFingerprintHeatmap = function () {
+        clearFingerprintCoverage();
+        clearFingerprintHeatmap();
+
+        var jsonReq;
+        var promise;
+
+        if (($scope.fingerPrintsTimeMode || $scope.radioHeatmapRSSTimeMode) && userTimeData.length > 0) {
+            jsonReq = {
+                "buid": $scope.anyService.getBuildingId(),
+                "floor": $scope.anyService.getFloorNumber(),
+                "timestampX": userTimeData[0],
+                "timestampY": userTimeData[1]
+            };
+            if (_currentZoomLevel !== _MAX_ZOOM_LEVEL) {
+                promise = $scope.anyAPI.getRadioHeatmapRSSByTime_3(jsonReq);
+            } else {
+                var layerID = 'my_custom_layer';
+                var layer = new google.maps.ImageMapType({
+                    name: layerID,
+                    getTileUrl: function (coord, zoom) {
+                        if (_currentZoomLevel !== _MAX_ZOOM_LEVEL || !$scope.fingerPrintsTimeMode)
+                            return null;
+                        var jsonReqTiles = {
+                            "buid": $scope.anyService.getBuildingId(),
+                            "floor": $scope.anyService.getFloorNumber(),
+                            "timestampX": userTimeData[0],
+                            "timestampY": userTimeData[1]
+                        };
+                        jsonReqTiles.x = coord.x;
+                        jsonReqTiles.y = coord.y;
+                        jsonReqTiles.z = zoom;
+                        var tilePromise = $scope.anyAPI.getRadioHeatmapRSSByTime_Tiles(jsonReqTiles);
+                        tilePromise.then(
+                            function (resp) { // on success
+                                var data = resp.data;
+                                var fingerPrintsData = [];
+                                var i = resp.data.radioPoints.length;
+                                while (i--) {
+                                    var rp = resp.data.radioPoints[i];
+                                    fingerPrintsData.push({location: new google.maps.LatLng(rp.x, rp.y)});
+                                    resp.data.radioPoints.splice(i, 1);
+                                }
+                                i = fingerPrintsData.length;
+                                while (i--) { //create fingeprint "map"
+                                    if (_currentZoomLevel === _MAX_ZOOM_LEVEL) {
+                                        fingerPrintsMap.push(getMapsIconFingerprint(GMapService.gmap, fingerPrintsData[i]));
+                                    }
+                                }
+                                _FINGERPRINTS_IS_ON = true;
+                            },
+                            function (resp) {
+                                LOG.E(ERR_FETCH_FINGERPRINTS + ": showFingerprintHeatmap (disabling option).");
+                                $scope.disableFingerprintsMode();
+                                ShowWarningAutohide($scope, resp, "", false);
+                            }
+                        );
+                        return null;
+                    },
+                    tileSize: new google.maps.Size(256, 256),
+                    minZoom: 1,
+                    maxZoom: 22
+                });
+                GMapService.gmap.mapTypes.set(layerID, layer);
+                GMapService.gmap.setMapTypeId(layerID);
+            }
+
+        } else {
+            jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
+
+            if (_currentZoomLevel !== _MAX_ZOOM_LEVEL) {
+                promise = $scope.anyAPI.getRadioHeatmapRSS_3(jsonReq);
+            } else {
+                var layerID = 'my_custom_layer1';
+                var layer = new google.maps.ImageMapType({
+                    name: layerID,
+                    getTileUrl: function (coord, zoom) {
+                        if (_currentZoomLevel !== _MAX_ZOOM_LEVEL || !$scope.fingerPrintsMode)
+                            return null;
+                        var jsonReqTiles = {
+                            "buid": $scope.anyService.getBuildingId(),
+                            "floor": $scope.anyService.getFloorNumber()
+                        };
+                        jsonReqTiles.username = $scope.creds.username;
+                        jsonReqTiles.password = $scope.creds.password;
+                        jsonReqTiles.x = coord.x;
+                        jsonReqTiles.y = coord.y;
+                        jsonReqTiles.z = zoom;
+                        var tilePromise = $scope.anyAPI.getRadioHeatmapRSS_3_Tiles(jsonReqTiles);
+                        tilePromise.then(
+                            function (resp) { // on success
+                                var data = resp.data;
+                                var fingerPrintsData = [];
+                                var i = resp.data.radioPoints.length;
+                                while (i--) {
+                                    var rp = resp.data.radioPoints[i];
+                                    fingerPrintsData.push({location: new google.maps.LatLng(rp.x, rp.y)});
+                                    resp.data.radioPoints.splice(i, 1);
+                                }
+                                i = fingerPrintsData.length;
+                                while (i--) { //create fringerPrint "map"
+                                    if (_currentZoomLevel === _MAX_ZOOM_LEVEL) {
+                                        // map: $scope.gmapService.gmap,
+                                        fingerPrintsMap.push(getMapsIconFingerprint(GMapService.gmap, fingerPrintsData[i]));
+                                    }
+                                }
+                                _FINGERPRINTS_IS_ON = true;
+                            },
+                            function (resp) {
+                                console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
+                                $scope.disableFingerprintsMode();
+                                ShowWarningAutohide($scope, resp, "", false);
+                            }
+                        );
+                        var url = null;
+                        if (GMapService.gmap.getMapTypeId() === 'CartoLight') {
+                            url = "https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
+                            url = url.replace('{x}', coord.x)
+                                .replace('{y}', coord.y)
+                                .replace('{z}', zoom);
+                        } else if (GMapService.gmap.getMapTypeId() === 'roadmap' || GMapService.gmap.getMapTypeId() === 'satellite') {
+                            //TODO: Add GOOGLE TILES URL with api key
+                        }
+                        return null;
+                    },
+                    tileSize: new google.maps.Size(256, 256),
+                    minZoom: 1,
+                    maxZoom: 22
+                });
+                localStorage.setItem("previousMapTypeId", GMapService.gmap.getMapTypeId());
+                GMapService.gmap.mapTypes.set(layerID, layer);
+                GMapService.gmap.setMapTypeId(layerID);
+
+            }
+        }
+
+        if (promise !== undefined) {
+            promise.then(
+                function (resp) { // on success
+                    var data = resp.data;
+                    var fingerPrintsData = [];
+                    var i = resp.data.radioPoints.length;
+                    if (i <= 0) {
+                        if (!$scope.fingerPrintsTimeMode) {
+                            _err($scope, "This floor seems not to be FingerPrint mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                            document.getElementById("fingerPrints-mode").classList.remove('quickaction-selected');
+                            $scope.fingerPrintsMode = false;
+                            if (typeof (Storage) !== "undefined" && localStorage) {
+                                localStorage.setItem('fingerprintsMode', 'NO');
+                            }
+                        } else {
+                            _warn_autohide($scope, "No fingerprints at this period.");
+                        }
+                        return;
+                    }
+                    if (_currentZoomLevel == _MAX_ZOOM_LEVEL) {
+                        while (i--) {
+                            var rp = resp.data.radioPoints[i];
+                            fingerPrintsData.push({location: new google.maps.LatLng(rp.x, rp.y)});
+                            resp.data.radioPoints.splice(i, 1);
+                        }
+                        i = fingerPrintsData.length;
+                        while (i--) { //create fringerPrint "map"
+                            fingerPrintsMap.push(getMapsIconFingerprint(GMapService.gmap, fingerPrintsData[i]));
+                        }
+                        _FINGERPRINTS_IS_ON = true;
+                    } else {
+                        var heatMapData = [];
+                        var c = 0;
+                        while (i--) {
+                            var rp = resp.data.radioPoints[i];
+                            var rss = JSON.parse(rp.w); //count,average,total
+                            heatMapData.push({location: new google.maps.LatLng(rp.x, rp.y), weight: 1});
+                            var fingerPrint = new google.maps.Marker({position: heatMapData[c].location,});
+                            heatmapFingerprints.push(fingerPrint);
+                            resp.data.radioPoints.splice(i, 1);
+                            c++;
+                        }
+                        heatmap = new google.maps.visualization.HeatmapLayer({
+                            data: heatMapData
+                        });
+                        heatmap.setMap($scope.gmapService.gmap);
+                        _HEATMAP_F_IS_ON = true;
+                    }
+                },
+                function (resp) {
+                    console.log(ERR_FETCH_FINGERPRINTS + ": timestamp.");
+                    $scope.disableFingerprintsMode();
+                    ShowWarningAutohide($scope, resp, "", false);
+                }
+            );
+        }
+    };
+
+    /**
+     * This method will do the heavy work of showing the ACCES map.
+     * If the file exists, it will get it from the server, and then display it.
+     * If it does not, then the server will produce it, cache it, and then return the cache,
+     * a process that takes several seconds.
+     *
+     * We disable/enable the buttons where relevant to disallow any further actions from the user.
+     * Even when the ACCES map is cached, the fetching and rendering process requires some work.
+     */
+    $scope.showLocalizationAccHeatmap = function () {
+        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
+
+        var laButton = $("#LAButton");
+        var laButtonProgress = $("#LAButtonProgress");
+        laButton.addClass('disabled');
+        laButton.prop('disabled', true);
+        laButtonProgress.removeClass("hidden");
+
+        var promise = $scope.anyAPI.getHeatmapAcces(jsonReq);  // ACCES is removed
+
+        var circleRadius = 1.5;
+        // zoom
+        _currentZoomLevel = GMapService.gmap.getZoom();
+        if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS && _currentZoomLevel < MAX_ZOOM_FOR_HEATMAPS) {
+            levelOfZoom = 2;
+            circleRadius = 1.8;
+        } else if (_currentZoomLevel > MIN_ZOOM_FOR_HEATMAPS) {
+            levelOfZoom = 3;
+            circleRadius = 1.9;
+        } else {
+            levelOfZoom = 1;
+        }
+
+        if (promise != null) {
+            promise.then(
+                function (resp) { // got ACCES map (either cached or generated on the fly)
+                    var values = resp.data.crlb;
+                    var data = resp.data.geojson.coordinates;
+                    var i = data.length;
+
+                    if (i <= 0) {
+                        _warn($scope, WARN_NO_FINGERPRINTS);
+                        document.getElementById("localizationAccuracy-mode")
+                            .classList.remove('quickaction-selected');
+                        $scope.localizationAccMode = false;
+                        if (typeof (Storage) !== "undefined" && localStorage) {
+                            localStorage.setItem('localizationAccMode', 'NO');
+                        }
+
+                        laButton.removeClass('disabled');
+                        laButton.prop('disabled', false);
+                        laButtonProgress.addClass("hidden");
+                        return;
+                    }
+
+                    var circleStroke = 0.8 * (levelOfZoom);
+                    // GMaps colors:
+                    // general surface: #F8F9FA
+                    // building color: #F1F1F1
+                    var strokeColor = '#a8a8a8';
+
+                    var j = 0;
+                    while (i--) { // pushing elements to map
+                        var rp = data[i];
+                        // FASTER RENDER
+                        var color = '#33cc33';
+                        if (isNaN(values[i]) || values[i] < 0) {
+                            color = '#000000';
+                        } else if (values[i] > 60) {
+                            color = '#ff391e';
+                        } else if (values[i] > 30) {
+                            color = '#ff8a1b';
+                        } else if (values[i] > 15) {
+                            color = '#ffd716';
+                        } else if (values[i] > 10) {
+                            color = '#fdff76';
+                        } else if (values[i] > 5) {
+                            color = '#99ff33';
+                        }
+
+                        var circle = new google.maps.Circle({
+                            strokeWeight: circleStroke,
+                            strokeColor: strokeColor,
+                            fillColor: color,
+                            fillOpacity: 0.5,
+                            map: $scope.gmapService.gmap,
+                            center: {lat: rp[0], lng: rp[1]},
+                            radius: circleRadius
+                        });
+
+                        heatMapAcces.push(circle);
+                        data.splice(i, 1);
+                        j++;
+                    }
+
+                    document.getElementById("localizationAccuracy-mode").classList.add('quickaction-selected');
+                    $scope.localizationAccMode = true;
+                    if (typeof (Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('localizationAccMode', 'NO');
+                    } else {
+                        localStorage.setItem('localizationAccMode', 'YES');
+                    }
+
+                    _HEATMAP_ACCES = true;
+                    $scope.radioHeatmapLocalization = true;
+
+                    laButtonProgress.addClass("hidden");
+                    laButton.removeClass('disabled');
+                    laButton.prop('disabled', false);
+                }, function (resp) { // on error
+                    ShowWarningAutohide($scope, resp, WARN_ACCES_ERROR);
+
+                    document.getElementById("localizationAccuracy-mode")
+                        .classList.remove('quickaction-selected');
+                    $scope.localizationAccMode = false;
+                    if (typeof (Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('localizationAccMode', 'NO');
+                    }
+
+                    laButtonProgress.addClass("hidden");
+                    laButton.removeClass('disabled');
+                    laButton.prop('disabled', false);
+                }
+            );
+        }
+    };
+
+    $scope.showConnections = function () {
+
+        for (var key in connectionsMap) {
+            if (connectionsMap.hasOwnProperty(key)) {
+                var con = connectionsMap[key];
+                if (con && con.polyLine) {
+                    con.polyLine.setMap(GMapService.gmap);
+                }
+            }
+        }
+
+        _CONNECTIONS_IS_ON = true;
+        $scope._CONNECTIONS_IS_ON = true;
+        if (typeof (Storage) !== "undefined" && localStorage) {
+            localStorage.setItem('connectionsMode', 'YES');
+        }
+        $scope.anyService.setAllConnection(connectionsMap);
+
+    };
+
+    //zoom handler for clustering
+
+    // REVIEWLS using lsolea code
+    GMapService.gmap.addListener('zoom_changed', function () {
+        LOG.D4("GMapService:on_zoom_changed");
+
+        _currentZoomLevel = GMapService.gmap.getZoom();
+
+        if (_currentZoomLevel !== _MAX_ZOOM_LEVEL) {
+            var i = fingerPrintsMap.length;
+
+            //hide fingerPrints
+            while (i--) {
+                fingerPrintsMap[i].setMap(null);
+                fingerPrintsMap[i] = null;
+            }
+            fingerPrintsMap = [];
+            if (GMapService.gmap.getMapTypeId() === 'my_custom_layer1') {
+                GMapService.gmap.setMapTypeId(localStorage.getItem("previousMapTypeId"));
+            }
+        }
+
+        if (_HEATMAP_FINGERPRINT_COVERAGE) {
+            if (_currentZoomLevel != _PREV_ZOOM) {
+                var i = heatMap.length;
+                while (i--) {
+                    heatMap[i].rectangle.setMap(null);
+                    heatMap[i] = null;
+                }
+                heatMap = [];
+                $scope.showFingerprintCoverage();
+            }
+        }
+
+        if (_HEATMAP_ACCES) {// zoom in
+            if ((_PREV_ZOOM == MIN_ZOOM_FOR_HEATMAPS && _currentZoomLevel > _PREV_ZOOM) ||
+                (_PREV_ZOOM > MIN_ZOOM_FOR_HEATMAPS && _PREV_ZOOM < MAX_ZOOM_FOR_HEATMAPS &&
+                    (_currentZoomLevel <= MIN_ZOOM_FOR_HEATMAPS || _currentZoomLevel >= MAX_ZOOM_FOR_HEATMAPS)) ||
+                (_PREV_ZOOM == MAX_ZOOM_FOR_HEATMAPS && _currentZoomLevel < _PREV_ZOOM)) {
+                var i = heatMapAcces.length;
+                while (i--) {
+                    heatMapAcces[i].setMap(null);
+                    heatMapAcces[i] = null;
+                }
+                heatMapAcces = [];
+                $scope.showLocalizationAccHeatmap();
+            }
+        }
+
+        if ((_FINGERPRINTS_IS_ON || (heatmap && heatmap.getMap())) && !changedfloor) {
+            // if (_currentZoomLevel == _MAX_ZOOM_LEVEL || _PREV_ZOOM == _MAX_ZOOM_LEVEL) {
+            if (_currentZoomLevel != _PREV_ZOOM) {
+                var i = fingerPrintsMap.length;
+                while (i--) {
+                    fingerPrintsMap[i].setMap(null);
+                    fingerPrintsMap[i] = null;
+                }
+                fingerPrintsMap = [];
+
+                if (heatmap && heatmap.getMap()) {
+                    heatmap.setMap(null);
+                    var i = heatmapFingerprints.length;
+                    while (i--) {
+                        heatmapFingerprints[i] = null;
+                    }
+                    heatmapFingerprints = [];
+                    _HEATMAP_F_IS_ON = false;
+                }
+
+                $scope.showFingerprintHeatmap();
+            }
+        }
+        _PREV_ZOOM = _currentZoomLevel;
+    });
+
+
+    $scope.selectFilterForAPs = function () {
+
+        var option = $scope.selected;
+        switch (option) {
+            case '0': {
+                $scope.filterByMAC = true;
+                $scope.filterByMAN = false;
+                break;
+            }
+            default: {
+                $scope.filterByMAC = false;
+                $scope.filterByMAN = true;
+                break;
+            }
+
+        }
+
+    };
+    $scope.multiuserevents = {
+
+        onItemDeselect: function (item) {
+            i = APmap.length;
+            while (i--) {
+                if (APmap[i].id == item.id) {
+                    APmap[i].setVisible(false);
+                    break;
+                }
+            }
+
+        },
+        onItemSelect: function (item) {
+            i = APmap.length;
+
+            while (i--) {
+                if (APmap[i].id == item.id) {
+                    APmap[i].setVisible(true);
+                    break;
+                }
+            }
+
+        },
+        onDeselectAll: function () {
+            i = APmap.length;
+            while (i--) {
+                APmap[i].setVisible(false);
+
+
+            }
+        }
+
+    };
+
+    $scope.multiuserevents1 = {
+
+        onItemDeselect: function (item) {
+            i = APmap.length;
+            while (i--) {
+                if (APmap[i].mun == item.id) {
+                    APmap[i].setVisible(false);
+                    break;
+                }
+            }
+
+        },
+        onItemSelect: function (item) {
+            i = APmap.length;
+
+            while (i--) {
+                if (APmap[i].mun == item.id) {
+                    APmap[i].setVisible(true);
+                    break;
+                }
+            }
+
+        },
+        onDeselectAll: function () {
+            i = APmap.length;
+            while (i--) {
+                APmap[i].setVisible(false);
+
+
+            }
+        }
+
+    };
+
+    function plotGraphs(timestamps) {
+        // Various formatters.
+        var formatNumber = d3.format(",d");
+
+        // A little coercion, since the CSV is untyped.
+        timestamps.forEach(function (d, i) {
+            d.index = i;
+            d.date = parseDate(d.date);
+        });
+
+        // Create the crossfilter for the relevant dimensions and groups.
+        var _crossfilter = crossfilter(timestamps),
+            all = _crossfilter.groupAll(),
+            date = _crossfilter.dimension(function (d) { return d.date; }),
+            dates = date.group(d3.time.day).reduceSum(function (d) { return d.count; });
+
+        // remove dummy time so we can include...... to startd aand end dates..
+        var startDateStr = timestamps[0].date.toString();
+        var startDate = new Date(startDateStr);
+        startDate.setDate(startDate.getDate() - 15);
+
+        var endDateStr = timestamps[timestamps.length - 1].date.toString();
+        var endDate = new Date(endDateStr);
+        endDate.setDate(endDate.getDate() + 15);
+
+        var charts = [
+            barChart()
+                .dimension(date)
+                .group(dates)
+                .round(d3.time.day.round)
+                .x(d3.time.scale()
+                    .domain([startDate, endDate])
+                    .rangeRound([0, 10 * 100])) //90
+                .filter([startDate, endDate])
+        ];
+
+        // Given our array of charts, which we assume are in the same order as the
+        // .chart elements in the DOM, bind the charts to the DOM and render them.
+        // We also listen to the chart's brush events to update the display.
+        var chart = d3.selectAll(".chart")
+            .data(charts)
+            .each(function (chart) {
+                chart.on("brush", renderAll).on("brushend", renderAll);
+            });
+
+
+        // Render the total.
+        d3.selectAll("#total").text(formatNumber(_crossfilter.size()));
+        renderAll();
+
+        // Renders the specified chart or list.
+        function render(method) {
+            d3.select(this).call(method);
+        }
+
+        // Whenever the brush moves, re-rendering everything.
+        function renderAll() {
+            chart.each(render);
+            d3.select("#active").text(formatNumber(all.value()));
+        }
+
+        //parse to date
+        function parseDate(d) { return new Date((d / 1000) * 1000); }
+
+        window.filter = function (filters) {
+             filters.forEach(function (d, i) { charts[i].filter(d); });
+             renderAll();
+         };
+
+        window.reset = function (i) {
+            LOG.D2("window.reset");
+            charts[i].filter(null)
+            renderAll();
+            if ($scope.radioHeatmapRSSTimeMode) {
+                $scope.toggleCoverage(); // remove crossfilter and coverage squares
+                $scope.toggleCoverage(); // fetch coverage squares
+            }
+            $scope.toggleFingerPrintsTime();
+            $scope.toggleFingerPrintsTime();
+        };
+
+        function barChart() {
+            if (!barChart.id) barChart.id = 0;
+
+            var margin = {top: 10, right: 10, bottom: 20, left: 10},
+                x,
+                y = d3.scale.linear().range([100, 0]),
+                id = barChart.id++,
+                axis = d3.svg.axis().orient("bottom"),
+                brush = d3.svg.brush(),
+                brushDirty,
+                dimension,
+                group,
+                round;
+
+
+            function chart(div) {
+                var width = x.range()[1],
+                    height = y.range()[0];
+
+                y.domain([0, group.top(1)[0].value]);
+
+                div.each(function () {
+                    var div = d3.select(this),
+                        g = div.select("g");
+
+                    // Create the skeletal chart.
+                    if (g.empty()) {
+                        div.select(".title").append("a")
+                            .attr("href", "javascript:reset(" + id + ")")
+                            .attr("class", "reset")
+                            .text("reset")
+                            .style("display", "none");
+
+                        g = div.append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                        g.append("clipPath")
+                            .attr("id", "clip-" + id)
+                            .append("rect")
+                            .attr("width", width)
+                            .attr("height", height);
+
+                        g.selectAll(".bar")
+                            .data(["background", "foreground"])
+                            .enter().append("path")
+                            .attr("class", function (d) {
+                                return d + " bar";
+                            })
+                            .datum(group.all());
+
+                        g.selectAll(".foreground.bar")
+                            .attr("clip-path", "url(#clip-" + id + ")");
+
+                        g.append("g")
+                            .attr("class", "axis")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(axis);
+
+                        // Initialize the brush component with pretty resize handles.
+                        var gBrush = g.append("g").attr("class", "brush").call(brush);
+                        gBrush.selectAll("rect").attr("height", height);
+                        gBrush.selectAll(".resize").append("path").attr("d", resizePath);
+                    }
+
+                    // Only redraw the brush if set externally.
+                    if (brushDirty) {
+                        brushDirty = false;
+                        g.selectAll(".brush").call(brush);
+                        div.select(".title a").style("display", brush.empty() ? "none" : null);
+                        if (brush.empty()) {
+                            g.selectAll("#clip-" + id + " rect")
+                                .attr("x", 0)
+                                .attr("width", width);
+                        } else {
+                            var extent = brush.extent();
+                            g.selectAll("#clip-" + id + " rect")
+                                .attr("x", x(extent[0]))
+                                .attr("width", x(extent[1]) - x(extent[0]));
+                        }
+                    }
+                    g.selectAll(".bar").attr("d", barPath);
+                });
+
+                function barPath(groups) {
+                    var path = [],
+                        i = -1,
+                        n = groups.length,
+                        d;
+                    while (++i < n) {
+                        d = groups[i];
+                        path.push("M", x(d.key), ",", height, "V", y(d.value), "h9V", height);
+                    }
+                    return path.join("");
+                }
+
+                function resizePath(d) {
+                    var e = +(d == "e"),
+                        x = e ? 1 : -1,
+                        y = height / 3;
+                    return "M" + (.5 * x) + "," + y
+                        + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
+                        + "V" + (2 * y - 6)
+                        + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+                        + "Z"
+                        + "M" + (2.5 * x) + "," + (y + 8)
+                        + "V" + (2 * y - 8)
+                        + "M" + (4.5 * x) + "," + (y + 8)
+                        + "V" + (2 * y - 8);
+                }
+            }
+
+
+            brush.on("brushstart.chart", function () {
+                var div = d3.select(this.parentNode.parentNode.parentNode);
+                div.select(".title a").style("display", null);
+            });
+
+            brush.on("brush.chart", function () {
+                var g = d3.select(this.parentNode),
+                    extent = brush.extent();
+                if (round) g.select(".brush")
+                    .call(brush.on('brushend', bindSelect))
+                    .selectAll(".resize")
+                    .style("display", null);
+                g.select("#clip-" + id + " rect")
+                    .attr("x", x(extent[0]))
+                    .attr("width", x(extent[1]) - x(extent[0]));
+                dimension.filterRange(extent);
+
+
+                //handler for user's selection
+                function bindSelect() {
+                    initializeTimeFunction();
+                    extent = brush.extent(); //data of selection
+                    userTimeData = [];
+
+                    extent.forEach(function (element) {
+                        var t = String(element.getTime() / 1000 * 1000);
+                        userTimeData.push(t);
+                    });
+
+                    if ($scope.fingerPrintsMode) {
+                        clearFingerprintHeatmap();
+                        $scope.showFingerprintHeatmap();
+                        document.getElementById("fingerPrints-mode").classList.add('quickaction-selected');
+                    }
+
+                    if ($scope.radioHeatmapRSSMode) {
+                        clearFingerprintCoverage();
+                        $scope.showFingerprintCoverage();
+                        $scope.radioHeatmapRSSMode = true;
+                        if (typeof (Storage) !== "undefined" && localStorage) {
+                            localStorage.setItem('radioHeatmapRSSMode', 'YES');
+                        }
+                        $scope.anyService.radioHeatmapRSSMode = true;
+                        document.getElementById("radioHeatmapRSS-mode").classList.add('quickaction-selected');
+                    }
+                }
+            });
+
+            brush.on("brushend.chart", function () {
+                if (brush.empty()) {
+                    var div = d3.select(this.parentNode.parentNode.parentNode);
+                    div.select(".title a").style("display", "none");
+                    div.select("#clip-" + id + " rect").attr("x", null).attr("width", "100%");
+                    dimension.filterAll();
+                }
+            });
+
+            chart.margin = function (_) {
+                if (!arguments.length) return margin;
+                margin = _;
+                return chart;
+            };
+
+            chart.x = function (_) {
+                if (!arguments.length) return x;
+                x = _;
+                axis.scale(x);
+                brush.x(x);
+                return chart;
+            };
+
+            chart.y = function (_) {
+                if (!arguments.length) return y;
+                y = _;
+                return chart;
+            };
+
+            chart.dimension = function (_) {
+                if (!arguments.length) return dimension;
+                dimension = _;
+                return chart;
+            };
+
+            chart.filter = function (_) {
+                if (_) {
+                    brush.extent(_);
+                    dimension.filterRange(_);
+                } else {
+                    brush.clear();
+                    dimension.filterAll();
+                }
+                brushDirty = true;
+                return chart;
+            };
+
+            chart.group = function (_) {
+                if (!arguments.length) return group;
+                group = _;
+                return chart;
+            };
+
+            chart.round = function (_) {
+                if (!arguments.length) return round;
+                round = _;
+                return chart;
+            };
+
+            return d3.rebind(chart, brush, "on");
+        }
+
+    }
+
+
+}]);

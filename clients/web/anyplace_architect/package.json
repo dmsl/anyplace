@@ -1,0 +1,18 @@
+{
+    "name": "example-project",
+    "version": "0.1.0",
+    "devDependencies": {
+        "grunt": "^1.0.4",
+        "grunt-contrib-compress": "~1.5.0",
+        "grunt-contrib-concat": "~1.0.1",
+        "grunt-contrib-cssmin": "~3.0.0",
+        "grunt-contrib-imagemin": "^3.1.0",
+        "grunt-contrib-uglify": "~4.0.1",
+        "grunt-contrib-watch": "~1.1.0",
+        "grunt-notify": "^0.4.5",
+        "gulp-uglify-es": "^2.0.0"
+    },
+    "dependencies": {
+        "bower": "^1.8.8"
+    }
+}
