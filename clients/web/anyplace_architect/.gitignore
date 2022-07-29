@@ -3,4 +3,4 @@ node_modules
 # Ignore all temp files ending with a tilde
 **/*~
 
-build/
+build/*
