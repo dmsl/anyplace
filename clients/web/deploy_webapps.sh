@@ -26,9 +26,6 @@ function check_api_url() {
     echo "$API_FILE"
     exit
   fi
-
-  echo all good
-
 }
 
 
@@ -71,6 +68,7 @@ function deploy_anyplace_app() {
 
   cd $SRC/anyplace_$app
   bower install && npm install && grunt deploy
+  cd ..
   cp -R $SRC/anyplace_$app $DEST/$app
   echo "# Installed $app at: $DEST/$app"
 }
