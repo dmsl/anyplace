@@ -37,20 +37,12 @@ shared
 # DEPLOYMENT:
 <details><summary></summary>
 
-## Sample script: [deploy_webapps.sh](./deploy_webapps.sh)
-<details><summary>Output</summary>
-
-0. probably will need adjustments but it's a good starting point
-1. First, you must download the sources
-2. Install any tools
-3. Compile + Deploy the apps
-
-</details>
-
 ---
 
-## 0. Getting sources
+## 1. Prepare sources
 <details><summary></summary>
+
+### 1.1 Clone from repository
 
 - If starting from scratch you can clone:
 
@@ -64,10 +56,17 @@ git clone git@github.com:dmsl/anyplace.git git.web
 - active development of the web apps is on the branch: `develop-clients-web`
   - you might want to `checkout` that one, or the `master` one
 
+
+### 1.2 Configure the Backend URL
+- You must modify: `shared/js/anyplace-core-js/api.js`
+- and enter your backend's URL by modifying the API.url variable
+- the public anyplace server is:
+  - `https://ap.cs.ucy.ac.cy:44/api`
+
 </details>
 
 
-## 1. Install compilation tools
+## 2. Install compilation tools
 <details><summary></summary>
 
 - The Angular apps need some dependencies
@@ -83,7 +82,7 @@ sudo apt install node-grunt-cli
 ```
 </details>
 
-## 2. Compile web apps
+## 3. Compile web apps
 <details><summary></summary>
 
 - Repeat this process for each app
@@ -93,13 +92,13 @@ sudo apt install node-grunt-cli
   - deploy app using [grunt](http://gruntjs.com):
     - there is devepopment mode and normal deploy
 
-### 2.1 Install  dependencies:
+### 3.1 Install  dependencies:
 ```
 bower install
 npm install  # npm install -g grunt-cli
 ```
 
-### 2.2 Deploy app
+### 3.2 Deploy app
 - the development version will keep **watching** for resource changes
   - e.g. when you modify a JS file, it will recompile
   - or when you put new images or CSS files in `/shared/`, it will recompile/optimize those
@@ -138,6 +137,20 @@ grunt deploy
 
 </details>
 </details>
+
+
+
+## Sample script: [deploy_webapps.sh](./deploy_webapps.sh)
+<details><summary>Output</summary>
+
+0. probably will need adjustments but it's a good starting point
+1. First, you must download the sources
+2. Install any tools
+3. Compile + Deploy the apps
+
+</details>
+
+
 </details>
 
 ---
