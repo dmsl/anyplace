@@ -2,11 +2,31 @@
 
 ## ASSUMING AN APACHE DEPLOYMENT.
 ## WHATEVER EXISTS ALREADY IN $DEST, WILL NOT BE REGENERATED.
+## Make sure you put the correct Anyplace Backend URL in the API_FILE
 
 ## MODIFY THESE:
 DEST=~/web
-SRC=~/git.web/clients/web
+SRC=.
+API_FILE=$SRC/shared/js/anyplace-core-js/api.js
 
+# this is the default url that must be modified (in api.js)
+defaultStr="protocol://server:port/path"
+
+function check_api_url() {
+  if [ ! -f $API_FILE ]; then
+    echo "Not found:"
+    echo "$API_FILE"
+    exit
+  fi
+
+
+  if grep -q $defaultStr $API_FILE
+  then
+    echo "Must update API.url in:"
+    echo "$API_FILE"
+    exit
+  fi
+}
 
 function show_skip_warning() {
     local app=$1
@@ -44,10 +64,17 @@ function deploy_anyplace_app() {
 
   cd $SRC/anyplace_$app
   bower install && npm install && grunt deploy
+  cd ..
   cp -R $SRC/anyplace_$app $DEST/$app
   echo "# Installed $app at: $DEST/$app"
 }
 
+
+
+#############
+
+
+check_api_url
 deploy_anyplace_app "viewer"
 deploy_anyplace_app "viewer_campus"
 deploy_anyplace_app "architect"
