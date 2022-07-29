@@ -9,6 +9,9 @@ DEST=~/web
 SRC=.
 API_FILE=$SRC/shared/js/anyplace-core-js/api.js
 
+# this is the default url that must be modified (in api.js)
+defaultStr="protocol://server:port/path"
+
 function check_api_url() {
   if [ ! -f $API_FILE ]; then
     echo "Not found:"
@@ -17,8 +20,7 @@ function check_api_url() {
   fi
 
 
-  defaultStr="protocol://server:port/path"
-  if grep -q $defaultStr API_FILE$
+  if grep -q $defaultStr $API_FILE
   then
     echo "Must update API.url in:"
     echo "$API_FILE"
