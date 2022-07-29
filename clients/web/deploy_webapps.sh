@@ -28,10 +28,6 @@ function check_api_url() {
   fi
 }
 
-
-check_api_url
-
-
 function show_skip_warning() {
     local app=$1
     local path=$2
@@ -74,6 +70,11 @@ function deploy_anyplace_app() {
 }
 
 
+
+#############
+
+
+check_api_url
 deploy_anyplace_app "viewer"
 deploy_anyplace_app "viewer_campus"
 deploy_anyplace_app "architect"
