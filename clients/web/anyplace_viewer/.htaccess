@@ -6,4 +6,4 @@
 
 RewriteEngine on
 RewriteCond %{QUERY_STRING} cuid=(.+)
-RewriteRule ^.*$ /viewer_campus/ [L,R]
+RewriteRule ^.*$ https://%{HTTP_HOST}/viewer_campus/ [L,R]
