@@ -368,7 +368,7 @@ POST /api/auth/mapping/space/coowners                  controllers.MapSpaceContr
 #        - Space
 #      summary: User access to building
 #      description: "Returns whether a user has access to a particular space."
-#      operationId: shareSpace
+#      operationId: userAccess
 #      consumes:
 #        - application/json
 #      produces:
@@ -383,7 +383,7 @@ POST /api/auth/mapping/space/coowners                  controllers.MapSpaceContr
 #      responses:
 #        '200':
 #          description: Successful operation
-#      security
+#      security:
 #      - api_key: []
 ###
 POST /api/auth/mapping/space/access                  controllers.MapSpaceController.userAccess()
