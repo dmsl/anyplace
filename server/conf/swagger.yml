@@ -186,6 +186,23 @@ definitions:
       is_published:
         type: string
         example: "true"
+  SetCoOwners:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_abc-1234-abc_567
+      co_owners:
+        type: array
+        items:
+          type: string
+        example: [ userID1, userID2 ]
+  CanAccess:
+    type: object
+    properties:
+      buid:
+        type: string
+        example: building_abc-1234-abc_567
   SpaceDelete:
     type: object
     properties:

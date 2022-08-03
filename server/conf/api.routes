@@ -1,9 +1,9 @@
 # NOTE: This file uses github.com/iheartradio/play-swagger to automatically create the API documentation.
 
 
-################
+################################################################
 # MISC
-################
+################################################################
 
 ###
 #  summary: Returns Anyplace Version
@@ -17,9 +17,9 @@
 ###
 GET /api/version                                     controllers.MainController.getVersion
 
-################
+################################################################
 ### USERS
-################
+################################################################
 
 ###
 #      tags:
@@ -210,9 +210,9 @@ POST /api/auth/user/update                           controllers.UserController.
 ###
 POST /api/auth/moderator/users/all                   controllers.UserAdminController.all()
 
-################
+################################################################
 # Spaces
-################
+################################################################
 
 ###
 #  tags:
@@ -335,6 +335,58 @@ POST /api/auth/mapping/space/add                     controllers.MapSpaceControl
 #      - api_key: []
 ###
 POST /api/auth/mapping/space/update                  controllers.MapSpaceController.update()
+
+
+###
+#      tags:
+#        - Space
+#      summary: Sets the coOwners array of a user. Passing empty CoOwners will erase them
+#      description: "An owner of the space can add co-owners."
+#      operationId: shareSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: coownerId
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SetCoOwners'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST /api/auth/mapping/space/coowners                  controllers.MapSpaceController.setCoOwners()
+
+
+###
+#      tags:
+#        - Space
+#      summary: User access to building
+#      description: "Returns whether a user has access to a particular space."
+#      operationId: shareSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: coownerId
+#          required: true
+#          schema:
+#            $ref: '#/definitions/CanAccess'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security
+#      - api_key: []
+###
+POST /api/auth/mapping/space/access                  controllers.MapSpaceController.userAccess()
 
 ###
 #      tags:
@@ -514,9 +566,9 @@ POST /api/auth/mapping/floor/add                     controllers.MapFloorControl
 ###
 POST /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
 
-################
+################################################################
 # Floorplan
-################
+################################################################
 
 ###
 #      tags:
@@ -709,9 +761,9 @@ POST /api/radiomaps_frozen/:space/:floor/:filename    controllers.RadiomapContro
 POST /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get(radio_folder: String, filename: String )
 
 
-################
+################################################################
 # Space:Campus
-################
+################################################################
 
 ###
 #      tags:
@@ -838,9 +890,9 @@ POST /api/auth/mapping/campus/delete                 controllers.MapCampusContro
 POST /api/auth/mapping/campus/user                   controllers.MapCampusController.byOwner()
 
 
-################
+################################################################
 # Space:POI
-################
+################################################################
 
 ###
 #      tags:
@@ -986,7 +1038,9 @@ POST /api/auth/mapping/pois/delete                   controllers.MapPoiControlle
 ###
 POST /api/auth/mapping/pois/update                   controllers.MapPoiController.update()
 
+################################################################
 # Spaces: Connections
+################################################################
 
 ###
 #      tags:
@@ -1084,9 +1138,9 @@ POST /api/auth/mapping/connection/add                controllers.MapPoiConnectio
 ###
 POST /api/auth/mapping/connection/delete             controllers.MapPoiConnectionController.delete()
 
-################
+################################################################
 ### NAVIGATION
-################
+################################################################
 
 ###
 #      tags:
@@ -1182,9 +1236,9 @@ POST /api/navigation/space/id                        controllers.NavigationContr
 ###
 POST /api/navigation/pois/id                         controllers.NavigationController.getPoisById()
 
-################
+################################################################
 ### POSITION
-################
+################################################################
 
 # used by android
 
@@ -1235,10 +1289,9 @@ POST /api/position/predictFloorAlgo1                 controllers.PositioningCont
 POST /api/position/estimate                          controllers.PositioningController.estimatePosition()
 
 
-
-################
+################################################################
 ### ACCESS POINTS
-################
+################################################################
 
 ###
 #      tags:
@@ -1289,9 +1342,9 @@ POST /api/wifi/access_points/floor                   controllers.AccessPointCont
 POST /api/wifi/access_points/ids                     controllers.AccessPointController.getIDs()
 
 
-################
+################################################################
 ### RADIOMAP
-################
+################################################################
 
 ###
 #      tags:
@@ -1488,9 +1541,9 @@ POST /api/auth/radiomap/delete/time                       controllers.RadiomapCo
 ###
 POST /api/auth/radiomap/delete                            controllers.RadiomapController.delete()
 
-################
+################################################################
 ### HEATMAP DATA
-################
+################################################################
 
 ###
 #      tags:
