@@ -1,9 +1,9 @@
 # NOTE: This file uses github.com/iheartradio/play-swagger to automatically create the API documentation.
 
 
-################
+################################################################
 # MISC
-################
+################################################################
 
 ###
 #  summary: Returns Anyplace Version
@@ -17,9 +17,9 @@
 ###
 GET /api/version                                     controllers.MainController.getVersion
 
-################
+################################################################
 ### USERS
-################
+################################################################
 
 ###
 #      tags:
@@ -210,9 +210,9 @@ POST /api/auth/user/update                           controllers.UserController.
 ###
 POST /api/auth/moderator/users/all                   controllers.UserAdminController.all()
 
-################
+################################################################
 # Spaces
-################
+################################################################
 
 ###
 #  tags:
@@ -514,9 +514,9 @@ POST /api/auth/mapping/floor/add                     controllers.MapFloorControl
 ###
 POST /api/auth/mapping/floor/delete                  controllers.MapFloorController.delete()
 
-################
+################################################################
 # Floorplan
-################
+################################################################
 
 ###
 #      tags:
@@ -709,9 +709,9 @@ POST /api/radiomaps_frozen/:space/:floor/:filename    controllers.RadiomapContro
 POST /api/radiomaps/:radio_folder/:filename              controllers.RadiomapController.get(radio_folder: String, filename: String )
 
 
-################
+################################################################
 # Space:Campus
-################
+################################################################
 
 ###
 #      tags:
@@ -838,9 +838,9 @@ POST /api/auth/mapping/campus/delete                 controllers.MapCampusContro
 POST /api/auth/mapping/campus/user                   controllers.MapCampusController.byOwner()
 
 
-################
+################################################################
 # Space:POI
-################
+################################################################
 
 ###
 #      tags:
@@ -986,7 +986,9 @@ POST /api/auth/mapping/pois/delete                   controllers.MapPoiControlle
 ###
 POST /api/auth/mapping/pois/update                   controllers.MapPoiController.update()
 
+################################################################
 # Spaces: Connections
+################################################################
 
 ###
 #      tags:
@@ -1084,9 +1086,9 @@ POST /api/auth/mapping/connection/add                controllers.MapPoiConnectio
 ###
 POST /api/auth/mapping/connection/delete             controllers.MapPoiConnectionController.delete()
 
-################
+################################################################
 ### NAVIGATION
-################
+################################################################
 
 ###
 #      tags:
@@ -1182,9 +1184,9 @@ POST /api/navigation/space/id                        controllers.NavigationContr
 ###
 POST /api/navigation/pois/id                         controllers.NavigationController.getPoisById()
 
-################
+################################################################
 ### POSITION
-################
+################################################################
 
 # used by android
 
@@ -1235,10 +1237,9 @@ POST /api/position/predictFloorAlgo1                 controllers.PositioningCont
 POST /api/position/estimate                          controllers.PositioningController.estimatePosition()
 
 
-
-################
+################################################################
 ### ACCESS POINTS
-################
+################################################################
 
 ###
 #      tags:
@@ -1289,9 +1290,9 @@ POST /api/wifi/access_points/floor                   controllers.AccessPointCont
 POST /api/wifi/access_points/ids                     controllers.AccessPointController.getIDs()
 
 
-################
+################################################################
 ### RADIOMAP
-################
+################################################################
 
 ###
 #      tags:
@@ -1488,9 +1489,9 @@ POST /api/auth/radiomap/delete/time                       controllers.RadiomapCo
 ###
 POST /api/auth/radiomap/delete                            controllers.RadiomapController.delete()
 
-################
+################################################################
 ### HEATMAP DATA
-################
+################################################################
 
 ###
 #      tags:
