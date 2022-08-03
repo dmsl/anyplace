@@ -7,6 +7,16 @@ The additions are in `conf/swagger.yml` and `conf/api.routes`
 ##### A1. Swagger documentation not generated correctly:
 Try the sbt `swagger` command that the `iheart/sbt-swagger-play` plugin adds.
 
+```bash
+sbt swagger
+```
+
+Alternatively you can try to compile it fully.
+If the below  is successful, then you can compile it also remotely (ie on Jenkins)
+```bash
+sbt clean compile dist
+```
+
 ##### A2. An endpoint on `/developers` does not get the response.
 <details close>
 <summary>
