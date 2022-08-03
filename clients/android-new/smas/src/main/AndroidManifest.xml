@@ -13,13 +13,11 @@
       android:theme="@style/Theme.AnyplaceClients"
       tools:ignore="LockedOrientationActivity">
 
-
     <!-- The initial [StartActivity] is in lib-android -->
     <activity
         android:name="cy.ac.ucy.cs.anyplace.lib.android.ui.StartActivity"
         android:screenOrientation="portrait"
-
-        android:theme="@style/AppTheme.Compat"
+        android:theme="@style/AppTheme.Compat.Fullscreen"
         android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -27,6 +25,7 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+
     <activity
         android:name="cy.ac.ucy.cs.anyplace.lib.android.ui.smas.SmasLoginActivity"
         android:exported="true"
