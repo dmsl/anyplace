@@ -336,6 +336,33 @@ POST /api/auth/mapping/space/add                     controllers.MapSpaceControl
 ###
 POST /api/auth/mapping/space/update                  controllers.MapSpaceController.update()
 
+
+###
+#      tags:
+#        - Space
+#      summary: Sets the coOwners array of a user. Passing empty CoOwners will erase them
+#      description: "An owner of the space can add co-owners."
+#      operationId: shareSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: coownerId
+#          required: true
+#          schema:
+#            $ref: '#/definitions/SetCoOwners'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security:
+#      - api_key: []
+###
+POST /api/auth/mapping/space/coowners                  controllers.MapSpaceController.setCoOwners()
+
+
 ###
 #      tags:
 #        - Space

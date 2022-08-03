@@ -36,13 +36,14 @@
  */
 package models
 
+import controllers.helper.User
+
 import java.io.IOException
 import java.util
 import java.util.HashMap
-
-import datasources.SCHEMA
+import datasources.{ProxyDataSource, SCHEMA}
 import play.api.libs.json._
-import utils.{GeoJsonPoint, Utils}
+import utils.{GeoJsonPoint, LOG, Utils}
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
@@ -131,33 +132,96 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
     _toJsonInternal().as[JsObject] + (SCHEMA.fCoOwners -> Json.toJson(co_owners))
   }
 
-  def appendCoOwners(jsonReq: JsValue): String = {
-    val sb = new StringBuilder()
+  /**
+   * If a user exists in the database (the [coOwner] id is valid,
+   * then it adds it to the coOwners list.
+   *
+   * @param pds
+   * @param coOwner
+   * @param coOwners
+   */
+  private def addValidCoOwner(pds: ProxyDataSource, coOwner: String, coOwners: java.util.Set[String]): Boolean = {
+    val storedUser = pds.db.getUserFromOwnerId(coOwner)
+    if (storedUser == null) {
+      LOG.E("User does not exist. skipping coOwner: " + coOwner)
+      return false
+    } else {
+      coOwners.add(coOwner)
+      return true
+    }
+  }
+
+  /**
+   * Storing the modified JSON data ([data])
+   * and fill the [err] when something occured
+   */
+  class JsonEdit(r: String, e: String, w: String="") {
+    var data: String = r
+    var err: String = e
+    val warn: String = w
+  }
+
+  /**
+   * This methods assumes that the space is already accessible by the user
+   * @param user
+   * @param pds
+   * @param jsonReq
+   * @return
+   */
+  def appendCoOwners(user: User, pds: ProxyDataSource, jsonReq: JsValue): JsonEdit = {
+    LOG.D("appendCoOwners")
     var json = toJson()
+    var allUsersAdded=true
+    var modTriesToCoOwn = false
+
     try {
-      if ((json \ SCHEMA.fOwnerId) == null || ((json \ SCHEMA.fOwnerId).as[String] != (jsonReq \ SCHEMA.fOwnerId).as[String])) {
-        return json.toString
+      if ((json \ SCHEMA.fOwnerId) == null) {
+        return new JsonEdit(json.toString, "Problem with owner id")
       }
-      val ja = new java.util.ArrayList[String]
+
+      val reqOwnerId = (jsonReq \ SCHEMA.fOwnerId).as[String]
+      val userIsModerator = user.isAdminOrModerator(reqOwnerId)
+
+      // get the list of extra co-owners from [jsonReq]
+      val newCoOwners= new java.util.HashSet[String]
+
+      // it is a list of coOwners
       if ((jsonReq \ SCHEMA.fCoOwners).get.toString().contains("[")) {
-        val co_owners = (jsonReq \ SCHEMA.fCoOwners).as[List[String]].toArray
-        for (co_owner <- co_owners) {
-          ja.add(co_owner)
+        val coOwnersArray = (jsonReq \ SCHEMA.fCoOwners).as[List[String]].toArray
+        for (coOwner <- coOwnersArray) {
+          if (userIsModerator && reqOwnerId == coOwner) {
+            modTriesToCoOwn=true
+          } else if (!addValidCoOwner(pds, coOwner, newCoOwners)) {
+            allUsersAdded=false
+          }
         }
-      } else {
-        val co_owners = (jsonReq \ SCHEMA.fCoOwners).as[String]
-        ja.add(co_owners)
+      } else { // or a single owner
+        val coOwner = (jsonReq \ SCHEMA.fCoOwners).as[String]
+        if (userIsModerator && reqOwnerId == coOwner) {
+          modTriesToCoOwn=true
+        } else if (!addValidCoOwner(pds, coOwner, newCoOwners)) {
+          allUsersAdded=false
+        }
       }
-      val arr = Json.toJson(ja.asScala)
+
+      val arr = Json.toJson(newCoOwners.asScala)
       json = Json.toJson(json.as[JsObject] + (SCHEMA.fCoOwners -> arr))
       json = json.as[JsObject] + (SCHEMA.fGeometry -> Json.toJson(new GeoJsonPoint(java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLat)),
         java.lang.Double.parseDouble(fields.get(SCHEMA.fCoordinatesLon))).get()))
 
     } catch {
-      case e: IOException => e.printStackTrace()
+      case e: IOException => {
+        LOG.D("ERROR: " + e.getMessage)
+        e.printStackTrace()
+      }
     }
+
+    val sb = new StringBuilder()
     sb.append(json.toString)
-    sb.toString
+    var warn = ""
+    if (!allUsersAdded) warn = "some users were invalid"
+    if (modTriesToCoOwn) warn += ", a moderator tried to coOwn; no need for that"
+    return new JsonEdit(sb.toString, "", warn)
   }
 
   def changeOwner(newOwnerId: String): String = {

@@ -59,76 +59,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
-  // unused.routes
-  def spaceUpdateCoOwners(): Action[AnyContent] = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        val apiKey = anyReq.getAccessToken()
-        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        var json = anyReq.getJsonBody()
-        LOG.D2("spaceUpdateCoOwners: " + Utils.stripJsValueStr(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fCoOwners)
-        if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
-        var owner_id = user.authorize(apiKey)
-        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
-        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
-        if (validation.failed()) return validation.response()
-
-        val buid = (json \ SCHEMA.fBuid).as[String]
-        try {
-          val storedSpace: JsValue = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
-          val space = new Space(storedSpace)
-          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.appendCoOwners(json)))
-            return RESPONSE.BAD("Space could not be updated.")
-
-          return RESPONSE.OK("Successfully updated space")
-        } catch {
-          case e: DatasourceException => return RESPONSE.ERROR(e)
-        }
-      }
-
-      inner(request)
-  }
-
-  def spaceUpdateOwner(): Action[AnyContent] = Action {
-    implicit request =>
-      def inner(request: Request[AnyContent]): Result = {
-        val anyReq = new OAuth2Request(request)
-        val apiKey = anyReq.getAccessToken()
-        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
-        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
-        var json = anyReq.getJsonBody()
-        LOG.D2("spaceUpdateOwner: " + Utils.stripJsValueStr(json))
-        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "new_owner")
-        if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
-        val owner_id = user.authorize(apiKey)
-        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
-        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
-        val validation = VALIDATE.fields(json, SCHEMA.fBuid, "new_owner")
-        if (validation.failed()) return validation.response()
-
-        val buid = (json \ SCHEMA.fBuid).as[String]
-        var newOwner = (json \ "new_owner").as[String]
-        newOwner = appendGoogleIdIfNeeded(newOwner)
-        try {
-          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
-          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
-          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
-          val space = new Space(storedSpace)
-          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.changeOwner(newOwner))) return RESPONSE.BAD("Space could not be updated!")
-          return RESPONSE.OK("Successfully updated space!")
-        } catch {
-          case e: DatasourceException => return RESPONSE.ERROR(e)
-        }
-      }
-
-      inner(request)
-  }
-
   def update(): Action[AnyContent] = Action {
     implicit request =>
       def inner(request: Request[AnyContent]): Result = {
@@ -186,6 +116,56 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  /**
+   *
+   * Sets the co-owners of a space.
+   * Any previous co-owners will be removed
+   *
+   * - The parameters are:
+   *   - api key (the user must have access)
+   *   - [SCHEMA.fBuid]
+   *   - [SCHEMA.fCoOwners]: either a coOwner id or a list: [coOwnID1, coOwnID2]
+   *
+   * @return
+   */
+  def setCoOwners(): Action[AnyContent] = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        var json = anyReq.getJsonBody()
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, SCHEMA.fCoOwners)
+        if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
+        val owner_id = user.authorize(apiKey)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        try {
+          val storedSpace: JsValue = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          val space = new Space(storedSpace)
+          val result = space.appendCoOwners(user, pds, json)
+          if (result.err.nonEmpty) {
+            return RESPONSE.BAD("Space could not be updated: " + result.err)
+          }
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), result.data))
+            return RESPONSE.BAD("Space could not be updated.")
+
+          var msg = "Successfully updated coOwners"
+          if  (result.warn.nonEmpty) msg+= " ("+result.warn+")"
+          return RESPONSE.OK(msg)
+        } catch {
+          case e: DatasourceException => return RESPONSE.ERROR(e)
+        }
+      }
+      inner(request)
+  }
+
   def delete(): Action[AnyContent] = Action {
     implicit request =>
 
@@ -228,7 +208,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
         }
         return RESPONSE.OK("Successfully deleted everything related to space!")
       }
-
       inner(request)
   }
 
@@ -253,7 +232,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
-
       inner(request)
   }
 
@@ -288,7 +266,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
-
       inner(request)
   }
 
@@ -320,7 +297,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
-
       inner(request)
   }
 
@@ -348,7 +324,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
-
       inner(request)
   }
 
@@ -374,7 +349,6 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
-
       inner(request)
   }
 
@@ -419,6 +393,41 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
           }
         } catch {
           case e: DatasourceException => RESPONSE.ERROR(e)
+        }
+      }
+      inner(request)
+  }
+
+  // unused.routes
+  def spaceUpdateOwner(): Action[AnyContent] = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        var json = anyReq.getJsonBody()
+        LOG.D2("spaceUpdateOwner: " + Utils.stripJsValueStr(json))
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid, "new_owner")
+        if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
+        val owner_id = user.authorize(apiKey)
+        if (owner_id == null) return RESPONSE.UNAUTHORIZED_USER
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid, "new_owner")
+        if (validation.failed()) return validation.response()
+
+        val buid = (json \ SCHEMA.fBuid).as[String]
+        var newOwner = (json \ "new_owner").as[String]
+        newOwner = appendGoogleIdIfNeeded(newOwner)
+        try {
+          val storedSpace = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          val space = new Space(storedSpace)
+          if (!pds.db.replaceJsonDocument(SCHEMA.cSpaces, SCHEMA.fBuid, space.getId(), space.changeOwner(newOwner))) return RESPONSE.BAD("Space could not be updated!")
+          return RESPONSE.OK("Successfully updated space!")
+        } catch {
+          case e: DatasourceException => return RESPONSE.ERROR(e)
         }
       }
 
