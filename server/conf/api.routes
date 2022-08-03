@@ -366,6 +366,31 @@ POST /api/auth/mapping/space/coowners                  controllers.MapSpaceContr
 ###
 #      tags:
 #        - Space
+#      summary: User access to building
+#      description: "Returns whether a user has access to a particular space."
+#      operationId: shareSpace
+#      consumes:
+#        - application/json
+#      produces:
+#        - application/json
+#      parameters:
+#        - in: body
+#          name: Body
+#          description: coownerId
+#          required: true
+#          schema:
+#            $ref: '#/definitions/CanAccess'
+#      responses:
+#        '200':
+#          description: Successful operation
+#      security
+#      - api_key: []
+###
+POST /api/auth/mapping/space/access                  controllers.MapSpaceController.userAccess()
+
+###
+#      tags:
+#        - Space
 #      summary: Delete a Space
 #      description: "Provide the buid and your access token."
 #      operationId: deleteSpace

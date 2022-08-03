@@ -166,6 +166,40 @@ class MapSpaceController @Inject()(cc: ControllerComponents,
       inner(request)
   }
 
+  /**
+   * Returns whether the user can access or not the given space
+   */
+  def userAccess(): Action[AnyContent] = Action {
+    implicit request =>
+      def inner(request: Request[AnyContent]): Result = {
+        val anyReq = new OAuth2Request(request)
+        val apiKey = anyReq.getAccessToken()
+        if (apiKey == null) return anyReq.NO_ACCESS_TOKEN()
+        if (!anyReq.assertJsonBody()) return RESPONSE.BAD(RESPONSE.ERROR_JSON_PARSE)
+        var json = anyReq.getJsonBody()
+        val requiredMissing = JsonUtils.hasProperties(json, SCHEMA.fBuid)
+        if (!requiredMissing.isEmpty) return RESPONSE.MISSING_FIELDS(requiredMissing)
+
+        val owner_id = user.authorize(apiKey)
+        json = json.as[JsObject] + (SCHEMA.fOwnerId -> Json.toJson(owner_id))
+        val validation = VALIDATE.fields(json, SCHEMA.fBuid)
+        if (validation.failed()) return validation.response()
+        val buid = (json \ SCHEMA.fBuid).as[String]
+
+        try {
+          val storedSpace: JsValue = pds.db.getFromKeyAsJson(SCHEMA.cSpaces, SCHEMA.fBuid, buid)
+          if (storedSpace == null) return RESPONSE.BAD_CANNOT_RETRIEVE_SPACE
+          if (!user.canAccessSpace(storedSpace, owner_id)) return RESPONSE.UNAUTHORIZED_USER
+          return RESPONSE.OK("user has access.")
+
+        } catch {
+          case e: DatasourceException => return RESPONSE.ERROR(e)
+        }
+      }
+      inner(request)
+  }
+
+
   def delete(): Action[AnyContent] = Action {
     implicit request =>
 
