@@ -21,11 +21,5 @@ class NavigatorApp : NavigatorAppBase() {
     super.onCreate()
     val MT = ::onCreate.name
     LOG.E(TG, MT)
-
-    SET_NAVIGATOR_APP()
-  }
-
-  private fun SET_NAVIGATOR_APP() {
-    dsCvMap.setMainActivity(CONST.START_ACT_NAV)
   }
 }

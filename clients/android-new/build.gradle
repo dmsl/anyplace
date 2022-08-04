@@ -4,7 +4,7 @@
 
 buildscript {
   ext {
-    VERSION_CODE="1.6.1" // NOTE: update value in [local.properties] also.
+    VERSION_CODE="1.6.2" // NOTE: update value in [local.properties] also.
 
     // used for updating the dependencies/libraries
     ver_android_gradle_plugin = '7.1.3'
