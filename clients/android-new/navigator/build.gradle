@@ -6,6 +6,12 @@ apply plugin: "androidx.navigation.safeargs.kotlin"  //id 'androidx.navigation.s
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
+/*
+NOTE: to build navigator:
+- SmasApp/NavigatorApp are controlling how the app is built:
+  - whether it will be personalized to LASH or not
+
+*/
 
 def VERSION_NAME="$VERSION_CODE"
 

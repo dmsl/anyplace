@@ -4,7 +4,7 @@
     package="cy.ac.ucy.cs.anyplace.smas">
 
   <application
-      android:name="cy.ac.ucy.cs.anyplace.lib.android.SmasApp"
+      android:name="cy.ac.ucy.cs.anyplace.smas.SmasApp"
       android:allowBackup="true"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
