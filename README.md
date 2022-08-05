@@ -7,34 +7,59 @@
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-## 0. Public
-Latest Version 4.2.5 (MongoDB):
-- https://ap.cs.ucy.ac.cy/viewer/ 
-- https://ap.cs.ucy.ac.cy/architect
-- https://ap.cs.ucy.ac.cy/developers
-- Android: Currently not compatible as the endpoint structure has changed. A new Android Client to be released as part of Anyplace 5.0 (Early 2022)
+# 0. CLONING THE CODE:
+<details><summary></summary>
 
-Deprecated Version 4.0.1 (Couchbase *** STALE DATA (not transferred to latest version ****)
-- https://ap.cs.ucy.ac.cy:9443/viewer
-- https://ap.cs.ucy.ac.cy:9443/architect
-- https://ap.cs.ucy.ac.cy:9443/developers
-- Android: Please insert the above IP/PORT in the settings to connect to the Deprecated service)
+### Cloning with the submodules:
+- Submodules are separate `git` repositories withing this repository
+- Fetching those git submodules can be also done at a later stage.
+- Needed when developing libraries or the android client apps.
+- More details on the submodules in **2. Front-end Clients**. Briefly:
+- `anyplace-lib`: [clients/core/lib]( clients/core/lib]: core library
+  - written in kotlin
+  - communicates to an Anyplace Backend service using `Retrofit2`
+- `anyplace-lib-android`: [clients/android-new/lib-android](clients/android-new/lib-android): anyplace library
+  - most of the kotlin code is here
 
-## 1. Clone
-To include the submodules (`anyplace-lib`, and `anyplace-lib-android`) please clone using:
 ```
 git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 ```
 
-Fetching those git submodules can be also done at a later stage.
-These submodules are needed when developing on the libraries or the client apps.
+### Cloning without the submodules
 
-## 2. Preface 
+```
+git clone git@github.com:dmsl/anyplace.git anyplace
+```
 
-<details open>
-<summary>
-Preface
-</summary>
+</details>
+
+
+# 1. Server: [PLAY Framework]
+<details><summary></summary>
+
+- Latest Version 4.2.5 (MongoDB):
+- released as part of Anyplace 5.0 (Early 2022)
+- [ap.cs.ucy.ac.cy:44/api/version](https://ap.cs.ucy.ac.cy:44/api/version)
+- For usage see: **Developers Front-end App**
+  - Swagger API. Link: [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers)
+
+</details>
+
+# 2. Frontend apps:
+<details><summary></summary>
+
+## Sources:
+- at [clients](clients)
+  - use the relevant 
+
+### Viewer: [ap.cs.ucy.ac.cy/viewer](https://ap.cs.ucy.ac.cy/viewer): Viewer
+### Architect: [ap.cs.ucy.ac.cy/architect](https://ap.cs.ucy.ac.cy/architect): Architect
+### Developers: [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers): Developers (API through Swagger)
+
+</details>
+
+# 3. Preface 
+<details open><summary>Preface</summary>
 
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones. 
@@ -69,37 +94,28 @@ If you install Anyplace on your own servers, please record your URL
 
 </details>
 
-# Components 
+# 4. Source Code Components 
+<details open><summary></summary>
 
-<details open>
-<summary>
-Server
-</summary>
+## 4.1 [Server](server):
+- Play Framework server
+- Written on scala
+- Branch: `develop-server`
 
-## 3. [Server](server):
-
-#### 3.1 [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
-
-#### 3.2 [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
-
-#### 3.3 [API](https://anyplace.cs.ucy.ac.cy/developers/)
-</details>
-
-<details open>
-<summary>
-Clients
-</summary>
-
-## 4. [Clients](clients):
-- [Android](clients/android/)
-- [iOS](clients/deprecated/ios/)
-- [Windows Phone](clients/deprecated/windows-phone/)
-- [RobotOS](clients/robotos/)
-- [Linux](clients/linux/)
-- [macOS](clients/macos/)
+## 4.2 [Clients](clients):
+  Branch: `develop-clients` (merging point of android and web apps)
+- [Android](clients/android/)  Branch: `develop-clients-android`
+- [Web apps](clients/web): Branch: `develop-clients-web`
+  - [Architect](clients/web/anyplace_architect)
+  - [Viewer](clients/web/anyplace_viewer)
+  - [Viewer Campus](clients/web/anyplace_viewer_campus)
 - [Simulator](clients/simulator)
-- [Web aps](clients/web)
-  - architect, viewer, viewer_campus
+- Other:
+  - [iOS](clients/deprecated/ios/)
+  - [Windows Phone](clients/deprecated/windows-phone/)
+  - [RobotOS](clients/robotos/)
+  - [Linux](clients/linux/)
+  - [macOS](clients/macos/)
 
 </details>
 
