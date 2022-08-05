@@ -7,29 +7,32 @@
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-# 0. CLONING THE CODE:
+# 0. CLONE THE CODE:
 <details><summary></summary>
 
+### Cloning without the submodules:
+
+```
+git clone git@github.com:dmsl/anyplace.git anyplace
+```
+
 ### Cloning with the submodules:
-- Submodules are separate `git` repositories withing this repository
-- Fetching those git submodules can be also done at a later stage.
+- Submodules are separate `git` repositories within this one
+- You cal also fetch those at a later stage (with relevant git command)
 - Needed when developing libraries or the android client apps.
-- More details on the submodules in **2. Front-end Clients**. Briefly:
-- `anyplace-lib`: [clients/core/lib]( clients/core/lib]: core library
-  - written in kotlin
+- `core-lib`: [clients/core/lib]( clients/core/lib):
+  - core library, written in kotlin
   - communicates to an Anyplace Backend service using `Retrofit2`
-- `anyplace-lib-android`: [clients/android-new/lib-android](clients/android-new/lib-android): anyplace library
+  - can be used to create more generic libraries
+  - it is used by the `android-lib` to build the Android clients
+- `android-lib`: [clients/android-new/lib-android](clients/android-new/lib-android):
   - most of the kotlin code is here
+  - some thin clients are created out of this (SMAS, Navigator)
 
 ```
 git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 ```
 
-### Cloning without the submodules
-
-```
-git clone git@github.com:dmsl/anyplace.git anyplace
-```
 
 </details>
 
@@ -37,20 +40,22 @@ git clone git@github.com:dmsl/anyplace.git anyplace
 # 1. Server: [PLAY Framework]
 <details><summary></summary>
 
-- Latest Version 4.2.5 (MongoDB):
-- released as part of Anyplace 5.0 (Early 2022)
-- [ap.cs.ucy.ac.cy:44/api/version](https://ap.cs.ucy.ac.cy:44/api/version)
-- For usage see: **Developers Front-end App**
-  - Swagger API. Link: [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers)
+- This is the Anyplace Backend
+- Latest Version 4.3.1 (MongoDB): See [ap.cs.ucy.ac.cy:44/api/version](https://ap.cs.ucy.ac.cy:44/api/version)
+  - released as part of Anyplace 5.0 (Early 2022)
+- For usage see: **Developers Front-end App** [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers)
+- Path: [./server](server)
+- Branch: `develop-server`
 
 </details>
 
 # 2. Frontend apps:
 <details><summary></summary>
 
-## Sources:
-- at [clients](clients)
-  - use the relevant 
+##
+- Path: 
+- [./clients](clients)
+- Branch: `develop-clients`
 
 ### Viewer: [ap.cs.ucy.ac.cy/viewer](https://ap.cs.ucy.ac.cy/viewer): Viewer
 ### Architect: [ap.cs.ucy.ac.cy/architect](https://ap.cs.ucy.ac.cy/architect): Architect
@@ -103,8 +108,10 @@ If you install Anyplace on your own servers, please record your URL
 - Branch: `develop-server`
 
 ## 4.2 [Clients](clients):
-  Branch: `develop-clients` (merging point of android and web apps)
-- [Android](clients/android/)  Branch: `develop-clients-android`
+- Branch: `develop-clients` (merging point of android and web apps)
+- submodule: [core-lib](clients/core/lib)
+- [Android](clients/android-new/)  Branch: `develop-clients-android`
+  - submodule: [lib-android](clients/android-new/lib-android)
 - [Web apps](clients/web): Branch: `develop-clients-web`
   - [Architect](clients/web/anyplace_architect)
   - [Viewer](clients/web/anyplace_viewer)
