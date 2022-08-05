@@ -37,6 +37,9 @@ git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 </details>
 
 
+---
+---
+
 # 1. Server: [PLAY Framework]
 <details><summary></summary>
 
@@ -48,6 +51,10 @@ git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 - Branch: `develop-server`
 
 </details>
+
+
+---
+---
 
 # 2. Frontend apps:
 <details><summary></summary>
@@ -61,6 +68,9 @@ git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 ### Developers: [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers): Developers (API through Swagger)
 
 </details>
+
+---
+---
 
 # 3. Preface 
 <details open><summary>Preface</summary>
@@ -98,6 +108,9 @@ If you install Anyplace on your own servers, please record your URL
 
 </details>
 
+---
+---
+
 # 4. Source Code Components 
 <details open><summary></summary>
 
@@ -125,11 +138,15 @@ If you install Anyplace on your own servers, please record your URL
 
 </details>
 
+---
+---
+
 ## 5. LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
 
 DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 
+---
 ---
 
 # Contributors: 
@@ -139,6 +156,7 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 - Alstom (France)
 - Infosys (India)
 
+---
 ---
 
 # Links
