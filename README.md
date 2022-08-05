@@ -44,7 +44,7 @@ git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 - Latest Version 4.3.1 (MongoDB): See [ap.cs.ucy.ac.cy:44/api/version](https://ap.cs.ucy.ac.cy:44/api/version)
   - released as part of Anyplace 5.0 (Early 2022)
 - For usage see: **Developers Front-end App** [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers)
-- Path: [./server](server)
+- Path: [server](server)
 - Branch: `develop-server`
 
 </details>
@@ -53,8 +53,7 @@ git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 <details><summary></summary>
 
 ##
-- Path: 
-- [./clients](clients)
+- Path: [clients](clients)
 - Branch: `develop-clients`
 
 ### Viewer: [ap.cs.ucy.ac.cy/viewer](https://ap.cs.ucy.ac.cy/viewer): Viewer
