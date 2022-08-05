@@ -1,11 +1,3 @@
-buildscript {
-  ext {
-    // ver_compose="1.2.0-alpha06"  // ver_compose="1.1.1" CLR?
-
-  }
-}
-
-
 plugins {
   id 'com.android.application'
   id 'kotlin-android'
@@ -13,19 +5,19 @@ plugins {
   id 'dagger.hilt.android.plugin'
   id 'kotlin-parcelize'  // when sending safeArgs between fragments
   id 'androidx.navigation.safeargs'
-//  id "androidx.navigation.safeargs.kotlin"
+  //  id "androidx.navigation.safeargs.kotlin"
   id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 
 android {
-  compileSdk 32
+  compileSdk 31
   namespace 'cy.ac.ucy.cs.anyplace.smas'
 
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.smas"
-    minSdk 30
-    targetSdk 32
+    minSdk 29  // AndroidX (android 9)
+    targetSdk 31
 
     versionCode 1
   }

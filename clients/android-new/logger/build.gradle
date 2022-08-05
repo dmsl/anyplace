@@ -10,16 +10,16 @@ apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 def VERSION_NAME="$VERSION_CODE"
 
 android {
-  compileSdkVersion 32
+  compileSdkVersion 31
   buildToolsVersion "30.0.3"
 
   namespace 'cy.ac.ucy.cs.anyplace.logger'
 
   defaultConfig {
     applicationId "cy.ac.ucy.cs.anyplace.logger"
-    minSdkVersion 30
+    minSdkVersion 29    // AndroidX (android 9)
     //noinspection OldTargetApi
-    targetSdkVersion 32
+    targetSdkVersion 31
     versionCode 15
     versionName "$VERSION_NAME-log"
 

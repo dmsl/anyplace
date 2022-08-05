@@ -216,3 +216,9 @@ See tutorials and understand the basics of kotlin
 ## Where are the SQLite queries of SMAS?
 - View are here: cy/ac/ucy/cs/anyplace/lib/android/data/smas/db/Views.kt
 - Queries here:  cy/ac/ucy/cs/anyplace/lib/android/data/smas/db/smasQueries.kt
+
+
+## Disabling Space Selector:
+- It may be controlled with this parameter: `USE_SPACE_SELECTOR`
+- further implementation might be needed
+- The Space Selector (`SelectSpaceActivity`), and all activities that it depends upon), it's a bit complex..
