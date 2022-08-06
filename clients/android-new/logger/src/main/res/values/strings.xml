@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="default_server_ip_address">ap.cs.ucy.ac.cy</string>
+  <string name="default_pref_server_host">ap.cs.ucy.ac.cy</string>
   <string name="preferences_file">LoggerPreferences</string>
 
   <string name="description_body">Anyplace Logger for RSS logging. You can select locations in a building that have been registered and upload RSS log files.</string>
