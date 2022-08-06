@@ -42,27 +42,28 @@
     android:layout_height="match_parent" >
 
   <ImageView
-      android:id="@+id/startLogo"
-      android:layout_width="match_parent"
-      android:layout_height="112dp"
-      android:layout_centerVertical="true"
-      android:contentDescription="Anyplace Logo"
-      android:scaleType="centerInside"
-      android:src="@drawable/logo_blue_full" />
+    android:id="@+id/startLogo"
+    android:layout_width="match_parent"
+    android:layout_height="112dp"
+    android:layout_centerVertical="true"
+    android:contentDescription="Anyplace Logo"
+    android:scaleType="centerInside"
+    android:src="@drawable/logo_blue_full"
+    />
 
   <TextView
-      android:id="@+id/startText"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_below="@id/startLogo"
-      android:gravity="center_horizontal"
-      android:shadowDx="5"
-      android:shadowDy="5"
-      android:shadowRadius="5"
-      android:text="@string/start_screen_description"
-      android:textColor="#283891"
-      android:textSize="15sp"
-      android:textStyle="bold" />
+    android:id="@+id/startText"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/startLogo"
+    android:gravity="center_horizontal"
+    android:shadowDx="5"
+    android:shadowDy="5"
+    android:shadowRadius="5"
+    android:text="@string/start_screen_description"
+    android:textColor="#283891"
+    android:textSize="30sp"
+    android:textStyle="bold" />
 
   <TextView
       android:id="@+id/tvVersion"

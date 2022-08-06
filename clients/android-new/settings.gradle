@@ -4,9 +4,11 @@ rootProject.name='AnyplaceClients'
 include ':lib-core'
 // CHECK:PM is this needed? since it is done anyway in module gradle files.
 project(':lib-core').projectDir = new File(settingsDir, '../core/lib')
+
 //// ANDROID
 include ':lib-android'
 
 // APPLICATIONS
 include ':navigator'
 include ':logger'
+include ':smas'

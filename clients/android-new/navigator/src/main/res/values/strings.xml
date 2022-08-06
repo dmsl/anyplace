@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="default_server_ip_address">ap.cs.ucy.ac.cy</string>
+  <string name="default_pref_server_host">ap.cs.ucy.ac.cy</string>
   <string name="preferences_file">NavigatorPreferences</string>
 
   <string name="about_description">Anyplace Navigator for indoor navigation</string>
   <string name="github">https://github.com/dmsl/anyplace/tree/develop-clients</string>
   <string name="start_screen_description">Indoor Navigator</string>
-
 
 
   <string name="app_name"> Navigator </string>
@@ -87,5 +86,14 @@
     <item> Maximum A Posteriori (MAP)</item>
     <item> Minimum Mean Square Error (MMSE)</item>
   </string-array>
+  <string name="title_activity_demo_nav">DemoNav</string>
+  <!-- Strings used for fragments for navigation -->
+  <string name="first_fragment_label">Navigator 1st</string>
+  <string name="second_fragment_label">Navigator 2nd</string>
+  <string name="next">Next</string>
+  <string name="previous">Previous</string>
+
+  <string name="hello_first_fragment">Hello first fragment</string>
+  <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
 </resources>
