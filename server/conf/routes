@@ -3,36 +3,17 @@
 ->  /    api.Routes
 
 # Not in use.
+# the below tag (NoDocs) hides the documentation
 ### NoDocs ###
 POST        /api/user/auth/admin/migration/run                                  controllers.UserAdminController.migrateToMongoDB()
 
 ###########
 ### RESOURCES:
 ###########
-## WEB APPS:
-# DEVELOPERS:
-GET         /developers/*file                                                       controllers.Assets.at(path="/public/developers", file)
-GET         /developers/                                                            controllers.WebAppController.serveDevelopers(file="index.html")
-GET         /developers                                                             controllers.WebAppController.AddTrailingSlash()
-
-# ARCHITECT:
-GET         /architect/*file                                                        controllers.Assets.at(path="/public/anyplace_architect", file)
-GET         /architect/                                                             controllers.WebAppController.serveArchitect(file="index.html")
-GET         /architect                                                              controllers.WebAppController.AddTrailingSlash()
-
-# VIEWER:
-GET /viewer/index.html                                                              controllers.WebAppController.serveViewer(file="index.html")
-GET /viewer/*file                                                                   controllers.MainController.at(path="/public", file)
-GET /viewer/                                                                        controllers.WebAppController.serveViewer(file="index.html")
-GET /viewer                                                                         controllers.WebAppController.AddTrailingSlash()
-
 ## OTHER:
-GET /favicon.ico                                                                    controllers.Assets.at(path="/public/images", file="favicon.png")
 # must match application.conf
 GET /floortiles/zip/*file                                                           controllers.ExternalAssets.at(path="/floor_plans", file)
+
 # maps from /public to /assets
+# needed for publishing online the swagger file (/assets/swagger.json)
 GET /assets/*file                                                                   controllers.Assets.at(path="/public", file)
-# root
-GET /                                                                               controllers.MainController.index()
-# REDIRECT REMAINING TO INDEX
-GET /*any                                                                           controllers.MainController.indexRedirect(any)

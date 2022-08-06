@@ -7,34 +7,73 @@
 [![Join the chat at https://gitter.im/dmsl/anyplace](https://badges.gitter.im/dmsl/anyplace.svg)](https://gitter.im/dmsl/anyplace?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-## 0. Public
-Latest Version 4.2.5 (MongoDB):
-- https://ap.cs.ucy.ac.cy/viewer/ 
-- https://ap.cs.ucy.ac.cy/architect
-- https://ap.cs.ucy.ac.cy/developers
-- Android: Currently not compatible as the endpoint structure has changed. A new Android Client to be released as part of Anyplace 5.0 (Early 2022)
+# 0. CLONE THE CODE:
+<details><summary></summary>
 
-Deprecated Version 4.0.1 (Couchbase *** STALE DATA (not transferred to latest version ****)
-- https://ap.cs.ucy.ac.cy:9443/viewer
-- https://ap.cs.ucy.ac.cy:9443/architect
-- https://ap.cs.ucy.ac.cy:9443/developers
-- Android: Please insert the above IP/PORT in the settings to connect to the Deprecated service)
+### Cloning without the submodules:
 
-## 1. Clone
-To include the submodules (`anyplace-lib`, and `anyplace-lib-android`) please clone using:
+```
+git clone git@github.com:dmsl/anyplace.git anyplace
+```
+
+### Cloning with the submodules:
+- Submodules are separate `git` repositories within this one
+- You cal also fetch those at a later stage (with relevant git command)
+- Needed when developing libraries or the android client apps.
+- `core-lib`: [clients/core/lib]( clients/core/lib):
+  - core library, written in kotlin
+  - communicates to an Anyplace Backend service using `Retrofit2`
+  - can be used to create more generic libraries
+  - it is used by the `android-lib` to build the Android clients
+- `android-lib`: [clients/android-new/lib-android](clients/android-new/lib-android):
+  - most of the kotlin code is here
+  - some thin clients are created out of this (SMAS, Navigator)
+
 ```
 git clone git@github.com:dmsl/anyplace.git anyplace --recurse-submodules
 ```
 
-Fetching those git submodules can be also done at a later stage.
-These submodules are needed when developing on the libraries or the client apps.
 
-## 2. Preface 
+</details>
 
-<details open>
-<summary>
-Preface
-</summary>
+
+---
+---
+
+# 1. Server: [PLAY Framework]
+<details><summary></summary>
+
+- This is the Anyplace Backend
+- Latest Version 4.3.1 (MongoDB): See [ap.cs.ucy.ac.cy:44/api/version](https://ap.cs.ucy.ac.cy:44/api/version)
+  - released as part of Anyplace 5.0 (Early 2022)
+- For usage see: **Developers Front-end App** [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers)
+- Path: [server](server)
+- Branch: `develop-server`
+
+</details>
+
+
+---
+---
+
+# 2. Frontend apps:
+<details><summary></summary>
+
+##
+- Path: [clients](clients)
+- Branch: `develop-clients`
+
+### Viewer: [ap.cs.ucy.ac.cy/viewer](https://ap.cs.ucy.ac.cy/viewer): Viewer
+### Architect: [ap.cs.ucy.ac.cy/architect](https://ap.cs.ucy.ac.cy/architect): Architect
+### Developers: [ap.cs.ucy.ac.cy/developers](https://ap.cs.ucy.ac.cy/developers): Developers (API through Swagger)
+
+</details>
+
+---
+---
+
+# 3. Preface 
+<details open><summary>Preface</summary>
 
 Anyplace is a first-of-a-kind indoor information service offering GPS-less
 localization, navigation and search inside buildings using ordinary smartphones. 
@@ -69,45 +108,45 @@ If you install Anyplace on your own servers, please record your URL
 
 </details>
 
-# Components 
+---
+---
 
-<details open>
-<summary>
-Server
-</summary>
+# 4. Source Code Components 
+<details open><summary></summary>
 
-## 3. [Server](server):
+## 4.1 [Server](server):
+- Play Framework server
+- Written on scala
+- Branch: `develop-server`
 
-#### 3.1 [Viewer](https://anyplace.cs.ucy.ac.cy/viewer/)
-
-#### 3.2 [Architect](https://anyplace.cs.ucy.ac.cy/architect/)
-
-#### 3.3 [API](https://anyplace.cs.ucy.ac.cy/developers/)
-</details>
-
-<details open>
-<summary>
-Clients
-</summary>
-
-## 4. [Clients](clients):
-- [Android](clients/android/)
-- [iOS](clients/deprecated/ios/)
-- [Windows Phone](clients/deprecated/windows-phone/)
-- [RobotOS](clients/robotos/)
-- [Linux](clients/linux/)
-- [macOS](clients/macos/)
+## 4.2 [Clients](clients):
+- Branch: `develop-clients` (merging point of android and web apps)
+- submodule: [core-lib](clients/core/lib)
+- [Android](clients/android-new/)  Branch: `develop-clients-android`
+  - submodule: [lib-android](clients/android-new/lib-android)
+- [Web apps](clients/web): Branch: `develop-clients-web`
+  - [Architect](clients/web/anyplace_architect)
+  - [Viewer](clients/web/anyplace_viewer)
+  - [Viewer Campus](clients/web/anyplace_viewer_campus)
 - [Simulator](clients/simulator)
-- [Web aps](clients/web)
-  - architect, viewer, viewer_campus
+- Other:
+  - [iOS](clients/deprecated/ios/)
+  - [Windows Phone](clients/deprecated/windows-phone/)
+  - [RobotOS](clients/robotos/)
+  - [Linux](clients/linux/)
+  - [macOS](clients/macos/)
 
 </details>
+
+---
+---
 
 ## 5. LATEST DEVELOPMENT VERSION
 To test the latest development version you can fork the [develop branch](https://github.com/dmsl/anyplace/tree/develop).
 
 DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 
+---
 ---
 
 # Contributors: 
@@ -117,6 +156,7 @@ DEV Testing: [ap-dev.cs.ucy.ac.cy](https://ap-dev.cs.ucy.ac.cy)
 - Alstom (France)
 - Infosys (India)
 
+---
 ---
 
 # Links
