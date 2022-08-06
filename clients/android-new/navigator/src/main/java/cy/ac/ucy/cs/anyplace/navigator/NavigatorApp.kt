@@ -1,19 +1,25 @@
 package cy.ac.ucy.cs.anyplace.navigator
 
-// import android.app.Application
-// import cy.ac.ucy.cs.anyplace.lib.Anyplace
-// import cy.ac.ucy.cs.anyplace.lib.utils.Preferences
 import cy.ac.ucy.cs.anyplace.lib.android.AnyplaceApp
-import cy.ac.ucy.cs.anyplace.lib.android.LOG
+import cy.ac.ucy.cs.anyplace.lib.android.NavigationAppSelection
+import cy.ac.ucy.cs.anyplace.lib.android.NavigatorAppBase
+import cy.ac.ucy.cs.anyplace.lib.android.consts.CONST
+import cy.ac.ucy.cs.anyplace.lib.android.utils.LOG
+import dagger.hilt.android.HiltAndroidApp
 
-class NavigatorApp : AnyplaceApp(null) {
-  private val TAG = NavigatorApp::class.java.simpleName
-
-  override val navigator = true
-  override val logger = false
+/**
+ * An application that specializes for Anyplace Navigation.
+ * Note: [AnyplaceApp] already defaults for: NavigationAppSelection.Navigator
+ * see: [AnyplaceApp.navigatorBaseApp]
+ */
+@HiltAndroidApp
+class NavigatorApp : NavigatorAppBase() {
+  private val TG ="app-nav"
+  override val navigatorBaseApp = NavigationAppSelection.Navigator
 
   override fun onCreate() {
     super.onCreate()
-    LOG.D2(TAG, "onCreate")
+    val MT = ::onCreate.name
+    LOG.E(TG, MT)
   }
 }

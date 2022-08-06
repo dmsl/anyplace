@@ -1,5 +1,13 @@
 # TASKS:PM
 
+## Navigation in CvMap:
+- setupClickDemoNavigation
+- status updater:
+  - has to be in CvMap too
+  
+- collectLocalizationStatus
+
+
 ## PROBLEMS OF LOGGER:
 1. not loading all buildings initially
 .. and file caching may be slower..

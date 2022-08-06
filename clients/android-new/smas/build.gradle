@@ -1,0 +1,146 @@
+plugins {
+  id 'com.android.application'
+  id 'kotlin-android'
+  id 'kotlin-kapt'
+  id 'dagger.hilt.android.plugin'
+  id 'kotlin-parcelize'  // when sending safeArgs between fragments
+  id 'androidx.navigation.safeargs'
+  //  id "androidx.navigation.safeargs.kotlin"
+  id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+}
+
+
+android {
+  compileSdk 31
+  namespace 'cy.ac.ucy.cs.anyplace.smas'
+
+  defaultConfig {
+    applicationId "cy.ac.ucy.cs.anyplace.smas"
+    minSdk 29  // AndroidX (android 9)
+    targetSdk 31
+
+    versionCode 1
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  buildFeatures {
+    dataBinding true
+    viewBinding true
+    compose true
+  }
+
+  packagingOptions {
+    resources {
+      excludes += ['META-INF/DEPENDENCIES']
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
+  }
+
+  kotlinOptions {
+    jvmTarget = '11'
+  }
+  composeOptions{
+    kotlinCompilerExtensionVersion "$ver_compose"
+  }
+}
+
+dependencies {
+  // KOTLIN
+  implementation "androidx.core:core-ktx:1.7.0"
+
+  // Internal libraries
+  //// UI NAVIGATION
+  implementation "androidx.navigation:navigation-fragment-ktx:$ver_nav"
+  implementation "androidx.navigation:navigation-ui-ktx:$ver_nav"
+  //// UI and Jetpack
+  implementation 'androidx.appcompat:appcompat:1.4.1'
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+  implementation 'androidx.preference:preference-ktx:1.2.0'
+  implementation 'com.google.android.material:material:1.5.0'
+  //// COROUTINES
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$ver_coroutines"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_coroutines"
+  implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle"
+  implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
+  implementation 'androidx.compose.ui:ui-graphics:1.1.1'
+
+  // DATA
+  //// Data binding
+  kapt "com.android.databinding:compiler:3.2.0-alpha10"
+  kapt "androidx.databinding:databinding-common:7.1.2"
+  //// DataStore (new preferences)
+  implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+  // GOOGLE SERVICES
+  implementation 'com.google.android.gms:play-services-location:19.0.1'
+  //// GOOGLE MAPS & UTILS
+  implementation 'com.google.android.gms:play-services-maps:18.0.2'
+  implementation 'com.google.maps.android:android-maps-utils:2.3.0' // updated from 0.3 !
+
+  //// DEPENDENCY INJECTION (dagger/hilt)
+  // INFO updated so it can be used in this slightly more up-to-date project
+  implementation "com.google.dagger:hilt-android:$ver_hilt"
+  kapt "com.google.dagger:hilt-compiler:$ver_hilt"
+  kapt "com.google.dagger:dagger-android-processor:$ver_hilt"
+
+  implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+  implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+  implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+  implementation 'com.google.android.gms:play-services-maps:18.0.2'
+  implementation 'com.google.android.gms:play-services-location:19.0.1'
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+
+  // Retrofit
+  implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+  implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+  implementation 'com.squareup.okhttp3:okhttp:4.3.1'
+
+  // CHAT
+  //// JETPACK COMPOSE ([SmasChatActivity])
+  //// ACCOMPANIST
+  implementation "com.google.accompanist:accompanist-insets-ui:$ver_accompanist"
+  implementation "com.google.accompanist:accompanist-insets:$ver_accompanist"
+  implementation "com.google.accompanist:accompanist-permissions:$ver_accompanist"
+
+  //// COMPOSE
+  implementation 'androidx.compose.material:material:1.1.1'
+  implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
+  implementation 'androidx.activity:activity-compose:1.4.0'
+  implementation "androidx.compose.runtime:runtime-livedata:$ver_compose"
+  implementation "androidx.compose.runtime:runtime-rxjava2:$ver_compose"
+  implementation "androidx.compose.material:material-icons-extended:$ver_compose"
+  androidTestImplementation "androidx.compose.ui:ui-test-junit4:$ver_compose"
+  implementation "androidx.compose.ui:ui:$ver_compose"
+  implementation "androidx.compose.material:material:$ver_compose"
+  implementation "androidx.compose.material:material-icons-core:$ver_compose"
+  implementation "androidx.compose.foundation:foundation:$ver_compose"
+  /////// END-OF-CHAT
+
+  // ANYPLACE LIBRARIES:
+  //// REMOTE (from libraries published on JitPack)
+  // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'
+  // implementation 'com.github.dmsl:anyplace-lib-android:v4.0.1'
+  //// LOCAL: requires pulling the all submodules (see README.md)
+  implementation project(path: ':lib-android')
+  implementation project(path: ':lib-core')
+
+
+  // TESTING
+  testImplementation 'junit:junit:4.13.2'
+  androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+  // Tool for Live Editing/Viewing composables (AndroidX Jetpack Compose)
+  // implementation 'androidx.compose.ui:ui-tooling:1.0.5'
+}

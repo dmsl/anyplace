@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.8">
+    <bytecodeTargetLevel target="11">
       <module name="android-new.AnyplaceClients.lib-android" target="11" />
       <module name="android-new.AnyplaceClients.logger" target="11" />
       <module name="android-new.AnyplaceClients.navigator" target="11" />
@@ -9,10 +9,7 @@
       <module name="Anyplace.logger" target="11" />
       <module name="Anyplace.navigator" target="11" />
       <module name="AnyplaceClients.lib" target="11" />
-      <module name="AnyplaceClients.lib-android" target="11" />
       <module name="AnyplaceClients.lib-android-thermal" target="11" />
-      <module name="AnyplaceClients.logger" target="11" />
-      <module name="AnyplaceClients.navigator" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
