@@ -3,10 +3,18 @@
 
 ## 1. Setup private keys:
 You need to set some of the below secret keys in [local.properties](./local.properties)
-- SERVER_GOOGLE_OAUTH_CLIENT_ID
-- MAPS_API_KEY
-- SMAS_API_KEY: bearer token for accessing the SMAS backend API
-
+- Google Authentication:
+  - Keys to define:
+    - LOGGER_GOOGLE_OAUTH_CLIENT_ID
+    - NAVIGATOR_GOOGLE_OAUTH_CLIENT_ID
+    - SMAS_GOOGLE_OAUTH_CLIENT_ID
+  - if you are not using google auth (at least in some of the apps), then define empty strings..
+  - will be ignored anyway. if you are, follow official docs on how to create one for google sign in in apps
+- Google Maps API Key:
+  - MAPS_API_KEY
+  - SMAS_API_KEY: this is used by SMAS and Navigator (see [ModuleSmasNW])
+  - failing to set any of those will cause the Google Map not to render..
+    
 ## 2. Pulling submodules:
 This repo uses separate git repositories (called submodules) for `lib-core`,
 and `lib` (android-lib).
@@ -64,14 +72,11 @@ There might be optionally some further `json` files that are used in assets also
         ├── model.tflite
         └── obj.names
 ```
-
 </details>
-
 
 ---
 
 # IDE Options:
-
 
 ## Logcat:
 <details><summary></summary>
@@ -216,7 +221,6 @@ See tutorials and understand the basics of kotlin
 ## Where are the SQLite queries of SMAS?
 - View are here: cy/ac/ucy/cs/anyplace/lib/android/data/smas/db/Views.kt
 - Queries here:  cy/ac/ucy/cs/anyplace/lib/android/data/smas/db/smasQueries.kt
-
 
 ## Disabling Space Selector:
 - It may be controlled with this parameter: `USE_SPACE_SELECTOR`

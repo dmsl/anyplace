@@ -73,9 +73,7 @@ dependencies {
   implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle"
   implementation "androidx.lifecycle:lifecycle-service:$ver_lifecycle"
 
-  //  implementation 'com.google.android.gms:play-services-auth:19.0.0' // CLR?
   // FusedLocation provider (coarse/fine grain)
-  //  implementation 'com.google.android.gms:play-services-location:17.1.0' // CLR?
   // GOOGLE SERVICES
   //// FusedLocation (coarse/fine grain)
   implementation 'com.google.android.gms:play-services-location:18.0.0'
@@ -92,8 +90,6 @@ dependencies {
   kapt "com.google.dagger:hilt-android-compiler:$ver_hilt"
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-  //  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1' // TODO are we using
-  //  implementation 'androidx.activity:activity:1.2.0-alpha08'
   implementation 'com.google.android.gms:play-services-location:18.0.0'
   implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
@@ -102,10 +98,6 @@ dependencies {
   implementation 'com.squareup.retrofit2:retrofit:2.9.0'
   implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
-
-
-  //  implementation 'com.google.maps.android:android-maps-utils:2.2.0'
-  //  implementation(name: 'androidsdk-release', ext: 'aar') // CLR
 
   /***                Anyplace libraries:                           ***/
   // implementation 'com.github.dmsl:anyplace-lib-core:4.0.2'           // JitPack

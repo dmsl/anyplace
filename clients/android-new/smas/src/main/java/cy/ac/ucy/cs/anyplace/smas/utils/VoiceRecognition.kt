@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import java.util.*
 
 /**
- * CLR:PM remove this?
  */
 @Deprecated("Not in use")
 class VoiceRecognition {

@@ -5,7 +5,7 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="cy.ac.ucy.cs.anyplace.smas">
+    package="cy.ac.ucy.cs.anyplace.navigator">
 
   <application
       android:name="cy.ac.ucy.cs.anyplace.navigator.NavigatorApp"
