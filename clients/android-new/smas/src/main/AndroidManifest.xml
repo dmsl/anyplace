@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="cy.ac.ucy.cs.anyplace.smas">
+
+  <application
+      android:name="cy.ac.ucy.cs.anyplace.smas.SmasApp"
+      android:allowBackup="true"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:supportsRtl="true"
+      android:theme="@style/Theme.AnyplaceClients"
+      tools:ignore="LockedOrientationActivity">
+
+    <!-- The initial [StartActivity] is in lib-android -->
+    <activity
+        android:name="cy.ac.ucy.cs.anyplace.lib.android.ui.StartActivity"
+        android:screenOrientation="portrait"
+        android:theme="@style/AppTheme.Compat.Fullscreen"
+        android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <activity
+        android:name="cy.ac.ucy.cs.anyplace.lib.android.ui.smas.SmasLoginActivity"
+        android:exported="true"
+        android:theme="@style/AppTheme.Compat.Fullscreen"
+        android:screenOrientation="portrait"
+        android:label="SMAS Login" />
+  </application>
+  <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+  <!--
+     The following two permissions are not required to use
+     Google Maps Android API v2, but are recommended.
+    -->
+  <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="com.dmsl.anyplace.permission.MAPS_RECEIVE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <!--Use the microphone to record audio permission-->
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+  <uses-permission android:name="android.permission.VIBRATE" />
+
+</manifest>

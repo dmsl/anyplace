@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/holo_light_orange"
+    <item android:drawable="@color/design_default_color_secondary"
           android:state_pressed="true" />
-    <item android:drawable="@color/holo_light_green"
+    <item android:drawable="@color/design_default_color_primary"
           android:state_focused="true" />
-    <item android:drawable="@color/white" />
+    <item android:drawable="@android:color/white" />
 </selector>
