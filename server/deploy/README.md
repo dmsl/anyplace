@@ -172,6 +172,14 @@ For the compilation of the web apps ([architect](public/anyplace_architect),
 [viewer](public/anyplace_viewer), [viewerCampus](public/anyplace_viewer_campus)), please see this instructions:
 - [./public](public/README.md)
 
+#### Testing locally a release build:
+You can do so by issuing the command:
+```bash
+sbt clean compile dist
+```
+
+This will compile swagger output also.
+
 </details>
 
 

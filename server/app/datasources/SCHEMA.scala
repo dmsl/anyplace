@@ -22,6 +22,8 @@ object SCHEMA {
   val cHeatmapWifiTimestamp2 = "heatmapWifiTimestamp2"
   val cHeatmapWifiTimestamp3 = "heatmapWifiTimestamp3"
 
+  val fERROR= "error"
+
   // FIELDS
   val fAccessToken = "access_token"
   val fAddress = "address"
@@ -31,6 +33,7 @@ object SCHEMA {
   val fBuidA = "buid_a"
   val fBuidB = "buid_b"
   val fCoOwners = "co_owners"
+  val fCoOwner = "co_owner"
   val fCoordinates = "coordinates"
   val fCoordinatesLat = "coordinates_lat"
   val fCoordinatesLon = "coordinates_lon"
