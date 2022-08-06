@@ -1,0 +1,10 @@
+.ui-rotatable-handle {
+    height: 28px;
+    width: 28px;
+    cursor: pointer;
+    background-image: url(../images/icon-rotate.svg);
+    background-size: 100%;
+    position: absolute;
+    left: calc(50% - 14px);
+    bottom: -14px;
+}

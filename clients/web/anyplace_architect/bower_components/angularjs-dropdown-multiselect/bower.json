@@ -1,0 +1,42 @@
+{
+  "name": "angularjs-dropdown-multiselect",
+  "version": "1.11.0",
+  "authors": [
+    "Dotan Simha <dotansimha@gmail.com>",
+    "Pieter Kempenaers <pkempenaers@myforce.be>"
+  ],
+  "description": "AngularJS Dropdown Multiselect directive",
+  "keywords": [
+    "angular",
+    "angularjs",
+    "directive",
+    "dropdown",
+    "multiselect",
+    "checklist",
+    "list",
+    "bootstrap",
+    "checkbox"
+  ],
+  "license": "MIT",
+  "main": "src/angularjs-dropdown-multiselect.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1"
+  },
+  "devDependencies": {
+    "angular": "~1",
+    "angular-animate": "~1",
+    "angular-sanitize": "~1",
+    "angular-touch": "~1",
+    "angular-route": "~1",
+    "bootstrap": "~3.1.1",
+    "angular-highlightjs": "~0.2.7",
+    "angular-bootstrap": "^1.3.1"
+  }
+}

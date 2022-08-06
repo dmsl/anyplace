@@ -1,0 +1,11 @@
+/*!
+ * AngularJS Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v1.2.2
+ */
+md-fab-speed-dial.md-THEME_NAME-theme md-fab-trigger .md-fab.md-button[disabled] {
+  background-color: '{{foreground-4}}'; }
+
+md-fab-speed-dial.md-THEME_NAME-theme md-fab-actions .md-fab-action-item .md-button.md-fab.md-raised.md-mini:hover, md-fab-speed-dial.md-THEME_NAME-theme md-fab-actions .md-fab-action-item .md-button.md-fab.md-raised.md-mini.md-focused {
+  background-color: '{{background-500}}'; }

@@ -70,4 +70,6 @@ $RECYCLE.BIN/
 *.lnk
 
 .idea/misc.xml
+# other files
+*.swp
 

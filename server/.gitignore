@@ -120,3 +120,8 @@ fabric.properties
 .idea/**/markdown-navigator/
 
 # End of https://www.gitignore.io/api/intellij
+
+
+.idea/modules/anyplace-build.iml
+.idea/modules/anyplace.iml
+.idea/play2_project_settings.xml

@@ -1,4 +1,0 @@
-node_modules
-
-# ignore all temporary files ending with a tilde
-**/*~

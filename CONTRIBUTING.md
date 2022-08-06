@@ -10,6 +10,11 @@ explaining what it fixes/improves so it can be reviewed.
 
 ---
 
+# CODING STYLE
+Please respect the [.editorconf](./editorconf) rules.
+
+---
+
 # Links
 
 ## [Team](https://anyplace.cs.ucy.ac.cy/#about)

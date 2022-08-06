@@ -1,10 +1,14 @@
-# REQUIRED TOOLS:
+# TILER DEPENDENCIES:
 
-## 1. ImageMagick: Latest 6.x version 
-Should supports the following commands:
-    - convert -extent
-    - identify
+### 1. ImageMagick:
+Use **latest 6.x version**.
 
-## 2. advpng :: package: advancecomp
+Must support these commands:
+- convert
+- extent
+- identify
 
-## 3. Python 2.7+
+### 2. advpng
+Package: `advancecomp`
+
+### 3. Python 2.7+
