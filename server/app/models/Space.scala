@@ -153,7 +153,7 @@ class Space(hm: HashMap[String, String]) extends AbstractModel {
 
   /**
    * Storing the modified JSON data ([data])
-   * and fill the [err] when something occured
+   * and fill the [err] when something occurred
    */
   class JsonEdit(r: String, e: String, w: String="") {
     var data: String = r
